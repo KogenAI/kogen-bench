@@ -1,0 +1,766 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 96,
+    "token_cells_different": 0,
+    "token_cells_equal": 96,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 465408,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-default-tools-r57d-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 44843,
+        "output_tokens": 12882,
+        "published_metadata_tokens": 523133,
+        "reasoning_tokens": 8370,
+        "round": "r57d"
+      },
+      {
+        "cached_input_tokens": 717824,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-shell-only-r57d-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 56647,
+        "output_tokens": 13464,
+        "published_metadata_tokens": 787935,
+        "reasoning_tokens": 10598,
+        "round": "r57d"
+      },
+      {
+        "cached_input_tokens": 972288,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r11-default-tools-r57d-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 70103,
+        "output_tokens": 17663,
+        "published_metadata_tokens": 1060054,
+        "reasoning_tokens": 13835,
+        "round": "r57d"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 96,
+        "equal": 96
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 96,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 96,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 96,
+    "fail_count": 33,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 96,
+      "incomplete_cells": 0,
+      "total": 93957725
+    },
+    "officially_graded_cells": 96,
+    "outcomes": {
+      "fail": 33,
+      "pass": 63
+    },
+    "pass_count": 63,
+    "pass_rate": 0.65625,
+    "pass_rate_denominator": 96,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 86752768
+      },
+      "input_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 5993227
+      },
+      "output_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 1211730
+      },
+      "reasoning_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 874306
+      }
+    },
+    "wall_s": {
+      "known_cells": 96,
+      "median": 459.09950000000003,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "default-tools": {
+      "cells": 48,
+      "fail_count": 18,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 48,
+        "incomplete_cells": 0,
+        "total": 57589282
+      },
+      "officially_graded_cells": 48,
+      "outcomes": {
+        "fail": 18,
+        "pass": 30
+      },
+      "pass_count": 30,
+      "pass_rate": 0.625,
+      "pass_rate_denominator": 48,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 53655552
+        },
+        "input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 3289505
+        },
+        "output_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 644225
+        },
+        "reasoning_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 461411
+        }
+      },
+      "wall_s": {
+        "known_cells": 48,
+        "median": 484.4275,
+        "missing_cells": 0
+      }
+    },
+    "shell-only": {
+      "cells": 48,
+      "fail_count": 15,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 48,
+        "incomplete_cells": 0,
+        "total": 36368443
+      },
+      "officially_graded_cells": 48,
+      "outcomes": {
+        "fail": 15,
+        "pass": 33
+      },
+      "pass_count": 33,
+      "pass_rate": 0.6875,
+      "pass_rate_denominator": 48,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 33097216
+        },
+        "input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 2703722
+        },
+        "output_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 567505
+        },
+        "reasoning_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 412895
+        }
+      },
+      "wall_s": {
+        "known_cells": 48,
+        "median": 418.6245,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 96,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 96,
+    "public_export_rows_in_round": 96,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "default-tools": {
+        "cells": 48,
+        "fail_count": 18,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 48,
+          "total": 0
+        },
+        "officially_graded_cells": 48,
+        "outcomes": {
+          "fail": 18,
+          "pass": 30
+        },
+        "pass_count": 30,
+        "pass_rate": 0.625,
+        "pass_rate_denominator": 48,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 48
+        }
+      },
+      "shell-only": {
+        "cells": 48,
+        "fail_count": 15,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 48,
+          "total": 0
+        },
+        "officially_graded_cells": 48,
+        "outcomes": {
+          "fail": 15,
+          "pass": 33
+        },
+        "pass_count": 33,
+        "pass_rate": 0.6875,
+        "pass_rate_denominator": 48,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 48,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 48
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "default-tools": {
+        "cells": 48,
+        "fail_count": 18,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 48,
+          "incomplete_cells": 0,
+          "total": 57589282
+        },
+        "officially_graded_cells": 48,
+        "outcomes": {
+          "fail": 18,
+          "pass": 30
+        },
+        "pass_count": 30,
+        "pass_rate": 0.625,
+        "pass_rate_denominator": 48,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 53655552
+          },
+          "input_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 3289505
+          },
+          "output_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 644225
+          },
+          "reasoning_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 461411
+          }
+        },
+        "wall_s": {
+          "known_cells": 48,
+          "median": 484.4275,
+          "missing_cells": 0
+        }
+      },
+      "shell-only": {
+        "cells": 48,
+        "fail_count": 15,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 48,
+          "incomplete_cells": 0,
+          "total": 36368443
+        },
+        "officially_graded_cells": 48,
+        "outcomes": {
+          "fail": 15,
+          "pass": 33
+        },
+        "pass_count": 33,
+        "pass_rate": 0.6875,
+        "pass_rate_denominator": 48,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 33097216
+          },
+          "input_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 2703722
+          },
+          "output_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 567505
+          },
+          "reasoning_tokens": {
+            "known_cells": 48,
+            "missing_cells": 0,
+            "total": 412895
+          }
+        },
+        "wall_s": {
+          "known_cells": 48,
+          "median": 418.6245,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 96,
+    "fail_count": 33,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 96,
+      "incomplete_cells": 0,
+      "total": 93957725
+    },
+    "officially_graded_cells": 96,
+    "outcomes": {
+      "fail": 33,
+      "pass": 63
+    },
+    "pass_count": 63,
+    "pass_rate": 0.65625,
+    "pass_rate_denominator": 96,
+    "published_export_cells": 96,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 86752768
+      },
+      "input_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 5993227
+      },
+      "output_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 1211730
+      },
+      "reasoning_tokens": {
+        "known_cells": 96,
+        "missing_cells": 0,
+        "total": 874306
+      }
+    },
+    "wall_s": {
+      "known_cells": 96,
+      "median": 459.09950000000003,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "default-tools": {
+      "cells": 48,
+      "fail_count": 18,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 48,
+        "incomplete_cells": 0,
+        "total": 57589282
+      },
+      "officially_graded_cells": 48,
+      "outcomes": {
+        "fail": 18,
+        "pass": 30
+      },
+      "pass_count": 30,
+      "pass_rate": 0.625,
+      "pass_rate_denominator": 48,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 53655552
+        },
+        "input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 3289505
+        },
+        "output_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 644225
+        },
+        "reasoning_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 461411
+        }
+      },
+      "wall_s": {
+        "known_cells": 48,
+        "median": 484.4275,
+        "missing_cells": 0
+      }
+    },
+    "shell-only": {
+      "cells": 48,
+      "fail_count": 15,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 48,
+        "incomplete_cells": 0,
+        "total": 36368443
+      },
+      "officially_graded_cells": 48,
+      "outcomes": {
+        "fail": 15,
+        "pass": 33
+      },
+      "pass_count": 33,
+      "pass_rate": 0.6875,
+      "pass_rate_denominator": 48,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 33097216
+        },
+        "input_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 2703722
+        },
+        "output_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 567505
+        },
+        "reasoning_tokens": {
+          "known_cells": 48,
+          "missing_cells": 0,
+          "total": 412895
+        }
+      },
+      "wall_s": {
+        "known_cells": 48,
+        "median": 418.6245,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "default-tools": {
+          "cells": 48,
+          "fail_count": 18,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 48,
+            "incomplete_cells": 0,
+            "total": 57589282
+          },
+          "officially_graded_cells": 48,
+          "outcomes": {
+            "fail": 18,
+            "pass": 30
+          },
+          "pass_count": 30,
+          "pass_rate": 0.625,
+          "pass_rate_denominator": 48,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 53655552
+            },
+            "input_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 3289505
+            },
+            "output_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 644225
+            },
+            "reasoning_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 461411
+            }
+          },
+          "wall_s": {
+            "known_cells": 48,
+            "median": 484.4275,
+            "missing_cells": 0
+          }
+        },
+        "shell-only": {
+          "cells": 48,
+          "fail_count": 15,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 48,
+            "incomplete_cells": 0,
+            "total": 36368443
+          },
+          "officially_graded_cells": 48,
+          "outcomes": {
+            "fail": 15,
+            "pass": 33
+          },
+          "pass_count": 33,
+          "pass_rate": 0.6875,
+          "pass_rate_denominator": 48,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 33097216
+            },
+            "input_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 2703722
+            },
+            "output_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 567505
+            },
+            "reasoning_tokens": {
+              "known_cells": 48,
+              "missing_cells": 0,
+              "total": 412895
+            }
+          },
+          "wall_s": {
+            "known_cells": 48,
+            "median": 418.6245,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r13-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r9-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r13-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r9-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r13-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r9-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r13-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r9-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r17-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r9-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r10-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r10-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r11-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r11-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r12-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r12-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r13-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r13-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r14-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r14-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r15-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r15-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r16-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r16-shell-only-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r9-default-tools-r57d-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r9-shell-only-r57d-studio"
+      ],
+      "summary": {
+        "cells": 96,
+        "fail_count": 33,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 96,
+          "incomplete_cells": 0,
+          "total": 93957725
+        },
+        "officially_graded_cells": 96,
+        "outcomes": {
+          "fail": 33,
+          "pass": 63
+        },
+        "pass_count": 63,
+        "pass_rate": 0.65625,
+        "pass_rate_denominator": 96,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 96,
+            "missing_cells": 0,
+            "total": 86752768
+          },
+          "input_tokens": {
+            "known_cells": 96,
+            "missing_cells": 0,
+            "total": 5993227
+          },
+          "output_tokens": {
+            "known_cells": 96,
+            "missing_cells": 0,
+            "total": 1211730
+          },
+          "reasoning_tokens": {
+            "known_cells": 96,
+            "missing_cells": 0,
+            "total": 874306
+          }
+        },
+        "wall_s": {
+          "known_cells": 96,
+          "median": 459.09950000000003,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r57d",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

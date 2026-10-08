@@ -1,5 +1,12 @@
 # r5
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of ARM_RECIPE, DECISION_RULE, ENVIRONMENT, PRE_REGISTRATION. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Required reproduction metadata
 
 - Kogen commit: not recorded in the cited round source.
@@ -69,3 +76,12 @@ This captured-delivery summary uses the public [run-record export](../../results
 | rails-aj-enqueue-after-commit | studio | c-p11p18p22 | not re-derivable | 3 | 3 | 2 | 1 | 0 |
 | rails-aj-enqueue-after-commit | studio | c-p12p17p21 | not re-derivable | 3 | 3 | 3 | 0 | 0 |
 | rails-aj-enqueue-after-commit | studio | c-w2p17p11p18 | not re-derivable | 3 | 3 | 0 | 3 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r5.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 12 rows (fail 5, pass 7); overall pass rate is 58.3% (7/12) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 12/12 shared cell IDs match; 63/63 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 12/12 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

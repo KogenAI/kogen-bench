@@ -1,5 +1,12 @@
 # Combined kh confirmation
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of DENOMINATOR_UNVERIFIED, PARTIAL_CAPTURE. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
@@ -44,3 +51,12 @@ The [public capture manifest](public-capture-manifest.csv) contains 16 exact del
 ## Interpretation
 
 Retain the registered decision as a source-reported disposition, not as a public outcome. Do not pool this internal kh-variant comparison with harness-compare-1 or another round.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/confirm-combined-1.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 64 rows (fail 5, pass 59); overall pass rate is 92.2% (59/64) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 64 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 64 raw-only or non-public rows; they are kept separate from the published-export denominator.

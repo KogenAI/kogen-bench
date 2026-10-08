@@ -144,46 +144,114 @@
         "37signals LLC"
       ],
       "url": "https://github.com/basecamp/writebook",
-      "commit_or_release": "unknown",
+      "commit_or_release": "recovered snapshot; upstream commit unknown",
       "licence": "MIT",
       "evidence": [
         "tasks/rails-hw-scoped-broadcast/task.json"
       ],
-      "provenance": "authored for Kogen Bench by Optimum Tech, Apache-2.0"
+      "provenance": "Writebook snapshot captured from the MacBook route base; deterministic bundle records the staged tree."
     },
     "idea": {
-      "origin": "unknown",
-      "project_or_work": "unknown",
-      "authors": [],
-      "url": null,
-      "commit_or_version": "unknown",
-      "licence_or_citation": "unknown",
+      "origin": "third-party",
+      "project_or_work": "Agents on Rails",
+      "authors": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "commit_or_version": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "upstream_path": "tasks/hw-scoped-broadcast/instruction.md",
+      "licence_or_citation": "MIT",
+      "what_taken": "Idea and task prompt; prompt body is identical after removing upstream metadata.",
       "evidence": [
         "tasks/rails-hw-scoped-broadcast/prompt.md"
       ]
     },
     "tests_grader": {
-      "origin": "unknown",
-      "authors": [],
-      "source_files": [],
-      "url": null,
-      "licence": "unknown",
+      "origin": "third-party",
+      "authors": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "source_files": [
+        "hidden/sealed/verification_test.rb"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "licence": "MIT",
+      "upstream_path": "tasks/hw-scoped-broadcast/verification_test.rb",
+      "upstream_commit": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "what_taken": "Verification test copied byte-for-byte from upstream.",
       "evidence": [
-        "tasks/rails-hw-scoped-broadcast/task.json"
+        "tasks/rails-hw-scoped-broadcast/hidden/sealed/verification_test.rb"
       ]
     },
     "redistribution": {
-      "terms": "Redistribution and modification permitted if the copyright and permission notice stay with every copy or substantial portion.",
+      "terms": "Redistribution and modification permitted under MIT with the copyright and permission notice.",
       "required_files": [
-        "LICENSES/WRITEBOOK-MIT.txt"
+        "LICENSES/WRITEBOOK-MIT.txt",
+        "LICENSES/RAILS-AI-EVALS-MIT.txt"
       ],
       "status": "cleared"
     },
-    "confidence": "low",
-    "reviewed_at": "2026-10-08"
+    "confidence": "high",
+    "reviewed_at": "2026-10-08",
+    "reference_solution": {
+      "origin": "third-party",
+      "project_or_work": "Agents on Rails",
+      "authors_or_organisation": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "commit_or_version": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "upstream_path": "tasks/hw-scoped-broadcast/solution.patch",
+      "licence": "MIT",
+      "what_taken": "Reference patch copied byte-for-byte from upstream.",
+      "evidence": [
+        "hidden/sealed/solution.patch"
+      ],
+      "provenance": "Upstream reference patch; the task base is Writebook."
+    },
+    "benchmark": {
+      "origin": "Agents on Rails (Rails Foundation, built by Evil Martians)",
+      "project": "Agents on Rails",
+      "authors_or_organisation": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "licence": "MIT",
+      "upstream_path": "tasks/hw-scoped-broadcast",
+      "upstream_commit": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "what_taken": [
+        "idea",
+        "prompt",
+        "verification tests",
+        "reference patch"
+      ],
+      "comparison": "prompt body identical after removing upstream metadata; tests and reference patch identical",
+      "evidence": [
+        "prompt.md",
+        "hidden/sealed/verification_test.rb",
+        "hidden/sealed/solution.patch"
+      ]
+    }
   },
   "base_sha": "not declared (base_dir snapshot)",
-  "base_bundle": null,
-  "base_bundle_sha256": null,
-  "base_missing": true
+  "base_bundle": "_bases/rails-writebook-9ea9a6c7ee47.bundle",
+  "base_bundle_sha256": "b6429007b17c1404367c3eaf1ab990e1ded5d50dcbc0ca139d20ddbc8e179b35",
+  "base_missing": false,
+  "base_snapshot_commit": "9ea9a6c7ee47f4f0dd68b3d0f9af985faf3e6e29",
+  "base_proof": {
+    "snapshot": "writebook",
+    "project": "Writebook",
+    "bundle_commit": "9ea9a6c7ee47f4f0dd68b3d0f9af985faf3e6e29",
+    "snapshot_files": 479,
+    "as_run_files_matched": 70,
+    "as_run_files_compared": 70,
+    "evidence": "as-run file-hash proof",
+    "source": "MacBook route base snapshot; sanitized route export INDEX.json 521660e38e3cc1c9f2bd6abc8b72601dcf0d7ac19e632d5695249683ee284561",
+    "git_tree": "2c164f32d93f657766ca81a51924dae969e07fea"
+  },
+  "kit_complete": true
 }

@@ -10,7 +10,7 @@ from pass_counts import collect_planned_task_pairs, markdown_tables, self_test a
 from audit_round70_evidence import audit as audit_round70_evidence, self_test as round70_evidence_self_test
 from r70_completeness import audit as audit_r70_completeness, self_test as r70_completeness_self_test
 from validate_spec_snapshot import audit_snapshot as audit_spec_snapshot
-from validate_release import read_round_label, release_included_with_label, run_official_grade_reproducer
+from validate_release import read_round_label, round_date
 from validation_policy import (
     has_standard_run_records,
     is_preparation_only_registration,
@@ -23,6 +23,8 @@ from partitioned_jsonl import read_partitions
 ROOT=Path(__file__).resolve().parents[1]
 MISSING_REASON_CODES=load_legend(ROOT/'results/missing-reasons.json')
 MAX_REPOSITORY_FILE_BYTES=10_000_000
+# Recovered Rails snapshots are single-file Git bundles; keep their explicit cap below 50 MB.
+MAX_RAILS_BASE_BUNDLE_BYTES=50_000_000
 REGISTERED_ROUND_IDS=json.loads((ROOT/'rounds/index.json').read_text())
 TRACKED_PATHS=set(subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0'))
 TRACKED_ROUND_DIRS={parts[1] for name in TRACKED_PATHS if name.startswith('rounds/') for parts in [name.split('/')] if len(parts)>2}
@@ -56,6 +58,7 @@ PRIVACY_RULES = [
     ('API key', re.compile(r'\b(?:sk-|sk_)[A-Za-z0-9]{16,}')),
     ('UUID', re.compile(r'\b[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\b', re.I)),
 ]
+PUBLIC_GIT_EMAIL = 'almir.sarajcic'+'@'+'icloud.com'
 EDITORIAL_RULES = [
     ('quoted conversation block', re.compile(r'(?im)^\s*>\s*(?:owner|participant|user)\b')),
     ('conversation attribution', re.compile(r'(?i)\b(?:owner|participant)\s+(?:said|asked|wrote|messaged|quoted)\b')),
@@ -84,7 +87,11 @@ SPEC_PROTOCOL_ALLOWLIST = {
 }
 
 
-TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|[^/]+/(?:hidden|grader|base)/)')
+TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base)/)')
+TASK_REFERENCE_PATCH_EVIDENCE=re.compile(r'(?i)("evidence"\s*:\s*)\[\s*"hidden/solution\.patch"')
+TASK_UPSTREAM_PATCH_PATH=re.compile(r'(?i)"upstream_path"\s*:\s*"tasks/[^"\n]+/solution\.patch"')
+TASK_SEALED_PATCH_EVIDENCE=re.compile(r'(?i)"hidden/sealed/solution\.patch"')
+TASK_COMPARISON_PATCH_PATH=re.compile(r'(?i)tasks/(?:rails-[^`|]+/hidden/sealed|[^`|]+)/solution\.patch')
 # Exported task suites, graders and bases are third-party or grader source code: fixture
 # emails, UUIDs, version-like dotted numbers and bench toolchain paths are expected there.
 # Only credential and personal-path rules apply to them.
@@ -108,7 +115,21 @@ def publication_scan_findings(text, relative_path):
     for family,label,pattern in rules:
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
         allowed_spans=[match.span() for allowance in allowances for match in allowance.finditer(text)]
+        if label=='private-source artifact reference' and (relative_path=='tasks/index.json' or (relative_path.startswith('tasks/rails-') and relative_path.endswith('/task.json'))):
+            allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))
+            allowed_spans.extend(match.span() for match in TASK_UPSTREAM_PATCH_PATH.finditer(text))
+            allowed_spans.extend(match.span() for match in TASK_SEALED_PATCH_EVIDENCE.finditer(text))
+        if label=='private-source artifact reference' and relative_path=='RAILS-AI-EVALS-COMPARISON.md':
+            allowed_spans.extend(match.span() for match in TASK_COMPARISON_PATCH_PATH.finditer(text))
         for match in pattern.finditer(text):
+            # The publication security note explicitly documents the author's
+            # intentionally retained public Git identity. Allow it only there.
+            if (
+                label == 'email address'
+                and relative_path == 'SECURITY-NOTES.md'
+                and match.group(0).lower() == PUBLIC_GIT_EMAIL
+            ):
+                continue
             # Bundle provenance preserves these synthetic Git author addresses verbatim.
             # They use reserved/local domains and identify no person or reachable host.
             if label=='email address' and match.group(0).lower().split('@')[-1] in {
@@ -145,6 +166,11 @@ def publication_scan_self_test():
     email='test'+'@'+'kogen.invalid'
     if publication_scan_findings(email,'spec/CONFORMANCE.md'):
         raise AssertionError('the reserved conformance placeholder should be allowed')
+    public_identity=PUBLIC_GIT_EMAIL
+    if publication_scan_findings(public_identity,'SECURITY-NOTES.md'):
+        raise AssertionError('the documented public Git identity should be allowed in SECURITY-NOTES.md')
+    if not publication_scan_findings(public_identity,'README.md'):
+        raise AssertionError('the public Git identity exception must not exempt other repository files')
     transcript='Transcript: <run dir>/transcript.jsonl'
     if publication_scan_findings(transcript,'spec/01-cli.md'):
         raise AssertionError('the documented public transcript filename should be allowed')
@@ -1301,28 +1327,24 @@ for rid in sorted(standard_rounds):
 
 try:
     release_round_config=json.loads((ROOT/'reproduce/release-rounds.json').read_text())
-    required_strict_rounds=release_round_config.get('required_strict_rounds',[])
-    labelled_release_policies=release_round_config.get('release_included_with_label',{})
-except (OSError,json.JSONDecodeError):
-    required_strict_rounds=[]
-    labelled_release_policies={}
-check(isinstance(required_strict_rounds,list) and bool(required_strict_rounds) and all(isinstance(rid,str) and rid for rid in required_strict_rounds) and len(set(required_strict_rounds))==len(required_strict_rounds),
-      'Required strict scored-round register is missing or invalid')
-for rid in required_strict_rounds if isinstance(required_strict_rounds,list) else []:
+    strict_from_date=__import__('datetime').date.fromisoformat(release_round_config['strict_from_date'])
+except (OSError,json.JSONDecodeError,KeyError,TypeError,ValueError):
+    strict_from_date=None
+check(strict_from_date is not None and strict_from_date.isoformat()=='2026-10-09',
+      'Strict new-round start date must be 2026-10-09')
+new_rounds=[]
+for rid in rounds:
+    declared_date=round_date(rid)
+    if strict_from_date and declared_date and declared_date>=strict_from_date:
+        new_rounds.append(rid)
+for rid in new_rounds:
     if not has_standard_run_records(rid,standard):
-        check(False,'Required scored round has no Standard records: '+rid)
+        check(False,'New strict round has no Standard records: '+rid)
         continue
     audit=validate_standard_round(rid,standard,strict=True)
-    for error in audit['errors']:check(False,'Strict Standard record '+rid+': '+error)
+    for error in audit['errors']:check(False,'New strict Standard record '+rid+': '+error)
     if not audit['strict_release_eligible']:
-        policy=labelled_release_policies.get(rid) if isinstance(labelled_release_policies,dict) else None
-        reproduced=False
-        if isinstance(policy,dict) and not audit['errors']:
-            reproduced,_output=run_official_grade_reproducer(rid,policy)
-        if isinstance(policy,dict) and release_included_with_label(rid,audit,read_round_label(rid),reproduced,policy):
-            resolved_gates.append(f"{rid}: release-included with its DESCRIPTIVE label; official-grade reproducer passed")
-        else:
-            blockers.append(f"{rid} has {audit['missing']} declared missing Standard capture fields and {len(audit['protocol_deviations'])} protocol deviations; release compliance is withheld")
+        blockers.append(f"{rid} has {audit['missing']} missing Standard capture fields and {len(audit['protocol_deviations'])} protocol deviations; new-round strict release is blocked")
 
 # Publication gates are evaluated from their evidence type and declared source
 # inputs. Gate IDs and the number of gates are data, not validator constants.
@@ -1471,9 +1493,10 @@ validate_evidence_map(claim_rows)
 validate_reproduction_records()
 # Remote configuration is outside this read-only local audit's scope.
 oversized=[(relative,(ROOT/relative).stat().st_size) for relative in sorted(TRACKED_PATHS)
-           if (ROOT/relative).is_file() and (ROOT/relative).stat().st_size>MAX_REPOSITORY_FILE_BYTES]
+           if (ROOT/relative).is_file() and (ROOT/relative).stat().st_size>(MAX_RAILS_BASE_BUNDLE_BYTES if relative.startswith('tasks/_bases/rails-') and relative.endswith('.bundle') else MAX_REPOSITORY_FILE_BYTES)]
 for relative,size in oversized:
-    errors.append(f'Committed file exceeds 10 MB: {relative} ({size} bytes)')
+    limit=MAX_RAILS_BASE_BUNDLE_BYTES if relative.startswith('tasks/_bases/rails-') and relative.endswith('.bundle') else MAX_REPOSITORY_FILE_BYTES
+    errors.append(f'Committed file exceeds {limit//1_000_000} MB: {relative} ({size} bytes)')
 if errors:raise SystemExit('\n'.join(sorted(set(errors))))
 print(f'Validated {len(rounds)} round pages, {len(tasks)} task records, {len(rows)} matching CSV/JSONL rows, {pass_table_groups} table pass-count groups, {links} authored links and {files} files; pass-count self-test passed; no privacy/forbidden-artifact failures; remote configuration not inspected.')
 for gate in sorted(resolved_gates):

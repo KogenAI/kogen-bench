@@ -1,5 +1,11 @@
 # LLM latency probe: short prompts
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of CONDITIONS_MISMATCH, PRE_REGISTRATION_MISSING. See the round evidence and limitations below.
+Recomputation status: NOT RECOMPUTABLE
+
+
 ## Status
 
 **DESCRIPTIVE**

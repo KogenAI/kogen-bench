@@ -1,5 +1,10 @@
 # H-API: STATUS VALID; primary finding NOT SUPPORTED
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; KEPT FOR AUDIT
+Recomputation status: FULLY RECOMPUTABLE
+
+
 STATUS: **VALID** — protocol completed as registered; primary finding NOT SUPPORTED.
 
 This preregistered official Responses API route via subscription SIWC round reached its 11 transport-complete pairs in one execution. The frozen distinct-key ≥80% condition held in 1 of 11 complete pairs. K=1/11; exact one-sided p=0.9995117188; 99% Clopper–Pearson CI=[0.000456, 0.508565]. **VALID** describes protocol completion and counter integrity; it does not mean the directional hypothesis was supported.

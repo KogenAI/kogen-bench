@@ -1,0 +1,37 @@
+diff --git a/app/controllers/activities_controller.rb b/app/controllers/activities_controller.rb
+new file mode 100644
+index 0000000..1df7d27
+--- /dev/null
++++ b/app/controllers/activities_controller.rb
+@@ -0,0 +1,31 @@
++class ActivitiesController < ApplicationController
++  ACTIONS = %w[
++    card_assigned
++    card_auto_postponed
++    card_board_changed
++    card_closed
++    card_postponed
++    card_published
++    card_reopened
++    card_sent_back_to_triage
++    card_title_changed
++    card_triaged
++    card_unassigned
++    comment_created
++  ].freeze
++
++  def index
++    set_page_and_extract_portion_from(activities)
++  end
++
++  private
++    def activities
++      Current.user.accessible_events
++        .preloaded
++        .includes(creator: :identity, board: { creator: :identity }, eventable: { creator: :identity })
++        .where(action: ACTIONS)
++        .for_creators(params[:creator_ids])
++        .for_boards(params[:board_ids])
++        .reverse_chronologically
++    end
++end

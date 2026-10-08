@@ -1,11 +1,16 @@
 # r57
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of ARM_MAPPING, EVIDENCE, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
 
 ## Status
 
 **INVALID**
 
-Why not VALID:
 - NO_PREREG — No dated pre-registration is recorded in the round files.
 - ARM_MAPPING — The control-default-tools pass count differs from official cells, and the label maps to multiple exported arms.
 - EVIDENCE — The pooled r57–r57d cohort ledger and missing-cell identity are not linked.
@@ -92,3 +97,16 @@ This section documents exact replay limits and keeps the page lifecycle and earl
 Public snapshot rows for this tag: 41 captured deliveries (34 pass, 7 fail, 0 ungraded/unknown in `results/run-records/r57.jsonl`); official outcome export has 41 rows: 34 pass, 7 fail in `cells.jsonl`. These are separate source totals. The public files do not provide a complete joined intention-to-treat result.
 
 **Round-specific reconciliation:** The [L0 pooled CSV](../l0-reconcile/data/r57-pooled-itt.csv) and `python3 reproduce/reconcile_l0.py` reproduce a separate recovered 311-row pooled population, with public outcome matches for those 311 rows. One planned Studio shell-only slot has no recovered cell ID or outcome, so the full planned denominator remains incomplete. This does not resolve the control-arm mapping conflict on this page: default-tools maps to multiple public exported arms, so this round's own arm-level comparison is not reconstructed. Do not pool this page with r57b/r57c/r57d or the separate r57e replacement.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r57.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 45 rows (fail 10, pass 35); overall pass rate is 77.8% (35/45) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 41/41 shared cell IDs match; 0/41 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+Recovered-source discrepancies: 2 field mismatches across 1 cell IDs (`patch.archive_member.483f7dfeaeda6af4162f696df1ed71c01450b09c7558588bdd1a55a055199375` 1, `patch.archive_member.cells/e6ccf777c8ffc919aad71d163d93fd192ff274e222a5eb9c981d026144723eed/attempt-1/patch.diff` 1). Existing values were preserved; each cell, field, kept value, and recovered value is listed below.
+- `kogen-rails-best__gpt-6-luna__max__default__rails-ar-archive-book-access__r1-kogen-rails-best-r57-t90-studio-smoke` field `patch.archive_member.483f7dfeaeda6af4162f696df1ed71c01450b09c7558588bdd1a55a055199375`: kept `{"archive_member": null, "sha256": "483f7dfeaeda6af4162f696df1ed71c01450b09c7558588bdd1a55a055199375", "size_bytes": 9408}`, recovered `null`.
+- `kogen-rails-best__gpt-6-luna__max__default__rails-ar-archive-book-access__r1-kogen-rails-best-r57-t90-studio-smoke` field `patch.archive_member.cells/e6ccf777c8ffc919aad71d163d93fd192ff274e222a5eb9c981d026144723eed/attempt-1/patch.diff`: kept `{"archive_member": "cells/e6ccf777c8ffc919aad71d163d93fd192ff274e222a5eb9c981d026144723eed/attempt-1/patch.diff", "sha256": "483f7dfeaeda6af4162f696df1ed71c01450b09c7558588bdd1a55a055199375", "size_bytes": 9408}`, recovered `null`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 41/41 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.
+This round also has 4 raw-only or non-public rows; they are kept separate from the published-export denominator.

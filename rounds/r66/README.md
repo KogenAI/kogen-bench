@@ -1,11 +1,17 @@
 # r66
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of COHORT, DENOMINATOR, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration or decision rule.
 - COHORT — Historical Sol-high and Luna-max control cohorts are not identified by public cell filters.
 - DENOMINATOR — The historical task comparisons cannot be reconstructed from the round files.
@@ -74,3 +80,12 @@ This captured-delivery summary uses the public [run-record export](../../results
 | elx-12-retry-api-deprecation | kogen-bench-eu | codex-solmed | 5 | 5 | 5 | 5 | 0 | 0 |
 | elx-port-board-publish-unpublish-public-boundary | kogen-bench-us | codex-solmed | 5 | 5 | 5 | 5 | 0 | 0 |
 | elx-port-erase-account | kogen-bench-us | codex-solmed | 5 | 5 | 5 | 2 | 3 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r66.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 20 rows (fail 3, pass 17); overall pass rate is 85.0% (17/20) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 20/20 shared cell IDs match; 0/20 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 20/20 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

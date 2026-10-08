@@ -1,5 +1,12 @@
 # x roles
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of DENOMINATOR_UNRESOLVED, PRE_REGISTRATION_MISSING, RAW_EVIDENCE_MISSING. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
@@ -7,7 +14,7 @@
 ### Why not VALID
 - **PRE_REGISTRATION_MISSING:** No pre-registered rule predating the first result is established.
 - **DENOMINATOR_UNRESOLVED:** Cohort-specific planned, started, finished, and ITT denominators are incomplete.
-- **RAW_EVIDENCE_MISSING:** Exact-ID raw records are absent.
+- **RAW_EVIDENCE_MISSING:** The public exact-ID capture remains absent; the Studio rows below do not establish the full published cohort.
 
 
 ## Required reproduction metadata
@@ -43,7 +50,7 @@ Headline: Operational screens only; no role policy qualification.
 | Model and effort | Reported worker arms use Sol high and Luna max; an implementation screen uses Luna high; reviewer comparisons include Sol high and Luna high. Exact effective-effort receipts are unavailable. |
 | Task IDs | The worker pilot used one CSV task. The implementation cohort task IDs and reviewer fixture IDs are not recovered. |
 | Command | Not recovered; no public launch command or exact cell IDs are available. |
-| Raw records | No sanitized raw records for this exact round ID are in this snapshot. The exact-ID query returned zero rows in both `results/cells.jsonl` and `results/run-records/index.json`; see [reported-data.json](reported-data.json). |
+| Raw records | The exact-ID query returned zero rows in the committed public exports. Filtered Studio rows are linked in the source recovery section below; see [reported-data.json](reported-data.json) for the public-export check. |
 
 The numerical observations above are documentary summaries, not a public exact-cell analysis. `reported-data.json` records each reported quantity and its status. The current public result files were checked for this exact round identifier; they do not provide this round's raw records.
 
@@ -56,3 +63,12 @@ The numerical observations above are documentary summaries, not a public exact-c
 No individual outcome should be promoted beyond the status above until the exact run records, grade identities, denominators and source revisions are reconciled.
 
 Sources: [reported data file](reported-data.json); [public cells export](../../results/cells.jsonl); [public captured-delivery export](../../results/run-records/index.json).
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/x-roles.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 28 rows (fail 8, grader_error 2, pass 18); overall pass rate is 69.2% (18/26) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 28 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 28 raw-only or non-public rows; they are kept separate from the published-export denominator.

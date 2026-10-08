@@ -1,5 +1,12 @@
 # Hard-task harness calibration
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of OUTCOME_CLASSIFICATION_UNRESOLVED, OUTCOME_CROSSWALK_MISSING. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INVALID**
@@ -44,3 +51,12 @@ The [public capture manifest](public-capture-manifest.csv) is header-only: no de
 ## Interpretation
 
 Runner completion must not be read as task success. The reported false-blocker corrections and floor/ceiling tasks make a general superiority claim unsupported; preserve the original and corrected grader states separately if exact cell receipts become available.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/hard1-calibrate-1.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 48 rows (fail 34, pass 14); overall pass rate is 29.2% (14/48) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 48 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 48 raw-only or non-public rows; they are kept separate from the published-export denominator.

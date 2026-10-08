@@ -202,7 +202,7 @@ def cell_label(row):
 
 def render_results(x):
     out = [
-        "# L4 deterministic context packet results", "", "STATUS: **VALID**", "",
+        "# L4 deterministic context packet results", "", "STATUS: **DESCRIPTIVE** (see the round README: post-result amendment, non-interleaved controls)", "",
         "The primary comparison follows Amendment 1: packet and contemporaneous no-packet controls are paired by variant and seed. Each cell is the latest official aggregate grade row for its exact cell ID, from the MacBook grading route.",
         "", "## Paired outcomes", "",
         "| Source variant | Seed | Packet cell | No-packet control | Pair |",
@@ -253,7 +253,7 @@ def render_readme(x, scored, history):
         "Label: descriptive pilot; n=3 per arm per variant. The thresholds are coarse and support no general claim.",
         "Question: Do frozen public context packets increase official full-suite passes over same-seed contemporaneous no-packet controls on four L1-admitted variants?",
         f"n: {len(scored)} official scored cells ({p_n} packet, {c_n} control; {len(VARIANTS)} variants × {seed_n} seeds per arm); {len(history)} historical cells are context only.",
-        f"Headline: **{x['decision']}** packets in specification sections 3.2 and 4.9: packet-minus-control = {x['delta']:+d} passes, {x['rescues']} paired rescues, {x['losses']} losses, and no regression. The US controls were not interleaved.",
+        f"Headline (descriptive; not a validated registered finding): observed **{x['decision']}** for packets in specification sections 3.2 and 4.9: packet-minus-control = {x['delta']:+d} passes, {x['rescues']} paired rescues, {x['losses']} losses, and no regression. The US controls were not interleaved.",
         "Configuration: direct Codex, `gpt-6-luna` at `max`, 3,600-second cap, zero retries; Elixir and Rust on EU, Go on US; official `r70-macbook-window-v1` grades. Tokens are uncached input + cached input + output; total is their sum.",
         f"Official runner wrapper: {wrapper_version}, SHA-256 `{wrapper_sha}`; this same fingerprint appears on all scored cells.",
         "Limit: outcome-selected tasks, n=3 per arm per variant, coarse thresholds, and mixed scheduling; the result supports no general claim.",

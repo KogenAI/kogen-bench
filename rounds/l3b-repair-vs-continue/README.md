@@ -1,5 +1,11 @@
 # L3b repair vs continue
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; NARROW / HISTORICAL; KEPT FOR AUDIT
+Publication limits: Validity applies only to the eight selected failures; 193 missing Standard capture fields, incomplete raw captures, and execution-time evidence limits bound this historical result.
+Recomputation status: FULLY RECOMPUTABLE
+
+
 STATUS: **VALID** — registered rule met (difference 2, threshold ≥2); KEEP applies to these eight selected failures only, with per-test evidence published.
 
 Label: VALID for the registered rule — raw captures not retained; results verified against official grades

@@ -1,5 +1,10 @@
 # H-BACKEND: STATUS VALID; primary finding NOT SUPPORTED
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; KEPT FOR AUDIT
+Recomputation status: FULLY RECOMPUTABLE
+
+
 STATUS: **VALID** — protocol completed as registered; primary finding NOT SUPPORTED.
 
 This preregistered ChatGPT Codex backend round reached its 11 transport-complete pairs in one execution. The frozen shared-key ≥80% and distinct-key ≤5% condition held in 5 of 11 complete pairs. K=5/11; exact one-sided p=0.7255859375; 99% Clopper–Pearson CI=[0.114469, 0.830688]. **VALID** describes protocol completion and counter integrity; it does not mean the directional hypothesis was supported.

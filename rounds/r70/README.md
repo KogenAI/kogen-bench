@@ -1,11 +1,17 @@
 # r70
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of INCOMPLETE_EXECUTION, NO_PREREG, NO_SCORED_RESULTS. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - NO_SCORED_RESULTS — No scored core study rows are graded in the public export.
 - INCOMPLETE_EXECUTION — Only tasks 5 and 7 were admitted, so the planned task set was not completed.
@@ -253,3 +259,141 @@ This section documents exact replay limits and keeps the page lifecycle and earl
 Public snapshot rows for this tag: 6 captured deliveries (0 pass, 0 fail, 6 ungraded/unknown in `results/run-records/r70.jsonl`); official outcome export has 0 rows: 0 pass, 0 fail in `cells.jsonl`. These are separate source totals. The public files do not provide a complete joined intention-to-treat result.
 
 **Round-specific reconciliation:** The six public records tagged r70 are ungraded delivery records for the frozen stack study. Keep them distinct from the original RvE, rerun and extension cohorts represented by separate supplemental ledgers/pages; their results do not close the frozen stack study.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r70.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 108 rows (fail 10, invalid 1, pass 97); overall pass rate is 90.7% (97/107) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+Recovered-source discrepancies: 128 field mismatches across 10 cell IDs (`experiment` 8, `official_grade.classification` 2, `official_grade.outcome` 2, `official_grade.pass_fail` 2, `official_grade.test_counts.tests_passed` 3, `patch.archive_member.28a64f305781e409eacffde8d072785d2df2a5d21bec421d5f32901ad7df1d99` 1, `patch.archive_member.362f057f326640c2cf4e374e7d802f66271114bc23e42dfe5de90f0581feb710` 1, `patch.archive_member.7174c706f2b613835fb9bfedbebd2a3a358b1dbe637ad24a25d153bafd8c03ff` 1, `patch.archive_member.7f6d66e03155eeae947915388a3af6087d50525d3cc67b38711bd9cf9d791a83` 1, `patch.archive_member.b1673af73621115abf6e4cb46daaa2c461a203d823d51b7f086a39336c35786f` 1, `patch.archive_member.bab0ed96a55291698e619a5e55275e34b570e568df73e337e597a6c768d5c9d2` 1, `patch.archive_member.bd7258cea5afcc7daf7221d6b06a6be9b51482db06102acaeec64dd116860be2` 1, `patch.archive_member.c2409a3799e9d40b28836b76da0e4a2655eaf6f6aef2e34df3ed684e1390e5f1` 1, `patch.archive_member.d537fd80ccec570bf0614ef61004850747bc04d4eb5e7eecdd11ba75af6388db` 1, `patch.attempt-1` 12, `usage.cached_input_tokens` 18, `usage.input_tokens` 18, `usage.output_tokens` 18, `usage.reasoning_tokens` 18, `wall_s` 18). Existing values were preserved; each cell, field, kept value, and recovered value is listed below.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `patch.attempt-1`: kept `{"sha256": "3a65028ee36b6baf4dd9b6af3263a2558d243ff324aa69ddad51aa64faef238a", "size_bytes": 8290}`, recovered `{"sha256": "f90736d8939c7a56a738fb785fd64ad64e928ca6cb4600ee0be44f5384d71ac3", "size_bytes": 10078}`.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `usage.cached_input_tokens`: kept `320000`, recovered `638208`.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `usage.input_tokens`: kept `47517`, recovered `61921`.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `usage.output_tokens`: kept `21832`, recovered `22967`.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `usage.reasoning_tokens`: kept `16951`, recovered `16432`.
+- `codex__gpt-6-luna__max__default__r70-5-ts-bun__r1` field `wall_s`: kept `421.595`, recovered `440.637`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `patch.archive_member.c2409a3799e9d40b28836b76da0e4a2655eaf6f6aef2e34df3ed684e1390e5f1`: kept `{"archive_member": null, "sha256": "c2409a3799e9d40b28836b76da0e4a2655eaf6f6aef2e34df3ed684e1390e5f1", "size_bytes": 11918}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `patch.attempt-1`: kept `{"sha256": "b5579bf42680c1a175d6efd9ff956e94650b19f91eaf5db5328ff5e66c547806", "size_bytes": 11975}`, recovered `{"sha256": "c2409a3799e9d40b28836b76da0e4a2655eaf6f6aef2e34df3ed684e1390e5f1", "size_bytes": 11918}`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `usage.cached_input_tokens`: kept `2047488`, recovered `1401088`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `usage.input_tokens`: kept `101265`, recovered `86918`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `usage.output_tokens`: kept `33628`, recovered `28178`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `usage.reasoning_tokens`: kept `22378`, recovered `19441`.
+- `codex__gpt-6-luna__max__default__r70-6-gleam__r1` field `wall_s`: kept `670.51`, recovered `596.572`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `experiment`: kept `"r70-eu-7-elixir-gpt-6-luna-r1"`, recovered `"r70-eu-7-elixir-gpt-6-luna-r1-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `patch.attempt-1`: kept `{"sha256": "9f98c8fc866e9039c8744fff8c183cae19304297e7abd03a235ff413c3173aaa", "size_bytes": 12146}`, recovered `{"sha256": "cd3a0a27e7e36ae70f80e079c579415f8fbd2301d41dfcb12d27d3b742e93cd8", "size_bytes": 11188}`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.cached_input_tokens`: kept `1113856`, recovered `261632`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.cached_input_tokens`: kept `1113856`, recovered `261632`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.input_tokens`: kept `73534`, recovered `45022`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.input_tokens`: kept `73534`, recovered `45022`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.output_tokens`: kept `36752`, recovered `18580`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.output_tokens`: kept `36752`, recovered `18580`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.reasoning_tokens`: kept `29232`, recovered `13674`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `usage.reasoning_tokens`: kept `29232`, recovered `13674`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `wall_s`: kept `807.354`, recovered `362.553`.
+- `codex__gpt-6-luna__max__default__r70-7-elixir__r1` field `wall_s`: kept `807.354`, recovered `362.553`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `experiment`: kept `"r70-eu-7-gleam-gpt-6-luna-r1-smoke"`, recovered `"r70-eu-7-gleam-gpt-6-luna-r1"`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `patch.archive_member.b1673af73621115abf6e4cb46daaa2c461a203d823d51b7f086a39336c35786f`: kept `{"archive_member": null, "sha256": "b1673af73621115abf6e4cb46daaa2c461a203d823d51b7f086a39336c35786f", "size_bytes": 14866}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `patch.attempt-1`: kept `{"sha256": "048604acf6560276fedcce16407b7d14a073e5cece7094b178cd9afca1e688d0", "size_bytes": 12718}`, recovered `{"sha256": "b1673af73621115abf6e4cb46daaa2c461a203d823d51b7f086a39336c35786f", "size_bytes": 14866}`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.cached_input_tokens`: kept `996864`, recovered `1592064`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.cached_input_tokens`: kept `996864`, recovered `1592064`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.input_tokens`: kept `89289`, recovered `79354`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.input_tokens`: kept `89289`, recovered `79354`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.output_tokens`: kept `23068`, recovered `30635`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.output_tokens`: kept `23068`, recovered `30635`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.reasoning_tokens`: kept `14066`, recovered `19313`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `usage.reasoning_tokens`: kept `14066`, recovered `19313`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `wall_s`: kept `1003.39`, recovered `604.46`.
+- `codex__gpt-6-luna__max__default__r70-7-gleam__r1` field `wall_s`: kept `1003.39`, recovered `604.46`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `experiment`: kept `"r70-us-7-go-gpt-6-luna-r1"`, recovered `"r70-eu-7-go-gpt-6-luna-r1-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `patch.archive_member.bab0ed96a55291698e619a5e55275e34b570e568df73e337e597a6c768d5c9d2`: kept `{"archive_member": null, "sha256": "bab0ed96a55291698e619a5e55275e34b570e568df73e337e597a6c768d5c9d2", "size_bytes": 8659}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `patch.attempt-1`: kept `{"sha256": "c5cdc19fb4440b738a66a4cd5469dad16c8193d92a5a0445d346e79c3c120b5b", "size_bytes": 9193}`, recovered `{"sha256": "bab0ed96a55291698e619a5e55275e34b570e568df73e337e597a6c768d5c9d2", "size_bytes": 8659}`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.cached_input_tokens`: kept `222976`, recovered `150016`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.cached_input_tokens`: kept `222976`, recovered `150016`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.input_tokens`: kept `31137`, recovered `31055`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.input_tokens`: kept `31137`, recovered `31055`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.output_tokens`: kept `13869`, recovered `10896`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.output_tokens`: kept `13869`, recovered `10896`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.reasoning_tokens`: kept `9129`, recovered `6570`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `usage.reasoning_tokens`: kept `9129`, recovered `6570`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `wall_s`: kept `280.945`, recovered `311.115`.
+- `codex__gpt-6-luna__max__default__r70-7-go__r1` field `wall_s`: kept `280.945`, recovered `311.115`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `experiment`: kept `"r70-eu-7-rust-gpt-6-luna-r1"`, recovered `"r70-eu-7-rust-gpt-6-luna-r1-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `official_grade.test_counts.tests_passed`: kept `24`, recovered `0`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `official_grade.test_counts.tests_passed`: kept `24`, recovered `23`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `patch.archive_member.d537fd80ccec570bf0614ef61004850747bc04d4eb5e7eecdd11ba75af6388db`: kept `{"archive_member": null, "sha256": "d537fd80ccec570bf0614ef61004850747bc04d4eb5e7eecdd11ba75af6388db", "size_bytes": 11250}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `patch.attempt-1`: kept `{"sha256": "abd6d6e16050e9533940b0d5d8c57b043119cbdccd98bcdeb31337c063c2f361", "size_bytes": 15986}`, recovered `{"sha256": "d537fd80ccec570bf0614ef61004850747bc04d4eb5e7eecdd11ba75af6388db", "size_bytes": 11250}`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.cached_input_tokens`: kept `476416`, recovered `255488`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.cached_input_tokens`: kept `476416`, recovered `255488`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.input_tokens`: kept `47929`, recovered `62021`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.input_tokens`: kept `47929`, recovered `62021`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.output_tokens`: kept `18970`, recovered `12636`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.output_tokens`: kept `18970`, recovered `12636`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.reasoning_tokens`: kept `10517`, recovered `7641`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `usage.reasoning_tokens`: kept `10517`, recovered `7641`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `wall_s`: kept `161.452`, recovered `288.762`.
+- `codex__gpt-6-luna__max__default__r70-7-rust__r1` field `wall_s`: kept `161.452`, recovered `288.762`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `experiment`: kept `"r70-us-7-ts-bun-gpt-6-luna-r1"`, recovered `"r70-eu-7-ts-bun-gpt-6-luna-r1-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `experiment`: kept `"r70-us-7-ts-bun-gpt-6-luna-r1"`, recovered `"r70-us-7-ts-bun-gpt-6-luna-r1-fairness-v2-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `experiment`: kept `"r70-us-7-ts-bun-gpt-6-luna-r1-fairness-v2-smoke"`, recovered `"r70-eu-7-ts-bun-gpt-6-luna-r1-smoke"`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `patch.archive_member.362f057f326640c2cf4e374e7d802f66271114bc23e42dfe5de90f0581feb710`: kept `{"archive_member": null, "sha256": "362f057f326640c2cf4e374e7d802f66271114bc23e42dfe5de90f0581feb710", "size_bytes": 8844}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `patch.archive_member.bd7258cea5afcc7daf7221d6b06a6be9b51482db06102acaeec64dd116860be2`: kept `{"archive_member": null, "sha256": "bd7258cea5afcc7daf7221d6b06a6be9b51482db06102acaeec64dd116860be2", "size_bytes": 7289}`, recovered `null`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `patch.attempt-1`: kept `{"sha256": "11dbf0173ea66a75465e3e2da52171c4f44b410dd90ef456f567327e4491281e", "size_bytes": 7952}`, recovered `{"sha256": "362f057f326640c2cf4e374e7d802f66271114bc23e42dfe5de90f0581feb710", "size_bytes": 8844}`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `patch.attempt-1`: kept `{"sha256": "11dbf0173ea66a75465e3e2da52171c4f44b410dd90ef456f567327e4491281e", "size_bytes": 7952}`, recovered `{"sha256": "bd7258cea5afcc7daf7221d6b06a6be9b51482db06102acaeec64dd116860be2", "size_bytes": 7289}`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `patch.attempt-1`: kept `{"sha256": "362f057f326640c2cf4e374e7d802f66271114bc23e42dfe5de90f0581feb710", "size_bytes": 8844}`, recovered `{"sha256": "bd7258cea5afcc7daf7221d6b06a6be9b51482db06102acaeec64dd116860be2", "size_bytes": 7289}`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.cached_input_tokens`: kept `202752`, recovered `181504`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.cached_input_tokens`: kept `202752`, recovered `570368`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.cached_input_tokens`: kept `202752`, recovered `570368`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.cached_input_tokens`: kept `570368`, recovered `181504`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.input_tokens`: kept `23746`, recovered `26751`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.input_tokens`: kept `23746`, recovered `67777`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.input_tokens`: kept `23746`, recovered `67777`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.input_tokens`: kept `67777`, recovered `26751`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.output_tokens`: kept `11517`, recovered `11772`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.output_tokens`: kept `11517`, recovered `20234`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.output_tokens`: kept `11517`, recovered `20234`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.output_tokens`: kept `20234`, recovered `11772`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.reasoning_tokens`: kept `14359`, recovered `8622`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.reasoning_tokens`: kept `7958`, recovered `14359`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.reasoning_tokens`: kept `7958`, recovered `14359`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `usage.reasoning_tokens`: kept `7958`, recovered `8622`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `wall_s`: kept `226.325`, recovered `320.028`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `wall_s`: kept `226.325`, recovered `395.616`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `wall_s`: kept `226.325`, recovered `395.616`.
+- `codex__gpt-6-luna__max__default__r70-7-ts-bun__r1` field `wall_s`: kept `395.616`, recovered `320.028`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `patch.archive_member.28a64f305781e409eacffde8d072785d2df2a5d21bec421d5f32901ad7df1d99`: kept `{"archive_member": null, "sha256": "28a64f305781e409eacffde8d072785d2df2a5d21bec421d5f32901ad7df1d99", "size_bytes": 9583}`, recovered `null`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `patch.attempt-1`: kept `{"sha256": "5fde2b92d1353f40683bc12cf698951bf9b93124c1f4bfcc4fa1b87699369e75", "size_bytes": 10944}`, recovered `{"sha256": "28a64f305781e409eacffde8d072785d2df2a5d21bec421d5f32901ad7df1d99", "size_bytes": 9583}`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `usage.cached_input_tokens`: kept `127104`, recovered `87552`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `usage.input_tokens`: kept `13622`, recovered `11611`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `usage.output_tokens`: kept `4983`, recovered `4674`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `usage.reasoning_tokens`: kept `212`, recovered `349`.
+- `codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1` field `wall_s`: kept `118.009`, recovered `188.683`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `patch.archive_member.7f6d66e03155eeae947915388a3af6087d50525d3cc67b38711bd9cf9d791a83`: kept `{"archive_member": null, "sha256": "7f6d66e03155eeae947915388a3af6087d50525d3cc67b38711bd9cf9d791a83", "size_bytes": 16173}`, recovered `null`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `patch.attempt-1`: kept `{"sha256": "cf49e8027b45756b5456759ae6c0912d60a5a2d43af828d02432cd61c70cd628", "size_bytes": 10233}`, recovered `{"sha256": "7f6d66e03155eeae947915388a3af6087d50525d3cc67b38711bd9cf9d791a83", "size_bytes": 16173}`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `usage.cached_input_tokens`: kept `186624`, recovered `149632`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `usage.input_tokens`: kept `17440`, recovered `30284`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `usage.output_tokens`: kept `5447`, recovered `7374`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `usage.reasoning_tokens`: kept `447`, recovered `865`.
+- `codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1` field `wall_s`: kept `141.211`, recovered `305.009`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `experiment`: kept `"r70-eu-7-rust-gpt-6.1-sol-r1-smoke"`, recovered `"r70-eu-7-rust-gpt-6.1-sol-r1"`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `official_grade.test_counts.tests_passed`: kept `24`, recovered `0`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `patch.archive_member.7174c706f2b613835fb9bfedbebd2a3a358b1dbe637ad24a25d153bafd8c03ff`: kept `{"archive_member": null, "sha256": "7174c706f2b613835fb9bfedbebd2a3a358b1dbe637ad24a25d153bafd8c03ff", "size_bytes": 15970}`, recovered `null`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `patch.attempt-1`: kept `{"sha256": "3cdd6eee05d96a567d58da932ee90ba8ec3628996ed8f7e5d43810e7152abb64", "size_bytes": 16382}`, recovered `{"sha256": "7174c706f2b613835fb9bfedbebd2a3a358b1dbe637ad24a25d153bafd8c03ff", "size_bytes": 15970}`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.cached_input_tokens`: kept `65280`, recovered `83712`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.cached_input_tokens`: kept `65280`, recovered `83712`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.input_tokens`: kept `14982`, recovered `14074`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.input_tokens`: kept `14982`, recovered `14074`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.output_tokens`: kept `5260`, recovered `4876`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.output_tokens`: kept `5260`, recovered `4876`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.reasoning_tokens`: kept `183`, recovered `49`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `usage.reasoning_tokens`: kept `183`, recovered `49`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `wall_s`: kept `207.218`, recovered `111.25`.
+- `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `wall_s`: kept `207.218`, recovered `111.25`.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 108 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 108 raw-only or non-public rows; they are kept separate from the published-export denominator.

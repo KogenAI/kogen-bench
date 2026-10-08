@@ -1,11 +1,17 @@
 # r60
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of ARM_MAPPING, DESIGN, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INVALID**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - ARM_MAPPING — Official cells outcomes do not match the prior Codex arm labels.
 - DESIGN — No testable question or complete comparison protocol is recoverable.
@@ -64,3 +70,12 @@ Verdict: Outcome interpretation is withheld because the official cells export an
 ## Public outcome reconciliation status
 
 The prior delivery and outcome table is removed because its arm labels or outcome totals do not match the official [cells export](../../results/cells.jsonl). The captured-delivery ledger remains available in [r60.jsonl](../../results/run-records/r60.jsonl); no combined result is reported here.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r60.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 129 rows (fail 76, pass 53); overall pass rate is 41.1% (53/129) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 129/129 shared cell IDs match; 0/129 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 129/129 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

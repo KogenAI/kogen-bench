@@ -1,11 +1,16 @@
 # Round 70 original RvE cohort
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of EVIDENCE, NO_PREREG_EVIDENCE, UNMATCHED_CONDITIONS. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
 
 ## Status
 
 **INVALID**
 
-Why not VALID:
 - UNMATCHED_CONDITIONS — The README labels the study confounded.
 - NO_PREREG_EVIDENCE — The round files do not establish a timestamped pre-registration predating the first result.
 - EVIDENCE — The round is not documented as executed under one matched registered protocol.
@@ -64,3 +69,12 @@ The 40-row scored cohort is reproducible from the public export. The additional 
 ## Smallest useful follow-up
 
 Run a separately registered parity-controlled cohort with identical task behavior at each stack boundary, exact per-cell harness pins, and joinable planned/start/grade IDs. Preserve the original and rerun cohorts as separate records.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r70-rve.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 51 rows (fail 18, pass 28, ungraded 5); overall pass rate is 60.9% (28/46) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 51 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 51 raw-only or non-public rows; they are kept separate from the published-export denominator.

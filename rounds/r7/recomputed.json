@@ -1,0 +1,1401 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 27,
+    "token_cells_different": 0,
+    "token_cells_equal": 27,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 35328,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-bare-r7plan-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 12639,
+        "output_tokens": 727,
+        "published_metadata_tokens": 48694,
+        "reasoning_tokens": 104,
+        "round": "r7"
+      },
+      {
+        "cached_input_tokens": 45056,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-bare-r7plan-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 18198,
+        "output_tokens": 966,
+        "published_metadata_tokens": 64220,
+        "reasoning_tokens": 165,
+        "round": "r7"
+      },
+      {
+        "cached_input_tokens": 59904,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-plan-grok-r7plan-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 25590,
+        "output_tokens": 1835,
+        "published_metadata_tokens": 87329,
+        "reasoning_tokens": 103,
+        "round": "r7"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 26,
+        "equal": 26
+      },
+      "kh-plan": {
+        "compared": 1,
+        "equal": 1
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 27,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 27,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 27,
+    "fail_count": 3,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 27,
+      "incomplete_cells": 0,
+      "total": 3379348
+    },
+    "officially_graded_cells": 27,
+    "outcomes": {
+      "fail": 3,
+      "pass": 24
+    },
+    "pass_count": 24,
+    "pass_rate": 0.8888888888888888,
+    "pass_rate_denominator": 27,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 2725888
+      },
+      "input_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 611829
+      },
+      "output_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 41631
+      },
+      "reasoning_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 1215
+      }
+    },
+    "wall_s": {
+      "known_cells": 27,
+      "median": 203.961,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "bare": {
+      "cells": 5,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 310795
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 2,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.6,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 228352
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 78519
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 3924
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 716
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 53.483,
+        "missing_cells": 0
+      }
+    },
+    "plan-grok": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 437708
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 327680
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 102551
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 7477
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 134
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 79.3,
+        "missing_cells": 0
+      }
+    },
+    "plan-lunamax": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 924555
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 794112
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 120134
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 10309
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 526.26,
+        "missing_cells": 0
+      }
+    },
+    "plan-sol": {
+      "cells": 6,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 1181959
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 972800
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 196527
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 12632
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 369.404,
+        "missing_cells": 0
+      }
+    },
+    "plan-sol-nocontext": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 324239
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 242176
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 78884
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 3179
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 194.654,
+        "missing_cells": 0
+      }
+    },
+    "r7smoke:plan-sol-nocontext": {
+      "cells": 1,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 1,
+        "incomplete_cells": 0,
+        "total": 200092
+      },
+      "officially_graded_cells": 1,
+      "outcomes": {
+        "fail": 1
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 1,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 160768
+        },
+        "input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 35214
+        },
+        "output_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 4110
+        },
+        "reasoning_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 365
+        }
+      },
+      "wall_s": {
+        "known_cells": 1,
+        "median": 255.49,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 3
+      },
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 2
+      },
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 2,
+          "pass": 3
+        }
+      },
+      {
+        "arm": "plan-grok",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 5
+      },
+      {
+        "arm": "plan-grok",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "pass": 5
+        }
+      },
+      {
+        "arm": "plan-lunamax",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 5
+      },
+      {
+        "arm": "plan-lunamax",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "pass": 5
+        }
+      },
+      {
+        "arm": "plan-sol",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 6
+      },
+      {
+        "arm": "plan-sol",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "pass": 6
+        }
+      },
+      {
+        "arm": "plan-sol-nocontext",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 5
+      },
+      {
+        "arm": "plan-sol-nocontext",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "pass": 5
+        }
+      },
+      {
+        "arm": "r7smoke:plan-sol-nocontext",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 1
+      },
+      {
+        "arm": "r7smoke:plan-sol-nocontext",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 1
+        }
+      }
+    ],
+    "arm_mismatches": [],
+    "outcome_matches": 27,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 27,
+    "public_export_rows_in_round": 0,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {},
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "bare": {
+        "cells": 5,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 310795
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 2,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.6,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 228352
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 78519
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 3924
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 716
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 53.483,
+          "missing_cells": 0
+        }
+      },
+      "plan-grok": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 437708
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 327680
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 102551
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 7477
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 134
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 79.3,
+          "missing_cells": 0
+        }
+      },
+      "plan-lunamax": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 924555
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 794112
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 120134
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 10309
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 526.26,
+          "missing_cells": 0
+        }
+      },
+      "plan-sol": {
+        "cells": 6,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 6,
+          "incomplete_cells": 0,
+          "total": 1181959
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 972800
+          },
+          "input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 196527
+          },
+          "output_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 12632
+          },
+          "reasoning_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 6,
+          "median": 369.404,
+          "missing_cells": 0
+        }
+      },
+      "plan-sol-nocontext": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 324239
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 242176
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 78884
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 3179
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 194.654,
+          "missing_cells": 0
+        }
+      },
+      "r7smoke:plan-sol-nocontext": {
+        "cells": 1,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 1,
+          "incomplete_cells": 0,
+          "total": 200092
+        },
+        "officially_graded_cells": 1,
+        "outcomes": {
+          "fail": 1
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 1,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 160768
+          },
+          "input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 35214
+          },
+          "output_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 4110
+          },
+          "reasoning_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 365
+          }
+        },
+        "wall_s": {
+          "known_cells": 1,
+          "median": 255.49,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 27,
+    "fail_count": 3,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 27,
+      "incomplete_cells": 0,
+      "total": 3379348
+    },
+    "officially_graded_cells": 27,
+    "outcomes": {
+      "fail": 3,
+      "pass": 24
+    },
+    "pass_count": 24,
+    "pass_rate": 0.8888888888888888,
+    "pass_rate_denominator": 27,
+    "published_export_cells": 27,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 2725888
+      },
+      "input_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 611829
+      },
+      "output_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 41631
+      },
+      "reasoning_tokens": {
+        "known_cells": 27,
+        "missing_cells": 0,
+        "total": 1215
+      }
+    },
+    "wall_s": {
+      "known_cells": 27,
+      "median": 203.961,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "bare": {
+      "cells": 5,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 310795
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 2,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.6,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 228352
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 78519
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 3924
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 716
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 53.483,
+        "missing_cells": 0
+      }
+    },
+    "plan-grok": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 437708
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 327680
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 102551
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 7477
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 134
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 79.3,
+        "missing_cells": 0
+      }
+    },
+    "plan-lunamax": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 924555
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 794112
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 120134
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 10309
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 526.26,
+        "missing_cells": 0
+      }
+    },
+    "plan-sol": {
+      "cells": 6,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 1181959
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 972800
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 196527
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 12632
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 369.404,
+        "missing_cells": 0
+      }
+    },
+    "plan-sol-nocontext": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 324239
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 242176
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 78884
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 3179
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 194.654,
+        "missing_cells": 0
+      }
+    },
+    "r7smoke:plan-sol-nocontext": {
+      "cells": 1,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 1,
+        "incomplete_cells": 0,
+        "total": 200092
+      },
+      "officially_graded_cells": 1,
+      "outcomes": {
+        "fail": 1
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 1,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 160768
+        },
+        "input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 35214
+        },
+        "output_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 4110
+        },
+        "reasoning_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 365
+        }
+      },
+      "wall_s": {
+        "known_cells": 1,
+        "median": 255.49,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "bare": {
+          "cells": 5,
+          "fail_count": 2,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 310795
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "fail": 2,
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 0.6,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 228352
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 78519
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 3924
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 716
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 53.483,
+            "missing_cells": 0
+          }
+        },
+        "plan-grok": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 437708
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 327680
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 102551
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 7477
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 134
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 79.3,
+            "missing_cells": 0
+          }
+        },
+        "plan-lunamax": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 924555
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 794112
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 120134
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 10309
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 526.26,
+            "missing_cells": 0
+          }
+        },
+        "plan-sol": {
+          "cells": 6,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 6,
+            "incomplete_cells": 0,
+            "total": 1181959
+          },
+          "officially_graded_cells": 6,
+          "outcomes": {
+            "pass": 6
+          },
+          "pass_count": 6,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 6,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 972800
+            },
+            "input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 196527
+            },
+            "output_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 12632
+            },
+            "reasoning_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 6,
+            "median": 369.404,
+            "missing_cells": 0
+          }
+        },
+        "plan-sol-nocontext": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 324239
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 242176
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 78884
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 3179
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 194.654,
+            "missing_cells": 0
+          }
+        },
+        "r7smoke:plan-sol-nocontext": {
+          "cells": 1,
+          "fail_count": 1,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 1,
+            "incomplete_cells": 0,
+            "total": 200092
+          },
+          "officially_graded_cells": 1,
+          "outcomes": {
+            "fail": 1
+          },
+          "pass_count": 0,
+          "pass_rate": 0.0,
+          "pass_rate_denominator": 1,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 160768
+            },
+            "input_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 35214
+            },
+            "output_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 4110
+            },
+            "reasoning_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 365
+            }
+          },
+          "wall_s": {
+            "known_cells": 1,
+            "median": 255.49,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-bare-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-plan-grok-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-plan-lunamax-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-plan-sol-nocontext-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-plan-sol-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-plan-sol-r7smoke-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-bare-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-plan-grok-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-plan-lunamax-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-plan-sol-nocontext-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-plan-sol-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-bare-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-plan-grok-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-plan-lunamax-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-plan-sol-nocontext-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-plan-sol-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-bare-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-plan-grok-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-plan-lunamax-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-plan-sol-nocontext-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-plan-sol-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-bare-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-plan-grok-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-plan-lunamax-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-plan-sol-nocontext-r7plan-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-plan-sol-r7plan-studio",
+        "r7smoke-eu-elx-07-cli-stats-plan-sol-nocontext-r1"
+      ],
+      "summary": {
+        "cells": 27,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 27,
+          "incomplete_cells": 0,
+          "total": 3379348
+        },
+        "officially_graded_cells": 27,
+        "outcomes": {
+          "fail": 3,
+          "pass": 24
+        },
+        "pass_count": 24,
+        "pass_rate": 0.8888888888888888,
+        "pass_rate_denominator": 27,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 27,
+            "missing_cells": 0,
+            "total": 2725888
+          },
+          "input_tokens": {
+            "known_cells": 27,
+            "missing_cells": 0,
+            "total": 611829
+          },
+          "output_tokens": {
+            "known_cells": 27,
+            "missing_cells": 0,
+            "total": 41631
+          },
+          "reasoning_tokens": {
+            "known_cells": 27,
+            "missing_cells": 0,
+            "total": 1215
+          }
+        },
+        "wall_s": {
+          "known_cells": 27,
+          "median": 203.961,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r7",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

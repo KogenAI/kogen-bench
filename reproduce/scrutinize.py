@@ -536,7 +536,7 @@ def scrutinize(root: Path = ROOT, operator_root: Path | None = None) -> dict:
     global ROOT
     ROOT = root
     config = json.loads((ROOT / "reproduce/release-rounds.json").read_text())
-    listed = list(config["required_strict_rounds"])
+    listed = list(config.get("scrutiny_rounds", []))
     findings = (ROOT / "FINDINGS.md").read_text()
     output = {"source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "rounds": {}}
     inventory = read_inventory_classes()

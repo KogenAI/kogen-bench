@@ -1,5 +1,11 @@
 # Sol-medium language replication
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of DECISION_RULE_UNDEFINED, CONDITIONS_MISMATCH. See the round evidence and limitations below.
+Recomputation status: FULLY RECOMPUTABLE
+
+
 ## Required reproduction metadata
 
 - Kogen commit: not applicable as a single round-level value; exact per-task SHAs are linked in the table below.

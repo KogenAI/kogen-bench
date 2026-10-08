@@ -1,0 +1,1974 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 24,
+    "token_cells_different": 0,
+    "token_cells_equal": 24,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 338944,
+        "cell_id": "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r1",
+        "harness": "kh-plan",
+        "input_tokens": 59348,
+        "output_tokens": 28889,
+        "published_metadata_tokens": 427181,
+        "reasoning_tokens": 15567,
+        "round": "r68b"
+      },
+      {
+        "cached_input_tokens": 122368,
+        "cell_id": "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r2",
+        "harness": "kh-plan",
+        "input_tokens": 32282,
+        "output_tokens": 13448,
+        "published_metadata_tokens": 168098,
+        "reasoning_tokens": 7498,
+        "round": "r68b"
+      },
+      {
+        "cached_input_tokens": 166912,
+        "cell_id": "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r3",
+        "harness": "kh-plan",
+        "input_tokens": 39090,
+        "output_tokens": 16902,
+        "published_metadata_tokens": 222904,
+        "reasoning_tokens": 10088,
+        "round": "r68b"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-plan": {
+        "compared": 24,
+        "equal": 24
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 24,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 24,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 24,
+    "fail_count": 3,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 24,
+      "incomplete_cells": 0,
+      "total": 15801849
+    },
+    "officially_graded_cells": 24,
+    "outcomes": {
+      "fail": 3,
+      "pass": 21
+    },
+    "pass_count": 21,
+    "pass_rate": 0.875,
+    "pass_rate_denominator": 24,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 13883904
+      },
+      "input_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 1555299
+      },
+      "output_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 362646
+      },
+      "reasoning_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 194351
+      }
+    },
+    "wall_s": {
+      "known_cells": 24,
+      "median": 470.9035,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "r68b-eu-elx04:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 818183
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 628224
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 130720
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 59239
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 33153
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 499.006,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn06:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1966237
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 1726464
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 200793
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 38980
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 20262
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 470.066,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn15:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1107036
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 935936
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 144404
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 26696
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 13773
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 344.655,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn24:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 3314710
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 2953728
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 293805
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 67177
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 37065
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 593.85,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-elx02:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 360285
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 259584
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 86381
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 14320
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 6084
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 230.21,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn01:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1422279
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 1224192
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 168003
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 30084
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 11360
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 411.231,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn20:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 3967427
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 3608064
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 293240
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 66123
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 36376
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 607.835,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn31:plan-shell": {
+      "cells": 3,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 2845692
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "fail": 3
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 2547712
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 237953
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 60027
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 36278
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 537.51,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 24,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 24,
+    "public_export_rows_in_round": 24,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "r68b-eu-elx04:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-eu-syn06:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-eu-syn15:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-eu-syn24:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-us-elx02:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-us-syn01:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-us-syn20:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      },
+      "r68b-us-syn31:plan-shell": {
+        "cells": 3,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 3,
+          "total": 0
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "fail": 3
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 3,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 3
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "r68b-eu-elx04:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 818183
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 628224
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 130720
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 59239
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 33153
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 499.006,
+          "missing_cells": 0
+        }
+      },
+      "r68b-eu-syn06:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 1966237
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 1726464
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 200793
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 38980
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 20262
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 470.066,
+          "missing_cells": 0
+        }
+      },
+      "r68b-eu-syn15:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 1107036
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 935936
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 144404
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 26696
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 13773
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 344.655,
+          "missing_cells": 0
+        }
+      },
+      "r68b-eu-syn24:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 3314710
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 2953728
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 293805
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 67177
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 37065
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 593.85,
+          "missing_cells": 0
+        }
+      },
+      "r68b-us-elx02:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 360285
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 259584
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 86381
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 14320
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 6084
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 230.21,
+          "missing_cells": 0
+        }
+      },
+      "r68b-us-syn01:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 1422279
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 1224192
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 168003
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 30084
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 11360
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 411.231,
+          "missing_cells": 0
+        }
+      },
+      "r68b-us-syn20:plan-shell": {
+        "cells": 3,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 3967427
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 3608064
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 293240
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 66123
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 36376
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 607.835,
+          "missing_cells": 0
+        }
+      },
+      "r68b-us-syn31:plan-shell": {
+        "cells": 3,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 3,
+          "incomplete_cells": 0,
+          "total": 2845692
+        },
+        "officially_graded_cells": 3,
+        "outcomes": {
+          "fail": 3
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 3,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 2547712
+          },
+          "input_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 237953
+          },
+          "output_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 60027
+          },
+          "reasoning_tokens": {
+            "known_cells": 3,
+            "missing_cells": 0,
+            "total": 36278
+          }
+        },
+        "wall_s": {
+          "known_cells": 3,
+          "median": 537.51,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 24,
+    "fail_count": 3,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 24,
+      "incomplete_cells": 0,
+      "total": 15801849
+    },
+    "officially_graded_cells": 24,
+    "outcomes": {
+      "fail": 3,
+      "pass": 21
+    },
+    "pass_count": 21,
+    "pass_rate": 0.875,
+    "pass_rate_denominator": 24,
+    "published_export_cells": 24,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 13883904
+      },
+      "input_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 1555299
+      },
+      "output_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 362646
+      },
+      "reasoning_tokens": {
+        "known_cells": 24,
+        "missing_cells": 0,
+        "total": 194351
+      }
+    },
+    "wall_s": {
+      "known_cells": 24,
+      "median": 470.9035,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "r68b-eu-elx04:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 818183
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 628224
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 130720
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 59239
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 33153
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 499.006,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn06:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1966237
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 1726464
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 200793
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 38980
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 20262
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 470.066,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn15:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1107036
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 935936
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 144404
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 26696
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 13773
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 344.655,
+        "missing_cells": 0
+      }
+    },
+    "r68b-eu-syn24:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 3314710
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 2953728
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 293805
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 67177
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 37065
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 593.85,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-elx02:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 360285
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 259584
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 86381
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 14320
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 6084
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 230.21,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn01:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 1422279
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 1224192
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 168003
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 30084
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 11360
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 411.231,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn20:plan-shell": {
+      "cells": 3,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 3967427
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 3608064
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 293240
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 66123
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 36376
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 607.835,
+        "missing_cells": 0
+      }
+    },
+    "r68b-us-syn31:plan-shell": {
+      "cells": 3,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 3,
+        "incomplete_cells": 0,
+        "total": 2845692
+      },
+      "officially_graded_cells": 3,
+      "outcomes": {
+        "fail": 3
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 3,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 2547712
+        },
+        "input_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 237953
+        },
+        "output_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 60027
+        },
+        "reasoning_tokens": {
+          "known_cells": 3,
+          "missing_cells": 0,
+          "total": 36278
+        }
+      },
+      "wall_s": {
+        "known_cells": 3,
+        "median": 537.51,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "r68b-eu-elx04:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 818183
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 628224
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 130720
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 59239
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 33153
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 499.006,
+            "missing_cells": 0
+          }
+        },
+        "r68b-eu-syn06:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 1966237
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 1726464
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 200793
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 38980
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 20262
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 470.066,
+            "missing_cells": 0
+          }
+        },
+        "r68b-eu-syn15:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 1107036
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 935936
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 144404
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 26696
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 13773
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 344.655,
+            "missing_cells": 0
+          }
+        },
+        "r68b-eu-syn24:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 3314710
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 2953728
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 293805
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 67177
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 37065
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 593.85,
+            "missing_cells": 0
+          }
+        },
+        "r68b-us-elx02:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 360285
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 259584
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 86381
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 14320
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 6084
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 230.21,
+            "missing_cells": 0
+          }
+        },
+        "r68b-us-syn01:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 1422279
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 1224192
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 168003
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 30084
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 11360
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 411.231,
+            "missing_cells": 0
+          }
+        },
+        "r68b-us-syn20:plan-shell": {
+          "cells": 3,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 3967427
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 3608064
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 293240
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 66123
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 36376
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 607.835,
+            "missing_cells": 0
+          }
+        },
+        "r68b-us-syn31:plan-shell": {
+          "cells": 3,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 3,
+            "incomplete_cells": 0,
+            "total": 2845692
+          },
+          "officially_graded_cells": 3,
+          "outcomes": {
+            "fail": 3
+          },
+          "pass_count": 0,
+          "pass_rate": 0.0,
+          "pass_rate_denominator": 3,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 2547712
+            },
+            "input_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 237953
+            },
+            "output_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 60027
+            },
+            "reasoning_tokens": {
+              "known_cells": 3,
+              "missing_cells": 0,
+              "total": 36278
+            }
+          },
+          "wall_s": {
+            "known_cells": 3,
+            "median": 537.51,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r1",
+        "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r2",
+        "r68b-eu-elx04-eu-elx-04-queue-backpressure-plan-shell-r3",
+        "r68b-eu-syn06-eu-syn-06-migration-ticket-numbers-plan-shell-r1",
+        "r68b-eu-syn06-eu-syn-06-migration-ticket-numbers-plan-shell-r2",
+        "r68b-eu-syn06-eu-syn-06-migration-ticket-numbers-plan-shell-r3",
+        "r68b-eu-syn15-eu-syn-15-validation-ticket-form-plan-shell-r1",
+        "r68b-eu-syn15-eu-syn-15-validation-ticket-form-plan-shell-r2",
+        "r68b-eu-syn15-eu-syn-15-validation-ticket-form-plan-shell-r3",
+        "r68b-eu-syn24-eu-syn-24-csv-import-plan-shell-r1",
+        "r68b-eu-syn24-eu-syn-24-csv-import-plan-shell-r2",
+        "r68b-eu-syn24-eu-syn-24-csv-import-plan-shell-r3",
+        "r68b-us-elx02-us-elx-02-ingest-supervision-plan-shell-r1",
+        "r68b-us-elx02-us-elx-02-ingest-supervision-plan-shell-r2",
+        "r68b-us-elx02-us-elx-02-ingest-supervision-plan-shell-r3",
+        "r68b-us-syn01-us-syn-01-live-ticket-filters-plan-shell-r1",
+        "r68b-us-syn01-us-syn-01-live-ticket-filters-plan-shell-r2",
+        "r68b-us-syn01-us-syn-01-live-ticket-filters-plan-shell-r3",
+        "r68b-us-syn20-us-syn-20-email-invite-flow-plan-shell-r1",
+        "r68b-us-syn20-us-syn-20-email-invite-flow-plan-shell-r2",
+        "r68b-us-syn20-us-syn-20-email-invite-flow-plan-shell-r3",
+        "r68b-us-syn31-us-syn-31-inbound-email-webhook-plan-shell-r1",
+        "r68b-us-syn31-us-syn-31-inbound-email-webhook-plan-shell-r2",
+        "r68b-us-syn31-us-syn-31-inbound-email-webhook-plan-shell-r3"
+      ],
+      "summary": {
+        "cells": 24,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 24,
+          "incomplete_cells": 0,
+          "total": 15801849
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 3,
+          "pass": 21
+        },
+        "pass_count": 21,
+        "pass_rate": 0.875,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 13883904
+          },
+          "input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 1555299
+          },
+          "output_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 362646
+          },
+          "reasoning_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 194351
+          }
+        },
+        "wall_s": {
+          "known_cells": 24,
+          "median": 470.9035,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r68b",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

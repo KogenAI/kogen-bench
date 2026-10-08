@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "source_head": "96d9449c7fd98190e5f209b802246f0d1408a724",
+  "artifacts": [
+    {
+      "path": "tasks/_bases/rails-hard2-fizzy-20261001-ba0916ecbeba.bundle",
+      "kind": "git bundle",
+      "as_run_sha256": "f973fb938ea7441364623f5058a099da34e99f48e0a1fcebfbf4910a3651ea30",
+      "published_sha256": "241e98f45478b886d548b9806df4f438eb21079183a39998c10f5b2abfa193ea",
+      "as_run_commit": "ba0916ecbeba4066faa68ed9ecc4413d57e48f69",
+      "published_commit": "a2a057be1031e9d14de9d0b6c038387556791087",
+      "published_tree": "c36159c70d5f17529a80fd99d90583bb4726d2ce",
+      "removed": [
+        "log/test.log",
+        "tmp/ (all 2,933 tracked cache/build files, including tmp/cache/bootsnap/)"
+      ],
+      "why": "Local task-run logs and caches were not required task-base source; log/test.log contained the workstation home path and Bootsnap blobs captured that run environment.",
+      "rebuild": "Recreated as a single-root snapshot from the as-run commit, preserving its author/committer headers, timestamps, and message; the only tree change was removal of log/ and tmp/. Two independent rebuilds produced the same commit and bundle SHA-256."
+    },
+    {
+      "path": "data/mined/patches/r7.tar.zst",
+      "kind": "zstd-compressed tar archive",
+      "as_run_sha256": "fc0398d2f817fd06d5385b15acbdab4fd31afa4ba7f2904e1e84d4f06ca626d4",
+      "published_sha256": "ce048a7b67d3650f64658c55a7758e7087fb8604f2dc793a084fec2b08f7e9db",
+      "changed_member": "cells/988be79f78a8b18213457d585c3117d855900bf247f7e57ed9db7bad04539df7/attempt-1/patch.diff",
+      "change": "Replaced a workstation-specific absolute minitest gem require with require \"minitest/mock\".",
+      "why": "The captured patch should not publish the author workstation home path; the standard library require keeps the test dependency portable.",
+      "rebuild": "Repacked the 27 members in sorted order with normalized tar ownership/time and zstd single-threaded compression; two independent rebuilds produced the same SHA-256."
+    }
+  ],
+  "upstream_exception": "Unmodified Fizzy, Fizzy SaaS, Writebook, and Agents on Rails upstream files retain upstream hostnames, paths, addresses, and test fixtures as published. Their contents belong to the upstream authors and are covered by CREDITS.md, NOTICE, and the retained licence notices."
+}

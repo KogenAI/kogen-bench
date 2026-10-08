@@ -1,5 +1,10 @@
 # L4b independent context-packet replication
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; KEPT FOR AUDIT
+Recomputation status: FULLY RECOMPUTABLE
+
+
 ## Status
 
 **VALID**

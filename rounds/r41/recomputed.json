@@ -1,0 +1,685 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 9,
+    "token_cells_different": 0,
+    "token_cells_equal": 9,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 167424,
+        "cell_id": "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r1",
+        "harness": "kh-plan",
+        "input_tokens": 26216,
+        "output_tokens": 6226,
+        "published_metadata_tokens": 199866,
+        "reasoning_tokens": 102,
+        "round": "r41"
+      },
+      {
+        "cached_input_tokens": 312832,
+        "cell_id": "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r3",
+        "harness": "kh-plan",
+        "input_tokens": 45723,
+        "output_tokens": 6919,
+        "published_metadata_tokens": 365474,
+        "reasoning_tokens": 568,
+        "round": "r41"
+      },
+      {
+        "cached_input_tokens": 63488,
+        "cell_id": "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r5",
+        "harness": "kh-plan",
+        "input_tokens": 32524,
+        "output_tokens": 3952,
+        "published_metadata_tokens": 99964,
+        "reasoning_tokens": 73,
+        "round": "r41"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-plan": {
+        "compared": 9,
+        "equal": 9
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 1,
+    "token_missing_metadata_examples": [
+      {
+        "cell_id": "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r4",
+        "round": "r41"
+      }
+    ],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 10,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 10,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 10,
+    "fail_count": 6,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 9,
+      "incomplete_cells": 1,
+      "total": 1282046
+    },
+    "officially_graded_cells": 10,
+    "outcomes": {
+      "fail": 6,
+      "pass": 4
+    },
+    "pass_count": 4,
+    "pass_rate": 0.4,
+    "pass_rate_denominator": 10,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 1026560
+      },
+      "input_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 218862
+      },
+      "output_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 36624
+      },
+      "reasoning_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 763
+      }
+    },
+    "wall_s": {
+      "known_cells": 10,
+      "median": 1041.3205,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "r41-elx07:agentic30-execreview-lmax": {
+      "cells": 5,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 842250
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 3,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.4,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 676864
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 140289
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 25097
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 743
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 1211.002,
+        "missing_cells": 0
+      }
+    },
+    "r41-elx12:agentic30-execreview-lmax": {
+      "cells": 5,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 4,
+        "incomplete_cells": 1,
+        "total": 439796
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 3,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.4,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 349696
+        },
+        "input_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 78573
+        },
+        "output_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 11527
+        },
+        "reasoning_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 20
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 876.029,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 10,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 10,
+    "public_export_rows_in_round": 10,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "r41-elx07:agentic30-execreview-lmax": {
+        "cells": 5,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 3,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.4,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r41-elx12:agentic30-execreview-lmax": {
+        "cells": 5,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 3,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.4,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "r41-elx07:agentic30-execreview-lmax": {
+        "cells": 5,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 842250
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 3,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.4,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 676864
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 140289
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 25097
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 743
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 1211.002,
+          "missing_cells": 0
+        }
+      },
+      "r41-elx12:agentic30-execreview-lmax": {
+        "cells": 5,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 4,
+          "incomplete_cells": 1,
+          "total": 439796
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 3,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.4,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 4,
+            "missing_cells": 1,
+            "total": 349696
+          },
+          "input_tokens": {
+            "known_cells": 4,
+            "missing_cells": 1,
+            "total": 78573
+          },
+          "output_tokens": {
+            "known_cells": 4,
+            "missing_cells": 1,
+            "total": 11527
+          },
+          "reasoning_tokens": {
+            "known_cells": 4,
+            "missing_cells": 1,
+            "total": 20
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 876.029,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 10,
+    "fail_count": 6,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 9,
+      "incomplete_cells": 1,
+      "total": 1282046
+    },
+    "officially_graded_cells": 10,
+    "outcomes": {
+      "fail": 6,
+      "pass": 4
+    },
+    "pass_count": 4,
+    "pass_rate": 0.4,
+    "pass_rate_denominator": 10,
+    "published_export_cells": 10,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 1026560
+      },
+      "input_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 218862
+      },
+      "output_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 36624
+      },
+      "reasoning_tokens": {
+        "known_cells": 9,
+        "missing_cells": 1,
+        "total": 763
+      }
+    },
+    "wall_s": {
+      "known_cells": 10,
+      "median": 1041.3205,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "r41-elx07:agentic30-execreview-lmax": {
+      "cells": 5,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 842250
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 3,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.4,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 676864
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 140289
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 25097
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 743
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 1211.002,
+        "missing_cells": 0
+      }
+    },
+    "r41-elx12:agentic30-execreview-lmax": {
+      "cells": 5,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 4,
+        "incomplete_cells": 1,
+        "total": 439796
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 3,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.4,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 349696
+        },
+        "input_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 78573
+        },
+        "output_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 11527
+        },
+        "reasoning_tokens": {
+          "known_cells": 4,
+          "missing_cells": 1,
+          "total": 20
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 876.029,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "r41-elx07:agentic30-execreview-lmax": {
+          "cells": 5,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 842250
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "fail": 3,
+            "pass": 2
+          },
+          "pass_count": 2,
+          "pass_rate": 0.4,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 676864
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 140289
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 25097
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 743
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 1211.002,
+            "missing_cells": 0
+          }
+        },
+        "r41-elx12:agentic30-execreview-lmax": {
+          "cells": 5,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 4,
+            "incomplete_cells": 1,
+            "total": 439796
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "fail": 3,
+            "pass": 2
+          },
+          "pass_count": 2,
+          "pass_rate": 0.4,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 4,
+              "missing_cells": 1,
+              "total": 349696
+            },
+            "input_tokens": {
+              "known_cells": 4,
+              "missing_cells": 1,
+              "total": 78573
+            },
+            "output_tokens": {
+              "known_cells": 4,
+              "missing_cells": 1,
+              "total": 11527
+            },
+            "reasoning_tokens": {
+              "known_cells": 4,
+              "missing_cells": 1,
+              "total": 20
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 876.029,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r1",
+        "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r2",
+        "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r3",
+        "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r4",
+        "r41-elx07-us-elx-07-cli-stats-agentic30-execreview-lmax-r5",
+        "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r1",
+        "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r2",
+        "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r3",
+        "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r4",
+        "r41-elx12-eu-elx-12-retry-api-deprecation-agentic30-execreview-lmax-r5"
+      ],
+      "summary": {
+        "cells": 10,
+        "fail_count": 6,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 9,
+          "incomplete_cells": 1,
+          "total": 1282046
+        },
+        "officially_graded_cells": 10,
+        "outcomes": {
+          "fail": 6,
+          "pass": 4
+        },
+        "pass_count": 4,
+        "pass_rate": 0.4,
+        "pass_rate_denominator": 10,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 9,
+            "missing_cells": 1,
+            "total": 1026560
+          },
+          "input_tokens": {
+            "known_cells": 9,
+            "missing_cells": 1,
+            "total": 218862
+          },
+          "output_tokens": {
+            "known_cells": 9,
+            "missing_cells": 1,
+            "total": 36624
+          },
+          "reasoning_tokens": {
+            "known_cells": 9,
+            "missing_cells": 1,
+            "total": 763
+          }
+        },
+        "wall_s": {
+          "known_cells": 10,
+          "median": 1041.3205,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r41",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

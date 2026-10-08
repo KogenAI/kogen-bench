@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """MacBook controller: stop launches, drain, stage own R70 suites, grade, purge, resume."""
 import argparse,fcntl,json,os,pathlib,re,shlex,subprocess,sys,time
-HERE=pathlib.Path(__file__).resolve().parent;ROOT='/srv/bh/bench/recovery-2026-10-02';REMOTE=ROOT+'/levers/r70';PY='/opt/bench/mise/installs/python/3.14.7/bin/python3'
+HERE=pathlib.Path(__file__).resolve().parent;BENCH_HOST=os.environ.get('BENCH_HOST','/srv/bh/bench');ROOT=BENCH_HOST+'/recovery-2026-10-02';REMOTE=ROOT+'/levers/r70';GRADER=ROOT+'/tasks/_grader';LOCK=BENCH_HOST+'/r70-controls.lock';PY=os.environ.get('BENCH_PYTHON','/opt/bench/mise/installs/python/3.14.7/bin/python3')
 def ssh(host,cmd,retry=True,**kw):
  for attempt in range(4 if retry else 1):
   try:return subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=15','-o','ServerAliveCountMax=3',host,cmd],check=True,**kw)
@@ -30,7 +30,7 @@ def main():
   script=f"import fcntl,pathlib; p=pathlib.Path('{REMOTE}'); f=(p/'launch-{short}.lock').open('a'); fcntl.flock(f,fcntl.LOCK_EX); s=p/'STOP-{short}'; print(int(s.exists())); s.touch()"
   was_stopped=output(host,f'{PY} -c {shlex.quote(script)}').strip()=='1'
   while True:
-   n=int(output(host,f"{PY} -c {shlex.quote('import sys;sys.path.insert(0,'+repr(REMOTE)+');from dispatch import active;print(len(active()))')}"))
+   n=int(output(host,f"{PY} -c {shlex.quote('import sys;sys.path.insert(0,'+repr(GRADER)+');from dispatch import active;print(len(active()))')}"))
    if n==0:break
    print(f'{host}: draining {n} live cells',flush=True);time.sleep(10)
   jobs=[] if a.controls_only else (inventory(host) if a.regrade else pending(host))
@@ -75,7 +75,7 @@ def main():
     for task,stack in [(7,'rust'),(6,'go')]:
      id=f'r70-{task}-{stack}';jobs.append(dict(cell=f'calibration-{short}-{id}-{variant}',cell_id=f'calibration-{id}-{variant}',experiment='calibration',task=id,stack=stack,model='control',rep=1,variant=variant,patch=None))
   if not jobs:return
-  window=output(host,f'umask 077; mktemp -d /srv/bh/bench/recovery-2026-10-02/r70-window-XXXXXXXX').strip()
+  window=output(host,f'umask 077; mktemp -d {shlex.quote(ROOT)}/r70-window-XXXXXXXX').strip()
   ssh(host,f'mkdir -m 700 {window}/suites')
   for task in sorted({x['task'].split('-')[1] for x in jobs}):
    src=pathlib.Path.home()/f'bench-sealed/synthetic/tasks/r70-{task}-rust/sealed/test_hidden.py'
@@ -102,7 +102,7 @@ def main():
      subprocess.run(['rsync','-a','--exclude=.git','--exclude=target','--exclude=_build','--exclude=deps','--exclude=node_modules','--exclude=build','--exclude=.cache','--exclude=control-env.json',str(source)+'/',f'{host}:{target}/'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);j['reference_source']=target;uploaded[source_task]={'reference_source':target}
   jobfile=HERE/f'.jobs-{short}.json';jobfile.write_text(json.dumps(jobs));subprocess.run(['scp','-q','-o','BatchMode=yes','-o','ConnectTimeout=15',str(jobfile),f'{host}:{window}/jobs.json'],check=True);jobfile.unlink()
   print(f'{host}: grading {len(jobs)} jobs',flush=True)
-  ssh(host,f'flock -x /srv/bh/bench/r70-controls.lock nice -n 10 {PY} {REMOTE}/grade_worker.py {window}',retry=False,stdout=subprocess.DEVNULL)
+  ssh(host,f'BENCH_HOST={shlex.quote(BENCH_HOST)} flock -x {shlex.quote(LOCK)} nice -n 10 {PY} {REMOTE}/grade_worker.py {window}',retry=False,stdout=subprocess.DEVNULL)
   # Only aggregate outcomes leave private scratch; test output never does.
   lines=output(host,f'cat {window}/outcomes.jsonl').splitlines();assert len(lines)==len(jobs)
   records=[dict(json.loads(x),host=host,grade_route='r70-macbook-window-v1') for x in lines]

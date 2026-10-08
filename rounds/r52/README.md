@@ -1,11 +1,17 @@
 # r52
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE / INCOMPLETE (PILOT); KEPT FOR AUDIT
+Why not VALID: The historical inventory retains PILOT because of ENVIRONMENT, NO_PREREG, PILOT. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **PILOT**
 
-Why not VALID:
 - NO_PREREG — The README says no public predeclared decision rule was recovered.
 - PILOT — The round is explicitly a four-cell spend-capped probe, not a complete comparison.
 - ENVIRONMENT — Task-to-environment assignments and execution details are incomplete.
@@ -70,3 +76,14 @@ This captured-delivery summary uses the public [run-record export](../../results
 | rails-ft-i18n-support | studio | astra-plan-review-lunamax | 1 | 1 | 0 | 0 | 0 | 0 |
 | rails-ft-notification-bundle-window-overlap | studio | astra-plan-review-lunamax | 1 | 1 | 0 | 0 | 0 | 0 |
 | rails-ft-saas-billing | studio | astra-plan-review-lunamax | 1 | 1 | 0 | 0 | 0 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r52.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 1 rows (fail 1); overall pass rate is 0.0% (0/1) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 1/1 shared cell IDs match; 0/0 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 0/1 published metadata totals equal the manifest `input + cached input + output` sum; 1 differ (multi request aggregation 1). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.
+Published metadata vs raw manifest token counters (cell ID, published, manifest sum, provider response count, cause):
+- `kh-gpt__gpt-6-luna__low__default__rails-ft-activity-feed-api__r1-astra-plan-review-lunamax-r52astra-studio`: published `1330250`, manifest `1189178`, provider responses `31`; `multi_request_aggregation`.

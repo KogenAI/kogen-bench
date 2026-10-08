@@ -1,11 +1,17 @@
 # Round 70 fixed-skeleton rerun
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of SENSITIVITY_ONLY, SEPARATE_COHORTS, UNMATCHED_CONDITIONS. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
 
-Why not VALID:
 - SENSITIVITY_ONLY — The README describes this as a sensitivity check, not a standalone preregistered comparison.
 - UNMATCHED_CONDITIONS — The rerun changes stdout encoding and front-end handling relative to the original cohort.
 - SEPARATE_COHORTS — Original and rerun cells are explicitly separate cohorts.
@@ -44,3 +50,33 @@ Original cohort context: [40-cell as-graded RvE comparison](../r70/README.md#ori
 Limit: Task-4 admission controls failed for Rust, Elixir, and TypeScript/Bun, preventing causal front-end or stack conclusions.
 
 Sources: [decision rule](DECISION-RULE.md); [rerun outcomes](RESULTS.md); [test-count ledger](../../results/test-counts.jsonl); [cost/time ledger](../../results/cost-time.jsonl); [controls ledger](../../results/controls.jsonl); [frozen plan](PLAN.json).
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r70-rve-rerun.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 30 rows (fail 8, invalid 6, pass 16); overall pass rate is 66.7% (16/24) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+Recovered-source discrepancies: 20 field mismatches across 5 cell IDs (`official_grade.classification` 5, `official_grade.outcome` 5, `official_grade.pass_fail` 5, `official_grade.test_counts.tests_passed` 5). Existing values were preserved; each cell, field, kept value, and recovered value is listed below.
+- `codex__gpt-6-luna__max__default__r70-1-elixir-fe2__r6` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-1-elixir-fe2__r6` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-1-elixir-fe2__r6` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-1-elixir-fe2__r6` field `official_grade.test_counts.tests_passed`: kept `25`, recovered `1`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r10` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r10` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r10` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r10` field `official_grade.test_counts.tests_passed`: kept `18`, recovered `0`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r13` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r13` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r13` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r13` field `official_grade.test_counts.tests_passed`: kept `18`, recovered `0`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r9` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r9` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r9` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r9` field `official_grade.test_counts.tests_passed`: kept `18`, recovered `0`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r919` field `official_grade.classification`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r919` field `official_grade.outcome`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r919` field `official_grade.pass_fail`: kept `"pass"`, recovered `"fail"`.
+- `codex__gpt-6-luna__max__default__r70-4-go-fe2__r919` field `official_grade.test_counts.tests_passed`: kept `18`, recovered `0`.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 30 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 30 raw-only or non-public rows; they are kept separate from the published-export denominator.

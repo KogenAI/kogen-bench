@@ -1,11 +1,17 @@
 # r73 proper shaping
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of NOT_RUN, NO_OUTCOME. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_OUTCOME — The registered scored phase has executed n = 0.
 - NOT_RUN — No outcomes or scored cells are recorded in the public export.
 

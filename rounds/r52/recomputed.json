@@ -1,0 +1,397 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 1,
+    "token_cells_different": 1,
+    "token_cells_equal": 0,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 1,
+        "different": 1
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {
+      "multi_request_aggregation": 1
+    },
+    "token_mismatches": [
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-activity-feed-api__r1-astra-plan-review-lunamax-r52astra-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 31,
+        "published_metadata_tokens": 1330250,
+        "recomputed_input_plus_cached_plus_output": 1189178
+      }
+    ],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 1,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 1,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 1,
+    "fail_count": 1,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 1,
+      "incomplete_cells": 0,
+      "total": 1189178
+    },
+    "officially_graded_cells": 1,
+    "outcomes": {
+      "fail": 1
+    },
+    "pass_count": 0,
+    "pass_rate": 0.0,
+    "pass_rate_denominator": 1,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 1100800
+      },
+      "input_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 73449
+      },
+      "output_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 14929
+      },
+      "reasoning_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 8800
+      }
+    },
+    "wall_s": {
+      "known_cells": 1,
+      "median": 682.976,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "astra-plan-review-lunamax": {
+      "cells": 1,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 1,
+        "incomplete_cells": 0,
+        "total": 1189178
+      },
+      "officially_graded_cells": 1,
+      "outcomes": {
+        "fail": 1
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 1,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 1100800
+        },
+        "input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 73449
+        },
+        "output_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 14929
+        },
+        "reasoning_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 8800
+        }
+      },
+      "wall_s": {
+        "known_cells": 1,
+        "median": 682.976,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [
+      {
+        "arm": "astra-plan-review-lunamax",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 1
+      },
+      {
+        "arm": "astra-plan-review-lunamax",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 1
+        }
+      }
+    ],
+    "arm_mismatches": [],
+    "outcome_matches": 1,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 1,
+    "public_export_rows_in_round": 0,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {},
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "astra-plan-review-lunamax": {
+        "cells": 1,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 1,
+          "incomplete_cells": 0,
+          "total": 1189178
+        },
+        "officially_graded_cells": 1,
+        "outcomes": {
+          "fail": 1
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 1,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 1100800
+          },
+          "input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 73449
+          },
+          "output_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 14929
+          },
+          "reasoning_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 8800
+          }
+        },
+        "wall_s": {
+          "known_cells": 1,
+          "median": 682.976,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 1,
+    "fail_count": 1,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 1,
+      "incomplete_cells": 0,
+      "total": 1189178
+    },
+    "officially_graded_cells": 1,
+    "outcomes": {
+      "fail": 1
+    },
+    "pass_count": 0,
+    "pass_rate": 0.0,
+    "pass_rate_denominator": 1,
+    "published_export_cells": 1,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 1100800
+      },
+      "input_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 73449
+      },
+      "output_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 14929
+      },
+      "reasoning_tokens": {
+        "known_cells": 1,
+        "missing_cells": 0,
+        "total": 8800
+      }
+    },
+    "wall_s": {
+      "known_cells": 1,
+      "median": 682.976,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "astra-plan-review-lunamax": {
+      "cells": 1,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 1,
+        "incomplete_cells": 0,
+        "total": 1189178
+      },
+      "officially_graded_cells": 1,
+      "outcomes": {
+        "fail": 1
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 1,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 1100800
+        },
+        "input_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 73449
+        },
+        "output_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 14929
+        },
+        "reasoning_tokens": {
+          "known_cells": 1,
+          "missing_cells": 0,
+          "total": 8800
+        }
+      },
+      "wall_s": {
+        "known_cells": 1,
+        "median": 682.976,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "astra-plan-review-lunamax": {
+          "cells": 1,
+          "fail_count": 1,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 1,
+            "incomplete_cells": 0,
+            "total": 1189178
+          },
+          "officially_graded_cells": 1,
+          "outcomes": {
+            "fail": 1
+          },
+          "pass_count": 0,
+          "pass_rate": 0.0,
+          "pass_rate_denominator": 1,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 1100800
+            },
+            "input_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 73449
+            },
+            "output_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 14929
+            },
+            "reasoning_tokens": {
+              "known_cells": 1,
+              "missing_cells": 0,
+              "total": 8800
+            }
+          },
+          "wall_s": {
+            "known_cells": 1,
+            "median": 682.976,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-activity-feed-api__r1-astra-plan-review-lunamax-r52astra-studio"
+      ],
+      "summary": {
+        "cells": 1,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 1,
+          "incomplete_cells": 0,
+          "total": 1189178
+        },
+        "officially_graded_cells": 1,
+        "outcomes": {
+          "fail": 1
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 1,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 1100800
+          },
+          "input_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 73449
+          },
+          "output_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 14929
+          },
+          "reasoning_tokens": {
+            "known_cells": 1,
+            "missing_cells": 0,
+            "total": 8800
+          }
+        },
+        "wall_s": {
+          "known_cells": 1,
+          "median": 682.976,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r52",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

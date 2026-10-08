@@ -1,11 +1,17 @@
 # r71
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of CONTROL_ROWS, INCOMPLETE_EXECUTION, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG — The README says no promotion threshold was predeclared.
 - INCOMPLETE_EXECUTION — The planned comparison has 48 slots but only 40 model results.
 - CONTROL_ROWS — Nine invalid controls and one ungraded delivery do not fill the model denominator.
@@ -102,3 +108,13 @@ This section documents exact replay limits and keeps the page lifecycle and earl
 Refreshed export for this tag: 50 captured deliveries; 49 exact-joined official rows (40 model rows: 37 PASS, 3 FAIL; 9 invalid controls); one ungraded/unknown capture row. These are separate from the 48 planned model slots.
 
 **Round-specific reconciliation:** The refreshed official export exact-joins all 49 grade-flagged r71 captures. It contains 40 model outcomes for 48 planned model slots plus 9 invalid controls; one of 50 captured deliveries is ungraded. The invalid controls are not model failures and do not fill planned model slots. The documented Round 58 ITT paired same-task contrast remains incomplete. Keep INTERIM; historical arm rates are still source-reported, not reproducible from this public model cohort.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r71.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 50 rows (fail 12, pass 38); overall pass rate is 76.0% (38/50) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 49/49 shared cell IDs match; 0/49 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 18/18 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.
+This round also has 1 raw-only or non-public rows; they are kept separate from the published-export denominator.

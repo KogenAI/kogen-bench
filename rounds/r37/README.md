@@ -1,10 +1,16 @@
 # r37
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID; the available public record does not support upgrading that classification.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INVALID**
 
-Why not VALID:
 - **NO_PREREG** — The README says this round was not pre-registered, and its files show no timestamped rule predating the first result.
 - **NO_DECISION_RULE** — The README says no public predeclared decision rule was recovered.
 - **RAW_BUNDLE_INCOMPLETE** — The README says the public sources do not provide a complete round-specific request and grade bundle.
@@ -87,3 +93,13 @@ This table is grouped from the public [run-record export](../../results/run-reco
 | rails-sup-legacy-conversions | kogen-bench-eu | r37reg-sup:debate-packplan-review | 3 | 3 | 3 | 0 | 0 |
 | syn-14-bug-sla-business-hours | kogen-bench-eu | r37reg-syn14:contract-review-sol | 3 | 3 | 0 | 3 | 0 |
 | syn-14-bug-sla-business-hours | kogen-bench-eu | r37reg-syn14:debate-packplan-review | 3 | 3 | 3 | 0 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r37.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 62 rows (fail 33, invalid 1, pass 28); overall pass rate is 45.9% (28/61) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 61/62 shared cell IDs match; 0/38 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+Exact outcome mismatches (published vs recomputed):
+- `kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-debate-packplan-review-r37-studio`: published `grader_error`, recomputed `invalid`.
+Token reconciliation under [METHOD.md](../../METHOD.md): 43/43 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

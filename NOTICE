@@ -1,6 +1,6 @@
 # NOTICE
 
-This repository contains task definitions and task bases that include or identify third-party code. Preserve the applicable full licence notice when redistributing copies or substantial portions of that code. Per-task redistribution status and required notice files appear in each task’s `credits` object.
+This repository contains task definitions, task bases, and reference solutions that include or derive from third-party code. The Rails task bases and reference solutions derive from 37signals LLC’s Fizzy, Fizzy SaaS, and Writebook. Preserve the applicable full licence notice when redistributing copies or substantial portions of that code. Per-task redistribution status and required notice files appear in each task’s `credits` object.
 
 ## Fizzy — 37signals LLC
 
@@ -16,9 +16,16 @@ The following tasks include or identify code from Writebook, licensed under MIT.
 
 `rails-ac-deep-link-return`, `rails-ac-throttle-search`, `rails-aj-enqueue-after-commit`, `rails-aj-resumable-cleanup`, `rails-ar-announce-once`, `rails-ar-archive-book-access`, `rails-ar-atomic-import`, `rails-ar-bulk-access-grants`, `rails-ar-compact-positions`, `rails-ar-erase-account`, `rails-ar-release-recap`, `rails-ar-tenant-isolation`, `rails-as-purge-embedded-images`, `rails-as-variant-processed-once`, `rails-av-toc-cache-per-role`, `rails-hw-scoped-broadcast`, `rails-sec-audit-sweep`, `rails-sup-cache-library-digest`, `rails-sup-legacy-conversions`, `rails-sup-log-to-terminal`, `rails-tst-error-page-flake`.
 
+## Agents on Rails — Rails Foundation and Evil Martians
+
+The [Agents on Rails benchmark](https://github.com/rails/ai-evals) was commissioned by the Rails Foundation and built by Evil Martians. The 42 tasks listed below reuse its ideas, prompts, verification tests, and reference patches from pinned commit `b799f091cf138bbc880baa6423eccd0d26066dbb` under MIT. Their task records cite the upstream paths and distinguish benchmark materials from Fizzy base and feature credits. Preserve the notice in [LICENSES/RAILS-AI-EVALS-MIT.txt](LICENSES/RAILS-AI-EVALS-MIT.txt).
+
+`rails-ac-deep-link-return`, `rails-ac-throttle-search`, `rails-aj-enqueue-after-commit`, `rails-aj-resumable-cleanup`, `rails-ar-announce-once`, `rails-ar-archive-book-access`, `rails-ar-atomic-import`, `rails-ar-bulk-access-grants`, `rails-ar-compact-positions`, `rails-ar-erase-account`, `rails-ar-release-recap`, `rails-ar-tenant-isolation`, `rails-as-purge-embedded-images`, `rails-as-variant-processed-once`, `rails-av-toc-cache-per-role`, `rails-ft-account-id-rollout`, `rails-ft-active-storage-tracking`, `rails-ft-activity-feed-api`, `rails-ft-board-publish-unpublish-public-boundary`, `rails-ft-cancelled-account-cleanup`, `rails-ft-card-drop-settled-landing`, `rails-ft-card-reactions`, `rails-ft-card-stalled-quiet-clock`, `rails-ft-comment-reaction-live-echo`, `rails-ft-data-export-and-import`, `rails-ft-email-code-sign-in`, `rails-ft-entropy-sweep`, `rails-ft-i18n-support`, `rails-ft-kamal-deploy`, `rails-ft-local-time-human-clock`, `rails-ft-mysql-fulltext-search-foundation`, `rails-ft-notification-bundle-window-overlap`, `rails-ft-saas-billing`, `rails-ft-web-push-device-delivery`, `rails-ft-webhook-delivery-trust-and-restart`, `rails-hello-world`, `rails-hw-scoped-broadcast`, `rails-sec-audit-sweep`, `rails-sup-cache-library-digest`, `rails-sup-legacy-conversions`, `rails-sup-log-to-terminal`, `rails-tst-error-page-flake`.
+
+The local variants `rails-ft-activity-feed-api-v2` and `rails-ft-activity-feed-api-v3` also carry Agents on Rails attribution: each reuses the original `ft-activity-feed-api` verification test and reference patch byte-for-byte with a locally adapted prompt. They are not separate upstream v2/v3 task exports. Their task records identify this derivative lineage and the same MIT notice.
 ## Other task bases
 
-Bundle commit metadata identifies the harness-created Trackline, Beltway, Elixir port, and R70 fixture bases whose task records credit Optimum Tech under Apache-2.0. Tally bases and task bases without a matched bundle commit retain `permission-needed` in their task credit records; this notice does not grant rights to those unresolved bases. `rails-hello-world` has an unidentified base.
+Bundle commit metadata identifies the harness-created Trackline, Beltway, Elixir port, and R70 fixture bases whose task records credit Optimum Tech under Apache-2.0. Tally bases and task bases without a matched bundle commit retain `permission-needed` in their task credit records; this notice does not grant rights to those unresolved bases.
 
 ## Tailwind CSS and daisyUI
 

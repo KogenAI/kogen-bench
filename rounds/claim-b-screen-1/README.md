@@ -1,5 +1,12 @@
 # Claim B transport screen
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of OUTCOME_CLASSIFICATION_INVALID, OUTCOME_CROSSWALK_MISSING. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INVALID**
@@ -44,3 +51,12 @@ The [public capture manifest](public-capture-manifest.csv) is header-only: no de
 ## Interpretation
 
 The transport correction changes the meaning of the initial failure tally. Preserve the patch and autonomous columns separately, and do not treat the reported 2/6 versus 5/6 patch result as model evidence.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/claim-b-screen-1.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 15 rows (fail 7, grader_error 1, pass 7); overall pass rate is 50.0% (7/14) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 15 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 15 raw-only or non-public rows; they are kept separate from the published-export denominator.

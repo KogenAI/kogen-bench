@@ -1,5 +1,12 @@
 # Four-harness comparison
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of OUTCOME_CROSSWALK_MISSING, RAW_EVIDENCE_MISSING, TASK_VALIDITY_UNRESOLVED. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
@@ -45,3 +52,12 @@ The [public capture manifest](public-capture-manifest.csv) is header-only: no de
 ## Interpretation
 
 Keep this result separate from the three-task harness pick, the Claim B screen and the hard1 calibration. Saturated tasks, the small discriminating subset, unresolved grader corrections and missing exact grades prevent a release claim of general harness superiority.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/harness-compare-1.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The selected final official-grade inventory contains 80 rows (fail 24, pass 56); overall pass rate is 70.0% (56/80) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+Cohort reconciliation: the 240 source records contain 80 final official-grade rows, 80 preliminary-grade rows, and 80 unlabelled capture copies. The execution-level rate selects one final row per `source_cell_id (falling back to cell_id for unlabelled captures)`: **70.0% (56/80)**. The earlier 69.5% (162/233) arithmetic is retained only as a superseded source-inventory calculation; it pooled duplicates and preliminary grades, including 7 grader errors outside the pass/fail denominator. All 80 final/unlabelled pairs match on usage, wall time, grade, prompt hash, and delivered patch hashes.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 240 missing published metadata). Missing counters remain unknown, not zero.

@@ -1,0 +1,100 @@
+diff --git a/app/controllers/boards/card_exports_controller.rb b/app/controllers/boards/card_exports_controller.rb
+new file mode 100644
+index 0000000..4cbaa7c
+--- /dev/null
++++ b/app/controllers/boards/card_exports_controller.rb
+@@ -0,0 +1,10 @@
++class Boards::CardExportsController < ApplicationController
++  def show
++    @board = Current.user.boards.find(params[:board_id])
++
++    send_data @board.cards_csv,
++      type: "text/csv; charset=utf-8",
++      disposition: "attachment",
++      filename: "board-cards.csv"
++  end
++end
+diff --git a/app/models/board.rb b/app/models/board.rb
+index ada49f1..ca17799 100644
+--- a/app/models/board.rb
++++ b/app/models/board.rb
+@@ -1,5 +1,5 @@
+ class Board < ApplicationRecord
+-  include Accessible, AutoPostponing, Board::Storage, Broadcastable, Cards, Entropic, Filterable, Publishable, ::Storage::Tracked, Triageable
++  include Accessible, AutoPostponing, Board::CardExportable, Board::Storage, Broadcastable, Cards, Entropic, Filterable, Publishable, ::Storage::Tracked, Triageable
+ 
+   belongs_to :creator, class_name: "User", default: -> { Current.user }
+   belongs_to :account, default: -> { creator.account }
+diff --git a/app/models/board/card_exportable.rb b/app/models/board/card_exportable.rb
+new file mode 100644
+index 0000000..e90ade1
+--- /dev/null
++++ b/app/models/board/card_exportable.rb
+@@ -0,0 +1,43 @@
++require "csv"
++
++module Board::CardExportable
++  extend ActiveSupport::Concern
++
++  def cards_csv
++    CSV.generate do |csv|
++      csv << [ "Number", "Title", "Status", "Assignees", "Tags", "Created At" ]
++
++      Current.account.cards.published.includes(:column, :closure, :not_now, :assignees, :tags).order(number: :asc).each do |card|
++        csv << [
++          card.number,
++          card.title,
++          export_status(card),
++          export_assignees(card),
++          export_tags(card),
++          card.created_at.utc.iso8601
++        ]
++      end
++    end
++  end
++
++  private
++    def export_status(card)
++      if card.closed?
++        "Done"
++      elsif card.postponed?
++        "Not now"
++      elsif card.column.present?
++        card.column.name
++      else
++        "Maybe?"
++      end
++    end
++
++    def export_assignees(card)
++      card.assignees.sort_by { |user| [ user.name.downcase, user.name ] }.map(&:name).join("; ")
++    end
++
++    def export_tags(card)
++      card.tags.sort_by { |tag| [ tag.title.downcase, tag.title ] }.map(&:title).join("; ")
++    end
++end
+diff --git a/app/views/boards/show.html.erb b/app/views/boards/show.html.erb
+index 93c1447..e4f54e5 100644
+--- a/app/views/boards/show.html.erb
++++ b/app/views/boards/show.html.erb
+@@ -14,6 +14,7 @@
+   </h1>
+ 
+   <div class="header__actions header__actions--end hide-on-native">
++    <%= link_to "Export cards (CSV)", board_card_export_path(@board, format: :csv), class: "btn btn--plain" %>
+     <%= link_to_edit_board @board %>
+   </div>
+ <% end %>
+diff --git a/config/routes.rb b/config/routes.rb
+index d228d90..cbea8e5 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -27,6 +27,7 @@ Rails.application.routes.draw do
+ 
+   resources :boards do
+     scope module: :boards do
++      resource :card_export, only: :show, defaults: { format: :csv }
+       resources :accesses, only: :index
+       resource :subscriptions
+       resource :involvement

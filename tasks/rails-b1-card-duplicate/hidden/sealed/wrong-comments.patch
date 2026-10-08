@@ -1,0 +1,65 @@
+diff --git a/app/controllers/cards/duplicates_controller.rb b/app/controllers/cards/duplicates_controller.rb
+new file mode 100644
+index 0000000..cc9aadd
+--- /dev/null
++++ b/app/controllers/cards/duplicates_controller.rb
+@@ -0,0 +1,13 @@
++class Cards::DuplicatesController < ApplicationController
++  include CardScoped
++
++  def create
++    copy = @card.duplicate_by(Current.user)
++
++    render json: {
++      id: copy.number,
++      title: copy.title,
++      description: copy.description.to_plain_text
++    }, status: :created
++  end
++end
+diff --git a/app/models/card.rb b/app/models/card.rb
+index 14b89c0..9b0ed0d 100644
+--- a/app/models/card.rb
++++ b/app/models/card.rb
+@@ -1,5 +1,5 @@
+ class Card < ApplicationRecord
+-  include Accessible, Assignable, Attachments, Broadcastable, Closeable, Colored, Commentable,
++  include Accessible, Assignable, Attachments, Broadcastable, Closeable, Colored, Commentable, Duplicable,
+     Entropic, Eventable, Exportable, Golden, Mentions, Multistep, Pinnable, Postponable, Promptable,
+     Readable, Searchable, Stallable, Statuses, Storage::Tracked, Taggable, Triageable, Watchable
+ 
+diff --git a/app/models/card/duplicable.rb b/app/models/card/duplicable.rb
+new file mode 100644
+index 0000000..bf9daad
+--- /dev/null
++++ b/app/models/card/duplicable.rb
+@@ -0,0 +1,17 @@
++module Card::Duplicable
++  extend ActiveSupport::Concern
++
++  def duplicate_by(user)
++    copy = self.class.create!(
++      board: board,
++      creator: user,
++      status: "published",
++      title: title,
++      description: description.to_plain_text
++    )
++    comments.each do |comment|
++      copy.comments.create!(creator: user, body: comment.body.to_plain_text)
++    end
++    copy
++  end
++end
+diff --git a/config/routes.rb b/config/routes.rb
+index d228d90..7a34784 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -93,6 +93,7 @@ Rails.application.routes.draw do
+       resource :triage
+       resource :watch
+       resource :reading
++      resource :duplicate, only: :create
+ 
+       resources :reactions
+ 

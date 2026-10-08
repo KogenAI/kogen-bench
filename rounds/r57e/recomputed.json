@@ -1,0 +1,748 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 78,
+    "token_cells_different": 0,
+    "token_cells_equal": 78,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 233472,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r1-default-tools-r57e-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 46897,
+        "output_tokens": 7901,
+        "published_metadata_tokens": 288270,
+        "reasoning_tokens": 3699,
+        "round": "r57e"
+      },
+      {
+        "cached_input_tokens": 33280,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r1-shell-only-r57e-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 19383,
+        "output_tokens": 6949,
+        "published_metadata_tokens": 59612,
+        "reasoning_tokens": 4370,
+        "round": "r57e"
+      },
+      {
+        "cached_input_tokens": 57344,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r2-default-tools-r57e-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 17894,
+        "output_tokens": 4508,
+        "published_metadata_tokens": 79746,
+        "reasoning_tokens": 2378,
+        "round": "r57e"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 78,
+        "equal": 78
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 78,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 78,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 78,
+    "fail_count": 23,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 78,
+      "incomplete_cells": 0,
+      "total": 13249649
+    },
+    "officially_graded_cells": 78,
+    "outcomes": {
+      "fail": 23,
+      "pass": 55
+    },
+    "pass_count": 55,
+    "pass_rate": 0.7051282051282052,
+    "pass_rate_denominator": 78,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 9965568
+      },
+      "input_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 2728801
+      },
+      "output_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 555280
+      },
+      "reasoning_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 328779
+      }
+    },
+    "wall_s": {
+      "known_cells": 78,
+      "median": 187.21550000000002,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "default-tools": {
+      "cells": 39,
+      "fail_count": 11,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 39,
+        "incomplete_cells": 0,
+        "total": 9171728
+      },
+      "officially_graded_cells": 39,
+      "outcomes": {
+        "fail": 11,
+        "pass": 28
+      },
+      "pass_count": 28,
+      "pass_rate": 0.717948717948718,
+      "pass_rate_denominator": 39,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 7322624
+        },
+        "input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 1541486
+        },
+        "output_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 307618
+        },
+        "reasoning_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 176061
+        }
+      },
+      "wall_s": {
+        "known_cells": 39,
+        "median": 235.383,
+        "missing_cells": 0
+      }
+    },
+    "shell-only": {
+      "cells": 39,
+      "fail_count": 12,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 39,
+        "incomplete_cells": 0,
+        "total": 4077921
+      },
+      "officially_graded_cells": 39,
+      "outcomes": {
+        "fail": 12,
+        "pass": 27
+      },
+      "pass_count": 27,
+      "pass_rate": 0.6923076923076923,
+      "pass_rate_denominator": 39,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 2642944
+        },
+        "input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 1187315
+        },
+        "output_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 247662
+        },
+        "reasoning_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 152718
+        }
+      },
+      "wall_s": {
+        "known_cells": 39,
+        "median": 169.636,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 78,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 78,
+    "public_export_rows_in_round": 78,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "default-tools": {
+        "cells": 39,
+        "fail_count": 11,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 39,
+          "total": 0
+        },
+        "officially_graded_cells": 39,
+        "outcomes": {
+          "fail": 11,
+          "pass": 28
+        },
+        "pass_count": 28,
+        "pass_rate": 0.717948717948718,
+        "pass_rate_denominator": 39,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 39
+        }
+      },
+      "shell-only": {
+        "cells": 39,
+        "fail_count": 12,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 39,
+          "total": 0
+        },
+        "officially_graded_cells": 39,
+        "outcomes": {
+          "fail": 12,
+          "pass": 27
+        },
+        "pass_count": 27,
+        "pass_rate": 0.6923076923076923,
+        "pass_rate_denominator": 39,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 39,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 39
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "default-tools": {
+        "cells": 39,
+        "fail_count": 11,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 39,
+          "incomplete_cells": 0,
+          "total": 9171728
+        },
+        "officially_graded_cells": 39,
+        "outcomes": {
+          "fail": 11,
+          "pass": 28
+        },
+        "pass_count": 28,
+        "pass_rate": 0.717948717948718,
+        "pass_rate_denominator": 39,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 7322624
+          },
+          "input_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 1541486
+          },
+          "output_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 307618
+          },
+          "reasoning_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 176061
+          }
+        },
+        "wall_s": {
+          "known_cells": 39,
+          "median": 235.383,
+          "missing_cells": 0
+        }
+      },
+      "shell-only": {
+        "cells": 39,
+        "fail_count": 12,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 39,
+          "incomplete_cells": 0,
+          "total": 4077921
+        },
+        "officially_graded_cells": 39,
+        "outcomes": {
+          "fail": 12,
+          "pass": 27
+        },
+        "pass_count": 27,
+        "pass_rate": 0.6923076923076923,
+        "pass_rate_denominator": 39,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 2642944
+          },
+          "input_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 1187315
+          },
+          "output_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 247662
+          },
+          "reasoning_tokens": {
+            "known_cells": 39,
+            "missing_cells": 0,
+            "total": 152718
+          }
+        },
+        "wall_s": {
+          "known_cells": 39,
+          "median": 169.636,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 78,
+    "fail_count": 23,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 78,
+      "incomplete_cells": 0,
+      "total": 13249649
+    },
+    "officially_graded_cells": 78,
+    "outcomes": {
+      "fail": 23,
+      "pass": 55
+    },
+    "pass_count": 55,
+    "pass_rate": 0.7051282051282052,
+    "pass_rate_denominator": 78,
+    "published_export_cells": 78,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 9965568
+      },
+      "input_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 2728801
+      },
+      "output_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 555280
+      },
+      "reasoning_tokens": {
+        "known_cells": 78,
+        "missing_cells": 0,
+        "total": 328779
+      }
+    },
+    "wall_s": {
+      "known_cells": 78,
+      "median": 187.21550000000002,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "default-tools": {
+      "cells": 39,
+      "fail_count": 11,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 39,
+        "incomplete_cells": 0,
+        "total": 9171728
+      },
+      "officially_graded_cells": 39,
+      "outcomes": {
+        "fail": 11,
+        "pass": 28
+      },
+      "pass_count": 28,
+      "pass_rate": 0.717948717948718,
+      "pass_rate_denominator": 39,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 7322624
+        },
+        "input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 1541486
+        },
+        "output_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 307618
+        },
+        "reasoning_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 176061
+        }
+      },
+      "wall_s": {
+        "known_cells": 39,
+        "median": 235.383,
+        "missing_cells": 0
+      }
+    },
+    "shell-only": {
+      "cells": 39,
+      "fail_count": 12,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 39,
+        "incomplete_cells": 0,
+        "total": 4077921
+      },
+      "officially_graded_cells": 39,
+      "outcomes": {
+        "fail": 12,
+        "pass": 27
+      },
+      "pass_count": 27,
+      "pass_rate": 0.6923076923076923,
+      "pass_rate_denominator": 39,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 2642944
+        },
+        "input_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 1187315
+        },
+        "output_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 247662
+        },
+        "reasoning_tokens": {
+          "known_cells": 39,
+          "missing_cells": 0,
+          "total": 152718
+        }
+      },
+      "wall_s": {
+        "known_cells": 39,
+        "median": 169.636,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "default-tools": {
+          "cells": 39,
+          "fail_count": 11,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 39,
+            "incomplete_cells": 0,
+            "total": 9171728
+          },
+          "officially_graded_cells": 39,
+          "outcomes": {
+            "fail": 11,
+            "pass": 28
+          },
+          "pass_count": 28,
+          "pass_rate": 0.717948717948718,
+          "pass_rate_denominator": 39,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 7322624
+            },
+            "input_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 1541486
+            },
+            "output_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 307618
+            },
+            "reasoning_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 176061
+            }
+          },
+          "wall_s": {
+            "known_cells": 39,
+            "median": 235.383,
+            "missing_cells": 0
+          }
+        },
+        "shell-only": {
+          "cells": 39,
+          "fail_count": 12,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 39,
+            "incomplete_cells": 0,
+            "total": 4077921
+          },
+          "officially_graded_cells": 39,
+          "outcomes": {
+            "fail": 12,
+            "pass": 27
+          },
+          "pass_count": 27,
+          "pass_rate": 0.6923076923076923,
+          "pass_rate_denominator": 39,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 2642944
+            },
+            "input_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 1187315
+            },
+            "output_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 247662
+            },
+            "reasoning_tokens": {
+              "known_cells": 39,
+              "missing_cells": 0,
+              "total": 152718
+            }
+          },
+          "wall_s": {
+            "known_cells": 39,
+            "median": 169.636,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r1-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r1-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r2-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r2-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r3-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r3-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r4-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r4-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r5-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r5-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r6-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r6-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r7-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r7-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r8-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-05-cache-single-flight__r8-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r1-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r1-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r2-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r2-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r3-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r3-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r4-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r4-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r5-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r5-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r6-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r6-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r7-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r7-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r8-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-07-cli-stats__r8-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r2-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r2-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r3-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r3-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r4-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r4-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r5-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r6-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r6-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r7-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r7-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r8-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r8-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r1-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r1-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r2-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r2-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r3-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r3-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r4-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r4-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r5-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r6-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r6-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r7-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r7-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r8-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r8-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r1-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r1-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r2-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r2-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r3-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r3-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r4-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r4-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r5-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r5-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r6-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r6-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r7-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r7-shell-only-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r8-default-tools-r57e-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-14-bug-sla-business-hours__r8-shell-only-r57e-studio"
+      ],
+      "summary": {
+        "cells": 78,
+        "fail_count": 23,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 78,
+          "incomplete_cells": 0,
+          "total": 13249649
+        },
+        "officially_graded_cells": 78,
+        "outcomes": {
+          "fail": 23,
+          "pass": 55
+        },
+        "pass_count": 55,
+        "pass_rate": 0.7051282051282052,
+        "pass_rate_denominator": 78,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 78,
+            "missing_cells": 0,
+            "total": 9965568
+          },
+          "input_tokens": {
+            "known_cells": 78,
+            "missing_cells": 0,
+            "total": 2728801
+          },
+          "output_tokens": {
+            "known_cells": 78,
+            "missing_cells": 0,
+            "total": 555280
+          },
+          "reasoning_tokens": {
+            "known_cells": 78,
+            "missing_cells": 0,
+            "total": 328779
+          }
+        },
+        "wall_s": {
+          "known_cells": 78,
+          "median": 187.21550000000002,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r57e",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

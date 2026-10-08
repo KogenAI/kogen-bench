@@ -1,0 +1,98 @@
+diff --git a/app/controllers/boards/default_assignees_controller.rb b/app/controllers/boards/default_assignees_controller.rb
+new file mode 100644
+index 0000000..ce505df
+--- /dev/null
++++ b/app/controllers/boards/default_assignees_controller.rb
+@@ -0,0 +1,31 @@
++class Boards::DefaultAssigneesController < ApplicationController
++  before_action :set_board
++
++  def show
++    render_default_assignee
++  end
++
++  def update
++    return head :forbidden unless Current.user.can_administer_board?(@board)
++
++    assignee_id = params[:default_assignee_id]
++    assignee = assignee_id.present? ? @board.users.active.find_by(id: assignee_id) : nil
++
++    if assignee_id.present? && assignee.nil?
++      render json: { error: "default_assignee_must_be_active_board_user" }, status: :unprocessable_entity
++    elsif @board.update(default_assignee: assignee)
++      render_default_assignee
++    else
++      render json: { error: "default_assignee_must_be_active_board_user" }, status: :unprocessable_entity
++    end
++  end
++
++  private
++    def set_board
++      @board = Current.user.boards.find(params[:board_id])
++    end
++
++    def render_default_assignee
++      render json: { board_id: @board.id, default_assignee_id: @board.default_assignee_id }, status: :ok
++    end
++end
+diff --git a/app/models/board.rb b/app/models/board.rb
+index ada49f1..0b25242 100644
+--- a/app/models/board.rb
++++ b/app/models/board.rb
+@@ -9,6 +9,7 @@ class Board < ApplicationRecord
+   has_many :tags, -> { distinct }, through: :cards
+   has_many :events
+   has_many :webhooks, dependent: :destroy
++  belongs_to :default_assignee, class_name: "User", optional: true
+ 
+   scope :alphabetically, -> { order("lower(name)") }
+   scope :ordered_by_recently_accessed, -> { merge(Access.ordered_by_recently_accessed) }
+diff --git a/config/routes.rb b/config/routes.rb
+index d228d90..424caec 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -28,6 +28,7 @@ Rails.application.routes.draw do
+   resources :boards do
+     scope module: :boards do
+       resources :accesses, only: :index
++      resource :default_assignee, only: [ :show, :update ]
+       resource :subscriptions
+       resource :involvement
+       resource :publication
+diff --git a/db/migrate/20261001121000_add_default_assignee_to_boards.rb b/db/migrate/20261001121000_add_default_assignee_to_boards.rb
+new file mode 100644
+index 0000000..b2e54a6
+--- /dev/null
++++ b/db/migrate/20261001121000_add_default_assignee_to_boards.rb
+@@ -0,0 +1,5 @@
++class AddDefaultAssigneeToBoards < ActiveRecord::Migration[8.2]
++  def change
++    add_reference :boards, :default_assignee, type: :uuid, foreign_key: { to_table: :users }, index: true
++  end
++end
+diff --git a/db/schema.rb b/db/schema.rb
+index 58218ff..543e9e9 100644
+--- a/db/schema.rb
++++ b/db/schema.rb
+@@ -10,7 +10,7 @@
+ #
+ # It's strongly recommended that you check this file into your version control system.
+ 
+-ActiveRecord::Schema[8.2].define(version: 2026_07_09_120000) do
++ActiveRecord::Schema[8.2].define(version: 2026_10_01_121000) do
+   create_table "accesses", id: :uuid, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+     t.datetime "accessed_at"
+     t.uuid "account_id", null: false
+@@ -173,10 +173,12 @@ ActiveRecord::Schema[8.2].define(version: 2026_07_09_120000) do
+     t.boolean "all_access", default: false, null: false
+     t.datetime "created_at", null: false
+     t.uuid "creator_id", null: false
++    t.uuid "default_assignee_id"
+     t.string "name", null: false
+     t.datetime "updated_at", null: false
+     t.index ["account_id"], name: "index_boards_on_account_id"
+     t.index ["creator_id"], name: "index_boards_on_creator_id"
++    t.index ["default_assignee_id"], name: "index_boards_on_default_assignee_id"
+   end
+ 
+   create_table "boards_filters", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

@@ -78,4 +78,10 @@ The validator checks round and task indexes, result exports, required record fie
 
 The source is licensed under the [Apache License 2.0](LICENSE). Product identity is described in [BRANDING.md](BRANDING.md).
 
+### Publication rules
+
+Upstream code is unmodified; its contents are the upstream authors'. Source files identified as upstream copies remain as published, including their hostnames, deployment paths, public addresses, and test-fixture values such as DNS test IPs. This applies to 37signals LLC's Fizzy, Fizzy SaaS, and Writebook, and to Agents on Rails, commissioned by the Rails Foundation and built by Evil Martians. Their attributions and licence terms are listed in [CREDITS.md](CREDITS.md), [NOTICE](NOTICE), and [LICENSES/](LICENSES/).
+
+Publication edits to Kogen-produced artifacts are recorded in [PUBLICATION-MANIFEST.json](PUBLICATION-MANIFEST.json), with separate as-run and published hashes and the reason for each change. See [SECURITY-NOTES.md](SECURITY-NOTES.md) for the retained public commit identity and the upstream-content exception.
+
 Forks and public deployments must use their own name, logo, visual identity, domain, content, credentials, and data. Kogen brand assets are not licensed under Apache-2.0. You may refer to Kogen only as reasonably necessary to describe the origin of the software.

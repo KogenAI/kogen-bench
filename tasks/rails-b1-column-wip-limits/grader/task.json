@@ -1,0 +1,26 @@
+{
+  "base_dir": "${BENCH_HOME}/bench/tasks/rails-_base/hard2-fizzy-20261001",
+  "base_repository": "https://github.com/basecamp/fizzy",
+  "base_commit": "8112b3dbafeea72225c1ed09ae170e8cbe2d1195",
+  "prompt": "prompt.md",
+  "prompt_source": "${BENCH_HOME}/bench/task-pipeline/rails-b1-column-wip-limits/public/ticket.md",
+  "setup": "export PATH=\"$HOME/.local/share/mise/installs/ruby/3.4.8/bin:$PATH\"; bundle check",
+  "setup_timeout_s": 60,
+  "setup_note": "Public Fizzy snapshot has its bundle preinstalled; bundle check is offline and makes no source changes.",
+  "grade": "grade.sh",
+  "grade_timeout_s": 110,
+  "timeout_s": 900,
+  "env": {
+    "RAILS_ENV": "test",
+    "BUNDLE_WITHOUT": "production",
+    "BUNDLE_FROZEN": "true"
+  },
+  "sealed": [
+    "rails-b1-column-wip-limits/sealed"
+  ],
+  "sealed_path": "~/bench-sealed/rails-b1-column-wip-limits/sealed/",
+  "quarantined": "Awaiting independent review; do not score or calibrate until ACCEPTED.",
+  "grade_ro": [
+    "~/.local/share/mise/installs/ruby/3.4.8/lib/ruby/gems/3.4.0"
+  ]
+}

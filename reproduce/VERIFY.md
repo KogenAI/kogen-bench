@@ -1,6 +1,6 @@
 # Verify published records and numbers
 
-Run these commands from the repository root with Python 3. They use only the committed public snapshot and standard-library Python. They do not contact a model, grading service, benchmark host, or private account.
+The public command sequence below runs from the repository root with Python 3 and uses only committed files and the standard library. It does not contact a model, grading service, benchmark host, or private account.
 
 ```sh
 python3 reproduce/export_results.py
@@ -17,7 +17,17 @@ python3 -m unittest discover -s reproduce -p 'test_*.py'
 
 The first six commands rebuild published tables, indexed records, joins, and audit summaries from their committed inputs. They write generated files; inspect `git diff` afterward. `audit_rounds.py` and `r70_completeness.py --write` also rewrite round pages or summaries. For a read-only check, skip the rebuilding commands and run the validators and tests against the committed outputs.
 
-The reproduction inventory has 175 round entries: 18 have an analysis-only replay command and 157 are marked unavailable. Run the available round-specific commands below to recompute their published tables. Repeated inventory entries for the same command are shown once. An unavailable entry has no public command that can recreate its numbers from the current snapshot; its round page and inventory state the limit.
+The reproduction inventory has 177 round entries: 19 have an analysis-only replay command and 158 are marked unavailable. Run the available round-specific commands below to recompute their published tables. Repeated inventory entries for the same command are shown once. An unavailable entry has no complete per-round command that recreates its published figures from the current snapshot; scoped observed-row audits may still be available.
+
+The recovered-source token audit covers 105 mined round tags. It rebuilds observed-row summaries and token metadata comparisons from the committed mined records; it does not restore missing published values or reproduce a full historical round. Run it with:
+
+```sh
+python3 reproduce/recompute_mined.py
+```
+
+## Operator-only source recovery
+
+`reproduce/mine_probe.py` is a recovery/import utility, not a public-snapshot reproducer. It requires an operator-owned recovery tree containing the source `results/` directory with per-cell directories and manifests, plus its separate `grades.final.jsonl`. Those inputs are not committed here; the default locations are outside this repository. When importing recovered data, pass their locations with `--results` and `--grades`; use `--output` to direct generated mined records and archives to a review copy. The public commands above consume the committed output and do not invoke this utility.
 
 ```sh
 python3 reproduce/cache_replay_tables.py
@@ -36,7 +46,7 @@ python3 rounds/r70-rve/reproduce.py
 python3 rounds/r70-rve-task8v2/reproduce.py
 ```
 
-`validate_release.py` is expected to return nonzero while independent model review receipts or publication gates are open. `scrutinize.py --json` also returns nonzero when its report contains findings; inspect its JSON findings rather than treating a nonzero exit as proof that no figures were recomputed.
+`validate_release.py` and `scrutinize.py --json` are separate checks. On this snapshot, `validate_release.py` validates historical round labels, applies strict Standard-record checks only to rounds dated 2026-10-09 or later, checks the registered publication gates, and then runs `validate_repo.py`; it does not run scrutiny or inspect independent-review receipts. It reports 177 historical rounds, zero new strict rounds, and `RELEASE GATE: PASS`. `scrutinize.py --json` independently recomputes configured evidence checks and returns nonzero when its report contains findings; inspect those findings rather than treating a nonzero exit as proof that no figures were recomputed.
 
 | Check | What it proves | Limit |
 | --- | --- | --- |
@@ -45,7 +55,7 @@ python3 rounds/r70-rve-task8v2/reproduce.py
 | `r70_completeness.py --write` | Recomputes the published Round 70 ledger and its summaries from the named public outcome and diagnostic inputs. | Does not infer absent costs, counters, or outcomes. |
 | `audit_rounds.py` | Rebuilds the historical record and gap audit summaries from published evidence. | Does not upgrade a round's validity or make missing evidence complete. |
 | `validate_repo.py` | Checks repository indexes, records, cross-references, numbers covered by its rules, privacy constraints, and authored relative links. | It is a consistency validator, not an independent rerun of historical model calls or hidden grading. |
-| `validate_release.py` | Runs scrutiny and repository checks, then enforces the independent review receipts and registered release gates. | It is expected to block until every required round has a valid independent review receipt and every publication gate is resolved. Do not fabricate receipts to make it pass. |
+| `validate_release.py` | Cross-checks historical round status, badges, reasons, dates, and recomputation labels; applies strict Standard-record checks only from 2026-10-09 onward; verifies the publication-blocker register; then runs `validate_repo.py`. | It does not run `scrutinize.py`, require independent-review receipts, or invoke official-grade round reproducers. A passing exit establishes only that the checks above passed. |
 | `scrutinize.py --json` | Recomputes the configured release-round headline counts, rates, token arithmetic, record joins, and related evidence checks, and emits machine-readable findings. | Covers the configured rounds and checks only; it does not prove unobserved historical events or restore missing evidence. |
 | Python tests | Exercise record transformations, validation policies, round-trip behavior, scrutiny arithmetic, and release-gate predicates. | Tests prove these code paths behave as specified, not that every historical input is complete. |
 

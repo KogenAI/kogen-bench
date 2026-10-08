@@ -1,0 +1,2252 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 73,
+    "token_cells_different": 0,
+    "token_cells_equal": 73,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 34304,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-route-fixnoplan-r29-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 21348,
+        "output_tokens": 1066,
+        "published_metadata_tokens": 56718,
+        "reasoning_tokens": 64,
+        "round": "r29"
+      },
+      {
+        "cached_input_tokens": 39424,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-review-only-r29-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 15545,
+        "output_tokens": 1070,
+        "published_metadata_tokens": 56039,
+        "reasoning_tokens": 156,
+        "round": "r29"
+      },
+      {
+        "cached_input_tokens": 156672,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-route-asrun-r29-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 24969,
+        "output_tokens": 2521,
+        "published_metadata_tokens": 184162,
+        "reasoning_tokens": 145,
+        "round": "r29"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 43,
+        "equal": 43
+      },
+      "kh-plan": {
+        "compared": 30,
+        "equal": 30
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 73,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 73,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 73,
+    "fail_count": 22,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 73,
+      "incomplete_cells": 0,
+      "total": 10188919
+    },
+    "officially_graded_cells": 73,
+    "outcomes": {
+      "fail": 22,
+      "pass": 51
+    },
+    "pass_count": 51,
+    "pass_rate": 0.6986301369863014,
+    "pass_rate_denominator": 73,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 7792640
+      },
+      "input_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 2281272
+      },
+      "output_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 115007
+      },
+      "reasoning_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 4465
+      }
+    },
+    "wall_s": {
+      "known_cells": 73,
+      "median": 306.786,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "r29-syn13:review-only": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1358516
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1080320
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 267769
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 10427
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 120
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 306.786,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn13:route-asrun": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1662940
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1326592
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 323384
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 12964
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 560
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 418.585,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn13:route-fixnoplan": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1316400
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1057792
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 248622
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 9986
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 73
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 295.269,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:review-only": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 319433
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 246784
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 71016
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1633
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 47.731,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:route-asrun": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 427052
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 308224
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 114309
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 4519
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 218.371,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:route-fixnoplan": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 328302
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 253952
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 72448
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1902
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 59.339,
+        "missing_cells": 0
+      }
+    },
+    "review-only": {
+      "cells": 15,
+      "fail_count": 12,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 15,
+        "incomplete_cells": 0,
+        "total": 1167470
+      },
+      "officially_graded_cells": 15,
+      "outcomes": {
+        "fail": 12,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.2,
+      "pass_rate_denominator": 15,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 781824
+        },
+        "input_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 364861
+        },
+        "output_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 20785
+        },
+        "reasoning_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 1411
+        }
+      },
+      "wall_s": {
+        "known_cells": 15,
+        "median": 207.568,
+        "missing_cells": 0
+      }
+    },
+    "route-asrun": {
+      "cells": 14,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 14,
+        "incomplete_cells": 0,
+        "total": 2299446
+      },
+      "officially_graded_cells": 14,
+      "outcomes": {
+        "pass": 14
+      },
+      "pass_count": 14,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 14,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 1849856
+        },
+        "input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 422322
+        },
+        "output_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 27268
+        },
+        "reasoning_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 145
+        }
+      },
+      "wall_s": {
+        "known_cells": 14,
+        "median": 456.2875,
+        "missing_cells": 0
+      }
+    },
+    "route-fixnoplan": {
+      "cells": 14,
+      "fail_count": 10,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 14,
+        "incomplete_cells": 0,
+        "total": 1309360
+      },
+      "officially_graded_cells": 14,
+      "outcomes": {
+        "fail": 10,
+        "pass": 4
+      },
+      "pass_count": 4,
+      "pass_rate": 0.2857142857142857,
+      "pass_rate_denominator": 14,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 887296
+        },
+        "input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 396541
+        },
+        "output_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 25523
+        },
+        "reasoning_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 2156
+        }
+      },
+      "wall_s": {
+        "known_cells": 14,
+        "median": 282.8295,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 73,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 73,
+    "public_export_rows_in_round": 73,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "r29-syn13:review-only": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r29-syn13:route-asrun": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r29-syn13:route-fixnoplan": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r29-syn14:review-only": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r29-syn14:route-asrun": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "r29-syn14:route-fixnoplan": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      },
+      "review-only": {
+        "cells": 15,
+        "fail_count": 12,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 15,
+          "total": 0
+        },
+        "officially_graded_cells": 15,
+        "outcomes": {
+          "fail": 12,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.2,
+        "pass_rate_denominator": 15,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 15,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 15,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 15,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 15,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 15
+        }
+      },
+      "route-asrun": {
+        "cells": 14,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 14,
+          "total": 0
+        },
+        "officially_graded_cells": 14,
+        "outcomes": {
+          "pass": 14
+        },
+        "pass_count": 14,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 14,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 14
+        }
+      },
+      "route-fixnoplan": {
+        "cells": 14,
+        "fail_count": 10,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 14,
+          "total": 0
+        },
+        "officially_graded_cells": 14,
+        "outcomes": {
+          "fail": 10,
+          "pass": 4
+        },
+        "pass_count": 4,
+        "pass_rate": 0.2857142857142857,
+        "pass_rate_denominator": 14,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 14,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 14
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "r29-syn13:review-only": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 1358516
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 1080320
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 267769
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 10427
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 120
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 306.786,
+          "missing_cells": 0
+        }
+      },
+      "r29-syn13:route-asrun": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 1662940
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 1326592
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 323384
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 12964
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 560
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 418.585,
+          "missing_cells": 0
+        }
+      },
+      "r29-syn13:route-fixnoplan": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 1316400
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 1057792
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 248622
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 9986
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 73
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 295.269,
+          "missing_cells": 0
+        }
+      },
+      "r29-syn14:review-only": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 319433
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 246784
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 71016
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 1633
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 47.731,
+          "missing_cells": 0
+        }
+      },
+      "r29-syn14:route-asrun": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 427052
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 308224
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 114309
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 4519
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 218.371,
+          "missing_cells": 0
+        }
+      },
+      "r29-syn14:route-fixnoplan": {
+        "cells": 5,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 328302
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "pass": 5
+        },
+        "pass_count": 5,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 253952
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 72448
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 1902
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 59.339,
+          "missing_cells": 0
+        }
+      },
+      "review-only": {
+        "cells": 15,
+        "fail_count": 12,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 15,
+          "incomplete_cells": 0,
+          "total": 1167470
+        },
+        "officially_graded_cells": 15,
+        "outcomes": {
+          "fail": 12,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.2,
+        "pass_rate_denominator": 15,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 15,
+            "missing_cells": 0,
+            "total": 781824
+          },
+          "input_tokens": {
+            "known_cells": 15,
+            "missing_cells": 0,
+            "total": 364861
+          },
+          "output_tokens": {
+            "known_cells": 15,
+            "missing_cells": 0,
+            "total": 20785
+          },
+          "reasoning_tokens": {
+            "known_cells": 15,
+            "missing_cells": 0,
+            "total": 1411
+          }
+        },
+        "wall_s": {
+          "known_cells": 15,
+          "median": 207.568,
+          "missing_cells": 0
+        }
+      },
+      "route-asrun": {
+        "cells": 14,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 14,
+          "incomplete_cells": 0,
+          "total": 2299446
+        },
+        "officially_graded_cells": 14,
+        "outcomes": {
+          "pass": 14
+        },
+        "pass_count": 14,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 14,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 1849856
+          },
+          "input_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 422322
+          },
+          "output_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 27268
+          },
+          "reasoning_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 145
+          }
+        },
+        "wall_s": {
+          "known_cells": 14,
+          "median": 456.2875,
+          "missing_cells": 0
+        }
+      },
+      "route-fixnoplan": {
+        "cells": 14,
+        "fail_count": 10,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 14,
+          "incomplete_cells": 0,
+          "total": 1309360
+        },
+        "officially_graded_cells": 14,
+        "outcomes": {
+          "fail": 10,
+          "pass": 4
+        },
+        "pass_count": 4,
+        "pass_rate": 0.2857142857142857,
+        "pass_rate_denominator": 14,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 887296
+          },
+          "input_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 396541
+          },
+          "output_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 25523
+          },
+          "reasoning_tokens": {
+            "known_cells": 14,
+            "missing_cells": 0,
+            "total": 2156
+          }
+        },
+        "wall_s": {
+          "known_cells": 14,
+          "median": 282.8295,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 73,
+    "fail_count": 22,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 73,
+      "incomplete_cells": 0,
+      "total": 10188919
+    },
+    "officially_graded_cells": 73,
+    "outcomes": {
+      "fail": 22,
+      "pass": 51
+    },
+    "pass_count": 51,
+    "pass_rate": 0.6986301369863014,
+    "pass_rate_denominator": 73,
+    "published_export_cells": 73,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 7792640
+      },
+      "input_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 2281272
+      },
+      "output_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 115007
+      },
+      "reasoning_tokens": {
+        "known_cells": 73,
+        "missing_cells": 0,
+        "total": 4465
+      }
+    },
+    "wall_s": {
+      "known_cells": 73,
+      "median": 306.786,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "r29-syn13:review-only": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1358516
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1080320
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 267769
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 10427
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 120
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 306.786,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn13:route-asrun": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1662940
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1326592
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 323384
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 12964
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 560
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 418.585,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn13:route-fixnoplan": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 1316400
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1057792
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 248622
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 9986
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 73
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 295.269,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:review-only": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 319433
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 246784
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 71016
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1633
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 47.731,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:route-asrun": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 427052
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 308224
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 114309
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 4519
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 218.371,
+        "missing_cells": 0
+      }
+    },
+    "r29-syn14:route-fixnoplan": {
+      "cells": 5,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 328302
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "pass": 5
+      },
+      "pass_count": 5,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 253952
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 72448
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 1902
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 59.339,
+        "missing_cells": 0
+      }
+    },
+    "review-only": {
+      "cells": 15,
+      "fail_count": 12,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 15,
+        "incomplete_cells": 0,
+        "total": 1167470
+      },
+      "officially_graded_cells": 15,
+      "outcomes": {
+        "fail": 12,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.2,
+      "pass_rate_denominator": 15,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 781824
+        },
+        "input_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 364861
+        },
+        "output_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 20785
+        },
+        "reasoning_tokens": {
+          "known_cells": 15,
+          "missing_cells": 0,
+          "total": 1411
+        }
+      },
+      "wall_s": {
+        "known_cells": 15,
+        "median": 207.568,
+        "missing_cells": 0
+      }
+    },
+    "route-asrun": {
+      "cells": 14,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 14,
+        "incomplete_cells": 0,
+        "total": 2299446
+      },
+      "officially_graded_cells": 14,
+      "outcomes": {
+        "pass": 14
+      },
+      "pass_count": 14,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 14,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 1849856
+        },
+        "input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 422322
+        },
+        "output_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 27268
+        },
+        "reasoning_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 145
+        }
+      },
+      "wall_s": {
+        "known_cells": 14,
+        "median": 456.2875,
+        "missing_cells": 0
+      }
+    },
+    "route-fixnoplan": {
+      "cells": 14,
+      "fail_count": 10,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 14,
+        "incomplete_cells": 0,
+        "total": 1309360
+      },
+      "officially_graded_cells": 14,
+      "outcomes": {
+        "fail": 10,
+        "pass": 4
+      },
+      "pass_count": 4,
+      "pass_rate": 0.2857142857142857,
+      "pass_rate_denominator": 14,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 887296
+        },
+        "input_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 396541
+        },
+        "output_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 25523
+        },
+        "reasoning_tokens": {
+          "known_cells": 14,
+          "missing_cells": 0,
+          "total": 2156
+        }
+      },
+      "wall_s": {
+        "known_cells": 14,
+        "median": 282.8295,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "r29-syn13:review-only": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 1358516
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 1080320
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 267769
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 10427
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 120
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 306.786,
+            "missing_cells": 0
+          }
+        },
+        "r29-syn13:route-asrun": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 1662940
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 1326592
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 323384
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 12964
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 560
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 418.585,
+            "missing_cells": 0
+          }
+        },
+        "r29-syn13:route-fixnoplan": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 1316400
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 1057792
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 248622
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 9986
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 73
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 295.269,
+            "missing_cells": 0
+          }
+        },
+        "r29-syn14:review-only": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 319433
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 246784
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 71016
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 1633
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 47.731,
+            "missing_cells": 0
+          }
+        },
+        "r29-syn14:route-asrun": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 427052
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 308224
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 114309
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 4519
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 218.371,
+            "missing_cells": 0
+          }
+        },
+        "r29-syn14:route-fixnoplan": {
+          "cells": 5,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 328302
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "pass": 5
+          },
+          "pass_count": 5,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 253952
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 72448
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 1902
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 59.339,
+            "missing_cells": 0
+          }
+        },
+        "review-only": {
+          "cells": 15,
+          "fail_count": 12,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 15,
+            "incomplete_cells": 0,
+            "total": 1167470
+          },
+          "officially_graded_cells": 15,
+          "outcomes": {
+            "fail": 12,
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 0.2,
+          "pass_rate_denominator": 15,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 15,
+              "missing_cells": 0,
+              "total": 781824
+            },
+            "input_tokens": {
+              "known_cells": 15,
+              "missing_cells": 0,
+              "total": 364861
+            },
+            "output_tokens": {
+              "known_cells": 15,
+              "missing_cells": 0,
+              "total": 20785
+            },
+            "reasoning_tokens": {
+              "known_cells": 15,
+              "missing_cells": 0,
+              "total": 1411
+            }
+          },
+          "wall_s": {
+            "known_cells": 15,
+            "median": 207.568,
+            "missing_cells": 0
+          }
+        },
+        "route-asrun": {
+          "cells": 14,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 14,
+            "incomplete_cells": 0,
+            "total": 2299446
+          },
+          "officially_graded_cells": 14,
+          "outcomes": {
+            "pass": 14
+          },
+          "pass_count": 14,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 14,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 1849856
+            },
+            "input_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 422322
+            },
+            "output_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 27268
+            },
+            "reasoning_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 145
+            }
+          },
+          "wall_s": {
+            "known_cells": 14,
+            "median": 456.2875,
+            "missing_cells": 0
+          }
+        },
+        "route-fixnoplan": {
+          "cells": 14,
+          "fail_count": 10,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 14,
+            "incomplete_cells": 0,
+            "total": 1309360
+          },
+          "officially_graded_cells": 14,
+          "outcomes": {
+            "fail": 10,
+            "pass": 4
+          },
+          "pass_count": 4,
+          "pass_rate": 0.2857142857142857,
+          "pass_rate_denominator": 14,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 887296
+            },
+            "input_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 396541
+            },
+            "output_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 25523
+            },
+            "reasoning_tokens": {
+              "known_cells": 14,
+              "missing_cells": 0,
+              "total": 2156
+            }
+          },
+          "wall_s": {
+            "known_cells": 14,
+            "median": 282.8295,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r1-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r1-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r1-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-route-fixnoplan-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-review-only-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-route-asrun-r29-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-route-fixnoplan-r29-studio",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-review-only-r1",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-review-only-r2",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-review-only-r3",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-review-only-r4",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-review-only-r5",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-asrun-r1",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-asrun-r2",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-asrun-r3",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-asrun-r4",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-asrun-r5",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-fixnoplan-r1",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-fixnoplan-r2",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-fixnoplan-r3",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-fixnoplan-r4",
+        "r29-syn13-eu-syn-13-bug-empty-filter-crash-route-fixnoplan-r5",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-review-only-r1",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-review-only-r2",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-review-only-r3",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-review-only-r4",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-review-only-r5",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-asrun-r1",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-asrun-r2",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-asrun-r3",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-asrun-r4",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-asrun-r5",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-fixnoplan-r1",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-fixnoplan-r2",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-fixnoplan-r3",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-fixnoplan-r4",
+        "r29-syn14-eu-syn-14-bug-sla-business-hours-route-fixnoplan-r5"
+      ],
+      "summary": {
+        "cells": 73,
+        "fail_count": 22,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 73,
+          "incomplete_cells": 0,
+          "total": 10188919
+        },
+        "officially_graded_cells": 73,
+        "outcomes": {
+          "fail": 22,
+          "pass": 51
+        },
+        "pass_count": 51,
+        "pass_rate": 0.6986301369863014,
+        "pass_rate_denominator": 73,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 73,
+            "missing_cells": 0,
+            "total": 7792640
+          },
+          "input_tokens": {
+            "known_cells": 73,
+            "missing_cells": 0,
+            "total": 2281272
+          },
+          "output_tokens": {
+            "known_cells": 73,
+            "missing_cells": 0,
+            "total": 115007
+          },
+          "reasoning_tokens": {
+            "known_cells": 73,
+            "missing_cells": 0,
+            "total": 4465
+          }
+        },
+        "wall_s": {
+          "known_cells": 73,
+          "median": 306.786,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r29",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

@@ -1,11 +1,17 @@
 # r70 compilation timing
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of DESCRIPTIVE_ONLY, EVIDENCE_SCOPE, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
 ## Status
 
 **DESCRIPTIVE**
 
-Why not VALID:
 - NO_PREREG — The README explicitly says no pre-registration.
 - DESCRIPTIVE_ONLY — The round measures compile timing and does not have a pre-registered inferential decision rule.
 - EVIDENCE_SCOPE — Retained timing summaries support description but do not establish the full VALID criteria.

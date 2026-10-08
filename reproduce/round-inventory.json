@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "scope": "One row per ID in rounds/index.json. analysis-only means a published record transformation, not a historical model execution. Full execution replay is unavailable for every registered round in this snapshot.",
+  "scope": "One row per ID in rounds/index.json. analysis-only means a published record transformation, not a historical model execution. A separate recovered-source audit recomputes observed-row summaries for 105 mined round tags without establishing full published headlines or execution. Full execution replay is unavailable for every registered round in this snapshot.",
   "full_execution_replayable_rounds": [],
   "rounds": [
     {
@@ -416,6 +416,18 @@
       "replay_type": "unavailable",
       "full_execution_replayable": false,
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "pilot73",
+      "script": "python3 reproduce/recompute_mined.py",
+      "inputs": [
+        "data/mined/*.jsonl.gz",
+        "reproduce/inputs/cell-metadata.json",
+        "reproduce/inputs/grades.final.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Regenerates observed source-row summaries and token comparisons for the recovered pilot tag. It does not establish the registered r73 scored phase, a planned denominator, or historical model execution."
     },
     {
       "round_id": "r1",

@@ -1,0 +1,2191 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 106,
+    "token_cells_different": 32,
+    "token_cells_equal": 74,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 163584,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r1-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 25065,
+        "output_tokens": 11528,
+        "published_metadata_tokens": 200177,
+        "reasoning_tokens": 9867,
+        "round": "r53"
+      },
+      {
+        "cached_input_tokens": 163584,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r2-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 45445,
+        "output_tokens": 8508,
+        "published_metadata_tokens": 217537,
+        "reasoning_tokens": 7293,
+        "round": "r53"
+      },
+      {
+        "cached_input_tokens": 264960,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r3-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 31674,
+        "output_tokens": 13164,
+        "published_metadata_tokens": 309798,
+        "reasoning_tokens": 11076,
+        "round": "r53"
+      }
+    ],
+    "token_exact_codex_examples": [
+      {
+        "cached_input_tokens": 163584,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r1-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 25065,
+        "output_tokens": 11528,
+        "published_metadata_tokens": 200177,
+        "reasoning_tokens": 9867,
+        "round": "r53"
+      },
+      {
+        "cached_input_tokens": 163584,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r2-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 45445,
+        "output_tokens": 8508,
+        "published_metadata_tokens": 217537,
+        "reasoning_tokens": 7293,
+        "round": "r53"
+      },
+      {
+        "cached_input_tokens": 264960,
+        "cell_id": "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r3-Codex-Luna-max-r53-studio",
+        "harness": "codex",
+        "input_tokens": 31674,
+        "output_tokens": 13164,
+        "published_metadata_tokens": 309798,
+        "reasoning_tokens": 11076,
+        "round": "r53"
+      }
+    ],
+    "token_format_counts": {
+      "codex": {
+        "compared": 74,
+        "equal": 74
+      },
+      "kh-gpt": {
+        "compared": 8,
+        "different": 8
+      },
+      "kh-plan": {
+        "compared": 24,
+        "different": 24
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {
+      "multi_request_aggregation": 32
+    },
+    "token_mismatches": [
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r1-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 53,
+        "published_metadata_tokens": 3725690,
+        "recomputed_input_plus_cached_plus_output": 2558208
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r2-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 38,
+        "published_metadata_tokens": 3470101,
+        "recomputed_input_plus_cached_plus_output": 2118068
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r3-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 58,
+        "published_metadata_tokens": 3667352,
+        "recomputed_input_plus_cached_plus_output": 2817828
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r1-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 18,
+        "published_metadata_tokens": 1333501,
+        "recomputed_input_plus_cached_plus_output": 256709
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r2-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 58,
+        "published_metadata_tokens": 2444070,
+        "recomputed_input_plus_cached_plus_output": 1583789
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r3-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 25,
+        "published_metadata_tokens": 1330244,
+        "recomputed_input_plus_cached_plus_output": 679088
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-erase-account__r2-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 47,
+        "published_metadata_tokens": 2983601,
+        "recomputed_input_plus_cached_plus_output": 2062770
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-erase-account__r3-P-lunamax-r53-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 56,
+        "published_metadata_tokens": 3495655,
+        "recomputed_input_plus_cached_plus_output": 2728656
+      },
+      {
+        "cell_id": "r53-eu-elx-04-queue-backpressure-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 909542,
+        "recomputed_input_plus_cached_plus_output": 533612
+      },
+      {
+        "cell_id": "r53-eu-elx-04-queue-backpressure-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 37,
+        "published_metadata_tokens": 1336449,
+        "recomputed_input_plus_cached_plus_output": 882578
+      },
+      {
+        "cell_id": "r53-eu-elx-04-queue-backpressure-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 25,
+        "published_metadata_tokens": 845561,
+        "recomputed_input_plus_cached_plus_output": 507946
+      },
+      {
+        "cell_id": "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 41,
+        "published_metadata_tokens": 2169151,
+        "recomputed_input_plus_cached_plus_output": 1136116
+      },
+      {
+        "cell_id": "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 46,
+        "published_metadata_tokens": 2531098,
+        "recomputed_input_plus_cached_plus_output": 1494116
+      },
+      {
+        "cell_id": "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 64,
+        "published_metadata_tokens": 4299489,
+        "recomputed_input_plus_cached_plus_output": 3300492
+      },
+      {
+        "cell_id": "r53-eu-syn-15-validation-ticket-form-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 20,
+        "published_metadata_tokens": 1537657,
+        "recomputed_input_plus_cached_plus_output": 749102
+      },
+      {
+        "cell_id": "r53-eu-syn-15-validation-ticket-form-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 24,
+        "published_metadata_tokens": 1631971,
+        "recomputed_input_plus_cached_plus_output": 760065
+      },
+      {
+        "cell_id": "r53-eu-syn-15-validation-ticket-form-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 21,
+        "published_metadata_tokens": 1401926,
+        "recomputed_input_plus_cached_plus_output": 678199
+      },
+      {
+        "cell_id": "r53-eu-syn-24-csv-import-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 41,
+        "published_metadata_tokens": 2180181,
+        "recomputed_input_plus_cached_plus_output": 1586090
+      },
+      {
+        "cell_id": "r53-eu-syn-24-csv-import-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 43,
+        "published_metadata_tokens": 2442883,
+        "recomputed_input_plus_cached_plus_output": 1558286
+      },
+      {
+        "cell_id": "r53-eu-syn-24-csv-import-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 65,
+        "published_metadata_tokens": 2791032,
+        "recomputed_input_plus_cached_plus_output": 2110611
+      },
+      {
+        "cell_id": "r53-us-elx-02-ingest-supervision-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 17,
+        "published_metadata_tokens": 513593,
+        "recomputed_input_plus_cached_plus_output": 253838
+      },
+      {
+        "cell_id": "r53-us-elx-02-ingest-supervision-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 20,
+        "published_metadata_tokens": 608113,
+        "recomputed_input_plus_cached_plus_output": 319334
+      },
+      {
+        "cell_id": "r53-us-elx-02-ingest-supervision-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 17,
+        "published_metadata_tokens": 478474,
+        "recomputed_input_plus_cached_plus_output": 222665
+      },
+      {
+        "cell_id": "r53-us-syn-01-live-ticket-filters-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 20,
+        "published_metadata_tokens": 1288388,
+        "recomputed_input_plus_cached_plus_output": 481073
+      },
+      {
+        "cell_id": "r53-us-syn-01-live-ticket-filters-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 25,
+        "published_metadata_tokens": 1719815,
+        "recomputed_input_plus_cached_plus_output": 802882
+      },
+      {
+        "cell_id": "r53-us-syn-01-live-ticket-filters-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 26,
+        "published_metadata_tokens": 1387458,
+        "recomputed_input_plus_cached_plus_output": 798018
+      },
+      {
+        "cell_id": "r53-us-syn-20-email-invite-flow-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 53,
+        "published_metadata_tokens": 3640158,
+        "recomputed_input_plus_cached_plus_output": 2882155
+      },
+      {
+        "cell_id": "r53-us-syn-20-email-invite-flow-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 50,
+        "published_metadata_tokens": 3817399,
+        "recomputed_input_plus_cached_plus_output": 2769559
+      },
+      {
+        "cell_id": "r53-us-syn-20-email-invite-flow-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 56,
+        "published_metadata_tokens": 4061821,
+        "recomputed_input_plus_cached_plus_output": 2885797
+      },
+      {
+        "cell_id": "r53-us-syn-31-inbound-email-webhook-P-lunamax-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 29,
+        "published_metadata_tokens": 2005543,
+        "recomputed_input_plus_cached_plus_output": 970673
+      },
+      {
+        "cell_id": "r53-us-syn-31-inbound-email-webhook-P-lunamax-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 40,
+        "published_metadata_tokens": 2462131,
+        "recomputed_input_plus_cached_plus_output": 1651748
+      },
+      {
+        "cell_id": "r53-us-syn-31-inbound-email-webhook-P-lunamax-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 45,
+        "published_metadata_tokens": 2842133,
+        "recomputed_input_plus_cached_plus_output": 1627296
+      }
+    ],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 106,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 106,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 106,
+    "fail_count": 9,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 106,
+      "incomplete_cells": 0,
+      "total": 97321359
+    },
+    "officially_graded_cells": 106,
+    "outcomes": {
+      "fail": 9,
+      "pass": 97
+    },
+    "pass_count": 97,
+    "pass_rate": 0.9150943396226415,
+    "pass_rate_denominator": 106,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 89125120
+      },
+      "input_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 6663396
+      },
+      "output_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 1532843
+      },
+      "reasoning_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 870668
+      }
+    },
+    "wall_s": {
+      "known_cells": 106,
+      "median": 472.36199999999997,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "Codex-Luna-max": {
+      "cells": 12,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 9321020
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 1,
+        "pass": 11
+      },
+      "pass_count": 11,
+      "pass_rate": 0.9166666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 8491008
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 625314
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 204698
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 161768
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 395.40049999999997,
+        "missing_cells": 0
+      }
+    },
+    "Codex-Sol-high": {
+      "cells": 12,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 8001368
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "pass": 12
+      },
+      "pass_count": 12,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 7251072
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 634922
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 115374
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 45304
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 403.389,
+        "missing_cells": 0
+      }
+    },
+    "P-lunamax": {
+      "cells": 8,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 8,
+        "incomplete_cells": 0,
+        "total": 14805116
+      },
+      "officially_graded_cells": 8,
+      "outcomes": {
+        "pass": 8
+      },
+      "pass_count": 8,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 8,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 13693440
+        },
+        "input_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 928140
+        },
+        "output_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 183536
+        },
+        "reasoning_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 119467
+        }
+      },
+      "wall_s": {
+        "known_cells": 8,
+        "median": 1989.6835,
+        "missing_cells": 0
+      }
+    },
+    "r53:P-lunamax": {
+      "cells": 24,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 30962251
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 3,
+        "pass": 21
+      },
+      "pass_count": 21,
+      "pass_rate": 0.875,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 28574720
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1951823
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 435708
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 240745
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 1609.8200000000002,
+        "missing_cells": 0
+      }
+    },
+    "r53:lmax": {
+      "cells": 24,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 20776804
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 3,
+        "pass": 21
+      },
+      "pass_count": 21,
+      "pass_rate": 0.875,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 18992640
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1404208
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 379956
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 256755
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 380.229,
+        "missing_cells": 0
+      }
+    },
+    "r53:sol": {
+      "cells": 2,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 2,
+        "incomplete_cells": 0,
+        "total": 183128
+      },
+      "officially_graded_cells": 2,
+      "outcomes": {
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 2,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 150272
+        },
+        "input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 28678
+        },
+        "output_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 4178
+        },
+        "reasoning_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 213
+        }
+      },
+      "wall_s": {
+        "known_cells": 2,
+        "median": 53.488,
+        "missing_cells": 0
+      }
+    },
+    "r53:sol-high": {
+      "cells": 24,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 13271672
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 2,
+        "pass": 22
+      },
+      "pass_count": 22,
+      "pass_rate": 0.9166666666666666,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 11971968
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1090311
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 209393
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 46416
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 398.2355,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 106,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 106,
+    "public_export_rows_in_round": 106,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "Codex-Luna-max": {
+        "cells": 12,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 1,
+          "pass": 11
+        },
+        "pass_count": 11,
+        "pass_rate": 0.9166666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "Codex-Sol-high": {
+        "cells": 12,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "pass": 12
+        },
+        "pass_count": 12,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "P-lunamax": {
+        "cells": 8,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 8,
+          "total": 0
+        },
+        "officially_graded_cells": 8,
+        "outcomes": {
+          "pass": 8
+        },
+        "pass_count": 8,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 8,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 8,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 8,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 8,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 8,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 8
+        }
+      },
+      "r53:P-lunamax": {
+        "cells": 24,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 24,
+          "total": 0
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 3,
+          "pass": 21
+        },
+        "pass_count": 21,
+        "pass_rate": 0.875,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 24
+        }
+      },
+      "r53:lmax": {
+        "cells": 24,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 24,
+          "total": 0
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 3,
+          "pass": 21
+        },
+        "pass_count": 21,
+        "pass_rate": 0.875,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 24
+        }
+      },
+      "r53:sol": {
+        "cells": 2,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 2,
+          "total": 0
+        },
+        "officially_graded_cells": 2,
+        "outcomes": {
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 2,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 2
+        }
+      },
+      "r53:sol-high": {
+        "cells": 24,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 24,
+          "total": 0
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 2,
+          "pass": 22
+        },
+        "pass_count": 22,
+        "pass_rate": 0.9166666666666666,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 24,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 24
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "Codex-Luna-max": {
+        "cells": 12,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 9321020
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 1,
+          "pass": 11
+        },
+        "pass_count": 11,
+        "pass_rate": 0.9166666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 8491008
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 625314
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 204698
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 161768
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 395.40049999999997,
+          "missing_cells": 0
+        }
+      },
+      "Codex-Sol-high": {
+        "cells": 12,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 8001368
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "pass": 12
+        },
+        "pass_count": 12,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 7251072
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 634922
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 115374
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 45304
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 403.389,
+          "missing_cells": 0
+        }
+      },
+      "P-lunamax": {
+        "cells": 8,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 8,
+          "incomplete_cells": 0,
+          "total": 14805116
+        },
+        "officially_graded_cells": 8,
+        "outcomes": {
+          "pass": 8
+        },
+        "pass_count": 8,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 8,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 8,
+            "missing_cells": 0,
+            "total": 13693440
+          },
+          "input_tokens": {
+            "known_cells": 8,
+            "missing_cells": 0,
+            "total": 928140
+          },
+          "output_tokens": {
+            "known_cells": 8,
+            "missing_cells": 0,
+            "total": 183536
+          },
+          "reasoning_tokens": {
+            "known_cells": 8,
+            "missing_cells": 0,
+            "total": 119467
+          }
+        },
+        "wall_s": {
+          "known_cells": 8,
+          "median": 1989.6835,
+          "missing_cells": 0
+        }
+      },
+      "r53:P-lunamax": {
+        "cells": 24,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 24,
+          "incomplete_cells": 0,
+          "total": 30962251
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 3,
+          "pass": 21
+        },
+        "pass_count": 21,
+        "pass_rate": 0.875,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 28574720
+          },
+          "input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 1951823
+          },
+          "output_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 435708
+          },
+          "reasoning_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 240745
+          }
+        },
+        "wall_s": {
+          "known_cells": 24,
+          "median": 1609.8200000000002,
+          "missing_cells": 0
+        }
+      },
+      "r53:lmax": {
+        "cells": 24,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 24,
+          "incomplete_cells": 0,
+          "total": 20776804
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 3,
+          "pass": 21
+        },
+        "pass_count": 21,
+        "pass_rate": 0.875,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 18992640
+          },
+          "input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 1404208
+          },
+          "output_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 379956
+          },
+          "reasoning_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 256755
+          }
+        },
+        "wall_s": {
+          "known_cells": 24,
+          "median": 380.229,
+          "missing_cells": 0
+        }
+      },
+      "r53:sol": {
+        "cells": 2,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 2,
+          "incomplete_cells": 0,
+          "total": 183128
+        },
+        "officially_graded_cells": 2,
+        "outcomes": {
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 2,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 150272
+          },
+          "input_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 28678
+          },
+          "output_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 4178
+          },
+          "reasoning_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 213
+          }
+        },
+        "wall_s": {
+          "known_cells": 2,
+          "median": 53.488,
+          "missing_cells": 0
+        }
+      },
+      "r53:sol-high": {
+        "cells": 24,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 24,
+          "incomplete_cells": 0,
+          "total": 13271672
+        },
+        "officially_graded_cells": 24,
+        "outcomes": {
+          "fail": 2,
+          "pass": 22
+        },
+        "pass_count": 22,
+        "pass_rate": 0.9166666666666666,
+        "pass_rate_denominator": 24,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 11971968
+          },
+          "input_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 1090311
+          },
+          "output_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 209393
+          },
+          "reasoning_tokens": {
+            "known_cells": 24,
+            "missing_cells": 0,
+            "total": 46416
+          }
+        },
+        "wall_s": {
+          "known_cells": 24,
+          "median": 398.2355,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 106,
+    "fail_count": 9,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 106,
+      "incomplete_cells": 0,
+      "total": 97321359
+    },
+    "officially_graded_cells": 106,
+    "outcomes": {
+      "fail": 9,
+      "pass": 97
+    },
+    "pass_count": 97,
+    "pass_rate": 0.9150943396226415,
+    "pass_rate_denominator": 106,
+    "published_export_cells": 106,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 89125120
+      },
+      "input_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 6663396
+      },
+      "output_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 1532843
+      },
+      "reasoning_tokens": {
+        "known_cells": 106,
+        "missing_cells": 0,
+        "total": 870668
+      }
+    },
+    "wall_s": {
+      "known_cells": 106,
+      "median": 472.36199999999997,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "Codex-Luna-max": {
+      "cells": 12,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 9321020
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 1,
+        "pass": 11
+      },
+      "pass_count": 11,
+      "pass_rate": 0.9166666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 8491008
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 625314
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 204698
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 161768
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 395.40049999999997,
+        "missing_cells": 0
+      }
+    },
+    "Codex-Sol-high": {
+      "cells": 12,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 8001368
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "pass": 12
+      },
+      "pass_count": 12,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 7251072
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 634922
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 115374
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 45304
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 403.389,
+        "missing_cells": 0
+      }
+    },
+    "P-lunamax": {
+      "cells": 8,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 8,
+        "incomplete_cells": 0,
+        "total": 14805116
+      },
+      "officially_graded_cells": 8,
+      "outcomes": {
+        "pass": 8
+      },
+      "pass_count": 8,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 8,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 13693440
+        },
+        "input_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 928140
+        },
+        "output_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 183536
+        },
+        "reasoning_tokens": {
+          "known_cells": 8,
+          "missing_cells": 0,
+          "total": 119467
+        }
+      },
+      "wall_s": {
+        "known_cells": 8,
+        "median": 1989.6835,
+        "missing_cells": 0
+      }
+    },
+    "r53:P-lunamax": {
+      "cells": 24,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 30962251
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 3,
+        "pass": 21
+      },
+      "pass_count": 21,
+      "pass_rate": 0.875,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 28574720
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1951823
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 435708
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 240745
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 1609.8200000000002,
+        "missing_cells": 0
+      }
+    },
+    "r53:lmax": {
+      "cells": 24,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 20776804
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 3,
+        "pass": 21
+      },
+      "pass_count": 21,
+      "pass_rate": 0.875,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 18992640
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1404208
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 379956
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 256755
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 380.229,
+        "missing_cells": 0
+      }
+    },
+    "r53:sol": {
+      "cells": 2,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 2,
+        "incomplete_cells": 0,
+        "total": 183128
+      },
+      "officially_graded_cells": 2,
+      "outcomes": {
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 2,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 150272
+        },
+        "input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 28678
+        },
+        "output_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 4178
+        },
+        "reasoning_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 213
+        }
+      },
+      "wall_s": {
+        "known_cells": 2,
+        "median": 53.488,
+        "missing_cells": 0
+      }
+    },
+    "r53:sol-high": {
+      "cells": 24,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 24,
+        "incomplete_cells": 0,
+        "total": 13271672
+      },
+      "officially_graded_cells": 24,
+      "outcomes": {
+        "fail": 2,
+        "pass": 22
+      },
+      "pass_count": 22,
+      "pass_rate": 0.9166666666666666,
+      "pass_rate_denominator": 24,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 11971968
+        },
+        "input_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 1090311
+        },
+        "output_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 209393
+        },
+        "reasoning_tokens": {
+          "known_cells": 24,
+          "missing_cells": 0,
+          "total": 46416
+        }
+      },
+      "wall_s": {
+        "known_cells": 24,
+        "median": 398.2355,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "Codex-Luna-max": {
+          "cells": 12,
+          "fail_count": 1,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 9321020
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 1,
+            "pass": 11
+          },
+          "pass_count": 11,
+          "pass_rate": 0.9166666666666666,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 8491008
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 625314
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 204698
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 161768
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 395.40049999999997,
+            "missing_cells": 0
+          }
+        },
+        "Codex-Sol-high": {
+          "cells": 12,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 8001368
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "pass": 12
+          },
+          "pass_count": 12,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 7251072
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 634922
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 115374
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 45304
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 403.389,
+            "missing_cells": 0
+          }
+        },
+        "P-lunamax": {
+          "cells": 8,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 8,
+            "incomplete_cells": 0,
+            "total": 14805116
+          },
+          "officially_graded_cells": 8,
+          "outcomes": {
+            "pass": 8
+          },
+          "pass_count": 8,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 8,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 8,
+              "missing_cells": 0,
+              "total": 13693440
+            },
+            "input_tokens": {
+              "known_cells": 8,
+              "missing_cells": 0,
+              "total": 928140
+            },
+            "output_tokens": {
+              "known_cells": 8,
+              "missing_cells": 0,
+              "total": 183536
+            },
+            "reasoning_tokens": {
+              "known_cells": 8,
+              "missing_cells": 0,
+              "total": 119467
+            }
+          },
+          "wall_s": {
+            "known_cells": 8,
+            "median": 1989.6835,
+            "missing_cells": 0
+          }
+        },
+        "r53:P-lunamax": {
+          "cells": 24,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 24,
+            "incomplete_cells": 0,
+            "total": 30962251
+          },
+          "officially_graded_cells": 24,
+          "outcomes": {
+            "fail": 3,
+            "pass": 21
+          },
+          "pass_count": 21,
+          "pass_rate": 0.875,
+          "pass_rate_denominator": 24,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 28574720
+            },
+            "input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 1951823
+            },
+            "output_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 435708
+            },
+            "reasoning_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 240745
+            }
+          },
+          "wall_s": {
+            "known_cells": 24,
+            "median": 1609.8200000000002,
+            "missing_cells": 0
+          }
+        },
+        "r53:lmax": {
+          "cells": 24,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 24,
+            "incomplete_cells": 0,
+            "total": 20776804
+          },
+          "officially_graded_cells": 24,
+          "outcomes": {
+            "fail": 3,
+            "pass": 21
+          },
+          "pass_count": 21,
+          "pass_rate": 0.875,
+          "pass_rate_denominator": 24,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 18992640
+            },
+            "input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 1404208
+            },
+            "output_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 379956
+            },
+            "reasoning_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 256755
+            }
+          },
+          "wall_s": {
+            "known_cells": 24,
+            "median": 380.229,
+            "missing_cells": 0
+          }
+        },
+        "r53:sol": {
+          "cells": 2,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 2,
+            "incomplete_cells": 0,
+            "total": 183128
+          },
+          "officially_graded_cells": 2,
+          "outcomes": {
+            "pass": 2
+          },
+          "pass_count": 2,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 2,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 150272
+            },
+            "input_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 28678
+            },
+            "output_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 4178
+            },
+            "reasoning_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 213
+            }
+          },
+          "wall_s": {
+            "known_cells": 2,
+            "median": 53.488,
+            "missing_cells": 0
+          }
+        },
+        "r53:sol-high": {
+          "cells": 24,
+          "fail_count": 2,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 24,
+            "incomplete_cells": 0,
+            "total": 13271672
+          },
+          "officially_graded_cells": 24,
+          "outcomes": {
+            "fail": 2,
+            "pass": 22
+          },
+          "pass_count": 22,
+          "pass_rate": 0.9166666666666666,
+          "pass_rate_denominator": 24,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 11971968
+            },
+            "input_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 1090311
+            },
+            "output_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 209393
+            },
+            "reasoning_tokens": {
+              "known_cells": 24,
+              "missing_cells": 0,
+              "total": 46416
+            }
+          },
+          "wall_s": {
+            "known_cells": 24,
+            "median": 398.2355,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r1-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r2-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-aj-resumable-cleanup__r3-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-atomic-import__r1-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-atomic-import__r2-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-atomic-import__r3-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-erase-account__r1-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-erase-account__r2-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-erase-account__r3-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-tenant-isolation__r1-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-tenant-isolation__r2-Codex-Luna-max-r53-studio",
+        "codex__gpt-6-luna__max__default__rails-ar-tenant-isolation__r3-Codex-Luna-max-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-aj-resumable-cleanup__r1-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-aj-resumable-cleanup__r2-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-aj-resumable-cleanup__r3-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-atomic-import__r1-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-atomic-import__r2-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-atomic-import__r3-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-erase-account__r1-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-erase-account__r2-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-erase-account__r3-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-tenant-isolation__r1-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-tenant-isolation__r2-Codex-Sol-high-r53-studio",
+        "codex__gpt-6.1-sol__high__default__rails-ar-tenant-isolation__r3-Codex-Sol-high-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r1-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r2-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-resumable-cleanup__r3-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r1-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r2-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-atomic-import__r3-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-erase-account__r2-P-lunamax-r53-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-erase-account__r3-P-lunamax-r53-studio",
+        "r53-eu-elx-04-queue-backpressure-P-lunamax-r1",
+        "r53-eu-elx-04-queue-backpressure-P-lunamax-r2",
+        "r53-eu-elx-04-queue-backpressure-P-lunamax-r3",
+        "r53-eu-elx-04-queue-backpressure-lmax-r1",
+        "r53-eu-elx-04-queue-backpressure-lmax-r2",
+        "r53-eu-elx-04-queue-backpressure-lmax-r3",
+        "r53-eu-elx-04-queue-backpressure-sol-high-r1",
+        "r53-eu-elx-04-queue-backpressure-sol-high-r2",
+        "r53-eu-elx-04-queue-backpressure-sol-high-r3",
+        "r53-eu-elx-04-queue-backpressure-sol-r1",
+        "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r1",
+        "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r2",
+        "r53-eu-syn-06-migration-ticket-numbers-P-lunamax-r3",
+        "r53-eu-syn-06-migration-ticket-numbers-lmax-r1",
+        "r53-eu-syn-06-migration-ticket-numbers-lmax-r2",
+        "r53-eu-syn-06-migration-ticket-numbers-lmax-r3",
+        "r53-eu-syn-06-migration-ticket-numbers-sol-high-r1",
+        "r53-eu-syn-06-migration-ticket-numbers-sol-high-r2",
+        "r53-eu-syn-06-migration-ticket-numbers-sol-high-r3",
+        "r53-eu-syn-15-validation-ticket-form-P-lunamax-r1",
+        "r53-eu-syn-15-validation-ticket-form-P-lunamax-r2",
+        "r53-eu-syn-15-validation-ticket-form-P-lunamax-r3",
+        "r53-eu-syn-15-validation-ticket-form-lmax-r1",
+        "r53-eu-syn-15-validation-ticket-form-lmax-r2",
+        "r53-eu-syn-15-validation-ticket-form-lmax-r3",
+        "r53-eu-syn-15-validation-ticket-form-sol-high-r1",
+        "r53-eu-syn-15-validation-ticket-form-sol-high-r2",
+        "r53-eu-syn-15-validation-ticket-form-sol-high-r3",
+        "r53-eu-syn-24-csv-import-P-lunamax-r1",
+        "r53-eu-syn-24-csv-import-P-lunamax-r2",
+        "r53-eu-syn-24-csv-import-P-lunamax-r3",
+        "r53-eu-syn-24-csv-import-lmax-r1",
+        "r53-eu-syn-24-csv-import-lmax-r2",
+        "r53-eu-syn-24-csv-import-lmax-r3",
+        "r53-eu-syn-24-csv-import-sol-high-r1",
+        "r53-eu-syn-24-csv-import-sol-high-r2",
+        "r53-eu-syn-24-csv-import-sol-high-r3",
+        "r53-us-elx-02-ingest-supervision-P-lunamax-r1",
+        "r53-us-elx-02-ingest-supervision-P-lunamax-r2",
+        "r53-us-elx-02-ingest-supervision-P-lunamax-r3",
+        "r53-us-elx-02-ingest-supervision-lmax-r1",
+        "r53-us-elx-02-ingest-supervision-lmax-r2",
+        "r53-us-elx-02-ingest-supervision-lmax-r3",
+        "r53-us-elx-02-ingest-supervision-sol-high-r1",
+        "r53-us-elx-02-ingest-supervision-sol-high-r2",
+        "r53-us-elx-02-ingest-supervision-sol-high-r3",
+        "r53-us-elx-02-ingest-supervision-sol-r1",
+        "r53-us-syn-01-live-ticket-filters-P-lunamax-r1",
+        "r53-us-syn-01-live-ticket-filters-P-lunamax-r2",
+        "r53-us-syn-01-live-ticket-filters-P-lunamax-r3",
+        "r53-us-syn-01-live-ticket-filters-lmax-r1",
+        "r53-us-syn-01-live-ticket-filters-lmax-r2",
+        "r53-us-syn-01-live-ticket-filters-lmax-r3",
+        "r53-us-syn-01-live-ticket-filters-sol-high-r1",
+        "r53-us-syn-01-live-ticket-filters-sol-high-r2",
+        "r53-us-syn-01-live-ticket-filters-sol-high-r3",
+        "r53-us-syn-20-email-invite-flow-P-lunamax-r1",
+        "r53-us-syn-20-email-invite-flow-P-lunamax-r2",
+        "r53-us-syn-20-email-invite-flow-P-lunamax-r3",
+        "r53-us-syn-20-email-invite-flow-lmax-r1",
+        "r53-us-syn-20-email-invite-flow-lmax-r2",
+        "r53-us-syn-20-email-invite-flow-lmax-r3",
+        "r53-us-syn-20-email-invite-flow-sol-high-r1",
+        "r53-us-syn-20-email-invite-flow-sol-high-r2",
+        "r53-us-syn-20-email-invite-flow-sol-high-r3",
+        "r53-us-syn-31-inbound-email-webhook-P-lunamax-r1",
+        "r53-us-syn-31-inbound-email-webhook-P-lunamax-r2",
+        "r53-us-syn-31-inbound-email-webhook-P-lunamax-r3",
+        "r53-us-syn-31-inbound-email-webhook-lmax-r1",
+        "r53-us-syn-31-inbound-email-webhook-lmax-r2",
+        "r53-us-syn-31-inbound-email-webhook-lmax-r3",
+        "r53-us-syn-31-inbound-email-webhook-sol-high-r1",
+        "r53-us-syn-31-inbound-email-webhook-sol-high-r2",
+        "r53-us-syn-31-inbound-email-webhook-sol-high-r3"
+      ],
+      "summary": {
+        "cells": 106,
+        "fail_count": 9,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 106,
+          "incomplete_cells": 0,
+          "total": 97321359
+        },
+        "officially_graded_cells": 106,
+        "outcomes": {
+          "fail": 9,
+          "pass": 97
+        },
+        "pass_count": 97,
+        "pass_rate": 0.9150943396226415,
+        "pass_rate_denominator": 106,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 106,
+            "missing_cells": 0,
+            "total": 89125120
+          },
+          "input_tokens": {
+            "known_cells": 106,
+            "missing_cells": 0,
+            "total": 6663396
+          },
+          "output_tokens": {
+            "known_cells": 106,
+            "missing_cells": 0,
+            "total": 1532843
+          },
+          "reasoning_tokens": {
+            "known_cells": 106,
+            "missing_cells": 0,
+            "total": 870668
+          }
+        },
+        "wall_s": {
+          "known_cells": 106,
+          "median": 472.36199999999997,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r53",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

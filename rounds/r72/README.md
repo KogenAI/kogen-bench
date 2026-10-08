@@ -1,11 +1,16 @@
 # R72 same-model ladder comparison
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of CROSSWALK, INCOMPLETE_EXECUTION, NO_PREREG_EVIDENCE. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
 
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG_EVIDENCE — The README says registration is not established in the public record.
 - INCOMPLETE_EXECUTION — The round stopped early and the complete planned/start/cancelled partition is absent.
 - CROSSWALK — Recovered counts are not independently joined to the canonical official outcome export.
@@ -56,3 +61,12 @@ The comparison stopped early and used a superseded Kogen revision. The reported 
 No measured superiority claim is made from this page. The recovered P1 and P3 counts are reproducible from the L0 CSVs but are not independently joined to the canonical public official outcome export; the original plan and complete lifecycle remain source-reported or unrecovered.
 
 The current [public run-record export](../../results/run-records/index.json) contains no entries assigned to `r72`; that export does not establish that no historical run occurred.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r72.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 198 rows (fail 46, pass 152); overall pass rate is 76.8% (152/198) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 198 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 198 raw-only or non-public rows; they are kept separate from the published-export denominator.

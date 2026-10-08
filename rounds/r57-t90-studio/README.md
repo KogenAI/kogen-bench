@@ -1,11 +1,17 @@
 # R57 T90 Studio retry lane
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE / INCOMPLETE (PILOT); KEPT FOR AUDIT
+Why not VALID: The historical inventory retains PILOT because of NO_OUTCOME, NO_PREREG, SMOKE_ONLY. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
 ## Status
 
 **PILOT**
 
-Why not VALID:
 - NO_PREREG — A dated pre-registration is not established in the public record.
 - SMOKE_ONLY — One setup smoke passed and the other was invalid; no catalogue cells were released.
 - NO_OUTCOME — No scored efficacy comparison exists.

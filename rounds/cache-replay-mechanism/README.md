@@ -1,5 +1,11 @@
 # Controlled prompt-cache replay
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of CONDITIONS_MISMATCH, INCOMPLETE_EXECUTION, PRE_REGISTRATION_MISSING, RAW_EVIDENCE_PARTIAL. See the round evidence and limitations below.
+Recomputation status: NOT RECOMPUTABLE
+
+
 ## Status
 
 **DESCRIPTIVE**

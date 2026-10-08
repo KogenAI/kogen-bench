@@ -1,5 +1,11 @@
 # L5 — direct Sol-medium comparators
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of CONDITIONS_MISMATCH, DESCRIPTIVE_ONLY_RULE, HISTORICAL_DATA_PRECEDES_REGISTRATION. See the round evidence and limitations below.
+Recomputation status: FULLY RECOMPUTABLE
+
+
 ## Status
 
 **DESCRIPTIVE**

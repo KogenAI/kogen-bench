@@ -24,12 +24,12 @@
         "37signals LLC"
       ],
       "url": "https://github.com/basecamp/fizzy",
-      "commit_or_release": "8112b3dbafeea72225c1ed09ae170e8cbe2d1195",
-      "licence": "O-Saasy",
+      "commit_or_release": "recovered snapshot; upstream commit unknown",
+      "licence": "O'Saasy",
       "evidence": [
         "tasks/rails-b1-card-due-dates/task.json"
       ],
-      "provenance": "third-party base identified; see licence and evidence"
+      "provenance": "Fizzy snapshot captured from the MacBook route base; deterministic bundle records the staged tree."
     },
     "idea": {
       "origin": "Kogen-original",
@@ -53,17 +53,44 @@
       ]
     },
     "redistribution": {
-      "terms": "Redistribution and modification permitted if the copyright and permission notice stay with every copy or substantial portion; hosted competing SaaS/cloud use is restricted.",
+      "terms": "Redistribution and modification permitted under O'Saasy if the applicable copyright and licence notice stays with every copy or substantial portion; O’Saasy hosted competing SaaS/cloud restrictions remain applicable.",
       "required_files": [
         "LICENSES/FIZZY-O-SAASY.md"
       ],
-      "status": "conditional"
+      "status": "cleared"
     },
     "confidence": "medium",
-    "reviewed_at": "2026-10-08"
+    "reviewed_at": "2026-10-08",
+    "reference_solution": {
+      "origin": "derived-work",
+      "project_or_work": "Fizzy",
+      "authors_or_organisation": [
+        "37signals LLC"
+      ],
+      "url": "https://github.com/basecamp/fizzy",
+      "commit_or_version": "reference patch against recovered snapshot",
+      "licence": "O'Saasy",
+      "evidence": [
+        "hidden/solution.patch"
+      ],
+      "provenance": "Reference solution ships with the task and derives from the Fizzy base."
+    }
   },
   "base_sha": "not declared (base_dir snapshot)",
-  "base_bundle": null,
-  "base_bundle_sha256": null,
-  "base_missing": true
+  "base_bundle": "_bases/rails-hard2-fizzy-20261001-ba0916ecbeba.bundle",
+  "base_bundle_sha256": "241e98f45478b886d548b9806df4f438eb21079183a39998c10f5b2abfa193ea",
+  "base_missing": false,
+  "base_snapshot_commit": "a2a057be1031e9d14de9d0b6c038387556791087",
+  "base_proof": {
+    "snapshot": "hard2-fizzy-20261001",
+    "project": "Fizzy",
+    "bundle_commit": "a2a057be1031e9d14de9d0b6c038387556791087",
+    "snapshot_files": 1754,
+    "as_run_files_matched": null,
+    "as_run_files_compared": null,
+    "evidence": "snapshot captured; no independent as-run comparison recorded",
+    "source": "MacBook route base snapshot; sanitized route export INDEX.json 521660e38e3cc1c9f2bd6abc8b72601dcf0d7ac19e632d5695249683ee284561",
+    "git_tree": "c36159c70d5f17529a80fd99d90583bb4726d2ce"
+  },
+  "kit_complete": true
 }

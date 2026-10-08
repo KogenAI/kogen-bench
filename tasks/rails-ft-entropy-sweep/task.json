@@ -89,12 +89,12 @@
         "37signals LLC"
       ],
       "url": "https://github.com/basecamp/fizzy",
-      "commit_or_release": "unknown",
-      "licence": "O-Saasy",
+      "commit_or_release": "recovered snapshot; upstream commit unknown",
+      "licence": "O'Saasy",
       "evidence": [
         "tasks/rails-ft-entropy-sweep/task.json"
       ],
-      "provenance": "third-party base identified; see licence and evidence"
+      "provenance": "Fizzy snapshot captured from the MacBook route base; deterministic bundle records the staged tree."
     },
     "idea": {
       "origin": "unknown",
@@ -108,27 +108,90 @@
       ]
     },
     "tests_grader": {
-      "origin": "unknown",
-      "authors": [],
-      "source_files": [],
-      "url": null,
-      "licence": "unknown",
+      "origin": "third-party",
+      "authors": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "source_files": [
+        "hidden/sealed/verification_test.rb"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "licence": "MIT",
+      "upstream_path": "tasks/ft-entropy-sweep/verification_test.rb",
+      "upstream_commit": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "what_taken": "Verification test copied byte-for-byte from upstream.",
       "evidence": [
-        "tasks/rails-ft-entropy-sweep/task.json"
+        "tasks/rails-ft-entropy-sweep/hidden/sealed/verification_test.rb"
       ]
     },
     "redistribution": {
-      "terms": "Redistribution and modification permitted if the copyright and permission notice stay with every copy or substantial portion; hosted competing SaaS/cloud use is restricted.",
+      "terms": "Redistribution and modification permitted under O'Saasy if the applicable copyright and licence notice stays with every copy or substantial portion; O’Saasy hosted competing SaaS/cloud restrictions remain applicable. Agents on Rails benchmark materials are MIT-licensed and require the preserved Rails Foundation and Evil Martians notice.",
       "required_files": [
-        "LICENSES/FIZZY-O-SAASY.md"
+        "LICENSES/FIZZY-O-SAASY.md",
+        "LICENSES/RAILS-AI-EVALS-MIT.txt"
       ],
-      "status": "conditional"
+      "status": "cleared"
     },
     "confidence": "low",
-    "reviewed_at": "2026-10-08"
+    "reviewed_at": "2026-10-08",
+    "reference_solution": {
+      "origin": "third-party",
+      "project_or_work": "Agents on Rails",
+      "authors_or_organisation": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "commit_or_version": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "upstream_path": "tasks/ft-entropy-sweep/solution.patch",
+      "licence": "MIT",
+      "what_taken": "Reference patch copied byte-for-byte from upstream.",
+      "evidence": [
+        "hidden/sealed/solution.patch"
+      ],
+      "provenance": "Upstream Agents on Rails reference patch; the task base and Fizzy feature attribution remain recorded separately."
+    },
+    "benchmark": {
+      "origin": "third-party",
+      "project": "Agents on Rails",
+      "authors_or_organisation": [
+        "Rails Foundation",
+        "Evil Martians"
+      ],
+      "url": "https://github.com/rails/ai-evals",
+      "licence": "MIT",
+      "upstream_path": "tasks/ft-entropy-sweep",
+      "upstream_commit": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+      "what_taken": [
+        "idea",
+        "prompt",
+        "verification tests",
+        "reference patch"
+      ],
+      "comparison": "prompt adapted; verification test and reference patch byte-identical",
+      "evidence": [
+        "prompt.md",
+        "hidden/sealed/verification_test.rb",
+        "hidden/sealed/solution.patch"
+      ]
+    }
   },
   "base_sha": "not declared (base_dir snapshot)",
-  "base_bundle": null,
-  "base_bundle_sha256": null,
-  "base_missing": true
+  "base_bundle": "_bases/rails-fizzy-82992c0db3cc.bundle",
+  "base_bundle_sha256": "eb14efc58d55804273523eeca96a00d56c130f1c036960e165773558aea9c80b",
+  "base_missing": false,
+  "base_snapshot_commit": "82992c0db3cc6a1c86aa4781c8e06cc8adbe0791",
+  "base_proof": {
+    "snapshot": "fizzy",
+    "project": "Fizzy",
+    "bundle_commit": "82992c0db3cc6a1c86aa4781c8e06cc8adbe0791",
+    "snapshot_files": 1766,
+    "as_run_files_matched": 3948,
+    "as_run_files_compared": 3948,
+    "evidence": "as-run file-hash proof",
+    "source": "MacBook route base snapshot; sanitized route export INDEX.json 521660e38e3cc1c9f2bd6abc8b72601dcf0d7ac19e632d5695249683ee284561",
+    "git_tree": "7438dd092791136f4ad68e3224a02b8325ee6265"
+  },
+  "kit_complete": true
 }

@@ -1,5 +1,11 @@
 # L4 deterministic context packet
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of CONDITIONS_MISMATCH, POST_HOC_AMENDMENT. See the round evidence and limitations below.
+Recomputation status: FULLY RECOMPUTABLE
+
+
 ## Status
 
 **DESCRIPTIVE**

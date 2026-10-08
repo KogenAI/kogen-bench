@@ -45,6 +45,9 @@ class EvidencePartitionTests(unittest.TestCase):
         for directory, previous_path, round_for in families:
             expected: dict[str, list[dict]] = defaultdict(list)
             source_rows = baseline_rows(previous_path)
+            if previous_path == "results/source-crosswalk.jsonl":
+                with (ROOT / "reproduce/inputs/round-dispositions.jsonl").open(encoding="utf-8") as stream:
+                    source_rows.extend(json.loads(line) for line in stream if line.strip())
             for row in source_rows:
                 round_id = round_for(row)
                 key = round_id if isinstance(round_id, str) and round_id not in ("", "unmapped") else "unassigned"

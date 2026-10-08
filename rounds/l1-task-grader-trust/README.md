@@ -1,5 +1,11 @@
 # L1 — Task and grader trust
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; KEPT FOR AUDIT
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **VALID**
@@ -116,3 +122,12 @@ python3 reproduce/l1_controls.py
 ```
 
 L1-EU source data files: `levers/lanes-2026-10-07/l1/grades.jsonl`, `levers/lanes-2026-10-07/l1-eu/SELECTION.md`, and `levers/lanes-2026-10-07/l1-eu/STAGED.md`. The public receipt is `data/controls.csv`; it records cohort, kind, official outcome, aggregate tests, cause class, task commit, grader fingerprint, grade-window timestamp, and only the patch SHA-256 and behavior class for X-controls.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l1-task-grader-trust.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 2 rows (pass 2); overall pass rate is 100.0% (2/2) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 2 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 2 raw-only or non-public rows; they are kept separate from the published-export denominator.

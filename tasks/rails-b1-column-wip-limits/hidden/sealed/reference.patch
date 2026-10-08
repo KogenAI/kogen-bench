@@ -1,0 +1,253 @@
+--- a/app/controllers/boards/columns_controller.rb
++++ b/app/controllers/boards/columns_controller.rb
+@@ -1,5 +1,5 @@
+ class Boards::ColumnsController < ApplicationController
+-  wrap_parameters :column, include: %i[ name color ]
++  wrap_parameters :column, include: %i[ name color wip_limit ]
+ 
+   include BoardScoped
+ 
+@@ -25,11 +25,18 @@
+   end
+ 
+   def update
+-    @column.update!(column_params)
+-
+-    respond_to do |format|
+-      format.turbo_stream
+-      format.json { render :show }
++    if @column.update(column_params)
++      respond_to do |format|
++        format.turbo_stream
++        format.json { render :show }
++      end
++    else
++      respond_to do |format|
++        format.turbo_stream do
++          render turbo_stream: turbo_stream.replace(dom_id(@column, :menu), partial: "boards/show/menu/column", locals: { column: @column }), status: :unprocessable_entity
++        end
++        format.json { render json: { errors: @column.errors.to_hash }, status: :unprocessable_entity }
++      end
+     end
+   end
+ 
+@@ -48,6 +55,6 @@
+     end
+ 
+     def column_params
+-      params.expect(column: [ :name, :color ])
++      params.expect(column: [ :name, :color, :wip_limit ])
+     end
+ end
+--- a/app/controllers/cards/triages_controller.rb
++++ b/app/controllers/cards/triages_controller.rb
+@@ -3,11 +3,18 @@
+ 
+   def create
+     column = @card.board.columns.find(params[:column_id])
+-    @card.triage_into(column)
+ 
+-    respond_to do |format|
+-      format.html { redirect_to @card }
+-      format.json { head :no_content }
++    if @card.triage_into(column)
++      respond_to do |format|
++        format.html { redirect_to @card }
++        format.json { head :no_content }
++      end
++    else
++      respond_to do |format|
++        format.html { redirect_to @card, alert: wip_limit_message(column) }
++        format.turbo_stream { render turbo_stream: turbo_stream_flash(alert: wip_limit_message(column)), status: :unprocessable_entity }
++        format.json { render json: wip_limit_error(column), status: :unprocessable_entity }
++      end
+     end
+   end
+ 
+@@ -19,4 +26,13 @@
+       format.json { head :no_content }
+     end
+   end
++
++  private
++    def wip_limit_error(column)
++      { error: "wip_limit_reached", column_id: column.id, wip_limit: column.wip_limit }
++    end
++
++    def wip_limit_message(column)
++      "This column has reached its WIP limit of #{column.wip_limit}."
++    end
+ end
+--- a/app/controllers/columns/cards/drops/columns_controller.rb
++++ b/app/controllers/columns/cards/drops/columns_controller.rb
+@@ -3,6 +3,26 @@
+ 
+   def create
+     @column = @card.board.columns.find(params[:column_id])
+-    @card.triage_into(@column)
++
++    if @card.triage_into(@column)
++      respond_to do |format|
++        format.turbo_stream { render :create }
++        format.json { head :no_content }
++      end
++    else
++      respond_to do |format|
++        format.turbo_stream { render turbo_stream: turbo_stream_flash(notice: wip_limit_message), status: :unprocessable_entity }
++        format.json { render json: wip_limit_error, status: :unprocessable_entity }
++      end
++    end
+   end
++
++  private
++    def wip_limit_error
++      { error: "wip_limit_reached", column_id: @column.id, wip_limit: @column.wip_limit }
++    end
++
++    def wip_limit_message
++      "This column has reached its WIP limit of #{@column.wip_limit}."
++    end
+ end
+--- a/app/models/card/triageable.rb
++++ b/app/models/card/triageable.rb
+@@ -19,10 +19,15 @@
+   def triage_into(column)
+     raise "The column must belong to the card board" unless board == column.board
+ 
+-    transaction do
+-      resume
+-      update! column: column
+-      track_event "triaged", particulars: { column: column.name }
++    if column.full_for?(self)
++      false
++    else
++      transaction do
++        resume
++        update! column: column
++        track_event "triaged", particulars: { column: column.name }
++      end
++      true
+     end
+   end
+ 
+--- a/app/models/column.rb
++++ b/app/models/column.rb
+@@ -7,4 +7,25 @@
+ 
+   after_save_commit    -> { cards.touch_all }, if: -> { saved_change_to_name? || saved_change_to_color? }
+   after_destroy_commit -> { board.cards.touch_all }
++
++  validate :wip_limit_is_positive_integer, if: -> { wip_limit_before_type_cast.present? }
++
++  def active_cards_count
++    cards.active.count
++  end
++
++  def full_for?(card)
++    return false unless wip_limit.present? && card.published?
++    return false if card.column_id == id && card.active?
++
++    cards.active.where.not(id: card.id).count >= wip_limit
++  end
++
++  private
++    def wip_limit_is_positive_integer
++      raw_limit = wip_limit_before_type_cast.to_s
++      unless raw_limit.match?(/\A\d+\z/) && raw_limit.to_i.positive?
++        errors.add(:wip_limit, "must be a positive whole number")
++      end
++    end
+ end
+--- a/app/views/boards/show/_column.html.erb
++++ b/app/views/boards/show/_column.html.erb
+@@ -1,3 +1,4 @@
++<% active_cards_count = column.active_cards_count %>
+ <%= column_tag id: dom_id(column), name: column.name, drop_url: columns_card_drops_column_path("__id__", column_id: column.id), card_color: column.color.to_s,
+       class: "cards--doing", style: "--card-color: #{column.color};",
+   data: {
+@@ -8,7 +9,10 @@
+   } do %>
+   <header class="cards__header">
+     <%= render "boards/show/menu/column", column: column %>
+-    <%= render "boards/show/expander", title: column.name, count: column.cards.active.count, column_id: dom_id(column) %>
++    <%= render "boards/show/expander", title: column.name, count: active_cards_count, column_id: dom_id(column) %>
++    <% if column.wip_limit.present? %>
++      <span class="cards__wip-limit">WIP: <%= active_cards_count %> / <%= column.wip_limit %></span>
++    <% end %>
+ 
+     <%= link_to board_column_path(column.board, column), class: "cards__maximize-button btn btn--circle txt-x-small borderless", data: { turbo_frame: "_top" } do %>
+       <%= icon_tag "grid", class: "translucent" %>
+--- a/app/views/boards/show/menu/_column_form.html.erb
++++ b/app/views/boards/show/menu/_column_form.html.erb
+@@ -1,6 +1,15 @@
+ <%= form_with model: [board, column], data: { controller: "form", action: "turbo:submit-end->dialog#close turbo:submit-end->form#reset keydown->dialog#captureKey" } do |form| %>
+   <%= form.text_field :name, class: "input", placeholder: "Name this column", value: column.name,
+         required: true, autocomplete: "off", pattern: ".*\\S.*", title: "Column name cannot be blank", data: { action: "focus->form#select" } %>
++
++  <% unless column.new_record? %>
++    <%= form.label :wip_limit, "WIP limit" %>
++    <%= form.number_field :wip_limit, class: "input", min: 1, step: 1, placeholder: "No limit" %>
++
++    <% column.errors.full_messages_for(:wip_limit).each do |message| %>
++      <p class="margin-none txt-negative txt-small"><%= message %></p>
++    <% end %>
++  <% end %>
+ 
+   <div class="color-picker__colors">
+     <% Color::COLORS.each do |color| %>
+--- a/app/views/columns/_column.json.jbuilder
++++ b/app/views/columns/_column.json.jbuilder
+@@ -1,5 +1,6 @@
+ json.cache! column do
+-  json.(column, :id, :name, :color)
++  json.(column, :id, :name, :color, :wip_limit)
++  json.active_cards_count column.active_cards_count
+   json.created_at column.created_at.utc
+   json.cards_url board_column_cards_url(column.board, column)
+ end
+--- /dev/null
++++ b/db/migrate/20261001000000_add_wip_limit_to_columns.rb
+@@ -0,0 +1,5 @@
++class AddWipLimitToColumns < ActiveRecord::Migration[8.2]
++  def change
++    add_column :columns, :wip_limit, :integer
++  end
++end
+--- a/db/schema.rb
++++ b/db/schema.rb
+@@ -10,7 +10,7 @@
+ #
+ # It's strongly recommended that you check this file into your version control system.
+ 
+-ActiveRecord::Schema[8.2].define(version: 2026_07_09_120000) do
++ActiveRecord::Schema[8.2].define(version: 2026_10_01_000000) do
+   create_table "accesses", id: :uuid, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+     t.datetime "accessed_at"
+     t.uuid "account_id", null: false
+@@ -261,6 +261,7 @@
+     t.string "name", null: false
+     t.integer "position", default: 0, null: false
+     t.datetime "updated_at", null: false
++    t.integer "wip_limit"
+     t.index ["account_id"], name: "index_columns_on_account_id"
+     t.index ["board_id", "position"], name: "index_columns_on_board_id_and_position"
+     t.index ["board_id"], name: "index_columns_on_board_id"
+--- a/db/schema_sqlite.rb
++++ b/db/schema_sqlite.rb
+@@ -10,7 +10,7 @@
+ #
+ # It's strongly recommended that you check this file into your version control system.
+ 
+-ActiveRecord::Schema[8.2].define(version: 2026_07_09_120000) do
++ActiveRecord::Schema[8.2].define(version: 2026_10_01_000000) do
+   create_table "accesses", id: :uuid, force: :cascade do |t|
+     t.datetime "accessed_at"
+     t.uuid "account_id", null: false
+@@ -261,6 +261,7 @@
+     t.string "name", limit: 255, null: false
+     t.integer "position", default: 0, null: false
+     t.datetime "updated_at", null: false
++    t.integer "wip_limit"
+     t.index ["account_id"], name: "index_columns_on_account_id"
+     t.index ["board_id", "position"], name: "index_columns_on_board_id_and_position"
+     t.index ["board_id"], name: "index_columns_on_board_id"

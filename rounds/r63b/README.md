@@ -1,11 +1,17 @@
 # r63b
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of DESIGN, ENVIRONMENT, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - DESIGN — The dedicated design section and testable question are absent.
 - ENVIRONMENT — Planned task-to-environment assignments are not established.
@@ -83,3 +89,12 @@ This captured-delivery summary uses the public [run-record export](../../results
 | rails-hw-scoped-broadcast | studio | Codex-Sol-medium | not re-derivable | 3 | 3 | 3 | 0 | 0 |
 | rails-sec-audit-sweep | studio | Codex-Sol-medium | not re-derivable | 3 | 3 | 3 | 0 | 0 |
 | rails-sup-legacy-conversions | studio | Codex-Sol-medium | not re-derivable | 3 | 3 | 3 | 0 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r63b.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 47 rows (fail 15, pass 32); overall pass rate is 68.1% (32/47) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 47/47 shared cell IDs match; 0/47 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 47/47 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

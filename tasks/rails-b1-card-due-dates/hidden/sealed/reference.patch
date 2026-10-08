@@ -1,0 +1,80 @@
+--- a/app/controllers/cards_controller.rb
++++ b/app/controllers/cards_controller.rb
+@@ -1,5 +1,5 @@
+ class CardsController < ApplicationController
+-  wrap_parameters :card, include: %i[ title description image created_at last_active_at ]
++  wrap_parameters :card, include: %i[ title description image created_at last_active_at due_on ]
+ 
+   include FilterScoped
+ 
+@@ -68,6 +68,6 @@
+     end
+ 
+     def card_params
+-      params.expect(card: [ :title, :description, :image, :created_at, :last_active_at ])
++      params.expect(card: [ :title, :description, :image, :created_at, :last_active_at, :due_on ])
+     end
+ end
+--- a/app/views/cards/_card.json.jbuilder
++++ b/app/views/cards/_card.json.jbuilder
+@@ -1,5 +1,6 @@
+ json.cache! card do
+   json.(card, :id, :number, :title, :status)
++  json.due_on card.due_on&.iso8601
+   json.description card.description.to_plain_text
+   json.description_html card.description.to_s
+   json.image_url card.image.presence && url_for(card.image)
+--- a/app/views/cards/edit.html.erb
++++ b/app/views/cards/edit.html.erb
+@@ -16,6 +16,11 @@
+       <% end %>
+     </h1>
+ 
++    <div class="card__due-date-field">
++      <%= form.label :due_on, "Due date" %>
++      <%= form.date_field :due_on %>
++    </div>
++
+     <%= form.rich_textarea :description, class: "card__description lexxy-content",
+           placeholder: "Add some notes, context, pictures, or video about this…",
+           data: { local_save_target: "input", action: "lexxy:change->local-save#save turbo:morph-element->local-save#restoreContent keydown.ctrl+enter->form#submit:prevent keydown.meta+enter->form#submit:prevent keydown.esc->form#cancel:stop" } do %>
+--- a/app/views/cards/container/_content.html.erb
++++ b/app/views/cards/container/_content.html.erb
+@@ -18,6 +18,11 @@
+       <% end %>
+     </h1>
+ 
++    <div class="card__due-date-field">
++      <%= form.label :due_on, "Due date" %>
++      <%= form.date_field :due_on, data: { action: "change->auto-save#change blur->auto-save#submit" } %>
++    </div>
++
+     <%= form.rich_textarea :description, class: "card__description lexxy-content",
+           placeholder: "Add some notes, context, pictures, or video about this…",
+           data: { action: "lexxy:change->auto-save#change focusout->auto-save#submit" } do %>
+--- a/app/views/cards/display/common/_meta.html.erb
++++ b/app/views/cards/display/common/_meta.html.erb
+@@ -17,6 +17,10 @@
+     <%= local_datetime_tag(card.last_active_at, style: :daysago) %>
+   </span>
+ 
++  <% if card.due_on %>
++    <time class="card__meta-text card__meta-text--due-date" datetime="<%= card.due_on.iso8601 %>">Due <%= card.due_on.iso8601 %></time>
++  <% end %>
++
+   <span class="card__meta-text card__meta-text--assignees overflow-ellipsis">
+     <%= icon_tag "arrow-right" if card.assignees.any? %>
+     <%= card.assignees.any? ? "Assigned to" : "Not assigned" %>
+--- a/app/views/cards/display/preview/_meta.html.erb
++++ b/app/views/cards/display/preview/_meta.html.erb
+@@ -16,6 +16,10 @@
+     <%= local_datetime_tag(card.last_active_at, style: :daysago) %>
+   </span>
+ 
++  <% if card.due_on %>
++    <time class="card__meta-text card__meta-text--due-date" datetime="<%= card.due_on.iso8601 %>">Due <%= card.due_on.iso8601 %></time>
++  <% end %>
++
+   <span class="card__meta-text card__meta-text--assignees overflow-ellipsis">
+     <%= icon_tag("arrow-right", aria: { label: "Assigned to" }) if card.assignees.any? %>
+     <%= card.assignees.map { |assignee| h assignee.familiar_name }.to_sentence(two_words_connector: " / ", last_word_connector: " / ").html_safe %>

@@ -1,5 +1,12 @@
 # One-shot stack conformance
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of CONDITIONS_MISMATCH, RAW_EVIDENCE_MISSING. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because original implementation worktrees, conformance result bundles, and host environments are not included; the round cites the retained source reports and result paths but cannot be replayed from this repository.
 ## Required reproduction metadata
 
 - Question: after the same planned Kogen build process, how much of the executable conformance suite did each language implementation pass before post-build integration rounds?

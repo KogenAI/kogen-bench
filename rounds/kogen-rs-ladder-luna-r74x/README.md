@@ -1,5 +1,12 @@
 # Kogen-RS R74 sandbox comparison
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of PRE_REGISTRATION_UNPROVEN, RAW_EVIDENCE_MISSING, DECISION_RULE_NOT_APPLIED. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because per-cell outcomes, execution/hash assertions, incidents and identity audit are source-reported and not independently reproducible from the public snapshot; named lane records are absent. R74 rows are recovered internal historical context, not joined to the canonical official export. Strict release compliance is not established. Model execution and official grading are not replayed.
 ## Status
 
 **DESCRIPTIVE**

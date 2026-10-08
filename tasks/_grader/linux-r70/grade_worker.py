@@ -3,9 +3,8 @@
 No bench grader or restore. Emit aggregate outcomes only; purge scratch in caller.
 """
 import hashlib,re,json,os,pathlib,shutil,subprocess,sys,tempfile,time,xml.etree.ElementTree as ET
-ROOT=pathlib.Path('/srv/bh/bench/recovery-2026-10-02'); R=ROOT/'levers/r70'
+BENCH_HOST=pathlib.Path(os.environ.get('BENCH_HOST','/srv/bh/bench')); ROOT=BENCH_HOST/'recovery-2026-10-02'; R=ROOT/'levers/r70'; sys.path.insert(0,str(ROOT/'tasks/_grader'))
 GRADER_SHA256=hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
-sys.path.insert(0,str(ROOT/'probe-kgn/runner'))
 from sandbox_linux import base_args
 from dispatch import active
 
@@ -13,7 +12,7 @@ def now():return time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
 def inventory(include_off_cohort=False):
  rows=[]
  # 7 Oct 2026 (operator, rule J): also inventory the r70 lane roots (Sol replication, L2/L3/L4); exact --cell-ids still select what is graded.
- for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json','rec-lever-l4b-*/*/*/COMPLETE.json','rec-lever-l3b/*/*/COMPLETE.json') for c in pathlib.Path('/srv/bh/bench/results').glob(pattern)]:
+ for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json','rec-lever-l4b-*/*/*/COMPLETE.json','rec-lever-l3b/*/*/COMPLETE.json') for c in (BENCH_HOST/'results').glob(pattern)]:
   cell=complete.parent;m=json.loads((cell/'manifest.json').read_text());req=m['requested']
   selected=re.fullmatch(r'r70-rve-eu-[1346]-(?:rust|elixir)-gpt-6-luna-r(\d+)',m['experiment'])
   off_cohort=bool(selected and req['rep']!=int(selected[1]))
@@ -30,9 +29,9 @@ def grade(job,window):
  scratch=pathlib.Path(tempfile.mkdtemp(prefix='cell-',dir=window));scratch.chmod(0o700)
  (scratch/'home').mkdir()
  project=scratch/'project';td=ROOT/'new-tasks'/job['task'];meta=json.loads((td/'task.json').read_text())
- env={**os.environ,'RUSTUP_HOME':'/opt/bench/rustup','CARGO_NET_OFFLINE':'true','GOTOOLCHAIN':'local','GOCACHE':str(scratch/'go-cache'),'HOME':str(scratch/'home'),**meta['env'],'GIT_CONFIG_GLOBAL':'/dev/null','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_COUNT':'1','GIT_CONFIG_KEY_0':'safe.directory','GIT_CONFIG_VALUE_0':'*'}
+ env={**os.environ,'RUSTUP_HOME':os.environ.get('BENCH_RUSTUP','/opt/bench/rustup'),'CARGO_NET_OFFLINE':'true','GOTOOLCHAIN':'local','GOCACHE':str(scratch/'go-cache'),'HOME':str(scratch/'home'),**meta['env'],'GIT_CONFIG_GLOBAL':'/dev/null','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_COUNT':'1','GIT_CONFIG_KEY_0':'safe.directory','GIT_CONFIG_VALUE_0':'*'}
  def run(argv,label,hidden=False):
-  args=base_args()+['--ro-bind','/srv/bh/bench/toolchains','/srv/bh/bench/toolchains','--bind',str(scratch),str(scratch)]
+  args=base_args()+['--ro-bind',str(BENCH_HOST/'toolchains'),str(BENCH_HOST/'toolchains'),'--bind',str(scratch),str(scratch)]
   if hidden:args+=['--ro-bind',str(window/'suites'),str(window/'suites')]
   args+=['--remount-ro','/','--chdir',str(project)]
   with (scratch/(label+'.log')).open('wb') as f:

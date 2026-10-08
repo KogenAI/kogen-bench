@@ -1,10 +1,16 @@
 # r32a
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE; the available public record does not support upgrading that classification.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - **NO_PREREG** — The README says this round was not pre-registered, and its files show no timestamped rule predating the first result.
 - **NO_DECISION_RULE** — The README says no public predeclared decision rule was recovered.
 - **NO_EXECUTION_EVIDENCE** — The README reports zero tagged deliveries and says the public record does not establish whether execution occurred.

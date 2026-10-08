@@ -1,11 +1,16 @@
 # Round 70 task 8 v2 smoke lane
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of NO_OUTCOME, NO_SCORED_RESULTS, SMOKE_GATE. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
 
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_SCORED_RESULTS — The README says scored cells were not run.
 - SMOKE_GATE — The v2 smoke did not pass its required admission gate.
 - NO_OUTCOME — No scored task-8 comparison exists.
@@ -44,3 +49,12 @@ The v2 admission controls are separate from scored outcomes: one reference passe
 - **Raw records:** [test-count ledger](../../results/test-counts.jsonl), cohort `r70-task8-v2-smoke`; [controls ledger](../../results/controls.jsonl), cohort `r70-task8-v2`.
 
 The prompt wording was changed from v1 for the retry-body/cache-key rule. Because v2 never passed the smoke gate, this lane establishes no language or prompt-effect result.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r70-rve-task8v2.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 2 rows (fail 2); overall pass rate is 0.0% (0/2) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 2 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 2 raw-only or non-public rows; they are kept separate from the published-export denominator.

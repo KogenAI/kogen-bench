@@ -1,0 +1,865 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 31,
+    "token_cells_different": 0,
+    "token_cells_equal": 31,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 1474048,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r1-Pstar-review-r21pr-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 166846,
+        "output_tokens": 9274,
+        "published_metadata_tokens": 1650168,
+        "reasoning_tokens": 1183,
+        "round": "r21"
+      },
+      {
+        "cached_input_tokens": 244736,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r2-Pstar-review-r21pr-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 77639,
+        "output_tokens": 5645,
+        "published_metadata_tokens": 328020,
+        "reasoning_tokens": 526,
+        "round": "r21"
+      },
+      {
+        "cached_input_tokens": 235520,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-Pstar-review-r21pr-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 70745,
+        "output_tokens": 3729,
+        "published_metadata_tokens": 309994,
+        "reasoning_tokens": 67,
+        "round": "r21"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 19,
+        "equal": 19
+      },
+      "kh-plan": {
+        "compared": 12,
+        "equal": 12
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 31,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 31,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 31,
+    "fail_count": 9,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 31,
+      "incomplete_cells": 0,
+      "total": 9725203
+    },
+    "officially_graded_cells": 31,
+    "outcomes": {
+      "fail": 9,
+      "pass": 22
+    },
+    "pass_count": 22,
+    "pass_rate": 0.7096774193548387,
+    "pass_rate_denominator": 31,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 8143360
+      },
+      "input_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 1482452
+      },
+      "output_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 99391
+      },
+      "reasoning_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 3212
+      }
+    },
+    "wall_s": {
+      "known_cells": 31,
+      "median": 325.219,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "Pstar-review": {
+      "cells": 19,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 19,
+        "incomplete_cells": 0,
+        "total": 7087720
+      },
+      "officially_graded_cells": 19,
+      "outcomes": {
+        "fail": 1,
+        "pass": 18
+      },
+      "pass_count": 18,
+      "pass_rate": 0.9473684210526315,
+      "pass_rate_denominator": 19,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 5989888
+        },
+        "input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 1037187
+        },
+        "output_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 60645
+        },
+        "reasoning_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 3044
+        }
+      },
+      "wall_s": {
+        "known_cells": 19,
+        "median": 432.869,
+        "missing_cells": 0
+      }
+    },
+    "r21pr:Pstar": {
+      "cells": 6,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 924366
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 3,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 771584
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 138538
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 14244
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 207.55200000000002,
+        "missing_cells": 0
+      }
+    },
+    "r21pr:Pstar-review": {
+      "cells": 6,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 1713117
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 5,
+        "pass": 1
+      },
+      "pass_count": 1,
+      "pass_rate": 0.16666666666666666,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 1381888
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 306727
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 24502
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 168
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 351.5775,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [
+      {
+        "arm": "Pstar-review",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 18
+      },
+      {
+        "arm": "Pstar-review",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 1
+      },
+      {
+        "arm": "Pstar-review",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 1,
+          "pass": 18
+        }
+      },
+      {
+        "arm": "r21pr:Pstar",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 3
+      },
+      {
+        "arm": "r21pr:Pstar",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 3
+      },
+      {
+        "arm": "r21pr:Pstar",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 3,
+          "pass": 3
+        }
+      },
+      {
+        "arm": "r21pr:Pstar-review",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 1
+      },
+      {
+        "arm": "r21pr:Pstar-review",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 5
+      },
+      {
+        "arm": "r21pr:Pstar-review",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 5,
+          "pass": 1
+        }
+      }
+    ],
+    "arm_mismatches": [],
+    "outcome_matches": 31,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 31,
+    "public_export_rows_in_round": 0,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {},
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "Pstar-review": {
+        "cells": 19,
+        "fail_count": 1,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 19,
+          "incomplete_cells": 0,
+          "total": 7087720
+        },
+        "officially_graded_cells": 19,
+        "outcomes": {
+          "fail": 1,
+          "pass": 18
+        },
+        "pass_count": 18,
+        "pass_rate": 0.9473684210526315,
+        "pass_rate_denominator": 19,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 5989888
+          },
+          "input_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 1037187
+          },
+          "output_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 60645
+          },
+          "reasoning_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 3044
+          }
+        },
+        "wall_s": {
+          "known_cells": 19,
+          "median": 432.869,
+          "missing_cells": 0
+        }
+      },
+      "r21pr:Pstar": {
+        "cells": 6,
+        "fail_count": 3,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 6,
+          "incomplete_cells": 0,
+          "total": 924366
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "fail": 3,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.5,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 771584
+          },
+          "input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 138538
+          },
+          "output_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 14244
+          },
+          "reasoning_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 6,
+          "median": 207.55200000000002,
+          "missing_cells": 0
+        }
+      },
+      "r21pr:Pstar-review": {
+        "cells": 6,
+        "fail_count": 5,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 6,
+          "incomplete_cells": 0,
+          "total": 1713117
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "fail": 5,
+          "pass": 1
+        },
+        "pass_count": 1,
+        "pass_rate": 0.16666666666666666,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 1381888
+          },
+          "input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 306727
+          },
+          "output_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 24502
+          },
+          "reasoning_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 168
+          }
+        },
+        "wall_s": {
+          "known_cells": 6,
+          "median": 351.5775,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 31,
+    "fail_count": 9,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 31,
+      "incomplete_cells": 0,
+      "total": 9725203
+    },
+    "officially_graded_cells": 31,
+    "outcomes": {
+      "fail": 9,
+      "pass": 22
+    },
+    "pass_count": 22,
+    "pass_rate": 0.7096774193548387,
+    "pass_rate_denominator": 31,
+    "published_export_cells": 31,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 8143360
+      },
+      "input_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 1482452
+      },
+      "output_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 99391
+      },
+      "reasoning_tokens": {
+        "known_cells": 31,
+        "missing_cells": 0,
+        "total": 3212
+      }
+    },
+    "wall_s": {
+      "known_cells": 31,
+      "median": 325.219,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "Pstar-review": {
+      "cells": 19,
+      "fail_count": 1,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 19,
+        "incomplete_cells": 0,
+        "total": 7087720
+      },
+      "officially_graded_cells": 19,
+      "outcomes": {
+        "fail": 1,
+        "pass": 18
+      },
+      "pass_count": 18,
+      "pass_rate": 0.9473684210526315,
+      "pass_rate_denominator": 19,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 5989888
+        },
+        "input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 1037187
+        },
+        "output_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 60645
+        },
+        "reasoning_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 3044
+        }
+      },
+      "wall_s": {
+        "known_cells": 19,
+        "median": 432.869,
+        "missing_cells": 0
+      }
+    },
+    "r21pr:Pstar": {
+      "cells": 6,
+      "fail_count": 3,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 924366
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 3,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 771584
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 138538
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 14244
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 207.55200000000002,
+        "missing_cells": 0
+      }
+    },
+    "r21pr:Pstar-review": {
+      "cells": 6,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 1713117
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 5,
+        "pass": 1
+      },
+      "pass_count": 1,
+      "pass_rate": 0.16666666666666666,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 1381888
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 306727
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 24502
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 168
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 351.5775,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "Pstar-review": {
+          "cells": 19,
+          "fail_count": 1,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 19,
+            "incomplete_cells": 0,
+            "total": 7087720
+          },
+          "officially_graded_cells": 19,
+          "outcomes": {
+            "fail": 1,
+            "pass": 18
+          },
+          "pass_count": 18,
+          "pass_rate": 0.9473684210526315,
+          "pass_rate_denominator": 19,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 5989888
+            },
+            "input_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 1037187
+            },
+            "output_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 60645
+            },
+            "reasoning_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 3044
+            }
+          },
+          "wall_s": {
+            "known_cells": 19,
+            "median": 432.869,
+            "missing_cells": 0
+          }
+        },
+        "r21pr:Pstar": {
+          "cells": 6,
+          "fail_count": 3,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 6,
+            "incomplete_cells": 0,
+            "total": 924366
+          },
+          "officially_graded_cells": 6,
+          "outcomes": {
+            "fail": 3,
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 0.5,
+          "pass_rate_denominator": 6,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 771584
+            },
+            "input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 138538
+            },
+            "output_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 14244
+            },
+            "reasoning_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 6,
+            "median": 207.55200000000002,
+            "missing_cells": 0
+          }
+        },
+        "r21pr:Pstar-review": {
+          "cells": 6,
+          "fail_count": 5,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 6,
+            "incomplete_cells": 0,
+            "total": 1713117
+          },
+          "officially_graded_cells": 6,
+          "outcomes": {
+            "fail": 5,
+            "pass": 1
+          },
+          "pass_count": 1,
+          "pass_rate": 0.16666666666666666,
+          "pass_rate_denominator": 6,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 1381888
+            },
+            "input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 306727
+            },
+            "output_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 24502
+            },
+            "reasoning_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 168
+            }
+          },
+          "wall_s": {
+            "known_cells": 6,
+            "median": 351.5775,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r1-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r2-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r5-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r1-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r2-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r3-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r4-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r5-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r1-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r2-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r3-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r4-Pstar-review-r21pr-studio",
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r5-Pstar-review-r21pr-studio",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-r1",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-r2",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-r3",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-review-r1",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-review-r2",
+        "r21pr-eu-syn-14-bug-sla-business-hours-Pstar-review-r3",
+        "r21pr-us-elx-07-cli-stats-Pstar-r1",
+        "r21pr-us-elx-07-cli-stats-Pstar-r2",
+        "r21pr-us-elx-07-cli-stats-Pstar-r3",
+        "r21pr-us-elx-07-cli-stats-Pstar-review-r1",
+        "r21pr-us-elx-07-cli-stats-Pstar-review-r2",
+        "r21pr-us-elx-07-cli-stats-Pstar-review-r3"
+      ],
+      "summary": {
+        "cells": 31,
+        "fail_count": 9,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 31,
+          "incomplete_cells": 0,
+          "total": 9725203
+        },
+        "officially_graded_cells": 31,
+        "outcomes": {
+          "fail": 9,
+          "pass": 22
+        },
+        "pass_count": 22,
+        "pass_rate": 0.7096774193548387,
+        "pass_rate_denominator": 31,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 31,
+            "missing_cells": 0,
+            "total": 8143360
+          },
+          "input_tokens": {
+            "known_cells": 31,
+            "missing_cells": 0,
+            "total": 1482452
+          },
+          "output_tokens": {
+            "known_cells": 31,
+            "missing_cells": 0,
+            "total": 99391
+          },
+          "reasoning_tokens": {
+            "known_cells": 31,
+            "missing_cells": 0,
+            "total": 3212
+          }
+        },
+        "wall_s": {
+          "known_cells": 31,
+          "median": 325.219,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r21",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

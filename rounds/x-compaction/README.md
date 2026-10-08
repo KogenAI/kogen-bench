@@ -1,5 +1,12 @@
 # x compaction
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of DENOMINATOR_UNRESOLVED, PRE_REGISTRATION_MISSING, RAW_EVIDENCE_MISSING. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
+**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
 ## Status
 
 **DESCRIPTIVE**
@@ -56,3 +63,7 @@ The numerical observations above are documentary summaries, not a public exact-c
 No individual outcome should be promoted beyond the status above until the exact run records, grade identities, denominators and source revisions are reconciled.
 
 Sources: [reported data file](reported-data.json); [public cells export](../../results/cells.jsonl); [public captured-delivery export](../../results/run-records/index.json).
+
+## Studio source recovery
+
+Studio retains source patches only; the staged source contains no per-cell model manifests or outcome rows. This source remains in [the source inventory](../../data/mined/STUDIO-SOURCES.json); the round’s published status and numbers are unchanged.

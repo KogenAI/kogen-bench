@@ -1,11 +1,17 @@
 # r68
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of DESIGN, NO_PREREG, TASK_MISMATCH. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - DESIGN — The dedicated design section and testable question are absent.
 - TASK_MISMATCH — The surviving task plan and exported task IDs differ.
@@ -75,3 +81,12 @@ This captured-delivery summary uses the public [run-record export](../../results
 | syn-20-email-invite-flow | kogen-bench-us | plan-shell | not re-derivable | 1 | 1 | 0 | 1 | 0 |
 | syn-24-csv-import | kogen-bench-eu | not recorded | not re-derivable | 1 | 0 | 0 | 0 | 0 |
 | syn-31-inbound-email-webhook | kogen-bench-us | not recorded | not re-derivable | 1 | 0 | 0 | 0 | 0 |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r68.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 12 rows (fail 8, ungraded 4); overall pass rate is 0.0% (0/8) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 8/8 shared cell IDs match; 0/8 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 12 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 4 raw-only or non-public rows; they are kept separate from the published-export denominator.

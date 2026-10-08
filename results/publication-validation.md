@@ -1,6 +1,6 @@
 # Publication validation
 
-This report distinguishes archive consistency checks from release eligibility. The repository validator checks archive consistency; the publication release validator also requires every evidence gate resolved and every required scored round either strict-release-eligible or explicitly included with a verified descriptive label.
+This report distinguishes repository consistency checks from the configured release gate. `validate_repo.py` checks repository indexes, records, cross-references, covered numbers, privacy rules, and authored relative links. `validate_release.py` validates the historical round-label inventory, applies strict Standard-record checks only to rounds dated 2026-10-09 or later, checks the registered publication gates, and then runs `validate_repo.py`. It does not run scrutiny, require independent-review receipts, or invoke official-grade round reproducers.
 
 ## Public grade-export scope
 
@@ -30,7 +30,7 @@ The repository exact-join check verifies unique IDs on both sides and every capt
 - `python3 reproduce/validate_spec_snapshot.py`: PASS — 134 linked v1.2 fragments resolve; provenance, local navigation, and published-byte hashes verify.
 - `python3 reproduce/test_validate_release.py`: PASS — six policy cases cover acceptance and rejection conditions for release-included-with-label.
 - `python3 reproduce/validate_repo.py`: PASS — all five r67b task mappings reconcile to official grade rows and exact source-crosswalk identities; the pinned specification checks pass.
-- `python3 reproduce/validate_release.py`: PASS — B1 and B2 are resolved; all three descriptive rounds pass strict declaration validation and their official-grade reproducers.
+- `python3 reproduce/validate_release.py`: PASS — 177 rounds are classified as historical; there are no rounds dated from the strict cutoff of 2026-10-09; the registered publication gates and repository checks pass. This result does not mean scrutiny or independent review receipts were checked.
 
 ## Specification and decision sources
 
@@ -38,7 +38,7 @@ The locally sanitized [specification snapshot](../spec/README.md) preserves the 
 
 ## Scored-round record and release status
 
-The strict record validator has Standard records, `MEASURED.md`, and exact `MISSING.md` declarations for [language replication](../rounds/lang-sol-replication/README.md), [L3 repair](../rounds/l3-repair/README.md), and [L3b repair vs continue](../rounds/l3b-repair-vs-continue/README.md). The language round has 1,782 missing Standard capture slots and four declared deviations; L3 repair has 390 missing slots and four declared deviations; L3b has 193 missing slots and two declared deviations. Their labelled-release policy requires `DESCRIPTIVE — raw captures not retained; results verified against official grades`, exact gap/deviation declarations, and passing official-grade reproducers. All three reproducers pass. Missing receipts have not been reconstructed: the language smoke-gate exception receipt and per-cell L3 grade receipts are unavailable. L3b publishes its per-test no-regression result as a boolean only, with the private checker identified by SHA-256.
+The separate `validate_round.py --round ID --strict` command can check Standard-record structure and declared gaps/deviations for [language replication](../rounds/lang-sol-replication/README.md), [L3 repair](../rounds/l3-repair/README.md), and [L3b repair vs continue](../rounds/l3b-repair-vs-continue/README.md). Their records declare 1,782, 390, and 193 missing Standard capture slots respectively, with four, four, and two deviations. These rounds predate the configured strict cutoff, so `validate_release.py` does not run those strict checks for them and does not invoke their official-grade reproducers. The historical round pages retain their own evidence limits and status labels; missing receipts have not been reconstructed.
 
 ## Archive claims and limits
 
@@ -56,8 +56,6 @@ Family summaries remain bounded. They do not establish a general comparative Bui
 
 ## Validation contract
 
-- The archive validator checks source integrity and reports open publication gates without treating a successful exit as release authorization.
-- `python3 reproduce/validate_round.py --round ID --strict` validates the Standard record structure and exact gap/deviation declarations. `PASS WITH DECLARED DEVIATIONS` is release-included only under the tested descriptive-label rule and a passing official-grade reproducer.
-- `python3 reproduce/validate_release.py` checks all registered required scored rounds and fails for open evidence gates, missing Standard rows, undeclared gaps, undeclared protocol deviations, an invalid descriptive label, or a failed official-grade reproducer.
-- `npm run build` creates and checks the archive site. The publication build path runs the release validator first and stops while any release gate remains open.
-- The site checker validates the generated snapshot's revision and source hashes against the current committed `HEAD`.
+- `python3 reproduce/validate_repo.py` checks indexes, records, cross-references, covered numbers, privacy constraints, and authored relative links. It does not independently rerun historical model calls or hidden grading.
+- `python3 reproduce/validate_round.py --round ID --strict` checks one round's Standard record structure, exact gap/deviation declarations, and the strict eligibility predicate. It is a separate command; `validate_release.py` does not call it for historical rounds.
+- `python3 reproduce/validate_release.py` checks that round pages and `rounds/STATUS.md` agree on historical labels, badges, reasons, dates, and recomputation states; applies strict `validate_round.py` checks only to rounds dated 2026-10-09 or later; verifies that the publication-blocker register is well-formed and resolved; and runs `validate_repo.py`. It does not run `scrutinize.py`, inspect or require independent-review receipts, or run official-grade round reproducers. On this snapshot it reports 177 historical rounds, zero new strict rounds, and `RELEASE GATE: PASS`.

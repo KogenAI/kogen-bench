@@ -1,6 +1,12 @@
 # r70-RvE language extension
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: VALID; KEPT FOR AUDIT
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **VALID** — registered reps 31–32 only; rep 33 is post-hoc and reported separately
@@ -41,3 +47,14 @@ Original cohort context: [40-cell as-graded RvE comparison](../r70/README.md#ori
 Limit: Descriptive, small per-task samples, one model, and author-selected task templates. The extension observations do not establish differences among stacks.
 
 Sources: [decision rule](DECISION-RULE.md); [results](RESULTS.md); [test-count ledger](../../results/test-counts.jsonl); [cost/time ledger](../../results/cost-time.jsonl); [controls ledger](../../results/controls.jsonl); [sanitized official grade rows](../../reproduce/inputs/grades.final.jsonl); [public cell export](../../results/cells.jsonl).
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r70-rve-ext.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 41 rows (fail 6, pass 35); overall pass rate is 85.4% (35/41) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 29/29 shared cell IDs match; 0/29 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+Arm-label mismatches between public and raw records: 29; exact labels and cell IDs are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 29/29 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.
+This round also has 12 raw-only or non-public rows; they are kept separate from the published-export denominator.

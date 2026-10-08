@@ -1,0 +1,4058 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 127,
+    "token_cells_different": 95,
+    "token_cells_equal": 32,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 897536,
+        "cell_id": "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r1",
+        "harness": "kh-plan",
+        "input_tokens": 59528,
+        "output_tokens": 12369,
+        "published_metadata_tokens": 969433,
+        "reasoning_tokens": 8458,
+        "round": "r56c"
+      },
+      {
+        "cached_input_tokens": 1536512,
+        "cell_id": "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r2",
+        "harness": "kh-plan",
+        "input_tokens": 76965,
+        "output_tokens": 17360,
+        "published_metadata_tokens": 1630837,
+        "reasoning_tokens": 12004,
+        "round": "r56c"
+      },
+      {
+        "cached_input_tokens": 624128,
+        "cell_id": "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r3",
+        "harness": "kh-plan",
+        "input_tokens": 49824,
+        "output_tokens": 10626,
+        "published_metadata_tokens": 684578,
+        "reasoning_tokens": 7519,
+        "round": "r56c"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 71,
+        "different": 71
+      },
+      "kh-plan": {
+        "compared": 56,
+        "different": 24,
+        "equal": 32
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {
+      "multi_request_aggregation": 95
+    },
+    "token_mismatches": [
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 45,
+        "published_metadata_tokens": 1446274,
+        "recomputed_input_plus_cached_plus_output": 992181
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 42,
+        "published_metadata_tokens": 1121287,
+        "recomputed_input_plus_cached_plus_output": 771988
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 32,
+        "published_metadata_tokens": 1282573,
+        "recomputed_input_plus_cached_plus_output": 728099
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 37,
+        "published_metadata_tokens": 1231094,
+        "recomputed_input_plus_cached_plus_output": 631612
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 31,
+        "published_metadata_tokens": 1075861,
+        "recomputed_input_plus_cached_plus_output": 441575
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 49,
+        "published_metadata_tokens": 1302216,
+        "recomputed_input_plus_cached_plus_output": 665817
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 50,
+        "published_metadata_tokens": 1673137,
+        "recomputed_input_plus_cached_plus_output": 985214
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 45,
+        "published_metadata_tokens": 1488531,
+        "recomputed_input_plus_cached_plus_output": 888585
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 41,
+        "published_metadata_tokens": 1251125,
+        "recomputed_input_plus_cached_plus_output": 833301
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 57,
+        "published_metadata_tokens": 1932249,
+        "recomputed_input_plus_cached_plus_output": 1222491
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 28,
+        "published_metadata_tokens": 879829,
+        "recomputed_input_plus_cached_plus_output": 524002
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 53,
+        "published_metadata_tokens": 1343258,
+        "recomputed_input_plus_cached_plus_output": 871521
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 35,
+        "published_metadata_tokens": 1302821,
+        "recomputed_input_plus_cached_plus_output": 680931
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r10-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 43,
+        "published_metadata_tokens": 1561366,
+        "recomputed_input_plus_cached_plus_output": 1031051
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 10,
+        "published_metadata_tokens": 612024,
+        "recomputed_input_plus_cached_plus_output": 152578
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 29,
+        "published_metadata_tokens": 1169023,
+        "recomputed_input_plus_cached_plus_output": 341819
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 14,
+        "published_metadata_tokens": 655652,
+        "recomputed_input_plus_cached_plus_output": 186595
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 19,
+        "published_metadata_tokens": 578635,
+        "recomputed_input_plus_cached_plus_output": 361231
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 950839,
+        "recomputed_input_plus_cached_plus_output": 411747
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 768223,
+        "recomputed_input_plus_cached_plus_output": 479968
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 1090478,
+        "recomputed_input_plus_cached_plus_output": 732584
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 11,
+        "published_metadata_tokens": 528594,
+        "recomputed_input_plus_cached_plus_output": 167831
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 34,
+        "published_metadata_tokens": 1013004,
+        "recomputed_input_plus_cached_plus_output": 757089
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 27,
+        "published_metadata_tokens": 1103787,
+        "recomputed_input_plus_cached_plus_output": 748521
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 20,
+        "published_metadata_tokens": 547789,
+        "recomputed_input_plus_cached_plus_output": 166175
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r10-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 41,
+        "published_metadata_tokens": 909793,
+        "recomputed_input_plus_cached_plus_output": 513855
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 31,
+        "published_metadata_tokens": 1111862,
+        "recomputed_input_plus_cached_plus_output": 472127
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 29,
+        "published_metadata_tokens": 946283,
+        "recomputed_input_plus_cached_plus_output": 331331
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 795859,
+        "recomputed_input_plus_cached_plus_output": 364608
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 45,
+        "published_metadata_tokens": 1308487,
+        "recomputed_input_plus_cached_plus_output": 810555
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 34,
+        "published_metadata_tokens": 1049559,
+        "recomputed_input_plus_cached_plus_output": 585812
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 992590,
+        "recomputed_input_plus_cached_plus_output": 267764
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 49,
+        "published_metadata_tokens": 1712885,
+        "recomputed_input_plus_cached_plus_output": 991730
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 42,
+        "published_metadata_tokens": 1024658,
+        "recomputed_input_plus_cached_plus_output": 526618
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 35,
+        "published_metadata_tokens": 962392,
+        "recomputed_input_plus_cached_plus_output": 440868
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 24,
+        "published_metadata_tokens": 713748,
+        "recomputed_input_plus_cached_plus_output": 316395
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 21,
+        "published_metadata_tokens": 1130485,
+        "recomputed_input_plus_cached_plus_output": 600493
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r10-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 37,
+        "published_metadata_tokens": 1613318,
+        "recomputed_input_plus_cached_plus_output": 993631
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 57,
+        "published_metadata_tokens": 3102360,
+        "recomputed_input_plus_cached_plus_output": 2223357
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 28,
+        "published_metadata_tokens": 1103075,
+        "recomputed_input_plus_cached_plus_output": 622749
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 19,
+        "published_metadata_tokens": 833025,
+        "recomputed_input_plus_cached_plus_output": 608812
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 48,
+        "published_metadata_tokens": 2151180,
+        "recomputed_input_plus_cached_plus_output": 1569039
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 43,
+        "published_metadata_tokens": 2432570,
+        "recomputed_input_plus_cached_plus_output": 2002270
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 26,
+        "published_metadata_tokens": 1181033,
+        "recomputed_input_plus_cached_plus_output": 575393
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 21,
+        "published_metadata_tokens": 814766,
+        "recomputed_input_plus_cached_plus_output": 416731
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 32,
+        "published_metadata_tokens": 1384948,
+        "recomputed_input_plus_cached_plus_output": 1127260
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 1244209,
+        "recomputed_input_plus_cached_plus_output": 566343
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 21,
+        "published_metadata_tokens": 769043,
+        "recomputed_input_plus_cached_plus_output": 488838
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 66,
+        "published_metadata_tokens": 2871385,
+        "recomputed_input_plus_cached_plus_output": 2137344
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 53,
+        "published_metadata_tokens": 2169569,
+        "recomputed_input_plus_cached_plus_output": 1634828
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 116,
+        "published_metadata_tokens": 5163071,
+        "recomputed_input_plus_cached_plus_output": 4580115
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 45,
+        "published_metadata_tokens": 2267167,
+        "recomputed_input_plus_cached_plus_output": 1814427
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 70,
+        "published_metadata_tokens": 2792900,
+        "recomputed_input_plus_cached_plus_output": 2061270
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 86,
+        "published_metadata_tokens": 4599651,
+        "recomputed_input_plus_cached_plus_output": 4037764
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 74,
+        "published_metadata_tokens": 3235311,
+        "recomputed_input_plus_cached_plus_output": 2572360
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 71,
+        "published_metadata_tokens": 2915815,
+        "recomputed_input_plus_cached_plus_output": 2331690
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 80,
+        "published_metadata_tokens": 3729168,
+        "recomputed_input_plus_cached_plus_output": 2937729
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 83,
+        "published_metadata_tokens": 3308102,
+        "recomputed_input_plus_cached_plus_output": 2689076
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 82,
+        "published_metadata_tokens": 3809745,
+        "recomputed_input_plus_cached_plus_output": 3165389
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r1-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 59,
+        "published_metadata_tokens": 2070113,
+        "recomputed_input_plus_cached_plus_output": 1438193
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r10-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 49,
+        "published_metadata_tokens": 1493772,
+        "recomputed_input_plus_cached_plus_output": 778846
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r11-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 36,
+        "published_metadata_tokens": 1186692,
+        "recomputed_input_plus_cached_plus_output": 563219
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r12-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 25,
+        "published_metadata_tokens": 927047,
+        "recomputed_input_plus_cached_plus_output": 611574
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 40,
+        "published_metadata_tokens": 1071246,
+        "recomputed_input_plus_cached_plus_output": 557619
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 35,
+        "published_metadata_tokens": 1144762,
+        "recomputed_input_plus_cached_plus_output": 670150
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 35,
+        "published_metadata_tokens": 1038846,
+        "recomputed_input_plus_cached_plus_output": 523368
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 32,
+        "published_metadata_tokens": 758941,
+        "recomputed_input_plus_cached_plus_output": 396763
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r6-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 1047855,
+        "recomputed_input_plus_cached_plus_output": 450241
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r7-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 28,
+        "published_metadata_tokens": 893768,
+        "recomputed_input_plus_cached_plus_output": 448002
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r8-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 36,
+        "published_metadata_tokens": 1014316,
+        "recomputed_input_plus_cached_plus_output": 536771
+      },
+      {
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r9-P-noplan2-r56c-studio",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-gpt",
+        "provider_response_count": 32,
+        "published_metadata_tokens": 753795,
+        "recomputed_input_plus_cached_plus_output": 378276
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 15,
+        "published_metadata_tokens": 429263,
+        "recomputed_input_plus_cached_plus_output": 142793
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r10",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 532975,
+        "recomputed_input_plus_cached_plus_output": 201040
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r11",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 34,
+        "published_metadata_tokens": 755260,
+        "recomputed_input_plus_cached_plus_output": 405620
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r12",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 21,
+        "published_metadata_tokens": 509895,
+        "recomputed_input_plus_cached_plus_output": 201664
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 49,
+        "published_metadata_tokens": 1248965,
+        "recomputed_input_plus_cached_plus_output": 888399
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 34,
+        "published_metadata_tokens": 1025325,
+        "recomputed_input_plus_cached_plus_output": 473754
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r4",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 40,
+        "published_metadata_tokens": 1075612,
+        "recomputed_input_plus_cached_plus_output": 666964
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r5",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 916090,
+        "recomputed_input_plus_cached_plus_output": 474912
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r6",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 19,
+        "published_metadata_tokens": 558694,
+        "recomputed_input_plus_cached_plus_output": 198279
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r7",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 611889,
+        "recomputed_input_plus_cached_plus_output": 294652
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r8",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 33,
+        "published_metadata_tokens": 792523,
+        "recomputed_input_plus_cached_plus_output": 426029
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r9",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 34,
+        "published_metadata_tokens": 930796,
+        "recomputed_input_plus_cached_plus_output": 501877
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 971714,
+        "recomputed_input_plus_cached_plus_output": 465491
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r10",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 723250,
+        "recomputed_input_plus_cached_plus_output": 256408
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r11",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 11,
+        "published_metadata_tokens": 351509,
+        "recomputed_input_plus_cached_plus_output": 153978
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r12",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 15,
+        "published_metadata_tokens": 491106,
+        "recomputed_input_plus_cached_plus_output": 208425
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r2",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 25,
+        "published_metadata_tokens": 761036,
+        "recomputed_input_plus_cached_plus_output": 361189
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r3",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 23,
+        "published_metadata_tokens": 1032485,
+        "recomputed_input_plus_cached_plus_output": 723402
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r4",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 26,
+        "published_metadata_tokens": 565358,
+        "recomputed_input_plus_cached_plus_output": 313864
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r5",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 15,
+        "published_metadata_tokens": 605446,
+        "recomputed_input_plus_cached_plus_output": 170959
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r6",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 19,
+        "published_metadata_tokens": 643594,
+        "recomputed_input_plus_cached_plus_output": 357662
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r7",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 24,
+        "published_metadata_tokens": 679808,
+        "recomputed_input_plus_cached_plus_output": 272345
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r8",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 17,
+        "published_metadata_tokens": 535838,
+        "recomputed_input_plus_cached_plus_output": 269445
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r9",
+        "classification": "multi_request_aggregation",
+        "definition_decision": "Keep the published metadata total as reported for the full-cell metric; retain the manifest usage sum as a separate counter because the sanitized bundle has no per-response usage breakdown.",
+        "harness": "kh-plan",
+        "provider_response_count": 18,
+        "published_metadata_tokens": 502427,
+        "recomputed_input_plus_cached_plus_output": 219372
+      }
+    ],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 127,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 127,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 127,
+    "fail_count": 32,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 127,
+      "incomplete_cells": 0,
+      "total": 93518720
+    },
+    "officially_graded_cells": 127,
+    "outcomes": {
+      "fail": 32,
+      "pass": 95
+    },
+    "pass_count": 95,
+    "pass_rate": 0.7480314960629921,
+    "pass_rate_denominator": 127,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 82036736
+      },
+      "input_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 9603246
+      },
+      "output_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 1878738
+      },
+      "reasoning_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 1247759
+      }
+    },
+    "wall_s": {
+      "known_cells": 127,
+      "median": 1093.072,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "P-noplan2": {
+      "cells": 71,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 71,
+        "incomplete_cells": 0,
+        "total": 70506099
+      },
+      "officially_graded_cells": 71,
+      "outcomes": {
+        "fail": 5,
+        "pass": 66
+      },
+      "pass_count": 66,
+      "pass_rate": 0.9295774647887324,
+      "pass_rate_denominator": 71,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 62600704
+        },
+        "input_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 6730128
+        },
+        "output_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 1175267
+        },
+        "reasoning_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 838050
+        }
+      },
+      "wall_s": {
+        "known_cells": 71,
+        "median": 1330.854,
+        "missing_cells": 0
+      }
+    },
+    "r56c-eu-elx12:P-noplan2": {
+      "cells": 12,
+      "fail_count": 6,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 4875983
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 6,
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 3786752
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 879998
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 209233
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 151084
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 1071.5175,
+        "missing_cells": 0
+      }
+    },
+    "r56c-eu-hwbroadcastdet:B-ctx-det": {
+      "cells": 6,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 6078301
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 5643776
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 361630
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 72895
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 50441
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 481.3485,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-asvariantdet:B-ctx-det": {
+      "cells": 2,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 2,
+        "incomplete_cells": 0,
+        "total": 2755041
+      },
+      "officially_graded_cells": 2,
+      "outcomes": {
+        "fail": 2
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 2,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 2575360
+        },
+        "input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 149282
+        },
+        "output_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 30399
+        },
+        "reasoning_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 21578
+        }
+      },
+      "wall_s": {
+        "known_cells": 2,
+        "median": 599.645,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx07:P-noplan2": {
+      "cells": 12,
+      "fail_count": 4,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 3772540
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 4,
+        "pass": 8
+      },
+      "pass_count": 8,
+      "pass_rate": 0.6666666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2976768
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 651352
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 144420
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 64105
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 994.4259999999999,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx07det:B-ctx-det": {
+      "cells": 12,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 3048943
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 5,
+        "pass": 7
+      },
+      "pass_count": 7,
+      "pass_rate": 0.5833333333333334,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2442240
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 456564
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 150139
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 67228
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 282.587,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx12det:B-ctx-det": {
+      "cells": 12,
+      "fail_count": 10,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 2481813
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 10,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.16666666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2011136
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 374292
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 96385
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 55273
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 225.5895,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 127,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 127,
+    "public_export_rows_in_round": 127,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "P-noplan2": {
+        "cells": 71,
+        "fail_count": 5,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 71,
+          "total": 0
+        },
+        "officially_graded_cells": 71,
+        "outcomes": {
+          "fail": 5,
+          "pass": 66
+        },
+        "pass_count": 66,
+        "pass_rate": 0.9295774647887324,
+        "pass_rate_denominator": 71,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 71,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 71,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 71,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 71,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 71
+        }
+      },
+      "r56c-eu-elx12:P-noplan2": {
+        "cells": 12,
+        "fail_count": 6,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 6,
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 0.5,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "r56c-eu-hwbroadcastdet:B-ctx-det": {
+        "cells": 6,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 6,
+          "total": 0
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 6,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 6,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 6,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 6,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 6
+        }
+      },
+      "r56c-us-asvariantdet:B-ctx-det": {
+        "cells": 2,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 2,
+          "total": 0
+        },
+        "officially_graded_cells": 2,
+        "outcomes": {
+          "fail": 2
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 2,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 2,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 2
+        }
+      },
+      "r56c-us-elx07:P-noplan2": {
+        "cells": 12,
+        "fail_count": 4,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 4,
+          "pass": 8
+        },
+        "pass_count": 8,
+        "pass_rate": 0.6666666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "r56c-us-elx07det:B-ctx-det": {
+        "cells": 12,
+        "fail_count": 5,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 5,
+          "pass": 7
+        },
+        "pass_count": 7,
+        "pass_rate": 0.5833333333333334,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "r56c-us-elx12det:B-ctx-det": {
+        "cells": 12,
+        "fail_count": 10,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 10,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.16666666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "P-noplan2": {
+        "cells": 71,
+        "fail_count": 5,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 71,
+          "incomplete_cells": 0,
+          "total": 70506099
+        },
+        "officially_graded_cells": 71,
+        "outcomes": {
+          "fail": 5,
+          "pass": 66
+        },
+        "pass_count": 66,
+        "pass_rate": 0.9295774647887324,
+        "pass_rate_denominator": 71,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 71,
+            "missing_cells": 0,
+            "total": 62600704
+          },
+          "input_tokens": {
+            "known_cells": 71,
+            "missing_cells": 0,
+            "total": 6730128
+          },
+          "output_tokens": {
+            "known_cells": 71,
+            "missing_cells": 0,
+            "total": 1175267
+          },
+          "reasoning_tokens": {
+            "known_cells": 71,
+            "missing_cells": 0,
+            "total": 838050
+          }
+        },
+        "wall_s": {
+          "known_cells": 71,
+          "median": 1330.854,
+          "missing_cells": 0
+        }
+      },
+      "r56c-eu-elx12:P-noplan2": {
+        "cells": 12,
+        "fail_count": 6,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 4875983
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 6,
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 0.5,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 3786752
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 879998
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 209233
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 151084
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 1071.5175,
+          "missing_cells": 0
+        }
+      },
+      "r56c-eu-hwbroadcastdet:B-ctx-det": {
+        "cells": 6,
+        "fail_count": 0,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 6,
+          "incomplete_cells": 0,
+          "total": 6078301
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 1.0,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 5643776
+          },
+          "input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 361630
+          },
+          "output_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 72895
+          },
+          "reasoning_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 50441
+          }
+        },
+        "wall_s": {
+          "known_cells": 6,
+          "median": 481.3485,
+          "missing_cells": 0
+        }
+      },
+      "r56c-us-asvariantdet:B-ctx-det": {
+        "cells": 2,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 2,
+          "incomplete_cells": 0,
+          "total": 2755041
+        },
+        "officially_graded_cells": 2,
+        "outcomes": {
+          "fail": 2
+        },
+        "pass_count": 0,
+        "pass_rate": 0.0,
+        "pass_rate_denominator": 2,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 2575360
+          },
+          "input_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 149282
+          },
+          "output_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 30399
+          },
+          "reasoning_tokens": {
+            "known_cells": 2,
+            "missing_cells": 0,
+            "total": 21578
+          }
+        },
+        "wall_s": {
+          "known_cells": 2,
+          "median": 599.645,
+          "missing_cells": 0
+        }
+      },
+      "r56c-us-elx07:P-noplan2": {
+        "cells": 12,
+        "fail_count": 4,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 3772540
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 4,
+          "pass": 8
+        },
+        "pass_count": 8,
+        "pass_rate": 0.6666666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 2976768
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 651352
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 144420
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 64105
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 994.4259999999999,
+          "missing_cells": 0
+        }
+      },
+      "r56c-us-elx07det:B-ctx-det": {
+        "cells": 12,
+        "fail_count": 5,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 3048943
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 5,
+          "pass": 7
+        },
+        "pass_count": 7,
+        "pass_rate": 0.5833333333333334,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 2442240
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 456564
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 150139
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 67228
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 282.587,
+          "missing_cells": 0
+        }
+      },
+      "r56c-us-elx12det:B-ctx-det": {
+        "cells": 12,
+        "fail_count": 10,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 2481813
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 10,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.16666666666666666,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 2011136
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 374292
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 96385
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 55273
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 225.5895,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 127,
+    "fail_count": 32,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 127,
+      "incomplete_cells": 0,
+      "total": 93518720
+    },
+    "officially_graded_cells": 127,
+    "outcomes": {
+      "fail": 32,
+      "pass": 95
+    },
+    "pass_count": 95,
+    "pass_rate": 0.7480314960629921,
+    "pass_rate_denominator": 127,
+    "published_export_cells": 127,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 82036736
+      },
+      "input_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 9603246
+      },
+      "output_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 1878738
+      },
+      "reasoning_tokens": {
+        "known_cells": 127,
+        "missing_cells": 0,
+        "total": 1247759
+      }
+    },
+    "wall_s": {
+      "known_cells": 127,
+      "median": 1093.072,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "P-noplan2": {
+      "cells": 71,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 71,
+        "incomplete_cells": 0,
+        "total": 70506099
+      },
+      "officially_graded_cells": 71,
+      "outcomes": {
+        "fail": 5,
+        "pass": 66
+      },
+      "pass_count": 66,
+      "pass_rate": 0.9295774647887324,
+      "pass_rate_denominator": 71,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 62600704
+        },
+        "input_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 6730128
+        },
+        "output_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 1175267
+        },
+        "reasoning_tokens": {
+          "known_cells": 71,
+          "missing_cells": 0,
+          "total": 838050
+        }
+      },
+      "wall_s": {
+        "known_cells": 71,
+        "median": 1330.854,
+        "missing_cells": 0
+      }
+    },
+    "r56c-eu-elx12:P-noplan2": {
+      "cells": 12,
+      "fail_count": 6,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 4875983
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 6,
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 3786752
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 879998
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 209233
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 151084
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 1071.5175,
+        "missing_cells": 0
+      }
+    },
+    "r56c-eu-hwbroadcastdet:B-ctx-det": {
+      "cells": 6,
+      "fail_count": 0,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 6078301
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 1.0,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 5643776
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 361630
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 72895
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 50441
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 481.3485,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-asvariantdet:B-ctx-det": {
+      "cells": 2,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 2,
+        "incomplete_cells": 0,
+        "total": 2755041
+      },
+      "officially_graded_cells": 2,
+      "outcomes": {
+        "fail": 2
+      },
+      "pass_count": 0,
+      "pass_rate": 0.0,
+      "pass_rate_denominator": 2,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 2575360
+        },
+        "input_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 149282
+        },
+        "output_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 30399
+        },
+        "reasoning_tokens": {
+          "known_cells": 2,
+          "missing_cells": 0,
+          "total": 21578
+        }
+      },
+      "wall_s": {
+        "known_cells": 2,
+        "median": 599.645,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx07:P-noplan2": {
+      "cells": 12,
+      "fail_count": 4,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 3772540
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 4,
+        "pass": 8
+      },
+      "pass_count": 8,
+      "pass_rate": 0.6666666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2976768
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 651352
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 144420
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 64105
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 994.4259999999999,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx07det:B-ctx-det": {
+      "cells": 12,
+      "fail_count": 5,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 3048943
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 5,
+        "pass": 7
+      },
+      "pass_count": 7,
+      "pass_rate": 0.5833333333333334,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2442240
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 456564
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 150139
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 67228
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 282.587,
+        "missing_cells": 0
+      }
+    },
+    "r56c-us-elx12det:B-ctx-det": {
+      "cells": 12,
+      "fail_count": 10,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 2481813
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 10,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.16666666666666666,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 2011136
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 374292
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 96385
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 55273
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 225.5895,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "P-noplan2": {
+          "cells": 71,
+          "fail_count": 5,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 71,
+            "incomplete_cells": 0,
+            "total": 70506099
+          },
+          "officially_graded_cells": 71,
+          "outcomes": {
+            "fail": 5,
+            "pass": 66
+          },
+          "pass_count": 66,
+          "pass_rate": 0.9295774647887324,
+          "pass_rate_denominator": 71,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 71,
+              "missing_cells": 0,
+              "total": 62600704
+            },
+            "input_tokens": {
+              "known_cells": 71,
+              "missing_cells": 0,
+              "total": 6730128
+            },
+            "output_tokens": {
+              "known_cells": 71,
+              "missing_cells": 0,
+              "total": 1175267
+            },
+            "reasoning_tokens": {
+              "known_cells": 71,
+              "missing_cells": 0,
+              "total": 838050
+            }
+          },
+          "wall_s": {
+            "known_cells": 71,
+            "median": 1330.854,
+            "missing_cells": 0
+          }
+        },
+        "r56c-eu-elx12:P-noplan2": {
+          "cells": 12,
+          "fail_count": 6,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 4875983
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 6,
+            "pass": 6
+          },
+          "pass_count": 6,
+          "pass_rate": 0.5,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 3786752
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 879998
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 209233
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 151084
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 1071.5175,
+            "missing_cells": 0
+          }
+        },
+        "r56c-eu-hwbroadcastdet:B-ctx-det": {
+          "cells": 6,
+          "fail_count": 0,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 6,
+            "incomplete_cells": 0,
+            "total": 6078301
+          },
+          "officially_graded_cells": 6,
+          "outcomes": {
+            "pass": 6
+          },
+          "pass_count": 6,
+          "pass_rate": 1.0,
+          "pass_rate_denominator": 6,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 5643776
+            },
+            "input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 361630
+            },
+            "output_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 72895
+            },
+            "reasoning_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 50441
+            }
+          },
+          "wall_s": {
+            "known_cells": 6,
+            "median": 481.3485,
+            "missing_cells": 0
+          }
+        },
+        "r56c-us-asvariantdet:B-ctx-det": {
+          "cells": 2,
+          "fail_count": 2,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 2,
+            "incomplete_cells": 0,
+            "total": 2755041
+          },
+          "officially_graded_cells": 2,
+          "outcomes": {
+            "fail": 2
+          },
+          "pass_count": 0,
+          "pass_rate": 0.0,
+          "pass_rate_denominator": 2,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 2575360
+            },
+            "input_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 149282
+            },
+            "output_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 30399
+            },
+            "reasoning_tokens": {
+              "known_cells": 2,
+              "missing_cells": 0,
+              "total": 21578
+            }
+          },
+          "wall_s": {
+            "known_cells": 2,
+            "median": 599.645,
+            "missing_cells": 0
+          }
+        },
+        "r56c-us-elx07:P-noplan2": {
+          "cells": 12,
+          "fail_count": 4,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 3772540
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 4,
+            "pass": 8
+          },
+          "pass_count": 8,
+          "pass_rate": 0.6666666666666666,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 2976768
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 651352
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 144420
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 64105
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 994.4259999999999,
+            "missing_cells": 0
+          }
+        },
+        "r56c-us-elx07det:B-ctx-det": {
+          "cells": 12,
+          "fail_count": 5,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 3048943
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 5,
+            "pass": 7
+          },
+          "pass_count": 7,
+          "pass_rate": 0.5833333333333334,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 2442240
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 456564
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 150139
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 67228
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 282.587,
+            "missing_cells": 0
+          }
+        },
+        "r56c-us-elx12det:B-ctx-det": {
+          "cells": 12,
+          "fail_count": 10,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 2481813
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 10,
+            "pass": 2
+          },
+          "pass_count": 2,
+          "pass_rate": 0.16666666666666666,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 2011136
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 374292
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 96385
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 55273
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 225.5895,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r10-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r9-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r10-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r9-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r10-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r9-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r10-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r9-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ft-mysql-fulltext-search-foundation__r9-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r1-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r10-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r11-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r12-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r6-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r7-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r8-P-noplan2-r56c-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r9-P-noplan2-r56c-studio",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r10",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r11",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r12",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r2",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r3",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r4",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r5",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r6",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r7",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r8",
+        "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r9",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r1",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r2",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r3",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r4",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r5",
+        "r56c-eu-hwbroadcastdet-eu-rails-hw-scoped-broadcast-B-ctx-det-r6",
+        "r56c-us-asvariantdet-us-rails-as-variant-processed-once-B-ctx-det-r1",
+        "r56c-us-asvariantdet-us-rails-as-variant-processed-once-B-ctx-det-r2",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r10",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r11",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r12",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r2",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r3",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r4",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r5",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r6",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r7",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r8",
+        "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r9",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r10",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r11",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r12",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r2",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r3",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r4",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r5",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r6",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r7",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r8",
+        "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r9",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r10",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r11",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r12",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r2",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r3",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r4",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r5",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r6",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r7",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r8",
+        "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r9"
+      ],
+      "summary": {
+        "cells": 127,
+        "fail_count": 32,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 127,
+          "incomplete_cells": 0,
+          "total": 93518720
+        },
+        "officially_graded_cells": 127,
+        "outcomes": {
+          "fail": 32,
+          "pass": 95
+        },
+        "pass_count": 95,
+        "pass_rate": 0.7480314960629921,
+        "pass_rate_denominator": 127,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 127,
+            "missing_cells": 0,
+            "total": 82036736
+          },
+          "input_tokens": {
+            "known_cells": 127,
+            "missing_cells": 0,
+            "total": 9603246
+          },
+          "output_tokens": {
+            "known_cells": 127,
+            "missing_cells": 0,
+            "total": 1878738
+          },
+          "reasoning_tokens": {
+            "known_cells": 127,
+            "missing_cells": 0,
+            "total": 1247759
+          }
+        },
+        "wall_s": {
+          "known_cells": 127,
+          "median": 1093.072,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r56c",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 4,
+    "count": 138,
+    "field_counts": {
+      "manifest_cell_id": 12,
+      "patch.archive_member.2013f0a835799a889d873c2d1d2db223c21b74f51f9f43556ac6a2bb976bc6db": 1,
+      "patch.archive_member.2dd8300b9c520c3bcecbec1d20a3a78bd42c5af027ec746cbd6caa0f846e96c5": 1,
+      "patch.archive_member.58692bac412bcdcaa7e1415cfe0ab26fd5ae503c086eccc3c4c1e6ea7f37bca7": 1,
+      "patch.archive_member.69362a9c4cdd261fe8cc7a89f63181e00e2ee444ece6b015fed79313ea0d21d4": 1,
+      "patch.archive_member.741590ec38a40e3d33e8eb6fead09a3397331a87f866419d3ac0b9aa078bec92": 1,
+      "patch.archive_member.7f276fcf45fd1a7d7832c9a5734f287aea751590e7256fb113e6950cc0d39f6d": 1,
+      "patch.archive_member.ab8a03cf948ce3d238d660236cb3016e85be72257e700a75224aef385af46ff6": 1,
+      "patch.archive_member.b555719de19056d5531ceb79272910afbde1044ce3c6121dc79035cf10f1940a": 1,
+      "patch.archive_member.baf4006fc2ecfe7ca7299f2ac889945a9bfb42be3934a3097c6e3c2b77347605": 1,
+      "patch.archive_member.db0889f851a69aad7e8483e69982f94ee87fef6fb5480be1390d224fc55c6dd0": 1,
+      "patch.attempt-1": 24,
+      "rep": 12,
+      "usage.cached_input_tokens": 16,
+      "usage.input_tokens": 16,
+      "usage.output_tokens": 16,
+      "usage.reasoning_tokens": 16,
+      "wall_s": 16
+    },
+    "items": [
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r11",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r11",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r10"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r11",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r12"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.archive_member.b555719de19056d5531ceb79272910afbde1044ce3c6121dc79035cf10f1940a",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "b555719de19056d5531ceb79272910afbde1044ce3c6121dc79035cf10f1940a",
+          "size_bytes": 25850
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.archive_member.db0889f851a69aad7e8483e69982f94ee87fef6fb5480be1390d224fc55c6dd0",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "db0889f851a69aad7e8483e69982f94ee87fef6fb5480be1390d224fc55c6dd0",
+          "size_bytes": 22983
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "15ebc967cb02bf756a240d8f09e19dd694bd3d68135014c36df2e73538712b66",
+          "size_bytes": 5911
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "b555719de19056d5531ceb79272910afbde1044ce3c6121dc79035cf10f1940a",
+          "size_bytes": 25850
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "15ebc967cb02bf756a240d8f09e19dd694bd3d68135014c36df2e73538712b66",
+          "size_bytes": 5911
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "c58add9bb07741eb3e8aa06e01efe7d7b1bebecede6bb49eae0f4ca1508178d6",
+          "size_bytes": 5505
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "15ebc967cb02bf756a240d8f09e19dd694bd3d68135014c36df2e73538712b66",
+          "size_bytes": 5911
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "db0889f851a69aad7e8483e69982f94ee87fef6fb5480be1390d224fc55c6dd0",
+          "size_bytes": 22983
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "c58add9bb07741eb3e8aa06e01efe7d7b1bebecede6bb49eae0f4ca1508178d6",
+          "size_bytes": 5505
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "15ebc967cb02bf756a240d8f09e19dd694bd3d68135014c36df2e73538712b66",
+          "size_bytes": 5911
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "c58add9bb07741eb3e8aa06e01efe7d7b1bebecede6bb49eae0f4ca1508178d6",
+          "size_bytes": 5505
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "b555719de19056d5531ceb79272910afbde1044ce3c6121dc79035cf10f1940a",
+          "size_bytes": 25850
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "c58add9bb07741eb3e8aa06e01efe7d7b1bebecede6bb49eae0f4ca1508178d6",
+          "size_bytes": 5505
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "db0889f851a69aad7e8483e69982f94ee87fef6fb5480be1390d224fc55c6dd0",
+          "size_bytes": 22983
+        }
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "11",
+        "recovered_source": "loose",
+        "recovered_value": "1"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "11",
+        "recovered_source": "loose",
+        "recovered_value": "10"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "11",
+        "recovered_source": "loose",
+        "recovered_value": "12"
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 109056,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 247296
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 109056,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 247296
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 247296,
+        "recovered_source": "loose",
+        "recovered_value": 109056
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 247296,
+        "recovered_source": "loose",
+        "recovered_value": 231936
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 247296,
+        "recovered_source": "loose",
+        "recovered_value": 262144
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 25007,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 50950
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 25007,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 50950
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 50950,
+        "recovered_source": "loose",
+        "recovered_value": 25007
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 50950,
+        "recovered_source": "loose",
+        "recovered_value": 63925
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 50950,
+        "recovered_source": "loose",
+        "recovered_value": 82484
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 12779,
+        "recovered_source": "loose",
+        "recovered_value": 11688
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 12779,
+        "recovered_source": "loose",
+        "recovered_value": 16128
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 12779,
+        "recovered_source": "loose",
+        "recovered_value": 8730
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 8730,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 12779
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 8730,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 12779
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 5507,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 7862
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 5507,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 7862
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7862,
+        "recovered_source": "loose",
+        "recovered_value": 11213
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7862,
+        "recovered_source": "loose",
+        "recovered_value": 5507
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7862,
+        "recovered_source": "loose",
+        "recovered_value": 7806
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 1012.629,
+        "recovered_source": "loose",
+        "recovered_value": 1002.25
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 1012.629,
+        "recovered_source": "loose",
+        "recovered_value": 1212.819
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 1012.629,
+        "recovered_source": "loose",
+        "recovered_value": 946.879
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "existing mined record",
+        "preferred_value": 946.879,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 1012.629
+      },
+      {
+        "cell_id": "r56c-eu-elx12-eu-elx-12-retry-api-deprecation-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 946.879,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 1012.629
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r10",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r1"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r10",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r11"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r10",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r12"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.archive_member.69362a9c4cdd261fe8cc7a89f63181e00e2ee444ece6b015fed79313ea0d21d4",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "69362a9c4cdd261fe8cc7a89f63181e00e2ee444ece6b015fed79313ea0d21d4",
+          "size_bytes": 23338
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.archive_member.7f276fcf45fd1a7d7832c9a5734f287aea751590e7256fb113e6950cc0d39f6d",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "7f276fcf45fd1a7d7832c9a5734f287aea751590e7256fb113e6950cc0d39f6d",
+          "size_bytes": 25271
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "467bea543bc9e84e38cf72852d326d6ccb63c6f8f2b54fb6707ad45813a80115",
+          "size_bytes": 26956
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "69362a9c4cdd261fe8cc7a89f63181e00e2ee444ece6b015fed79313ea0d21d4",
+          "size_bytes": 23338
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "467bea543bc9e84e38cf72852d326d6ccb63c6f8f2b54fb6707ad45813a80115",
+          "size_bytes": 26956
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "7f276fcf45fd1a7d7832c9a5734f287aea751590e7256fb113e6950cc0d39f6d",
+          "size_bytes": 25271
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "467bea543bc9e84e38cf72852d326d6ccb63c6f8f2b54fb6707ad45813a80115",
+          "size_bytes": 26956
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "c7e31fd413a05e1033538b9f50e4b72db57e5e2f00778edb85b27b1bad737b54",
+          "size_bytes": 25572
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "c7e31fd413a05e1033538b9f50e4b72db57e5e2f00778edb85b27b1bad737b54",
+          "size_bytes": 25572
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "467bea543bc9e84e38cf72852d326d6ccb63c6f8f2b54fb6707ad45813a80115",
+          "size_bytes": 26956
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "c7e31fd413a05e1033538b9f50e4b72db57e5e2f00778edb85b27b1bad737b54",
+          "size_bytes": 25572
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "69362a9c4cdd261fe8cc7a89f63181e00e2ee444ece6b015fed79313ea0d21d4",
+          "size_bytes": 23338
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "c7e31fd413a05e1033538b9f50e4b72db57e5e2f00778edb85b27b1bad737b54",
+          "size_bytes": 25572
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "7f276fcf45fd1a7d7832c9a5734f287aea751590e7256fb113e6950cc0d39f6d",
+          "size_bytes": 25271
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "10",
+        "recovered_source": "loose",
+        "recovered_value": "1"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "10",
+        "recovered_source": "loose",
+        "recovered_value": "11"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "10",
+        "recovered_source": "loose",
+        "recovered_value": "12"
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 386048,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 709120
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 386048,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 709120
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 709120,
+        "recovered_source": "loose",
+        "recovered_value": 160256
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 709120,
+        "recovered_source": "loose",
+        "recovered_value": 335872
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 709120,
+        "recovered_source": "loose",
+        "recovered_value": 386048
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 65680,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 72016
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 65680,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 72016
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 72016,
+        "recovered_source": "loose",
+        "recovered_value": 30498
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 72016,
+        "recovered_source": "loose",
+        "recovered_value": 65680
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 72016,
+        "recovered_source": "loose",
+        "recovered_value": 92200
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 11140,
+        "recovered_source": "loose",
+        "recovered_value": 10849
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 11140,
+        "recovered_source": "loose",
+        "recovered_value": 11324
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 11140,
+        "recovered_source": "loose",
+        "recovered_value": 13763
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 13763,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 11140
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 13763,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 11140
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 3428,
+        "recovered_source": "loose",
+        "recovered_value": 4816
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 3428,
+        "recovered_source": "loose",
+        "recovered_value": 5492
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 3428,
+        "recovered_source": "loose",
+        "recovered_value": 6352
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "existing mined record",
+        "preferred_value": 6352,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 3428
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 6352,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 3428
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "existing mined record",
+        "preferred_value": 1344.956,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 869.366
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "lever-loose-results",
+        "preferred_value": 1344.956,
+        "recovered_source": "lever-loose-results",
+        "recovered_value": 869.366
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 869.366,
+        "recovered_source": "loose",
+        "recovered_value": 1266.654
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 869.366,
+        "recovered_source": "loose",
+        "recovered_value": 1344.956
+      },
+      {
+        "cell_id": "r56c-us-elx07-us-elx-07-cli-stats-P-noplan2-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 869.366,
+        "recovered_source": "loose",
+        "recovered_value": 823.471
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r10"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r11"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-07-cli-stats__r12"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.archive_member.2dd8300b9c520c3bcecbec1d20a3a78bd42c5af027ec746cbd6caa0f846e96c5",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "2dd8300b9c520c3bcecbec1d20a3a78bd42c5af027ec746cbd6caa0f846e96c5",
+          "size_bytes": 8885
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.archive_member.741590ec38a40e3d33e8eb6fead09a3397331a87f866419d3ac0b9aa078bec92",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "741590ec38a40e3d33e8eb6fead09a3397331a87f866419d3ac0b9aa078bec92",
+          "size_bytes": 8500
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.archive_member.ab8a03cf948ce3d238d660236cb3016e85be72257e700a75224aef385af46ff6",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "ab8a03cf948ce3d238d660236cb3016e85be72257e700a75224aef385af46ff6",
+          "size_bytes": 8928
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "2dd8300b9c520c3bcecbec1d20a3a78bd42c5af027ec746cbd6caa0f846e96c5",
+          "size_bytes": 8885
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "2dd8300b9c520c3bcecbec1d20a3a78bd42c5af027ec746cbd6caa0f846e96c5",
+          "size_bytes": 8885
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "741590ec38a40e3d33e8eb6fead09a3397331a87f866419d3ac0b9aa078bec92",
+          "size_bytes": 8500
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "741590ec38a40e3d33e8eb6fead09a3397331a87f866419d3ac0b9aa078bec92",
+          "size_bytes": 8500
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "ab8a03cf948ce3d238d660236cb3016e85be72257e700a75224aef385af46ff6",
+          "size_bytes": 8928
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "1f8ccd6023c122d865330bcaf2d31ee2b7ab8ba5a5a7502994650bb504836a85",
+          "size_bytes": 7482
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "ab8a03cf948ce3d238d660236cb3016e85be72257e700a75224aef385af46ff6",
+          "size_bytes": 8928
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "10"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "11"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "12"
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 159232,
+        "recovered_source": "loose",
+        "recovered_value": 120320
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 159232,
+        "recovered_source": "loose",
+        "recovered_value": 251392
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 159232,
+        "recovered_source": "loose",
+        "recovered_value": 310784
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 37641,
+        "recovered_source": "loose",
+        "recovered_value": 37917
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 37641,
+        "recovered_source": "loose",
+        "recovered_value": 57682
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 37641,
+        "recovered_source": "loose",
+        "recovered_value": 65630
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 10360,
+        "recovered_source": "loose",
+        "recovered_value": 14415
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 10360,
+        "recovered_source": "loose",
+        "recovered_value": 15195
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 10360,
+        "recovered_source": "loose",
+        "recovered_value": 7939
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4384,
+        "recovered_source": "loose",
+        "recovered_value": 4268
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4384,
+        "recovered_source": "loose",
+        "recovered_value": 6283
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4384,
+        "recovered_source": "loose",
+        "recovered_value": 6757
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 268.142,
+        "recovered_source": "loose",
+        "recovered_value": 189.7
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 268.142,
+        "recovered_source": "loose",
+        "recovered_value": 316.549
+      },
+      {
+        "cell_id": "r56c-us-elx07det-us-elx-07-cli-stats-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 268.142,
+        "recovered_source": "loose",
+        "recovered_value": 324.046
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r10"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r11"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "manifest_cell_id",
+        "preferred_source": "loose",
+        "preferred_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r1",
+        "recovered_source": "loose",
+        "recovered_value": "kh-plan__gpt-6-luna__low__default__elx-12-retry-api-deprecation__r12"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.archive_member.2013f0a835799a889d873c2d1d2db223c21b74f51f9f43556ac6a2bb976bc6db",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "2013f0a835799a889d873c2d1d2db223c21b74f51f9f43556ac6a2bb976bc6db",
+          "size_bytes": 7028
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.archive_member.58692bac412bcdcaa7e1415cfe0ab26fd5ae503c086eccc3c4c1e6ea7f37bca7",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "58692bac412bcdcaa7e1415cfe0ab26fd5ae503c086eccc3c4c1e6ea7f37bca7",
+          "size_bytes": 6852
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.archive_member.baf4006fc2ecfe7ca7299f2ac889945a9bfb42be3934a3097c6e3c2b77347605",
+        "preferred_source": "mined record reference",
+        "preferred_value": {
+          "archive_member": null,
+          "sha256": "baf4006fc2ecfe7ca7299f2ac889945a9bfb42be3934a3097c6e3c2b77347605",
+          "size_bytes": 6405
+        },
+        "recovered_source": "recovered patch archives",
+        "recovered_value": null
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "2013f0a835799a889d873c2d1d2db223c21b74f51f9f43556ac6a2bb976bc6db",
+          "size_bytes": 7028
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "2013f0a835799a889d873c2d1d2db223c21b74f51f9f43556ac6a2bb976bc6db",
+          "size_bytes": 7028
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "58692bac412bcdcaa7e1415cfe0ab26fd5ae503c086eccc3c4c1e6ea7f37bca7",
+          "size_bytes": 6852
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "58692bac412bcdcaa7e1415cfe0ab26fd5ae503c086eccc3c4c1e6ea7f37bca7",
+          "size_bytes": 6852
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "existing mined record",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "lever-loose-results",
+        "recovered_value": {
+          "sha256": "baf4006fc2ecfe7ca7299f2ac889945a9bfb42be3934a3097c6e3c2b77347605",
+          "size_bytes": 6405
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "patch.attempt-1",
+        "preferred_source": "loose",
+        "preferred_value": {
+          "sha256": "cc4213f9a7c3a44633a290750cd3a00f04288c23d92080af9f795b7433526a33",
+          "size_bytes": 6748
+        },
+        "recovered_source": "loose",
+        "recovered_value": {
+          "sha256": "baf4006fc2ecfe7ca7299f2ac889945a9bfb42be3934a3097c6e3c2b77347605",
+          "size_bytes": 6405
+        }
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "10"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "11"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "rep",
+        "preferred_source": "loose",
+        "preferred_value": "1",
+        "recovered_source": "loose",
+        "recovered_value": "12"
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 116736,
+        "recovered_source": "loose",
+        "recovered_value": 166400
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 116736,
+        "recovered_source": "loose",
+        "recovered_value": 180224
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.cached_input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 116736,
+        "recovered_source": "loose",
+        "recovered_value": 228352
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 35480,
+        "recovered_source": "loose",
+        "recovered_value": 27183
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 35480,
+        "recovered_source": "loose",
+        "recovered_value": 28910
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.input_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 35480,
+        "recovered_source": "loose",
+        "recovered_value": 38987
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7027,
+        "recovered_source": "loose",
+        "recovered_value": 10200
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7027,
+        "recovered_source": "loose",
+        "recovered_value": 8111
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.output_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 7027,
+        "recovered_source": "loose",
+        "recovered_value": 8575
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4003,
+        "recovered_source": "loose",
+        "recovered_value": 5245
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4003,
+        "recovered_source": "loose",
+        "recovered_value": 5359
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "usage.reasoning_tokens",
+        "preferred_source": "loose",
+        "preferred_value": 4003,
+        "recovered_source": "loose",
+        "recovered_value": 6094
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 162.441,
+        "recovered_source": "loose",
+        "recovered_value": 193.612
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 162.441,
+        "recovered_source": "loose",
+        "recovered_value": 201.442
+      },
+      {
+        "cell_id": "r56c-us-elx12det-us-elx-12-retry-api-deprecation-B-ctx-det-r1",
+        "field": "wall_s",
+        "preferred_source": "loose",
+        "preferred_value": 162.441,
+        "recovered_source": "loose",
+        "recovered_value": 371.129
+      }
+    ]
+  }
+}

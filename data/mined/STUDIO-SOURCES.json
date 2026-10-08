@@ -1,0 +1,1950 @@
+{
+  "cells_ledger_only_rows": 16,
+  "e06_packet_cross_check": {
+    "complete_adjacent_pairs": 0,
+    "effective_compactions": 6,
+    "grade_settlement_pass": true,
+    "grader_wall_s": 6.634,
+    "packet_manifest_sha256_matches_studio": true,
+    "settlement_cell_id": "e06-context-r4-s1-m2-t1-r1-m1"
+  },
+  "excluded_source_classes": [
+    "transcripts",
+    "rollouts",
+    "request logs",
+    "grader tails",
+    "build worktrees"
+  ],
+  "hp_syn40_regrade_mismatches": [
+    {
+      "cell_id": "codex__gpt-6-sol__high__default__hp-syn-40__r1",
+      "original_outcome": "fail",
+      "regraded_outcome": "pass",
+      "summary_outcome": "fail"
+    },
+    {
+      "cell_id": "pi__openai-codex-gpt-6-sol__high__default__hp-syn-40__r1",
+      "original_outcome": "fail",
+      "regraded_outcome": "pass",
+      "summary_outcome": "fail"
+    }
+  ],
+  "hp_syn40_regrade_rows": 10,
+  "kh_compare_studio_macbook_summary_copies_match": true,
+  "l1_studio_reference_control_outcomes": {
+    "pass": 2
+  },
+  "l1_studio_reference_control_rows": 2,
+  "night_exact_patch_grade_joins": 9,
+  "night_patch_grade_conflicts": [
+    {
+      "grade_record_ids": [
+        "kh-gpt__gpt-6-luna__low__default__syn-13-bug-empty-filter-crash__r4-review-r19rev-studio"
+      ],
+      "grade_rows": 2,
+      "outcomes": [
+        "fail",
+        "pass"
+      ],
+      "patch_sha256": "fde6b2f91e24fbd55ffb15aeb80b45dbf3bff1540d649e94cf61deedfac16820",
+      "retained_result_patch_match": false,
+      "tasks": [
+        "syn-13-bug-empty-filter-crash"
+      ]
+    }
+  ],
+  "output_security_scan": {
+    "gitleaks_findings": 1149,
+    "gitleaks_review": {
+      "disposition": "Reviewed as content-address hashes; no credential values were found.",
+      "fields": {
+        "patches[].archive_member": 948,
+        "source_cell_key": 1149
+      },
+      "other_findings": 0,
+      "sha256_only_findings": 1149
+    },
+    "gitleaks_rule_counts": {
+      "generic-api-key": 1149
+    },
+    "gitleaks_version": "8.30.1",
+    "literal_marker_scan": {
+      "markers_scanned": 3,
+      "total_occurrences": 0
+    },
+    "patch_payload_files_scanned": 980
+  },
+  "patch_archives": [
+    {
+      "compressed_bytes": 25641,
+      "files": 24,
+      "round": "claim-b-rerun-1",
+      "written": true
+    },
+    {
+      "compressed_bytes": 11738,
+      "files": 10,
+      "round": "claim-b-screen-1",
+      "written": true
+    },
+    {
+      "compressed_bytes": 60524,
+      "files": 50,
+      "round": "confirm-combined-1",
+      "written": true
+    },
+    {
+      "compressed_bytes": 4154,
+      "files": 1,
+      "round": "e06-context",
+      "written": true
+    },
+    {
+      "compressed_bytes": 39889,
+      "files": 14,
+      "round": "e09-tidewave",
+      "written": true
+    },
+    {
+      "compressed_bytes": 245401,
+      "files": 48,
+      "round": "hard1-calibrate-1",
+      "written": true
+    },
+    {
+      "compressed_bytes": 118948,
+      "files": 74,
+      "round": "harness-compare-1",
+      "written": true
+    },
+    {
+      "compressed_bytes": 31586,
+      "files": 12,
+      "round": "harness-pick-2026-09-29",
+      "written": true
+    },
+    {
+      "compressed_bytes": 29702,
+      "files": 21,
+      "round": "kh-compare-2026-09-29",
+      "written": true
+    },
+    {
+      "compressed_bytes": 144385,
+      "files": 77,
+      "round": "night-2026-10-01",
+      "written": true
+    },
+    {
+      "compressed_bytes": 392,
+      "files": 4,
+      "round": "unmapped",
+      "written": true
+    },
+    {
+      "compressed_bytes": 20062,
+      "files": 26,
+      "round": "x-context",
+      "written": true
+    },
+    {
+      "compressed_bytes": 87724,
+      "files": 136,
+      "round": "x-ladder",
+      "written": true
+    },
+    {
+      "compressed_bytes": 67338,
+      "files": 53,
+      "round": "x-minikogen",
+      "written": true
+    },
+    {
+      "compressed_bytes": 42791,
+      "files": 46,
+      "round": "x-mining",
+      "written": true
+    },
+    {
+      "compressed_bytes": 127464,
+      "files": 147,
+      "round": "x-models",
+      "written": true
+    },
+    {
+      "compressed_bytes": 25425,
+      "files": 15,
+      "round": "x-parallel",
+      "written": true
+    },
+    {
+      "compressed_bytes": 36965,
+      "files": 50,
+      "round": "x-race",
+      "written": true
+    },
+    {
+      "compressed_bytes": 33188,
+      "files": 32,
+      "round": "x-recovery",
+      "written": true
+    },
+    {
+      "compressed_bytes": 12993,
+      "files": 26,
+      "round": "x-review",
+      "written": true
+    },
+    {
+      "compressed_bytes": 55702,
+      "files": 27,
+      "round": "x-roles",
+      "written": true
+    },
+    {
+      "compressed_bytes": 24396,
+      "files": 41,
+      "round": "x-surface",
+      "written": true
+    }
+  ],
+  "repository_merge": {
+    "patch_archives": {
+      "claim-b-rerun-1": {
+        "compressed_bytes": 25641,
+        "members": 24
+      },
+      "claim-b-screen-1": {
+        "compressed_bytes": 11738,
+        "members": 10
+      },
+      "confirm-combined-1": {
+        "compressed_bytes": 60524,
+        "members": 50
+      },
+      "e06-context": {
+        "compressed_bytes": 4154,
+        "members": 1
+      },
+      "e09-tidewave": {
+        "compressed_bytes": 39889,
+        "members": 14
+      },
+      "hard1-calibrate-1": {
+        "compressed_bytes": 245401,
+        "members": 48
+      },
+      "harness-compare-1": {
+        "compressed_bytes": 118948,
+        "members": 74
+      },
+      "harness-pick-2026-09-29": {
+        "compressed_bytes": 31586,
+        "members": 12
+      },
+      "kh-compare-2026-09-29": {
+        "compressed_bytes": 29702,
+        "members": 21
+      },
+      "night-2026-10-01": {
+        "compressed_bytes": 144385,
+        "members": 77
+      },
+      "unmapped": {
+        "compressed_bytes": 11302,
+        "members": 50
+      },
+      "x-context": {
+        "compressed_bytes": 20062,
+        "members": 26
+      },
+      "x-ladder": {
+        "compressed_bytes": 87724,
+        "members": 136
+      },
+      "x-minikogen": {
+        "compressed_bytes": 67338,
+        "members": 53
+      },
+      "x-mining": {
+        "compressed_bytes": 42791,
+        "members": 46
+      },
+      "x-models": {
+        "compressed_bytes": 127464,
+        "members": 147
+      },
+      "x-parallel": {
+        "compressed_bytes": 25425,
+        "members": 15
+      },
+      "x-race": {
+        "compressed_bytes": 36965,
+        "members": 50
+      },
+      "x-recovery": {
+        "compressed_bytes": 33188,
+        "members": 32
+      },
+      "x-review": {
+        "compressed_bytes": 12993,
+        "members": 26
+      },
+      "x-roles": {
+        "compressed_bytes": 55702,
+        "members": 27
+      },
+      "x-surface": {
+        "compressed_bytes": 24396,
+        "members": 41
+      }
+    },
+    "preexisting_rows_preserved": 85,
+    "studio_round_files_added": 23,
+    "studio_source_rows_added": 1157,
+    "unmapped_existing_rows_preserved": 85,
+    "unmapped_patch_members_after_merge": 50,
+    "unmapped_preexisting_patch_references": 80,
+    "unmapped_preexisting_patch_references_missing_before_studio_import": 34,
+    "unmapped_prior_patch_members_preserved": 46,
+    "unmapped_rows_after_merge": 89,
+    "unmapped_studio_patch_references": 4,
+    "unmapped_studio_patch_references_resolved": 4
+  },
+  "rounds": {
+    "claim-b-rerun-1": {
+      "credential_excluded_patch_records": 14,
+      "outcomes": {
+        "fail": 12,
+        "pass": 30,
+        "ungraded": 3
+      },
+      "patch_records": 38,
+      "records": 45,
+      "source_experiments": {
+        "claim-b-rerun-1": {
+          "fail": 12,
+          "pass": 30
+        },
+        "claim-b-rerun-1-worker-object": {
+          "ungraded": 3
+        }
+      }
+    },
+    "claim-b-screen-1": {
+      "credential_excluded_patch_records": 3,
+      "outcomes": {
+        "fail": 6,
+        "grader_error": 1,
+        "pass": 7
+      },
+      "patch_records": 13,
+      "records": 14,
+      "source_experiments": {
+        "claim-b-screen-1": {
+          "fail": 5,
+          "pass": 7
+        },
+        "claim-b-screen-1-object": {
+          "grader_error": 1
+        },
+        "claim-b-screen-1-retained-infra-grade": {
+          "fail": 1
+        }
+      }
+    },
+    "confirm-combined-1": {
+      "credential_excluded_patch_records": 14,
+      "outcomes": {
+        "fail": 5,
+        "pass": 59
+      },
+      "patch_records": 64,
+      "records": 64,
+      "source_experiments": {
+        "confirm-combined-1": {
+          "fail": 5,
+          "pass": 59
+        }
+      }
+    },
+    "e06-context": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "infra": 1,
+        "pass": 1
+      },
+      "patch_records": 1,
+      "records": 2,
+      "source_experiments": {
+        "e06-context-r1-s1-m2-t1-r1-m1": {
+          "infra": 1
+        },
+        "e06-context-r4-s1-m2-t1-r1-m1": {
+          "pass": 1
+        }
+      }
+    },
+    "e09-tidewave": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 3,
+        "infra": 7,
+        "interrupted": 2,
+        "pass": 2
+      },
+      "patch_records": 14,
+      "records": 14,
+      "source_experiments": {
+        "e09-tidewave-A": {
+          "fail": 2,
+          "infra": 2,
+          "pass": 2
+        },
+        "e09-tidewave-B": {
+          "fail": 1,
+          "infra": 2,
+          "interrupted": 2
+        },
+        "e09-tidewave-C": {
+          "infra": 2
+        },
+        "e09-tidewave-D": {
+          "infra": 1
+        }
+      }
+    },
+    "hard1-calibrate-1": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 34,
+        "pass": 14
+      },
+      "patch_records": 48,
+      "records": 48,
+      "source_experiments": {
+        "hard1-calibrate-1": {
+          "fail": 34,
+          "pass": 14
+        }
+      }
+    },
+    "harness-compare-1": {
+      "credential_excluded_patch_records": 6,
+      "outcomes": {
+        "fail": 47,
+        "grader_error": 7,
+        "pass": 106
+      },
+      "patch_records": 80,
+      "records": 160,
+      "source_experiments": {
+        "harness-compare-1": {
+          "fail": 24,
+          "pass": 56
+        },
+        "harness-compare-1-prelim": {
+          "fail": 23,
+          "grader_error": 7,
+          "pass": 50
+        }
+      }
+    },
+    "harness-pick-2026-09-29": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 5,
+        "pass": 17
+      },
+      "patch_records": 12,
+      "records": 22,
+      "source_experiments": {
+        "harness-pick-2026-09-29-hp-grok": {
+          "fail": 1,
+          "pass": 11
+        },
+        "harness-pick-summary": {
+          "fail": 4,
+          "pass": 6
+        }
+      }
+    },
+    "kh-compare-2026-09-29": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 5,
+        "pass": 14,
+        "ungraded": 8,
+        "unknown": 16
+      },
+      "patch_records": 21,
+      "records": 43,
+      "source_experiments": {
+        "kh-compare-raw": {
+          "pass": 3,
+          "ungraded": 6,
+          "unknown": 16
+        },
+        "kh-compare-summary": {
+          "fail": 5,
+          "pass": 11,
+          "ungraded": 2
+        }
+      }
+    },
+    "l1-task-grader-trust": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "pass": 2
+      },
+      "patch_records": 0,
+      "records": 2,
+      "source_experiments": {
+        "night-stu-reference-controls": {
+          "pass": 2
+        }
+      }
+    },
+    "night-2026-10-01": {
+      "credential_excluded_patch_records": 6,
+      "outcomes": {
+        "fail": 6,
+        "pass": 3,
+        "ungraded": 75
+      },
+      "patch_records": 83,
+      "records": 84,
+      "source_experiments": {
+        "night-2026-10-01": {
+          "fail": 6,
+          "pass": 3,
+          "ungraded": 75
+        }
+      }
+    },
+    "unmapped": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "pass": 4
+      },
+      "patch_records": 4,
+      "records": 4,
+      "source_experiments": {
+        "chatgpt-smoke-object": {
+          "pass": 4
+        }
+      }
+    },
+    "x-context": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "infra": 4,
+        "pass": 23,
+        "restore_failed": 6
+      },
+      "patch_records": 26,
+      "records": 33,
+      "source_experiments": {
+        "x-context-C01-r1-001-control": {
+          "pass": 1
+        },
+        "x-context-C01-r1-002-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r1-003-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r1-004-control": {
+          "pass": 1
+        },
+        "x-context-C01-r2-001-control": {
+          "pass": 1
+        },
+        "x-context-C01-r2-002-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r2-003-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r2-004-control": {
+          "pass": 1
+        },
+        "x-context-C01-r3-001-control": {
+          "infra": 1
+        },
+        "x-context-C01-r3-002-compact": {
+          "infra": 1
+        },
+        "x-context-C01-r3-003-compact": {
+          "infra": 1
+        },
+        "x-context-C01-r3-004-control": {
+          "infra": 1
+        },
+        "x-context-C01-r4-001-control": {
+          "pass": 1
+        },
+        "x-context-C01-r4-002-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r4-003-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r4-004-control": {
+          "pass": 1
+        },
+        "x-context-C01-r4-005-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r4-006-control": {
+          "pass": 1
+        },
+        "x-context-C01-r4-007-control": {
+          "pass": 1
+        },
+        "x-context-C01-r4-008-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r4-009-control": {
+          "pass": 1
+        },
+        "x-context-C01-r4-010-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r6-001-control": {
+          "pass": 1
+        },
+        "x-context-C01-r6-002-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r7-003-control": {
+          "restore_failed": 2
+        },
+        "x-context-C01-r7-004-compact": {
+          "restore_failed": 2
+        },
+        "x-context-C01-r7-005-control": {
+          "pass": 1
+        },
+        "x-context-C01-r7-006-compact": {
+          "restore_failed": 2
+        },
+        "x-context-C01-r8-007-compact": {
+          "pass": 1
+        },
+        "x-context-C01-r8-008-control": {
+          "pass": 1
+        }
+      }
+    },
+    "x-ladder": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 10,
+        "infra": 2,
+        "pass": 132,
+        "ungraded": 3
+      },
+      "patch_records": 136,
+      "records": 147,
+      "source_experiments": {
+        "x-ladder-m01-control-sol-high": {
+          "pass": 5,
+          "ungraded": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b01": {
+          "pass": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b02": {
+          "pass": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b03": {
+          "pass": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b04": {
+          "pass": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b05": {
+          "fail": 1
+        },
+        "x-ladder-m01-control-sol-high-recovery-b06": {
+          "pass": 2
+        },
+        "x-ladder-m01-control-sol-high-recovery-b07": {
+          "pass": 2
+        },
+        "x-ladder-m01-control-sol-high-recovery-b08": {
+          "pass": 2
+        },
+        "x-ladder-m01-luna-max": {
+          "fail": 1,
+          "pass": 15
+        },
+        "x-ladder-m02-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b04": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b05": {
+          "fail": 1,
+          "pass": 1
+        },
+        "x-ladder-m02-control-sol-high-b06": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b07": {
+          "pass": 2
+        },
+        "x-ladder-m02-control-sol-high-b08": {
+          "pass": 2
+        },
+        "x-ladder-m02-luna-high-b01": {
+          "fail": 2
+        },
+        "x-ladder-m02-luna-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-m02-luna-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-m02-luna-high-b04": {
+          "fail": 1,
+          "pass": 1
+        },
+        "x-ladder-m02-luna-high-b05": {
+          "fail": 1,
+          "pass": 1
+        },
+        "x-ladder-m02-luna-high-b06": {
+          "pass": 2
+        },
+        "x-ladder-m02-luna-high-b07": {
+          "pass": 2
+        },
+        "x-ladder-m02-luna-high-b08": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b01": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b02": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b03": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b04": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b05": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b06": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b07": {
+          "pass": 2
+        },
+        "x-ladder-m03-astra-medium-b08": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b04": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b05": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b06": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b07": {
+          "pass": 2
+        },
+        "x-ladder-m03-control-sol-high-b08": {
+          "pass": 2
+        },
+        "x-ladder-m04-astra-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-m04-astra-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-m04-astra-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-m04-astra-high-b04": {
+          "pass": 2
+        },
+        "x-ladder-m04-astra-high-b05": {
+          "infra": 2
+        },
+        "x-ladder-m04-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-m04-control-sol-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-m04-control-sol-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-m04-control-sol-high-b04": {
+          "pass": 2
+        },
+        "x-ladder-m05-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-m05-sol-medium-b01": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-patient-fresh-b01": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-patient-fresh-b02": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-patient-fresh-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-patient-fresh-control-sol-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-b01": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-b02": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-b03": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-control-sol-high-b01": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-control-sol-high-b02": {
+          "pass": 2
+        },
+        "x-ladder-r08-v06-01-time-first-fresh-control-sol-high-b03": {
+          "pass": 2
+        },
+        "x-ladder-rung-ledger": {
+          "fail": 3,
+          "pass": 3,
+          "ungraded": 2
+        }
+      }
+    },
+    "x-minikogen": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 2,
+        "infra": 8,
+        "pass": 46,
+        "restore_failed": 8,
+        "ungraded": 3
+      },
+      "patch_records": 53,
+      "records": 67,
+      "source_experiments": {
+        "x-minikogen-class-v6-candidate-class-repair": {
+          "pass": 4
+        },
+        "x-minikogen-class-v6-control-class-control": {
+          "pass": 4
+        },
+        "x-minikogen-diagnostic-v4-control-fault-control": {
+          "ungraded": 1
+        },
+        "x-minikogen-diagnostic-v4r2-candidate-fault-diagnostic": {
+          "pass": 4,
+          "ungraded": 2
+        },
+        "x-minikogen-diagnostic-v4r2-control-fault-control": {
+          "restore_failed": 8
+        },
+        "x-minikogen-helper-v7-control-helper-control": {
+          "infra": 4
+        },
+        "x-minikogen-helper-v7r2-control-helper-control": {
+          "infra": 4
+        },
+        "x-minikogen-helper-v9r1-candidate-helper-checks": {
+          "pass": 4
+        },
+        "x-minikogen-helper-v9r1-control-helper-control": {
+          "pass": 4
+        },
+        "x-minikogen-pilot-candidate-full": {
+          "pass": 4
+        },
+        "x-minikogen-pilot-control-bare": {
+          "pass": 4
+        },
+        "x-minikogen-pilot-v3-control-bare": {
+          "pass": 4
+        },
+        "x-minikogen-test-first-removal-v9r1-candidate-no-test-first": {
+          "pass": 4
+        },
+        "x-minikogen-test-first-removal-v9r1-control-full": {
+          "pass": 4
+        },
+        "x-minikogen-trial-v9r1-candidate-trial-adaptive": {
+          "pass": 4
+        },
+        "x-minikogen-trial-v9r1-control-trial-control": {
+          "fail": 2,
+          "pass": 2
+        }
+      }
+    },
+    "x-mining": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 3,
+        "pass": 43
+      },
+      "patch_records": 46,
+      "records": 46,
+      "source_experiments": {
+        "cache-base-03-object": {
+          "pass": 16
+        },
+        "tokens-control-retry1-object": {
+          "fail": 1,
+          "pass": 15
+        },
+        "x-mining-x09-r02-t1-r1-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t1-r1-playbook": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t1-r2-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t1-r2-playbook": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t2-r1-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t2-r1-playbook": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t2-r2-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t2-r2-playbook": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t3-r1-control": {
+          "fail": 1
+        },
+        "x-mining-x09-r02-t3-r1-playbook": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t3-r2-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r02-t3-r2-playbook": {
+          "fail": 1
+        },
+        "x-mining-x09-r07-rt06-r2-control": {
+          "pass": 1
+        },
+        "x-mining-x09-r07-rt06-r2-playbook": {
+          "pass": 1
+        }
+      }
+    },
+    "x-models": {
+      "credential_excluded_patch_records": 8,
+      "outcomes": {
+        "fail": 33,
+        "pass": 122,
+        "ungraded": 5
+      },
+      "patch_records": 155,
+      "records": 160,
+      "source_experiments": {
+        "x-models-m01-s01-candidate": {
+          "fail": 2,
+          "pass": 14
+        },
+        "x-models-r10-m01-s03-control": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r10-m01-s04-candidate": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r10-m01-s04-control": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r10-m01-s05-candidate": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r10-m01-s05-control": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r10-m01-s06-candidate": {
+          "fail": 3,
+          "pass": 5
+        },
+        "x-models-r10-m01-s06-control": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r10-m01-s07-candidate": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r10-m01-s07-control": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r16-m01-r01-candidate": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r16-m01-r01-control": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r17-m01-c01-candidate": {
+          "pass": 3
+        },
+        "x-models-r4-m01-s01-candidate": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r6-m01-s01-candidate": {
+          "fail": 3,
+          "pass": 5,
+          "ungraded": 5
+        },
+        "x-models-r8-m01-s01-control": {
+          "fail": 1,
+          "pass": 7
+        },
+        "x-models-r8-m01-s02-candidate": {
+          "fail": 3,
+          "pass": 5
+        },
+        "x-models-r8-m01-s02-control": {
+          "fail": 2,
+          "pass": 6
+        },
+        "x-models-r8-m01-s03-candidate": {
+          "fail": 2,
+          "pass": 6
+        }
+      }
+    },
+    "x-parallel": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 1,
+        "pass": 13,
+        "ungraded": 1
+      },
+      "patch_records": 15,
+      "records": 15,
+      "source_experiments": {
+        "x-parallel-v01-control": {
+          "fail": 1,
+          "pass": 1
+        },
+        "x-parallel-v02-candidate": {
+          "ungraded": 1
+        },
+        "x-parallel-v02-control": {
+          "pass": 4
+        },
+        "x-parallel-v03-candidate": {
+          "pass": 4
+        },
+        "x-parallel-v03-control": {
+          "pass": 4
+        }
+      }
+    },
+    "x-race": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "pass": 49,
+        "restore_failed": 2,
+        "ungraded": 1
+      },
+      "patch_records": 50,
+      "records": 52,
+      "source_experiments": {
+        "x-race-r01-equal-equal-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r01-equal-solo-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r06-equal-equal-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r06-equal-solo-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r06-time-time-t1-r1": {
+          "ungraded": 1
+        },
+        "x-race-r07-equal-equal-t2-r1": {
+          "pass": 1
+        },
+        "x-race-r07-equal-solo-t2-r1": {
+          "pass": 1
+        },
+        "x-race-r07-time-solo-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r07-time-solo-t2-r1": {
+          "restore_failed": 2
+        },
+        "x-race-r07-time-time-t1-r1": {
+          "pass": 1
+        },
+        "x-race-r07-time-time-t2-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t1-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t2-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t3-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t3-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t4-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t4-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t5-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t5-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-equal-t6-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t1-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t2-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t3-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t3-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t4-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t4-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t5-r1": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t5-r2": {
+          "pass": 1
+        },
+        "x-race-r09-equal-solo-t6-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t1-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t2-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t3-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t3-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t4-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t4-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t5-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-solo-t6-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t1-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t2-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t3-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t3-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t4-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t4-r2": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t5-r1": {
+          "pass": 1
+        },
+        "x-race-r09-time-time-t6-r1": {
+          "pass": 1
+        },
+        "x-race-r11-equal-equal-t6-r2": {
+          "pass": 1
+        },
+        "x-race-r11-equal-solo-t6-r2": {
+          "pass": 1
+        },
+        "x-race-r11-time-solo-t5-r2": {
+          "pass": 1
+        },
+        "x-race-r11-time-solo-t6-r2": {
+          "pass": 1
+        },
+        "x-race-r11-time-time-t5-r2": {
+          "pass": 1
+        },
+        "x-race-r11-time-time-t6-r2": {
+          "pass": 1
+        }
+      }
+    },
+    "x-recovery": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "fail": 1,
+        "pass": 31
+      },
+      "patch_records": 32,
+      "records": 32,
+      "source_experiments": {
+        "robust-control-retry1-object": {
+          "fail": 1,
+          "pass": 15
+        },
+        "robust-recovery-object": {
+          "pass": 16
+        }
+      }
+    },
+    "x-review": {
+      "credential_excluded_patch_records": 3,
+      "outcomes": {
+        "fail": 4,
+        "infra": 1,
+        "pass": 23,
+        "ungraded": 2
+      },
+      "patch_records": 29,
+      "records": 30,
+      "source_experiments": {
+        "x-review-r11-astra-r1-control": {
+          "pass": 1
+        },
+        "x-review-r18-review-r1-control": {
+          "pass": 1
+        },
+        "x-review-r18-review-r1-risk": {
+          "pass": 1
+        },
+        "x-review-r18-review-r2-control": {
+          "pass": 1
+        },
+        "x-review-r18-review-r2-risk": {
+          "pass": 1
+        },
+        "x-review-r2-gen-rt-06-alternate": {
+          "ungraded": 1
+        },
+        "x-review-r2-gen-rt-08-alternate": {
+          "ungraded": 1
+        },
+        "x-review-r21-repair-r1-control": {
+          "pass": 1
+        },
+        "x-review-r21-repair-r1-risk": {
+          "pass": 1
+        },
+        "x-review-r21-repair-r2-control": {
+          "pass": 1
+        },
+        "x-review-r21-repair-r2-risk": {
+          "pass": 1
+        },
+        "x-review-r21-review-r1-control": {
+          "pass": 1
+        },
+        "x-review-r21-review-r1-risk": {
+          "pass": 1
+        },
+        "x-review-r21-review-r2-control": {
+          "pass": 1
+        },
+        "x-review-r21-review-r2-risk": {
+          "pass": 1
+        },
+        "x-review-r25-model-astra-r1-candidate": {
+          "pass": 1
+        },
+        "x-review-r25-model-astra-r1-control": {
+          "pass": 1
+        },
+        "x-review-r25-model-astra-r2-candidate": {
+          "pass": 1
+        },
+        "x-review-r25-model-astra-r2-control": {
+          "pass": 1
+        },
+        "x-review-r25-model-luna-r1-candidate": {
+          "pass": 1
+        },
+        "x-review-r25-model-luna-r1-control": {
+          "pass": 1
+        },
+        "x-review-r3-gen-rt-06-alternate": {
+          "pass": 1
+        },
+        "x-review-r3-gen-rt-06-defect": {
+          "fail": 1
+        },
+        "x-review-r3-gen-rt-08-alternate": {
+          "fail": 1,
+          "pass": 1
+        },
+        "x-review-r3-gen-rt-08-defect": {
+          "fail": 1
+        },
+        "x-review-r4-adjudicate-astra": {
+          "pass": 1
+        },
+        "x-review-r6-gen-rt-05-alternate": {
+          "pass": 1
+        },
+        "x-review-r6-gen-rt-05-defect": {
+          "fail": 1
+        },
+        "x-review-r7-astra-r1-control": {
+          "infra": 1
+        }
+      }
+    },
+    "x-roles": {
+      "credential_excluded_patch_records": 1,
+      "outcomes": {
+        "fail": 8,
+        "grader_error": 2,
+        "pass": 18
+      },
+      "patch_records": 28,
+      "records": 28,
+      "source_experiments": {
+        "x-roles-r2-developer-luna-high-r1-candidate": {
+          "fail": 5,
+          "grader_error": 1,
+          "pass": 2
+        },
+        "x-roles-r2-developer-luna-high-r1-control": {
+          "fail": 3,
+          "grader_error": 1,
+          "pass": 4
+        },
+        "x-roles-r2-review-luna-high-r1-candidate": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-high-r1-control": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-high-r2-candidate": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-high-r2-control": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-max-r1-candidate": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-max-r1-control": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-max-r2-candidate": {
+          "pass": 1
+        },
+        "x-roles-r2-review-luna-max-r2-control": {
+          "pass": 1
+        },
+        "x-roles-r4-worker-r1-candidate": {
+          "pass": 1
+        },
+        "x-roles-r4-worker-r1-control": {
+          "pass": 1
+        },
+        "x-roles-r4-worker-r2-candidate": {
+          "pass": 1
+        },
+        "x-roles-r4-worker-r2-control": {
+          "pass": 1
+        }
+      }
+    },
+    "x-surface": {
+      "credential_excluded_patch_records": 0,
+      "outcomes": {
+        "infra": 1,
+        "pass": 39,
+        "restore_failed": 4,
+        "ungraded": 1
+      },
+      "patch_records": 41,
+      "records": 45,
+      "source_experiments": {
+        "x-surface-r1-m06-luna-c": {
+          "pass": 4
+        },
+        "x-surface-r1-m06-luna-v": {
+          "pass": 4
+        },
+        "x-surface-r1-m06-sol-c": {
+          "pass": 4
+        },
+        "x-surface-r1-m06-sol-v": {
+          "pass": 4
+        },
+        "x-surface-r10-fp-luna-mutation-r1-packet": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-luna-mutation-r1-raw": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-luna-prepare-r1-packet": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-luna-prepare-r1-raw": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-sol-mutation-r1-packet": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-sol-mutation-r1-raw": {
+          "pass": 1
+        },
+        "x-surface-r10-fp-sol-prepare-r1-packet": {
+          "restore_failed": 2
+        },
+        "x-surface-r10-fp-sol-prepare-r1-raw": {
+          "restore_failed": 2
+        },
+        "x-surface-r3-m10-patch-luna-c": {
+          "pass": 4
+        },
+        "x-surface-r3-m10-patch-luna-v": {
+          "pass": 4
+        },
+        "x-surface-r3-m10-patch-sol-c": {
+          "pass": 4
+        },
+        "x-surface-r3-m10-patch-sol-v": {
+          "pass": 4
+        },
+        "x-surface-r7-fp-luna-mutation-r1-packet": {
+          "pass": 1
+        },
+        "x-surface-r7-fp-sol-mutation-r1-packet": {
+          "ungraded": 1
+        },
+        "x-surface-r7-fp-sol-mutation-r1-raw": {
+          "infra": 1
+        }
+      }
+    }
+  },
+  "source": "read-only Mac Studio and iCloud staged records",
+  "source_files_filtered": [
+    "manifest.json",
+    "cells.json",
+    "cells.jsonl",
+    "patch.diff",
+    "grade result rows",
+    "selected settlement metadata"
+  ],
+  "source_grade_mismatches": [
+    {
+      "ledger": "infra",
+      "manifest": "restore_failed",
+      "round": "e09-tidewave",
+      "source_cell_id": "codex__gpt-6-luna__max__default__new-trackline-bulk-transfer-outbox__r1",
+      "source_experiment": "e09-tidewave-A"
+    },
+    {
+      "ledger": "infra",
+      "manifest": "restore_failed",
+      "round": "e09-tidewave",
+      "source_cell_id": "codex__gpt-6-luna__max__default__new-trackline-resumable-import__r1",
+      "source_experiment": "e09-tidewave-A"
+    },
+    {
+      "ledger": "infra",
+      "manifest": "grader_error",
+      "round": "e09-tidewave",
+      "source_cell_id": "codex__gpt-6-luna__max__default__rails-ft-local-time-human-clock__r1",
+      "source_experiment": "e09-tidewave-B"
+    },
+    {
+      "ledger": "interrupted",
+      "manifest": "fail",
+      "round": "e09-tidewave",
+      "source_cell_id": "codex__gpt-6-luna__max__default__syn-24-csv-import__r1",
+      "source_experiment": "e09-tidewave-B"
+    },
+    {
+      "ledger": "interrupted",
+      "manifest": "fail",
+      "round": "e09-tidewave",
+      "source_cell_id": "codex__gpt-6-luna__max__default__syn-31-inbound-email-webhook__r1",
+      "source_experiment": "e09-tidewave-B"
+    },
+    {
+      "ledger": "infra",
+      "manifest": "restore_failed",
+      "round": "e09-tidewave",
+      "source_cell_id": "kh-gpt__gpt-6-luna__max__default__new-trackline-bulk-transfer-outbox__r1",
+      "source_experiment": "e09-tidewave-C"
+    },
+    {
+      "ledger": "infra",
+      "manifest": "restore_failed",
+      "round": "e09-tidewave",
+      "source_cell_id": "kh-gpt__gpt-6-luna__max__default__new-trackline-resumable-import__r1",
+      "source_experiment": "e09-tidewave-C"
+    },
+    {
+      "ledger": "infra",
+      "manifest": "restore_failed",
+      "round": "e09-tidewave",
+      "source_cell_id": "kh-gpt__gpt-6-luna__max__default__new-trackline-bulk-transfer-outbox__r1",
+      "source_experiment": "e09-tidewave-D"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-23__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-13__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-40__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "fail",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-40__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-23__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-13__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-23__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-13__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-40__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-40__r1",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "grok__grok-4.7__high__default__hp-syn-23__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "pass",
+      "manifest": "unknown",
+      "round": "harness-pick-2026-09-29",
+      "source_cell_id": "pi__xai-grok-4.7__high__default__hp-syn-13__r2",
+      "source_experiment": "harness-pick-2026-09-29-hp-grok"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-context",
+      "source_cell_id": "kh-gpt__gpt-6-luna__high__default__syn-14-bug-sla-business-hours__r1",
+      "source_experiment": "x-context-C01-r7-004-compact"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-context",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__syn-14-bug-sla-business-hours__r1",
+      "source_experiment": "x-context-C01-r7-006-compact"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-context",
+      "source_cell_id": "kh-gpt__gpt-6-luna__high__default__syn-14-bug-sla-business-hours__r1",
+      "source_experiment": "x-context-C01-r7-003-control"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-minikogen",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__elx-05-cache-single-flight__r2",
+      "source_experiment": "x-minikogen-diagnostic-v4r2-control-fault-control"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-minikogen",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__rt-02__r1",
+      "source_experiment": "x-minikogen-diagnostic-v4r2-control-fault-control"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-minikogen",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__elx-05-cache-single-flight__r1",
+      "source_experiment": "x-minikogen-diagnostic-v4r2-control-fault-control"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-minikogen",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__rt-02__r2",
+      "source_experiment": "x-minikogen-diagnostic-v4r2-control-fault-control"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-race",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__elx-04-queue-backpressure__r1",
+      "source_experiment": "x-race-r07-time-solo-t2-r1"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-surface",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__rt-05__r1",
+      "source_experiment": "x-surface-r10-fp-sol-prepare-r1-raw"
+    },
+    {
+      "ledger": "restore_failed",
+      "manifest": "pass",
+      "round": "x-surface",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__rt-05__r1",
+      "source_experiment": "x-surface-r10-fp-sol-prepare-r1-packet"
+    }
+  ],
+  "source_variant_mismatches": [
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "codex-compare__gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r1"
+    },
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "codex-compare__gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r2"
+    },
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "kh-compare__gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r1"
+    },
+    {
+      "left_outcome": "fail",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "kh-compare__gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r2"
+    },
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "opencode-compare__openai-gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r1"
+    },
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "opencode-compare__openai-gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r2"
+    },
+    {
+      "left_outcome": "pass",
+      "left_source": "harness-compare-1",
+      "right_outcome": "grader_error",
+      "right_source": "harness-compare-1-prelim",
+      "round": "harness-compare-1",
+      "source_cell_id": "pi-compare__openai-codex-gpt-6.1-sol__high__default__rails-ft-comment-reaction-live-echo__r1"
+    },
+    {
+      "left_outcome": "fail",
+      "left_source": "claim-b-screen-1",
+      "right_outcome": "grader_error",
+      "right_source": "claim-b-screen-1-object",
+      "round": "claim-b-screen-1",
+      "source_cell_id": "kh-gpt__gpt-6.1-sol__high__default__syn-06-migration-ticket-numbers__r1"
+    },
+    {
+      "left_outcome": "fail",
+      "left_source": "claim-b-rerun-1",
+      "right_outcome": "ungraded",
+      "right_source": "claim-b-rerun-1-worker-object",
+      "round": "claim-b-rerun-1",
+      "source_cell_id": "codex__gpt-6.1-sol__high__default__rails-ft-i18n-support__r1"
+    },
+    {
+      "left_outcome": "fail",
+      "left_source": "claim-b-rerun-1",
+      "right_outcome": "ungraded",
+      "right_source": "claim-b-rerun-1-worker-object",
+      "round": "claim-b-rerun-1",
+      "source_cell_id": "kh-dev__gpt-6.1-sol__high__default__rails-ft-i18n-support__r1"
+    },
+    {
+      "left_outcome": "fail",
+      "left_source": "claim-b-rerun-1",
+      "right_outcome": "ungraded",
+      "right_source": "claim-b-rerun-1-worker-object",
+      "round": "claim-b-rerun-1",
+      "source_cell_id": "kh-retry__gpt-6.1-sol__high__default__rails-ft-i18n-support__r1"
+    }
+  ],
+  "unmined_target_sources": {
+    "ctx-store": "The Studio Codex job is an offline query/store analysis with query and retrieval records, not model-cell execution records; request-level content was excluded from this per-cell model import.",
+    "kh-climb": "Only state-current.json and log rows were staged; log data are excluded and no per-cell manifests were found.",
+    "x-compaction": "Only source patches were staged; no per-cell model records were found.",
+    "x-continuation": "Only source patches were staged; the source reports no real model attempts."
+  },
+  "unresolved_manifest_references": 16,
+  "verified_content_addressed_objects": [
+    {
+      "bytes": 346845958,
+      "sha256": "4fbb6474a836ed990b66e2138a3facf704047dfeea5f3df4717e228c539bf274",
+      "source": "chatgpt-smoke-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 613916481,
+      "sha256": "b9dff4c0e66478c0260c45c6d7585fa472a3d6611d7d3fe261b6dcc632d0b0c6",
+      "source": "claim-b-screen-1-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 318472057,
+      "sha256": "c70830d7ab5b8e076c2723b3a469c4088c6744e688895a315a36f953b02886d4",
+      "source": "claim-b-rerun-1-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 853329087,
+      "sha256": "b1ac493605a68e28cd5e9fd6ab65ecb101ed17db4db3a1b05ee7bb37f8367f6c",
+      "source": "claim-b-rerun-1-worker-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 198184923,
+      "sha256": "d3edfb1de8506e027c39c49d30597fcb630ffd129cf67b76686b467a710d7813",
+      "source": "robust-control-retry1-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 198032201,
+      "sha256": "64335f1d3088bd5fa51d06203c5827c60c92734852a728371ab8d7d756459838",
+      "source": "tokens-control-retry1-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 196906690,
+      "sha256": "c8ff34dd815babde8b70514affd4527c1a9fc16480e4ef74fa006542b86512ce",
+      "source": "cache-base-03-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 235742750,
+      "sha256": "caae254f97db40bfafde41ae29e8012ee255623d4c24748cbd1720769148f7b7",
+      "source": "robust-recovery-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 199681253,
+      "sha256": "8d7db93c95da2946f2db6e6b901bce2fa2c515365be56297f977b2b5da01c585",
+      "source": "x-ladder-m01-luna-max-object",
+      "verified_against_content_address": true
+    },
+    {
+      "bytes": 199173244,
+      "sha256": "6edac00ac5e841098abbcf360ba6ca95eb2549b84280daf0c0453dfc6e37dc74",
+      "source": "x-models-m01-s01-candidate-object",
+      "verified_against_content_address": true
+    }
+  ],
+  "x_race_codex_job_aggregate": {
+    "aggregate_summary": {
+      "equal": {
+        "arms": {
+          "equal": {
+            "accepted": 12,
+            "completed": 12,
+            "infra": 0,
+            "scored": 12,
+            "tasks": 6
+          },
+          "solo": {
+            "accepted": 12,
+            "completed": 12,
+            "infra": 0,
+            "scored": 12,
+            "tasks": 6
+          }
+        },
+        "completed_pairs": 12,
+        "paired_tasks": 6,
+        "status": "inconclusive"
+      },
+      "time": {
+        "arms": {
+          "solo": {
+            "accepted": 11,
+            "completed": 12,
+            "infra": 1,
+            "scored": 11,
+            "tasks": 6
+          },
+          "time": {
+            "accepted": 12,
+            "completed": 12,
+            "infra": 0,
+            "scored": 12,
+            "tasks": 6
+          }
+        },
+        "completed_pairs": 11,
+        "paired_tasks": 6,
+        "status": "inconclusive"
+      }
+    },
+    "outcomes_by_arm": {
+      "equal": {
+        "PASS": 13
+      },
+      "solo": {
+        "INFRA": 2,
+        "PASS": 24
+      },
+      "time": {
+        "INFRA": 1,
+        "PASS": 12
+      }
+    },
+    "result_ledger_rows": 52,
+    "row_outcomes": {
+      "INFRA": 3,
+      "PASS": 49
+    },
+    "unique_arm_task_rep_keys": 36
+  }
+}

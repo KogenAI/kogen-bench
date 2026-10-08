@@ -1,0 +1,32 @@
+{
+  "base_dir": "${BENCH_HOME}/bench/tasks/rails-_base/hard2-fizzy-20261001",
+  "base_repository": "https://github.com/basecamp/fizzy",
+  "base_commit": "8112b3dbafeea72225c1ed09ae170e8cbe2d1195",
+  "prompt": "prompt.md",
+  "prompt_source": "${BENCH_HOME}/bench/task-pipeline/rails-b1-card-due-dates/public/ticket.md",
+  "setup": "export PATH=\"$HOME/.local/share/mise/installs/ruby/3.4.8/bin:$PATH\"; bundle check",
+  "setup_timeout_s": 60,
+  "setup_note": "Public Fizzy snapshot has its bundle preinstalled; bundle check is offline and makes no source changes.",
+  "grade": "grade.sh",
+  "grade_timeout_s": 110,
+  "timeout_s": 900,
+  "env": {
+    "GEM_HOME": "${BENCH_HOME}/.local/share/mise/installs/ruby/3.4.8/lib/ruby/gems/3.4.0",
+    "PATH": "${BENCH_HOME}/.local/share/mise/installs/ruby/3.4.8/bin:${BENCH_HOME}/bench/tools/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "RAILS_ENV": "test",
+    "BUNDLE_WITHOUT": "production",
+    "BUNDLE_FROZEN": "true",
+    "CI_PROGRESS_BAR": "0",
+    "TZ": "UTC",
+    "PARALLEL_WORKERS": "2",
+    "SAAS": "false",
+    "DATABASE_ADAPTER": "sqlite"
+  },
+  "sealed": [
+    "rails-b1-card-due-dates/sealed"
+  ],
+  "sealed_path": "~/bench-sealed/rails-b1-card-due-dates/sealed/",
+  "ticket_version": 5,
+  "admission": "v5 author control matrix passed; awaiting independent ACCEPTED review",
+  "quarantined": "Awaiting independent review; do not score or calibrate until ACCEPTED"
+}

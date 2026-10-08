@@ -1,11 +1,17 @@
 # r57c
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of DESIGN, ENVIRONMENT, NO_PREREG. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - DESIGN — No testable question or complete comparison protocol is established.
 - ENVIRONMENT — The orchestration implementation and planned task-to-environment assignments are not recorded.
@@ -91,3 +97,12 @@ This section documents exact replay limits and keeps the page lifecycle and earl
 Public snapshot rows for this tag: 80 captured deliveries (66 pass, 14 fail, 0 ungraded/unknown in `results/run-records/r57c.jsonl`); official outcome export has 80 rows: 66 pass, 14 fail in `cells.jsonl`. These are separate source totals. The public files do not provide a complete joined intention-to-treat result.
 
 **Round-specific reconciliation:** Keep this additional Elixir repetition lane separate from r57/r57b/r57d and r57e. Public row summaries are descriptive; they do not reproduce the pooled interval analysis.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r57c.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 80 rows (fail 14, pass 66); overall pass rate is 82.5% (66/80) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 80/80 shared cell IDs match; 0/80 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 80/80 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

@@ -1,11 +1,16 @@
 # r74 Kogen builder configurations versus Codex
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INCOMPLETE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INCOMPLETE because of INCOMPLETE_EVIDENCE, NO_PUBLIC_CELLS, WITHDRAWN. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
+
+
 
 ## Status
 
 **INCOMPLETE**
 
-Why not VALID:
 - WITHDRAWN — The registered comparison was withdrawn before completion.
 - NO_PUBLIC_CELLS — No r74-tagged rows appear in the public result exports.
 - INCOMPLETE_EVIDENCE — Retained IDs or terminal statuses are missing for 231 planned slots; recovered internal rows are not joined to official outcomes.
@@ -64,3 +69,12 @@ This section documents exact replay limits and keeps the page lifecycle and earl
 Public snapshot rows for this tag: 0 captured deliveries (0 pass, 0 fail, 0 ungraded/unknown in `results/run-records/index.json`); official outcome export has 0 rows: 0 pass, 0 fail in `cells.jsonl`. These are separate source totals. The public files do not provide a complete joined intention-to-treat result.
 
 **Round-specific reconciliation:** No r74-tagged rows occur in the public delivery or official outcome exports. The [L0 reconciliation CSVs](../l0-reconcile/README.md) reproduce the selected internal snapshot counts, but do not complete the retained-cohort reconstruction or independently join those scores to the canonical official outcome export. Preserve WITHDRAWN; later execution/stop details must not replace the page lifecycle with an efficacy claim.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r74.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 177 rows (fail 32, pass 144, ungraded 1); overall pass rate is 81.8% (144/176) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 177 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 177 raw-only or non-public rows; they are kept separate from the published-export denominator.

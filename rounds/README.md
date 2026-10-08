@@ -165,6 +165,7 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [offline-review](offline-review/README.md) — **INTERIM** Historical offline review audit; no prospective repair or live efficacy result.
 - [offline-review3](offline-review3/README.md) — **INTERIM** Partial offline comparison stopped at its budget limit; no live Build efficacy result.
 - [overstrict-replay](overstrict-replay/README.md) — **INTERIM** Offline test replay; descriptive source report only.
+- [pilot73](pilot73/README.md) — **DESCRIPTIVE** Recovered shaper source round; 25 observed raw rows, no public grade-export rows, distinct from the registered r73 scored phase.
 - [r57-studio](r57-studio/README.md) — **PILOT** See the round page for its cohort, evidence coverage, and limitations.
 - [r57-t90-studio](r57-t90-studio/README.md) — **PILOT** See the round page for its cohort, evidence coverage, and limitations.
 - [r58x-studio](r58x-studio/README.md) — **PILOT** See the round page for its cohort, evidence coverage, and limitations.

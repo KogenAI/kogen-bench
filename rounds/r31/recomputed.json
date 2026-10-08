@@ -1,0 +1,691 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 17,
+    "token_cells_different": 0,
+    "token_cells_equal": 17,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 585216,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r4-bo3-packplan-review-sol-r31-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 101443,
+        "output_tokens": 8051,
+        "published_metadata_tokens": 694710,
+        "reasoning_tokens": 803,
+        "round": "r31"
+      },
+      {
+        "cached_input_tokens": 427008,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-bo3-packplan-review-sol-r31-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 75797,
+        "output_tokens": 5643,
+        "published_metadata_tokens": 508448,
+        "reasoning_tokens": 288,
+        "round": "r31"
+      },
+      {
+        "cached_input_tokens": 129536,
+        "cell_id": "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r1",
+        "harness": "kh-plan",
+        "input_tokens": 44834,
+        "output_tokens": 7582,
+        "published_metadata_tokens": 181952,
+        "reasoning_tokens": 148,
+        "round": "r31"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 12,
+        "equal": 12
+      },
+      "kh-plan": {
+        "compared": 5,
+        "equal": 5
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 17,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 17,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 17,
+    "fail_count": 8,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 17,
+      "incomplete_cells": 0,
+      "total": 7076806
+    },
+    "officially_graded_cells": 17,
+    "outcomes": {
+      "fail": 8,
+      "pass": 9
+    },
+    "pass_count": 9,
+    "pass_rate": 0.5294117647058824,
+    "pass_rate_denominator": 17,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 5823488
+      },
+      "input_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 1149582
+      },
+      "output_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 103736
+      },
+      "reasoning_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 1332
+      }
+    },
+    "wall_s": {
+      "known_cells": 17,
+      "median": 625.151,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "bo3-packplan-review-sol": {
+      "cells": 12,
+      "fail_count": 6,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 6469152
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 6,
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 5448704
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 954595
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 65853
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 1091
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 741.095,
+        "missing_cells": 0
+      }
+    },
+    "r31-elx07:bo3-packplan-review-sol": {
+      "cells": 5,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 607654
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 2,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.6,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 374784
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 194987
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 37883
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 241
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 438.114,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [],
+    "arm_mismatches": [],
+    "outcome_matches": 17,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 17,
+    "public_export_rows_in_round": 17,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {
+      "bo3-packplan-review-sol": {
+        "cells": 12,
+        "fail_count": 6,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 12,
+          "total": 0
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 6,
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 0.5,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 12,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 12
+        }
+      },
+      "r31-elx07:bo3-packplan-review-sol": {
+        "cells": 5,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 0,
+          "incomplete_cells": 5,
+          "total": 0
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 2,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.6,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "input_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "output_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          },
+          "reasoning_tokens": {
+            "known_cells": 0,
+            "missing_cells": 5,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 0,
+          "median": null,
+          "missing_cells": 5
+        }
+      }
+    },
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "bo3-packplan-review-sol": {
+        "cells": 12,
+        "fail_count": 6,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 12,
+          "incomplete_cells": 0,
+          "total": 6469152
+        },
+        "officially_graded_cells": 12,
+        "outcomes": {
+          "fail": 6,
+          "pass": 6
+        },
+        "pass_count": 6,
+        "pass_rate": 0.5,
+        "pass_rate_denominator": 12,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 5448704
+          },
+          "input_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 954595
+          },
+          "output_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 65853
+          },
+          "reasoning_tokens": {
+            "known_cells": 12,
+            "missing_cells": 0,
+            "total": 1091
+          }
+        },
+        "wall_s": {
+          "known_cells": 12,
+          "median": 741.095,
+          "missing_cells": 0
+        }
+      },
+      "r31-elx07:bo3-packplan-review-sol": {
+        "cells": 5,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 5,
+          "incomplete_cells": 0,
+          "total": 607654
+        },
+        "officially_graded_cells": 5,
+        "outcomes": {
+          "fail": 2,
+          "pass": 3
+        },
+        "pass_count": 3,
+        "pass_rate": 0.6,
+        "pass_rate_denominator": 5,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 374784
+          },
+          "input_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 194987
+          },
+          "output_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 37883
+          },
+          "reasoning_tokens": {
+            "known_cells": 5,
+            "missing_cells": 0,
+            "total": 241
+          }
+        },
+        "wall_s": {
+          "known_cells": 5,
+          "median": 438.114,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 17,
+    "fail_count": 8,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 17,
+      "incomplete_cells": 0,
+      "total": 7076806
+    },
+    "officially_graded_cells": 17,
+    "outcomes": {
+      "fail": 8,
+      "pass": 9
+    },
+    "pass_count": 9,
+    "pass_rate": 0.5294117647058824,
+    "pass_rate_denominator": 17,
+    "published_export_cells": 17,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 5823488
+      },
+      "input_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 1149582
+      },
+      "output_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 103736
+      },
+      "reasoning_tokens": {
+        "known_cells": 17,
+        "missing_cells": 0,
+        "total": 1332
+      }
+    },
+    "wall_s": {
+      "known_cells": 17,
+      "median": 625.151,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "bo3-packplan-review-sol": {
+      "cells": 12,
+      "fail_count": 6,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 12,
+        "incomplete_cells": 0,
+        "total": 6469152
+      },
+      "officially_graded_cells": 12,
+      "outcomes": {
+        "fail": 6,
+        "pass": 6
+      },
+      "pass_count": 6,
+      "pass_rate": 0.5,
+      "pass_rate_denominator": 12,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 5448704
+        },
+        "input_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 954595
+        },
+        "output_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 65853
+        },
+        "reasoning_tokens": {
+          "known_cells": 12,
+          "missing_cells": 0,
+          "total": 1091
+        }
+      },
+      "wall_s": {
+        "known_cells": 12,
+        "median": 741.095,
+        "missing_cells": 0
+      }
+    },
+    "r31-elx07:bo3-packplan-review-sol": {
+      "cells": 5,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 5,
+        "incomplete_cells": 0,
+        "total": 607654
+      },
+      "officially_graded_cells": 5,
+      "outcomes": {
+        "fail": 2,
+        "pass": 3
+      },
+      "pass_count": 3,
+      "pass_rate": 0.6,
+      "pass_rate_denominator": 5,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 374784
+        },
+        "input_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 194987
+        },
+        "output_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 37883
+        },
+        "reasoning_tokens": {
+          "known_cells": 5,
+          "missing_cells": 0,
+          "total": 241
+        }
+      },
+      "wall_s": {
+        "known_cells": 5,
+        "median": 438.114,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "bo3-packplan-review-sol": {
+          "cells": 12,
+          "fail_count": 6,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 12,
+            "incomplete_cells": 0,
+            "total": 6469152
+          },
+          "officially_graded_cells": 12,
+          "outcomes": {
+            "fail": 6,
+            "pass": 6
+          },
+          "pass_count": 6,
+          "pass_rate": 0.5,
+          "pass_rate_denominator": 12,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 5448704
+            },
+            "input_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 954595
+            },
+            "output_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 65853
+            },
+            "reasoning_tokens": {
+              "known_cells": 12,
+              "missing_cells": 0,
+              "total": 1091
+            }
+          },
+          "wall_s": {
+            "known_cells": 12,
+            "median": 741.095,
+            "missing_cells": 0
+          }
+        },
+        "r31-elx07:bo3-packplan-review-sol": {
+          "cells": 5,
+          "fail_count": 2,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 5,
+            "incomplete_cells": 0,
+            "total": 607654
+          },
+          "officially_graded_cells": 5,
+          "outcomes": {
+            "fail": 2,
+            "pass": 3
+          },
+          "pass_count": 3,
+          "pass_rate": 0.6,
+          "pass_rate_denominator": 5,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 374784
+            },
+            "input_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 194987
+            },
+            "output_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 37883
+            },
+            "reasoning_tokens": {
+              "known_cells": 5,
+              "missing_cells": 0,
+              "total": 241
+            }
+          },
+          "wall_s": {
+            "known_cells": 5,
+            "median": 438.114,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r1-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r2-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r3-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r4-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ac-throttle-search__r5-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r3-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r4-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-as-variant-processed-once__r5-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r2-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r3-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r4-bo3-packplan-review-sol-r31-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-hw-scoped-broadcast__r5-bo3-packplan-review-sol-r31-studio",
+        "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r1",
+        "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r2",
+        "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r3",
+        "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r4",
+        "r31-elx07-us-elx-07-cli-stats-bo3-packplan-review-sol-r5"
+      ],
+      "summary": {
+        "cells": 17,
+        "fail_count": 8,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 17,
+          "incomplete_cells": 0,
+          "total": 7076806
+        },
+        "officially_graded_cells": 17,
+        "outcomes": {
+          "fail": 8,
+          "pass": 9
+        },
+        "pass_count": 9,
+        "pass_rate": 0.5294117647058824,
+        "pass_rate_denominator": 17,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 17,
+            "missing_cells": 0,
+            "total": 5823488
+          },
+          "input_tokens": {
+            "known_cells": 17,
+            "missing_cells": 0,
+            "total": 1149582
+          },
+          "output_tokens": {
+            "known_cells": 17,
+            "missing_cells": 0,
+            "total": 103736
+          },
+          "reasoning_tokens": {
+            "known_cells": 17,
+            "missing_cells": 0,
+            "total": 1332
+          }
+        },
+        "wall_s": {
+          "known_cells": 17,
+          "median": 625.151,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r31",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

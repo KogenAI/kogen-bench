@@ -1,11 +1,17 @@
 # r62
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: INVALID; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains INVALID because of CROSSWALK, NO_PREREG, OUTCOME_CLASSIFICATION. See the round evidence and limitations below.
+Recomputation status: OBSERVED SOURCE ONLY
 
+
+
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **INVALID**
 
-Why not VALID:
 - NO_PREREG — The README records no pre-registration.
 - OUTCOME_CLASSIFICATION — Official cells and captured run records classify the same deliveries differently.
 - CROSSWALK — A cell-level crosswalk resolving the conflict is absent.
@@ -64,3 +70,12 @@ Verdict: The official cells export records 0 ITT passes, 17 ITT failures, and 1 
 ## Public outcome source conflict
 
 The official [cells export](../../results/cells.jsonl) and captured [run-record export](../../results/run-records/r62.jsonl) disagree as stated above. The prior reconciliation table is removed. No benchmark comparison is reported until the per-cell classifications can be crosswalked from public evidence.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r62.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 18 rows (fail 1, pass 17); overall pass rate is 94.4% (17/18) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+Published-export outcome cross-check: 18/18 shared cell IDs match; 0/18 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
+No per-cell outcome mismatches were found in the shared IDs.
+Token reconciliation under [METHOD.md](../../METHOD.md): 18/18 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
+The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.

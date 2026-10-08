@@ -1,0 +1,56 @@
+diff --git a/app/controllers/cards_controller.rb b/app/controllers/cards_controller.rb
+index 015ecda..c88e25c 100644
+--- a/app/controllers/cards_controller.rb
++++ b/app/controllers/cards_controller.rb
+@@ -3,7 +3,7 @@ class CardsController < ApplicationController
+ 
+   include FilterScoped
+ 
+-  before_action :set_board, only: %i[ create ]
++  before_action :set_board, only: %i[ create bulk_move ]
+   before_action :set_card, only: %i[ show edit update destroy ]
+   before_action :redirect_if_drafted, only: :show
+   before_action :ensure_permission_to_administer_card, only: %i[ destroy ]
+@@ -26,6 +26,25 @@ class CardsController < ApplicationController
+     end
+   end
+ 
++  def bulk_move
++    card_numbers = params[:card_numbers]
++    unless card_numbers.is_a?(Array) && card_numbers.any? && card_numbers.all? { |number| number.is_a?(Integer) && number.positive? } && card_numbers.uniq == card_numbers
++      return render json: { error: "card_numbers_must_be_nonempty_unique_integers" }, status: :unprocessable_entity
++    end
++
++    column = @board.columns.find_by(id: params[:column_id])
++    return render json: { error: "column_not_found" }, status: :not_found unless column
++
++    cards_by_number = @board.cards.where(number: card_numbers).index_by(&:number)
++    unless card_numbers.all? { |number| cards_by_number.key?(number) }
++      return render json: { error: "card_not_found" }, status: :not_found
++    end
++
++    @board.cards.where(number: card_numbers).update_all(column_id: column.id, updated_at: Time.current)
++
++    render json: { moved_card_numbers: card_numbers }, status: :ok
++  end
++
+   def show
+   end
+ 
+diff --git a/config/routes.rb b/config/routes.rb
+index d228d90..44eb873 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -46,7 +46,11 @@ Rails.application.routes.draw do
+       end
+     end
+ 
+-    resources :cards, only: :create
++    resources :cards, only: :create do
++      collection do
++        post :bulk_move
++      end
++    end
+ 
+     resources :webhooks do
+       scope module: :webhooks do

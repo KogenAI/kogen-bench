@@ -1,0 +1,869 @@
+{
+  "cell_metadata_comparison": {
+    "token_cells_compared": 35,
+    "token_cells_different": 0,
+    "token_cells_equal": 35,
+    "token_comparison_scope": "The manifest counter is compared with the published cell metadata total. Provider response IDs are reduced to a count only; request logs and per-response records are excluded.",
+    "token_exact_cache_reasoning_examples": [
+      {
+        "cached_input_tokens": 10752,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-bare-r17climb-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 14171,
+        "output_tokens": 1614,
+        "published_metadata_tokens": 26537,
+        "reasoning_tokens": 394,
+        "round": "r17"
+      },
+      {
+        "cached_input_tokens": 17920,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-bare-r17climb-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 10314,
+        "output_tokens": 1265,
+        "published_metadata_tokens": 29499,
+        "reasoning_tokens": 335,
+        "round": "r17"
+      },
+      {
+        "cached_input_tokens": 27648,
+        "cell_id": "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-Pstar-r17climb-studio",
+        "harness": "kh-gpt",
+        "input_tokens": 23279,
+        "output_tokens": 1221,
+        "published_metadata_tokens": 52148,
+        "reasoning_tokens": 208,
+        "round": "r17"
+      }
+    ],
+    "token_exact_codex_examples": [],
+    "token_format_counts": {
+      "kh-gpt": {
+        "compared": 29,
+        "equal": 29
+      },
+      "kh-plan": {
+        "compared": 6,
+        "equal": 6
+      }
+    },
+    "token_formula": "METHOD.md: uncached input + cached input + output; reasoning is a subset of output and is not added again",
+    "token_genuine_data_errors": 0,
+    "token_mismatch_classes": {},
+    "token_mismatches": [],
+    "token_missing_metadata": 0,
+    "token_missing_metadata_examples": [],
+    "token_missing_usage": 0,
+    "token_missing_usage_examples": [],
+    "wall_cells_compared": 35,
+    "wall_cells_different": 0,
+    "wall_cells_equal": 35,
+    "wall_mismatches": [],
+    "wall_missing_metadata": 0,
+    "wall_missing_source": 0
+  },
+  "mined_rows_with_public_export_ids": {
+    "cells": 35,
+    "fail_count": 19,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 35,
+      "incomplete_cells": 0,
+      "total": 5529091
+    },
+    "officially_graded_cells": 35,
+    "outcomes": {
+      "fail": 19,
+      "pass": 16
+    },
+    "pass_count": 16,
+    "pass_rate": 0.45714285714285713,
+    "pass_rate_denominator": 35,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 4569088
+      },
+      "input_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 904455
+      },
+      "output_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 55548
+      },
+      "reasoning_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 1725
+      }
+    },
+    "wall_s": {
+      "known_cells": 35,
+      "median": 212.209,
+      "missing_cells": 0
+    }
+  },
+  "mined_rows_with_public_export_ids_by_arm": {
+    "Pstar": {
+      "cells": 19,
+      "fail_count": 9,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 19,
+        "incomplete_cells": 0,
+        "total": 3875381
+      },
+      "officially_graded_cells": 19,
+      "outcomes": {
+        "fail": 9,
+        "pass": 10
+      },
+      "pass_count": 10,
+      "pass_rate": 0.5263157894736842,
+      "pass_rate_denominator": 19,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 3294720
+        },
+        "input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 548021
+        },
+        "output_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 32640
+        },
+        "reasoning_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 901
+        }
+      },
+      "wall_s": {
+        "known_cells": 19,
+        "median": 239.265,
+        "missing_cells": 0
+      }
+    },
+    "bare": {
+      "cells": 10,
+      "fail_count": 8,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 10,
+        "incomplete_cells": 0,
+        "total": 942576
+      },
+      "officially_graded_cells": 10,
+      "outcomes": {
+        "fail": 8,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.2,
+      "pass_rate_denominator": 10,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 729600
+        },
+        "input_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 200929
+        },
+        "output_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 12047
+        },
+        "reasoning_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 824
+        }
+      },
+      "wall_s": {
+        "known_cells": 10,
+        "median": 80.07900000000001,
+        "missing_cells": 0
+      }
+    },
+    "r17reg:Pstar": {
+      "cells": 6,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 711134
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 2,
+        "pass": 4
+      },
+      "pass_count": 4,
+      "pass_rate": 0.6666666666666666,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 544768
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 155505
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 10861
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 197.6865,
+        "missing_cells": 0
+      }
+    }
+  },
+  "published_export_comparison": {
+    "aggregate_mismatches": [
+      {
+        "arm": "Pstar",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 10
+      },
+      {
+        "arm": "Pstar",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 9
+      },
+      {
+        "arm": "Pstar",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 9,
+          "pass": 10
+        }
+      },
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 2
+      },
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 8
+      },
+      {
+        "arm": "bare",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 8,
+          "pass": 2
+        }
+      },
+      {
+        "arm": "r17reg:Pstar",
+        "cell_ids": [],
+        "metric": "pass_count",
+        "published": 0,
+        "recomputed": 4
+      },
+      {
+        "arm": "r17reg:Pstar",
+        "cell_ids": [],
+        "metric": "fail_count",
+        "published": 0,
+        "recomputed": 2
+      },
+      {
+        "arm": "r17reg:Pstar",
+        "cell_ids": [],
+        "metric": "outcomes",
+        "published": {},
+        "recomputed": {
+          "fail": 2,
+          "pass": 4
+        }
+      }
+    ],
+    "arm_mismatches": [],
+    "outcome_matches": 35,
+    "outcome_mismatches": [],
+    "paired_public_cell_ids": 35,
+    "public_export_rows_in_round": 0,
+    "public_only_cells": [],
+    "public_only_rows_missing_from_mined": 0,
+    "published_export_outcomes_by_arm": {},
+    "recomputed_raw_outcomes_for_paired_ids_by_arm": {
+      "Pstar": {
+        "cells": 19,
+        "fail_count": 9,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 19,
+          "incomplete_cells": 0,
+          "total": 3875381
+        },
+        "officially_graded_cells": 19,
+        "outcomes": {
+          "fail": 9,
+          "pass": 10
+        },
+        "pass_count": 10,
+        "pass_rate": 0.5263157894736842,
+        "pass_rate_denominator": 19,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 3294720
+          },
+          "input_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 548021
+          },
+          "output_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 32640
+          },
+          "reasoning_tokens": {
+            "known_cells": 19,
+            "missing_cells": 0,
+            "total": 901
+          }
+        },
+        "wall_s": {
+          "known_cells": 19,
+          "median": 239.265,
+          "missing_cells": 0
+        }
+      },
+      "bare": {
+        "cells": 10,
+        "fail_count": 8,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 10,
+          "incomplete_cells": 0,
+          "total": 942576
+        },
+        "officially_graded_cells": 10,
+        "outcomes": {
+          "fail": 8,
+          "pass": 2
+        },
+        "pass_count": 2,
+        "pass_rate": 0.2,
+        "pass_rate_denominator": 10,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 10,
+            "missing_cells": 0,
+            "total": 729600
+          },
+          "input_tokens": {
+            "known_cells": 10,
+            "missing_cells": 0,
+            "total": 200929
+          },
+          "output_tokens": {
+            "known_cells": 10,
+            "missing_cells": 0,
+            "total": 12047
+          },
+          "reasoning_tokens": {
+            "known_cells": 10,
+            "missing_cells": 0,
+            "total": 824
+          }
+        },
+        "wall_s": {
+          "known_cells": 10,
+          "median": 80.07900000000001,
+          "missing_cells": 0
+        }
+      },
+      "r17reg:Pstar": {
+        "cells": 6,
+        "fail_count": 2,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 6,
+          "incomplete_cells": 0,
+          "total": 711134
+        },
+        "officially_graded_cells": 6,
+        "outcomes": {
+          "fail": 2,
+          "pass": 4
+        },
+        "pass_count": 4,
+        "pass_rate": 0.6666666666666666,
+        "pass_rate_denominator": 6,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 544768
+          },
+          "input_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 155505
+          },
+          "output_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 10861
+          },
+          "reasoning_tokens": {
+            "known_cells": 6,
+            "missing_cells": 0,
+            "total": 0
+          }
+        },
+        "wall_s": {
+          "known_cells": 6,
+          "median": 197.6865,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "published_headline_comparison": null,
+  "raw_source": {
+    "cells": 35,
+    "fail_count": 19,
+    "input_plus_cached_plus_output": {
+      "complete_cells": 35,
+      "incomplete_cells": 0,
+      "total": 5529091
+    },
+    "officially_graded_cells": 35,
+    "outcomes": {
+      "fail": 19,
+      "pass": 16
+    },
+    "pass_count": 16,
+    "pass_rate": 0.45714285714285713,
+    "pass_rate_denominator": 35,
+    "published_export_cells": 35,
+    "usage_tokens": {
+      "cached_input_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 4569088
+      },
+      "input_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 904455
+      },
+      "output_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 55548
+      },
+      "reasoning_tokens": {
+        "known_cells": 35,
+        "missing_cells": 0,
+        "total": 1725
+      }
+    },
+    "wall_s": {
+      "known_cells": 35,
+      "median": 212.209,
+      "missing_cells": 0
+    }
+  },
+  "raw_source_by_arm": {
+    "Pstar": {
+      "cells": 19,
+      "fail_count": 9,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 19,
+        "incomplete_cells": 0,
+        "total": 3875381
+      },
+      "officially_graded_cells": 19,
+      "outcomes": {
+        "fail": 9,
+        "pass": 10
+      },
+      "pass_count": 10,
+      "pass_rate": 0.5263157894736842,
+      "pass_rate_denominator": 19,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 3294720
+        },
+        "input_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 548021
+        },
+        "output_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 32640
+        },
+        "reasoning_tokens": {
+          "known_cells": 19,
+          "missing_cells": 0,
+          "total": 901
+        }
+      },
+      "wall_s": {
+        "known_cells": 19,
+        "median": 239.265,
+        "missing_cells": 0
+      }
+    },
+    "bare": {
+      "cells": 10,
+      "fail_count": 8,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 10,
+        "incomplete_cells": 0,
+        "total": 942576
+      },
+      "officially_graded_cells": 10,
+      "outcomes": {
+        "fail": 8,
+        "pass": 2
+      },
+      "pass_count": 2,
+      "pass_rate": 0.2,
+      "pass_rate_denominator": 10,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 729600
+        },
+        "input_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 200929
+        },
+        "output_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 12047
+        },
+        "reasoning_tokens": {
+          "known_cells": 10,
+          "missing_cells": 0,
+          "total": 824
+        }
+      },
+      "wall_s": {
+        "known_cells": 10,
+        "median": 80.07900000000001,
+        "missing_cells": 0
+      }
+    },
+    "r17reg:Pstar": {
+      "cells": 6,
+      "fail_count": 2,
+      "input_plus_cached_plus_output": {
+        "complete_cells": 6,
+        "incomplete_cells": 0,
+        "total": 711134
+      },
+      "officially_graded_cells": 6,
+      "outcomes": {
+        "fail": 2,
+        "pass": 4
+      },
+      "pass_count": 4,
+      "pass_rate": 0.6666666666666666,
+      "pass_rate_denominator": 6,
+      "usage_tokens": {
+        "cached_input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 544768
+        },
+        "input_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 155505
+        },
+        "output_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 10861
+        },
+        "reasoning_tokens": {
+          "known_cells": 6,
+          "missing_cells": 0,
+          "total": 0
+        }
+      },
+      "wall_s": {
+        "known_cells": 6,
+        "median": 197.6865,
+        "missing_cells": 0
+      }
+    }
+  },
+  "raw_source_by_cohort": {
+    "primary_or_unclassified": {
+      "by_arm": {
+        "Pstar": {
+          "cells": 19,
+          "fail_count": 9,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 19,
+            "incomplete_cells": 0,
+            "total": 3875381
+          },
+          "officially_graded_cells": 19,
+          "outcomes": {
+            "fail": 9,
+            "pass": 10
+          },
+          "pass_count": 10,
+          "pass_rate": 0.5263157894736842,
+          "pass_rate_denominator": 19,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 3294720
+            },
+            "input_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 548021
+            },
+            "output_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 32640
+            },
+            "reasoning_tokens": {
+              "known_cells": 19,
+              "missing_cells": 0,
+              "total": 901
+            }
+          },
+          "wall_s": {
+            "known_cells": 19,
+            "median": 239.265,
+            "missing_cells": 0
+          }
+        },
+        "bare": {
+          "cells": 10,
+          "fail_count": 8,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 10,
+            "incomplete_cells": 0,
+            "total": 942576
+          },
+          "officially_graded_cells": 10,
+          "outcomes": {
+            "fail": 8,
+            "pass": 2
+          },
+          "pass_count": 2,
+          "pass_rate": 0.2,
+          "pass_rate_denominator": 10,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 10,
+              "missing_cells": 0,
+              "total": 729600
+            },
+            "input_tokens": {
+              "known_cells": 10,
+              "missing_cells": 0,
+              "total": 200929
+            },
+            "output_tokens": {
+              "known_cells": 10,
+              "missing_cells": 0,
+              "total": 12047
+            },
+            "reasoning_tokens": {
+              "known_cells": 10,
+              "missing_cells": 0,
+              "total": 824
+            }
+          },
+          "wall_s": {
+            "known_cells": 10,
+            "median": 80.07900000000001,
+            "missing_cells": 0
+          }
+        },
+        "r17reg:Pstar": {
+          "cells": 6,
+          "fail_count": 2,
+          "input_plus_cached_plus_output": {
+            "complete_cells": 6,
+            "incomplete_cells": 0,
+            "total": 711134
+          },
+          "officially_graded_cells": 6,
+          "outcomes": {
+            "fail": 2,
+            "pass": 4
+          },
+          "pass_count": 4,
+          "pass_rate": 0.6666666666666666,
+          "pass_rate_denominator": 6,
+          "usage_tokens": {
+            "cached_input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 544768
+            },
+            "input_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 155505
+            },
+            "output_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 10861
+            },
+            "reasoning_tokens": {
+              "known_cells": 6,
+              "missing_cells": 0,
+              "total": 0
+            }
+          },
+          "wall_s": {
+            "known_cells": 6,
+            "median": 197.6865,
+            "missing_cells": 0
+          }
+        }
+      },
+      "cell_ids": [
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r1-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r2-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-aj-enqueue-after-commit__r3-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-archive-book-access__r1-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-archive-book-access__r2-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-archive-book-access__r3-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r1-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r2-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r3-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r4-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-ar-bulk-access-grants__r5-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r1-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r1-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r2-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r2-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r3-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r3-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r4-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r4-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r5-Pstar-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sec-audit-sweep__r5-bare-r17climb-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r1-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r2-Pstar-r17reg-studio",
+        "kh-gpt__gpt-6-luna__low__default__rails-sup-legacy-conversions__r3-Pstar-r17reg-studio",
+        "r17reg-eu-syn-14-bug-sla-business-hours-Pstar-r1",
+        "r17reg-eu-syn-14-bug-sla-business-hours-Pstar-r2",
+        "r17reg-eu-syn-14-bug-sla-business-hours-Pstar-r3",
+        "r17reg-us-elx-05-cache-single-flight-Pstar-r1",
+        "r17reg-us-elx-05-cache-single-flight-Pstar-r2",
+        "r17reg-us-elx-05-cache-single-flight-Pstar-r3"
+      ],
+      "summary": {
+        "cells": 35,
+        "fail_count": 19,
+        "input_plus_cached_plus_output": {
+          "complete_cells": 35,
+          "incomplete_cells": 0,
+          "total": 5529091
+        },
+        "officially_graded_cells": 35,
+        "outcomes": {
+          "fail": 19,
+          "pass": 16
+        },
+        "pass_count": 16,
+        "pass_rate": 0.45714285714285713,
+        "pass_rate_denominator": 35,
+        "usage_tokens": {
+          "cached_input_tokens": {
+            "known_cells": 35,
+            "missing_cells": 0,
+            "total": 4569088
+          },
+          "input_tokens": {
+            "known_cells": 35,
+            "missing_cells": 0,
+            "total": 904455
+          },
+          "output_tokens": {
+            "known_cells": 35,
+            "missing_cells": 0,
+            "total": 55548
+          },
+          "reasoning_tokens": {
+            "known_cells": 35,
+            "missing_cells": 0,
+            "total": 1725
+          }
+        },
+        "wall_s": {
+          "known_cells": 35,
+          "median": 212.209,
+          "missing_cells": 0
+        }
+      }
+    }
+  },
+  "round": "r17",
+  "schema_version": 1,
+  "scope": "Observed rows from the recovered probe store. This does not infer unobserved planned cells, an ITT denominator, or missing execution records.",
+  "source_data_conflicts": {
+    "cells": 0,
+    "count": 0,
+    "field_counts": {},
+    "items": []
+  }
+}

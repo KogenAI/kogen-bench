@@ -15,6 +15,7 @@ INPUT = RESULTS / "grade-join-input.jsonl"
 OUTPUT = RESULTS / "grade-join.csv"
 CROSSWALK = RESULTS / "source-crosswalk"
 PUBLIC_GRADE_SNAPSHOT = ROOT / "reproduce/inputs/grades.final.jsonl"
+SUPPLEMENTAL_ROUND_DISPOSITIONS = ROOT / "reproduce/inputs/round-dispositions.jsonl"
 EXPECTED_DELIVERIES = 5020
 EXPECTED_PUBLIC = 5020
 EXPECTED_CAPTURE_REPORTED = 0
@@ -123,6 +124,21 @@ def build_join() -> list[dict]:
 def write_crosswalk(rows: list[dict]) -> None:
     by_delivery = {row["delivery_id"]: row for row in rows}
     crosswalk_rows = read_partitions(CROSSWALK)[1]
+    crosswalk_by_id = {
+        item.get("crosswalk_id"): item
+        for item in crosswalk_rows
+        if isinstance(item.get("crosswalk_id"), str)
+    }
+    for item in read_jsonl(SUPPLEMENTAL_ROUND_DISPOSITIONS):
+        crosswalk_id = item.get("crosswalk_id")
+        if not isinstance(crosswalk_id, str) or not crosswalk_id:
+            raise ValueError("supplemental round disposition lacks a crosswalk_id")
+        previous = crosswalk_by_id.get(crosswalk_id)
+        if previous is not None and previous != item:
+            raise ValueError(f"supplemental round disposition differs from published row: {crosswalk_id}")
+        if previous is None:
+            crosswalk_rows.append(item)
+            crosswalk_by_id[crosswalk_id] = item
     records = indexed_records()
     source_by_id = {}
     for row in records:

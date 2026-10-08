@@ -1,5 +1,11 @@
 # L3 actionable self-verification repair
 
+Round date: HISTORICAL (before 2026-10-09)
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Why not VALID: The historical inventory retains DESCRIPTIVE because of REGISTERED_THRESHOLD_NOT_MET. See the round evidence and limitations below.
+Recomputation status: FULLY RECOMPUTABLE
+
+
 ## Required reproduction metadata
 
 - Kogen commit: not applicable; the scored arm is direct Codex. The public task bases are Kogen-ex commits listed below.
