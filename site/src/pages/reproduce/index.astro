@@ -1,0 +1,43 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import { pageByRoute, siteData, githubBlob } from '../../lib/data.js';
+const page = pageByRoute.get('/reproduce/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Reproduction guide" lead="Check published records, inspect the available task bases and graders, and see what is still missing for a full rerun." />
+  <p><a href="/verify/">Verify published numbers</a> · <a href="/rerun/">Rerun and regrade tasks</a></p>
+  <div class="status-callout"><strong>Analysis replay and experiment execution are different</strong>Follow the repository's stated availability for each round. A public record transformation does not promise that an experiment can be rerun or officially graded.</div>
+  <SourceDocument markdown={siteData.documents.reproduce} sourcePath="reproduce/README.md" revision={siteData.meta.revision} label="Reproduction source guide" />
+  <section>
+    <div class="section-heading"><h2>Public reproduction scripts</h2><p>Script links come from tracked paths under reproduce/.</p></div>
+    <div class="card-grid">{siteData.reproduce_scripts.map((path) => <a class="link-card" href={githubBlob(path)} target="_blank" rel="noopener noreferrer"><span>{path.split('/').at(-1)}</span><small>{path}</small></a>)}</div>
+  </section>
+  <section>
+    <div class="section-heading"><h2>Per-round reproduction inventory</h2><p>One entry for every round in rounds/index.json. Full execution replay is unavailable for all entries in this snapshot.</p></div>
+    <div class="record-table-wrap reproduction-table-wrap">
+      <table class="record-table reproduction-table" data-origin="source-register">
+        <thead><tr><th>Round</th><th>Script</th><th>Inputs</th><th>Replay type</th><th>Full execution replay</th></tr></thead>
+        <tbody>
+          {siteData.reproduction_inventory.map((item) => <tr>
+            <td><a href={`/rounds/${item.round_id}/`}>{item.round_id}</a></td>
+            <td>
+              {item.script_path
+                ? <><a href={githubBlob(item.script_path)} target="_blank" rel="noopener noreferrer">{item.script_path}</a><br /><code>{item.script}</code></>
+                : <span>None published</span>}
+              <small>{item.availability_note}</small>
+            </td>
+            <td>{item.inputs.length
+              ? <ul>{item.inputs.map((input) => <li>{input.includes('*')
+                  ? <code>{input}</code>
+                  : <a href={githubBlob(input.split(' (', 1)[0])} target="_blank" rel="noopener noreferrer"><code>{input}</code></a>}</li>)}</ul>
+              : <span>None identified</span>}</td>
+            <td><code>{item.replay_type}</code></td>
+            <td>{item.full_execution_replayable ? 'Available' : 'Unavailable'}</td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</SiteLayout>

@@ -1,0 +1,13 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/findings/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Source summary" lead="Fourteen family sections from FINDINGS.md, linked to the hypothesis, round, and claim records that the repository identifies." />
+  <div class="source-callout"><strong>Source-reported figures stay labelled</strong>Findings are narrative summaries. A number in this source text is not a verified outcome unless a linked claim-ledger row identifies it and carries its own evidence status.</div>
+  <div class="card-grid">
+    {siteData.findings.map((item) => <a class="link-card" href={`/findings/${item.slug}/`}><span>{item.id} · {item.title}</span><small>Open source summary and related records</small></a>)}
+  </div>
+</SiteLayout>

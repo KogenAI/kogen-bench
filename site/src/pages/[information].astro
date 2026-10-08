@@ -1,0 +1,14 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Markdown from '../components/Markdown.astro';
+import { pageByRoute, siteData } from '../lib/data.js';
+export function getStaticPaths() {
+  return ['about', 'contact', 'privacy', 'verify', 'rerun', 'credits'].map(information => ({ params: { information }, props: { information } }));
+}
+const page = pageByRoute.get(`/${Astro.props.information}/`);
+---
+<SiteLayout page={page} description={page.markdown.split('\n').find(line => line && !line.startsWith('#'))}>
+  <article data-origin="source-reported">
+    <Markdown markdown={page.markdown} sourcePath={page.source_path} revision={siteData.meta.revision} demoteHeadings={false} />
+  </article>
+</SiteLayout>

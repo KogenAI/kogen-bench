@@ -1,0 +1,51 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Markdown from '../components/Markdown.astro';
+import research from '../../content/research.md?raw';
+import PublicationBlockers from '../components/PublicationBlockers.astro';
+import { pageByRoute, siteData } from '../lib/data.js';
+const page = pageByRoute.get('/');
+---
+<SiteLayout page={page} description="Experiments behind Kogen: models, plans, context, reliability and the cost of building software.">
+  <section class="hero-panel">
+    <p class="hero-kicker">The research behind Kogen</p>
+    <div class="hero-identity"><h1>Kogen Bench</h1><div class="sprue" aria-hidden="true"><img class="brand-light" src="/brand/kogen-sprue-black.svg" width="110" height="110" alt="" /><img class="brand-dark" src="/brand/kogen-sprue-white.svg" width="110" height="110" alt="" /></div></div>
+    <p class="hero-lead">What helps a coding agent finish software correctly, and at what cost? Explore the experiments shaping Kogen, from model choices and plans to checks, recovery and hill-climbing.</p>
+    <div class="hero-actions">
+      <a class="button-link" href="/findings/">Read findings <span aria-hidden="true">→</span></a>
+      <a class="button-link secondary" href="/rounds/">Find an experiment</a>
+      <a class="product-link" href="https://kogen.dev">Meet Kogen ↗</a>
+    </div>
+  </section>
+
+  <Markdown markdown={research} sourcePath="site/content/research.md" revision={siteData.meta.revision} demoteHeadings={false} />
+
+  <div class="source-callout" role="note">
+    <strong>How to read the record</strong>
+    Each experiment explains what ran, what happened and what the result can support. Small pilots, incomplete records and comparisons made under different conditions keep their limits visible.
+  </div>
+
+  <PublicationBlockers blockers={siteData.meta.publication_blockers} revision={siteData.meta.revision} />
+
+  <div class="section-heading"><h2>Choose a path</h2><p>Start with the findings, then follow a question to its experiment and evidence.</p></div>
+  <div class="card-grid">
+    <a class="link-card" href="/findings/"><span>Findings</span><small>Family summaries with their stated limits and source links.</small></a>
+    <a class="link-card" href="/hypotheses/"><span>Hypotheses</span><small>Stable H IDs, exact propositions, family, and evidence status.</small></a>
+    <a class="link-card" href="/rounds/"><span>Experiments</span><small>Registered rounds with status and reciprocal links.</small></a>
+    <a class="link-card" href="/comparisons/"><span>Comparisons</span><small>Only explicit claim-ledger comparisons; no generated winner.</small></a>
+    <a class="link-card" href="/evidence/"><span>Evidence map</span><small>Specification clauses linked to hypotheses, rounds, and claims.</small></a>
+    <a class="link-card" href="/data/"><span>Data downloads</span><small>Direct source JSONL files, the round index, and snapshot hashes.</small></a>
+    <a class="link-card" href="/publication-validation/"><span>Publication validation</span><small>Resolved and open evidence gates, their scope, and the current validation report.</small></a>
+  </div>
+
+  <section class="agent-panel">
+    <div class="section-heading"><h2>For agents and researchers</h2><p>Static, same-origin files. No account, server query, or JavaScript is required to read the record.</p></div>
+    <div class="agent-links">
+      <a href="/llms.txt"><strong>/llms.txt</strong><br /><span>Compact guide and status rules</span></a>
+      <a href="/index.json"><strong>/index.json</strong><br /><span>Hypotheses, rounds, claims, and their URLs</span></a>
+      <a href="/llms-full.txt"><strong>/llms-full.txt</strong><br /><span>Bounded Markdown guide</span></a>
+      <a href="/snapshot.json"><strong>/snapshot.json</strong><br /><span>Source commit and file hashes</span></a>
+    </div>
+    <p class="small-muted" data-origin="snapshot">Source revision <code>{siteData.meta.revision}</code></p>
+  </section>
+</SiteLayout>

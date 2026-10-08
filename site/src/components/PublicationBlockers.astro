@@ -1,0 +1,10 @@
+---
+const { blockers, validationHref = '/publication-validation/', revision } = Astro.props;
+---
+<section class="status-callout publication-blockers" data-origin="source-register" aria-labelledby="publication-blockers-title">
+  <strong id="publication-blockers-title">Publication evidence status</strong>
+  <ul>
+    {blockers.map((blocker) => <li><b>{blocker.id} · {blocker.status} · {blocker.title}:</b> {blocker.summary}{blocker.evidence_path && <span> <a href={`https://github.com/KogenAI/kogen-bench/blob/${revision}/${blocker.evidence_path}`}>Evidence source</a>.</span>}</li>)}
+  </ul>
+  <a href={validationHref}>Read the publication validation report</a>
+</section>

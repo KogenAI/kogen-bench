@@ -1,0 +1,19 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import RelatedRecords from '../../components/RelatedRecords.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+export function getStaticPaths() {
+  return siteData.findings.map((item) => ({ params: { id: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+const page = pageByRoute.get(`/findings/${item.slug}/`);
+const family = siteData.families.find((entry) => entry.id === item.id);
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker={item.id} lead="The source summary is shown as authored. Follow its evidence links for study-specific status and cohort limits." />
+  <div class="source-callout"><strong>Source-reported narrative</strong>Values in this source section that are not tied to a claim-ledger record remain source-reported and are not promoted to verified results.</div>
+  <SourceDocument markdown={item.markdown} sourcePath="FINDINGS.md" revision={siteData.meta.revision} label="Findings source section" />
+  <RelatedRecords hypothesisIds={family.hypothesis_ids} roundIds={family.round_ids} claimIds={family.claim_ids} familyIds={[family.id]} />
+</SiteLayout>

@@ -1,0 +1,21 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/hypotheses/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Stable identity register" lead="Every H ID is generated from the source hypothesis register. Propositions and evidence statuses are reproduced without inferring results from nearby prose." />
+  <p class="no-script-note">All entries are present in this page without JavaScript. Use your browser's find command, or open a family page for its source summary.</p>
+  {siteData.families.map((family) => <section>
+    <div class="section-heading"><h2><a href={`/families/${family.slug}/`}>{family.id} · {family.title}</a></h2><p><a href={`/findings/${family.slug}/`}>Read family finding</a></p></div>
+    <div class="record-table-wrap" role="region" aria-label="Data table" tabindex="0"><table class="record-table" data-origin="source-register">
+      <thead><tr><th scope="col">ID</th><th scope="col">Falsifiable proposition</th><th scope="col">Evidence status</th></tr></thead>
+      <tbody>{family.hypotheses.map((hyp) => <tr>
+        <td><a href={`/hypotheses/${hyp.slug}/`}>{hyp.id}</a></td>
+        <td>{hyp.proposition}</td>
+        <td>{hyp.status}</td>
+      </tr>)}</tbody>
+    </table></div>
+  </section>)}
+</SiteLayout>

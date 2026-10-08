@@ -1,0 +1,66 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import RelatedRecords from '../../components/RelatedRecords.astro';
+import StatusPill from '../../components/StatusPill.astro';
+import { pageByRoute, siteData, githubBlob } from '../../lib/data.js';
+
+export function getStaticPaths() {
+  return siteData.rounds.map((round) => ({ params: { id: round.slug }, props: { round } }));
+}
+
+const { round } = Astro.props;
+const page = pageByRoute.get(`/rounds/${round.slug}/`);
+const hasStructuredStatus = round.status !== 'STATUS NOT STRUCTURED';
+const reproduction = round.reproduction;
+const runRecords = round.run_record_file;
+const sourceBody = (markdown) => markdown.replace(/^#\s+[^\n]+\n+/, '');
+const inputPath = (input) => input.split(' (', 1)[0];
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker={`Round ${round.id}`} />
+  <div class={hasStructuredStatus ? 'source-callout' : 'status-callout'}>
+    <strong>Status · <StatusPill status={round.status} /></strong>
+    {hasStructuredStatus
+      ? 'Reviewed status is transcribed from rounds/STATUS.md. The original narrative and its qualifications remain below.'
+      : 'No structured status is recorded in the source crosswalk. The source README and any results document remain available below.'}
+  </div>
+
+  <p class="source-callout"><strong>Source-reported narrative</strong>Round README and results text are source material. Numeric values that are not tied to a claim ledger record remain source-reported.</p>
+  <SourceDocument markdown={sourceBody(round.markdown)} sourcePath={round.source_path} revision={siteData.meta.revision} label="Round source README" />
+  {round.results_source_path && <SourceDocument markdown={sourceBody(round.results_markdown)} sourcePath={round.results_source_path} revision={siteData.meta.revision} label="Round results" />}
+
+  <section>
+    <div class="section-heading"><h2>Captured run records</h2><p>Standard-schema records assigned to this round in the indexed snapshot.</p></div>
+    {runRecords
+      ? <div class="source-callout" data-origin="snapshot"><strong>{runRecords.record_count} records · {runRecords.bytes.toLocaleString()} bytes</strong><a href={`/downloads/${runRecords.path}`}>Download {runRecords.file}</a> · <a href={githubBlob(runRecords.path)} target="_blank" rel="noopener noreferrer">View immutable source ↗</a></div>
+      : <p class="status-callout">No per-round file is listed. Check the <a href="/downloads/results/run-records/index.json">run-record index</a> for the complete partition list.</p>}
+  </section>
+
+  <section>
+    <div class="section-heading"><h2>Reproduction inventory</h2><p>Published analysis replay and full experiment replay are reported separately.</p></div>
+    <dl class="claim-fields reproduction-fields" data-origin="source-register">
+      <dt>Replay type</dt><dd><code>{reproduction.replay_type}</code></dd>
+      <dt>Script</dt>
+      <dd>
+        {reproduction.script_path
+          ? <><a href={githubBlob(reproduction.script_path)} target="_blank" rel="noopener noreferrer">{reproduction.script_path}</a><br /><code>{reproduction.script}</code></>
+          : <span>No per-round analysis script is published.</span>}
+      </dd>
+      <dt>Inputs</dt>
+      <dd>
+        {reproduction.inputs.length
+          ? <ul>{reproduction.inputs.map((input) => <li>{inputPath(input).includes('*')
+              ? <code>{input}</code>
+              : <a href={githubBlob(inputPath(input))} target="_blank" rel="noopener noreferrer"><code>{input}</code></a>}</li>)}</ul>
+          : <span>No identified public input bundle.</span>}
+      </dd>
+      <dt>Full execution replay</dt><dd>{reproduction.full_execution_replayable ? 'Available' : 'Unavailable'}</dd>
+      <dt>Scope</dt><dd>{reproduction.availability_note}</dd>
+    </dl>
+    <p><a href="/reproduce/">View the complete per-round reproduction inventory</a> · <a href={githubBlob('reproduce/README.md')} target="_blank" rel="noopener noreferrer">Repository reproduction guide</a></p>
+  </section>
+
+  <RelatedRecords hypothesisIds={round.hypothesis_ids} roundIds={[round.id]} claimIds={round.claim_ids} familyIds={round.family_ids} />
+</SiteLayout>

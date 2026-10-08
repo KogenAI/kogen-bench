@@ -1,0 +1,11 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import PageHeading from '../components/PageHeading.astro';
+import SourceDocument from '../components/SourceDocument.astro';
+import { pageByRoute, siteData } from '../lib/data.js';
+const page = pageByRoute.get('/glossary/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Source glossary" lead="Terms for arms, models, statuses, and analysis are reproduced from the repository's public glossary." />
+  <SourceDocument markdown={siteData.documents.glossary} sourcePath="rounds/GLOSSARY.md" revision={siteData.meta.revision} label="Glossary source document" />
+</SiteLayout>

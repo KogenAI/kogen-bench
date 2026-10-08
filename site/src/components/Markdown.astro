@@ -1,0 +1,8 @@
+---
+import { renderMarkdown } from '../lib/markdown.js';
+const { markdown = '', sourcePath = '', revision = '', demoteHeadings = true } = Astro.props;
+const needsDemotion = demoteHeadings && /^#\s/m.test(markdown);
+const content = needsDemotion ? markdown.replace(/^(#{1,5})\s/gm, (_match, hashes) => `${'#'.repeat(Math.min(6, hashes.length + 1))} `) : markdown;
+const html = renderMarkdown(content, sourcePath, revision);
+---
+<div class="prose" set:html={html} />

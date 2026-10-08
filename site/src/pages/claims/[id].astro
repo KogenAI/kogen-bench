@@ -1,0 +1,20 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import ClaimRecord from '../../components/ClaimRecord.astro';
+import RelatedRecords from '../../components/RelatedRecords.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+export function getStaticPaths() {
+  return siteData.claims.map((claim) => ({ params: { id: claim.claim_id.toLowerCase() }, props: { claim } }));
+}
+const { claim } = Astro.props;
+const page = pageByRoute.get(`/claims/${claim.claim_id.toLowerCase()}/`);
+const relatedHypotheses = (claim.hypothesis_ids || []).filter((id) => siteData.hypotheses.some((hyp) => hyp.id === id));
+const relatedRounds = claim.round_id && siteData.rounds.some((round) => round.id === claim.round_id) ? [claim.round_id] : [];
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Claim-ledger record" lead={`${claim.metric || 'Metric not recorded'} · ${claim.unit || 'unit not recorded'}`} />
+  <div class="source-callout"><strong>Transcribed from results/claim-ledger.jsonl</strong>All numeric fields on this page come from this exact ledger entry. The site does not recompute them; interpret them with the displayed claim and evidence statuses.</div>
+  <ClaimRecord claim={claim} />
+  <RelatedRecords hypothesisIds={relatedHypotheses} roundIds={relatedRounds} claimIds={[claim.claim_id]} />
+</SiteLayout>

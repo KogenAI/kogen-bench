@@ -1,0 +1,19 @@
+---
+import StatusPill from './StatusPill.astro';
+const { claim, compact = false } = Astro.props;
+const fields = [
+  ['Metric', claim.metric], ['Numerator', claim.numerator], ['Denominator', claim.denominator],
+  ['Unit', claim.unit], ['Comparison', claim.comparison], ['Analysis rule', claim.analysis_rule],
+  ['Publication status', claim.publication_status], ['Evidence status', claim.evidence_status],
+  ['Interpretation', claim.interpretation], ['Reported values', claim.reported_values],
+];
+const shown = fields.filter(([, value]) => value !== null && value !== undefined && value !== '');
+---
+<article class="claim-ledger" data-origin="claim-ledger" data-claim-id={claim.claim_id}>
+  <h2><a href={`/claims/${claim.claim_id.toLowerCase()}/`}>{claim.claim_id}</a></h2>
+  <p><StatusPill status={claim.claim_status || 'Not recorded'} /> <span class="evidence-label">{claim.evidence_status || 'Evidence status not recorded'}</span></p>
+  {compact ? <p class="claim-summary">{claim.metric || 'Metric not recorded'}{claim.unit ? ` · ${claim.unit}` : ''}</p> : <dl class="claim-fields">
+    {shown.map(([label, value]) => <><dt>{label}</dt><dd><code>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</code></dd></>)}
+  </dl>}
+  {claim.round_id && <p class="claim-summary">Round: <a href={`/rounds/${String(claim.round_id).toLowerCase()}/`}>{claim.round_id}</a></p>}
+</article>

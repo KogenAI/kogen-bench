@@ -1,0 +1,21 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import PageHeading from '../components/PageHeading.astro';
+import PublicationBlockers from '../components/PublicationBlockers.astro';
+import SourceDocument from '../components/SourceDocument.astro';
+import { pageByRoute, siteData } from '../lib/data.js';
+
+const page = pageByRoute.get('/publication-validation/');
+const report = siteData.documents.publication_validation.replace(/^#\s+Publication validation\s*\n+/, '');
+---
+<SiteLayout page={page}>
+  <PageHeading
+    page={page}
+    kicker="Publication readiness"
+    lead={siteData.meta.publication_status === 'ready'
+      ? 'B1 and B2 are resolved. The two recent scored rounds carry their descriptive release label and documented Standard gaps.'
+      : 'Publication remains blocked while a registered evidence gate is open.'}
+  />
+  <PublicationBlockers blockers={siteData.meta.publication_blockers} revision={siteData.meta.revision} />
+  <SourceDocument markdown={report} sourcePath="results/publication-validation.md" revision={siteData.meta.revision} label="Repository publication validation report" />
+</SiteLayout>

@@ -1,0 +1,18 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import PublicationBlockers from '../../components/PublicationBlockers.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/evidence/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Specification → evidence" lead="Clause pages follow the headings in EVIDENCE-MAP.md. Where the source map reports no empirical evidence, conformance and efficacy remain separate." />
+  <PublicationBlockers blockers={siteData.meta.publication_blockers} />
+  <div class="source-callout"><strong>Map the clause, then inspect the record</strong>Each clause links to explicit hypothesis IDs, round receipts, and claim-ledger rows found in the authored map. No missing claim is inferred.</div>
+  <SourceDocument markdown={siteData.evidence_map_intro} sourcePath="EVIDENCE-MAP.md" revision={siteData.meta.revision} label="Evidence map caveats" />
+  <SourceDocument markdown={`## Decision-ID coverage\n\n${siteData.evidence_decision_coverage}`} sourcePath="EVIDENCE-MAP.md" revision={siteData.meta.revision} label="Decision coverage caveat" />
+  <div class="card-grid" data-origin="source-reported">
+    {siteData.evidence.map((clause) => <a class="link-card" href={`/evidence/${clause.id}/`}><span>{clause.title}</span><small>{clause.hypothesis_ids.length ? `${clause.hypothesis_ids.join(', ')} · ` : ''}{clause.round_ids.length ? 'Round links recorded' : 'No linked round ID in source map'}</small></a>)}
+  </div>
+</SiteLayout>

@@ -1,0 +1,33 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import PublicationBlockers from '../../components/PublicationBlockers.astro';
+import { pageByRoute, siteData, githubBlob } from '../../lib/data.js';
+const page = pageByRoute.get('/data/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Source data" lead="Direct downloadable copies of the public JSONL ledgers and per-round evidence, with checksummed indexes and a missing-value legend." />
+  <PublicationBlockers blockers={siteData.meta.publication_blockers} />
+  <div class="source-callout"><strong>These files retain their source semantics</strong>Outcome-only exports, captured run records, controls, and claim rows are distinct. The site does not merge records by guessed task, arm, or repetition keys.</div>
+  <section>
+    <div class="section-heading"><h2>Repository JSONL files</h2><p>Copies are built from the indexed public exports in this repository.</p></div>
+    <div class="card-grid">
+      {siteData.downloads.map((file) => <div class="record-card" data-origin="snapshot"><strong><a href={file.url}>{file.path}</a></strong><small>{file.description}</small><small><a href={file.source_url} target="_blank" rel="noopener noreferrer">View immutable source on GitHub ↗</a></small></div>)}
+    </div>
+  </section>
+  <section>
+    <div class="section-heading"><h2>Snapshot and discovery</h2><p>Static files for browser and agent access.</p></div>
+    <div class="agent-links">
+      <a href="/downloads/rounds/index.json"><strong>rounds/index.json</strong><br /><span>Registered round IDs</span></a>
+      <a href="/downloads/results/run-records/index.json"><strong>run-records/index.json</strong><br /><span>Per-round files, record counts, sizes, hashes, and schema versions</span></a>
+      <a href="/downloads/results/source-crosswalk/index.json"><strong>source-crosswalk/index.json</strong><br /><span>Per-round crosswalk partitions and file hashes</span></a>
+      <a href="/downloads/reproduce/inputs/run-evidence/index.json"><strong>run-evidence/index.json</strong><br /><span>Per-round graded capture evidence</span></a>
+      <a href="/downloads/reproduce/inputs/context-evidence/index.json"><strong>context-evidence/index.json</strong><br /><span>Per-round context receipts</span></a>
+      <a href="/downloads/reproduce/inputs/ungraded-evidence/index.json"><strong>ungraded-evidence/index.json</strong><br /><span>Per-round ungraded delivery evidence</span></a>
+      <a href="/downloads/results/missing-reasons.json"><strong>missing-reasons.json</strong><br /><span>Full reasons and reconstruction sources for compact missing codes</span></a>
+      <a href="/index.json"><strong>/index.json</strong><br /><span>All hypotheses, rounds, claims, and relationships</span></a>
+      <a href="/snapshot.json" data-origin="snapshot"><strong>/snapshot.json</strong><br /><span>Source revision, byte lengths, and SHA hashes</span></a>
+      <a href={githubBlob('results/README.md')} target="_blank" rel="noopener noreferrer"><strong>results/README.md</strong><br /><span>Interpretation notes for public result exports</span></a>
+    </div>
+  </section>
+</SiteLayout>

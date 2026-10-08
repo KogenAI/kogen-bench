@@ -1,0 +1,8 @@
+---
+import Markdown from './Markdown.astro';
+const { markdown, sourcePath, revision, label = 'Source-reported narrative' } = Astro.props;
+---
+<section class="source-reported" data-origin="source-reported" aria-label={`${label} from ${sourcePath}`}>
+  <p class="source-reported-label">{label} · {sourcePath}</p>
+  <Markdown markdown={markdown} sourcePath={sourcePath} revision={revision} />
+</section>

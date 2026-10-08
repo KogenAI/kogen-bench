@@ -1,0 +1,18 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import RelatedRecords from '../../components/RelatedRecords.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+export function getStaticPaths() {
+  return siteData.evidence.map((clause) => ({ params: { id: clause.id }, props: { clause } }));
+}
+const { clause } = Astro.props;
+const page = pageByRoute.get(`/evidence/${clause.id}/`);
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Evidence map clause" lead="This clause and its evidence summary follow the authored EVIDENCE-MAP.md section." />
+  <div class="source-callout"><strong>Source-reported map entry</strong>Read the linked round, hypothesis, and claim records for the current status and limits. A normative or conformance statement is not an efficacy result.</div>
+  <SourceDocument markdown={clause.markdown} sourcePath="EVIDENCE-MAP.md" revision={siteData.meta.revision} label="Evidence map clause" />
+  <RelatedRecords hypothesisIds={clause.hypothesis_ids} roundIds={clause.round_ids} claimIds={clause.claim_ids} />
+</SiteLayout>

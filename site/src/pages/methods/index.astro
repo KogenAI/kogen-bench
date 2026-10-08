@@ -1,0 +1,19 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import SourceDocument from '../../components/SourceDocument.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/methods/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Study design and interpretation" lead="METHOD.md and STANDARD.md are the source of truth for cohort definitions, missing values, timing, costs, and run-record fields." />
+  <div class="source-callout"><strong>Read before comparing</strong>Official outcome exports and captured deliveries are separate. Missing is not zero; cost estimates are not invoices; and historical source-reported summaries are not automatically reproducible.</div>
+  <section>
+    <div class="section-heading"><h2>Method and interpretation</h2><p><a href={`https://github.com/KogenAI/kogen-bench/blob/${siteData.meta.revision}/METHOD.md`}>Open METHOD.md ↗</a></p></div>
+    <SourceDocument markdown={siteData.documents.method} sourcePath="METHOD.md" revision={siteData.meta.revision} label="Source-reported method document" />
+  </section>
+  <section>
+    <div class="section-heading"><h2>Standard run record</h2><p><a href={`https://github.com/KogenAI/kogen-bench/blob/${siteData.meta.revision}/STANDARD.md`}>Open STANDARD.md ↗</a></p></div>
+    <SourceDocument markdown={siteData.documents.standard} sourcePath="STANDARD.md" revision={siteData.meta.revision} label="Source-reported record standard" />
+  </section>
+</SiteLayout>

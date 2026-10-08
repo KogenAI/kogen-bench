@@ -66,6 +66,10 @@ python3 reproduce/build_grade_join.py
 
 `export_results.py` rebuilds `cells.csv`, `cells.jsonl`, `unmapped.json`, and `export-report.json`. `build_records.py` rebuilds the indexed per-round Standard records from committed indexed evidence. The historical audit command also rewrites round audit documents and the [validation summary](results/validation-summary.md); see [reproduction notes](reproduce/README.md) before using it.
 
+## Website
+
+The research website is built from [site/](site/README.md) for https://bench.kogen.dev. See its README for build inputs, private preview mode, and deployment settings. The source records above remain the evidence authority.
+
 ## Checks
 
 ```sh

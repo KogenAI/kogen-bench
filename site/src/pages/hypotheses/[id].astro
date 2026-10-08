@@ -1,0 +1,33 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import RelatedRecords from '../../components/RelatedRecords.astro';
+import StatusPill from '../../components/StatusPill.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+export function getStaticPaths() {
+  return siteData.hypotheses.map((hypothesis) => ({ params: { id: hypothesis.slug }, props: { hypothesis } }));
+}
+const { hypothesis } = Astro.props;
+const page = pageByRoute.get(`/hypotheses/${hypothesis.slug}/`);
+const family = siteData.families.find((item) => item.id === hypothesis.family_id);
+const claims = siteData.claims.filter((item) => (item.hypothesis_ids || []).includes(hypothesis.id));
+const rounds = siteData.rounds.filter((item) => item.hypothesis_ids.includes(hypothesis.id));
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker={`${hypothesis.id} · ${hypothesis.family_id}`} lead={hypothesis.proposition} />
+  <div class="status-callout"><strong>Evidence status · <StatusPill status={hypothesis.status} /></strong><p class="status-detail">{hypothesis.status}</p>This is the status recorded in the hypothesis register. It does not establish that the proposition is true or false.</div>
+  <section>
+    <div class="section-heading"><h2>Falsifiable proposition</h2><p>Exact wording from the hypothesis register.</p></div>
+    <blockquote>{hypothesis.proposition}</blockquote>
+  </section>
+  <section>
+    <div class="section-heading"><h2>Family context</h2><p><a href={`/findings/${family.slug}/`}>Read the family finding</a></p></div>
+    <p><a href={`/families/${family.slug}/`}>{family.id} · {family.title}</a></p>
+    <p>The source register does not provide a separate falsification rule or next-test field for this entry.</p>
+  </section>
+  <section>
+    <div class="section-heading"><h2>Claim ledger links</h2><p>Each linked claim retains its original status and evidence label.</p></div>
+    {claims.length ? claims.map((claim) => <article class="record-card"><strong><a href={`/claims/${claim.claim_id.toLowerCase()}/`}>{claim.claim_id}</a></strong><small data-origin="claim-ledger"><StatusPill status={claim.claim_status || 'Not recorded'} /> · {claim.evidence_status || 'Evidence status not recorded'}</small></article>) : <p class="empty-state">No claim-ledger row links this hypothesis.</p>}
+  </section>
+  <RelatedRecords hypothesisIds={[hypothesis.id]} roundIds={rounds.map((item) => item.id)} claimIds={claims.map((item) => item.claim_id)} familyIds={[family.id]} />
+</SiteLayout>

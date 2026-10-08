@@ -1,0 +1,159 @@
+---
+import '../styles/global.css';
+import { siteData, githubBlob } from '../lib/data.js';
+
+const { page, description = 'Experiments behind Kogen: coding-agent reliability, models, plans, context, and cost. Research by Optimum Tech.', markdownAlternate = true } = Astro.props;
+const title = page?.title ? `${page.title} · Kogen Bench` : 'Kogen Bench';
+const route = page?.route || Astro.url.pathname;
+const markdownHref = route === '/' ? '/index.md' : `${route.replace(/\/$/, '')}.md`;
+const mainLinks = [['Findings', '/findings/'], ['Experiments', '/rounds/'], ['Methods', '/methods/'], ['About', '/about/']];
+const sectionLinks = [
+  ['Start here', '/'], ['Findings', '/findings/'], ['Hypotheses', '/hypotheses/'],
+  ['Families', '/families/'], ['Experiments', '/rounds/'], ['Comparisons', '/comparisons/'],
+  ['Evidence map', '/evidence/'], ['Publication status', '/publication-validation/'], ['Method', '/methods/'], ['Reproduce', '/reproduce/'],
+  ['Glossary', '/glossary/'], ['Data downloads', '/data/'],
+];
+const currentSection = route.split('/').filter(Boolean)[0] || '';
+const sources = (page?.sources || []).map((path) => ({ path, url: githubBlob(path) }));
+const canonical = new URL(route, 'https://bench.kogen.dev').href;
+const privatePreview = import.meta.env.KOGEN_BENCH_PRIVATE_PREVIEW === 'true';
+const plausibleScript = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT || '';
+const validPlausibleScript = /^https:\/\/plausible\.io\/js\/pa-[A-Za-z0-9_-]+\.js$/.test(plausibleScript);
+if (import.meta.env.KOGEN_BENCH_RELEASE === 'true' && !validPlausibleScript) {
+  throw new Error('Production release requires the provisioned bench.kogen.dev Plausible script in PUBLIC_PLAUSIBLE_SCRIPT.');
+}
+const robots = privatePreview || !markdownAlternate ? 'noindex, nofollow' : 'index, follow';
+const socialImage = 'https://bench.kogen.dev/og.png';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage', name: title, description, url: canonical,
+  isPartOf: {'@type': 'WebSite', name: 'Kogen Bench', url: 'https://bench.kogen.dev/'},
+  about: {'@type': 'SoftwareApplication', name: 'Kogen', url: 'https://kogen.dev', applicationCategory: 'DeveloperApplication'},
+  author: {'@type': 'Person', name: 'Almir Sarajčić', url: 'https://almirsarajcic.com/'},
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="is-agentic-site-type" content="content" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kogen Bench" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="Kogen — Shape the feature. Leave the build to Kogen." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content="Kogen — Shape the feature. Leave the build to Kogen." />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema).replace(/</g, '\\u003c')} />
+    <meta name="kogen-data-revision" content={siteData.meta.revision} />
+    <link rel="canonical" href={canonical} />
+    {markdownAlternate && <link rel="alternate" type="text/markdown" href={markdownHref} title="Markdown version" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {!privatePreview && validPlausibleScript && <script is:inline define:vars={{ plausibleScript }}>
+      if (location.hostname === 'bench.kogen.dev') {
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };
+        window.plausible.init = window.plausible.init || function (options) { window.plausible.o = options || {}; };
+        window.plausible.init();
+        const analytics = document.createElement('script');
+        analytics.async = true;
+        analytics.src = plausibleScript;
+        document.head.appendChild(analytics);
+      }
+    </script>}
+    <title>{title}</title>
+  </head>
+  <body data-number-policy="claim-ledger-or-source-reported">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Kogen Bench home"><img class="brand-light" src="/brand/kogen-wordmark-black.svg" width="104" height="40" alt="Kogen" /><img class="brand-dark" src="/brand/kogen-wordmark-white.svg" width="104" height="40" alt="Kogen" /><span class="bench-label">Bench</span></a>
+      <nav class="top-nav" aria-label="Main navigation">
+        {mainLinks.map(([label, href]) => <a href={href} aria-current={route === href ? 'page' : undefined}>{label}</a>)}
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false" data-theme-toggle>◐ <span>Theme</span></button>
+    </header>
+
+    <div class="page-frame">
+      <aside class="section-rail" aria-label="Section navigation">
+        <p class="rail-label">Browse</p>
+        <nav>
+          {sectionLinks.map(([label, href]) => {
+            const part = href.split('/').filter(Boolean)[0] || '';
+            const active = href === '/' ? route === '/' : currentSection === part;
+            return <a href={href} aria-current={active ? 'page' : undefined}>{label}</a>;
+          })}
+        </nav>
+      </aside>
+
+      <main id="main" class="main-content">
+        {page?.route !== '/' && <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Start here</a><span aria-hidden="true">/</span><span data-origin="source-reported">{page?.title || 'Page'}</span></nav>}
+        <slot />
+      </main>
+
+      <aside class="page-aside" aria-label="Page information">
+        <p class="rail-label">On this page</p>
+        {page?.status && <div class="aside-status"><span class="status-dot" aria-hidden="true"></span><span>{page.status}</span></div>}
+        <p class="aside-meta">Snapshot date</p>
+        <time data-origin="snapshot" datetime={siteData.meta.built_at}>{siteData.meta.built_at.slice(0, 10)} UTC</time>
+        <p class="aside-meta">Data revision</p>
+        <a class="revision-link" href={`${siteData.meta.site}/snapshot.json`}><code data-origin="snapshot">{siteData.meta.revision.slice(0, 10)}</code></a>
+        <p class="aside-meta">Source files</p>
+        <ul class="source-list">
+          {sources.map((source) => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.path}</a></li>)}
+        </ul>
+        {markdownAlternate && <a class="markdown-link" href={markdownHref}>Read this page as Markdown ↗</a>}
+      </aside>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-left">
+        <a href="https://kogen.dev">Shape the feature. Leave the build to Kogen.</a>
+        <span>Made by <a href="https://almirsarajcic.com/">Almir Sarajčić</a> at <a href="https://optimum.ba">Optimum Tech, LLC</a></span>
+        <span>Research record from <a href="https://github.com/KogenAI/kogen-bench">KogenAI/kogen-bench</a></span>
+        <nav aria-label="Site information"><a href="/about/">About</a> · <a href="/credits/">Credits</a> · <a href="/contact/">Contact</a> · <a href="/privacy/">Privacy</a></nav>
+      </div>
+      <div class="footer-right">
+        <span>Data commit <a href={`https://github.com/KogenAI/kogen-bench/tree/${siteData.meta.revision}`}><code data-origin="snapshot">{siteData.meta.revision.slice(0, 10)}</code></a></span>
+        <span><a href="https://github.com/KogenAI/kogen-bench/blob/main/LICENSE" data-origin="source-reported">Software: Apache 2.0</a> · Kogen brand assets excluded</span>
+        <a href="mailto:contact@kogen.dev">contact@kogen.dev</a>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const button = document.querySelector('[data-theme-toggle]');
+        let saved = null;
+        try { saved = localStorage.getItem('kogen-bench-theme'); } catch (_) {}
+        const initialTheme = saved === 'light' || saved === 'dark'
+          ? saved
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        root.dataset.theme = initialTheme;
+        const update = () => {
+          const isDark = root.dataset.theme === 'dark';
+          button?.setAttribute('aria-pressed', String(isDark));
+          button?.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+        };
+        update();
+        button?.addEventListener('click', () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try { localStorage.setItem('kogen-bench-theme', next); } catch (_) {}
+          update();
+        });
+      })();
+    </script>
+  </body>
+</html>

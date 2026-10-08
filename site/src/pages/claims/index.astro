@@ -1,0 +1,22 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import StatusPill from '../../components/StatusPill.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/claims/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Claim ledger" lead="Claim rows are transcribed from results/claim-ledger.jsonl. Status, population, unit, and evidence label stay attached; this site does not recalculate or pool them." />
+  <div class="source-callout"><strong>Numbers retain their evidence status</strong>Source-reported, interim, withdrawn, and unreconciled values do not become verified outcomes by appearing in this index.</div>
+  <div class="record-table-wrap" role="region" aria-label="Data table" tabindex="0"><table class="record-table" data-origin="claim-ledger">
+    <thead><tr><th scope="col">Claim ID</th><th scope="col">Status</th><th scope="col">Evidence status</th><th scope="col">Round</th><th scope="col">Hypotheses</th><th scope="col">Metric</th></tr></thead>
+    <tbody>{siteData.claims.map((claim) => <tr>
+      <td><a href={`/claims/${claim.claim_id.toLowerCase()}/`}>{claim.claim_id}</a></td>
+      <td><StatusPill status={claim.claim_status || 'Not recorded'} /></td>
+      <td>{claim.evidence_status || 'Not recorded'}</td>
+      <td>{claim.round_id && siteData.rounds.some((round) => round.id === claim.round_id) ? <a href={`/rounds/${String(claim.round_id).toLowerCase()}/`}>{claim.round_id}</a> : 'Not linked'}</td>
+      <td>{(claim.hypothesis_ids || []).filter((id) => siteData.hypotheses.some((hyp) => hyp.id === id)).map((id) => <a href={`/hypotheses/${id.toLowerCase()}/`}>{id} </a>)}</td>
+      <td>{claim.metric || 'Not recorded'}{claim.unit ? ` · ${claim.unit}` : ''}</td>
+    </tr>)}</tbody>
+  </table></div>
+</SiteLayout>

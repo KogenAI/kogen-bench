@@ -1,0 +1,18 @@
+---
+import { siteData } from '../lib/data.js';
+const { hypothesisIds = [], roundIds = [], claimIds = [], familyIds = [] } = Astro.props;
+const hypotheses = hypothesisIds.map((id) => siteData.hypotheses.find((item) => item.id === id)).filter(Boolean);
+const rounds = roundIds.map((id) => siteData.rounds.find((item) => item.id === id)).filter(Boolean);
+const claims = claimIds.map((id) => siteData.claims.find((item) => item.claim_id === id)).filter(Boolean);
+const families = familyIds.map((id) => siteData.families.find((item) => item.id === id)).filter(Boolean);
+const hasItems = hypotheses.length || rounds.length || claims.length || families.length;
+---
+{hasItems ? <section class="related-records">
+  <div class="section-heading"><h2>Related records</h2><p>Links follow the hypothesis register, round crosswalk, and claim ledger.</p></div>
+  <div class="card-grid">
+    {families.map((item) => <a class="link-card" href={`/families/${item.slug}/`}><span>{item.id} · {item.title}</span><small>Hypothesis family</small></a>)}
+    {hypotheses.map((item) => <a class="link-card" href={`/hypotheses/${item.slug}/`}><span>{item.id}</span><small>{item.proposition}</small></a>)}
+    {rounds.map((item) => <a class="link-card" href={`/rounds/${item.slug}/`}><span>{item.id}</span><small><span class="status-pill" data-status={item.status}>{item.status}</span></small></a>)}
+    {claims.map((item) => <a class="link-card" href={`/claims/${item.claim_id.toLowerCase()}/`}><span>{item.claim_id}</span><small data-origin="claim-ledger">{item.claim_status || 'Not recorded'} · {item.evidence_status || 'Evidence status not recorded'}</small></a>)}
+  </div>
+</section> : <p class="empty-state">No related hypothesis, round, or claim IDs are recorded in the structured sources.</p>}

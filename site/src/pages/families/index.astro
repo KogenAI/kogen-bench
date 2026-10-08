@@ -1,0 +1,12 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHeading from '../../components/PageHeading.astro';
+import { pageByRoute, siteData } from '../../lib/data.js';
+const page = pageByRoute.get('/families/');
+---
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Hypothesis families" lead="Each family page follows its source register. The family ID and member hypothesis links are stable; status and evidence remain tied to source records." />
+  <div class="card-grid">
+    {siteData.families.map((family) => <div class="link-card"><a href={`/families/${family.slug}/`}><span>{family.id} · {family.title}</span></a><small><a href={`/findings/${family.slug}/`}>Read finding</a> · source page and related rounds</small></div>)}
+  </div>
+</SiteLayout>

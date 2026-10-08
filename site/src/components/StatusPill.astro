@@ -1,0 +1,7 @@
+---
+const { status = 'Not recorded' } = Astro.props;
+const fullStatus = String(status);
+const statusLabel = fullStatus.split(/[;,.:—–]/, 1)[0].trim() || fullStatus;
+const displayStatus = statusLabel.length > 30 ? 'Status recorded' : statusLabel;
+---
+<span class="status-pill" data-status={fullStatus.toUpperCase()} title={fullStatus} aria-label={`Status: ${fullStatus}`}>{displayStatus}</span>

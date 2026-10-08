@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Offline schema, coverage, link and privacy checks for the local repository."""
-import csv, json, math, re, statistics, subprocess
+import csv, json, math, os, re, statistics, subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -21,6 +21,20 @@ from run_records import indexed_records, is_run_record_file
 from missing_reasons import compact_encoding_issues, load_legend
 from partitioned_jsonl import read_partitions
 ROOT=Path(__file__).resolve().parents[1]
+def repository_files():
+    """Scan authored files, pruning only Git metadata and website build output."""
+    site_runtime = {'node_modules', 'dist', '.astro', '.generated'}
+    for directory, directories, files in os.walk(ROOT, followlinks=False):
+        base = Path(directory)
+        directories[:] = [name for name in directories if name not in {'.git', '__pycache__'}
+                          and not (base == ROOT / 'site' and name in site_runtime)]
+        for name in directories:
+            if (base / name).is_symlink():
+                yield base / name
+        for name in files:
+            yield base / name
+
+
 MISSING_REASON_CODES=load_legend(ROOT/'results/missing-reasons.json')
 MAX_REPOSITORY_FILE_BYTES=10_000_000
 # Recovered Rails snapshots are single-file Git bundles; keep their explicit cap below 50 MB.
@@ -122,6 +136,15 @@ def publication_scan_findings(text, relative_path):
         if label=='private-source artifact reference' and relative_path=='RAILS-AI-EVALS-COMPARISON.md':
             allowed_spans.extend(match.span() for match in TASK_COMPARISON_PATCH_PATH.finditer(text))
         for match in pattern.finditer(text):
+            # Public website contact and local-only build probe, not personal
+            # addresses or deployed infrastructure. Other values still fail.
+            if label == 'email address' and relative_path in {
+                'site/content/about.md', 'site/content/contact.md',
+                'site/content/privacy.md', 'site/src/layouts/SiteLayout.astro',
+            } and match.group(0).lower() == 'contact' + '@kogen.dev':
+                continue
+            if label == 'IPv4 address' and relative_path == 'site/scripts/check.py' and match.group(0) == '127.0' + '.0.1':
+                continue
             # The publication security note explicitly documents the author's
             # intentionally retained public Git identity. Allow it only there.
             if (
@@ -223,7 +246,8 @@ def private_or_sealed_path(path):
 
 
 def public_markdown_files():
-    for path in ROOT.rglob('*.md'):
+    for path in repository_files():
+        if path.suffix.lower() != '.md':continue
         if unregistered_round_path(path):continue
         if '.git' in path.parts or path.is_symlink() or private_or_sealed_path(path):
             continue
@@ -281,6 +305,9 @@ def validate_markdown_links():
                 continue
             dest=unquote(parsed.path)
             fragment=unquote(parsed.fragment)
+            if page.relative_to(ROOT).as_posix().startswith('site/content/') and dest.startswith('/'):
+                # These are deployed web routes, checked after Astro builds.
+                continue
             target_page=(page.parent/dest) if dest else page
             if not target_page.exists():
                 check(False,f'Missing link {page.relative_to(ROOT)} -> {dest or target}')
@@ -1148,7 +1175,7 @@ def validate_publication_privacy():
         (r'(?i)\b(?:corpus/|transcript\.jsonl|grade\.sh|test_hidden\.py|solution\.patch|reference\.patch)\b','private-source artifact reference'),
         (r'(?i)\b(?:api[_ -]?key|secret|password|authorization)\s*[:=]\s*\S+','credential-like value'),
     ]
-    for path in ROOT.rglob('*'):
+    for path in repository_files():
         if unregistered_round_path(path):continue
         if '.git' in path.parts or path.is_dir() or path.is_symlink():continue
         if private_or_sealed_path(path):
@@ -1267,7 +1294,7 @@ for error in audit_r70_completeness(ROOT):check(False,error)
 validate_markdown_links()
 links=sum(len(re.findall(r'\]\(([^)]+)\)',page.read_text())) for page in public_markdown_files())
 files=0
-for f in ROOT.rglob('*'):
+for f in repository_files():
     if unregistered_round_path(f):continue
     if '.git' in f.parts or '__pycache__' in f.parts:continue
     if f.is_symlink():
