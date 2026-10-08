@@ -28,7 +28,7 @@ The per-round [reproduction inventory](round-inventory.json) lists one row per r
 
 This is an official-grade snapshot, not every planned delivery. It cannot establish a full intention-to-treat denominator on its own: historical round records account for ungraded timeouts, cancellations, and corrections. External ledgers require matching approved numeric metadata. Cost estimates in the committed records are source-reported API equivalents; the calculator and analysis inputs are absent, so the calculations are not re-derivable from the public record.
 
-Task hidden suites and graders are shipped under `tasks/<id>/hidden/` and `tasks/<id>/grader/`; they are for post-run grading and must not be visible to the agent. Reruns require Linux, Bubblewrap (`bwrap`), the task's documented dependencies, and your own Codex login. The one-command, fresh-VM-verified rerun kit is in progress; see [RERUN.md](RERUN.md). Before any scored release, follow the [release checklist](../levers/RELEASE-CHECKLIST.md), including officially graded real-sandbox smoke cells for every arm.
+Task hidden suites and graders are shipped under `tasks/<id>/hidden/` and `tasks/<id>/grader/`; they are for post-run grading and must not be visible to the agent. Reruns require Linux, Bubblewrap (`bwrap`), the task's documented dependencies, and your own Codex login. The host kit now includes `setup-host.sh`, `doctor.sh`, and `run-controls.sh`; fresh-machine verification is pending the first host rebuild. See [RERUN.md](RERUN.md). Before any scored release, follow the [release checklist](../levers/RELEASE-CHECKLIST.md), including officially graded real-sandbox smoke cells for every arm.
 
 ## Standard records and historical gaps
 

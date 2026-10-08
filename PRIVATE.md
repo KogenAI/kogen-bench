@@ -9,4 +9,6 @@ The following remain private because they can grant access, identify people or i
 - Raw transcripts, stderr and egress logs, diagnostic grade tails, and failing-test lists.
 - Production systems, private code trees, and running-cell workspaces.
 
+The new Ubuntu host kit documents its fixed `/srv/bh/bench` installation root and the generic `/home/bench` service account. Those paths identify the public setup layout only; credentials, host identities, and run data remain private.
+
 Public task prompts and bases, shipped hidden suites and graders, sanitized outcome metadata, and documented aggregate results are retained. A source-reported hash for an absent source record cannot be independently verified from this repository.

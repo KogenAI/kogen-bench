@@ -110,6 +110,11 @@ TASK_COMPARISON_PATCH_PATH=re.compile(r'(?i)tasks/(?:rails-[^`|]+/hidden/sealed|
 # emails, UUIDs, version-like dotted numbers and bench toolchain paths are expected there.
 # Only credential and personal-path rules apply to them.
 TASK_SOURCE_RULES={'Bearer token','JWT','local user path','home path','API key'}
+HOST_SETUP_PATH_FILES={
+    'PRIVATE.md', 'reproduce/RERUN.md', 'reproduce/setup-host.sh', 'reproduce/doctor.sh',
+    'reproduce/disk-floor.sh', 'reproduce/run-lane.sh', 'reproduce/run-controls.sh',
+    'reproduce/control-worker.py', 'reproduce/sandbox-profile.sh',
+}
 SYNTHETIC_GIT_IDENTITIES={
     'bench@localhost',
     'bench@example.invalid',
@@ -121,7 +126,16 @@ SYNTHETIC_GIT_IDENTITIES={
 def publication_scan_findings(text, relative_path):
     findings=[]
     task_source=bool(TASK_SOURCE_TREE_RE.match(relative_path))
-    if not task_source and contains_private_path(text):
+    # These two fixed paths are the public, newly provisioned host interface.
+    # The exception applies only to the host kit files, never to unrelated
+    # paths, credentials, transcripts, or historical archive locations.
+    path_scan_text=text
+    if relative_path in HOST_SETUP_PATH_FILES:
+        path_scan_text=re.sub(r'/'+'srv'+r'/bh/bench(?=/|\b)', '<bench-root>', path_scan_text)
+        path_scan_text=re.sub(r'/'+'home'+r'/bench(?=/|\b)', '<bench-home>', path_scan_text)
+        if relative_path=='reproduce/sandbox-profile.sh':
+            path_scan_text=re.sub(r'/'+'srv'+r'(?:/bh)?(?=\s|$)', '<bench-mount>', path_scan_text)
+    if not task_source and contains_private_path(path_scan_text):
         findings.append('private filesystem/archive path')
     rules=[('privacy',label,pattern) for label,pattern in PRIVACY_RULES if not task_source or label in TASK_SOURCE_RULES]
     if not task_source and Path(relative_path).suffix.lower() in {'.md','.json','.jsonl','.csv','.txt'}:
@@ -135,7 +149,8 @@ def publication_scan_findings(text, relative_path):
             allowed_spans.extend(match.span() for match in TASK_SEALED_PATCH_EVIDENCE.finditer(text))
         if label=='private-source artifact reference' and relative_path=='RAILS-AI-EVALS-COMPARISON.md':
             allowed_spans.extend(match.span() for match in TASK_COMPARISON_PATCH_PATH.finditer(text))
-        for match in pattern.finditer(text):
+        scan_text=path_scan_text if label=='home path' else text
+        for match in pattern.finditer(scan_text):
             # Public website contact and local-only build probe, not personal
             # addresses or deployed infrastructure. Other values still fail.
             if label == 'email address' and relative_path in {
@@ -199,6 +214,12 @@ def publication_scan_self_test():
         raise AssertionError('the documented public transcript filename should be allowed')
     if not publication_scan_findings(transcript,'README.md'):
         raise AssertionError('the protocol exception must not exempt the rest of the repository')
+    if publication_scan_findings('/'+'srv'+'/bh/bench/kits/current /'+'home'+'/bench/.codex','reproduce/setup-host.sh'):
+        raise AssertionError('public host paths should be allowed in setup')
+    if not publication_scan_findings('/'+'srv'+'/private/archive','reproduce/setup-host.sh'):
+        raise AssertionError('host setup exception must not allow other private paths')
+    if not publication_scan_findings('/'+'home'+'/other/.codex','reproduce/setup-host.sh'):
+        raise AssertionError('host setup exception must not allow other home paths')
 
 
 publication_scan_self_test()

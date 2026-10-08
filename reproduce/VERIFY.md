@@ -2,6 +2,8 @@
 
 The public command sequence below runs from the repository root with Python 3 and uses only committed files and the standard library. It does not contact a model, grading service, benchmark host, or private account.
 
+For an Ubuntu 24.04 x86_64 worker, [`setup-host.sh`](setup-host.sh) installs the pinned host kit, [`doctor.sh`](doctor.sh) performs model-free host qualification, and [`run-controls.sh`](run-controls.sh) checks that each chosen task's published reference passes and its no-op base fails after manual `bench` device login. `setup-host.sh --dry-run` prints its planned actions. Fresh-machine verification of all three scripts is pending the first host rebuild; this is separate from the read-only publication checks below.
+
 ```sh
 python3 reproduce/export_results.py
 python3 reproduce/build_records.py

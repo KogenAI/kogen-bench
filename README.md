@@ -13,6 +13,7 @@ Benchmarks for [Kogen](https://github.com/KogenAI), a coding-agent harness. The 
 - [Public glossary](rounds/GLOSSARY.md) defines arm, model, and analysis terms.
 - [Verification guide](reproduce/VERIFY.md) gives the commands and limits for recomputing published records and numbers.
 - [Rerun guide](reproduce/RERUN.md) explains task grading and the current state of the execution kit.
+- [Ubuntu host setup](reproduce/setup-host.sh) is the one-command installer for a fresh Ubuntu 24.04 x86_64 worker. Its fresh-machine verification is pending the EU rebuild; see the [rerun guide](reproduce/RERUN.md) for the manual login and admission controls.
 - [Round status](rounds/STATUS.md) summarizes current round states.
 - [Credits](CREDITS.md) records acknowledgements.
 

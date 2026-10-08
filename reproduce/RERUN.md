@@ -26,7 +26,23 @@ Set `BENCH_HOST` to the grading host's bench root (default host-specific bench r
 
 The exact historical `probe-kgn/runner/sandbox_linux.py` file was not present in the recovery archive. The matching recovery search found only `levers/llm-latency/source/sandbox_linux.py`, which supplies the same `base_args` implementation shape; its hash is retained as the recovered comparison source, not asserted as the historical host file's hash. The recovery directory has no Git metadata, so file-specific `git log` history was unavailable there.
 
-The one-command, fresh-VM-verified rerun kit is in progress. This repository does not yet claim that a new operator can reproduce a full model run with one command on a clean VM. Follow the per-task instructions and verify the isolation and grader prerequisites locally until that kit is complete; no delivery date is promised.
+## Ubuntu host setup (fresh-machine verification pending the first host rebuild)
+
+From a clone of this repository on Ubuntu 24.04 x86_64:
+
+```sh
+sudo ./reproduce/setup-host.sh --dry-run
+sudo ./reproduce/setup-host.sh
+sudo /usr/local/bin/bench-doctor
+sudo -u bench -H /opt/bench/tools/bin/codex login --device-auth
+sudo /usr/local/bin/bench-run-controls r70-2-go
+```
+
+The setup command installs the packages and SHA-256-checked toolchains in [`host-pins.lock`](host-pins.lock), creates `benchadmin` and `bench`, installs Bubblewrap 0.9.0, `bench.slice`, a 10 GiB launch floor, and copies this release's `tasks/` bundles and graders into a root-owned kit under `/srv/bh/bench/kits/`. It installs [`run-lane.sh`](run-lane.sh), [`sandbox-profile.sh`](sandbox-profile.sh), [`run-controls.sh`](run-controls.sh), and a model-free [`doctor.sh`](doctor.sh). Re-running setup preserves run work and results. A Codex login belongs to the local `bench` user and is always a manual device-auth step; setup and doctor make no model call.
+
+To run a task after login, call `sudo bench-run-lane TASK_ID UNIQUE_RUN_ID MODEL EFFORT`. This launches one Codex cell in `bench.slice` with only its public worktree and the bench user's Codex home mounted into Bubblewrap, then runs the shipped per-task hidden grader after the model exits. It writes a patch, private grader log, JSON grade, Codex JSONL, and manifest under `/srv/bh/bench/results/UNIQUE_RUN_ID/`. Keep the result private until its transcript and grader output are reviewed for publication. The launcher refuses to reuse a run ID or start below 10 GiB free.
+
+The host kit now includes `setup-host.sh` for Ubuntu 24.04 x86_64 provisioning, `doctor.sh` for model-free host qualification, and `run-controls.sh` for reference-pass/no-op-fail checks on selected tasks. Fresh-machine installation and control execution remain pending the first host rebuild. Some published tasks have no base, prompt, grader, or reference, and `run-controls.sh` reports those as unavailable. Dependency caches, the complete historical lane runner and its restricted network relay, protected Studio grading route, and historical private data are absent from this repository. The kit does not claim bit-for-bit replay of old cells. A successful doctor proves host prerequisites, not task admission or model access.
 
 Historical records remain historical records. Rerunning a task creates a new observation and does not overwrite or retroactively validate a published result.
 
