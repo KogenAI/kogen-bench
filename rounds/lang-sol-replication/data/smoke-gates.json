@@ -1,0 +1,130 @@
+{
+  "source_type": "sanitized receipt extracts",
+  "gates": [
+    {
+      "source_ledger": "levers/lang-sol-replication/smoke-gate-eu.json (operator execution checkout)",
+      "passed": true,
+      "cell_ids": [
+        "codex__gpt-6.1-sol__medium__default__r70-1-rust__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-2-rust__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-4-rust-fe2__r1"
+      ],
+      "official_grades": [
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-1-rust__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:36:53Z",
+          "host": "kogen-bench-eu",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-2-rust__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:36:53Z",
+          "host": "kogen-bench-eu",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-4-rust-fe2__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 18,
+          "tests_passed": 18,
+          "window_at": "2026-10-07T10:36:53Z",
+          "host": "kogen-bench-eu",
+          "purged": true
+        }
+      ],
+      "strict_validation": {
+        "satisfied_under_declared_exception": true,
+        "basis": "Smoke gate checks the official grade (tests ran, pass/fail, scratch purged). Full run-record strict validation is DEFERRED to analysis under the predeclared emitter-gap exception (r70 strict-exception-receipt.json; RELEASE-CHECKLIST #10), as for r70-RvE."
+      },
+      "missing": []
+    },
+    {
+      "source_ledger": "levers/lang-sol-replication/smoke-gate-us.json (operator execution checkout)",
+      "passed": true,
+      "cell_ids": [
+        "codex__gpt-6.1-sol__medium__default__r70-1-go__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-1-ts-bun__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-2-go__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-2-ts-bun__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-4-go-fe2__r1",
+        "codex__gpt-6.1-sol__medium__default__r70-4-ts-bun-fe2__r1"
+      ],
+      "official_grades": [
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-1-go__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-1-ts-bun__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-2-go__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-2-ts-bun__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 25,
+          "tests_passed": 25,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-4-go-fe2__r1",
+          "outcome": "pass",
+          "tests_ran": true,
+          "tests_total": 18,
+          "tests_passed": 18,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        },
+        {
+          "cell_id": "codex__gpt-6.1-sol__medium__default__r70-4-ts-bun-fe2__r1",
+          "outcome": "fail",
+          "tests_ran": true,
+          "tests_total": 18,
+          "tests_passed": 17,
+          "window_at": "2026-10-07T10:38:14Z",
+          "host": "kogen-bench-us",
+          "purged": true
+        }
+      ],
+      "strict_validation": {
+        "satisfied_under_declared_exception": true,
+        "basis": "Smoke gate checks the official grade (tests ran, pass/fail, scratch purged). Full run-record strict validation is DEFERRED to analysis under the predeclared emitter-gap exception (r70 strict-exception-receipt.json; RELEASE-CHECKLIST #10), as for r70-RvE."
+      },
+      "missing": []
+    }
+  ]
+}

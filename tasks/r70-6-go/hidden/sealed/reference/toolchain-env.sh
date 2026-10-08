@@ -1,0 +1,7 @@
+export GOROOT='/srv/bh/bench/toolchains/go-1.27.1/go'
+export GOMODCACHE='/srv/bh/bench/toolchains/go-1.27.1/cache/gomodcache'
+export GOPROXY='off'
+export GOFLAGS='-mod=mod'
+export PATH='/srv/bh/bench/toolchains/go-1.27.1/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+export BENCH_EXTRA_PATH='/srv/bh/bench/toolchains/go-1.27.1/bin'
+export LANG='C.UTF-8'

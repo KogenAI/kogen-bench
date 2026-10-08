@@ -1,0 +1,13 @@
+- [ ] Build an executable named `kogen` that accepts `kogen supervise --timeout-ms N --grace-ms N -- COMMAND [ARG ...]`.
+- [ ] Reject invalid, unknown, repeated, missing, out-of-order, or extra pre-`--` options; require each value to contain only ASCII decimal digits and parse to 1–60000. Print exactly `error: invalid arguments\n` to stderr and return 2 on invalid arguments.
+- [ ] Require a command after `--` and pass all arguments after it without interpretation.
+- [ ] Start the command without a shell in a new process group, with stdin from `/dev/null`; ignore supervisor stdin and forward command stdout and stderr byte-for-byte to their corresponding streams.
+- [ ] If the command cannot be started, print exactly `error: cannot start command\n` to stderr, write nothing to stdout, emit no status line, and return 127.
+- [ ] Use a monotonic clock; start the timeout immediately after process start and determine group liveness by Linux `/proc` state, treating `Z` and `X` as not live.
+- [ ] If no group member is live at the timeout boundary, reap the direct child and return its exit code, or 128 plus its signal number.
+- [ ] On ordinary completion, emit exactly `status=exited exit_code=E term_sent=false kill_sent=false reaped=R\n` to stderr after command output; report `reaped=1` when the direct child was successfully waited.
+- [ ] On timeout, send SIGTERM to the group, wait the full grace interval, send SIGKILL only if a live member remains, then wait for group completion and reap the direct child. Return 124.
+- [ ] On timeout, report whether SIGTERM and SIGKILL were sent and whether the direct child was reaped; completed timeouts must report `reaped=1`.
+- [ ] Ensure the status line is the final bytes written to stderr, fixed diagnostics and status lines end in one LF, and the supervisor writes no other bytes.
+- [ ] Correctly handle 50 simultaneous invocations and leave no live member in any recorded process group after completion; meet the load test’s peak-RSS check.
+- [ ] Use Go and satisfy `make build` and `make check`.

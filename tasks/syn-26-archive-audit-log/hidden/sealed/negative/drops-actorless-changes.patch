@@ -1,0 +1,564 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index aa81372..e1a7006 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -7,7 +7,7 @@ defmodule Trackline.Support do
+ 
+   alias Trackline.Accounts.User
+   alias Trackline.Repo
+-  alias Trackline.Support.{Comment, Membership, Organization, Query, Ticket}
++  alias Trackline.Support.{AuditEvent, Comment, Membership, Organization, Query, Ticket}
+ 
+   ## Organizations and membership
+ 
+@@ -62,15 +62,28 @@ defmodule Trackline.Support do
+   """
+   def list_tickets(%Organization{id: org_id}) do
+     Ticket
+-    |> where([t], t.organization_id == ^org_id)
++    |> where([t], t.organization_id == ^org_id and is_nil(t.archived_at))
+     |> order_by([t], desc: t.inserted_at, desc: t.id)
+     |> Repo.all()
+     |> Enum.map(&load_summary/1)
+   end
+ 
++  @doc "Archived tickets of an organization, most recently archived first."
++  def list_archived_tickets(%Organization{id: org_id}) do
++    Ticket
++    |> where([t], t.organization_id == ^org_id and not is_nil(t.archived_at))
++    |> order_by([t], desc: t.archived_at, desc: t.id)
++    |> Repo.all()
++    |> Enum.map(&load_summary/1)
++  end
++
+   @doc "Number of tickets an organization has."
+   def count_tickets(%Organization{id: org_id}) do
+-    Repo.aggregate(from(t in Ticket, where: t.organization_id == ^org_id), :count, :id)
++    Repo.aggregate(
++      from(t in Ticket, where: t.organization_id == ^org_id and is_nil(t.archived_at)),
++      :count,
++      :id
++    )
+   end
+ 
+   @doc """
+@@ -82,7 +95,7 @@ defmodule Trackline.Support do
+     q = Query.parse(input)
+ 
+     Ticket
+-    |> where([t], t.organization_id == ^org_id)
++    |> where([t], t.organization_id == ^org_id and is_nil(t.archived_at))
+     |> filter_in(:status, q.status)
+     |> filter_in(:priority, q.priority)
+     |> filter_terms(q.terms)
+@@ -118,32 +131,127 @@ defmodule Trackline.Support do
+   def get_ticket!(id),
+     do: Repo.get!(Ticket, id) |> Repo.preload([:organization, :author, :assignee])
+ 
+-  def create_ticket(%Organization{id: org_id}, %User{id: author_id}, attrs) do
+-    %Ticket{organization_id: org_id, author_id: author_id}
+-    |> Ticket.changeset(attrs)
+-    |> Repo.insert()
++  def create_ticket(%Organization{id: org_id}, %User{id: author_id} = author, attrs) do
++    Repo.transact(fn ->
++      with {:ok, ticket} <-
++             %Ticket{organization_id: org_id, author_id: author_id}
++             |> Ticket.changeset(attrs)
++             |> Repo.insert(),
++           {:ok, _} <- log(ticket, "ticket_created", author) do
++        {:ok, ticket}
++      end
++    end)
+   end
+ 
+   def change_ticket(%Ticket{} = ticket, attrs \\ %{}), do: Ticket.changeset(ticket, attrs)
+ 
+-  def set_status(%Ticket{} = ticket, status) do
+-    ticket |> Ticket.status_changeset(status) |> Repo.update()
++  def set_status(%Ticket{} = ticket, status, actor \\ nil) do
++    Repo.transact(fn ->
++      with {:ok, ticket} <- ticket |> Ticket.status_changeset(status) |> Repo.update(),
++           {:ok, _} <- log(ticket, "status_changed", actor) do
++        {:ok, ticket}
++      end
++    end)
++  end
++
++  def assign_ticket(ticket, assignee, actor \\ nil)
++
++  def assign_ticket(%Ticket{} = ticket, nil, actor), do: do_assign(ticket, nil, actor)
++
++  def assign_ticket(%Ticket{} = ticket, %User{id: user_id}, actor),
++    do: do_assign(ticket, user_id, actor)
++
++  defp do_assign(ticket, assignee_id, actor) do
++    Repo.transact(fn ->
++      with {:ok, ticket} <-
++             ticket |> Ecto.Changeset.change(assignee_id: assignee_id) |> Repo.update(),
++           {:ok, _} <- log(ticket, "assigned", actor) do
++        {:ok, ticket}
++      end
++    end)
++  end
++
++  @doc "Only owners may archive and restore tickets."
++  def can_archive?(%Membership{role: role}), do: role == "owner"
++  def can_archive?(_), do: false
++
++  @doc "Archives a ticket. Owners only; archiving an archived ticket is a no-op error."
++  def archive_ticket(%Ticket{id: id}, %User{} = actor) do
++    change_archived(
++      id,
++      actor,
++      "archived",
++      dynamic([t], is_nil(t.archived_at)),
++      DateTime.utc_now(:second)
++    )
++  end
++
++  def restore_ticket(%Ticket{id: id}, %User{} = actor) do
++    change_archived(id, actor, "restored", dynamic([t], not is_nil(t.archived_at)), nil)
++  end
++
++  defp change_archived(id, actor, action, condition, value) do
++    ticket = Repo.get!(Ticket, id)
++
++    with %Membership{} = membership <-
++           Repo.get_by(Membership, organization_id: ticket.organization_id, user_id: actor.id),
++         true <- can_archive?(membership) do
++      Repo.transact(fn ->
++        {n, _} =
++          from(t in Ticket, where: t.id == ^id)
++          |> where(^condition)
++          |> Repo.update_all(set: [archived_at: value])
++
++        if n == 1 do
++          ticket = Repo.get!(Ticket, id)
++          with {:ok, _} <- log(ticket, action, actor), do: {:ok, ticket}
++        else
++          {:error, :unchanged}
++        end
++      end)
++    else
++      _ -> {:error, :forbidden}
++    end
+   end
+ 
+-  def assign_ticket(%Ticket{} = ticket, nil) do
+-    ticket |> Ecto.Changeset.change(assignee_id: nil) |> Repo.update()
++  defp log(%Ticket{}, _action, nil), do: {:ok, :skipped}
++
++  defp log(%Ticket{} = ticket, action, actor) do
++    Repo.insert(%AuditEvent{
++      organization_id: ticket.organization_id,
++      ticket_id: ticket.id,
++      actor_id: actor && actor.id,
++      action: action
++    })
+   end
+ 
+-  def assign_ticket(%Ticket{} = ticket, %User{id: user_id}) do
+-    ticket |> Ecto.Changeset.change(assignee_id: user_id) |> Repo.update()
++  @doc "The organization's audit log, newest first, with actor and ticket loaded."
++  def list_audit_log(%Organization{id: org_id}) do
++    AuditEvent
++    |> where([e], e.organization_id == ^org_id)
++    |> order_by([e], desc: e.id)
++    |> preload([:actor, :ticket])
++    |> Repo.all()
+   end
+ 
+   ## Comments
+ 
+-  def add_comment(%Ticket{id: ticket_id}, %User{id: author_id}, attrs) do
+-    %Comment{ticket_id: ticket_id, author_id: author_id}
+-    |> Comment.changeset(attrs)
+-    |> Repo.insert()
++  def add_comment(%Ticket{id: ticket_id}, %User{id: author_id} = author, attrs) do
++    Repo.transact(fn ->
++      ticket = Repo.get!(Ticket, ticket_id)
++
++      if ticket.archived_at do
++        {:error, :archived}
++      else
++        with {:ok, comment} <-
++               %Comment{ticket_id: ticket_id, author_id: author_id}
++               |> Comment.changeset(attrs)
++               |> Repo.insert(),
++             {:ok, _} <- log(ticket, "comment_added", author) do
++          {:ok, comment}
++        end
++      end
++    end)
+   end
+ 
+   def change_comment(%Comment{} = comment, attrs \\ %{}), do: Comment.changeset(comment, attrs)
+diff --git a/lib/trackline/support/audit_event.ex b/lib/trackline/support/audit_event.ex
+new file mode 100644
+index 0000000..cc4371b
+--- /dev/null
++++ b/lib/trackline/support/audit_event.ex
+@@ -0,0 +1,17 @@
++defmodule Trackline.Support.AuditEvent do
++  use Ecto.Schema
++
++  @actions ~w(ticket_created status_changed assigned comment_added archived restored)
++
++  schema "audit_events" do
++    field :action, :string
++
++    belongs_to :organization, Trackline.Support.Organization
++    belongs_to :ticket, Trackline.Support.Ticket
++    belongs_to :actor, Trackline.Accounts.User
++
++    timestamps(type: :utc_datetime, updated_at: false)
++  end
++
++  def actions, do: @actions
++end
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..4b21eeb 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -11,6 +11,7 @@ defmodule Trackline.Support.Ticket do
+     field :status, :string, default: "open"
+     field :priority, :string, default: "normal"
+     field :comment_count, :integer, virtual: true, default: 0
++    field :archived_at, :utc_datetime
+ 
+     belongs_to :organization, Trackline.Support.Organization
+     belongs_to :author, Trackline.Accounts.User
+diff --git a/lib/trackline_web/controllers/ticket_export_controller.ex b/lib/trackline_web/controllers/ticket_export_controller.ex
+index f8fab8c..bef4f7c 100644
+--- a/lib/trackline_web/controllers/ticket_export_controller.ex
++++ b/lib/trackline_web/controllers/ticket_export_controller.ex
+@@ -9,23 +9,32 @@ defmodule TracklineWeb.TicketExportController do
+     with %{} = org <- Support.get_organization_by_slug(slug),
+          %{} = _membership <- Support.get_membership(org, user) do
+       ticket = Support.get_ticket!(id)
+-      comments = Support.list_comments(ticket)
+ 
+-      json(conn, %{
+-        id: ticket.id,
+-        title: ticket.title,
+-        body: ticket.body,
+-        status: ticket.status,
+-        priority: ticket.priority,
+-        author: ticket.author && ticket.author.email,
+-        assignee: ticket.assignee && ticket.assignee.email,
+-        comments:
+-          Enum.map(comments, fn c ->
+-            %{id: c.id, author: c.author && c.author.email, body: c.body}
+-          end)
+-      })
++      if ticket.archived_at do
++        conn |> put_status(:not_found) |> json(%{error: "not_found"})
++      else
++        export(conn, ticket)
++      end
+     else
+       _ -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+     end
+   end
++
++  defp export(conn, ticket) do
++    comments = Support.list_comments(ticket)
++
++    json(conn, %{
++      id: ticket.id,
++      title: ticket.title,
++      body: ticket.body,
++      status: ticket.status,
++      priority: ticket.priority,
++      author: ticket.author && ticket.author.email,
++      assignee: ticket.assignee && ticket.assignee.email,
++      comments:
++        Enum.map(comments, fn c ->
++          %{id: c.id, author: c.author && c.author.email, body: c.body}
++        end)
++    })
++  end
+ end
+diff --git a/lib/trackline_web/live/audit_live/index.ex b/lib/trackline_web/live/audit_live/index.ex
+new file mode 100644
+index 0000000..a3727d7
+--- /dev/null
++++ b/lib/trackline_web/live/audit_live/index.ex
+@@ -0,0 +1,53 @@
++defmodule TracklineWeb.AuditLive.Index do
++  use TracklineWeb, :live_view
++
++  alias Trackline.Support
++
++  @impl true
++  def mount(%{"slug" => slug}, _session, socket) do
++    user = socket.assigns.current_scope.user
++
++    with %{} = org <- Support.get_organization_by_slug(slug),
++         %{} = membership <- Support.get_membership(org, user),
++         true <- Support.can_archive?(membership) do
++      {:ok,
++       socket
++       |> assign(:page_title, "Activity log")
++       |> assign(:org, org)
++       |> assign(:events, Support.list_audit_log(org))}
++    else
++      _ ->
++        {:ok,
++         socket
++         |> put_flash(:error, "You do not have access to that page.")
++         |> push_navigate(to: ~p"/orgs")}
++    end
++  end
++
++  @impl true
++  def render(assigns) do
++    ~H"""
++    <Layouts.app flash={@flash} current_scope={@current_scope}>
++      <.header>{@org.name} activity log</.header>
++      <table id="audit-log" class="table mt-6">
++        <thead>
++          <tr>
++            <th>When</th>
++            <th>Who</th>
++            <th>What</th>
++            <th>Ticket</th>
++          </tr>
++        </thead>
++        <tbody>
++          <tr :for={event <- @events} id={"audit-#{event.id}"}>
++            <td>{event.inserted_at}</td>
++            <td class="audit-actor">{event.actor && event.actor.email}</td>
++            <td class="audit-action">{event.action}</td>
++            <td>{event.ticket && event.ticket.title}</td>
++          </tr>
++        </tbody>
++      </table>
++    </Layouts.app>
++    """
++  end
++end
+diff --git a/lib/trackline_web/live/org_live/index.ex b/lib/trackline_web/live/org_live/index.ex
+index c2d6c41..c8eb481 100644
+--- a/lib/trackline_web/live/org_live/index.ex
++++ b/lib/trackline_web/live/org_live/index.ex
+@@ -17,7 +17,8 @@ defmodule TracklineWeb.OrgLive.Index do
+       <ul id="organizations" class="mt-4 space-y-2">
+         <li :for={org <- @organizations} id={"org-#{org.id}"}>
+           <.link navigate={~p"/orgs/#{org.slug}/tickets"} class="link">{org.name}</.link>
+-          (<span id={"ticket-count-#{org.id}"}>{Support.count_tickets(org)}</span> tickets)
++          (<span id={"ticket-count-#{org.id}"}>{Support.count_tickets(org)}</span>
++          tickets)
+         </li>
+       </ul>
+     </Layouts.app>
+diff --git a/lib/trackline_web/live/ticket_live/index.ex b/lib/trackline_web/live/ticket_live/index.ex
+index 7d77bbe..9505677 100644
+--- a/lib/trackline_web/live/ticket_live/index.ex
++++ b/lib/trackline_web/live/ticket_live/index.ex
+@@ -15,6 +15,7 @@ defmodule TracklineWeb.TicketLive.Index do
+        |> assign(:page_title, "Tickets")
+        |> assign(:org, org)
+        |> assign(:can_write, Support.can_write?(membership))
++       |> assign(:can_archive, Support.can_archive?(membership))
+        |> assign(:form, to_form(Support.change_ticket(%Ticket{})))}
+     else
+       _ ->
+@@ -29,12 +30,18 @@ defmodule TracklineWeb.TicketLive.Index do
+   def handle_params(params, _uri, socket) do
+     q = params["q"]
+ 
++    org = socket.assigns.org
++    archived? = params["archived"] == "1" and socket.assigns.can_archive
++
+     tickets =
+-      if q in [nil, ""],
+-        do: Support.list_tickets(socket.assigns.org),
+-        else: Support.search_tickets(socket.assigns.org, q)
++      cond do
++        archived? -> Support.list_archived_tickets(org)
++        q in [nil, ""] -> Support.list_tickets(org)
++        true -> Support.search_tickets(org, q)
++      end
+ 
+-    {:noreply, socket |> assign(:q, q || "") |> assign(:tickets, tickets)}
++    {:noreply,
++     socket |> assign(:q, q || "") |> assign(:archived, archived?) |> assign(:tickets, tickets)}
+   end
+ 
+   @impl true
+@@ -67,6 +74,15 @@ defmodule TracklineWeb.TicketLive.Index do
+         {@org.name} tickets
+       </.header>
+ 
++      <p :if={@can_archive} class="mt-2 text-sm">
++        <.link :if={!@archived} patch={~p"/orgs/#{@org.slug}/tickets?archived=1"} class="link">
++          Archived tickets
++        </.link>
++        <.link :if={@archived} patch={~p"/orgs/#{@org.slug}/tickets"} class="link">
++          Back to tickets
++        </.link>
++      </p>
++
+       <form id="ticket-search" method="get" class="mt-4">
+         <input type="text" name="q" value={@q} placeholder="Search tickets" class="input" />
+         <button class="btn">Search</button>
+diff --git a/lib/trackline_web/live/ticket_live/show.ex b/lib/trackline_web/live/ticket_live/show.ex
+index ea2fcb4..7c250cc 100644
+--- a/lib/trackline_web/live/ticket_live/show.ex
++++ b/lib/trackline_web/live/ticket_live/show.ex
+@@ -17,6 +17,7 @@ defmodule TracklineWeb.TicketLive.Show do
+        |> assign(:page_title, ticket.title)
+        |> assign(:org, org)
+        |> assign(:can_write, Support.can_write?(membership))
++       |> assign(:can_archive, Support.can_archive?(membership))
+        |> assign(:ticket, ticket)
+        |> assign(:comments, Support.list_comments(ticket))
+        |> assign(:members, Support.list_members(org))
+@@ -32,20 +33,25 @@ defmodule TracklineWeb.TicketLive.Show do
+ 
+   @impl true
+   def handle_event("set_status", %{"status" => status}, socket) do
+-    case Support.set_status(socket.assigns.ticket, status) do
++    case Support.set_status(socket.assigns.ticket, status, socket.assigns.current_scope.user) do
+       {:ok, ticket} -> {:noreply, assign(socket, :ticket, reload(ticket))}
+       {:error, _} -> {:noreply, put_flash(socket, :error, "Invalid status.")}
+     end
+   end
+ 
+   def handle_event("assign", %{"user_id" => ""}, socket) do
+-    {:ok, ticket} = Support.assign_ticket(socket.assigns.ticket, nil)
++    {:ok, ticket} =
++      Support.assign_ticket(socket.assigns.ticket, nil, socket.assigns.current_scope.user)
++
+     {:noreply, assign(socket, :ticket, reload(ticket))}
+   end
+ 
+   def handle_event("assign", %{"user_id" => user_id}, socket) do
+     user = Trackline.Accounts.get_user!(user_id)
+-    {:ok, ticket} = Support.assign_ticket(socket.assigns.ticket, user)
++
++    {:ok, ticket} =
++      Support.assign_ticket(socket.assigns.ticket, user, socket.assigns.current_scope.user)
++
+     {:noreply, assign(socket, :ticket, reload(ticket))}
+   end
+ 
+@@ -59,11 +65,37 @@ defmodule TracklineWeb.TicketLive.Show do
+          |> assign(:comments, Support.list_comments(socket.assigns.ticket))
+          |> assign(:comment_form, to_form(Support.change_comment(%Comment{})))}
+ 
+-      {:error, changeset} ->
++      {:error, :archived} ->
++        {:noreply,
++         socket
++         |> assign(:ticket, reload(socket.assigns.ticket))
++         |> put_flash(:error, "Archived tickets cannot be commented on.")}
++
++      {:error, %Ecto.Changeset{} = changeset} ->
+         {:noreply, assign(socket, :comment_form, to_form(changeset))}
+     end
+   end
+ 
++  def handle_event("archive", _params, socket),
++    do: change_archived(socket, &Support.archive_ticket/2, "Ticket archived.")
++
++  def handle_event("restore", _params, socket),
++    do: change_archived(socket, &Support.restore_ticket/2, "Ticket restored.")
++
++  defp change_archived(socket, fun, message) do
++    user = socket.assigns.current_scope.user
++    ticket = socket.assigns.ticket
++
++    socket =
++      case fun.(ticket, user) do
++        {:ok, _} -> put_flash(socket, :info, message)
++        {:error, :forbidden} -> put_flash(socket, :error, "Only owners can do that.")
++        {:error, :unchanged} -> socket
++      end
++
++    {:noreply, assign(socket, :ticket, reload(ticket))}
++  end
++
+   defp reload(ticket), do: Support.get_ticket!(ticket.id)
+ 
+   defp sla_state(ticket) do
+@@ -88,6 +120,19 @@ defmodule TracklineWeb.TicketLive.Show do
+         Assignee: {(@ticket.assignee && @ticket.assignee.email) || "unassigned"}
+       </p>
+ 
++      <p :if={@ticket.archived_at} id="ticket-archived" class="mt-2 text-sm font-semibold">
++        This ticket is archived.
++      </p>
++
++      <div :if={@can_archive} id="archive-actions" class="mt-4 flex gap-2">
++        <button :if={is_nil(@ticket.archived_at)} phx-click="archive" class="btn">
++          Archive ticket
++        </button>
++        <button :if={@ticket.archived_at} phx-click="restore" class="btn">
++          Restore ticket
++        </button>
++      </div>
++
+       <div :if={@can_write} id="ticket-actions" class="mt-4 flex gap-2">
+         <button
+           :if={@ticket.status != "closed"}
+@@ -119,7 +164,7 @@ defmodule TracklineWeb.TicketLive.Show do
+       </div>
+ 
+       <.form
+-        :if={@can_write}
++        :if={@can_write and is_nil(@ticket.archived_at)}
+         for={@comment_form}
+         id="comment-form"
+         phx-submit="add_comment"
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..b2f17fd 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -48,6 +48,7 @@ defmodule TracklineWeb.Router do
+       live "/orgs", OrgLive.Index, :index
+       live "/orgs/:slug/tickets", TicketLive.Index, :index
+       live "/orgs/:slug/tickets/:id", TicketLive.Show, :show
++      live "/orgs/:slug/audit", AuditLive.Index, :index
+       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+     end
+ 
+diff --git a/priv/repo/migrations/20260930090001_add_archived_at_to_tickets.exs b/priv/repo/migrations/20260930090001_add_archived_at_to_tickets.exs
+new file mode 100644
+index 0000000..3c399ff
+--- /dev/null
++++ b/priv/repo/migrations/20260930090001_add_archived_at_to_tickets.exs
+@@ -0,0 +1,9 @@
++defmodule Trackline.Repo.Migrations.AddArchivedAtToTickets do
++  use Ecto.Migration
++
++  def change do
++    alter table(:tickets) do
++      add :archived_at, :utc_datetime
++    end
++  end
++end
+diff --git a/priv/repo/migrations/20260930090002_create_audit_events.exs b/priv/repo/migrations/20260930090002_create_audit_events.exs
+new file mode 100644
+index 0000000..49c9898
+--- /dev/null
++++ b/priv/repo/migrations/20260930090002_create_audit_events.exs
+@@ -0,0 +1,17 @@
++defmodule Trackline.Repo.Migrations.CreateAuditEvents do
++  use Ecto.Migration
++
++  def change do
++    create table(:audit_events) do
++      add :organization_id, references(:organizations, on_delete: :delete_all), null: false
++      add :ticket_id, references(:tickets, on_delete: :delete_all)
++      add :actor_id, references(:users, on_delete: :nilify_all)
++      add :action, :string, null: false
++
++      timestamps(type: :utc_datetime, updated_at: false)
++    end
++
++    create index(:audit_events, [:organization_id])
++    create index(:audit_events, [:ticket_id])
++  end
++end

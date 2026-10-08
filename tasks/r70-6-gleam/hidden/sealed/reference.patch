@@ -1,0 +1,78 @@
+diff --git a/src/kogen_io.erl b/src/kogen_io.erl
+index dacf603..23605ae 100644
+--- a/src/kogen_io.erl
++++ b/src/kogen_io.erl
+@@ -1,7 +1,72 @@
+ -module(kogen_io).
+ -export([args/0, read/1, write/1, fail/2, matches/2, position/2, execute/1]).
+ 
+-execute(_Args) -> <<>>.
++execute(Args) ->
++    try command(Args) of Text -> Text
++    catch throw:{failure, Code, Message} -> fail(Code, Message) end.
++
++command([<<"reconcile">>, <<"--log">>, Path]) -> reconcile(read_events(Path));
++command([<<"append">>, <<"--log">>, Path, <<"--event">>, Raw]) -> append_event(Path, Raw);
++command(_) -> throw({failure, 2, <<"eventlog: usage error">>}).
++
++append_event(Path, Raw) ->
++    Event = parse_event(Raw, 1),
++    Old = case file:read_file(Path) of {ok, B} -> B; {error, enoent} -> <<>>; _ -> err(<<"eventlog: cannot access log">>) end,
++    case byte_size(Old) > 0 andalso binary:last(Old) =/= 10 of true -> err(invalid(count_lf(Old) + 1)); false -> ok end,
++    Events = read_events(Path),
++    case [E || E <- Events, maps:get(id, E) =:= maps:get(id, Event)] of
++        [Found | _] -> err(io_lib:format("eventlog:~B: duplicate event id '~s'", [maps:get(line, Found), maps:get(id, Event)]));
++        [] -> ok
++    end,
++    Id = maps:get(id, Event), Type = maps:get(type, Event), Job = maps:get(job, Event), Ts = maps:get(ts, Event),
++    IdJson = iolist_to_binary(json:encode(Id)),
++    TypeJson = iolist_to_binary(json:encode(Type)),
++    JobJson = iolist_to_binary(json:encode(Job)),
++    Encoded = <<"{\"id\":", IdJson/binary, ",\"type\":", TypeJson/binary, ",\"job\":", JobJson/binary, ",\"ts\":", (integer_to_binary(Ts))/binary, "}\n">>,
++    case file:write_file(Path, Encoded, [append]) of ok -> <<"appended ", Id/binary, "\n">>; _ -> err(<<"eventlog: cannot access log">>) end.
++
++read_events(Path) ->
++    Data = case file:read_file(Path) of {ok, B} -> B; {error, enoent} -> <<>>; _ -> err(<<"eventlog: cannot access log">>) end,
++    Complete = complete_lines(Data),
++    {Rev, _} = lists:foldl(fun({Line, N}, {Acc, Seen}) ->
++        E = parse_event(Line, N), Id = maps:get(id, E),
++        case maps:is_key(Id, Seen) of true -> err(io_lib:format("eventlog:~B: duplicate event id '~s'", [N, Id])); false -> {[E | Acc], maps:put(Id, true, Seen)} end
++    end, {[], #{}}, lists:zip(Complete, lists:seq(1, length(Complete)))),
++    lists:reverse(Rev).
++
++complete_lines(<<>>) -> [];
++complete_lines(Data) -> lists:droplast(binary:split(Data, <<"\n">>, [global])).
++
++parse_event(Raw, Line) ->
++    case duplicate_key(Raw) of true -> err(invalid(Line)); false -> ok end,
++    Decoded = try json:decode(Raw) catch _:_ -> err(invalid(Line)) end,
++    case is_map(Decoded) andalso map_size(Decoded) =:= 4 of true -> ok; false -> err(invalid(Line)) end,
++    Id = maps:get(<<"id">>, Decoded, invalid), Type = maps:get(<<"type">>, Decoded, invalid), Job = maps:get(<<"job">>, Decoded, invalid), Ts = maps:get(<<"ts">>, Decoded, invalid),
++    case is_binary(Id) andalso is_binary(Type) andalso is_binary(Job) andalso is_integer(Ts) andalso Ts >= 0 andalso Ts =< 9223372036854775807 of true -> ok; false -> err(invalid(Line)) end,
++    case re:run(Id, <<"\\Ae-[a-z0-9]{1,16}\\z">>, [{capture, none}]) =:= match andalso re:run(Job, <<"\\A[a-z][a-z0-9-]{0,31}\\z">>, [{capture, none}]) =:= match of true -> ok; false -> err(invalid(Line)) end,
++    case lists:member(Type, [<<"created">>, <<"started">>, <<"completed">>, <<"failed">>]) of true -> #{id => Id, type => Type, job => Job, ts => Ts, line => Line}; false -> err(io_lib:format("eventlog:~B: unknown event type '~s'", [Line, Type])) end.
++
++duplicate_key(Raw) -> lists:any(fun(Key) ->
++    Pattern = <<"\\\"", Key/binary, "\\\"\\s*:">>,
++    case re:run(Raw, Pattern, [global, {capture, all, index}]) of {match, Matches} -> length(Matches) > 1; _ -> false end
++end, [<<"id">>, <<"type">>, <<"job">>, <<"ts">>]).
++
++reconcile(Events) ->
++    Sorted = lists:sort(fun(A, B) -> {maps:get(ts,A), maps:get(line,A)} =< {maps:get(ts,B), maps:get(line,B)} end, Events),
++    States = lists:foldl(fun(E, Acc) ->
++        Job = maps:get(job,E), Type = maps:get(type,E), Ts = maps:get(ts,E), Line = maps:get(line,E), {Current, PreviousTs} = maps:get(Job, Acc, {<<>>, undefined}),
++        case PreviousTs =:= Ts of true -> transition(Line, Job); false -> ok end,
++        Next = case {Current, Type} of {<<>>, <<"created">>} -> <<"queued">>; {<<"queued">>, <<"started">>} -> <<"running">>; {<<"running">>, <<"completed">>} -> <<"done">>; {<<"running">>, <<"failed">>} -> <<"failed">>; _ -> transition(Line, Job) end,
++        maps:put(Job, {Next, Ts}, Acc)
++    end, #{}, Sorted),
++    Values = [S || {_J, {S, _T}} <- maps:to_list(States)], Total = map_size(States),
++    iolist_to_binary(io_lib:format("total=~B~nqueued=~B~nrunning=~B~ndone=~B~nfailed=~B~n", [Total, count(<<"queued">>,Values), count(<<"running">>,Values), count(<<"done">>,Values), count(<<"failed">>,Values)])).
++
++count(Value, List) -> length([ok || X <- List, X =:= Value]).
++transition(Line, Job) -> err(io_lib:format("eventlog:~B: invalid transition for job '~s'", [Line, Job])).
++invalid(Line) -> io_lib:format("eventlog:~B: invalid event", [Line]).
++count_lf(Bin) -> length(binary:matches(Bin, <<"\n">>)).
++err(Message) -> throw({failure, 1, Message}).
+ 
+ args() -> [unicode:characters_to_binary(Arg) || Arg <- init:get_plain_arguments()].
+ read(Path) ->

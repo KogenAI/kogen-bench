@@ -1,0 +1,232 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..5bb99c8 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -89,13 +89,15 @@ defmodule Trackline.Support do
+   end
+ 
+   def assign_ticket(%Ticket{} = ticket, nil) do
+-    ticket |> Ecto.Changeset.change(assignee_id: nil) |> Repo.update()
++    ticket |> Ecto.Changeset.change(assignee_id: nil, version: ticket.version + 1) |> Repo.update()
+   end
+ 
+   def assign_ticket(%Ticket{} = ticket, %User{id: user_id}) do
+-    ticket |> Ecto.Changeset.change(assignee_id: user_id) |> Repo.update()
++    ticket |> Ecto.Changeset.change(assignee_id: user_id, version: ticket.version + 1) |> Repo.update()
+   end
+ 
++  def bulk_reassign(org, actor, rows, target, key), do: Trackline.Support.Transfer.run(org, actor, rows, target, key)
++
+   ## Comments
+ 
+   def add_comment(%Ticket{id: ticket_id}, %User{id: author_id}, attrs) do
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..4e27d4a 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -6,6 +6,7 @@ defmodule Trackline.Support.Ticket do
+   @priorities ~w(low normal high urgent)
+ 
+   schema "tickets" do
++    field :version, :integer, default: 0
+     field :title, :string
+     field :body, :string
+     field :status, :string, default: "open"
+diff --git a/lib/trackline/support/transfer.ex b/lib/trackline/support/transfer.ex
+new file mode 100644
+index 0000000..fe1f3f7
+--- /dev/null
++++ b/lib/trackline/support/transfer.ex
+@@ -0,0 +1,50 @@
++defmodule Trackline.Support.Transfer do
++ import Ecto.Query
++ alias Trackline.Repo
++ alias Trackline.Support.{Ticket, TransferBatch, TransferAudit}
++ def run(org, actor, rows, target, key) do
++   if not is_list(rows) or length(rows) not in 1..100 or not is_binary(key) or byte_size(key) not in 1..128 do
++     {:error, :invalid}
++   else
++     Repo.transaction(fn ->
++       if not Trackline.Support.can_write?(Trackline.Support.get_membership(org, actor)), do: Repo.rollback(:forbidden)
++       if target && is_nil(Trackline.Support.get_membership(org, target)), do: Repo.rollback(:target)
++       ids = Enum.map(rows, & &1.id)
++       if Enum.uniq(ids) != ids, do: Repo.rollback(:duplicate)
++       payload = :erlang.term_to_binary({Enum.sort_by(rows, & &1.id), target && target.id})
++       old = Repo.get_by(TransferBatch, organization_id: org.id, actor_id: actor.id, key: key)
++       if old do
++         if false, do: Repo.rollback(:conflict)
++         :erlang.binary_to_term(old.result)
++       else
++         tickets = Enum.map(rows, fn row ->
++           t = Repo.get_by(Ticket, id: row.id, organization_id: org.id)
++           if is_nil(t), do: Repo.rollback(:not_found)
++           if t.version != row.version, do: Repo.rollback(:stale)
++           t
++         end)
++         result = Enum.map(tickets, fn t -> %{id: t.id, version: t.version + 1, assignee_id: target && target.id} end)
++         b = Repo.insert!(%TransferBatch{organization_id: org.id, actor_id: actor.id, key: key, payload: payload, result: :erlang.term_to_binary(result)})
++         Enum.zip(tickets, result) |> Enum.each(fn {t, v} ->
++           {1, _} = Repo.update_all(from(tk in Ticket, where: tk.id == ^t.id and tk.version == ^t.version), set: [assignee_id: v.assignee_id, version: v.version])
++           Repo.insert!(%TransferAudit{batch_id: b.id, ticket_id: t.id, old_assignee_id: t.assignee_id, new_assignee_id: v.assignee_id, version: v.version})
++         end)
++         %{batch_id: b.id, tickets: result} |> then(fn result ->
++           Repo.update!(Ecto.Changeset.change(b, result: :erlang.term_to_binary(result)))
++           {:ok, _} = %{batch_id: b.id} |> Trackline.Workers.TransferDispatch.new() |> Oban.insert()
++           result
++         end)
++       end
++     end, mode: :immediate)
++   end
++ end
++ def dispatch(id) do
++   b = Repo.get!(TransferBatch, id)
++   unless b.dispatched do
++     result = :erlang.binary_to_term(b.result)
++     Phoenix.PubSub.broadcast(Trackline.PubSub, "transfers:#{b.organization_id}", {:transfer_batch, result})
++     Repo.update!(Ecto.Changeset.change(b, dispatched: true))
++   end
++   :ok
++ end
++end
+diff --git a/lib/trackline/support/transfer_audit.ex b/lib/trackline/support/transfer_audit.ex
+new file mode 100644
+index 0000000..c568294
+--- /dev/null
++++ b/lib/trackline/support/transfer_audit.ex
+@@ -0,0 +1,10 @@
++defmodule Trackline.Support.TransferAudit do
++ use Ecto.Schema
++ schema "transfer_audits" do
++   field :batch_id, :integer
++   field :ticket_id, :integer
++   field :old_assignee_id, :integer
++   field :new_assignee_id, :integer
++   field :version, :integer
++ end
++end
+diff --git a/lib/trackline/support/transfer_batch.ex b/lib/trackline/support/transfer_batch.ex
+new file mode 100644
+index 0000000..fa32ac3
+--- /dev/null
++++ b/lib/trackline/support/transfer_batch.ex
+@@ -0,0 +1,11 @@
++defmodule Trackline.Support.TransferBatch do
++ use Ecto.Schema
++ schema "transfer_batches" do
++   field :organization_id, :integer
++   field :actor_id, :integer
++   field :key, :string
++   field :payload, :binary
++   field :result, :binary
++   field :dispatched, :boolean, default: false
++ end
++end
+diff --git a/lib/trackline/workers/transfer_dispatch.ex b/lib/trackline/workers/transfer_dispatch.ex
+new file mode 100644
+index 0000000..e48f0df
+--- /dev/null
++++ b/lib/trackline/workers/transfer_dispatch.ex
+@@ -0,0 +1,4 @@
++defmodule Trackline.Workers.TransferDispatch do
++ use Oban.Worker, queue: :default
++ def perform(%Oban.Job{args: %{"batch_id" => id}}), do: Trackline.Support.Transfer.dispatch(id)
++end
+diff --git a/lib/trackline_web/controllers/bulk_transfer_controller.ex b/lib/trackline_web/controllers/bulk_transfer_controller.ex
+new file mode 100644
+index 0000000..301e635
+--- /dev/null
++++ b/lib/trackline_web/controllers/bulk_transfer_controller.ex
+@@ -0,0 +1,12 @@
++defmodule TracklineWeb.BulkTransferController do
++ use TracklineWeb, :controller
++ def create(conn, params) do
++   org = Trackline.Support.get_organization_by_slug!(params["slug"])
++   rows = Enum.map(params["rows"], &%{id: &1["id"], version: &1["version"]})
++   target = if params["target_id"], do: Trackline.Repo.get!(Trackline.Accounts.User, params["target_id"])
++   case Trackline.Support.bulk_reassign(org, conn.assigns.current_scope.user, rows, target, params["key"]) do
++     {:ok, result} -> json(conn, result)
++     {:error, reason} -> conn |> put_status(422) |> json(%{error: to_string(reason)})
++   end
++ end
++end
+diff --git a/lib/trackline_web/live/ticket_live/index.ex b/lib/trackline_web/live/ticket_live/index.ex
+index 7f498d9..7399590 100644
+--- a/lib/trackline_web/live/ticket_live/index.ex
++++ b/lib/trackline_web/live/ticket_live/index.ex
+@@ -10,10 +10,12 @@ defmodule TracklineWeb.TicketLive.Index do
+ 
+     with %{} = org <- Support.get_organization_by_slug(slug),
+          %{} = membership <- Support.get_membership(org, user) do
++      if connected?(socket), do: Phoenix.PubSub.subscribe(Trackline.PubSub, "transfers:#{org.id}")
+       {:ok,
+        socket
+        |> assign(:page_title, "Tickets")
+        |> assign(:org, org)
++       |> assign(:batch_ids, MapSet.new())
+        |> assign(:can_write, Support.can_write?(membership))
+        |> assign(:form, to_form(Support.change_ticket(%Ticket{})))}
+     else
+@@ -52,6 +54,23 @@ defmodule TracklineWeb.TicketLive.Index do
+     end
+   end
+ 
++  @impl true
++  def handle_info({:transfer_batch, batch}, socket) do
++    if MapSet.member?(socket.assigns.batch_ids, batch.batch_id) do
++      {:noreply, socket}
++    else
++      updates = Map.new(batch.tickets, &{&1.id, &1})
++      tickets = Enum.map(socket.assigns.tickets, fn t ->
++        case updates[t.id] do
++          %{version: v} = u when v > t.version ->
++            %{t | version: v, assignee_id: u.assignee_id, assignee: if(u.assignee_id, do: Trackline.Repo.get(Trackline.Accounts.User, u.assignee_id))}
++          _ -> t
++        end
++      end)
++      {:noreply, socket |> assign(:tickets, tickets) |> assign(:batch_ids, MapSet.put(socket.assigns.batch_ids, batch.batch_id))}
++    end
++  end
++
+   @impl true
+   def render(assigns) do
+     ~H"""
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..cf449d8 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -51,6 +51,7 @@ defmodule TracklineWeb.Router do
+       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+     end
+ 
++    post "/orgs/:slug/tickets/bulk-reassign", BulkTransferController, :create
+     post "/users/update-password", UserSessionController, :update_password
+     get "/orgs/:slug/tickets/:id/export.json", TicketExportController, :show
+   end
+diff --git a/priv/repo/migrations/20261001010000_bulk_batches.exs b/priv/repo/migrations/20261001010000_bulk_batches.exs
+new file mode 100644
+index 0000000..aa613d5
+--- /dev/null
++++ b/priv/repo/migrations/20261001010000_bulk_batches.exs
+@@ -0,0 +1,22 @@
++defmodule Trackline.Repo.Migrations.BulkBatches do
++  use Ecto.Migration
++  def change do
++    alter table(:tickets), do: add(:version, :integer, default: 0, null: false)
++    create table(:transfer_batches) do
++      add :organization_id, references(:organizations), null: false
++      add :actor_id, references(:users), null: false
++      add :key, :string, null: false
++      add :payload, :binary, null: false
++      add :result, :binary, null: false
++      add :dispatched, :boolean, default: false, null: false
++    end
++    create unique_index(:transfer_batches, [:organization_id, :actor_id, :key])
++    create table(:transfer_audits) do
++      add :batch_id, references(:transfer_batches), null: false
++      add :ticket_id, references(:tickets), null: false
++      add :old_assignee_id, :integer
++      add :new_assignee_id, :integer
++      add :version, :integer, null: false
++    end
++  end
++end

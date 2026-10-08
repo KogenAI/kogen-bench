@@ -1,0 +1,297 @@
+diff --git a/run b/run
+index 391e190..ba2dcb8 100755
+--- a/run
++++ b/run
+@@ -1,6 +1,9 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
++ORIGINAL_PATH=$PATH
+ . "$ROOT/toolchain-env.sh"
++PATH="$ORIGINAL_PATH:$PATH"
++export PATH
+ set -- "$@"
+ exec erl -noshell -pa "$ROOT"/build/dev/erlang/*/ebin -eval 'kogen:main(), halt().' -extra "$@"
+diff --git a/src/core.gleam b/src/core.gleam
+index 66ae6e6..2bd4f8d 100644
+--- a/src/core.gleam
++++ b/src/core.gleam
+@@ -1,5 +1,180 @@
+-import shared.{type Failure}
++import gleam/list
++import gleam/option.{type Option, None, Some}
++import gleam/string
++import shared.{type CommandResult, type Failure, CommandResult, Failure}
+ 
+-pub fn execute(_args: List(String)) -> Result(String, Failure) {
+-  Ok("")
++const usage = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID"
++
++const invalid = "cas-land: invalid repository or commit"
++
++pub fn execute(args: List(String)) -> Result(#(String, Int), Failure) {
++  case parse(args, []) {
++    Error(failure) -> Error(failure)
++    Ok(values) ->
++      case
++        #(
++          get(values, "--repo"),
++          get(values, "--target"),
++          get(values, "--base"),
++          get(values, "--candidate"),
++        )
++      {
++        #(Some(repo), Some(target), Some(base), Some(candidate)) ->
++          land(repo, target, base, candidate)
++        _ -> Error(Failure(2, usage))
++      }
++  }
++}
++
++fn parse(
++  args: List(String),
++  values: List(#(String, String)),
++) -> Result(List(#(String, String)), Failure) {
++  case args {
++    [] -> Ok(values)
++    [flag, value, ..rest] ->
++      case allowed(flag) {
++        False -> Error(Failure(2, usage))
++        True ->
++          case get(values, flag) {
++            Some(_) -> Error(Failure(2, usage))
++            None if value == "" -> Error(Failure(2, usage))
++            None -> parse(rest, [#(flag, value), ..values])
++          }
++      }
++    _ -> Error(Failure(2, usage))
++  }
++}
++
++fn allowed(flag: String) -> Bool {
++  flag == "--repo"
++  || flag == "--target"
++  || flag == "--base"
++  || flag == "--candidate"
++}
++
++fn get(values: List(#(String, String)), key: String) -> Option(String) {
++  case values {
++    [] -> None
++    [#(found, value), ..rest] ->
++      case found == key {
++        True -> Some(value)
++        False -> get(rest, key)
++      }
++  }
++}
++
++fn git(repo: String, args: List(String)) -> CommandResult {
++  shared.command(["git", "-C", repo, ..args])
++}
++
++fn ok_output(result: CommandResult) -> Result(String, Failure) {
++  case result {
++    CommandResult(0, output) -> Ok(output)
++    _ -> Error(Failure(1, invalid))
++  }
++}
++
++fn land(
++  repo: String,
++  target: String,
++  base: String,
++  candidate: String,
++) -> Result(#(String, Int), Failure) {
++  case git(repo, ["check-ref-format", target]) {
++    CommandResult(0, _) ->
++      case string.starts_with(target, "refs/") {
++        False -> Error(Failure(1, invalid))
++        True ->
++          case
++            ok_output(
++              git(repo, ["rev-list", "--parents", "-n", "1", candidate]),
++            )
++          {
++            Error(failure) -> Error(failure)
++            Ok(parent_line) -> {
++              let parts =
++                parent_line
++                |> string.split(" ")
++                |> list.filter(fn(part) { part != "" })
++              case parts {
++                [_, parent] if parent == base ->
++                  land_valid(repo, target, base, candidate)
++                _ -> Error(Failure(1, invalid))
++              }
++            }
++          }
++      }
++    _ -> Error(Failure(1, invalid))
++  }
++}
++
++fn land_valid(
++  repo: String,
++  target: String,
++  base: String,
++  candidate: String,
++) -> Result(#(String, Int), Failure) {
++  case ok_output(git(repo, ["rev-parse", "--verify", target])) {
++    Error(failure) -> Error(failure)
++    Ok(current) -> {
++      let rebased = current != base
++      let landing = case rebased {
++        True -> rebase(repo, current, base, candidate)
++        False -> Ok(candidate)
++      }
++      case landing {
++        Error(failure) -> Error(failure)
++        Ok(oid) ->
++          case git(repo, ["update-ref", target, oid, current]) {
++            CommandResult(0, _) -> {
++              let label = case rebased {
++                True -> "rebased"
++                False -> "landed"
++              }
++              let code = case rebased {
++                True -> 10
++                False -> 0
++              }
++              Ok(#(label <> " " <> oid <> "\n", code))
++            }
++            _ -> Error(Failure(30, "cas-land: lost race"))
++          }
++      }
++    }
++  }
++}
++
++fn rebase(
++  repo: String,
++  current: String,
++  base: String,
++  candidate: String,
++) -> Result(String, Failure) {
++  let work = shared.temp_path()
++  case git(repo, ["worktree", "add", "--detach", work, candidate]) {
++    CommandResult(0, _) -> {
++      let result = git(work, ["rebase", "--onto", current, base])
++      let outcome = case result {
++        CommandResult(0, _) -> ok_output(git(work, ["rev-parse", "HEAD"]))
++        _ -> {
++          let conflict = case
++            git(work, ["diff", "--name-only", "--diff-filter=U"])
++          {
++            CommandResult(0, files) -> files != ""
++            _ -> False
++          }
++          let _ = git(work, ["rebase", "--abort"])
++          case conflict {
++            True -> Error(Failure(20, "cas-land: conflict"))
++            False -> Error(Failure(1, invalid))
++          }
++        }
++      }
++      let _ = git(repo, ["worktree", "remove", "--force", work])
++      shared.remove_path(work)
++      outcome
++    }
++    _ -> Error(Failure(1, invalid))
++  }
+ }
+diff --git a/src/kogen.gleam b/src/kogen.gleam
+index 6b36f98..93c17f2 100644
+--- a/src/kogen.gleam
++++ b/src/kogen.gleam
+@@ -3,7 +3,10 @@ import shared.{Failure}
+ 
+ pub fn main() {
+   case core.execute(shared.args()) {
+-    Ok(text) -> shared.write(text)
++    Ok(#(text, code)) -> {
++      shared.write(text)
++      shared.halt(code)
++    }
+     Error(Failure(code, message)) -> shared.fail(code, message)
+   }
+ }
+diff --git a/src/kogen_io.erl b/src/kogen_io.erl
+index 0f26b87..3cab534 100644
+--- a/src/kogen_io.erl
++++ b/src/kogen_io.erl
+@@ -1,5 +1,5 @@
+ -module(kogen_io).
+--export([args/0, read/1, write/1, fail/2, matches/2, position/2]).
++-export([args/0, read/1, write/1, fail/2, halt/1, matches/2, position/2, command/1, temp_path/0, remove_path/1]).
+ 
+ args() -> [unicode:characters_to_binary(Arg) || Arg <- init:get_plain_arguments()].
+ read(Path) ->
+@@ -27,6 +27,27 @@ ascii(<<10, Rest/binary>>, Line, _, Whole) -> ascii(Rest, Line + 1, 1, Whole);
+ ascii(<<_, Rest/binary>>, Line, Col, Whole) -> ascii(Rest, Line, Col + 1, Whole).
+ write(Text) -> io:put_chars(standard_io, Text), nil.
+ fail(Code, Message) -> io:put_chars(standard_error, [Message, <<"\n">>]), erlang:halt(Code).
++halt(Code) -> erlang:halt(Code).
+ matches(Pattern, Text) -> re:run(Text, Pattern, [{capture, none}]) =:= match.
+ position(Text, Needle) ->
+     case binary:match(Text, Needle) of {At, _} -> At; nomatch -> -1 end.
++command(Args) ->
++    [Program | Tail] = [binary_to_list(Arg) || Arg <- Args],
++    case os:find_executable(Program) of
++        false -> {command_result, 127, <<>>};
++        Executable ->
++            Port = open_port({spawn_executable, Executable}, [binary, exit_status, use_stdio, stderr_to_stdout, {args, Tail}]),
++            {Code, Chunks} = collect(Port, []),
++            Output = unicode:characters_to_binary(string:trim(unicode:characters_to_list(iolist_to_binary(lists:reverse(Chunks))))),
++            {command_result, Code, Output}
++    end.
++collect(Port, Chunks) ->
++    receive
++        {Port, {data, Bytes}} -> collect(Port, [Bytes | Chunks]);
++        {Port, {exit_status, Code}} -> {Code, Chunks}
++    end.
++temp_path() ->
++    list_to_binary("/tmp/cas-land-" ++ os:getpid() ++ "-" ++ integer_to_list(erlang:unique_integer([positive]))).
++remove_path(Path) ->
++    _ = file:del_dir_r(binary_to_list(Path)),
++    nil.
+diff --git a/src/shared.gleam b/src/shared.gleam
+index 0ba08ee..fb15922 100644
+--- a/src/shared.gleam
++++ b/src/shared.gleam
+@@ -11,6 +11,10 @@ pub type ReadError {
+   NotAscii(line: Int, col: Int)
+ }
+ 
++pub type CommandResult {
++  CommandResult(code: Int, output: String)
++}
++
+ @external(erlang, "kogen_io", "args")
+ pub fn args() -> List(String)
+ 
+@@ -23,12 +27,24 @@ pub fn write(text: String) -> Nil
+ @external(erlang, "kogen_io", "fail")
+ pub fn fail(code: Int, message: String) -> Nil
+ 
++@external(erlang, "kogen_io", "halt")
++pub fn halt(code: Int) -> Nil
++
+ @external(erlang, "kogen_io", "matches")
+ pub fn matches(pattern: String, text: String) -> Bool
+ 
+ @external(erlang, "kogen_io", "position")
+ pub fn position(text: String, needle: String) -> Int
+ 
++@external(erlang, "kogen_io", "command")
++pub fn command(args: List(String)) -> CommandResult
++
++@external(erlang, "kogen_io", "temp_path")
++pub fn temp_path() -> String
++
++@external(erlang, "kogen_io", "remove_path")
++pub fn remove_path(path: String) -> Nil
++
+ pub fn physical_lines(text: String) -> List(String) {
+   text
+   |> string.split("\n")

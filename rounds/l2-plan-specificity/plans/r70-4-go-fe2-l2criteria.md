@@ -1,0 +1,10 @@
+- [ ] Accept only `cas-land --repo DIR --target REF --base OID --candidate OID`, with each required option used exactly once, one separate value per option, any option order, and no positional arguments or extra options. Usage errors print exactly `cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n` to stderr, nothing to stdout, and exit 2.
+- [ ] Reject an invalid repository, ref, commit, or candidate shape with exactly `cas-land: invalid repository or commit\n` on stderr, nothing on stdout, and exit 1. The candidate has exactly one parent, equal to `--base`.
+- [ ] Use Git to read and update repository state. If the target commit equals `--base`, land the candidate; otherwise rebase it onto the current target using `--base` as the rebase upstream.
+- [ ] Update a clean landing with Git’s atomic compare-and-swap ref update, supplying the exact target value read before preparing the landing.
+- [ ] For a clean direct landing, print `landed OID\n` to stdout, nothing to stderr, and exit 0. For a clean rebase, print `rebased OID\n`, nothing to stderr, and exit 10. Success OIDs are full lowercase hexadecimal IDs printed by Git.
+- [ ] On rebase conflict, print nothing to stdout and exactly `cas-land: conflict\n` to stderr; exit 20 and leave the target unchanged.
+- [ ] If the compare-and-swap update loses a race, print nothing to stdout and exactly `cas-land: lost race\n` to stderr; exit 30 and leave the competing target value untouched.
+- [ ] On either failure, clean up temporary rebase state and remove all temporary refs and worktrees created by the command. Emit no other output.
+- [ ] `make build` creates the executable used by `./run`; `./run` forwards arguments and standard input/output/error without building. Builds work offline.
+- [ ] `make check` completes its deterministic checks: gofmt, go vet, golangci-lint, and go test.

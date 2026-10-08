@@ -1,0 +1,113 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..e04efb4 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -77,9 +77,19 @@ defmodule Trackline.Support do
+     do: Repo.get!(Ticket, id) |> Repo.preload([:organization, :author, :assignee])
+ 
+   def create_ticket(%Organization{id: org_id}, %User{id: author_id}, attrs) do
+-    %Ticket{organization_id: org_id, author_id: author_id}
+-    |> Ticket.changeset(attrs)
+-    |> Repo.insert()
++    changeset = Ticket.changeset(%Ticket{organization_id: org_id, author_id: author_id}, attrs)
++
++    Repo.transact(fn ->
++      if changeset.valid? do
++        next =
++          Repo.one(from t in Ticket, where: t.organization_id == ^org_id, select: max(t.number)) ||
++            0
++
++        changeset |> Ecto.Changeset.put_change(:number, next + 1) |> Repo.insert()
++      else
++        {:error, %{changeset | action: :insert}}
++      end
++    end)
+   end
+ 
+   def change_ticket(%Ticket{} = ticket, attrs \\ %{}), do: Ticket.changeset(ticket, attrs)
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..4b38095 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -10,6 +10,7 @@ defmodule Trackline.Support.Ticket do
+     field :body, :string
+     field :status, :string, default: "open"
+     field :priority, :string, default: "normal"
++    field :number, :integer
+     field :comment_count, :integer, virtual: true, default: 0
+ 
+     belongs_to :organization, Trackline.Support.Organization
+diff --git a/lib/trackline_web/controllers/ticket_export_controller.ex b/lib/trackline_web/controllers/ticket_export_controller.ex
+index f8fab8c..9e8795c 100644
+--- a/lib/trackline_web/controllers/ticket_export_controller.ex
++++ b/lib/trackline_web/controllers/ticket_export_controller.ex
+@@ -13,6 +13,7 @@ defmodule TracklineWeb.TicketExportController do
+ 
+       json(conn, %{
+         id: ticket.id,
++        number: ticket.number,
+         title: ticket.title,
+         body: ticket.body,
+         status: ticket.status,
+diff --git a/lib/trackline_web/live/ticket_live/index.ex b/lib/trackline_web/live/ticket_live/index.ex
+index 7f498d9..253ace4 100644
+--- a/lib/trackline_web/live/ticket_live/index.ex
++++ b/lib/trackline_web/live/ticket_live/index.ex
+@@ -75,7 +75,7 @@ defmodule TracklineWeb.TicketLive.Index do
+           <tr :for={ticket <- @tickets} id={"ticket-#{ticket.id}"}>
+             <td>
+               <.link navigate={~p"/orgs/#{@org.slug}/tickets/#{ticket.id}"} class="link">
+-                {ticket.title}
++                #{ticket.number} {ticket.title}
+               </.link>
+             </td>
+             <td class="ticket-status">{ticket.status}</td>
+diff --git a/lib/trackline_web/live/ticket_live/show.ex b/lib/trackline_web/live/ticket_live/show.ex
+index ea2fcb4..2f4268e 100644
+--- a/lib/trackline_web/live/ticket_live/show.ex
++++ b/lib/trackline_web/live/ticket_live/show.ex
+@@ -75,7 +75,7 @@ defmodule TracklineWeb.TicketLive.Show do
+     ~H"""
+     <Layouts.app flash={@flash} current_scope={@current_scope}>
+       <.header>
+-        {@ticket.title}
++        #{@ticket.number} {@ticket.title}
+         <:subtitle>
+           <span id="ticket-status">{@ticket.status}</span>
+           / <span id="ticket-priority">{@ticket.priority}</span>
+diff --git a/priv/repo/migrations/20260930100000_add_ticket_numbers.exs b/priv/repo/migrations/20260930100000_add_ticket_numbers.exs
+new file mode 100644
+index 0000000..ce186ee
+--- /dev/null
++++ b/priv/repo/migrations/20260930100000_add_ticket_numbers.exs
+@@ -0,0 +1,30 @@
++defmodule Trackline.Repo.Migrations.AddTicketNumbers do
++  use Ecto.Migration
++
++  def up do
++    alter table(:tickets) do
++      add :number, :integer
++    end
++
++    # Oldest first; ties broken by id.
++    execute """
++    UPDATE tickets SET number = (
++      SELECT COUNT(*) FROM tickets t2
++      WHERE t2.organization_id = tickets.organization_id
++        AND (t2.inserted_at < tickets.inserted_at
++             OR (t2.inserted_at = tickets.inserted_at AND t2.id <= tickets.id))
++    )
++    """
++
++    create unique_index(:tickets, [:organization_id, :number])
++  end
++
++  def down do
++    # SQLite refuses to drop an indexed column, so drop the index first.
++    drop unique_index(:tickets, [:organization_id, :number])
++
++    alter table(:tickets) do
++      remove :number
++    end
++  end
++end

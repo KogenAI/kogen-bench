@@ -1,0 +1,54 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-models",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H39",
+    "H40",
+    "H41",
+    "H42",
+    "H43",
+    "H46"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-models-overall",
+      "arms": "multiple models and efforts",
+      "planned_n": 204,
+      "completed_graded_n": 155,
+      "cancelled_n": 49,
+      "correct_n": 122,
+      "incorrect_n": 33,
+      "classification": "source-reported inventory; cell-level rows unavailable"
+    },
+    {
+      "experiment_id": "x-models-primary-screen",
+      "arms": "Luna max vs Sol 6.1 high",
+      "task_n": 8,
+      "reported_results": "7/8 vs 6/8",
+      "classification": "source-reported inconclusive screen"
+    },
+    {
+      "experiment_id": "x-models-adjacent-panel",
+      "arms": "Luna max; Sol 6.1 high; Luna high",
+      "task_n": 8,
+      "reps_per_arm": 2,
+      "reported_results": "15/16; 15/16; 12/16",
+      "classification": "separate development panel"
+    },
+    {
+      "experiment_id": "x-models-astra",
+      "arms": "Astra medium vs Sol high",
+      "reported_results": "16/16",
+      "classification": "separate small screen; exact alignment unavailable"
+    }
+  ]
+}

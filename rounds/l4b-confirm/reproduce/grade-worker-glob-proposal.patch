@@ -1,0 +1,5 @@
+--- a/levers/r70/grade_worker.py
++++ b/levers/r70/grade_worker.py
+@@
+- for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json') for c in pathlib.Path('<host-path>').glob(pattern)]:
++ for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l4b-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json') for c in pathlib.Path('<host-path>').glob(pattern)]:

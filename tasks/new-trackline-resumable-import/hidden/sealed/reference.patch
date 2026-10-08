@@ -1,0 +1,315 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..ba51d80 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -96,6 +96,9 @@ defmodule Trackline.Support do
+     ticket |> Ecto.Changeset.change(assignee_id: user_id) |> Repo.update()
+   end
+ 
++  def start_import(org, actor, path, key), do: Trackline.Support.Imports.start(org, actor, path, key)
++  def cancel_import(session, actor), do: Trackline.Support.Imports.cancel(session.id, actor)
++
+   ## Comments
+ 
+   def add_comment(%Ticket{id: ticket_id}, %User{id: author_id}, attrs) do
+diff --git a/lib/trackline/support/csv_records.ex b/lib/trackline/support/csv_records.ex
+new file mode 100644
+index 0000000..d527989
+--- /dev/null
++++ b/lib/trackline/support/csv_records.ex
+@@ -0,0 +1,22 @@
++defmodule Trackline.Support.CSVRecords do
++ def stream(path) do
++   File.stream!(path, 4096)
++   |> Stream.flat_map(&:binary.bin_to_list/1)
++   |> Stream.concat([:eof])
++   |> Stream.transform({[], [], :start}, &step/2)
++ end
++ defp field(chars), do: chars |> Enum.reverse() |> :binary.list_to_bin()
++ defp step(:eof, {[], [], :start}=s), do: {[], s}
++ defp step(:eof, {_, _, :quoted}), do: raise(ArgumentError, "unterminated CSV quote")
++ defp step(:eof, {fs, f, _}), do: {[Enum.reverse([field(f)|fs])], {[], [], :start}}
++ defp step(34, {fs, f, :quoted}), do: {[], {fs, f, :closed}}
++ defp step(c, {fs, f, :quoted}), do: {[], {fs, [c|f], :quoted}}
++ defp step(34, {fs, f, :closed}), do: {[], {fs, [34|f], :quoted}}
++ defp step(34, {fs, [], :start}), do: {[], {fs, [], :quoted}}
++ defp step(44, {fs, f, _}), do: {[], {[field(f)|fs], [], :start}}
++ defp step(10, {fs, f, _}), do: {[Enum.reverse([field(f)|fs])], {[], [], :start}}
++ defp step(13, s), do: {[], s}
++ defp step(_, {_, _, :closed}), do: raise(ArgumentError, "invalid CSV quote suffix")
++ defp step(34, _), do: raise(ArgumentError, "invalid CSV quote")
++ defp step(c, {fs, f, _}), do: {[], {fs, [c|f], :unquoted}}
++end
+diff --git a/lib/trackline/support/import_row.ex b/lib/trackline/support/import_row.ex
+new file mode 100644
+index 0000000..bb9f29e
+--- /dev/null
++++ b/lib/trackline/support/import_row.ex
+@@ -0,0 +1,9 @@
++defmodule Trackline.Support.ImportRow do
++ use Ecto.Schema
++ schema "import_rows" do
++  field :session_id, :integer
++  field :row, :integer
++  field :error, :string
++  field :ticket_id, :integer
++ end
++end
+diff --git a/lib/trackline/support/import_session.ex b/lib/trackline/support/import_session.ex
+new file mode 100644
+index 0000000..1ba97ff
+--- /dev/null
++++ b/lib/trackline/support/import_session.ex
+@@ -0,0 +1,14 @@
++defmodule Trackline.Support.ImportSession do
++ use Ecto.Schema
++ schema "import_sessions" do
++  field :organization_id, :integer
++  field :actor_id, :integer
++  field :key, :string
++  field :digest, :binary
++  field :path, :string
++  field :cursor, :integer, default: 0
++  field :status, :string, default: "pending"
++  field :lease, :string
++  field :lease_until, :integer, default: 0
++ end
++end
+diff --git a/lib/trackline/support/imports.ex b/lib/trackline/support/imports.ex
+new file mode 100644
+index 0000000..1a9ca29
+--- /dev/null
++++ b/lib/trackline/support/imports.ex
+@@ -0,0 +1,89 @@
++defmodule Trackline.Support.Imports do
++ import Ecto.Query
++ alias Trackline.Repo
++ alias Trackline.Support.{ImportSession, ImportRow, Ticket, CSVRecords, Organization}
++ def start(org, actor, path, key) do
++   cond do
++     not Trackline.Support.can_write?(Trackline.Support.get_membership(org, actor)) -> {:error, :forbidden}
++     not is_binary(key) or byte_size(key) not in 1..128 -> {:error, :invalid}
++     File.stat!(path).size > 50 * 1024 * 1024 -> {:error, :too_large}
++     true ->
++       digest = File.stream!(path, 4096) |> Enum.reduce(:crypto.hash_init(:sha256), &:crypto.hash_update(&2, &1)) |> :crypto.hash_final()
++       header = CSVRecords.stream(path) |> Enum.take(1) |> List.first()
++       if header != [<<239,187,191>> <> "external_id", "title", "body"] and header != ["external_id", "title", "body"], do: raise(ArgumentError, "expected external_id,title,body")
++       Repo.transaction(fn ->
++         if not Trackline.Support.can_write?(Trackline.Support.get_membership(org, actor)), do: Repo.rollback(:forbidden)
++         old = Repo.get_by(ImportSession, organization_id: org.id, actor_id: actor.id, key: key)
++         if old do
++           if old.digest != digest, do: Repo.rollback(:conflict)
++           old
++         else
++           copy = path <> ".trackline-" <> Ecto.UUID.generate() <> ".csv"
++           File.cp!(path, copy)
++           session = Repo.insert!(%ImportSession{organization_id: org.id, actor_id: actor.id, key: key, digest: digest, path: copy})
++           {:ok, _} = %{session_id: session.id} |> Trackline.Workers.TicketImport.new() |> Oban.insert()
++           session
++         end
++       end, mode: :immediate)
++   end
++ end
++ def claim(id, ttl \\ 30_000) when is_integer(ttl) and ttl > 0 do
++   Repo.transaction(fn ->
++     s = Repo.get!(ImportSession, id)
++     if s.status in ["cancelled", "complete", "revoked"], do: Repo.rollback(:stopped)
++     if s.lease_until > now(), do: Repo.rollback(:leased)
++     token = Ecto.UUID.generate()
++     Repo.update!(Ecto.Changeset.change(s, status: "running", lease: token, lease_until: now()+ttl))
++   end, mode: :immediate)
++ end
++ def batch(id, token, size \\ 100) when size in 1..500 do
++   Repo.transaction(fn ->
++     s = Repo.get!(ImportSession, id)
++     if s.status != "running" or s.lease != token or s.lease_until <= now(), do: Repo.rollback(:stale)
++     org = Repo.get!(Organization, s.organization_id)
++     actor = Repo.get!(Trackline.Accounts.User, s.actor_id)
++     if not Trackline.Support.can_write?(Trackline.Support.get_membership(org, actor)) do
++       Repo.update!(Ecto.Changeset.change(s, status: "revoked", lease: nil, lease_until: 0))
++     else
++       rows = CSVRecords.stream(s.path) |> Stream.drop(s.cursor+1) |> Enum.take(size+1)
++       take = Enum.take(rows,size)
++       Enum.with_index(take, s.cursor+1) |> Enum.each(fn {row, n} ->
++         {ticket, error} = insert_row(org, actor, row)
++         Repo.insert!(%ImportRow{session_id: id, row: n, ticket_id: ticket && ticket.id, error: error})
++       end)
++       if s.lease_until <= now(), do: Repo.rollback(:stale)
++       Repo.update!(Ecto.Changeset.change(s, cursor: s.cursor+length(take), status: if(length(rows)<=size, do: "complete", else: "running")))
++     end
++   end, mode: :immediate)
++ end
++ defp insert_row(org, actor, [ext,title,body]) when ext != "" do
++   if Repo.get_by(Ticket, organization_id: org.id, external_id: ext) do
++     {nil, "duplicate external_id"}
++   else
++     cs = %Ticket{organization_id: org.id, author_id: actor.id, external_id: ext} |> Ticket.changeset(%{title: title, body: body})
++     case Repo.insert(cs) do
++       {:ok, t} -> {t, nil}
++       {:error, _} -> {nil, "invalid ticket"}
++     end
++   end
++ end
++ defp insert_row(_, _, _), do: {nil, "invalid row"}
++ def cancel(id, actor) do
++   Repo.transaction(fn ->
++     s = Repo.get!(ImportSession, id)
++     org = Repo.get!(Organization, s.organization_id)
++     if not Trackline.Support.can_write?(Trackline.Support.get_membership(org, actor)), do: Repo.rollback(:forbidden)
++     if s.status == "complete", do: s, else: Repo.update!(Ecto.Changeset.change(s, status: "cancelled", lease: nil, lease_until: 0))
++   end, mode: :immediate)
++ end
++ def progress(id, actor) do
++   s = Repo.get!(ImportSession, id)
++   org = Repo.get!(Organization,s.organization_id)
++   if Trackline.Support.get_membership(org,actor) do
++     %{session: s, rows: Repo.all(from(r in ImportRow, where: r.session_id == ^id, order_by: r.row))}
++   else
++     {:error, :forbidden}
++   end
++ end
++ defp now, do: System.system_time(:millisecond)
++end
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..785bd58 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -6,6 +6,7 @@ defmodule Trackline.Support.Ticket do
+   @priorities ~w(low normal high urgent)
+ 
+   schema "tickets" do
++    field :external_id, :string
+     field :title, :string
+     field :body, :string
+     field :status, :string, default: "open"
+diff --git a/lib/trackline/workers/ticket_import.ex b/lib/trackline/workers/ticket_import.ex
+new file mode 100644
+index 0000000..dcf548d
+--- /dev/null
++++ b/lib/trackline/workers/ticket_import.ex
+@@ -0,0 +1,17 @@
++defmodule Trackline.Workers.TicketImport do
++ use Oban.Worker, queue: :default
++ def perform(%Oban.Job{args: %{"session_id" => id}}) do
++   case Trackline.Support.Imports.claim(id) do
++     {:ok, s} -> loop(s)
++     {:error, :leased} -> {:snooze, 30}
++     {:error, :stopped} -> :ok
++   end
++ end
++ defp loop(s) do
++   case Trackline.Support.Imports.batch(s.id,s.lease) do
++     {:ok, %{status: "running"}=next} -> loop(next)
++     {:ok, _} -> :ok
++     {:error, :stale} -> {:snooze, 30}
++   end
++ end
++end
+diff --git a/lib/trackline_web/controllers/import_controller.ex b/lib/trackline_web/controllers/import_controller.ex
+new file mode 100644
+index 0000000..2df330e
+--- /dev/null
++++ b/lib/trackline_web/controllers/import_controller.ex
+@@ -0,0 +1,10 @@
++defmodule TracklineWeb.ImportController do
++ use TracklineWeb, :controller
++ def create(conn, %{"slug" => slug, "file" => %Plug.Upload{path: path}, "key" => key}) do
++   org = Trackline.Support.get_organization_by_slug!(slug)
++   case Trackline.Support.start_import(org,conn.assigns.current_scope.user,path,key) do
++     {:ok,s} -> json(conn,%{id: s.id, cursor: s.cursor, status: s.status})
++     {:error, e} -> conn |> put_status(422) |> json(%{error: to_string(e)})
++   end
++ end
++end
+diff --git a/lib/trackline_web/live/import_live.ex b/lib/trackline_web/live/import_live.ex
+new file mode 100644
+index 0000000..bd0aca4
+--- /dev/null
++++ b/lib/trackline_web/live/import_live.ex
+@@ -0,0 +1,36 @@
++defmodule TracklineWeb.ImportLive do
++ use TracklineWeb, :live_view
++ def mount(%{"slug" => slug, "id" => id}, _, socket) do
++   org = Trackline.Support.get_organization_by_slug!(slug)
++   progress = Trackline.Support.Imports.progress(String.to_integer(id), socket.assigns.current_scope.user)
++   if is_map(progress) and progress.session.organization_id == org.id do
++     if connected?(socket), do: Process.send_after(self(), :refresh, 500)
++     {:ok, assign(socket, :progress, progress)}
++   else
++     {:ok, push_navigate(socket, to: ~p"/orgs")}
++   end
++ end
++ def handle_info(:refresh, socket) do
++   p = Trackline.Support.Imports.progress(socket.assigns.progress.session.id, socket.assigns.current_scope.user)
++   if is_map(p) do
++     Process.send_after(self(), :refresh, 500)
++     {:noreply, assign(socket, :progress, p)}
++   else
++     {:noreply, push_navigate(socket, to: ~p"/orgs")}
++   end
++ end
++ def handle_event("cancel", _, socket) do
++   Trackline.Support.cancel_import(socket.assigns.progress.session, socket.assigns.current_scope.user)
++   handle_info(:refresh,socket)
++ end
++ def render(assigns) do
++   ~H"""
++   <Layouts.app flash={@flash} current_scope={@current_scope}>
++    <div id="import-progress" data-cursor={@progress.session.cursor} data-status={@progress.session.status}>
++     <button id="cancel-import" phx-click="cancel">Cancel</button>
++     <ol id="import-errors"><li :for={r <- @progress.rows} :if={r.error} id={"row-#{r.row}"}>{r.row}: {r.error}</li></ol>
++    </div>
++   </Layouts.app>
++   """
++ end
++end
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..f45f9ff 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -46,11 +46,13 @@ defmodule TracklineWeb.Router do
+       on_mount: [{TracklineWeb.UserAuth, :require_authenticated}] do
+       live "/users/settings", UserLive.Settings, :edit
+       live "/orgs", OrgLive.Index, :index
++      live "/orgs/:slug/imports/:id", ImportLive
+       live "/orgs/:slug/tickets", TicketLive.Index, :index
+       live "/orgs/:slug/tickets/:id", TicketLive.Show, :show
+       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+     end
+ 
++    post "/orgs/:slug/imports", ImportController, :create
+     post "/users/update-password", UserSessionController, :update_password
+     get "/orgs/:slug/tickets/:id/export.json", TicketExportController, :show
+   end
+diff --git a/priv/repo/migrations/20261001011000_import_sessions.exs b/priv/repo/migrations/20261001011000_import_sessions.exs
+new file mode 100644
+index 0000000..0d95b01
+--- /dev/null
++++ b/priv/repo/migrations/20261001011000_import_sessions.exs
+@@ -0,0 +1,26 @@
++defmodule Trackline.Repo.Migrations.ImportSessions do
++ use Ecto.Migration
++ def change do
++   alter table(:tickets), do: add(:external_id, :string)
++   create unique_index(:tickets, [:organization_id, :external_id])
++   create table(:import_sessions) do
++     add :organization_id, references(:organizations), null: false
++     add :actor_id, references(:users), null: false
++     add :key, :string, null: false
++     add :digest, :binary, null: false
++     add :path, :string, null: false
++     add :cursor, :integer, default: 0, null: false
++     add :status, :string, default: "pending", null: false
++     add :lease, :string
++     add :lease_until, :bigint, default: 0
++   end
++   create unique_index(:import_sessions, [:organization_id, :actor_id, :key])
++   create table(:import_rows) do
++     add :session_id, references(:import_sessions), null: false
++     add :row, :integer, null: false
++     add :error, :string
++     add :ticket_id, references(:tickets)
++   end
++   create unique_index(:import_rows, [:session_id, :row])
++ end
++end

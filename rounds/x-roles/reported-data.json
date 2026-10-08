@@ -1,0 +1,48 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-roles",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H29",
+    "H39",
+    "H43",
+    "H49"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-roles-worker-pilot",
+      "arms": "Sol high vs Luna max",
+      "task_n": 1,
+      "reported_results": "2/2 vs 2/2",
+      "cost_wall": "about 7× lower API-equivalent cost and 1.7× wall for Luna, source-reported",
+      "classification": "small pilot"
+    },
+    {
+      "experiment_id": "x-roles-implementation",
+      "arms": "Sol high vs Luna high",
+      "reported_results": "4/7 vs 2/7",
+      "infrastructure_n": 1,
+      "classification": "source-reported; cohort alignment not recovered"
+    },
+    {
+      "experiment_id": "x-roles-reviewer",
+      "arms": "Sol high vs Luna high",
+      "reported_results": "0/4 vs 2/2 complete",
+      "judgments_correct": "23/24 in reported Luna cohort",
+      "classification": "small reviewer-envelope screen"
+    },
+    {
+      "experiment_id": "x-roles-decision",
+      "reported_results": "no role policy selected",
+      "classification": "no promotion"
+    }
+  ]
+}

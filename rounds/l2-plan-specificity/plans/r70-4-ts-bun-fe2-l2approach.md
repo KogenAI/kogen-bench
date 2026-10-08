@@ -1,0 +1,7 @@
+## Architecture plan
+
+- Keep command behavior in `src/core.ts`: parse the four required options in any order, reject duplicates, missing values, positional arguments, and unknown options, and route every Git operation through the system `git` executable.
+- Validate the repository, target ref, base and candidate commits with Git. Confirm the candidate has exactly one parent and that parent matches `--base`; treat validation failures uniformly as the specified invalid repository or commit error.
+- Read and retain the target’s current commit as the expected value for the final atomic `git update-ref` compare-and-swap. Use the candidate directly when the target still equals the base; otherwise rebase the candidate onto the captured target with the base as upstream.
+- Keep rebase work isolated from the target ref, using temporary worktree or ref state that can be removed on success, conflict, and lost race. A conflict aborts the temporary rebase; a compare-and-swap failure reports the lost race without overwriting the competing target value.
+- Capture Git subprocess output so only the specified success or error text reaches stdout or stderr. Return the success line from `execute`; use the existing `Failure` type for usage, validation, conflict, and race errors. Preserve `main.ts`’s mapping of the `rebased ` success prefix to exit code 10, with other successful output exiting 0.

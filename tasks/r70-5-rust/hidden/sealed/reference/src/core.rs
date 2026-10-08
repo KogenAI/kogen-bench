@@ -1,0 +1,172 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+const HELP: &str = "Usage: kogen-config [FILE|-]\nParse a strict YAML-subset configuration from FILE or stdin.\nOptions:\n  --help  Show this help.\n";
+type Failure = (i32, String);
+
+pub fn execute(args: &[String]) -> Result<String, Failure> {
+    if args == ["--help"] {
+        return Ok(HELP.into());
+    }
+    for arg in args {
+        if arg.starts_with('-') && arg != "-" {
+            return Err((2, format!("config: unknown option '{arg}'")));
+        }
+    }
+    if args.len() > 1 {
+        return Err((2, "config: expected at most one input path".into()));
+    }
+    let raw = crate::load(args.first().map(String::as_str), "config").map_err(|e| (1, e))?;
+    let (mut line, mut col) = (1, 1);
+    for byte in &raw {
+        if !byte.is_ascii() {
+            return Err((1, format!("config:{line}:{col}: expected ASCII input")));
+        }
+        if *byte == b'\n' {
+            line += 1;
+            col = 1;
+        } else {
+            col += 1;
+        }
+    }
+    let text = String::from_utf8(raw).map_err(|_| (1, "config: cannot read input".into()))?;
+    parse_config(&text).map_err(|e| (1, e))
+}
+
+fn scalar(line: &str, start: usize) -> Result<(String, bool), (usize, &'static str)> {
+    let bytes = line.as_bytes();
+    let col = start + 1;
+    if start == bytes.len() || bytes[start] == b'#' {
+        return Err((col, "missing value"));
+    }
+    let quote = bytes[start];
+    if quote != b'\'' && quote != b'"' {
+        let raw = &line[start..];
+        let value = raw
+            .split_once(" #")
+            .map_or(raw, |(s, _)| s)
+            .trim_end_matches(' ');
+        if value.is_empty()
+            || !value
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b" _./:#-".contains(&b))
+        {
+            return Err((col, "invalid bare scalar"));
+        }
+        return Ok((value.into(), false));
+    }
+    let mut value = String::new();
+    let mut pos = start + 1;
+    let mut closed = false;
+    while pos < bytes.len() {
+        let ch = bytes[pos];
+        if ch == quote {
+            if quote == b'\'' && bytes.get(pos + 1) == Some(&quote) {
+                value.push(char::from(ch));
+                pos += 2;
+                continue;
+            }
+            pos += 1;
+            closed = true;
+            break;
+        }
+        if ch == b'\\' && quote == b'"' {
+            match bytes.get(pos + 1) {
+                Some(b'"' | b'\\') => {
+                    value.push(char::from(bytes[pos + 1]));
+                    pos += 2;
+                    continue;
+                }
+                _ => return Err((pos + 1, "invalid escape")),
+            }
+        }
+        if !(32..=126).contains(&ch) {
+            return Err((col, "invalid quoted scalar"));
+        }
+        value.push(char::from(ch));
+        pos += 1;
+    }
+    if !closed {
+        return Err((col, "unterminated quoted scalar"));
+    }
+    let end = pos;
+    while bytes.get(pos) == Some(&b' ') {
+        pos += 1;
+    }
+    if pos < bytes.len() && !(pos > end && bytes[pos] == b'#') {
+        return Err((pos + 1, "unexpected trailing text"));
+    }
+    Ok((value, true))
+}
+
+fn parse_config(text: &str) -> Result<String, String> {
+    let mut values = BTreeMap::from([
+        ("name", "kogen".to_owned()),
+        ("workers", "1".to_owned()),
+        ("enabled", "true".to_owned()),
+        ("directory", ".".to_owned()),
+    ]);
+    let mut seen = BTreeSet::new();
+    for (i, line) in crate::physical_lines(text).into_iter().enumerate() {
+        let fail = |col: usize, message: &str| format!("config:{}:{col}: {message}", i + 1);
+        if let Some(at) = line.find('\t') {
+            return Err(fail(at + 1, "tab is not allowed"));
+        }
+        let trim = line.trim_start_matches(' ');
+        if trim.is_empty() || trim.starts_with('#') {
+            continue;
+        }
+        if line.starts_with(' ') {
+            return Err(fail(1, "unexpected indentation"));
+        }
+        let (key, _) = line
+            .split_once(':')
+            .ok_or_else(|| fail(1, "expected key: value"))?;
+        if !key.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
+            || !key.bytes().all(|b| b.is_ascii_lowercase() || b == b'_')
+        {
+            return Err(fail(1, "expected key: value"));
+        }
+        if !values.contains_key(key) {
+            return Err(fail(1, &format!("unknown key '{key}'")));
+        }
+        if !seen.insert(key) {
+            return Err(fail(1, &format!("duplicate key '{key}'")));
+        }
+        let mut start = key.len() + 1;
+        while line.as_bytes().get(start) == Some(&b' ') {
+            start += 1;
+        }
+        let (mut value, quoted) =
+            scalar(line, start).map_err(|(col, message)| fail(col, message))?;
+        match key {
+            "workers" => {
+                let n = value.parse::<u32>();
+                if quoted
+                    || value.starts_with('0')
+                    || !value.bytes().all(|b| b.is_ascii_digit())
+                    || !matches!(n, Ok(1..=64))
+                {
+                    return Err(fail(start + 1, "expected integer 1..64"));
+                }
+                value = n
+                    .map_err(|_| fail(start + 1, "expected integer 1..64"))?
+                    .to_string();
+            }
+            "enabled" => {
+                if quoted || (value != "true" && value != "false") {
+                    return Err(fail(start + 1, "expected true or false"));
+                }
+            }
+            _ => {
+                if value.is_empty() {
+                    return Err(fail(start + 1, "expected nonempty string"));
+                }
+            }
+        }
+        values.insert(key, value);
+    }
+    Ok(format!(
+        "name={}\nworkers={}\nenabled={}\ndirectory={}\n",
+        values["name"], values["workers"], values["enabled"], values["directory"]
+    ))
+}

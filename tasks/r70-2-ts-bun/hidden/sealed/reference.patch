@@ -1,0 +1,162 @@
+diff --git a/src/core.ts b/src/core.ts
+index c5f4a3a..e8fd318 100644
+--- a/src/core.ts
++++ b/src/core.ts
+@@ -1,3 +1,109 @@
+-export async function execute(_args: string[]): Promise<string> {
+-  return '';
++import { readdir, readFile } from 'node:fs/promises';
++import { Failure } from './shared.ts';
++
++export type Result = { code: number; status: string };
++
++function milliseconds(value: string | undefined): number | undefined {
++  if (value === undefined || !/^[0-9]+$/.test(value)) return undefined;
++  const number = Number(value);
++  return Number.isSafeInteger(number) && number >= 1 && number <= 60000
++    ? number
++    : undefined;
++}
++
++export async function execute(args: string[]): Promise<Result> {
++  if (
++    args.length < 7 ||
++    args[0] !== 'supervise' ||
++    args[1] !== '--timeout-ms' ||
++    args[3] !== '--grace-ms' ||
++    args[5] !== '--' ||
++    args[6] === ''
++  )
++    throw new Failure(2, 'error: invalid arguments');
++  const timeout = milliseconds(args[2]);
++  const grace = milliseconds(args[4]);
++  if (timeout === undefined || grace === undefined)
++    throw new Failure(2, 'error: invalid arguments');
++  const started = performance.now();
++  let child: ReturnType<typeof Bun.spawn>;
++  try {
++    child = Bun.spawn(args.slice(6), {
++      stdin: 'ignore',
++      stdout: 'inherit',
++      stderr: 'inherit',
++      detached: true,
++    });
++  } catch {
++    throw new Failure(127, 'error: cannot start command');
++  }
++  const pgid = child.pid;
++  const completion = child.exited;
++  const deadline = started + timeout;
++  while (true) {
++    if (!(await groupLive(pgid))) {
++      const code = await completion;
++      return {
++        code,
++        status: `status=exited exit_code=${code} term_sent=false kill_sent=false reaped=1\n`,
++      };
++    }
++    if (performance.now() >= deadline) break;
++    await delay(5);
++  }
++  signalGroup(pgid, 'SIGTERM');
++  const graceDeadline = performance.now() + grace;
++  while (performance.now() < graceDeadline) await delay(5);
++  const killSent = await groupLive(pgid);
++  if (killSent) {
++    signalGroup(pgid, 'SIGKILL');
++    while (await groupLive(pgid)) await delay(5);
++  }
++  await completion;
++  return {
++    code: 124,
++    status: `status=timeout exit_code=124 term_sent=true kill_sent=${killSent} reaped=1\n`,
++  };
++}
++
++function delay(milliseconds: number): Promise<void> {
++  return new Promise((resolve) => setTimeout(resolve, milliseconds));
++}
++function signalGroup(pgid: number, signal: 'SIGTERM' | 'SIGKILL'): void {
++  try {
++    process.kill(-pgid, signal);
++  } catch {
++    /* exited at signal boundary */
++  }
++}
++async function groupLive(pgid: number): Promise<boolean> {
++  let entries: string[];
++  try {
++    entries = await readdir('/proc');
++  } catch {
++    return false;
++  }
++  for (const entry of entries) {
++    if (!/^[0-9]+$/.test(entry)) continue;
++    let stat: string;
++    try {
++      stat = await readFile(`/proc/${entry}/stat`, 'utf8');
++    } catch {
++      continue;
++    }
++    const close = stat.lastIndexOf(')');
++    if (close < 0) continue;
++    const fields = stat
++      .slice(close + 2)
++      .trim()
++      .split(/\s+/);
++    if (
++      fields.length >= 3 &&
++      fields[0] !== 'Z' &&
++      fields[0] !== 'X' &&
++      Number(fields[2]) === pgid
++    )
++      return true;
++  }
++  return false;
+ }
+diff --git a/src/main.ts b/src/main.ts
+index 1bca664..b2f7f66 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -2,7 +2,9 @@ import { execute } from './core.ts';
+ import { Failure } from './shared.ts';
+ 
+ try {
+-  await Bun.write(Bun.stdout, await execute(process.argv.slice(2)));
++  const result = await execute(process.argv.slice(2));
++  await Bun.write(Bun.stderr, result.status);
++  process.exit(result.code);
+ } catch (error) {
+   if (error instanceof Failure) {
+     await Bun.write(Bun.stderr, `${error.message}\n`);
+diff --git a/src/runtime.d.ts b/src/runtime.d.ts
+index 681d9c2..ae8a03e 100644
+--- a/src/runtime.d.ts
++++ b/src/runtime.d.ts
+@@ -4,8 +4,25 @@ declare const Bun: {
+   stdout: unknown;
+   stderr: unknown;
+   write(target: unknown, text: string): Promise<number>;
++  spawn(
++    command: string[],
++    options: {
++      stdin: string;
++      stdout: string;
++      stderr: string;
++      detached: boolean;
++    },
++  ): { pid: number; exited: Promise<number> };
+ };
+-declare const process: { argv: string[]; exit(code: number): never };
++declare const process: {
++  argv: string[];
++  exit(code: number): never;
++  kill(pid: number, signal: 'SIGTERM' | 'SIGKILL'): void;
++};
++declare module 'node:fs/promises' {
++  export function readdir(path: string): Promise<string[]>;
++  export function readFile(path: string, encoding: 'utf8'): Promise<string>;
++}
+ declare module 'bun:test' {
+   export function test(name: string, fn: () => void): void;
+   export function expect(value: unknown): { toEqual(expected: unknown): void };

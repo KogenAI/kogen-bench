@@ -1,0 +1,41 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-compaction",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H54"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-compaction-traces",
+      "arms": "kh; Codex; Pi",
+      "run_n": 60,
+      "per_arm_n": 20,
+      "compacted_n": 0,
+      "classification": "source-reported trace census"
+    },
+    {
+      "experiment_id": "x-compaction-peak-input",
+      "reported_medians_tokens": "kh 40,500; Codex 64,100; Pi 38,500",
+      "classification": "source-reported medians; raw traces unavailable"
+    },
+    {
+      "experiment_id": "x-compaction-elision-review",
+      "reported_results": "14/18 facts retained",
+      "classification": "preliminary source-reported review"
+    },
+    {
+      "experiment_id": "e06-context-pilot-link",
+      "reported_results": "1 pilot; no adjacent comparison",
+      "classification": "separate study; see e06-context"
+    }
+  ]
+}

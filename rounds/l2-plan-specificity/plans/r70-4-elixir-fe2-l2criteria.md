@@ -1,0 +1,11 @@
+- [ ] Build `cas-land` with `make build` using the Elixir stack, with builds working offline; `./run` forwards arguments and standard input/output/error without building.
+- [ ] Accept only `cas-land --repo DIR --target REF --base OID --candidate OID`; require each option exactly once with a separate value, allow any option order, and reject positional arguments and other options.
+- [ ] For usage errors, write exactly `cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n` to stderr, write nothing to stdout, and exit 2.
+- [ ] Require a valid repository, fully qualified target ref, and commits; require the candidate to have exactly one parent equal to `--base`. For invalid repository, ref, commit, or candidate shape, write exactly `cas-land: invalid repository or commit\n` to stderr, write nothing to stdout, and exit 1.
+- [ ] Use Git to inspect and prepare commits. If the target’s current commit equals `--base`, land the candidate; otherwise rebase the candidate onto the current target using `--base` as the upstream.
+- [ ] On a clean landing, update the target with an atomic compare-and-swap using the exact target value read before preparing the landing.
+- [ ] On a clean landing from the base, write `landed OID\n` to stdout and exit 0; on a clean rebase, write `rebased OID\n` and exit 10. In both cases, use the landed commit’s full lowercase hexadecimal Git object ID and write nothing to stderr.
+- [ ] On rebase conflict, abort and clean up the temporary rebase state, leave the target unchanged, write nothing to stdout, write exactly `cas-land: conflict\n` to stderr, and exit 20.
+- [ ] If the compare-and-swap loses a race, leave the competing target value untouched, write nothing to stdout, write exactly `cas-land: lost race\n` to stderr, and exit 30.
+- [ ] On either failure, remove all temporary refs and worktrees created by the command; emit no other output.
+- [ ] `make check` passes its format check, strict Credo, Dialyzer, and Mix tests.

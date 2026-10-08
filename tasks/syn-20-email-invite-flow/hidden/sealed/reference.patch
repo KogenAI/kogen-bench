@@ -1,0 +1,278 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..ec4ee17 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -7,7 +7,7 @@ defmodule Trackline.Support do
+ 
+   alias Trackline.Accounts.User
+   alias Trackline.Repo
+-  alias Trackline.Support.{Comment, Membership, Organization, Ticket}
++  alias Trackline.Support.{Comment, Invitation, InviteNotifier, Membership, Organization, Ticket}
+ 
+   ## Organizations and membership
+ 
+@@ -54,6 +54,132 @@ defmodule Trackline.Support do
+   def can_write?(%Membership{role: role}), do: role in ["owner", "agent"]
+   def can_write?(_), do: false
+ 
++  ## Invitations
++
++  @invite_ttl_seconds 7 * 24 * 60 * 60
++
++  @doc """
++  Invites `email` to `org` with `role` ("agent" or "viewer"). Only owners may invite.
++  Sends the invitation email; returns `{:ok, invitation}`.
++  """
++  def invite_member(%Organization{} = org, %User{} = inviter, email, role) do
++    if owner?(org, inviter) do
++      token = new_invite_token()
++
++      changeset =
++        %Invitation{
++          organization_id: org.id,
++          inviter_id: inviter.id,
++          token_hash: hash_token(token),
++          sent_at: DateTime.truncate(Trackline.Clock.now(), :second)
++        }
++        |> Invitation.create_changeset(%{email: email, role: role})
++
++      with {:ok, invitation} <- Repo.insert(changeset),
++           {:ok, _email} <- deliver_invite(invitation, org, token) do
++        {:ok, invitation}
++      end
++    else
++      {:error, :forbidden}
++    end
++  end
++
++  @doc "Sends the invitation again with a fresh link; the previous link stops working."
++  def resend_invite(%Invitation{} = invitation, %User{} = actor) do
++    invitation = Repo.get!(Invitation, invitation.id) |> Repo.preload(:organization)
++
++    cond do
++      not owner?(invitation.organization, actor) ->
++        {:error, :forbidden}
++
++      invitation.accepted_at != nil ->
++        {:error, :already_accepted}
++
++      true ->
++        token = new_invite_token()
++
++        {:ok, invitation} =
++          invitation
++          |> Ecto.Changeset.change(
++            token_hash: hash_token(token),
++            sent_at: DateTime.truncate(Trackline.Clock.now(), :second)
++          )
++          |> Repo.update()
++
++        with {:ok, _email} <- deliver_invite(invitation, invitation.organization, token) do
++          {:ok, invitation}
++        end
++    end
++  end
++
++  @doc """
++  Accepts the invitation behind `token` for `user`. The invitation must be
++  current, unexpired, unused, and addressed to `user`'s email.
++  """
++  def accept_invite(token, %User{} = user) when is_binary(token) do
++    Repo.transact(fn ->
++      with %Invitation{} = invitation <- Repo.get_by(Invitation, token_hash: hash_token(token)),
++           :ok <- check_unused(invitation),
++           :ok <- check_fresh(invitation),
++           :ok <- check_addressee(invitation, user),
++           {1, _} <- mark_accepted(invitation),
++           {:ok, membership} <-
++             Repo.insert(
++               Membership.changeset(%Membership{}, %{
++                 organization_id: invitation.organization_id,
++                 user_id: user.id,
++                 role: invitation.role
++               })
++             ) do
++        {:ok, membership}
++      else
++        nil -> {:error, :invalid}
++        {0, _} -> {:error, :already_accepted}
++        {:error, reason} -> {:error, reason}
++      end
++    end)
++  end
++
++  def accept_invite(_token, _user), do: {:error, :invalid}
++
++  defp check_unused(%{accepted_at: nil}), do: :ok
++  defp check_unused(_), do: {:error, :already_accepted}
++
++  defp check_fresh(%{sent_at: sent_at}) do
++    if DateTime.diff(Trackline.Clock.now(), sent_at, :second) <= @invite_ttl_seconds,
++      do: :ok,
++      else: {:error, :expired}
++  end
++
++  defp check_addressee(invitation, user) do
++    if String.downcase(String.trim(user.email)) == invitation.email,
++      do: :ok,
++      else: {:error, :email_mismatch}
++  end
++
++  defp mark_accepted(invitation) do
++    now = DateTime.truncate(Trackline.Clock.now(), :second)
++
++    Repo.update_all(
++      from(i in Invitation, where: i.id == ^invitation.id and is_nil(i.accepted_at)),
++      set: [accepted_at: now]
++    )
++  end
++
++  defp owner?(%Organization{} = org, %User{} = user) do
++    case get_membership(org, user) do
++      %Membership{role: "owner"} -> true
++      _ -> false
++    end
++  end
++
++  defp new_invite_token, do: :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
++  defp hash_token(token), do: :crypto.hash(:sha256, token)
++
++  defp deliver_invite(invitation, org, token) do
++    InviteNotifier.deliver_invite(invitation, org, TracklineWeb.Endpoint.url() <> "/invites/" <> token)
++  end
++
+   ## Tickets
+ 
+   @doc """
+diff --git a/lib/trackline/support/invitation.ex b/lib/trackline/support/invitation.ex
+new file mode 100644
+index 0000000..262e284
+--- /dev/null
++++ b/lib/trackline/support/invitation.ex
+@@ -0,0 +1,29 @@
++defmodule Trackline.Support.Invitation do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  @roles ~w(agent viewer)
++
++  schema "invitations" do
++    field :email, :string
++    field :role, :string
++    field :token_hash, :binary
++    field :sent_at, :utc_datetime
++    field :accepted_at, :utc_datetime
++
++    belongs_to :organization, Trackline.Support.Organization
++    belongs_to :inviter, Trackline.Accounts.User
++
++    timestamps(type: :utc_datetime)
++  end
++
++  def create_changeset(invitation, attrs) do
++    invitation
++    |> cast(attrs, [:email, :role])
++    |> update_change(:email, &(&1 |> String.trim() |> String.downcase()))
++    |> validate_required([:email, :role])
++    |> validate_format(:email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
++    |> validate_length(:email, max: 254)
++    |> validate_inclusion(:role, @roles)
++  end
++end
+diff --git a/lib/trackline/support/invite_notifier.ex b/lib/trackline/support/invite_notifier.ex
+new file mode 100644
+index 0000000..ae79233
+--- /dev/null
++++ b/lib/trackline/support/invite_notifier.ex
+@@ -0,0 +1,24 @@
++defmodule Trackline.Support.InviteNotifier do
++  import Swoosh.Email
++
++  alias Trackline.Mailer
++
++  def deliver_invite(invitation, organization, url) do
++    email =
++      new()
++      |> to(invitation.email)
++      |> from({"Trackline", "contact@example.com"})
++      |> subject("You are invited to #{organization.name} on Trackline")
++      |> text_body("""
++      You have been invited to join #{organization.name} as #{invitation.role}.
++
++      Accept the invitation (the link works once and expires in 7 days):
++
++      #{url}
++
++      If you were not expecting this, ignore this email.
++      """)
++
++    with {:ok, _metadata} <- Mailer.deliver(email), do: {:ok, email}
++  end
++end
+diff --git a/lib/trackline_web/controllers/invite_controller.ex b/lib/trackline_web/controllers/invite_controller.ex
+new file mode 100644
+index 0000000..d0b28f5
+--- /dev/null
++++ b/lib/trackline_web/controllers/invite_controller.ex
+@@ -0,0 +1,23 @@
++defmodule TracklineWeb.InviteController do
++  use TracklineWeb, :controller
++
++  alias Trackline.Support
++
++  def accept(conn, %{"token" => token}) do
++    user = conn.assigns.current_scope.user
++
++    case Support.accept_invite(token, user) do
++      {:ok, membership} ->
++        org = Trackline.Repo.get!(Trackline.Support.Organization, membership.organization_id)
++
++        conn
++        |> put_flash(:info, "Welcome to #{org.name}!")
++        |> redirect(to: ~p"/orgs/#{org.slug}/tickets")
++
++      {:error, _reason} ->
++        conn
++        |> put_flash(:error, "This invitation link is not valid any more.")
++        |> redirect(to: ~p"/orgs")
++    end
++  end
++end
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..5f137d1 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -53,6 +53,7 @@ defmodule TracklineWeb.Router do
+ 
+     post "/users/update-password", UserSessionController, :update_password
+     get "/orgs/:slug/tickets/:id/export.json", TicketExportController, :show
++    get "/invites/:token", InviteController, :accept
+   end
+ 
+   scope "/", TracklineWeb do
+diff --git a/priv/repo/migrations/20260930110000_create_invitations.exs b/priv/repo/migrations/20260930110000_create_invitations.exs
+new file mode 100644
+index 0000000..612d3c2
+--- /dev/null
++++ b/priv/repo/migrations/20260930110000_create_invitations.exs
+@@ -0,0 +1,20 @@
++defmodule Trackline.Repo.Migrations.CreateInvitations do
++  use Ecto.Migration
++
++  def change do
++    create table(:invitations) do
++      add :organization_id, references(:organizations, on_delete: :delete_all), null: false
++      add :inviter_id, references(:users, on_delete: :nilify_all)
++      add :email, :string, null: false
++      add :role, :string, null: false
++      add :token_hash, :binary, null: false
++      add :sent_at, :utc_datetime, null: false
++      add :accepted_at, :utc_datetime
++
++      timestamps(type: :utc_datetime)
++    end
++
++    create unique_index(:invitations, [:token_hash])
++    create index(:invitations, [:organization_id, :email])
++  end
++end

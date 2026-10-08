@@ -1,0 +1,13 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index f7ae3a1..c116035 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -94,7 +94,7 @@ defmodule Trackline.Support do
+       end
+ 
+     tickets = query |> Repo.all() |> sort_tickets(sort)
+-    most_urgent = if sort == "sla", do: Enum.min_by(tickets, &ticket_due_at/1)
++    most_urgent = if sort == "sla", do: Enum.min_by(tickets, &ticket_due_at/1, fn -> nil end)
+     total_pages = div(length(tickets) + @page_size - 1, @page_size)
+     slice = tickets |> Enum.drop((page - 1) * @page_size) |> Enum.take(@page_size)
+ 

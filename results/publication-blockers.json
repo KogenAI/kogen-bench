@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "publication_status": "ready",
+  "blockers": [
+    {
+      "id": "B1",
+      "evidence_key": "official_grade_export_join",
+      "status": "resolved",
+      "title": "Official-export verification of captured grade IDs",
+      "count": 5020,
+      "count_label": "5,020 official-export IDs exact-joined and independently cross-checked",
+      "capture_reported_count": 0,
+      "summary": "All 5,020 captured graded IDs now match unique rows in the refreshed public official grade export by exact cell ID. The 128 post-cut rows were appended from the authoritative ledger; 25 invalid control_apply rows are controls, not model failures.",
+      "claim_scope": "Every captured grade ID has an exact public official-export match. Rows with kind=control_apply and result=invalid/outcome=fail are invalid controls, not model failures; round-specific decision limits still apply.",
+      "evidence_path": "results/GRADE-JOIN.md"
+    },
+    {
+      "id": "B2",
+      "evidence_key": "spec_decision_sources",
+      "status": "resolved",
+      "title": "Pinned Kogen specification snapshot and clause anchors",
+      "evidence_inputs": [
+        "spec/README.md",
+        "spec/SOURCE.json",
+        "spec/SHA256SUMS",
+        "EVIDENCE-MAP.md"
+      ],
+      "count": 134,
+      "count_label": "134 pinned v1.2 EVIDENCE-MAP fragments locally verified",
+      "summary": "The locally sanitized v1.2 snapshot preserves cited content from original revision 1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0 and uses public-release sanitization revision 30d9b25e4eefa7117121de44298fed504b429f4e. Its published-byte SHA-256 manifest verifies, and all 134 pinned EVIDENCE-MAP fragments resolve locally. The decision ledger is absent, so comprehensive decision-to-clause coverage remains limited.",
+      "claim_scope": "All 134 pinned v1.2 specification fragments cited in EVIDENCE-MAP.md resolve to this sanitized local snapshot. This verifies the cited-fragment subset; comprehensive decision-to-clause coverage remains limited because decisions/decision-ledger.jsonl is not vendored.",
+      "evidence_path": "spec/SOURCE.json"
+    }
+  ]
+}

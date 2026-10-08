@@ -1,0 +1,151 @@
+diff --git a/lib/beltway.ex b/lib/beltway.ex
+index 6c5740d..f64b5e6 100644
+--- a/lib/beltway.ex
++++ b/lib/beltway.ex
+@@ -2,4 +2,5 @@ defmodule Beltway do
+   @moduledoc """
+   Pipeline building blocks. See the individual modules.
+   """
++  def run_pipeline(items,command,opts), do: Beltway.Pipeline.run(items,command,opts)
+ end
+diff --git a/lib/beltway/cli.ex b/lib/beltway/cli.ex
+index df75562..7795002 100644
+--- a/lib/beltway/cli.ex
++++ b/lib/beltway/cli.ex
+@@ -26,6 +26,11 @@ defmodule Beltway.CLI do
+     }
+ 
+     case argv do
++      ["pipeline", "--deadline-ms", ms, "--jobs", jobs, cmd | items] ->
++        opts = [deadline: System.monotonic_time(:millisecond)+String.to_integer(ms), max_concurrency: String.to_integer(jobs), max_pending: 16, max_output: 65536]
++        result = Beltway.run_pipeline(items,{cmd,[]},opts)
++        Enum.each(result, &IO.puts(io.stdout,inspect(&1)))
++        if Enum.all?(result,&match?({:ok,%{status: 0}},&1)), do: 0, else: 1
+       ["count" | files] when files != [] -> count(files, io)
+       ["count"] -> usage_error("count needs at least one FILE", io)
+       [cmd | _] -> usage_error("unknown command #{inspect(cmd)}", io)
+diff --git a/lib/beltway/cmd.ex b/lib/beltway/cmd.ex
+index 1d5adb1..01895d8 100644
+--- a/lib/beltway/cmd.ex
++++ b/lib/beltway/cmd.ex
+@@ -5,6 +5,8 @@ defmodule Beltway.Cmd do
+   Options: `:cd`, `:env` (list of `{name, value}` binaries).
+   """
+ 
++  def run_bounded(cmd,args,opts), do: Beltway.run_pipeline([""],{cmd,args},opts) |> hd()
++
+   @spec run(binary(), [binary()], keyword()) :: {:ok, %{status: integer(), output: binary()}}
+   def run(cmd, args, opts \\ []) do
+     sys_opts =
+diff --git a/lib/beltway/pipeline.ex b/lib/beltway/pipeline.ex
+new file mode 100644
+index 0000000..8383f43
+--- /dev/null
++++ b/lib/beltway/pipeline.ex
+@@ -0,0 +1,58 @@
++defmodule Beltway.Pipeline do
++ use GenServer
++ def start(items,command,opts), do: GenServer.start(__MODULE__,{self(),items,command,opts})
++ def await(handle), do: GenServer.call(handle,:await,:infinity)
++ def cancel(handle), do: GenServer.call(handle,:cancel)
++ def run(items,command,opts) do
++   {:ok,h}=start(items,command,opts)
++   await(h)
++ end
++ def init({owner,items,{cmd,args},opts}) do
++   jobs=Keyword.fetch!(opts,:max_concurrency);pending=Keyword.fetch!(opts,:max_pending);limit=Keyword.fetch!(opts,:max_output)
++   if jobs<1 or pending<1 or limit<0 or not is_list(items), do: raise(ArgumentError,"invalid pipeline limits")
++   remaining=Keyword.fetch!(opts,:deadline)-System.monotonic_time(:millisecond)
++   helper=Application.app_dir(:beltway,"priv/pipeline_runner.py")
++   argv=Enum.map([jobs,pending,limit,remaining,length(args)+1],&to_string/1)++[cmd|args]++items
++   port=Port.open({:spawn_executable,System.find_executable("python3")},[:binary,:exit_status,:use_stdio,args: [helper|argv]])
++   {:ok,%{port: port,owner: Process.monitor(owner),buffer: "",results: %{},count: length(items),wait: nil,cancelled: false}}
++ end
++ def handle_call(:await,from,s) do
++   if map_size(s.results)==s.count do
++     {:stop,:normal,ordered(s),s}
++   else
++     {:noreply,%{s|wait: from}}
++   end
++ end
++ def handle_call(:cancel,_,s) do
++   if not s.cancelled, do: Port.command(s.port,"cancel\n")
++   {:reply,:ok,%{s|cancelled: true}}
++ end
++ def handle_info({port,{:data,data}},%{port: port}=s) do
++   parts=String.split(s.buffer<>data,"\n");buffer=List.last(parts)
++   results=parts |> Enum.drop(-1) |> Enum.reduce(s.results,fn line,acc ->
++     [index,status,out]=String.split(line,"\t")
++     value=case String.split(status,":") do
++       ["ok",code] -> {:ok,%{status: String.to_integer(code),output: Base.decode64!(out)}}
++       [reason] -> {:error,String.to_existing_atom(reason),Base.decode64!(out)}
++     end
++     Map.put(acc,String.to_integer(index),value)
++   end)
++   {:noreply,%{s|buffer: buffer,results: results}}
++ end
++ def handle_info({port,{:exit_status,status}},%{port: port}=s) do
++   if status==0 and map_size(s.results)==s.count do
++     if s.wait do GenServer.reply(s.wait,ordered(s));{:stop,:normal,s} else {:noreply,s} end
++   else
++     if s.wait, do: GenServer.reply(s.wait,{:error,:runner_failed})
++     {:stop,:normal,s}
++   end
++ end
++ def handle_info({:DOWN,ref,:process,_,_},%{owner: ref}=s), do: {:stop,:normal,s}
++ def terminate(_,s) do
++   try do Port.close(s.port) rescue ArgumentError -> :ok end
++ end
++ defp ordered(%{count: 0}), do: []
++ defp ordered(s), do: Enum.map(0..(s.count-1),&Map.fetch!(s.results,&1))
++ # Public error atoms, used by the bounded helper protocol.
++ def error_kinds, do: [:deadline,:cancelled,:output_limit]
++end
+diff --git a/priv/pipeline_runner.py b/priv/pipeline_runner.py
+new file mode 100644
+index 0000000..c6ef236
+--- /dev/null
++++ b/priv/pipeline_runner.py
+@@ -0,0 +1,42 @@
++import sys,os,subprocess,selectors,time,signal,base64
++jobs,pending,limit,remaining,nargs=map(int,sys.argv[1:6]);cmd=sys.argv[6:6+nargs];items=sys.argv[6+nargs:]
++sel=selectors.DefaultSelector();sel.register(sys.stdin.buffer,selectors.EVENT_READ,'control')
++end=time.monotonic()+max(0,remaining)/1000;active={};next_item=0;stopped=None
++def shutdown(*_):
++ global stopped
++ stopped='cancelled'
++signal.signal(signal.SIGTERM,shutdown)
++
++def kill(p):
++ try:p.kill()
++ except (ProcessLookupError,PermissionError):
++  if p.poll() is None:p.kill()
++ p.wait()
++def emit(i,status,out=b''):
++ print(str(i)+'\t'+status+'\t'+base64.b64encode(out).decode(),flush=True)
++def complete(pid,status):
++ x=active.pop(pid);sel.unregister(x['p'].stdout);kill(x['p']);emit(x['i'],status,x['out'])
++try:
++ while active or next_item<len(items):
++  if stopped is None and time.monotonic()>=end:stopped='deadline'
++  if stopped:
++   for pid in list(active):complete(pid,stopped)
++   while next_item<len(items):emit(next_item,stopped);next_item+=1
++   break
++  while len(active)<jobs and next_item<len(items) and time.monotonic()<end:
++   p=subprocess.Popen(cmd+[items[next_item]],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
++   os.set_blocking(p.stdout.fileno(),False)
++   active[p.pid]={'p':p,'i':next_item,'out':b''};next_item+=1;sel.register(p.stdout,selectors.EVENT_READ,p.pid)
++  for key,_ in sel.select(max(0,min(.02,end-time.monotonic()))):
++   if key.data=='control':
++    data=os.read(key.fileobj.fileno(),4096)
++    if not data or b'cancel' in data:stopped='cancelled'
++   elif key.data in active:
++    x=active[key.data];data=os.read(key.fileobj.fileno(),min(4096,limit-len(x['out'])+1))
++    if not data:
++     status=x['p'].wait();complete(key.data,'ok:'+str(status))
++    elif len(x['out'])+len(data)>limit:
++     x['out']+=data[:limit-len(x['out'])];complete(key.data,'output_limit')
++    else:x['out']+=data
++finally:
++ for x in active.values():kill(x['p'])

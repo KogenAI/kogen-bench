@@ -1,0 +1,12 @@
+--- levers/r70/public/r70-4-elixir-fe2/skeleton/lib/kogen.ex (FE2 v1)
++++ levers/r70/public/r70-4-elixir-fe2/skeleton/lib/kogen.ex (FE2 v2)
+@@ -42,7 +42,8 @@
+   def main(args) do
+     output = Kogen.Core.execute(args)
+     IO.write(:stdio, output)
+-    if String.starts_with?(output, "rebased "), do: System.halt(10)
++    exit_code = if String.starts_with?(output, "rebased "), do: 10, else: 0
++    if exit_code != 0, do: System.halt(exit_code)
+   rescue
+     error in Kogen.Error ->
+       IO.write(:stderr, error.message <> "\n")

@@ -1,0 +1,10 @@
+- [ ] `cas-land` accepts only `--repo DIR --target REF --base OID --candidate OID`, with each option supplied exactly once, one separate value per option, and options in any order; it rejects positional arguments and other options.
+- [ ] Usage errors produce exactly `cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n` on stderr, nothing on stdout, and exit 2.
+- [ ] Invalid repositories, refs, commits, or candidate shape produce exactly `cas-land: invalid repository or commit\n` on stderr, nothing on stdout, and exit 1. The candidate has exactly one parent, equal to `--base`.
+- [ ] The command uses Git, reads the target’s current commit, and uses the candidate directly when that commit equals `--base`; otherwise it rebases the candidate onto the current target with `--base` as upstream.
+- [ ] A clean landing updates the target with Git’s atomic compare-and-swap ref update, using the exact target value read before preparing the landing.
+- [ ] Landing from the base prints exactly `landed OID\n` to stdout and exits 0; a clean rebase prints exactly `rebased OID\n` and exits 10. Success OIDs are full lowercase hexadecimal IDs printed by Git; stderr is empty.
+- [ ] A rebase conflict prints exactly `cas-land: conflict\n` to stderr, nothing to stdout, and exits 20. It cleans up the temporary rebase state and leaves the target unchanged.
+- [ ] A compare-and-swap failure prints exactly `cas-land: lost race\n` to stderr, nothing to stdout, and exits 30; the competing target value remains untouched.
+- [ ] Conflict and lost-race outcomes remove all temporary refs and worktrees created by the command; no other output is produced.
+- [ ] `make build` creates the executable used by `./run`; `./run` forwards arguments, stdin, stdout, and stderr without building. Builds work offline, and `make check` passes its strict TypeScript, Biome, and Bun checks.

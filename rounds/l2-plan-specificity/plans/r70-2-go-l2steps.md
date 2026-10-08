@@ -1,0 +1,13 @@
+1. Replace the placeholder `execute` in `skeleton/core.go` and adapt the entry point in `skeleton/main.go` so the supervisor can stream command output and write its own diagnostics and status directly.
+
+2. Parse `supervise --timeout-ms N --grace-ms N -- COMMAND [ARG ...]` in the required order. Require both options exactly once, a literal `--`, and at least one command argument. Accept only ASCII decimal digits for each value and require a parsed value from 1 through 60000. For any invalid argument form, write exactly `error: invalid arguments\n` to stderr and return 2. Pass every argument after `--` through unchanged.
+
+3. Start the command directly, without a shell, in a new process group. Give it `/dev/null` as stdin and connect its stdout and stderr to the supervisor’s corresponding streams so command bytes pass through unchanged. If it cannot be started, write exactly `error: cannot start command\n` to stderr, write nothing to stdout, omit the status line, and return 127.
+
+4. Begin the timeout clock immediately after start. Monitor Linux `/proc` for members of the command’s process group, treating states `Z` and `X` as not live. Use a monotonic clock and check group liveness at the timeout boundary.
+
+5. If no live group member remains before the deadline, wait for and reap the direct child. Determine its normal exit code or use 128 plus its terminating signal number. After command output is complete, write exactly `status=exited exit_code=E term_sent=false kill_sent=false reaped=1\n` to stderr, then return that exit code.
+
+6. If the group is still live at the deadline, send signal 15 to the process group and wait the full grace interval. At its end, check liveness and send signal 9 only if a live member remains. After any SIGKILL, continue waiting until the group has no live members. Reap the direct child, write the timeout status line after all command output with the signal flags reflecting what was sent and `reaped=1`, then return 124.
+
+7. Build with `make build`, then run `make check`. Verify the prompt-defined cases: argument errors and exact diagnostics; command-start failure; byte-for-byte stdout and stderr forwarding and empty command stdin; normal exits and signal exits; completion with descendants; timeout with and without SIGKILL; and 50 simultaneous sleeping process trees, checking that no live group members remain after completion and observing peak RSS.

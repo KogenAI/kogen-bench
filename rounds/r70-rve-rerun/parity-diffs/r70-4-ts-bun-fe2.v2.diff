@@ -1,0 +1,13 @@
+--- levers/r70/public/r70-4-ts-bun-fe2/skeleton/src/main.ts (FE2 v1)
++++ levers/r70/public/r70-4-ts-bun-fe2/skeleton/src/main.ts (FE2 v2)
+@@ -3,8 +3,9 @@
+ 
+ try {
+   const output = await execute(process.argv.slice(2));
++  const exitCode = output.startsWith('rebased ') ? 10 : 0;
+   await Bun.write(Bun.stdout, output);
+-  if (output.startsWith('rebased ')) process.exit(10);
++  if (exitCode !== 0) process.exit(exitCode);
+ } catch (error) {
+   if (error instanceof Failure) {
+     await Bun.write(Bun.stderr, `${error.message}\n`);

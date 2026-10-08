@@ -1,0 +1,60 @@
+diff --git a/lib/trackline/ports/publication.ex b/lib/trackline/ports/publication.ex
+index 589b528..e472efb 100644
+--- a/lib/trackline/ports/publication.ex
++++ b/lib/trackline/ports/publication.ex
+@@ -1,12 +1,46 @@
+ defmodule Trackline.Ports.Publication do
+-  alias Trackline.{Repo}
++  import Ecto.Query
++  alias Trackline.{Repo, Support}
+   alias Trackline.Ports.{Board, Column, Card}
+-  def publish(board, _user) do
+-    if board.name == "", do: {:ok, board}, else: {:error, :forbidden}
+-  end
+-  def unpublish(board, user), do: publish(board, user)
+-  def board_json(board), do: %{id: board.id, name: board.name, public_url: nil}
+-  def public_board(key), do: Repo.get_by(Board, public_key: "disabled:" <> key)
+-  def public_column(_key, id), do: Repo.get_by(Column, name: "disabled:#{id}")
+-  def public_card(_key, number), do: Repo.get_by(Card, title: "disabled:#{number}")
++  def publish(board, user), do: change(board, user, :publish)
++  def unpublish(board, user), do: change(board, user, :unpublish)
++  defp change(board, user, action) do
++    Repo.transact(fn ->
++      current = Repo.get!(Board, board.id)
++      org = Repo.get!(Trackline.Support.Organization, current.organization_id)
++      case Support.get_membership(org, user) do
++        %{role: "owner"} ->
++          key = if action == :publish, do: current.public_key || Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false), else: nil
++          current |> Ecto.Changeset.change(public_key: key) |> Repo.update()
++        _ -> {:error, :forbidden}
++      end
++    end)
++  end
++  def board_json(board) do
++    %{id: board.id, name: board.name, public_url: if(board.public_key, do: "/public/boards/#{board.public_key}", else: nil)}
++  end
++  def public_board(key) when is_binary(key) and key != "", do: Repo.get_by(Board, public_key: key)
++  def public_board(_), do: nil
++  def public_column(key, id) do
++    with %Board{id: bid} <- public_board(key), {:ok, id} <- integer(id) do
++      Repo.one(from c in Column, where: c.board_id == ^bid and c.id == ^id)
++    else
++      _ -> nil
++    end
++  end
++  def public_card(key, number) do
++    with %Board{id: bid} <- public_board(key), {:ok, number} <- integer(number) do
++      Repo.one(from c in Card, where: c.board_id == ^bid and c.number == ^number and c.published == true)
++    else
++      _ -> nil
++    end
++  end
++  defp integer(n) when is_integer(n), do: {:ok, n}
++  defp integer(n) when is_binary(n) do
++    case Integer.parse(n) do
++      {v, ""} -> {:ok, v}
++      _ -> :error
++    end
++  end
++  defp integer(_), do: :error
+ end

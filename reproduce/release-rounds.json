@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "required_strict_rounds": [
+    "l3-repair",
+    "l3b-repair-vs-continue",
+    "lang-sol-replication"
+  ],
+  "release_included_with_label": {
+    "l3-repair": {
+      "analysis_status": "DESCRIPTIVE",
+      "label": "DESCRIPTIVE — raw captures not retained; results verified against official grades",
+      "reproducer": "rounds/l3-repair/reproduce/l3_repair.py",
+      "decision_status": "THRESHOLD_FAILED_PRESERVATION_UNMEASURED"
+    },
+    "l3b-repair-vs-continue": {
+      "analysis_status": "DESCRIPTIVE",
+      "label": "DESCRIPTIVE — raw captures not retained; results verified against official grades",
+      "reproducer": "rounds/l3b-repair-vs-continue/reproduce/l3b_repair_vs_continue.py",
+      "decision_status": "OBSERVED_KEEP_PRIVATE_CHECK_CONDITIONAL"
+    },
+    "lang-sol-replication": {
+      "analysis_status": "DESCRIPTIVE",
+      "label": "DESCRIPTIVE — raw captures not retained; results verified against official grades",
+      "reproducer": "rounds/lang-sol-replication/reproduce/lang_sol_replication.py",
+      "decision_status": "UNRESOLVED"
+    }
+  },
+  "scope_note": "The three indexed rounds are release-included as DESCRIPTIVE. L3 repair records 2/6 rescues, below the registered three-rescue threshold, with preservation unmeasured, no round environment record, and unproven rule chronology. L3b records an observed KEEP only for eight selected failures, conditional on a private per-test check; 3/24 scored cells have Standard records, the host captures followed execution, the public rule commit followed the first start, and the deviation and later hidden-suite exposure are disclosed. The language replication retains raw rates, but its combined registered decision is UNRESOLVED because the four-pass formula and scale are absent; design provenance, host separation, and reused cells from another window limit the comparison. Public reproducibility is incomplete for all three. L4b-confirm is published descriptively with an explicit public-evidence gap: its Standard 1.2 run records and smoke/strict-validation receipts are unavailable, so strict checklist compliance is not established. The Kogen-RS tier-1 round (kogen-rs-ladder-luna-r74x) is likewise published descriptively with an explicit public-evidence gap: its lane grade ledgers, run manifests, Standard 1.2 run records and smoke/strict-validation receipts are not in the public snapshot, so strict checklist compliance is not established and its per-cell values are source-reported. Historical archive status and analysis-only pages retain their round-specific scope."
+}

@@ -1,0 +1,14 @@
+--- levers/r70/public/r70-4-go/skeleton/main.go
++++ levers/r70/public/r70-4-go-fe2/skeleton/main.go
+@@ -34,7 +34,11 @@
+ 	if err != nil {
+ 		_, _ = fmt.Fprintln(os.Stderr, err)
+ 	} else {
+ 		_, _ = fmt.Fprint(os.Stdout, output)
++		code = 0
++		if strings.HasPrefix(output, "rebased ") {
++			code = 10
++		}
+ 	}
+ 	os.Exit(code)
+ }

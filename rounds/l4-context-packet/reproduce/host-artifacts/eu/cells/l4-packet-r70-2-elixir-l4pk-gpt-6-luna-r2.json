@@ -1,0 +1,24 @@
+{
+  "name": "l4-packet-r70-2-elixir-l4pk-gpt-6-luna-r2",
+  "label": "L4 frozen deterministic context packet",
+  "tasks": [
+    "r70-2-elixir-l4pk"
+  ],
+  "reps": 2,
+  "prompts": [
+    "default"
+  ],
+  "timeout_s": 3600,
+  "retries": 0,
+  "seed": 2,
+  "arms": [
+    {
+      "harness": "codex",
+      "model": "gpt-6-luna",
+      "effort": "max"
+    }
+  ],
+  "extra_args": {
+    "codex": []
+  }
+}

@@ -1,0 +1,100 @@
+# Harness levers
+
+Definitions: [public glossary](../rounds/GLOSSARY.md).
+
+- [r1](../rounds/r1/README.md) — no new claim; use source report with its corrections.
+- [r10](../rounds/r10/README.md) — no new claim; use source report with its corrections.
+- [r11](../rounds/r11/README.md) — no new claim; use source report with its corrections.
+- [r12](../rounds/r12/README.md) — no new claim; use source report with its corrections.
+- [r13](../rounds/r13/README.md) — no new claim; use source report with its corrections.
+- [r14](../rounds/r14/README.md) — no new claim; use source report with its corrections.
+- [r15](../rounds/r15/README.md) — no new claim; use source report with its corrections.
+- [r16](../rounds/r16/README.md) — no new claim; use source report with its corrections.
+- [r17](../rounds/r17/README.md) — no new claim; use source report with its corrections.
+- [r18](../rounds/r18/README.md) — no new claim; use source report with its corrections.
+- [r19](../rounds/r19/README.md) — no new claim; use source report with its corrections.
+- [r2](../rounds/r2/README.md) — no new claim; use source report with its corrections.
+- [r20](../rounds/r20/README.md) — no new claim; use source report with its corrections.
+- [r21](../rounds/r21/README.md) — no new claim; use source report with its corrections.
+- [r22](../rounds/r22/README.md) — no new claim; use source report with its corrections.
+- [r23](../rounds/r23/README.md) — no new claim; use source report with its corrections.
+- [r24](../rounds/r24/README.md) — no new claim; use source report with its corrections.
+- [r25](../rounds/r25/README.md) — no new claim; use source report with its corrections.
+- [r26](../rounds/r26/README.md) — no new claim; use source report with its corrections.
+- [r27](../rounds/r27/README.md) — no new claim; use source report with its corrections.
+- [r28](../rounds/r28/README.md) — no new claim; use source report with its corrections.
+- [r29](../rounds/r29/README.md) — no new claim; use source report with its corrections.
+- [r3](../rounds/r3/README.md) — no new claim; use source report with its corrections.
+- [r30](../rounds/r30/README.md) — no new claim; use source report with its corrections.
+- [r31](../rounds/r31/README.md) — no new claim; use source report with its corrections.
+- [r32](../rounds/r32/README.md) — no new claim; use source report with its corrections.
+- [r32a](../rounds/r32a/README.md) — no new claim; use source report with its corrections.
+- [r32b](../rounds/r32b/README.md) — no new claim; use source report with its corrections.
+- [r33](../rounds/r33/README.md) — no new claim; use source report with its corrections.
+- [r34](../rounds/r34/README.md) — no new claim; use source report with its corrections.
+- [r34b](../rounds/r34b/README.md) — no new claim; use source report with its corrections.
+- [r35](../rounds/r35/README.md) — no new claim; use source report with its corrections.
+- [r36](../rounds/r36/README.md) — no new claim; use source report with its corrections.
+- [r37](../rounds/r37/README.md) — no new claim; use source report with its corrections.
+- [r37c](../rounds/r37c/README.md) — no new claim; use source report with its corrections.
+- [r38](../rounds/r38/README.md) — no new claim; use source report with its corrections.
+- [r39](../rounds/r39/README.md) — no new claim; use source report with its corrections.
+- [r39b](../rounds/r39b/README.md) — no new claim; use source report with its corrections.
+- [r4](../rounds/r4/README.md) — no new claim; use source report with its corrections.
+- [r40](../rounds/r40/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r41](../rounds/r41/README.md) — INVALID delivery inventory; no testable research question is recoverable from the public record.
+- [r42](../rounds/r42/README.md) — INVALID delivery inventory; no testable research question is recoverable from the public record.
+- [r43](../rounds/r43/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r44](../rounds/r44/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r45](../rounds/r45/README.md) — INVALID delivery inventory; no testable research question is recoverable from the public record.
+- [r46](../rounds/r46/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r47](../rounds/r47/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r48](../rounds/r48/README.md) — DESCRIPTIVE delivery inventory; no testable research question is recoverable from the public record.
+- [r48b](../rounds/r48b/README.md) — 8 passes in 24 captured deliveries; ten are ungraded; contract fallback behavior is unassessed.
+- [r49](../rounds/r49/README.md) — Original contract 13/66, review 19/66; pooled repairs 24/80 and 26/75. Delivered cascade hypothesis not established.
+- [r49b](../rounds/r49b/README.md) — Crash-selected repair cohort contract 11/14, review 7/9; different version/task mix prevents a causal gate claim.
+- [r5](../rounds/r5/README.md) — no new claim; use source report with its corrections.
+- [r50](../rounds/r50/README.md) — Outcome interpretation is withheld because the official cells and captured-delivery records do not support a reconciled classification; no cross-arm counts are published.
+- [r51](../rounds/r51/README.md) — Luna-low recorded 14/16 with planning steps and 5/16 without. Recomputed 6 Oct 2026: two-sided Fisher exact p=0.003189, Holm-adjusted across nine plan-vs-none contrasts p=0.028699; one-sided check p=0.001594, Holm-9 p=0.014349. See the [verification note](../rounds/r51/VERIFICATION.md); the counts are descriptive.
+- [r52](../rounds/r52/README.md) — 1/4 officially graded failure; three deliveries are ungraded with unknown cause. No pass is recorded among four deliveries, so the public record supports no Astra outcome conclusion.
+- [r53](../rounds/r53/README.md) — The three arms recorded 28/36, 32/36, and 34/36. The reported directional p=0.027625 and Sol-over-P inference are not reproducible from the public record because the test, comparison unit, and multiplicity family are unspecified. Counts are descriptive; venue differs by family.
+- [r53b](../rounds/r53b/README.md) — no new claim; use source report with its corrections.
+- [r54](../rounds/r54/README.md) — Handoff 11/15 versus plain pack 12/15, n=15/arm; more builder tokens, no demonstrated rereading/cost reduction.
+- [r56](../rounds/r56/README.md) — Single-stage contrasts are underpowered and do not support a joint stage-removal conclusion. The source-reported P-full 95.83% and builder-only 57.29% comparison is not re-derivable; its valid-grade filter and denominators are unavailable. The public export records 35/36 P-full passes.
+- [r56b](../rounds/r56b/README.md) — no new claim; use source report with its corrections.
+- [r56c](../rounds/r56c/README.md) — no new claim; use source report with its corrections.
+- [r56d](../rounds/r56d/README.md) — no new claim; use source report with its corrections.
+- [r56p2](../rounds/r56p2/README.md) — no new claim; use source report with its corrections.
+- [r57](../rounds/r57/README.md) — The token rule was reported met in 16/16; shell recorded 114/155 and default 111/156. The reported +1.92 percentage-point delta and −4.70-point bound are not re-derived because the interval method and inputs are unavailable. One r57d cell is missing; no non-inferiority conclusion is established.
+- [r57b](../rounds/r57b/README.md) — Shell recorded 32/48 and default 31/48; the token rule was reported met. The −13.59-point non-inferiority bound is not re-derived because its method and inputs are unavailable, so no pass/fail conclusion against the −10-point margin is supported.
+- [r57c](../rounds/r57c/README.md) — no new claim; use source report with its corrections.
+- [r57d](../rounds/r57d/README.md) — no new claim; use source report with its corrections.
+- [r57e](../rounds/r57e/README.md) — no new claim; use source report with its corrections.
+- [r58](../rounds/r58/README.md) — no new claim; use source report with its corrections.
+- [r58b](../rounds/r58b/README.md) — no new claim; use source report with its corrections.
+- [r59](../rounds/r59/README.md) — Luna high recorded 16/30 and medium 9/30. The public page reports no recovered decision rule or margin, so no frontier decision can be made.
+- [r6](../rounds/r6/README.md) — no new claim; use source report with its corrections.
+- [r60](../rounds/r60/README.md) — no new claim; use source report with its corrections.
+- [r60b](../rounds/r60b/README.md) — no new claim; use source report with its corrections.
+- [r61](../rounds/r61/README.md) — no new claim; use source report with its corrections.
+- [r62](../rounds/r62/README.md) — no new claim; use source report with its corrections.
+- [r62b](../rounds/r62b/README.md) — The committed ledger has 72/72 graded cells: Kogen direct-escalate 19/24, direct-shell 16/24, and staged 17/24. Base-wide formatting on elx-02/elx-04 is a documented confound for Kogen comparisons.
+- [r63](../rounds/r63/README.md) — no new claim; use source report with its corrections.
+- [r63b](../rounds/r63b/README.md) — no new claim; use source report with its corrections.
+- [r64](../rounds/r64/README.md) — no new claim; use source report with its corrections.
+- [r64b](../rounds/r64b/README.md) — no new claim; use source report with its corrections.
+- [r64c](../rounds/r64c/README.md) — no new claim; use source report with its corrections.
+- [r64d](../rounds/r64d/README.md) — Interim graded-only delivery outcome is 14/19; the public page does not support comparison with historical direct cohorts.
+- [r64e](../rounds/r64e/README.md) — no new claim; use source report with its corrections.
+- [r65](../rounds/r65/README.md) — no new claim; use source report with its corrections.
+- [r65b](../rounds/r65b/README.md) — Held-out and discriminator aggregates are withheld because the public outcome sources lack a reconciled classification; the format-gate confound remains documented.
+- [r67](../rounds/r67/README.md) — no new claim; use source report with its corrections.
+- [r67b](../rounds/r67b/README.md) — no new claim; use source report with its corrections.
+- [r68](../rounds/r68/README.md) — no new claim; use source report with its corrections.
+- [r68b](../rounds/r68b/README.md) — DESCRIPTIVE: current r68b Kogen plan-shell recorded 21/24. Public r53 cells filtered to `round=r53`, `arm=r53:lmax` (gpt-6-luna / max) recorded 21/24, and `arm=r53:sol-high` (gpt-6.1-sol / high) recorded 22/24. Kogen requested max was clamped to xhigh; these descriptive counts do not establish superiority.
+- [r69](../rounds/r69/README.md) — 150 officially graded outcomes are recorded; no reconciled analysis is published, so no conclusion is drawn. The reported 240 sandbox failures/requeues and identical hashes are not independently verifiable; preparation-cost treatment is also unavailable.
+- [r7](../rounds/r7/README.md) — no new claim; use source report with its corrections.
+- [r71](../rounds/r71/README.md) — 49 officially graded outcomes are recorded; no reconciled analysis is published, so no conclusion is drawn. The two official syn-01 smoke outcomes are recorded separately from the scored denominator.
+- [r8](../rounds/r8/README.md) — no new claim; use source report with its corrections.
+- [r9](../rounds/r9/README.md) — no new claim; use source report with its corrections.
+- [rails-catalogue](../rounds/rails-catalogue/README.md) — INTERIM pooled export: Plan-shell recorded 52 passes among 65 exported rows, including two unresolved grader errors; the resolved-grade subset is 52/63. Codex Sol high recorded 50/81 passes and Codex Luna max 27/64, both without unresolved rows. This pooled comparison is descriptive. Arithmetic on source-reported `usd_est` gives $0.119077, $0.680384, and $0.071076 per pass; the calculator and analysis inputs are absent, so costs are not independently re-derived and no cost-superiority claim is made. See [VERIFICATION.md](../rounds/rails-catalogue/VERIFICATION.md).

@@ -1,0 +1,288 @@
+diff --git a/src/core.gleam b/src/core.gleam
+index 66ae6e6..b57f80e 100644
+--- a/src/core.gleam
++++ b/src/core.gleam
+@@ -1,5 +1,280 @@
+-import shared.{type Failure}
++import gleam/int
++import gleam/list
++import gleam/option.{type Option, None, Some}
++import gleam/result
++import gleam/string
++import shared.{type Failure, Failure, NotAscii, Unreadable}
+ 
+-pub fn execute(_args: List(String)) -> Result(String, Failure) {
+-  Ok("")
++const help = "Usage: kogen <command> [options] [FILE|-]\nCommands:\n  sum     Sum signed integers.\n  status  Count job states.\nOptions:\n  -h, --help  Show help.\n  --version   Show version.\n"
++
++const sum_help = "Usage: kogen sum [--scale N] [--format text|json] [FILE|-]\nSum one signed integer per nonempty line (default scale: 1).\n"
++
++const status_help = "Usage: kogen status [--format text|json] [FILE|-]\nCount ID,STATE records (states: queued,running,done,failed).\n"
++
++type Options {
++  Options(
++    command: String,
++    format: String,
++    scale: Int,
++    path: Option(String),
++    seen: List(String),
++  )
++}
++
++type Parsed {
++  Early(String)
++  Run(Options)
++}
++
++type Counts {
++  Counts(
++    total: Int,
++    queued: Int,
++    running: Int,
++    done: Int,
++    failed: Int,
++    ids: List(String),
++  )
++}
++
++pub fn execute(args: List(String)) -> Result(String, Failure) {
++  use parsed <- result.try(parse(args))
++  case parsed {
++    Early(text) -> Ok(text)
++    Run(opts) -> {
++      use text <- result.try(
++        shared.read(opts.path)
++        |> result.map_error(fn(error) {
++          case error {
++            Unreadable -> Failure(1, "kogen: cannot read input")
++            NotAscii(_, _) -> Failure(1, "kogen: input is not ASCII")
++          }
++        }),
++      )
++      aggregate(shared.physical_lines(text), opts)
++    }
++  }
++}
++
++fn parse(args: List(String)) -> Result(Parsed, Failure) {
++  case args {
++    [] | ["--help"] | ["-h"] -> Ok(Early(help))
++    ["--version"] -> Ok(Early("kogen 1.0.0\n"))
++    ["sum", "--help"] | ["sum", "-h"] -> Ok(Early(sum_help))
++    ["status", "--help"] | ["status", "-h"] -> Ok(Early(status_help))
++    [command, ..rest] if command == "sum" || command == "status" -> {
++      use opts <- result.try(options(
++        rest,
++        Options(command, "text", 1, None, []),
++      ))
++      Ok(Run(opts))
++    }
++    [command, ..] -> {
++      let kind = case string.starts_with(command, "-") {
++        True -> "option"
++        False -> "command"
++      }
++      Error(Failure(2, "kogen: unknown " <> kind <> " '" <> command <> "'"))
++    }
++  }
++}
++
++fn options(args: List(String), opts: Options) -> Result(Options, Failure) {
++  case args {
++    [] -> Ok(opts)
++    [flag, ..rest]
++      if flag == "--format" || { flag == "--scale" && opts.command == "sum" }
++    -> {
++      case list.contains(opts.seen, flag) {
++        True -> Error(Failure(2, "kogen: duplicate option '" <> flag <> "'"))
++        False ->
++          case rest {
++            [] ->
++              Error(Failure(
++                2,
++                "kogen: option '" <> flag <> "' requires a value",
++              ))
++            [value, ..remaining] -> {
++              use changed <- result.try(option(opts, flag, value))
++              options(remaining, Options(..changed, seen: [flag, ..opts.seen]))
++            }
++          }
++      }
++    }
++    [arg, ..rest] ->
++      case string.starts_with(arg, "-") && arg != "-" {
++        True -> Error(Failure(2, "kogen: unknown option '" <> arg <> "'"))
++        False ->
++          case opts.path {
++            Some(_) ->
++              Error(Failure(2, "kogen: expected at most one input path"))
++            None -> options(rest, Options(..opts, path: Some(arg)))
++          }
++      }
++  }
++}
++
++fn option(
++  opts: Options,
++  flag: String,
++  value: String,
++) -> Result(Options, Failure) {
++  let failure =
++    Failure(2, "kogen: invalid value for '" <> flag <> "': '" <> value <> "'")
++  case flag {
++    "--format" ->
++      case value == "text" || value == "json" {
++        True -> Ok(Options(..opts, format: value))
++        False -> Error(failure)
++      }
++    _ ->
++      case
++        shared.matches("^(0|[1-9][0-9]*)$", value) && string.length(value) <= 3
++      {
++        False -> Error(failure)
++        True ->
++          case int.parse(value) {
++            Ok(n) if n >= 0 && n <= 100 -> Ok(Options(..opts, scale: n))
++            _ -> Error(failure)
++          }
++      }
++  }
++}
++
++fn aggregate(lines: List(String), opts: Options) -> Result(String, Failure) {
++  case opts.command {
++    "sum" -> {
++      use total <- result.try(sum_lines(lines, 1, 0))
++      let value = int.to_string(total * opts.scale)
++      Ok(case opts.format {
++        "json" -> "{\"sum\":" <> value <> "}\n"
++        _ -> "sum=" <> value <> "\n"
++      })
++    }
++    _ -> {
++      use counts <- result.try(status_lines(lines, 1, Counts(0, 0, 0, 0, 0, [])))
++      let pairs = [
++        #("total", counts.total),
++        #("queued", counts.queued),
++        #("running", counts.running),
++        #("done", counts.done),
++        #("failed", counts.failed),
++      ]
++      Ok(case opts.format {
++        "json" ->
++          "{"
++          <> {
++            pairs
++            |> list.map(fn(pair) {
++              "\"" <> pair.0 <> "\":" <> int.to_string(pair.1)
++            })
++            |> string.join(",")
++          }
++          <> "}\n"
++        _ ->
++          pairs
++          |> list.map(fn(pair) {
++            pair.0 <> "=" <> int.to_string(pair.1) <> "\n"
++          })
++          |> string.concat
++      })
++    }
++  }
++}
++
++fn sum_lines(
++  lines: List(String),
++  number: Int,
++  total: Int,
++) -> Result(Int, Failure) {
++  case lines {
++    [] -> Ok(total)
++    ["", ..rest] -> sum_lines(rest, number + 1, total)
++    [line, ..rest] -> {
++      use value <- result.try(parse_number(line, number))
++      sum_lines(rest, number + 1, total + value)
++    }
++  }
++}
++
++fn parse_number(line: String, lineno: Int) -> Result(Int, Failure) {
++  let failure =
++    Failure(
++      1,
++      "kogen:"
++        <> int.to_string(lineno)
++        <> ": expected integer -1000000..1000000",
++    )
++  let digits = case
++    string.starts_with(line, "-") || string.starts_with(line, "+")
++  {
++    True -> string.drop_start(line, 1)
++    False -> line
++  }
++  let magnitude = shared.trim_start(digits, "0")
++  let magnitude = case magnitude {
++    "" -> "0"
++    _ -> magnitude
++  }
++  case shared.matches("^[+-]?[0-9]+$", line) && string.length(magnitude) <= 7 {
++    False -> Error(failure)
++    True ->
++      case int.parse(magnitude) {
++        Ok(n) if n <= 1_000_000 ->
++          Ok(case string.starts_with(line, "-") {
++            True -> 0 - n
++            False -> n
++          })
++        _ -> Error(failure)
++      }
++  }
++}
++
++fn status_lines(
++  lines: List(String),
++  number: Int,
++  counts: Counts,
++) -> Result(Counts, Failure) {
++  case lines {
++    [] -> Ok(counts)
++    ["", ..rest] -> status_lines(rest, number + 1, counts)
++    [line, ..rest] -> {
++      use pair <- result.try(record(line, number))
++      let #(id, state) = pair
++      case list.contains(counts.ids, id) {
++        True ->
++          Error(Failure(
++            1,
++            "kogen:" <> int.to_string(number) <> ": duplicate id '" <> id <> "'",
++          ))
++        False -> {
++          let counts =
++            Counts(..counts, total: counts.total + 1, ids: [id, ..counts.ids])
++          let counts = case state {
++            "queued" -> Counts(..counts, queued: counts.queued + 1)
++            "running" -> Counts(..counts, running: counts.running + 1)
++            "done" -> Counts(..counts, done: counts.done + 1)
++            _ -> Counts(..counts, failed: counts.failed + 1)
++          }
++          status_lines(rest, number + 1, counts)
++        }
++      }
++    }
++  }
++}
++
++fn record(line: String, number: Int) -> Result(#(String, String), Failure) {
++  let failure =
++    Failure(1, "kogen:" <> int.to_string(number) <> ": expected ID,STATE")
++  case string.split_once(line, ",") {
++    Error(_) -> Error(failure)
++    Ok(#(id, state)) ->
++      case
++        shared.matches("^[a-z][a-z0-9_-]{0,31}$", id)
++        && list.contains(["queued", "running", "done", "failed"], state)
++      {
++        True -> Ok(#(id, state))
++        False -> Error(failure)
++      }
++  }
+ }

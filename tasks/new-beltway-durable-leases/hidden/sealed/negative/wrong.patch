@@ -1,0 +1,239 @@
+diff --git a/lib/beltway/cli.ex b/lib/beltway/cli.ex
+index df75562..afbd693 100644
+--- a/lib/beltway/cli.ex
++++ b/lib/beltway/cli.ex
+@@ -26,6 +26,15 @@ defmodule Beltway.CLI do
+     }
+ 
+     case argv do
++      ["queue-stats", path] ->
++        case Beltway.Queue.start_link(capacity: 1_000_000, durable: path) do
++          {:ok, q} ->
++            stats = Beltway.Queue.stats(q)
++            IO.puts(io.stdout, "ready #{stats.ready}\nleased #{stats.leased}")
++            GenServer.stop(q)
++            0
++          {:error, reason} -> usage_error(inspect(reason), io)
++        end
+       ["count" | files] when files != [] -> count(files, io)
+       ["count"] -> usage_error("count needs at least one FILE", io)
+       [cmd | _] -> usage_error("unknown command #{inspect(cmd)}", io)
+diff --git a/lib/beltway/durable_queue.ex b/lib/beltway/durable_queue.ex
+new file mode 100644
+index 0000000..a87e8f8
+--- /dev/null
++++ b/lib/beltway/durable_queue.ex
+@@ -0,0 +1,67 @@
++defmodule Beltway.DurableQueue do
++  use GenServer
++  alias Beltway.Journal
++  def start_link(opts), do: GenServer.start_link(__MODULE__, opts, Keyword.take(opts, [:name]))
++  def init(opts) do
++    case Journal.open(Keyword.fetch!(opts, :durable)) do
++      {:ok, journal, old} ->
++        old = old || %{ready: [], leased: %{}, seen: %{}, seq: 0}
++        returned = old.leased |> Enum.sort_by(fn {_, l} -> l.seq end) |> Enum.map(fn {id, _} -> id end)
++        data = %{old | ready: old.ready ++ returned, leased: %{}}
++        :ok = Journal.append(journal, data)
++        Process.send_after(self(), :tick, 10)
++        {:ok, %{journal: journal, data: data, capacity: Keyword.fetch!(opts, :capacity)}}
++      {:error, reason} -> {:stop, reason}
++    end
++  end
++  def terminate(_, state), do: Journal.close(state.journal)
++  def handle_info(:tick, state) do
++    Process.send_after(self(), :tick, 10)
++    {:noreply, expire(state)}
++  end
++  def handle_call(msg, _, state), do: dispatch(msg, expire(state))
++  defp dispatch({:enqueue, id, payload}, s) do
++    cond do
++      Map.has_key?(s.data.seen, id) -> reply(if(s.data.seen[id] == payload, do: :ok, else: {:error, :conflict}), s)
++      length(s.data.ready) + map_size(s.data.leased) >= s.capacity -> reply({:error, :full}, s)
++      true -> save(:ok, s, %{s.data | ready: s.data.ready ++ [id], seen: Map.put(s.data.seen, id, payload)})
++    end
++  end
++  defp dispatch({:lease, owner, ttl}, s) when is_integer(ttl) and ttl > 0 do
++    case s.data.ready do
++      [] -> reply(:empty, s)
++      [id | rest] ->
++        token = :crypto.strong_rand_bytes(24)
++        seq = s.data.seq + 1
++        l = %{token: token, owner: owner, until: now() + ttl, seq: seq}
++        save({:ok, id, s.data.seen[id], token}, s, %{s.data | ready: rest, leased: Map.put(s.data.leased, id, l), seq: seq})
++    end
++  end
++  defp dispatch({:lease, _, _}, s), do: reply({:error, :invalid_ttl}, s)
++  defp dispatch({op, id, _token}, s) when op in [:ack, :nack] do
++    case Map.get(s.data.leased, id) do
++      %{token: _current} ->
++        d = %{s.data | leased: Map.delete(s.data.leased, id)}
++        d = if op == :nack, do: %{d | ready: d.ready ++ [id]}, else: d
++        save(:ok, s, d)
++      _ -> reply({:error, :stale}, s)
++    end
++  end
++  defp dispatch(:size, s), do: reply(length(s.data.ready) + map_size(s.data.leased), s)
++  defp dispatch(:stats, s), do: reply(%{ready: length(s.data.ready), leased: map_size(s.data.leased), size: length(s.data.ready) + map_size(s.data.leased), waiting_pushers: 0, waiting_poppers: 0}, s)
++  defp dispatch(_, s), do: reply({:error, :durable_api_required}, s)
++  defp expire(s) do
++    expired = s.data.leased |> Enum.filter(fn {_, l} -> l.until <= now() end) |> Enum.sort_by(fn {_, l} -> l.seq end) |> Enum.map(&elem(&1, 0))
++    if expired == [] do s else
++      d = %{s.data | ready: s.data.ready ++ expired, leased: Map.drop(s.data.leased, expired)}
++      :ok = Journal.append(s.journal, d)
++      %{s | data: d}
++    end
++  end
++  defp save(result, s, data) do
++    :ok = Journal.append(s.journal, data)
++    reply(result, %{s | data: data})
++  end
++  defp reply(r, s), do: {:reply, r, s}
++  defp now, do: System.monotonic_time(:millisecond)
++end
+diff --git a/lib/beltway/ingest/durable_consumer.ex b/lib/beltway/ingest/durable_consumer.ex
+new file mode 100644
+index 0000000..2b312f1
+--- /dev/null
++++ b/lib/beltway/ingest/durable_consumer.ex
+@@ -0,0 +1,21 @@
++defmodule Beltway.Ingest.DurableConsumer do
++  use GenServer
++  def start_link(opts), do: GenServer.start_link(__MODULE__, opts)
++  def init(opts) do
++    Process.send_after(self(), :consume, 20)
++    {:ok, opts}
++  end
++  def handle_info(:consume, opts) do
++    q = Process.whereis(Keyword.fetch!(opts, :queue_name))
++    if q do
++      case Beltway.Queue.lease(q, self(), 1000) do
++        {:ok, id, payload, token} ->
++          send(Keyword.fetch!(opts, :collector), {:durable_item, id, payload})
++          Beltway.Queue.ack(q, id, token)
++        :empty -> :ok
++      end
++    end
++    Process.send_after(self(), :consume, 20)
++    {:noreply, opts}
++  end
++end
+diff --git a/lib/beltway/ingest/supervisor.ex b/lib/beltway/ingest/supervisor.ex
+index 0f7d53b..69e50aa 100644
+--- a/lib/beltway/ingest/supervisor.ex
++++ b/lib/beltway/ingest/supervisor.ex
+@@ -11,12 +11,19 @@ defmodule Beltway.Ingest.Supervisor do
+ 
+   @impl true
+   def init(opts) do
+-    children = [
++    children = if Keyword.has_key?(opts, :durable) do
++      name = Keyword.fetch!(opts, :queue_name)
++      [{Beltway.Queue, durable: opts[:durable], capacity: Keyword.get(opts, :capacity, 100), name: name},
++       {Beltway.Ingest.DurableConsumer, queue_name: name, collector: Keyword.fetch!(opts, :collector)}]
++    else
++    [
+       Buffer,
+       Parser,
+       {Sink, collector: Keyword.fetch!(opts, :collector)}
+     ]
+ 
++    end
++
+     Supervisor.init(children, strategy: :one_for_one)
+   end
+ end
+diff --git a/lib/beltway/journal.ex b/lib/beltway/journal.ex
+new file mode 100644
+index 0000000..a227845
+--- /dev/null
++++ b/lib/beltway/journal.ex
+@@ -0,0 +1,59 @@
++defmodule Beltway.Journal do
++  @moduledoc "Synced CRC-framed state journal. A partial suffix is discarded on open."
++  def open(path) do
++    path = Path.expand(path)
++    File.mkdir_p!(Path.dirname(path))
++    lock = path <> ".lock"
++    case File.mkdir(lock) do
++      :ok -> :ok
++      {:error, :eexist} ->
++        live = case File.read(Path.join(lock, "owner")) do
++          {:ok, bytes} ->
++            try do
++              {os, pid} = :erlang.binary_to_term(bytes)
++              if os == System.pid(), do: Process.alive?(pid), else: elem(System.cmd("/bin/kill", ["-0", os], stderr_to_stdout: true), 1) == 0
++            rescue
++              _ -> true
++            end
++          _ -> true
++        end
++        if live, do: throw(:already_open)
++        File.rm_rf!(lock)
++        :ok = File.mkdir(lock)
++      {:error, reason} -> throw(reason)
++    end
++    File.write!(Path.join(lock, "owner"), :erlang.term_to_binary({System.pid(), self()}))
++    try do
++      bytes = case File.read(path) do
++        {:ok, b} -> b
++        {:error, :enoent} -> <<>>
++        {:error, e} -> throw(e)
++      end
++      {state, valid} = recover(bytes, nil, 0)
++      {:ok, fd} = :file.open(String.to_charlist(path), [:raw, :binary, :read, :write])
++      {:ok, _} = :file.position(fd, valid)
++      :ok = :file.truncate(fd)
++      {:ok, {fd, lock}, state}
++    catch
++      reason -> File.rm_rf!(lock); {:error, reason}
++    end
++  catch
++    reason -> {:error, reason}
++  end
++  defp recover(<<n::32, crc::32, rest::binary>>, last, pos) when byte_size(rest) >= n do
++    <<data::binary-size(n), tail::binary>> = rest
++    if :erlang.crc32(data) != crc, do: throw(:corrupt)
++    state = try do :erlang.binary_to_term(data, [:safe]) rescue _ -> throw(:corrupt) end
++    recover(tail, state, pos + n + 8)
++  end
++  defp recover(_, last, pos), do: {last, pos}
++  def append({fd, _}, state) do
++    bytes = :erlang.term_to_binary(state)
++    :ok = :file.write(fd, <<byte_size(bytes)::32, :erlang.crc32(bytes)::32, bytes::binary>>)
++    :file.sync(fd)
++  end
++  def close({fd, lock}) do
++    :file.close(fd)
++    File.rm_rf!(lock)
++  end
++end
+diff --git a/lib/beltway/queue.ex b/lib/beltway/queue.ex
+index 1095037..05dbc50 100644
+--- a/lib/beltway/queue.ex
++++ b/lib/beltway/queue.ex
+@@ -8,7 +8,11 @@ defmodule Beltway.Queue do
+   use GenServer
+ 
+   def start_link(opts) do
+-    GenServer.start_link(__MODULE__, Keyword.fetch!(opts, :capacity), Keyword.take(opts, [:name]))
++    if Keyword.has_key?(opts, :durable) do
++      Beltway.DurableQueue.start_link(opts)
++    else
++      GenServer.start_link(__MODULE__, Keyword.fetch!(opts, :capacity), Keyword.take(opts, [:name]))
++    end
+   end
+ 
+   @spec push(GenServer.server(), term()) :: :ok | {:error, :full}
+@@ -17,6 +21,11 @@ defmodule Beltway.Queue do
+   @spec pop(GenServer.server()) :: {:ok, term()} | :empty
+   def pop(queue), do: GenServer.call(queue, :pop)
+ 
++  def enqueue(queue, id, payload), do: GenServer.call(queue, {:enqueue, id, payload})
++  def lease(queue, owner, ttl), do: GenServer.call(queue, {:lease, owner, ttl})
++  def ack(queue, id, token), do: GenServer.call(queue, {:ack, id, token})
++  def nack(queue, id, token), do: GenServer.call(queue, {:nack, id, token})
++
+   def size(queue), do: GenServer.call(queue, :size)
+ 
+   @doc "`%{size: n, waiting_poppers: n, waiting_pushers: n}`"

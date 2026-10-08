@@ -1,0 +1,50 @@
+{
+  "cells_graded": false,
+  "checked_at_utc": "2026-10-07T18:40:24.231434+00:00",
+  "design_sha256": "94d0158342fd83188e5a49d3aed538bda401cd96f5335b2992a24e5342634ebc",
+  "design_sha256_scope": "original frozen source bytes used for this prelaunch dry run",
+  "published_design_sha256": "7b6bd259e4dcf0229f1d4840daaed75fbee27722f916cec3fcc5ac9743f8dc7f",
+  "dispatch_sha256": "d4d181af6ddb8cfa2bb6efe6f73b2ed8de533d1a21340270c864ae7483af25cb",
+  "dry_run_commands": [
+    "ssh -o BatchMode=yes kogen-bench-us <host-path> <host-path> run --batch all --dry-run",
+    "ssh -o BatchMode=yes kogen-bench-us <host-path> <host-path> run --batch first --dry-run",
+    "ssh -o BatchMode=yes kogen-bench-us <host-path> <host-path> run --batch rest --dry-run"
+  ],
+  "host": "kogen-bench-us",
+  "lane_deployment": "deployment-l4b-us-lane.json",
+  "lane_stop_present_after_dry_run": true,
+  "plans": {
+    "all": {
+      "DRY-RUN-PLAN.json_sha256": "2113747a4bb052792981303be384c7d0dd133591675f1381dd2e4295abe40207",
+      "PLAN.json_sha256": "2113747a4bb052792981303be384c7d0dd133591675f1381dd2e4295abe40207",
+      "cells": 18,
+      "plan_sha256": "62bbeb00d625d104fafbaac6a2c83013c4b37cc6935089a2222b99d75ad4dbeb"
+    },
+    "first": {
+      "DRY-RUN-PLAN.json_sha256": "fab526bdb8fa15b1dbb1b465a220dc0681e095b046a8399004f50fccff9b3de0",
+      "PLAN.json_sha256": "fab526bdb8fa15b1dbb1b465a220dc0681e095b046a8399004f50fccff9b3de0",
+      "cells": 7,
+      "plan_sha256": "44a284c897e3af8da26af4acecbd3998906093abf89101c837aad5bc4ff146d1"
+    },
+    "rest": {
+      "DRY-RUN-PLAN.json_sha256": "fef045749ed75ea6ec60120e796cc88912d4fe4ba5d496c38d0097fea5c5acb5",
+      "PLAN.json_sha256": "fef045749ed75ea6ec60120e796cc88912d4fe4ba5d496c38d0097fea5c5acb5",
+      "cells": 11,
+      "plan_sha256": "8c9d7d4f789f14e95839eebaefb8596e285e43d7be7d15c90db701405e07cc10"
+    }
+  },
+  "public_variant_tasks_deployed": false,
+  "release_state": "STOP; admission controls, source child commits, prelaunch gates, and release checklist remain incomplete",
+  "result_root_created": false,
+  "scored_cells_launched": false,
+  "stop_selftest": {
+    "command": "python3 levers/lanes-2026-10-07/stop_selftest.py kogen-bench-us l4b",
+    "observed_disk_free_mb": 6250,
+    "r70_path_matches_grade_window": true,
+    "required_disk_floor_mb": 7168,
+    "safe_after_stop_removed": false,
+    "safe_after_test_stop": false,
+    "safe_before_test_stop": false,
+    "status": "FAIL"
+  }
+}

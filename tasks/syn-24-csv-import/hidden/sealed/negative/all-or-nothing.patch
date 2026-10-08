@@ -1,0 +1,283 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..590065b 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -82,6 +82,12 @@ defmodule Trackline.Support do
+     |> Repo.insert()
+   end
+ 
++  @doc """
++  Imports tickets from CSV text (see `Trackline.Support.TicketImport`).
++  """
++  def import_tickets(%Organization{} = org, %User{} = user, csv),
++    do: Trackline.Support.TicketImport.run(org, user, csv)
++
+   def change_ticket(%Ticket{} = ticket, attrs \\ %{}), do: Ticket.changeset(ticket, attrs)
+ 
+   def set_status(%Ticket{} = ticket, status) do
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..0c89756 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -10,6 +10,7 @@ defmodule Trackline.Support.Ticket do
+     field :body, :string
+     field :status, :string, default: "open"
+     field :priority, :string, default: "normal"
++    field :external_id, :string
+     field :comment_count, :integer, virtual: true, default: 0
+ 
+     belongs_to :organization, Trackline.Support.Organization
+diff --git a/lib/trackline/support/ticket_import.ex b/lib/trackline/support/ticket_import.ex
+new file mode 100644
+index 0000000..8a05ac9
+--- /dev/null
++++ b/lib/trackline/support/ticket_import.ex
+@@ -0,0 +1,182 @@
++defmodule Trackline.Support.TicketImport do
++  @moduledoc """
++  Imports tickets from a CSV export of another tool. Partial success: valid rows
++  are created, bad rows are reported by row number (header = row 1). Tickets whose
++  `external_id` already exists in the organization are skipped.
++  """
++
++  import Ecto.Query, warn: false
++
++  alias Trackline.Accounts.User
++  alias Trackline.Repo
++  alias Trackline.Support.{Membership, Organization, Ticket}
++
++  def run(%Organization{} = org, %User{} = user, csv) when is_binary(csv) do
++    with {:ok, [header | records]} <- parse(csv),
++         {:ok, cols} <- columns(header) do
++      members =
++        Repo.all(
++          from u in User,
++            join: m in Membership,
++            on: m.user_id == u.id,
++            where: m.organization_id == ^org.id,
++            select: {u.email, u.id}
++        )
++        |> Map.new(fn {email, id} -> {String.downcase(email), id} end)
++
++      existing =
++        from(t in Ticket,
++          where: t.organization_id == ^org.id and not is_nil(t.external_id),
++          select: t.external_id
++        )
++        |> Repo.all()
++        |> MapSet.new()
++
++      acc = %{created: 0, skipped_existing: 0, errors: [], seen: existing}
++
++      Repo.transact(fn ->
++        report =
++          records
++          |> Enum.with_index(2)
++          |> Enum.reduce(acc, fn {record, row}, acc ->
++            import_row(acc, row, record, cols, org, user, members)
++          end)
++
++        if report.errors != [], do: Repo.rollback(:has_errors)
++
++        {:ok,
++         %{
++           created: report.created,
++           skipped_existing: report.skipped_existing,
++           errors: Enum.reverse(report.errors)
++         }}
++      end)
++    end
++  end
++
++  defp import_row(acc, _row, [""], _cols, _org, _user, _members), do: acc
++
++  defp import_row(acc, row, record, cols, org, user, members) do
++    field = fn name -> record |> Enum.at(cols[name], "") |> String.trim() end
++    get = fn name -> if cols[name], do: field.(name), else: "" end
++    external_id = get.("external_id")
++
++    cond do
++      external_id == "" ->
++        error(acc, row, "external_id is missing")
++
++      MapSet.member?(acc.seen, external_id) ->
++        %{acc | skipped_existing: acc.skipped_existing + 1}
++
++      true ->
++        attrs = %{
++          title: get.("title"),
++          body: get.("body"),
++          priority: blank_to(get.("priority"), "normal")
++        }
++
++        status = get.("status") |> blank_to("open") |> String.downcase()
++        assignee = get.("assignee")
++
++        with :ok <- check_status(status),
++             {:ok, assignee_id} <- find_assignee(assignee, members),
++             attrs = Map.update!(attrs, :priority, &String.downcase/1),
++             {:ok, _} <- insert(org, user, external_id, status, assignee_id, attrs) do
++          %{acc | created: acc.created + 1, seen: MapSet.put(acc.seen, external_id)}
++        else
++          {:error, message} -> error(acc, row, message)
++        end
++    end
++  end
++
++  defp error(acc, row, message), do: %{acc | errors: [%{row: row, message: message} | acc.errors]}
++
++  defp blank_to("", default), do: default
++  defp blank_to(value, _default), do: value
++
++  defp check_status(status) do
++    if status in Ticket.statuses(),
++      do: :ok,
++      else: {:error, "status must be one of #{Enum.join(Ticket.statuses(), ", ")}"}
++  end
++
++  defp find_assignee("", _members), do: {:ok, nil}
++
++  defp find_assignee(email, members) do
++    case Map.fetch(members, String.downcase(email)) do
++      {:ok, id} -> {:ok, id}
++      :error -> {:error, "assignee #{email} is not a member of this organization"}
++    end
++  end
++
++  defp insert(org, user, external_id, status, assignee_id, attrs) do
++    %Ticket{
++      organization_id: org.id,
++      author_id: user.id,
++      external_id: external_id,
++      assignee_id: assignee_id,
++      status: status
++    }
++    |> Ticket.changeset(attrs)
++    |> Repo.insert()
++    |> case do
++      {:ok, ticket} -> {:ok, ticket}
++      {:error, changeset} -> {:error, changeset_message(changeset)}
++    end
++  end
++
++  defp changeset_message(changeset) do
++    [{field, {msg, _}} | _] = changeset.errors
++    "#{field} #{msg}"
++  end
++
++  defp columns(header) do
++    cols =
++      header
++      |> Enum.with_index()
++      |> Map.new(fn {name, i} -> {name |> String.trim() |> String.downcase(), i} end)
++
++    if cols["external_id"] && cols["title"], do: {:ok, cols}, else: {:error, :missing_columns}
++  end
++
++  ## RFC 4180 reader (quoted fields may contain commas, quotes and line breaks)
++
++  def parse(csv) do
++    csv = String.replace_prefix(csv, "﻿", "")
++
++    case do_parse(csv, "", [], [], false) do
++      {:ok, []} -> {:error, :empty}
++      other -> other
++    end
++  end
++
++  defp do_parse("", _cell, _row, _rows, true), do: {:error, :unterminated_quote}
++  defp do_parse("", "", [], rows, false), do: {:ok, Enum.reverse(rows)}
++
++  defp do_parse("", cell, row, rows, false),
++    do: {:ok, Enum.reverse([Enum.reverse([cell | row]) | rows])}
++
++  defp do_parse(<<"\"\"", rest::binary>>, cell, row, rows, true),
++    do: do_parse(rest, cell <> "\"", row, rows, true)
++
++  defp do_parse(<<"\"", rest::binary>>, cell, row, rows, true),
++    do: do_parse(rest, cell, row, rows, false)
++
++  defp do_parse(<<c, rest::binary>>, cell, row, rows, true),
++    do: do_parse(rest, <<cell::binary, c>>, row, rows, true)
++
++  defp do_parse(<<"\"", rest::binary>>, "", row, rows, false),
++    do: do_parse(rest, "", row, rows, true)
++
++  defp do_parse(<<",", rest::binary>>, cell, row, rows, false),
++    do: do_parse(rest, "", [cell | row], rows, false)
++
++  defp do_parse(<<"\r\n", rest::binary>>, cell, row, rows, false),
++    do: do_parse(rest, "", [], [Enum.reverse([cell | row]) | rows], false)
++
++  defp do_parse(<<"\n", rest::binary>>, cell, row, rows, false),
++    do: do_parse(rest, "", [], [Enum.reverse([cell | row]) | rows], false)
++
++  defp do_parse(<<c, rest::binary>>, cell, row, rows, false),
++    do: do_parse(rest, <<cell::binary, c>>, row, rows, false)
++end
+diff --git a/lib/trackline_web/controllers/ticket_import_controller.ex b/lib/trackline_web/controllers/ticket_import_controller.ex
+new file mode 100644
+index 0000000..37a7f50
+--- /dev/null
++++ b/lib/trackline_web/controllers/ticket_import_controller.ex
+@@ -0,0 +1,31 @@
++defmodule TracklineWeb.TicketImportController do
++  use TracklineWeb, :controller
++
++  alias Trackline.Support
++
++  def create(conn, %{"slug" => slug} = params) do
++    user = conn.assigns.current_scope.user
++
++    with %{} = org <- Support.get_organization_by_slug(slug),
++         %{} = membership <- Support.get_membership(org, user),
++         true <- Support.can_write?(membership) do
++      case params["file"] do
++        %Plug.Upload{path: path} ->
++          case Support.import_tickets(org, user, File.read!(path)) do
++            {:ok, report} ->
++              json(conn, report)
++
++            {:error, reason} ->
++              conn
++              |> put_status(:unprocessable_entity)
++              |> json(%{error: "unreadable file: #{inspect(reason)}"})
++          end
++
++        _ ->
++          conn |> put_status(:unprocessable_entity) |> json(%{error: "no file uploaded"})
++      end
++    else
++      _ -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
++    end
++  end
++end
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..613148d 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -52,6 +52,7 @@ defmodule TracklineWeb.Router do
+     end
+ 
+     post "/users/update-password", UserSessionController, :update_password
++    post "/orgs/:slug/tickets/import", TicketImportController, :create
+     get "/orgs/:slug/tickets/:id/export.json", TicketExportController, :show
+   end
+ 
+diff --git a/priv/repo/migrations/20260929120000_add_external_id_to_tickets.exs b/priv/repo/migrations/20260929120000_add_external_id_to_tickets.exs
+new file mode 100644
+index 0000000..fcd045f
+--- /dev/null
++++ b/priv/repo/migrations/20260929120000_add_external_id_to_tickets.exs
+@@ -0,0 +1,11 @@
++defmodule Trackline.Repo.Migrations.AddExternalIdToTickets do
++  use Ecto.Migration
++
++  def change do
++    alter table(:tickets) do
++      add :external_id, :string
++    end
++
++    create unique_index(:tickets, [:organization_id, :external_id])
++  end
++end

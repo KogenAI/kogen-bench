@@ -1,0 +1,206 @@
+import { appendFile, readFile } from 'node:fs/promises';
+import { Failure } from './shared.ts';
+
+type Event = {
+  id: string;
+  type: string;
+  job: string;
+  ts: bigint;
+  line: number;
+};
+const fail = (message: string): never => {
+  throw new Failure(1, message);
+};
+
+function noDuplicateTopKeys(text: string): void {
+  let i = 0;
+  const ws = () => {
+    while (/\s/.test(text[i] ?? '')) i++;
+  };
+  ws();
+  if (text[i] !== '{') return;
+  i++;
+  const keys = new Set<string>();
+  while (true) {
+    ws();
+    if (text[i] === '}') return;
+    if (text[i] !== '"') return;
+    const start = i++;
+    let esc = false;
+    while (i < text.length) {
+      const c = text[i++];
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') break;
+    }
+    const key = JSON.parse(text.slice(start, i)) as string;
+    if (keys.has(key)) fail('eventlog:1: invalid event');
+    keys.add(key);
+    ws();
+    if (text[i] !== ':') return;
+    i++;
+    ws();
+    let depth = 0;
+    let quoted = false;
+    esc = false;
+    while (i < text.length) {
+      const c = text[i];
+      if (quoted) {
+        i++;
+        if (esc) esc = false;
+        else if (c === '\\') esc = true;
+        else if (c === '"') quoted = false;
+        continue;
+      }
+      if (c === '"') {
+        quoted = true;
+        i++;
+        continue;
+      }
+      if (c === '{' || c === '[') {
+        depth++;
+        i++;
+        continue;
+      }
+      if (c === '}' || c === ']') {
+        if (depth === 0) break;
+        depth--;
+        i++;
+        continue;
+      }
+      if (c === ',' && depth === 0) break;
+      i++;
+    }
+    ws();
+    if (text[i] === ',') {
+      i++;
+      continue;
+    }
+    return;
+  }
+}
+
+function parse(text: string, line: number): Event {
+  let x: unknown;
+  try {
+    noDuplicateTopKeys(text);
+    x = JSON.parse(text);
+  } catch {
+    return fail(`eventlog:${line}: invalid event`);
+  }
+  if (x === null || Array.isArray(x) || typeof x !== 'object')
+    return fail(`eventlog:${line}: invalid event`);
+  const o = x as Record<string, unknown>;
+  if (
+    Object.keys(o).length !== 4 ||
+    !['id', 'type', 'job', 'ts'].every((k) => Object.hasOwn(o, k))
+  )
+    return fail(`eventlog:${line}: invalid event`);
+  const timestamp = /"ts"\s*:\s*(-?(?:0|[1-9][0-9]*))(?![.eE0-9])/.exec(
+    text,
+  )?.[1];
+  if (
+    typeof o.id !== 'string' ||
+    typeof o.type !== 'string' ||
+    typeof o.job !== 'string' ||
+    typeof o.ts !== 'number' ||
+    !Number.isInteger(o.ts) ||
+    timestamp === undefined ||
+    !/^e-[a-z0-9]{1,16}$(?![\s\S])/.test(o.id) ||
+    !/^[a-z][a-z0-9-]{0,31}$(?![\s\S])/.test(o.job)
+  )
+    return fail(`eventlog:${line}: invalid event`);
+  const ts = BigInt(timestamp);
+  if (ts < 0n || ts > 9223372036854775807n)
+    return fail(`eventlog:${line}: invalid event`);
+  if (!['created', 'started', 'completed', 'failed'].includes(o.type))
+    return fail(`eventlog:${line}: unknown event type '${o.type}'`);
+  return { id: o.id, type: o.type, job: o.job, ts, line };
+}
+
+async function read(path: string): Promise<Event[]> {
+  let data: string;
+  try {
+    data = await readFile(path, 'utf8');
+  } catch (e) {
+    if ((e as { code?: string }).code === 'ENOENT') return [];
+    return fail('eventlog: cannot access log');
+  }
+  if (data === '') return [];
+  const rows = data.split('\n');
+  rows.pop();
+  const ids = new Set<string>();
+  return rows.map((row, i) => {
+    const e = parse(row, i + 1);
+    if (ids.has(e.id)) fail(`eventlog:${i + 1}: duplicate event id '${e.id}'`);
+    ids.add(e.id);
+    return e;
+  });
+}
+function reconcile(events: Event[]): string {
+  events.sort(
+    (a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0) || a.line - b.line,
+  );
+  const states = new Map<string, string>();
+  const times = new Map<string, bigint>();
+  for (const e of events) {
+    const state = states.get(e.job) ?? '';
+    if (times.get(e.job) === e.ts)
+      fail(`eventlog:${e.line}: invalid transition for job '${e.job}'`);
+    const next =
+      state === '' && e.type === 'created'
+        ? 'queued'
+        : state === 'queued' && e.type === 'started'
+          ? 'running'
+          : state === 'running' && e.type === 'completed'
+            ? 'done'
+            : state === 'running' && e.type === 'failed'
+              ? 'failed'
+              : '';
+    if (!next)
+      fail(`eventlog:${e.line}: invalid transition for job '${e.job}'`);
+    states.set(e.job, next);
+    times.set(e.job, e.ts);
+  }
+  const count = { queued: 0, running: 0, done: 0, failed: 0 };
+  for (const state of states.values()) count[state as keyof typeof count]++;
+  return `total=${states.size}\nqueued=${count.queued}\nrunning=${count.running}\ndone=${count.done}\nfailed=${count.failed}\n`;
+}
+
+export async function execute(args: string[]): Promise<string> {
+  if (args.length === 3 && args[0] === 'reconcile' && args[1] === '--log')
+    return reconcile(await read(args[2]));
+  if (
+    args.length === 5 &&
+    args[0] === 'append' &&
+    args[1] === '--log' &&
+    args[3] === '--event'
+  ) {
+    const e = parse(args[4], 1);
+    let old: Uint8Array;
+    try {
+      old = await readFile(args[2]);
+    } catch (x) {
+      if ((x as { code?: string }).code === 'ENOENT') old = new Uint8Array();
+      else return fail('eventlog: cannot access log');
+    }
+    if (old.length && old[old.length - 1] !== 10)
+      return fail(
+        `eventlog:${old.filter((byte) => byte === 10).length + 1}: invalid event`,
+      );
+    const existing = await read(args[2]);
+    const dup = existing.find((v) => v.id === e.id);
+    if (dup) return fail(`eventlog:${dup.line}: duplicate event id '${e.id}'`);
+    const compact = `{"id":${JSON.stringify(e.id)},"type":${JSON.stringify(e.type)},"job":${JSON.stringify(e.job)},"ts":${e.ts}}`;
+    try {
+      await appendFile(args[2], `${compact}\n`, {
+        encoding: 'utf8',
+        flag: 'a',
+      });
+    } catch {
+      return fail('eventlog: cannot access log');
+    }
+    return `appended ${e.id}\n`;
+  }
+  throw new Failure(2, 'eventlog: usage error');
+}

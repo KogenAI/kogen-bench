@@ -1,0 +1,78 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "kh-climb",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H21",
+    "H32",
+    "H33"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "kh-climb-baseline",
+      "arm": "B0",
+      "planned_n": 21,
+      "reported_passes": 12,
+      "reported_denominator": 21,
+      "classification": "source-reported outcome; official public cell join unavailable"
+    },
+    {
+      "experiment_id": "kh-climb-control",
+      "arm": "unchanged H0",
+      "planned_n": 21,
+      "reported_passes": 14,
+      "reported_denominator": 21,
+      "classification": "source-reported outcome; two-pass difference described as noise floor"
+    },
+    {
+      "experiment_id": "kh-climb-v1",
+      "arm": "V1 boundary prompt",
+      "planned_n": 21,
+      "reported_passes": "conflicting: 10/18 usable; separately 10 pass + 11 fail + 0 infra / 21",
+      "classification": "denominator conflict; do not calculate a contrast"
+    },
+    {
+      "experiment_id": "kh-climb-v2",
+      "arm": "V2 mix-test",
+      "planned_n": 21,
+      "reported_passes": 10,
+      "reported_denominator": 21,
+      "classification": "source-reported outcome"
+    },
+    {
+      "experiment_id": "kh-climb-v3",
+      "arm": "V3",
+      "planned_n": null,
+      "started_n": 0,
+      "classification": "built, not run"
+    },
+    {
+      "experiment_id": "kh-climb-v4",
+      "arm": "V4 verification gate",
+      "planned_n": 21,
+      "started_n": 10,
+      "reported_passes": 6,
+      "reported_denominator": 10,
+      "unstarted_n": 11,
+      "classification": "partial; not final negative result"
+    },
+    {
+      "experiment_id": "kh-climb-v5",
+      "arm": "V5 requirement-to-diff",
+      "planned_n": 21,
+      "started_n": 6,
+      "reported_passes": 2,
+      "reported_denominator": 6,
+      "unstarted_n": 15,
+      "classification": "partial; not final negative result"
+    }
+  ]
+}

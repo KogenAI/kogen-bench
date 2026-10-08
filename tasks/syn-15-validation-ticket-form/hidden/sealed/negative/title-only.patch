@@ -1,0 +1,14 @@
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 2bcf6b1..3025e1b 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -27,7 +27,9 @@ defmodule Trackline.Support.Ticket do
+   def changeset(ticket, attrs) do
+     ticket
+     |> cast(attrs, [:title, :body, :priority, :requester_email])
++    |> update_change(:title, &String.trim/1)
+     |> validate_required([:title])
++    |> validate_length(:title, max: 200)
+     |> validate_inclusion(:priority, @priorities)
+   end
+ 

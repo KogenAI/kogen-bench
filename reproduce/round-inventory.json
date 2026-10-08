@@ -1,0 +1,1507 @@
+{
+  "schema_version": "1.0",
+  "scope": "One row per ID in rounds/index.json. analysis-only means a published record transformation, not a historical model execution. Full execution replay is unavailable for every registered round in this snapshot.",
+  "full_execution_replayable_rounds": [],
+  "rounds": [
+    {
+      "round_id": "cache-key-api-v4",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Probe script and raw request receipts are not published; sanitized per-pair counters are in the round sanitized.csv and the registered rule is recomputable from them by hand."
+    },
+    {
+      "round_id": "cache-key-backend-v4",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Probe script and raw request receipts are not published; sanitized per-pair counters are in the round sanitized.csv and the registered rule is recomputable from them by hand."
+    },
+    {
+      "round_id": "cache-replay-mechanism",
+      "script": "python3 reproduce/cache_replay_tables.py",
+      "inputs": [
+        "rounds/cache-replay-mechanism/RESULTS.md",
+        "rounds/cache-replay-mechanism/data/attempts-openai.csv",
+        "rounds/cache-replay-mechanism/data/attempts-chatgpt-eu.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes every published cache-counter table from the sanitized attempt CSVs. Provider execution cannot be replayed from this public bundle."
+    },
+    {
+      "round_id": "campfire-lane1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "campfire-lane2",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "candidate-counterfactual",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "claim-b-rerun-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "claim-b-screen-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "confirm-combined-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "ctx-store",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "e06-context",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "e09-tidewave",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "frontier",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "grok-frontier",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "hard1-calibrate-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "harness-compare-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "harness-pick-2026-09-29",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "hc-1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "hc-2",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "hc-3",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "hc-4",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "intent-coverage-audit",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "jev-route-ctx",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "jev-triage-ctx",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "kh-climb",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "kh-compare-2026-09-29",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "kogen-rs-ladder-luna-r74x",
+      "script": null,
+      "inputs": [
+        "rounds/kogen-rs-ladder-luna-r74x/README.md",
+        "rounds/kogen-rs-ladder-luna-r74x/DECISION-RULE.md",
+        "rounds/kogen-rs-ladder-luna-r74x/RESULTS.md",
+        "rounds/kogen-rs-ladder-luna-r74x/MEASURED.md"
+      ],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Per-cell outcomes, execution/hash assertions, incidents and identity audit are source-reported and not independently reproducible from the public snapshot; named lane records are absent. R74 rows are recovered internal historical context, not joined to the canonical official export. Strict release compliance is not established. Model execution and official grading are not replayed."
+    },
+    {
+      "round_id": "l0-reconcile",
+      "script": "python3 reproduce/reconcile_l0.py",
+      "inputs": [
+        "rounds/l0-reconcile/data/r72-p1.csv",
+        "rounds/l0-reconcile/data/r72-p3-partial.csv",
+        "rounds/l0-reconcile/data/r74-graded-subset.csv",
+        "rounds/l0-reconcile/data/r74-smoke-attempts.csv",
+        "rounds/l0-reconcile/data/r74-coverage.csv",
+        "rounds/l0-reconcile/data/r69-itt.csv",
+        "rounds/l0-reconcile/data/r57-pooled-itt.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes selected reconciliation CSV summaries only; it does not replay historical model executions or complete the canonical official outcome join."
+    },
+    {
+      "round_id": "l1-task-grader-trust",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "l2-plan-specificity",
+      "script": "python3 reproduce/l2-plan-specificity.py",
+      "inputs": [
+        "rounds/l2-plan-specificity/README.md",
+        "rounds/l2-plan-specificity/DECISION-RULE.md",
+        "rounds/l2-plan-specificity/RESULTS.md",
+        "rounds/l2-plan-specificity/data/official_cells.csv",
+        "rounds/l2-plan-specificity/data/planner_usage.csv",
+        "rounds/l2-plan-specificity/data/historical_no_plan_max.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes all published numeric results from the sanitized official-cell, planner-receipt, and historical-baseline CSVs. Sandbox execution and official grading cannot be replayed from this public bundle."
+    },
+    {
+      "round_id": "l3-repair",
+      "script": "python3 rounds/l3-repair/reproduce/l3_repair.py",
+      "inputs": [
+        "rounds/l3-repair/data/cells.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes aggregate repair counts from six published repair rows; per-test pass sets, grade receipts, and historical model executions are unavailable."
+    },
+    {
+      "round_id": "l3b-repair-vs-continue",
+      "script": "python3 rounds/l3b-repair-vs-continue/reproduce/l3b_repair_vs_continue.py",
+      "inputs": [
+        "rounds/l3b-repair-vs-continue/data/scored-cells.csv",
+        "rounds/l3b-repair-vs-continue/data/original-failures.csv",
+        "rounds/l3b-repair-vs-continue/data/rule-evidence.json",
+        "rounds/l3b-repair-vs-continue/data/per-test-results.json"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the public 24-cell aggregate outcome table, rescue counts, usage totals, and registered rule result, including per-test no-regression from the published pass/fail sets. Model execution and official grading are not replayed."
+    },
+    {
+      "availability_note": "The public aggregate CSVs support analysis replay only; benchmark execution and official grading are not replayed.",
+      "full_execution_replayable": false,
+      "inputs": [
+        "rounds/l4-context-packet/data/paired-cells.csv",
+        "rounds/l4-context-packet/data/historical-baselines.csv"
+      ],
+      "replay_type": "analysis-only",
+      "round_id": "l4-context-packet",
+      "script": "python3 rounds/l4-context-packet/reproduce/l4-context-packet.py"
+    },
+    {
+      "round_id": "l4b-confirm",
+      "script": "python3 rounds/l4b-confirm/reproduce/reproduce_us.py",
+      "inputs": [
+        "rounds/l4b-confirm/README.md",
+        "rounds/l4b-confirm/RESULTS.md",
+        "rounds/l4b-confirm/data/cells.csv",
+        "rounds/l4b-confirm/reproduce/ORDER.json",
+        "rounds/l4b-confirm/DESIGN.md",
+        "rounds/l4b-confirm/DECISION-RULE.md"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes official outcomes, paired seed results, test counts, token totals, and published tables from sanitized cell metrics. Model execution and official grading are not replayed."
+    },
+    {
+      "availability_note": "The public cell CSVs support analysis replay only; model execution and official grading are not replayed.",
+      "full_execution_replayable": false,
+      "inputs": [
+        "rounds/l5-sol-comparators/data/sol-cells.csv",
+        "rounds/l5-sol-comparators/data/luna-baseline.csv",
+        "rounds/l5-sol-comparators/data/new-cells.csv"
+      ],
+      "replay_type": "analysis-only",
+      "round_id": "l5-sol-comparators",
+      "script": "python3 rounds/l5-sol-comparators/reproduce/l5_sol_comparators.py"
+    },
+    {
+      "round_id": "l6-auditor-replay",
+      "script": "python3 reproduce/score_l6.py --cases rounds/l6-auditor-replay/data/case_list.csv --calls rounds/l6-auditor-replay/data/calls.csv",
+      "inputs": [
+        "rounds/l6-auditor-replay/data/case_list.csv",
+        "rounds/l6-auditor-replay/data/calls.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the offline auditor metrics from the published cases and calls; it does not rerun auditor requests or recreate withheld task prompts and patches."
+    },
+    {
+      "round_id": "lang-sol-replication",
+      "script": "python3 rounds/lang-sol-replication/reproduce/lang_sol_replication.py",
+      "inputs": [
+        "rounds/lang-sol-replication/data/cells.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the round tables and post-hoc equal-task sensitivity from the 58 published cell rows; it does not replay model execution, official grading, host smoke gates, or the missing exception receipt."
+    },
+    {
+      "round_id": "llm-latency-long",
+      "script": "python3 rounds/llm-latency-long/reproduce.py",
+      "inputs": [
+        "rounds/llm-latency-long/raw/round2-eu-*.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes long-probe request summaries from text-free event logs; it does not repeat model calls."
+    },
+    {
+      "round_id": "llm-latency-short",
+      "script": "python3 rounds/llm-latency-short/reproduce.py",
+      "inputs": [
+        "rounds/llm-latency-short/raw/*.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes request counts and quantiles from text-free event logs; it does not repeat model calls."
+    },
+    {
+      "round_id": "night-2026-10-01",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "offline-aa-bo3",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "offline-contract-audit",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "offline-review",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "offline-review3",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "overstrict-replay",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r10",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r11",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r12",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r13",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r14",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r15",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r16",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r17",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r18",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r19",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r2",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r20",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r21",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r22",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r23",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r24",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r25",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r26",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r27",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r28",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r29",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r3",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r30",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r31",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r32",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r32a",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r32b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r33",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r34",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r34b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r35",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r36",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r37",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r37c",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r38",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r39",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r39b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r4",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r40",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r41",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r42",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r43",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r44",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r45",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r46",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r47",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r48",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r48b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r49",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r49b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r5",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r50",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r51",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r52",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r53",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r53b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r54",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r55",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r56",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r56b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r56c",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r56d",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r56p2",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57",
+      "script": "python3 reproduce/reconcile_l0.py",
+      "inputs": [
+        "rounds/l0-reconcile/data/r72-p1.csv",
+        "rounds/l0-reconcile/data/r72-p3-partial.csv",
+        "rounds/l0-reconcile/data/r74-graded-subset.csv",
+        "rounds/l0-reconcile/data/r74-smoke-attempts.csv",
+        "rounds/l0-reconcile/data/r74-coverage.csv",
+        "rounds/l0-reconcile/data/r69-itt.csv",
+        "rounds/l0-reconcile/data/r57-pooled-itt.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes selected reconciliation CSV summaries only; it does not replay historical model executions or complete the canonical official outcome join."
+    },
+    {
+      "round_id": "r57-studio",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57-t90-studio",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57c",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57d",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r57e",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r58",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r58b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r58x-studio",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r59",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r6",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r60",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r60b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r61",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r62",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r62b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r63",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r63b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r64",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r64b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r64c",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r64d",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r64e",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r65",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r65b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r66",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r67",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r67b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r68",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r68b",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r69",
+      "script": "python3 reproduce/reconcile_l0.py",
+      "inputs": [
+        "rounds/l0-reconcile/data/r72-p1.csv",
+        "rounds/l0-reconcile/data/r72-p3-partial.csv",
+        "rounds/l0-reconcile/data/r74-graded-subset.csv",
+        "rounds/l0-reconcile/data/r74-smoke-attempts.csv",
+        "rounds/l0-reconcile/data/r74-coverage.csv",
+        "rounds/l0-reconcile/data/r69-itt.csv",
+        "rounds/l0-reconcile/data/r57-pooled-itt.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes selected reconciliation CSV summaries only; it does not replay historical model executions or complete the canonical official outcome join."
+    },
+    {
+      "round_id": "r7",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r70",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r70-compile",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r70-rve",
+      "script": "python3 rounds/r70-rve/reproduce.py",
+      "inputs": [
+        "results/test-counts.jsonl (cohort=r70-original-rve)",
+        "results/cost-time.jsonl (cohort=r70-original-rve)"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the published R70 original RvE summary from its public ledgers; it does not launch cells."
+    },
+    {
+      "round_id": "r70-rve-ext",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r70-rve-rerun",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r70-rve-task8v2",
+      "script": "python3 rounds/r70-rve-task8v2/reproduce.py",
+      "inputs": [
+        "results/test-counts.jsonl (cohort=r70-task8-v2-smoke)",
+        "results/controls.jsonl (cohort=r70-task8-v2)"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Extracts the two v2 smoke rows and controls; it does not launch scored cells."
+    },
+    {
+      "round_id": "r70-task8",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r71",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r72",
+      "script": "python3 reproduce/reconcile_l0.py",
+      "inputs": [
+        "rounds/l0-reconcile/data/r72-p1.csv",
+        "rounds/l0-reconcile/data/r72-p3-partial.csv",
+        "rounds/l0-reconcile/data/r74-graded-subset.csv",
+        "rounds/l0-reconcile/data/r74-smoke-attempts.csv",
+        "rounds/l0-reconcile/data/r74-coverage.csv",
+        "rounds/l0-reconcile/data/r69-itt.csv",
+        "rounds/l0-reconcile/data/r57-pooled-itt.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes selected reconciliation CSV summaries only; it does not replay historical model executions or complete the canonical official outcome join."
+    },
+    {
+      "round_id": "r73",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r74",
+      "script": "python3 reproduce/reconcile_l0.py",
+      "inputs": [
+        "rounds/l0-reconcile/data/r72-p1.csv",
+        "rounds/l0-reconcile/data/r72-p3-partial.csv",
+        "rounds/l0-reconcile/data/r74-graded-subset.csv",
+        "rounds/l0-reconcile/data/r74-smoke-attempts.csv",
+        "rounds/l0-reconcile/data/r74-coverage.csv",
+        "rounds/l0-reconcile/data/r69-itt.csv",
+        "rounds/l0-reconcile/data/r57-pooled-itt.csv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes selected reconciliation CSV summaries only; it does not replay historical model executions or complete the canonical official outcome join."
+    },
+    {
+      "round_id": "r8",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "r9",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "rails-catalogue",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "stack-oneshot-conformance",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Original implementation worktrees, conformance result bundles, and host environments are not included; the round cites the retained source reports and result paths but cannot be replayed from this repository."
+    },
+    {
+      "round_id": "studio-kogen",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "studio-kogen-80a4",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "studio-shaper-pilot",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "t100-cache-lane",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "t98-cache-smoke",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "unmapped",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-compaction",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-context",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-continuation",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-ladder",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-minikogen",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-mining",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-models",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-parallel",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-race",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-recovery",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-review",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-roles",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "x-surface",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    }
+  ]
+}

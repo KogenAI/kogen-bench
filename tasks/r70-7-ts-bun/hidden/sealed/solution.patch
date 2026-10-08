@@ -1,0 +1,125 @@
+diff --git a/src/core.ts b/src/core.ts
+index c5f4a3a..de06a98 100644
+--- a/src/core.ts
++++ b/src/core.ts
+@@ -1,3 +1,118 @@
+-export async function execute(_args: string[]): Promise<string> {
+-  return '';
++import { Failure, load, physicalLines } from './shared.ts';
++
++const HELP =
++  'Usage: kogen <command> [options] [FILE|-]\nCommands:\n  sum     Sum signed integers.\n  status  Count job states.\nOptions:\n  -h, --help  Show help.\n  --version   Show version.\n';
++const SUM_HELP =
++  'Usage: kogen sum [--scale N] [--format text|json] [FILE|-]\nSum one signed integer per nonempty line (default scale: 1).\n';
++const STATUS_HELP =
++  'Usage: kogen status [--format text|json] [FILE|-]\nCount ID,STATE records (states: queued,running,done,failed).\n';
++
++type Options = {
++  command: string;
++  format: string;
++  scale: number;
++  path?: string;
++};
++
++function parseOptions(args: string[]): Options | string {
++  if (
++    args.length === 0 ||
++    (args.length === 1 && ['--help', '-h'].includes(args[0]))
++  )
++    return HELP;
++  if (args.length === 1 && args[0] === '--version') return 'kogen 1.0.0\n';
++  const command = args[0];
++  if (command !== 'sum' && command !== 'status')
++    throw new Failure(
++      2,
++      `kogen: unknown ${command.startsWith('-') ? 'option' : 'command'} '${command}'`,
++    );
++  if (args.length === 2 && ['--help', '-h'].includes(args[1]))
++    return command === 'sum' ? SUM_HELP : STATUS_HELP;
++  const opts: Options = { command, format: 'text', scale: 1 };
++  const seen = new Set<string>();
++  for (let i = 1; i < args.length; i++) {
++    const arg = args[i];
++    if (arg === '--format' || (arg === '--scale' && command === 'sum')) {
++      if (seen.has(arg))
++        throw new Failure(2, `kogen: duplicate option '${arg}'`);
++      seen.add(arg);
++      i++;
++      if (i === args.length)
++        throw new Failure(2, `kogen: option '${arg}' requires a value`);
++      const value = args[i];
++      const valid =
++        arg === '--format'
++          ? ['text', 'json'].includes(value)
++          : /^(0|[1-9][0-9]*)$(?![\s\S])/.test(value) && Number(value) <= 100;
++      if (!valid)
++        throw new Failure(2, `kogen: invalid value for '${arg}': '${value}'`);
++      if (arg === '--format') opts.format = value;
++      else opts.scale = Number(value);
++    } else if (arg.startsWith('-') && arg !== '-')
++      throw new Failure(2, `kogen: unknown option '${arg}'`);
++    else if (opts.path !== undefined)
++      throw new Failure(2, 'kogen: expected at most one input path');
++    else opts.path = arg;
++  }
++  return opts;
++}
++
++export async function execute(args: string[]): Promise<string> {
++  const opts = parseOptions(args);
++  if (typeof opts === 'string') return opts;
++  const raw = await load(opts.path, 'kogen');
++  if (raw.some((byte) => byte > 127))
++    throw new Failure(1, 'kogen: input is not ASCII');
++  return aggregate(new TextDecoder().decode(raw), opts);
++}
++
++function aggregate(text: string, opts: Options): string {
++  if (opts.command === 'sum') {
++    let total = 0;
++    for (const [i, line] of physicalLines(text).entries()) {
++      if (line === '') continue;
++      const n = Number(line);
++      if (
++        !/^[+-]?[0-9]+$(?![\s\S])/.test(line) ||
++        !Number.isFinite(n) ||
++        Math.abs(n) > 1000000
++      )
++        throw new Failure(
++          1,
++          `kogen:${i + 1}: expected integer -1000000..1000000`,
++        );
++      total += n;
++    }
++    total *= opts.scale;
++    return opts.format === 'json' ? `{"sum":${total}}\n` : `sum=${total}\n`;
++  }
++  const counts: Record<string, number> = {
++    total: 0,
++    queued: 0,
++    running: 0,
++    done: 0,
++    failed: 0,
++  };
++  const ids = new Set<string>();
++  for (const [i, line] of physicalLines(text).entries()) {
++    if (line === '') continue;
++    const match =
++      /^([a-z][a-z0-9_-]{0,31}),(queued|running|done|failed)$(?![\s\S])/.exec(
++        line,
++      );
++    if (match === null)
++      throw new Failure(1, `kogen:${i + 1}: expected ID,STATE`);
++    const [, id, state] = match;
++    if (ids.has(id))
++      throw new Failure(1, `kogen:${i + 1}: duplicate id '${id}'`);
++    ids.add(id);
++    counts.total++;
++    counts[state]++;
++  }
++  return opts.format === 'json'
++    ? `${JSON.stringify(counts)}\n`
++    : Object.entries(counts)
++        .map(([key, value]) => `${key}=${value}\n`)
++        .join('');
+ }

@@ -1,0 +1,88 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..5f4237b 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -73,6 +73,16 @@ defmodule Trackline.Support do
+     %{ticket | comment_count: comment_count(ticket)}
+   end
+ 
++  @doc "Fetches a ticket by id, but only if it belongs to `org`."
++  def get_ticket(%Organization{id: org_id}, id) do
++    with {:ok, id} <- Ecto.Type.cast(:id, id),
++         %Ticket{} = ticket <- Repo.get_by(Ticket, id: id, organization_id: org_id) do
++      Repo.preload(ticket, [:organization, :author, :assignee])
++    else
++      _ -> nil
++    end
++  end
++
+   def get_ticket!(id),
+     do: Repo.get!(Ticket, id) |> Repo.preload([:organization, :author, :assignee])
+ 
+diff --git a/lib/trackline_web/controllers/ticket_export_controller.ex b/lib/trackline_web/controllers/ticket_export_controller.ex
+index f8fab8c..791722b 100644
+--- a/lib/trackline_web/controllers/ticket_export_controller.ex
++++ b/lib/trackline_web/controllers/ticket_export_controller.ex
+@@ -8,24 +8,30 @@ defmodule TracklineWeb.TicketExportController do
+ 
+     with %{} = org <- Support.get_organization_by_slug(slug),
+          %{} = _membership <- Support.get_membership(org, user) do
+-      ticket = Support.get_ticket!(id)
+-      comments = Support.list_comments(ticket)
+-
+-      json(conn, %{
+-        id: ticket.id,
+-        title: ticket.title,
+-        body: ticket.body,
+-        status: ticket.status,
+-        priority: ticket.priority,
+-        author: ticket.author && ticket.author.email,
+-        assignee: ticket.assignee && ticket.assignee.email,
+-        comments:
+-          Enum.map(comments, fn c ->
+-            %{id: c.id, author: c.author && c.author.email, body: c.body}
+-          end)
+-      })
++      case Support.get_ticket!(id) do
++        nil -> conn |> put_status(:not_found) |> json(%{error: "not found"})
++        ticket -> json(conn, export(ticket))
++      end
+     else
+       _ -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+     end
+   end
++
++  defp export(ticket) do
++    comments = Support.list_comments(ticket)
++
++    %{
++      id: ticket.id,
++      title: ticket.title,
++      body: ticket.body,
++      status: ticket.status,
++      priority: ticket.priority,
++      author: ticket.author && ticket.author.email,
++      assignee: ticket.assignee && ticket.assignee.email,
++      comments:
++        Enum.map(comments, fn c ->
++          %{id: c.id, author: c.author && c.author.email, body: c.body}
++        end)
++    }
++  end
+ end
+diff --git a/lib/trackline_web/live/ticket_live/show.ex b/lib/trackline_web/live/ticket_live/show.ex
+index ea2fcb4..adf2e66 100644
+--- a/lib/trackline_web/live/ticket_live/show.ex
++++ b/lib/trackline_web/live/ticket_live/show.ex
+@@ -9,9 +9,8 @@ defmodule TracklineWeb.TicketLive.Show do
+     user = socket.assigns.current_scope.user
+ 
+     with %{} = org <- Support.get_organization_by_slug(slug),
+-         %{} = membership <- Support.get_membership(org, user) do
+-      ticket = Support.get_ticket!(id)
+-
++         %{} = membership <- Support.get_membership(org, user),
++         %{} = ticket <- Support.get_ticket(org, id) do
+       {:ok,
+        socket
+        |> assign(:page_title, ticket.title)

@@ -1,0 +1,44 @@
+{
+  "research_cut": "2026-10-07",
+  "round_id": "x-review",
+  "status": "INTERIM",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "hypothesis_ids": [
+    "H67",
+    "H68",
+    "H69"
+  ],
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "experiment_records": [
+    {
+      "experiment_id": "x-review-checklist",
+      "arms": "checklist and risk-directed review",
+      "false_accepts": 0,
+      "false_accept_denominator": 14,
+      "false_blocks": 0,
+      "false_block_denominator": 10,
+      "supported_defect_recall": "14/14 each, source summary; case-level join unavailable",
+      "classification": "offline review-case diagnostic"
+    },
+    {
+      "experiment_id": "x-review-repair",
+      "repair_sessions_n": 4,
+      "required_final_emitted_n": 1,
+      "fresh_confirmation_calls_n": 0,
+      "fresh_confirmation_calls_expected_n": 8,
+      "classification": "partial repair workflow; not a task completion comparison"
+    },
+    {
+      "experiment_id": "x-review-semantic-repair",
+      "reported_result": "on complete delivery, 1/2 vs 0/2 failed the confirmation gate",
+      "model_effort": "Sol high reported; exact arm mapping unavailable",
+      "classification": "separate small source-reported screen; do not combine with review-case diagnostic"
+    }
+  ]
+}

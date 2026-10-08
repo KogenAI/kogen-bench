@@ -1,0 +1,15 @@
+--- levers/r70/public/r70-4-ts-bun/skeleton/src/main.ts
++++ levers/r70/public/r70-4-ts-bun-fe2/skeleton/src/main.ts
+@@ -1,9 +1,11 @@
+ import { execute } from './core.ts';
+ import { Failure } from './shared.ts';
+ 
+ try {
+-  await Bun.write(Bun.stdout, await execute(process.argv.slice(2)));
++  const output = await execute(process.argv.slice(2));
++  await Bun.write(Bun.stdout, output);
++  if (output.startsWith('rebased ')) process.exit(10);
+ } catch (error) {
+   if (error instanceof Failure) {
+     await Bun.write(Bun.stderr, `${error.message}\n`);
+     process.exit(error.code);

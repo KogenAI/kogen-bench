@@ -1,0 +1,42 @@
+diff --git a/lib/trackline/ports/images.ex b/lib/trackline/ports/images.ex
+index b627daa..7426521 100644
+--- a/lib/trackline/ports/images.ex
++++ b/lib/trackline/ports/images.ex
+@@ -14,11 +14,20 @@ defmodule Trackline.Ports.Images do
+     transform.(original)
+   end
+   def derive(id) do
+-    case Repo.get(Image, id) do
+-      nil -> {:error, :not_found}
+-      image ->
+-        Repo.insert(%Derivative{image_id: image.id, bytes: convert(image.original), storage_key: Base.url_encode64(:crypto.strong_rand_bytes(18), padding: false)})
+-    end
++    :global.trans({{__MODULE__, id}, self()}, fn ->
++      Repo.transact(fn ->
++        import Ecto.Query
++        Repo.update_all(from(i in Image, where: i.id == ^id), inc: [revision: 0])
++        case Repo.get_by(Derivative, image_id: id) do
++          %Derivative{} = stored -> {:ok, stored}
++          nil ->
++            case Repo.get(Image, id) do
++              nil -> {:error, :not_found}
++              image -> Repo.insert(%Derivative{image_id: id, bytes: convert(image.original), storage_key: "derived-#{id}"})
++            end
++        end
++      end)
++    end)
+   end
+   def reader_url(image) do
+     case derive(image.id) do
+diff --git a/priv/repo/migrations/20261003000002_unique_derivative.exs b/priv/repo/migrations/20261003000002_unique_derivative.exs
+new file mode 100644
+index 0000000..c451ef7
+--- /dev/null
++++ b/priv/repo/migrations/20261003000002_unique_derivative.exs
+@@ -0,0 +1,6 @@
++defmodule Trackline.Repo.Migrations.UniqueDerivative do
++  use Ecto.Migration
++  def change do
++    create unique_index(:port_derivatives, [:image_id], name: :one_derivative_per_image)
++  end
++end

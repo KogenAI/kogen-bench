@@ -1,0 +1,96 @@
+defmodule Beltway.GenerationCache do
+ use GenServer
+ def start_link(opts), do: GenServer.start_link(__MODULE__,opts,Keyword.take(opts,[:name]))
+ def fetch(cache,key,loader,timeout \\ 5000), do: GenServer.call(cache,{:fetch,key,loader,timeout},:infinity)
+ def invalidate(cache,key), do: GenServer.call(cache,{:invalidate,key})
+ def stats(cache), do: GenServer.call(cache,:stats)
+ def init(opts) do
+   Process.flag(:trap_exit,true)
+   {:ok,%{entries: %{}, flights: %{}, waiters: %{}, sequence: 0, ttl: Keyword.fetch!(opts,:ttl_ms), clock: Keyword.get(opts,:clock,fn -> System.monotonic_time(:millisecond) end), max: Keyword.fetch!(opts,:max_entries), inflight: Keyword.fetch!(opts,:max_inflight)}}
+ end
+ def handle_call(:stats,_,s), do: {:reply,%{entries: map_size(s.entries),inflight: map_size(s.flights),waiters: map_size(s.waiters)},s}
+ def handle_call({:invalidate,key},_,s) do
+   s=s
+   {:reply,:ok,%{s|entries: Map.delete(s.entries,key)}}
+ end
+ def handle_call({:fetch,_,_,timeout},_,s) when not is_integer(timeout) or timeout <= 0, do: {:reply,{:error,:timeout},s}
+ def handle_call({:fetch,key,loader,timeout},from,s) do
+   case s.entries[key] do
+     %{value: v,until: until} ->
+       if until > s.clock.(), do: {:reply,{:ok,v},s}, else: fetch(key,loader,timeout,from,%{s|entries: Map.delete(s.entries,key)})
+     _ -> fetch(key,loader,timeout,from,s)
+   end
+ end
+ defp fetch(key,loader,timeout,from,s) do
+   if not Map.has_key?(s.flights,key) and map_size(s.flights)>=s.inflight do
+     {:reply,{:error,:busy},s}
+   else
+     s=if Map.has_key?(s.flights,key) do s else
+       parent=self();generation=make_ref()
+       {pid,ref}=:erlang.spawn_opt(fn ->
+         result=try do loader.() rescue _ -> {:error,:loader_failed} catch _,_ -> {:error,:loader_failed} end
+         send(parent,{:loaded,key,generation,result})
+       end,[:link,:monitor])
+       %{s|flights: Map.put(s.flights,key,%{pid: pid,monitor: ref,generation: generation})}
+     end
+     ref=Process.monitor(elem(from,0));timer=Process.send_after(self(),{:timeout,ref},timeout)
+     {:noreply,%{s|waiters: Map.put(s.waiters,ref,%{from: from,key: key,timer: timer})}}
+   end
+ end
+ def handle_info({:loaded,key,generation,result},s) do
+   case s.flights[key] do
+     %{generation: ^generation}=flight ->
+       Process.demonitor(flight.monitor,[:flush])
+       result=case result do {:ok,_} -> result;{:error,_} -> result;_ -> {:error,:loader_failed} end
+       s=reply_waiters(s,key,result)
+       s=%{s|flights: Map.delete(s.flights,key)}
+       s=case result do
+         {:ok,v} ->
+           seq=s.sequence+1
+           entries=Map.put(s.entries,key,%{value: v,until: s.clock.()+s.ttl,seq: seq})
+           entries=if map_size(entries)>s.max do
+             {old,_}=Enum.min_by(entries,fn {_,e} -> e.seq end);Map.delete(entries,old)
+           else entries end
+           %{s|entries: entries,sequence: seq}
+         _ -> s
+       end
+       {:noreply,s}
+     _ -> {:noreply,s}
+   end
+ end
+ def handle_info({:timeout,ref},s), do: {:noreply,remove_waiter(s,ref,{:error,:timeout})}
+ def handle_info({:DOWN,ref,:process,_,_},s) do
+   case Enum.find(s.flights,fn {_,f} -> f.monitor==ref end) do
+     {key,_} -> {:noreply,discard(s,key,{:error,:loader_failed})}
+     nil -> {:noreply,remove_waiter(s,ref,nil)}
+   end
+ end
+ def handle_info(_,s), do: {:noreply,s}
+ defp remove_waiter(s,ref,result) do
+   case Map.pop(s.waiters,ref) do
+     {nil,_} -> s
+     {w,waiters} ->
+       Process.cancel_timer(w.timer);Process.demonitor(ref,[:flush])
+       if result, do: GenServer.reply(w.from,result)
+       s=%{s|waiters: waiters}
+       if Enum.any?(waiters,fn {_,x} -> x.key==w.key end), do: s, else: discard(s,w.key,nil)
+   end
+ end
+ defp reply_waiters(s,key,result) do
+   {done,keep}=Enum.split_with(s.waiters,fn {_,w} -> w.key==key end)
+   Enum.each(done,fn {ref,w} ->
+     Process.cancel_timer(w.timer);Process.demonitor(ref,[:flush]);if result, do: GenServer.reply(w.from,result)
+   end)
+   %{s|waiters: Map.new(keep)}
+ end
+ defp discard(s,key,result) do
+   case s.flights[key] do
+     nil -> s
+     f ->
+       Process.exit(f.pid,:kill);Process.demonitor(f.monitor,[:flush])
+       s=reply_waiters(s,key,result)
+       %{s|flights: Map.delete(s.flights,key)}
+   end
+ end
+ def terminate(_,s), do: Enum.each(s.flights,fn {_,f}->Process.exit(f.pid,:kill) end)
+end

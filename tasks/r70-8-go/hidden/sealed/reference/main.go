@@ -1,0 +1,854 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
+	"unicode/utf8"
+)
+
+const toolDefinitions = `[{"type":"function","name":"read_file","description":"Read a UTF-8 file under the workdir","parameters":{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}},{"type":"function","name":"run_command","description":"Run a shell command with the workdir as its current directory","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"],"additionalProperties":false}}]`
+
+type failure struct {
+	code int
+	text string
+}
+
+func (f *failure) Error() string { return f.text }
+
+func fail(code int, text string) error { return &failure{code: code, text: text} }
+
+type options struct {
+	promptFile      string
+	server          string
+	records         string
+	workdir         string
+	session         string
+	firstByte       time.Duration
+	idle            time.Duration
+	maxRetries      int
+	backoff         time.Duration
+	providedSession bool
+}
+
+func invalidCLI() error { return fail(2, "loop: invalid command line") }
+
+func parseArgs(args []string) (options, error) {
+	opt := options{firstByte: 5000 * time.Millisecond, idle: 3000 * time.Millisecond, maxRetries: 2, backoff: 50 * time.Millisecond}
+	if len(args) < 2 || args[0] != "loop" || args[1] != "run" {
+		return opt, invalidCLI()
+	}
+	seen := map[string]bool{}
+	for i := 2; i < len(args); i++ {
+		flag := args[i]
+		if !strings.HasPrefix(flag, "--") || i+1 >= len(args) {
+			return opt, invalidCLI()
+		}
+		i++
+		value := args[i]
+		if seen[flag] {
+			return opt, invalidCLI()
+		}
+		seen[flag] = true
+		switch flag {
+		case "--prompt-file":
+			opt.promptFile = value
+		case "--server":
+			opt.server = value
+		case "--records":
+			opt.records = value
+		case "--workdir":
+			opt.workdir = value
+		case "--session":
+			if !validSession(value) {
+				return opt, invalidCLI()
+			}
+			opt.session, opt.providedSession = value, true
+		case "--first-byte-timeout-ms":
+			ms, ok := boundedInt(value, 1, 60000)
+			if !ok {
+				return opt, invalidCLI()
+			}
+			opt.firstByte = time.Duration(ms) * time.Millisecond
+		case "--idle-timeout-ms":
+			ms, ok := boundedInt(value, 1, 60000)
+			if !ok {
+				return opt, invalidCLI()
+			}
+			opt.idle = time.Duration(ms) * time.Millisecond
+		case "--max-retries":
+			n, ok := boundedInt(value, 0, 5)
+			if !ok {
+				return opt, invalidCLI()
+			}
+			opt.maxRetries = n
+		case "--backoff-ms":
+			ms, ok := boundedInt(value, 0, 5000)
+			if !ok {
+				return opt, invalidCLI()
+			}
+			opt.backoff = time.Duration(ms) * time.Millisecond
+		default:
+			return opt, invalidCLI()
+		}
+	}
+	if opt.promptFile == "" || opt.server == "" || opt.records == "" {
+		return opt, invalidCLI()
+	}
+	u, err := url.Parse(opt.server)
+	if err != nil || u.Scheme != "http" || u.Host == "" || (u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" || u.User != nil {
+		return opt, invalidCLI()
+	}
+	if !opt.providedSession {
+		opt.session = fmt.Sprintf("loop-%d-%d", os.Getpid(), time.Now().UnixNano())
+	}
+	return opt, nil
+}
+
+func validSession(value string) bool {
+	if len(value) < 1 || len(value) > 128 {
+		return false
+	}
+	for _, r := range value {
+		if !validSessionRune(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func validSessionRune(r rune) bool {
+	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || strings.ContainsRune("._:-", r)
+}
+
+func boundedInt(value string, min, max int) (int, bool) {
+	if value == "" || strings.HasPrefix(value, "+") || strings.TrimSpace(value) != value {
+		return 0, false
+	}
+	for _, r := range value {
+		if r < '0' || r > '9' {
+			return 0, false
+		}
+	}
+	var number int
+	if _, err := fmt.Sscan(value, &number); err != nil || number < min || number > max {
+		return 0, false
+	}
+	return number, true
+}
+
+type userItem struct {
+	Role    string `json:"role"`
+	Content []struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	} `json:"content"`
+}
+
+type callItem struct {
+	Type      string `json:"type"`
+	CallID    string `json:"call_id"`
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
+}
+
+type outputItem struct {
+	Type   string `json:"type"`
+	CallID string `json:"call_id"`
+	Output string `json:"output"`
+}
+
+type usageRecord struct {
+	InputTokens  *int `json:"input_tokens"`
+	OutputTokens *int `json:"output_tokens"`
+	CachedTokens *int `json:"cached_tokens"`
+}
+
+type requestRecord struct {
+	StartMS      int64       `json:"start_ms"`
+	FirstByteMS  *int64      `json:"first_byte_ms"`
+	EndMS        int64       `json:"end_ms"`
+	Outcome      string      `json:"outcome"`
+	Retries      int         `json:"retries"`
+	Usage        usageRecord `json:"usage"`
+	RequestBytes int         `json:"request_bytes"`
+	HistoryItems int         `json:"history_items"`
+}
+
+type streamCall struct {
+	ID   string
+	Name string
+	Args strings.Builder
+}
+
+type streamResponse struct {
+	Text    strings.Builder
+	Calls   []streamCall
+	Usage   usageRecord
+	SawText bool
+}
+
+type sseParser struct {
+	buffer       []byte
+	eventName    string
+	data         string
+	dataSet      bool
+	response     streamResponse
+	callIndex    map[string]int
+	completed    bool
+	invalid      bool
+	seenComplete int
+}
+
+func newSSEParser() *sseParser { return &sseParser{callIndex: map[string]int{}} }
+
+func (p *sseParser) feed(chunk []byte) bool {
+	p.buffer = append(p.buffer, chunk...)
+	for {
+		pos := bytes.IndexByte(p.buffer, '\n')
+		if pos < 0 {
+			return p.completed || p.invalid
+		}
+		line := string(p.buffer[:pos])
+		p.buffer = p.buffer[pos+1:]
+		line = strings.TrimSuffix(line, "\r")
+		if !utf8.ValidString(line) {
+			p.invalid = true
+			return true
+		}
+		if line == "" {
+			if p.eventName == "" && !p.dataSet {
+				continue
+			}
+			p.dispatch()
+			p.eventName, p.data, p.dataSet = "", "", false
+			if p.completed || p.invalid {
+				return true
+			}
+			continue
+		}
+		if strings.HasPrefix(line, ":") {
+			continue
+		}
+		if strings.HasPrefix(line, "event: ") && p.eventName == "" {
+			p.eventName = strings.TrimPrefix(line, "event: ")
+			continue
+		}
+		if strings.HasPrefix(line, "data: ") && !p.dataSet {
+			p.data = strings.TrimPrefix(line, "data: ")
+			p.dataSet = true
+			continue
+		}
+		p.invalid = true
+		return true
+	}
+}
+
+func (p *sseParser) dispatch() {
+	if p.eventName == "" || !p.dataSet || p.completed || !utf8.ValidString(p.data) {
+		p.invalid = true
+		return
+	}
+	switch p.eventName {
+	case "response.function_call_arguments.delta":
+		var event struct {
+			CallID string  `json:"call_id"`
+			Name   string  `json:"name"`
+			Delta  *string `json:"delta"`
+		}
+		if json.Unmarshal([]byte(p.data), &event) != nil || event.CallID == "" || event.Delta == nil || (event.Name != "read_file" && event.Name != "run_command") {
+			p.invalid = true
+			return
+		}
+		index, exists := p.callIndex[event.CallID]
+		if !exists {
+			index = len(p.response.Calls)
+			p.callIndex[event.CallID] = index
+			p.response.Calls = append(p.response.Calls, streamCall{ID: event.CallID, Name: event.Name})
+		} else if p.response.Calls[index].Name != event.Name {
+			p.invalid = true
+			return
+		}
+		p.response.Calls[index].Args.WriteString(*event.Delta)
+	case "response.output_text.delta":
+		var event struct {
+			Delta *string `json:"delta"`
+		}
+		if json.Unmarshal([]byte(p.data), &event) != nil || event.Delta == nil {
+			p.invalid = true
+			return
+		}
+		p.response.Text.WriteString(*event.Delta)
+		p.response.SawText = true
+	case "response.completed":
+		var event struct {
+			Usage *struct {
+				InputTokens  *int `json:"input_tokens"`
+				OutputTokens *int `json:"output_tokens"`
+				Details      *struct {
+					CachedTokens *int `json:"cached_tokens"`
+				} `json:"input_tokens_details"`
+			} `json:"usage"`
+		}
+		if json.Unmarshal([]byte(p.data), &event) != nil || event.Usage == nil || event.Usage.InputTokens == nil || event.Usage.OutputTokens == nil || event.Usage.Details == nil || event.Usage.Details.CachedTokens == nil || *event.Usage.InputTokens < 0 || *event.Usage.OutputTokens < 0 || *event.Usage.Details.CachedTokens < 0 {
+			p.invalid = true
+			return
+		}
+		p.seenComplete++
+		if p.seenComplete != 1 || (len(p.response.Calls) > 0 && p.response.SawText) {
+			p.invalid = true
+			return
+		}
+		p.response.Usage = usageRecord{InputTokens: event.Usage.InputTokens, OutputTokens: event.Usage.OutputTokens, CachedTokens: event.Usage.Details.CachedTokens}
+		p.completed = true
+	default:
+		p.invalid = true
+	}
+}
+
+func (p *sseParser) result() (streamResponse, error) {
+	if p.invalid || !p.completed || len(p.buffer) != 0 || p.eventName != "" || p.dataSet || (len(p.response.Calls) > 0 && p.response.SawText) {
+		return streamResponse{}, errors.New("invalid response")
+	}
+	if len(p.response.Calls) > 0 && p.response.SawText {
+		return streamResponse{}, errors.New("invalid response")
+	}
+	return p.response, nil
+}
+
+type attemptError struct {
+	kind string
+	err  error
+}
+
+type httpResult struct {
+	response *http.Response
+	err      error
+}
+
+type bodyResult struct {
+	data []byte
+	err  error
+}
+
+func elapsedMS(origin, at time.Time) int64 { return at.Sub(origin).Milliseconds() }
+
+func requestBody(history string) []byte {
+	return []byte(`{"model":"fake-agent","stream":true,"tools":` + toolDefinitions + `,"tool_choice":"auto","input":` + history + `}`)
+}
+
+func performRequest(client *http.Client, opt options, body []byte, retryIndex, historyCount int, runStart time.Time, recordFile *os.File) (streamResponse, *attemptError, error) {
+	started := time.Now()
+	record := requestRecord{StartMS: elapsedMS(runStart, started), Retries: retryIndex, Usage: usageRecord{}, RequestBytes: len(body), HistoryItems: historyCount}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(opt.server, "/")+"/v1/responses", bytes.NewReader(body))
+	if err != nil {
+		return streamResponse{}, nil, fail(2, "loop: invalid command line")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("X-Session-ID", opt.session)
+	responseCh := make(chan httpResult, 1)
+	go func() {
+		response, requestErr := client.Do(req)
+		responseCh <- httpResult{response: response, err: requestErr}
+	}()
+	deadline := started.Add(opt.firstByte)
+	wait := time.Until(deadline)
+	if wait < 0 {
+		wait = 0
+	}
+	firstTimer := time.NewTimer(wait)
+	defer firstTimer.Stop()
+	var response *http.Response
+	select {
+	case got := <-responseCh:
+		if got.err != nil {
+			record.Outcome = "transport"
+			record.EndMS = elapsedMS(runStart, time.Now())
+			if err := writeRecord(recordFile, record); err != nil {
+				return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+			}
+			return streamResponse{}, &attemptError{kind: "transport", err: got.err}, nil
+		}
+		response = got.response
+	case <-firstTimer.C:
+		cancel()
+		record.Outcome = "timeout"
+		record.EndMS = elapsedMS(runStart, time.Now())
+		if err := writeRecord(recordFile, record); err != nil {
+			return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+		}
+		return streamResponse{}, &attemptError{kind: "timeout", err: errors.New("first byte timeout")}, nil
+	}
+	if response == nil {
+		record.Outcome = "transport"
+		record.EndMS = elapsedMS(runStart, time.Now())
+		_ = writeRecord(recordFile, record)
+		return streamResponse{}, &attemptError{kind: "transport", err: errors.New("missing response")}, nil
+	}
+	if response.StatusCode == 429 || response.StatusCode == 529 || response.StatusCode >= 500 {
+		_ = response.Body.Close()
+		record.Outcome = "overload"
+		record.EndMS = elapsedMS(runStart, time.Now())
+		if err := writeRecord(recordFile, record); err != nil {
+			return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+		}
+		return streamResponse{}, &attemptError{kind: "overload", err: fmt.Errorf("HTTP %d", response.StatusCode)}, nil
+	}
+	if response.StatusCode != http.StatusOK {
+		_ = response.Body.Close()
+		record.Outcome = "transport"
+		record.EndMS = elapsedMS(runStart, time.Now())
+		if err := writeRecord(recordFile, record); err != nil {
+			return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+		}
+		return streamResponse{}, &attemptError{kind: "rejected", err: fmt.Errorf("HTTP %d", response.StatusCode)}, nil
+	}
+	if !strings.HasPrefix(strings.ToLower(response.Header.Get("Content-Type")), "text/event-stream") {
+		_ = response.Body.Close()
+		record.Outcome = "transport"
+		record.EndMS = elapsedMS(runStart, time.Now())
+		if err := writeRecord(recordFile, record); err != nil {
+			return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+		}
+		return streamResponse{}, &attemptError{kind: "invalid", err: errors.New("invalid response content type")}, nil
+	}
+	chunks := make(chan bodyResult, 1)
+	go func() {
+		defer func() { _ = response.Body.Close() }()
+		buffer := make([]byte, 4096)
+		for {
+			n, readErr := response.Body.Read(buffer)
+			if n > 0 {
+				data := append([]byte(nil), buffer[:n]...)
+				select {
+				case chunks <- bodyResult{data: data}:
+				case <-ctx.Done():
+					return
+				}
+			}
+			if readErr != nil {
+				select {
+				case chunks <- bodyResult{err: readErr}:
+				case <-ctx.Done():
+				}
+				return
+			}
+		}
+	}()
+	parser := newSSEParser()
+	var first *int64
+	idleTimer := time.NewTimer(time.Hour)
+	if !idleTimer.Stop() {
+		<-idleTimer.C
+	}
+	idleTimerOn := false
+	for {
+		var timerChannel <-chan time.Time
+		if first == nil {
+			timerChannel = firstTimer.C
+		} else if idleTimerOn {
+			timerChannel = idleTimer.C
+		}
+		select {
+		case chunk := <-chunks:
+			if len(chunk.data) > 0 {
+				now := time.Now()
+				if first == nil {
+					value := elapsedMS(runStart, now)
+					first = &value
+				}
+				resetTimer(idleTimer, opt.idle)
+				idleTimerOn = true
+				stopTimer(firstTimer)
+				if parser.feed(chunk.data) {
+					if parser.invalid {
+						_ = response.Body.Close()
+						record.Outcome = "transport"
+						record.FirstByteMS = first
+						record.EndMS = elapsedMS(runStart, time.Now())
+						if err := writeRecord(recordFile, record); err != nil {
+							return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+						}
+						return streamResponse{}, &attemptError{kind: "invalid", err: errors.New("invalid response")}, nil
+					}
+					_ = response.Body.Close()
+					parsed, parseErr := parser.result()
+					if parseErr != nil {
+						record.Outcome = "transport"
+						record.FirstByteMS = first
+						record.EndMS = elapsedMS(runStart, time.Now())
+						if err := writeRecord(recordFile, record); err != nil {
+							return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+						}
+						return streamResponse{}, &attemptError{kind: "invalid", err: parseErr}, nil
+					}
+					record.Outcome = "ok"
+					record.FirstByteMS = first
+					record.Usage = parsed.Usage
+					record.EndMS = elapsedMS(runStart, time.Now())
+					if err := writeRecord(recordFile, record); err != nil {
+						return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+					}
+					return parsed, nil, nil
+				}
+			}
+			if chunk.err != nil {
+				if errors.Is(chunk.err, io.EOF) {
+					record.Outcome = "transport"
+					record.FirstByteMS = first
+					record.EndMS = elapsedMS(runStart, time.Now())
+					if err := writeRecord(recordFile, record); err != nil {
+						return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+					}
+					return streamResponse{}, &attemptError{kind: "transport", err: errors.New("stream ended before completion")}, nil
+				}
+				record.Outcome = "transport"
+				record.FirstByteMS = first
+				record.EndMS = elapsedMS(runStart, time.Now())
+				if err := writeRecord(recordFile, record); err != nil {
+					return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+				}
+				return streamResponse{}, &attemptError{kind: "transport", err: chunk.err}, nil
+			}
+		case <-timerChannel:
+			kind := "stall"
+			if first == nil {
+				kind = "timeout"
+			}
+			cancel()
+			_ = response.Body.Close()
+			record.Outcome = kind
+			record.FirstByteMS = first
+			record.EndMS = elapsedMS(runStart, time.Now())
+			if err := writeRecord(recordFile, record); err != nil {
+				return streamResponse{}, nil, fail(1, "loop: cannot write records file")
+			}
+			return streamResponse{}, &attemptError{kind: kind, err: errors.New(kind)}, nil
+		}
+	}
+}
+
+func stopTimer(timer *time.Timer) {
+	if !timer.Stop() {
+		select {
+		case <-timer.C:
+		default:
+		}
+	}
+}
+
+func resetTimer(timer *time.Timer, duration time.Duration) {
+	stopTimer(timer)
+	timer.Reset(duration)
+}
+
+func writeRecord(file *os.File, record requestRecord) error {
+	data, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	writer := bufio.NewWriter(file)
+	if _, err := writer.Write(data); err != nil {
+		return err
+	}
+	if err := writer.WriteByte('\n'); err != nil {
+		return err
+	}
+	if err := writer.Flush(); err != nil {
+		return err
+	}
+	return file.Sync()
+}
+
+func appendHistory(history string, items ...any) (string, error) {
+	var out strings.Builder
+	out.WriteString(strings.TrimSuffix(history, "]"))
+	for _, item := range items {
+		if out.Len() > 1 {
+			out.WriteByte(',')
+		}
+		encoded, err := json.Marshal(item)
+		if err != nil {
+			return "", err
+		}
+		out.Write(encoded)
+	}
+	out.WriteByte(']')
+	return out.String(), nil
+}
+
+func executeTool(call streamCall, workdir string) (string, error) {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(call.Args.String()), &fields); err != nil || fields == nil {
+		return "", errors.New("invalid tool arguments")
+	}
+	canonicalArgs, err := compactJSON([]byte(call.Args.String()))
+	if err != nil {
+		return "", err
+	}
+	_ = canonicalArgs
+	switch call.Name {
+	case "read_file":
+		if len(fields) != 1 || fields["path"] == nil {
+			return "", errors.New("invalid read_file arguments")
+		}
+		var args struct {
+			Path string `json:"path"`
+		}
+		if err := json.Unmarshal(fields["path"], &args.Path); err != nil || args.Path == "" || filepath.IsAbs(args.Path) {
+			return "", errors.New("invalid read_file path")
+		}
+		candidate := filepath.Join(workdir, filepath.Clean(args.Path))
+		resolved, err := filepath.EvalSymlinks(candidate)
+		if err != nil {
+			return "", err
+		}
+		relative, err := filepath.Rel(workdir, resolved)
+		if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(os.PathSeparator)) || filepath.IsAbs(relative) {
+			return "", errors.New("path outside workdir")
+		}
+		info, err := os.Stat(resolved)
+		if err != nil || !info.Mode().IsRegular() {
+			return "", errors.New("not a regular file")
+		}
+		data, err := os.ReadFile(resolved)
+		if err != nil || !utf8.Valid(data) {
+			return "", errors.New("cannot read UTF-8 file")
+		}
+		return string(data), nil
+	case "run_command":
+		if len(fields) != 1 || fields["command"] == nil {
+			return "", errors.New("invalid run_command arguments")
+		}
+		var args struct {
+			Command string `json:"command"`
+		}
+		if err := json.Unmarshal(fields["command"], &args.Command); err != nil || args.Command == "" || !commandPathsAllowed(args.Command) {
+			return "", errors.New("invalid command")
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "/bin/sh", "-c", args.Command)
+		cmd.Dir = workdir
+		cmd.Env = []string{"PATH=/usr/bin:/bin", "HOME=" + workdir, "LANG=C.UTF-8", "PWD=" + workdir}
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		cmd.Cancel = func() error {
+			if cmd.Process == nil {
+				return os.ErrProcessDone
+			}
+			return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		}
+		cmd.WaitDelay = 150 * time.Millisecond
+		var stdout, stderr limitedBuffer
+		stdout.limit, stderr.limit = 1<<20, 1<<20
+		cmd.Stdout, cmd.Stderr = &stdout, &stderr
+		err := cmd.Run()
+		if ctx.Err() != nil || stdout.overflow || stderr.overflow || stdout.Len()+stderr.Len() > 1<<20 {
+			return "", errors.New("command timeout or output limit")
+		}
+		if err != nil {
+			var exitErr *exec.ExitError
+			if !errors.As(err, &exitErr) {
+				return "", err
+			}
+		}
+		if !utf8.Valid(stdout.Bytes()) || !utf8.Valid(stderr.Bytes()) {
+			return "", errors.New("command output is not UTF-8")
+		}
+		exitCode := 0
+		if cmd.ProcessState != nil {
+			exitCode = cmd.ProcessState.ExitCode()
+		}
+		result := struct {
+			ExitCode int    `json:"exit_code"`
+			Stdout   string `json:"stdout"`
+			Stderr   string `json:"stderr"`
+		}{exitCode, stdout.String(), stderr.String()}
+		encoded, err := json.Marshal(result)
+		return string(encoded), err
+	default:
+		return "", errors.New("unknown tool")
+	}
+}
+
+type limitedBuffer struct {
+	bytes.Buffer
+	limit    int
+	overflow bool
+}
+
+func (b *limitedBuffer) Write(data []byte) (int, error) {
+	original := len(data)
+	remaining := b.limit + 1 - b.Len()
+	if remaining > 0 {
+		if len(data) > remaining {
+			b.overflow = true
+			data = data[:remaining]
+		}
+		_, _ = b.Buffer.Write(data)
+	} else if original > 0 {
+		b.overflow = true
+	}
+	return original, nil
+}
+
+func commandPathsAllowed(command string) bool {
+	absoluteBoundary := func(r byte) bool {
+		return r == ' ' || r == '\t' || r == '\n' || r == '\r' || strings.ContainsRune("\"'=<>|;&(", rune(r))
+	}
+	for i := 0; i < len(command); i++ {
+		if command[i] == '/' && (i == 0 || absoluteBoundary(command[i-1])) {
+			return false
+		}
+		if i+1 < len(command) && command[i] == '.' && command[i+1] == '.' {
+			left := i == 0 || absoluteBoundary(command[i-1]) || command[i-1] == '/'
+			right := i+2 == len(command) || command[i+2] == '/' || absoluteBoundary(command[i+2])
+			if left && right {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func compactJSON(raw []byte) ([]byte, error) {
+	var output bytes.Buffer
+	if err := json.Compact(&output, raw); err != nil {
+		return nil, err
+	}
+	return output.Bytes(), nil
+}
+
+func run(args []string) error {
+	opt, err := parseArgs(args)
+	if err != nil {
+		return err
+	}
+	prompt, err := os.ReadFile(opt.promptFile)
+	if err != nil || !utf8.Valid(prompt) {
+		return fail(1, "loop: cannot read prompt file")
+	}
+	workdir := opt.workdir
+	if workdir == "" {
+		workdir, err = os.Getwd()
+	}
+	if err == nil {
+		workdir, err = filepath.Abs(workdir)
+	}
+	if err == nil {
+		workdir, err = filepath.EvalSymlinks(workdir)
+	}
+	if err != nil {
+		return fail(1, "loop: invalid workdir")
+	}
+	info, err := os.Stat(workdir)
+	if err != nil || !info.IsDir() {
+		return fail(1, "loop: invalid workdir")
+	}
+	recordFile, err := os.OpenFile(opt.records, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
+	if err != nil {
+		return fail(1, "loop: cannot write records file")
+	}
+	defer func() { _ = recordFile.Close() }()
+	var item userItem
+	item.Role = "user"
+	item.Content = []struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	}{{Type: "input_text", Text: string(prompt)}}
+	encoded, err := json.Marshal(item)
+	if err != nil {
+		return fail(1, "loop: cannot read prompt file")
+	}
+	history := "[" + string(encoded) + "]"
+	runStart := time.Now()
+	historyCount := 1
+	client := &http.Client{Transport: &http.Transport{Proxy: nil, ForceAttemptHTTP2: false}}
+	for {
+		body := requestBody(history)
+		var response streamResponse
+		var requestErr *attemptError
+		for retry := 0; ; retry++ {
+			response, requestErr, err = performRequest(client, opt, body, retry, historyCount, runStart, recordFile)
+			if err != nil {
+				return err
+			}
+			if requestErr == nil {
+				break
+			}
+			if requestErr.kind == "rejected" {
+				return fail(14, "loop: server rejected request")
+			}
+			if requestErr.kind == "invalid" {
+				return fail(15, "loop: invalid response")
+			}
+			if retry >= opt.maxRetries {
+				switch requestErr.kind {
+				case "timeout":
+					return fail(10, "loop: first-byte timeout")
+				case "stall":
+					return fail(11, "loop: stream stalled")
+				case "overload":
+					return fail(13, "loop: server overloaded")
+				default:
+					return fail(12, "loop: transport error")
+				}
+			}
+			delay := opt.backoff * time.Duration(1<<(retry))
+			time.Sleep(delay)
+		}
+		if len(response.Calls) == 0 {
+			_, writeErr := os.Stdout.Write([]byte(response.Text.String()))
+			if writeErr != nil {
+				return fail(1, "loop: cannot write records file")
+			}
+			return nil
+		}
+		for _, call := range response.Calls {
+			compactArgs, compactErr := compactJSON([]byte(call.Args.String()))
+			if compactErr != nil {
+				return fail(16, "loop: tool execution failed")
+			}
+			var object map[string]json.RawMessage
+			if json.Unmarshal(compactArgs, &object) != nil || object == nil {
+				return fail(16, "loop: tool execution failed")
+			}
+			result, toolErr := executeTool(call, workdir)
+			if toolErr != nil {
+				return fail(16, "loop: tool execution failed")
+			}
+			arguments := string(compactArgs)
+			history, err = appendHistory(history, callItem{Type: "function_call", CallID: call.ID, Name: call.Name, Arguments: arguments}, outputItem{Type: "function_call_output", CallID: call.ID, Output: result})
+			if err != nil {
+				return fail(15, "loop: invalid response")
+			}
+			historyCount += 2
+		}
+	}
+}
+
+func main() {
+	if err := run(os.Args[1:]); err != nil {
+		if problem, ok := err.(*failure); ok {
+			_, _ = fmt.Fprintln(os.Stderr, problem.text)
+			os.Exit(problem.code)
+		}
+		_, _ = fmt.Fprintln(os.Stderr, "loop: invalid response")
+		os.Exit(15)
+	}
+}

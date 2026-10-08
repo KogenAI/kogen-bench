@@ -1,0 +1,121 @@
+{
+  "at": "2026-10-06T12:36:26Z",
+  "host": "kogen-bench-eu",
+  "route": "python3 levers/r70/grade_window.py kogen-bench-eu --admission-controls --controls-only --fixed-variants r70-1-elixir-fe2,r70-4-rust-fe2,r70-4-elixir-fe2,r70-4-go-fe2,r70-4-ts-bun-fe2",
+  "run_by": "operator (direct script)",
+  "purged": true,
+  "records": [
+    {
+      "cell": "admission-fixed-eu-r70-1-elixir-fe2-reference-r1",
+      "outcome": "pass",
+      "tests_total": 25,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-1-elixir-fe2-noop-r1",
+      "outcome": "fail",
+      "tests_total": 25,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-1-elixir-fe2-reference-core-fixed-frontend-r1",
+      "outcome": "pass",
+      "tests_total": 25,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-rust-fe2-reference-r1",
+      "outcome": "pass",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-rust-fe2-noop-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-rust-fe2-reference-core-fixed-frontend-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "build_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-elixir-fe2-reference-r1",
+      "outcome": "pass",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-elixir-fe2-noop-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-elixir-fe2-reference-core-fixed-frontend-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-go-fe2-reference-r1",
+      "outcome": "pass",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-go-fe2-noop-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-go-fe2-reference-core-fixed-frontend-r1",
+      "outcome": "pass",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-ts-bun-fe2-reference-r1",
+      "outcome": "pass",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": null
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-ts-bun-fe2-noop-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    },
+    {
+      "cell": "admission-fixed-eu-r70-4-ts-bun-fe2-reference-core-fixed-frontend-r1",
+      "outcome": "fail",
+      "tests_total": 18,
+      "tests_ran": true,
+      "cause": "hidden_tests_failed"
+    }
+  ],
+  "gate": {
+    "r70-1-elixir-fe2": "PASS",
+    "r70-4-go-fe2": "PASS",
+    "r70-4-rust-fe2": "FAIL (3rd control build_failed)",
+    "r70-4-elixir-fe2": "FAIL (3rd control hidden_tests_failed)",
+    "r70-4-ts-bun-fe2": "FAIL (3rd control hidden_tests_failed)"
+  }
+}

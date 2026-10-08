@@ -1,0 +1,97 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..c318578 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -60,14 +60,19 @@ defmodule Trackline.Support do
+   Lists an organization's tickets, newest first, with author, assignee and
+   comment count filled in.
+   """
+-  def list_tickets(%Organization{id: org_id}) do
++  def list_tickets(%Organization{id: org_id}, filters \\ %{}) do
+     Ticket
+     |> where([t], t.organization_id == ^org_id)
++    |> filter_by(:status, filters[:status])
++    |> filter_by(:priority, filters[:priority])
+     |> order_by([t], desc: t.inserted_at, desc: t.id)
+     |> Repo.all()
+     |> Enum.map(&load_summary/1)
+   end
+ 
++  defp filter_by(query, _field, nil), do: query
++  defp filter_by(query, field, value), do: where(query, [t], field(t, ^field) == ^value)
++
+   defp load_summary(ticket) do
+     ticket = Repo.preload(ticket, [:author, :assignee])
+     %{ticket | comment_count: comment_count(ticket)}
+diff --git a/lib/trackline_web/live/ticket_live/index.ex b/lib/trackline_web/live/ticket_live/index.ex
+index 7f498d9..3098c09 100644
+--- a/lib/trackline_web/live/ticket_live/index.ex
++++ b/lib/trackline_web/live/ticket_live/index.ex
+@@ -26,16 +26,41 @@ defmodule TracklineWeb.TicketLive.Index do
+   end
+ 
+   @impl true
+-  def handle_params(_params, _uri, socket) do
+-    {:noreply, assign(socket, :tickets, Support.list_tickets(socket.assigns.org))}
++  def handle_params(params, _uri, socket) do
++    filters = %{
++      status: valid(params["status"], Ticket.statuses()),
++      priority: valid(params["priority"], Ticket.priorities())
++    }
++
++    {:noreply,
++     socket
++     |> assign(:filters, filters)
++     |> assign(
++       :filter_form,
++       to_form(%{"status" => filters.status || "", "priority" => filters.priority || ""})
++     )
++     |> assign(:tickets, Support.list_tickets(socket.assigns.org, filters))}
+   end
+ 
++  defp valid(value, allowed), do: if(value in allowed, do: value)
++
+   @impl true
+   def handle_event("validate", %{"ticket" => params}, socket) do
+     form = %Ticket{} |> Support.change_ticket(params) |> to_form(action: :validate)
+     {:noreply, assign(socket, :form, form)}
+   end
+ 
++  def handle_event("filter", params, socket) do
++    query =
++      params
++      |> Map.take(["status", "priority"])
++      |> Enum.reject(fn {_k, v} -> v in [nil, ""] end)
++
++    path = ~p"/orgs/#{socket.assigns.org.slug}/tickets"
++    path = if query == [], do: path, else: path <> "?" <> URI.encode_query(query)
++    {:noreply, push_patch(socket, to: path)}
++  end
++
+   def handle_event("create_ticket", %{"ticket" => params}, socket) do
+     user = socket.assigns.current_scope.user
+ 
+@@ -60,6 +85,23 @@ defmodule TracklineWeb.TicketLive.Index do
+         {@org.name} tickets
+       </.header>
+ 
++      <.form for={@filter_form} id="ticket-filters" phx-change="filter" class="mt-4 flex gap-4">
++        <.input
++          field={@filter_form[:status]}
++          type="select"
++          label="Status"
++          prompt="Any"
++          options={Ticket.statuses()}
++        />
++        <.input
++          field={@filter_form[:priority]}
++          type="select"
++          label="Priority"
++          prompt="Any"
++          options={Ticket.priorities()}
++        />
++      </.form>
++
+       <table id="tickets" class="table mt-6">
+         <thead>
+           <tr>

@@ -1,0 +1,10 @@
+- [ ] The Elixir executable builds with `make build`, and `make check` passes.
+- [ ] `kogen supervise --timeout-ms N --grace-ms N -- COMMAND [ARG ...]` accepts the two options once each and in that order; each value contains only ASCII decimal digits and parses to 1–60000. At least one argument follows `--`, and all arguments after it are passed unchanged.
+- [ ] Invalid, unknown, repeated, missing, malformed, or extra options before `--` produce exactly `error: invalid arguments\n` on stderr and exit 2.
+- [ ] The command starts without a shell in a new process group, with descendants inheriting the group. The supervisor ignores stdin; the command receives `/dev/null` and immediate EOF. Command stdout and stderr are forwarded byte-for-byte.
+- [ ] If the command cannot start as an executable, the supervisor writes exactly `error: cannot start command\n` to stderr, writes nothing to stdout, emits no status line, and exits 127.
+- [ ] A monotonic timeout begins immediately after the command starts. At the timeout boundary, a group with any live member times out; Linux `/proc` states `Z` and `X` are not live, and the group is complete when no live member remains, even if the direct child has exited.
+- [ ] On ordinary completion, the direct child is reaped before status is printed. The supervisor returns its normal exit code or 128 plus its signal number, and prints exactly `status=exited exit_code=E term_sent=false kill_sent=false reaped=R\n`; completed runs report `reaped=1`.
+- [ ] On timeout, the supervisor sends SIGTERM to the group, waits the full grace interval, and sends SIGKILL only if a live member remains then. It waits until no live members remain, reaps the direct child, and returns 124; completed timeouts report `reaped=1`.
+- [ ] The status line follows all forwarded command output and is the final bytes on stderr. Fixed diagnostics and status lines use UTF-8/ASCII with one final LF; the supervisor writes no other bytes.
+- [ ] The implementation handles 50 simultaneous invocations supervising sleeping command trees; after completion, each recorded process group has no live members. Peak RSS is measured during this workload.

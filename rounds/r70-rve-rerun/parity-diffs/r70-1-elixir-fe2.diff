@@ -1,0 +1,16 @@
+--- levers/r70/public/r70-1-elixir/skeleton/lib/kogen.ex
++++ levers/r70/public/r70-1-elixir-fe2/skeleton/lib/kogen.ex
+@@ -39,11 +39,11 @@
+   @moduledoc "Front-end process boundary."
+ 
+   @doc "Execute the command without spawning a computation subprocess."
+   def main(args) do
+-    IO.binwrite(:stdio, Kogen.Core.execute(args))
++    IO.write(:stdio, Kogen.Core.execute(args))
+   rescue
+     error in Kogen.Error ->
+-      IO.binwrite(:stderr, error.message <> "\n")
++      IO.write(:stderr, error.message <> "\n")
+       System.halt(error.code)
+   end
+ end

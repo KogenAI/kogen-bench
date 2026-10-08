@@ -1,0 +1,51 @@
+diff --git a/lib/trackline/ports/erasure.ex b/lib/trackline/ports/erasure.ex
+index da059c4..bea89be 100644
+--- a/lib/trackline/ports/erasure.ex
++++ b/lib/trackline/ports/erasure.ex
+@@ -4,10 +4,43 @@ defmodule Trackline.Ports.Erasure do
+     [local, domain] = String.split(user.email, "@")
+     user |> Ecto.Changeset.change(active: false, email: "#{local}-deactivated-#{Ecto.UUID.generate()}@#{domain}") |> Repo.update()
+   end
+-  def erase(user) do
+-    case deactivate(user) do
+-      {:ok, _} -> :ok
++  def erase(%Trackline.Accounts.User{id: id}) do
++    result = Repo.transact(fn ->
++      import Ecto.Query
++      alias Trackline.Accounts.User
++      alias Trackline.Support.{Ticket, Comment}
++      alias Trackline.Ports.{KnowledgeBook, KnowledgePage, KnowledgeAsset, KnowledgeGrant, KnowledgeSearch, PersonalNotice, SignIn}
++      case Repo.get(User, id) do
++        nil -> {:ok, :ok}
++        current ->
++          emails = [current.email | legacy_address(current)] |> Enum.map(&String.downcase/1) |> Enum.uniq()
++          private = Repo.all(from b in KnowledgeBook, where: b.author_id == ^id and not b.public, select: b.id)
++          public = Repo.all(from b in KnowledgeBook, where: b.author_id == ^id and b.public, select: b.id)
++          pages = Repo.all(from p in KnowledgePage, where: p.book_id in ^private, select: p.id)
++          Repo.delete_all(from a in KnowledgeAsset, where: a.page_id in ^pages)
++          Repo.delete_all(from g in KnowledgeGrant, where: g.user_id == ^id or g.book_id in ^private)
++          Repo.delete_all(from h in KnowledgeSearch, where: h.book_id in ^private or (h.user_id == ^id and (is_nil(h.book_id) or h.book_id not in ^public)))
++          Repo.update_all(from(h in KnowledgeSearch, where: h.book_id in ^public), set: [user_id: nil, author_label: "Deleted author"])
++          Repo.delete_all(from b in KnowledgeBook, where: b.id in ^private)
++          Repo.update_all(from(b in KnowledgeBook, where: b.id in ^public), set: [author_id: nil, byline: "Deleted author"])
++          Repo.delete_all(from n in PersonalNotice, where: n.user_id == ^id)
++          Repo.delete_all(from log in SignIn, where: log.user_id == ^id or fragment("lower(?)", log.email) in ^emails)
++          Repo.delete_all(from c in Comment, where: c.author_id == ^id)
++          Repo.delete_all(from t in Ticket, where: t.author_id == ^id)
++          Repo.delete!(current)
++          {:ok, :ok}
++      end
++    end)
++    case result do
++      {:ok, :ok} -> :ok
+       error -> error
+     end
+   end
++  defp legacy_address(%{active: false, email: email}) do
++    case Regex.run(~r/^(.+)-deactivated-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}@(.+)$/i, email) do
++      [_, local, domain] -> [local <> "@" <> domain]
++      _ -> []
++    end
++  end
++  defp legacy_address(_), do: []
+ end

@@ -1,0 +1,13 @@
+--- levers/r70/public/r70-4-go-fe2/skeleton/main.go (FE2 v1)
++++ levers/r70/public/r70-4-go-fe2/skeleton/main.go (FE2 v2)
+@@ -35,10 +35,6 @@
+ 		_, _ = fmt.Fprintln(os.Stderr, err)
+ 	} else {
+ 		_, _ = fmt.Fprint(os.Stdout, output)
+-		code = 0
+-		if strings.HasPrefix(output, "rebased ") {
+-			code = 10
+-		}
+ 	}
+ 	os.Exit(code)
+ }

@@ -1,0 +1,13 @@
+diff --git a/lib/trackline/support/sla.ex b/lib/trackline/support/sla.ex
+index 64e25a1..b9b2856 100644
+--- a/lib/trackline/support/sla.ex
++++ b/lib/trackline/support/sla.ex
+@@ -128,7 +128,7 @@ defmodule Trackline.Support.SLA do
+   defp skip_weekend(date),
+     do: if(business_day?(date), do: date, else: skip_weekend(Date.add(date, 1)))
+ 
+-  defp business_day?(date), do: Date.day_of_week(date) <= 6
++  defp business_day?(date), do: Date.day_of_week(date) <= 5
+ 
+   defp day_close(dt), do: at(DateTime.to_date(dt), @business_end)
+ 

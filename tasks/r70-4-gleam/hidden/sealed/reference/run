@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ORIGINAL_PATH=$PATH
+. "$ROOT/toolchain-env.sh"
+PATH="$ORIGINAL_PATH:$PATH"
+export PATH
+set -- "$@"
+exec erl -noshell -pa "$ROOT"/build/dev/erlang/*/ebin -eval 'kogen:main(), halt().' -extra "$@"

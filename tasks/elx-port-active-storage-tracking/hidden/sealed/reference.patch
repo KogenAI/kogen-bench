@@ -1,0 +1,28 @@
+diff --git a/lib/trackline/ports/recount_storage.ex b/lib/trackline/ports/recount_storage.ex
+index 95b838f..cf3a0ae 100644
+--- a/lib/trackline/ports/recount_storage.ex
++++ b/lib/trackline/ports/recount_storage.ex
+@@ -1,5 +1,22 @@
+ defmodule Trackline.Ports.RecountStorage do
+   use Oban.Worker, queue: :default
++  alias Trackline.Repo
+   @impl Oban.Worker
+-  def perform(%Oban.Job{args: %{"organization_id" => _id}}), do: :ok
++  def perform(%Oban.Job{args: %{"organization_id" => id}}) do
++    Repo.transact(fn ->
++      Ecto.Adapters.SQL.query!(Repo, """
++      UPDATE port_storage_boards SET bytes_used = COALESCE((
++        SELECT SUM(byte_size) FROM port_blobs WHERE id IN (
++          SELECT a.blob_id FROM port_attachments a
++          WHERE (a.resource_type = 'Board' AND a.name = 'description' AND a.resource_id = port_storage_boards.id)
++          OR (a.resource_type = 'Ticket' AND a.name IN ('image', 'description') AND a.resource_id IN (SELECT id FROM tickets WHERE storage_board_id = port_storage_boards.id))
++          OR (a.resource_type = 'Comment' AND a.name = 'body' AND a.resource_id IN (SELECT c.id FROM comments c JOIN tickets t ON c.ticket_id = t.id WHERE t.storage_board_id = port_storage_boards.id))
++        )
++      ), 0) WHERE organization_id = ?
++      """, [id])
++      Ecto.Adapters.SQL.query!(Repo, "UPDATE organizations SET bytes_used = COALESCE((SELECT SUM(bytes_used) FROM port_storage_boards WHERE organization_id = ?), 0) WHERE id = ?", [id, id])
++      {:ok, :ok}
++    end)
++    :ok
++  end
+ end

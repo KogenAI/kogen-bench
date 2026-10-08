@@ -1,0 +1,40 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-race",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H29",
+    "H30"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-race",
+      "arms": "four race/selection arms",
+      "task_n": 6,
+      "reps_per_arm": 2,
+      "planned_n": 48,
+      "graded_n": 48,
+      "reported_passes": 48,
+      "classification": "source-reported ceiling screen"
+    },
+    {
+      "experiment_id": "x-race-selector-check",
+      "reported_false_accepts": 0,
+      "reported_denominator": 24,
+      "classification": "source-reported selector check; no public case rows"
+    },
+    {
+      "experiment_id": "x-race-decision",
+      "reported_results": "no multi-agent arm promoted",
+      "classification": "development decision"
+    }
+  ]
+}

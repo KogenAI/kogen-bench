@@ -1,0 +1,41 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "e09-tidewave",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H55",
+    "H60"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "e09-locator-gates",
+      "locator_variant_n": 13,
+      "development_case_n": 49,
+      "source_case_set_n": 70,
+      "stack_n": 7,
+      "gate_recall": "100%",
+      "gate_precision": "at least 75%",
+      "passed_variants_n": 0,
+      "model_dispatches_n": 0,
+      "classification": "offline source-reported diagnostic"
+    },
+    {
+      "experiment_id": "e09-tidewave-runtime",
+      "planned_n": 12,
+      "stopped_after_n": 6,
+      "unprompted_calls_n": 0,
+      "instructed_calls_n": 17,
+      "reported_phoenix_results": "plain 2/2; Tidewave-instructed 0/2",
+      "model_effort": "Luna max reported",
+      "classification": "separate partial runtime-tool screen"
+    }
+  ]
+}

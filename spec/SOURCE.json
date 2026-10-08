@@ -1,0 +1,334 @@
+{
+  "repository": "https://github.com/KogenAI/kogen-spec",
+  "content_version": "v1.2",
+  "original_cited_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+  "sanitized_published_revision": "30d9b25e4eefa7117121de44298fed504b429f4e",
+  "sanitized_published_revision_subject": "Prepare repository for public release",
+  "snapshot_kind": "locally sanitized v1.2 clause-reference excerpt",
+  "original_source_hashes": [
+    {
+      "path": "01-cli.md",
+      "source_path": "spec/01-cli.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "2e778e3f6ceeb8b3a59147ba5c0554eb759eb74bcf02202b8979f8aa6daf129f"
+    },
+    {
+      "path": "02-formats.md",
+      "source_path": "spec/02-formats.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "270b059268a8290c821fc9caae1a10839af5c6b6859a731d308627e0e005df19"
+    },
+    {
+      "path": "03-build.md",
+      "source_path": "spec/03-build.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "2bfec47984b00811762babbc74855db1f0e2892525c04a85f503a08e34d29eca"
+    },
+    {
+      "path": "04-provider.md",
+      "source_path": "spec/04-provider.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "c72cdfdf5ed2406ffaed27a6e4143892b09a53bc87261b940f3f813fd23e5d61"
+    },
+    {
+      "path": "05-sandbox-custody.md",
+      "source_path": "spec/05-sandbox-custody.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "8220c69684e0daa2dadba18727b1131d646e9a2e679fe7614f329b64b5bbef3d"
+    },
+    {
+      "path": "06-non-goals.md",
+      "source_path": "spec/06-non-goals.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "1a510939708825835e75cbbec24124a32242acc94bc1e24e0ae4fde8418f3e3f"
+    },
+    {
+      "path": "CLI-RULE.txt",
+      "source_path": "CLI-RULE.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "7d47a2e26be97f5ced44eaaed4ccae8d7369805337b55a262f27d92e1f544edc"
+    },
+    {
+      "path": "CONFORMANCE-v1.2-CASES.md",
+      "source_path": "spec/CONFORMANCE-v1.2-CASES.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "a4c128fec0a63eca3ede316ac1ce28691cfa1f361e2df0360066a6842f49ecd9"
+    },
+    {
+      "path": "CONFORMANCE.md",
+      "source_path": "spec/CONFORMANCE.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "303deae7075f829011fa888be7c210fd411b899fdfb4e04e985c411d9c6e3e2e"
+    },
+    {
+      "path": "README.md",
+      "source_path": "spec/README.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "93d0c3fdb7e77e91134cbed5cfe34c95f4b4aa5b196e34e40362d3ede1fa1e5f"
+    },
+    {
+      "path": "data/constants.json",
+      "source_path": "spec/data/constants.json",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "0388322e3a18565e2d7d4fb3fcf1aa5aa4200fb55a81addfdc3549bd5e5bc915"
+    },
+    {
+      "path": "data/help/kogen-intent-approve.txt",
+      "source_path": "spec/data/help/kogen-intent-approve.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "d77f824d32fb21ab6966235c498d99156b18a29be637f93aacfeca88d01e3367"
+    },
+    {
+      "path": "data/help/kogen-intent-remove.txt",
+      "source_path": "spec/data/help/kogen-intent-remove.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "a4ae9a65d1a9f81353988860f1223503f8a8ec91d562e7c654decd0933cb2651"
+    },
+    {
+      "path": "data/help/kogen-intent-shape.txt",
+      "source_path": "spec/data/help/kogen-intent-shape.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "2d61825da99ebd953a74ba39f48d640704affaaa29b2312c39d7a96cbeab1f29"
+    },
+    {
+      "path": "data/help/kogen-intent.txt",
+      "source_path": "spec/data/help/kogen-intent.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "de597987f0e63a3f1c068754662f1efe2072fed703f541992706c8996841aaee"
+    },
+    {
+      "path": "data/help/kogen-provider-list.txt",
+      "source_path": "spec/data/help/kogen-provider-list.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "8d2e5e31b1e443a7851438a2371b6a34007aa9a0125d4b8c82eb17082b422dc6"
+    },
+    {
+      "path": "data/help/kogen-provider-login.txt",
+      "source_path": "spec/data/help/kogen-provider-login.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "d958e441024ac084db854a64583990fba92894e9a0d07e4d896075207f275ed2"
+    },
+    {
+      "path": "data/help/kogen-provider-logout.txt",
+      "source_path": "spec/data/help/kogen-provider-logout.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "1fb492f4cbd3093052bc9a0ce503e2ebb7567b01d8a59dbf889d94bd7d4fbc24"
+    },
+    {
+      "path": "data/help/kogen-provider-use.txt",
+      "source_path": "spec/data/help/kogen-provider-use.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "15924a12dd665162cccb9fb98d2c61d4f7f153ebc022a860569650cbbc26dc20"
+    },
+    {
+      "path": "data/help/kogen-provider.txt",
+      "source_path": "spec/data/help/kogen-provider.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "61a2924088cd49a2437c21913cfcd540b1224f8f85863e3e132a75c9e5740236"
+    },
+    {
+      "path": "data/help/kogen-queue-start.txt",
+      "source_path": "spec/data/help/kogen-queue-start.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "56c1732a5dd0d4730ab41b1d00dc217cfcb14d21ffe0db74994b86c4daa7dd4f"
+    },
+    {
+      "path": "data/help/kogen-queue-stop.txt",
+      "source_path": "spec/data/help/kogen-queue-stop.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "11be1148839138bfe0cc921afd73c42c3ef607ad846415ab201e8414ab236705"
+    },
+    {
+      "path": "data/help/kogen-queue.txt",
+      "source_path": "spec/data/help/kogen-queue.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "2768657f1280471228380daea5bb9f1621c4b3e7bff07ea5079595241d264d1c"
+    },
+    {
+      "path": "data/help/kogen-status.txt",
+      "source_path": "spec/data/help/kogen-status.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "3c567f52f3f32d9590cc356c21878abcf8f0eb6749a6aeebbc291a88efe534b9"
+    },
+    {
+      "path": "data/help/kogen-version.txt",
+      "source_path": "spec/data/help/kogen-version.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "31d6dafe6cb914e20dde1cabe7d0a80e6fee1b66b197219a1ee8faa573ed3412"
+    },
+    {
+      "path": "data/help/kogen.txt",
+      "source_path": "spec/data/help/kogen.txt",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "2d83950e020890041258878e2579f86cadbd53e477355cb6d2836982923ef012"
+    },
+    {
+      "path": "data/lint.json",
+      "source_path": "spec/data/lint.json",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "87f8f689e2c8abc251aa83dd64646edef3e4e35b0c504e77a4543454b8dcda0d"
+    },
+    {
+      "path": "data/moved.json",
+      "source_path": "spec/data/moved.json",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "311d689b17057e6ec124461408d2da711d587ff7f6a148ab00657487c5073310"
+    },
+    {
+      "path": "data/yaml-errors.json",
+      "source_path": "spec/data/yaml-errors.json",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "e6d8e58eae1b19a31496b0417485ad7af4428910bb5eed3c43a295327556d788"
+    },
+    {
+      "path": "quint/CLASSIFICATION.md",
+      "source_path": "quint/CLASSIFICATION.md",
+      "source_revision": "1118f7fc0dbb042af8c8de2ffd1b85768cf9e2a0",
+      "source_sha256": "24012ba307902646e465882b89c6a608ec81d4fabb3ac4d1108b18a92f7f2c6f"
+    }
+  ],
+  "published_content_hashes": [
+    {
+      "path": "01-cli.md",
+      "sha256": "eef297173796eee8cc99d9cca302aea274b04dacef6d565a65e3f3a372ff2b9f"
+    },
+    {
+      "path": "02-formats.md",
+      "sha256": "12c041491b634f3b607e7a87e4bd61030589c17c4c0f7228e832bef2222c47f0"
+    },
+    {
+      "path": "03-build.md",
+      "sha256": "9bd72d6ec5c6c66225982cc41ee6e67f81a101fb918cccb90f38b1c844fdfdd5"
+    },
+    {
+      "path": "04-provider.md",
+      "sha256": "a362c400bdaacca8d5963e606ed94ae01944ede24af02a2ab1b2a0a6a43a6af2"
+    },
+    {
+      "path": "05-sandbox-custody.md",
+      "sha256": "8220c69684e0daa2dadba18727b1131d646e9a2e679fe7614f329b64b5bbef3d"
+    },
+    {
+      "path": "06-non-goals.md",
+      "sha256": "1a510939708825835e75cbbec24124a32242acc94bc1e24e0ae4fde8418f3e3f"
+    },
+    {
+      "path": "CLI-RULE.txt",
+      "sha256": "e75b830dbb1dfebf06914da9fdf4c363c1839f7c87bf7b6971f9df8b02a87556"
+    },
+    {
+      "path": "CONFORMANCE-v1.2-CASES.md",
+      "sha256": "a4c128fec0a63eca3ede316ac1ce28691cfa1f361e2df0360066a6842f49ecd9"
+    },
+    {
+      "path": "CONFORMANCE.md",
+      "sha256": "9cbc979f4172ea8490f01abfa96cde789966c897f44e039decb0955d97abc7f7"
+    },
+    {
+      "path": "README.md",
+      "sha256": "2499ac4b6f87f86d3519c6b36da3427ce161974381b0d3f1f7dba3a39884fcd4"
+    },
+    {
+      "path": "data/constants.json",
+      "sha256": "0388322e3a18565e2d7d4fb3fcf1aa5aa4200fb55a81addfdc3549bd5e5bc915"
+    },
+    {
+      "path": "data/help/kogen-intent-approve.txt",
+      "sha256": "d77f824d32fb21ab6966235c498d99156b18a29be637f93aacfeca88d01e3367"
+    },
+    {
+      "path": "data/help/kogen-intent-remove.txt",
+      "sha256": "a4ae9a65d1a9f81353988860f1223503f8a8ec91d562e7c654decd0933cb2651"
+    },
+    {
+      "path": "data/help/kogen-intent-shape.txt",
+      "sha256": "2d61825da99ebd953a74ba39f48d640704affaaa29b2312c39d7a96cbeab1f29"
+    },
+    {
+      "path": "data/help/kogen-intent.txt",
+      "sha256": "de597987f0e63a3f1c068754662f1efe2072fed703f541992706c8996841aaee"
+    },
+    {
+      "path": "data/help/kogen-provider-list.txt",
+      "sha256": "8d2e5e31b1e443a7851438a2371b6a34007aa9a0125d4b8c82eb17082b422dc6"
+    },
+    {
+      "path": "data/help/kogen-provider-login.txt",
+      "sha256": "d958e441024ac084db854a64583990fba92894e9a0d07e4d896075207f275ed2"
+    },
+    {
+      "path": "data/help/kogen-provider-logout.txt",
+      "sha256": "1fb492f4cbd3093052bc9a0ce503e2ebb7567b01d8a59dbf889d94bd7d4fbc24"
+    },
+    {
+      "path": "data/help/kogen-provider-use.txt",
+      "sha256": "15924a12dd665162cccb9fb98d2c61d4f7f153ebc022a860569650cbbc26dc20"
+    },
+    {
+      "path": "data/help/kogen-provider.txt",
+      "sha256": "61a2924088cd49a2437c21913cfcd540b1224f8f85863e3e132a75c9e5740236"
+    },
+    {
+      "path": "data/help/kogen-queue-start.txt",
+      "sha256": "56c1732a5dd0d4730ab41b1d00dc217cfcb14d21ffe0db74994b86c4daa7dd4f"
+    },
+    {
+      "path": "data/help/kogen-queue-stop.txt",
+      "sha256": "11be1148839138bfe0cc921afd73c42c3ef607ad846415ab201e8414ab236705"
+    },
+    {
+      "path": "data/help/kogen-queue.txt",
+      "sha256": "2768657f1280471228380daea5bb9f1621c4b3e7bff07ea5079595241d264d1c"
+    },
+    {
+      "path": "data/help/kogen-status.txt",
+      "sha256": "3c567f52f3f32d9590cc356c21878abcf8f0eb6749a6aeebbc291a88efe534b9"
+    },
+    {
+      "path": "data/help/kogen-version.txt",
+      "sha256": "31d6dafe6cb914e20dde1cabe7d0a80e6fee1b66b197219a1ee8faa573ed3412"
+    },
+    {
+      "path": "data/help/kogen.txt",
+      "sha256": "2d83950e020890041258878e2579f86cadbd53e477355cb6d2836982923ef012"
+    },
+    {
+      "path": "data/lint.json",
+      "sha256": "87f8f689e2c8abc251aa83dd64646edef3e4e35b0c504e77a4543454b8dcda0d"
+    },
+    {
+      "path": "data/moved.json",
+      "sha256": "311d689b17057e6ec124461408d2da711d587ff7f6a148ab00657487c5073310"
+    },
+    {
+      "path": "data/yaml-errors.json",
+      "sha256": "e6d8e58eae1b19a31496b0417485ad7af4428910bb5eed3c43a295327556d788"
+    },
+    {
+      "path": "quint/CLASSIFICATION.md",
+      "sha256": "7ea9e3b101ac23490f7bea24bfbfafaff16c78080acc5f9c69784e5186307901"
+    }
+  ],
+  "omitted_upstream_paths": [
+    {
+      "path": "spec/APPENDIX-REFERENCE.md",
+      "reason": "removed from the upstream public-release tree; editorial reference material"
+    },
+    {
+      "path": "spec/COVERAGE.md",
+      "reason": "removed from the upstream public-release tree; coverage note not required to resolve published clauses"
+    },
+    {
+      "path": "spec/DRIFT-v1.2.md",
+      "reason": "removed from the upstream public-release tree; historical drift note"
+    },
+    {
+      "path": "spec/REVIEW-1.md",
+      "reason": "removed from the upstream public-release tree; review record"
+    },
+    {
+      "path": "spec/REVIEW-1-RESPONSE.md",
+      "reason": "removed from the upstream public-release tree; review response"
+    }
+  ]
+}

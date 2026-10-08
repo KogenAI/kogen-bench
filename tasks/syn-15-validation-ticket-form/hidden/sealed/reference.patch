@@ -1,0 +1,29 @@
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 2bcf6b1..dcae458 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -27,10 +27,24 @@ defmodule Trackline.Support.Ticket do
+   def changeset(ticket, attrs) do
+     ticket
+     |> cast(attrs, [:title, :body, :priority, :requester_email])
++    |> update_change(:title, &String.trim/1)
++    |> update_change(:requester_email, &normalize_email/1)
+     |> validate_required([:title])
++    |> validate_length(:title, max: 200)
++    |> validate_length(:requester_email, max: 254)
++    |> validate_format(:requester_email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+     |> validate_inclusion(:priority, @priorities)
+   end
+ 
++  defp normalize_email(nil), do: nil
++
++  defp normalize_email(email) do
++    case email |> String.trim() |> String.downcase() do
++      "" -> nil
++      email -> email
++    end
++  end
++
+   def status_changeset(ticket, status) do
+     ticket
+     |> change(status: status)

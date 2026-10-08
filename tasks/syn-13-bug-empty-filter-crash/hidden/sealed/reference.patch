@@ -1,0 +1,69 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index f7ae3a1..2ed1220 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -69,6 +69,7 @@ defmodule Trackline.Support do
+   end
+ 
+   @page_size 10
++  @sorts ~w(newest sla)
+ 
+   def page_size, do: @page_size
+ 
+@@ -76,11 +77,10 @@ defmodule Trackline.Support do
+   One page of an organization's tickets for the list screen.
+ 
+   `params` are the raw URL params: `"status"`, `"sort"` (`"newest"` or `"sla"`)
+-  and `"page"` (1-based).
++  and `"page"` (1-based). Anything unreadable falls back to the default.
+   """
+   def list_ticket_page(%Organization{id: org_id}, params) do
+-    sort = Map.get(params, "sort", "newest")
+-    page = String.to_integer(Map.get(params, "page", "1"))
++    sort = if params["sort"] in @sorts, do: params["sort"], else: "newest"
+ 
+     query =
+       from t in Ticket,
+@@ -88,14 +88,15 @@ defmodule Trackline.Support do
+         order_by: [desc: t.inserted_at, desc: t.id]
+ 
+     query =
+-      case params["status"] do
+-        nil -> query
+-        status -> where(query, [t], t.status == ^status)
+-      end
++      if params["status"] in Ticket.statuses(),
++        do: where(query, [t], t.status == ^params["status"]),
++        else: query
+ 
+     tickets = query |> Repo.all() |> sort_tickets(sort)
+-    most_urgent = if sort == "sla", do: Enum.min_by(tickets, &ticket_due_at/1)
+-    total_pages = div(length(tickets) + @page_size - 1, @page_size)
++    most_urgent = if sort == "sla", do: Enum.min_by(tickets, &ticket_due_at/1, fn -> nil end)
++    total_pages = max(div(length(tickets) + @page_size - 1, @page_size), 1)
++    page = params["page"] |> parse_page() |> min(total_pages)
++
+     slice = tickets |> Enum.drop((page - 1) * @page_size) |> Enum.take(@page_size)
+ 
+     %{
+@@ -106,8 +107,19 @@ defmodule Trackline.Support do
+     }
+   end
+ 
++  defp parse_page(value) when is_binary(value) do
++    case Integer.parse(value) do
++      {n, ""} when n >= 1 -> n
++      _ -> 1
++    end
++  end
++
++  defp parse_page(_), do: 1
++
+   defp sort_tickets(tickets, "newest"), do: tickets
+-  defp sort_tickets(tickets, "sla"), do: Enum.sort_by(tickets, &ticket_due_at/1)
++
++  defp sort_tickets(tickets, "sla"),
++    do: Enum.sort_by(tickets, &{DateTime.to_unix(ticket_due_at(&1)), &1.id})
+ 
+   defp ticket_due_at(ticket), do: Trackline.Support.SLA.due_at(ticket.priority, ticket.inserted_at)
+ 

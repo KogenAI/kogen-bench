@@ -1,0 +1,22 @@
+diff --git a/lib/trackline/support/sla.ex b/lib/trackline/support/sla.ex
+index 64e25a1..d2c8d39 100644
+--- a/lib/trackline/support/sla.ex
++++ b/lib/trackline/support/sla.ex
+@@ -14,7 +14,7 @@ defmodule Trackline.Support.SLA do
+   @at_risk_ratio 0.75
+ 
+   @targets %{
+-    "urgent" => {:clock, 60},
++    "urgent" => {:business, 60},
+     "high" => {:business, 4 * 60},
+     "normal" => {:business, 8 * 60},
+     "low" => {:business, 24 * 60}
+@@ -128,7 +128,7 @@ defmodule Trackline.Support.SLA do
+   defp skip_weekend(date),
+     do: if(business_day?(date), do: date, else: skip_weekend(Date.add(date, 1)))
+ 
+-  defp business_day?(date), do: Date.day_of_week(date) <= 6
++  defp business_day?(date), do: Date.day_of_week(date) <= 5
+ 
+   defp day_close(dt), do: at(DateTime.to_date(dt), @business_end)
+ 

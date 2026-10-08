@@ -1,0 +1,734 @@
+diff --git a/src/main.ts b/src/main.ts
+index cb0ff5c..03fde66 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -1 +1,727 @@
+-export {};
++import { Buffer } from 'node:buffer';
++import { spawn } from 'node:child_process';
++import { open, readFile, realpath, stat } from 'node:fs/promises';
++import path from 'node:path';
++
++const TOOL_DEFINITIONS =
++  '[{"type":"function","name":"read_file","description":"Read a UTF-8 file under the workdir","parameters":{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}},{"type":"function","name":"run_command","description":"Run a shell command with the workdir as its current directory","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"],"additionalProperties":false}}]';
++
++class LoopFailure extends Error {
++  readonly code: number;
++  constructor(code: number, message: string) {
++    super(message);
++    this.code = code;
++  }
++}
++
++type Options = {
++  promptFile: string;
++  server: string;
++  records: string;
++  workdir?: string;
++  session: string;
++  firstByteMs: number;
++  idleMs: number;
++  maxRetries: number;
++  backoffMs: number;
++};
++
++type Usage = {
++  input_tokens: number | null;
++  output_tokens: number | null;
++  cached_tokens: number | null;
++};
++type Call = { id: string; name: string; arguments: string };
++type StreamResponse = { text: string; calls: Call[]; usage: Usage };
++type AttemptFailure = {
++  kind: 'timeout' | 'stall' | 'transport' | 'overload' | 'rejected' | 'invalid';
++};
++type RecordRow = {
++  start_ms: number;
++  first_byte_ms: number | null;
++  end_ms: number;
++  outcome: 'ok' | 'stall' | 'timeout' | 'transport' | 'overload';
++  retries: number;
++  usage: Usage;
++  request_bytes: number;
++  history_items: number;
++};
++
++type AttemptResult = { response?: StreamResponse; failure?: AttemptFailure };
++
++const invalid = () => new LoopFailure(2, 'loop: invalid command line');
++
++function numberValue(value: string, min: number, max: number): number | null {
++  if (!/^[0-9]+$/.test(value)) return null;
++  const parsed = Number(value);
++  return Number.isSafeInteger(parsed) && parsed >= min && parsed <= max
++    ? parsed
++    : null;
++}
++
++function validSession(value: string): boolean {
++  return (
++    value.length >= 1 && value.length <= 128 && /^[A-Za-z0-9._:-]+$/.test(value)
++  );
++}
++
++function parseArgs(args: string[]): Options {
++  if (args.length < 2 || args[0] !== 'loop' || args[1] !== 'run')
++    throw invalid();
++  const values = new Map<string, string>();
++  for (let index = 2; index < args.length; index += 2) {
++    const flag = args[index];
++    const value = args[index + 1];
++    if (!flag?.startsWith('--') || value === undefined || values.has(flag))
++      throw invalid();
++    const allowed = new Set([
++      '--prompt-file',
++      '--server',
++      '--records',
++      '--workdir',
++      '--session',
++      '--first-byte-timeout-ms',
++      '--idle-timeout-ms',
++      '--max-retries',
++      '--backoff-ms',
++    ]);
++    if (!allowed.has(flag)) throw invalid();
++    values.set(flag, value);
++  }
++  const promptFile = values.get('--prompt-file');
++  const server = values.get('--server');
++  const records = values.get('--records');
++  if (!promptFile || !server || !records) throw invalid();
++  let origin: URL;
++  try {
++    origin = new URL(server);
++  } catch {
++    throw invalid();
++  }
++  if (
++    origin.protocol !== 'http:' ||
++    !origin.hostname ||
++    !['', '/'].includes(origin.pathname) ||
++    origin.search ||
++    origin.hash ||
++    origin.username ||
++    origin.password
++  )
++    throw invalid();
++  const firstByteMs = numberValue(
++    values.get('--first-byte-timeout-ms') ?? '5000',
++    1,
++    60000,
++  );
++  const idleMs = numberValue(
++    values.get('--idle-timeout-ms') ?? '3000',
++    1,
++    60000,
++  );
++  const maxRetries = numberValue(values.get('--max-retries') ?? '2', 0, 5);
++  const backoffMs = numberValue(values.get('--backoff-ms') ?? '50', 0, 5000);
++  if (
++    firstByteMs === null ||
++    idleMs === null ||
++    maxRetries === null ||
++    backoffMs === null
++  )
++    throw invalid();
++  const suppliedSession = values.get('--session');
++  if (suppliedSession !== undefined && !validSession(suppliedSession))
++    throw invalid();
++  return {
++    promptFile,
++    server: origin.origin,
++    records,
++    workdir: values.get('--workdir'),
++    session: suppliedSession ?? `loop-${crypto.randomUUID()}`,
++    firstByteMs,
++    idleMs,
++    maxRetries,
++    backoffMs,
++  };
++}
++
++function emptyUsage(): Usage {
++  return { input_tokens: null, output_tokens: null, cached_tokens: null };
++}
++
++function elapsed(origin: number): number {
++  return Math.floor(performance.now() - origin);
++}
++
++function failureCode(kind: AttemptFailure['kind']): LoopFailure {
++  switch (kind) {
++    case 'timeout':
++      return new LoopFailure(10, 'loop: first-byte timeout');
++    case 'stall':
++      return new LoopFailure(11, 'loop: stream stalled');
++    case 'transport':
++      return new LoopFailure(12, 'loop: transport error');
++    case 'overload':
++      return new LoopFailure(13, 'loop: server overloaded');
++    case 'rejected':
++      return new LoopFailure(14, 'loop: server rejected request');
++    case 'invalid':
++      return new LoopFailure(15, 'loop: invalid response');
++  }
++}
++
++class SSEParser {
++  private readonly decoder = new TextDecoder('utf-8', { fatal: true });
++  private pending = '';
++  private eventName = '';
++  private data: string | null = null;
++  private readonly callIndex = new Map<string, number>();
++  readonly calls: Call[] = [];
++  text = '';
++  sawText = false;
++  complete = false;
++  invalid = false;
++  usage = emptyUsage();
++
++  feed(bytes: Uint8Array): boolean {
++    try {
++      this.pending += this.decoder.decode(bytes, { stream: true });
++    } catch {
++      this.invalid = true;
++      return true;
++    }
++    while (true) {
++      const lineEnd = this.pending.indexOf('\n');
++      if (lineEnd < 0) return this.complete || this.invalid;
++      let line = this.pending.slice(0, lineEnd);
++      this.pending = this.pending.slice(lineEnd + 1);
++      if (line.endsWith('\r')) line = line.slice(0, -1);
++      if (line === '') {
++        if (this.eventName === '' && this.data === null) continue;
++        this.dispatch();
++        this.eventName = '';
++        this.data = null;
++        if (this.complete || this.invalid) return true;
++      } else if (line.startsWith(':')) {
++      } else if (line.startsWith('event: ') && this.eventName === '') {
++        this.eventName = line.slice(7);
++      } else if (line.startsWith('data: ') && this.data === null) {
++        this.data = line.slice(6);
++      } else {
++        this.invalid = true;
++        return true;
++      }
++    }
++  }
++
++  private dispatch(): void {
++    if (!this.eventName || this.data === null || this.complete) {
++      this.invalid = true;
++      return;
++    }
++    let event: Record<string, unknown>;
++    try {
++      const parsed: unknown = JSON.parse(this.data);
++      if (
++        typeof parsed !== 'object' ||
++        parsed === null ||
++        Array.isArray(parsed)
++      )
++        throw new Error('not object');
++      event = parsed as Record<string, unknown>;
++    } catch {
++      this.invalid = true;
++      return;
++    }
++    if (this.eventName === 'response.function_call_arguments.delta') {
++      const { call_id: callId, name, delta } = event;
++      if (
++        typeof callId !== 'string' ||
++        !callId ||
++        typeof name !== 'string' ||
++        !['read_file', 'run_command'].includes(name) ||
++        typeof delta !== 'string' ||
++        this.sawText
++      ) {
++        this.invalid = true;
++        return;
++      }
++      const existing = this.callIndex.get(callId);
++      if (existing === undefined) {
++        this.callIndex.set(callId, this.calls.length);
++        this.calls.push({ id: callId, name, arguments: delta });
++      } else if (this.calls[existing]?.name !== name) {
++        this.invalid = true;
++      } else {
++        const current = this.calls[existing];
++        if (current === undefined) {
++          this.invalid = true;
++        } else {
++          current.arguments += delta;
++        }
++      }
++      return;
++    }
++    if (this.eventName === 'response.output_text.delta') {
++      if (typeof event.delta !== 'string' || this.calls.length > 0) {
++        this.invalid = true;
++        return;
++      }
++      this.sawText = true;
++      this.text += event.delta;
++      return;
++    }
++    if (this.eventName === 'response.completed') {
++      const usage = event.usage;
++      if (typeof usage !== 'object' || usage === null || Array.isArray(usage)) {
++        this.invalid = true;
++        return;
++      }
++      const usageObject = usage as Record<string, unknown>;
++      const details = usageObject.input_tokens_details;
++      if (
++        typeof details !== 'object' ||
++        details === null ||
++        Array.isArray(details)
++      ) {
++        this.invalid = true;
++        return;
++      }
++      const cached = (details as Record<string, unknown>).cached_tokens;
++      const input = usageObject.input_tokens;
++      const output = usageObject.output_tokens;
++      if (
++        ![input, output, cached].every(
++          (value) => Number.isSafeInteger(value) && Number(value) >= 0,
++        ) ||
++        (this.calls.length > 0 && this.sawText)
++      ) {
++        this.invalid = true;
++        return;
++      }
++      this.usage = {
++        input_tokens: Number(input),
++        output_tokens: Number(output),
++        cached_tokens: Number(cached),
++      };
++      this.complete = true;
++      return;
++    }
++    this.invalid = true;
++  }
++
++  result(): StreamResponse | null {
++    if (
++      this.invalid ||
++      !this.complete ||
++      this.pending.length > 0 ||
++      this.eventName ||
++      this.data !== null ||
++      (this.calls.length > 0 && this.sawText)
++    )
++      return null;
++    return { text: this.text, calls: this.calls, usage: this.usage };
++  }
++}
++
++async function appendRecord(
++  file: Awaited<ReturnType<typeof open>>,
++  row: RecordRow,
++): Promise<void> {
++  try {
++    await file.write(`${JSON.stringify(row)}\n`);
++    await file.sync();
++  } catch {
++    throw new LoopFailure(1, 'loop: cannot write records file');
++  }
++}
++
++async function raceTimeout<T>(
++  promise: Promise<T>,
++  ms: number,
++): Promise<{ timedOut: true } | { timedOut: false; value: T }> {
++  let timer: ReturnType<typeof setTimeout> | undefined;
++  const timeout = new Promise<{ timedOut: true }>((resolve) => {
++    timer = setTimeout(() => resolve({ timedOut: true }), Math.max(0, ms));
++  });
++  const result = await Promise.race([
++    promise.then((value) => ({ timedOut: false as const, value })),
++    timeout,
++  ]);
++  if (timer !== undefined) clearTimeout(timer);
++  return result;
++}
++
++async function attempt(
++  options: Options,
++  body: string,
++  retry: number,
++  historyItems: number,
++  runStart: number,
++  records: Awaited<ReturnType<typeof open>>,
++): Promise<AttemptResult> {
++  const began = performance.now();
++  const firstDeadline = began + options.firstByteMs;
++  const row: RecordRow = {
++    start_ms: elapsed(runStart),
++    first_byte_ms: null,
++    end_ms: 0,
++    outcome: 'transport',
++    retries: retry,
++    usage: emptyUsage(),
++    request_bytes: new TextEncoder().encode(body).byteLength,
++    history_items: historyItems,
++  };
++  const controller = new AbortController();
++  let response: Response;
++  try {
++    const request = fetch(`${options.server}/v1/responses`, {
++      method: 'POST',
++      headers: {
++        'Content-Type': 'application/json',
++        Accept: 'text/event-stream',
++        'X-Session-ID': options.session,
++      },
++      body,
++      signal: controller.signal,
++      redirect: 'manual',
++    });
++    const headerResult = await raceTimeout(
++      request,
++      firstDeadline - performance.now(),
++    );
++    if (headerResult.timedOut) {
++      controller.abort();
++      row.outcome = 'timeout';
++      row.end_ms = elapsed(runStart);
++      await appendRecord(records, row);
++      return { failure: { kind: 'timeout' } };
++    }
++    response = headerResult.value;
++  } catch {
++    row.outcome = 'transport';
++    row.end_ms = elapsed(runStart);
++    await appendRecord(records, row);
++    return { failure: { kind: 'transport' } };
++  }
++  if (
++    response.status === 429 ||
++    response.status === 529 ||
++    response.status >= 500
++  ) {
++    controller.abort();
++    row.outcome = 'overload';
++    row.end_ms = elapsed(runStart);
++    await appendRecord(records, row);
++    return { failure: { kind: 'overload' } };
++  }
++  if (response.status !== 200 || response.body === null) {
++    controller.abort();
++    row.outcome = 'transport';
++    row.end_ms = elapsed(runStart);
++    await appendRecord(records, row);
++    return {
++      failure: { kind: response.status === 200 ? 'invalid' : 'rejected' },
++    };
++  }
++  if (
++    !(response.headers.get('content-type') ?? '')
++      .toLowerCase()
++      .startsWith('text/event-stream')
++  ) {
++    controller.abort();
++    row.outcome = 'transport';
++    row.end_ms = elapsed(runStart);
++    await appendRecord(records, row);
++    return { failure: { kind: 'invalid' } };
++  }
++  const reader = response.body.getReader();
++  const parser = new SSEParser();
++  let gotFirst = false;
++  while (true) {
++    const remaining = gotFirst
++      ? options.idleMs
++      : firstDeadline - performance.now();
++    let next: Awaited<ReturnType<typeof reader.read>>;
++    try {
++      const read = await raceTimeout(reader.read(), remaining);
++      if (read.timedOut) {
++        controller.abort();
++        await reader.cancel().catch(() => undefined);
++        row.outcome = gotFirst ? 'stall' : 'timeout';
++        row.end_ms = elapsed(runStart);
++        await appendRecord(records, row);
++        return { failure: { kind: gotFirst ? 'stall' : 'timeout' } };
++      }
++      next = read.value;
++    } catch {
++      row.outcome = 'transport';
++      row.first_byte_ms = gotFirst ? row.first_byte_ms : null;
++      row.end_ms = elapsed(runStart);
++      await appendRecord(records, row);
++      return { failure: { kind: 'transport' } };
++    }
++    if (next.done) {
++      row.outcome = 'transport';
++      row.end_ms = elapsed(runStart);
++      await appendRecord(records, row);
++      return { failure: { kind: 'transport' } };
++    }
++    if (next.value.byteLength === 0) continue;
++    if (!gotFirst) {
++      gotFirst = true;
++      row.first_byte_ms = elapsed(runStart);
++    }
++    if (parser.feed(next.value)) {
++      const parsed = parser.result();
++      if (parsed === null) {
++        row.outcome = 'transport';
++        row.end_ms = elapsed(runStart);
++        await appendRecord(records, row);
++        return { failure: { kind: 'invalid' } };
++      }
++      controller.abort();
++      row.outcome = 'ok';
++      row.usage = parsed.usage;
++      row.end_ms = elapsed(runStart);
++      await appendRecord(records, row);
++      return { response: parsed };
++    }
++  }
++}
++
++function requestBody(history: string): string {
++  return `{"model":"fake-agent","stream":true,"tools":${TOOL_DEFINITIONS},"tool_choice":"auto","input":${history}}`;
++}
++
++function appendHistory(
++  history: string,
++  calls: Call[],
++  results: string[],
++): string {
++  let output = history.slice(0, -1);
++  calls.forEach((call, index) => {
++    const args: unknown = JSON.parse(call.arguments);
++    if (typeof args !== 'object' || args === null || Array.isArray(args))
++      throw new LoopFailure(16, 'loop: tool execution failed');
++    const compactArgs = JSON.stringify(args);
++    output += `,{"type":"function_call","call_id":${JSON.stringify(call.id)},"name":${JSON.stringify(call.name)},"arguments":${JSON.stringify(compactArgs)}}`;
++    output += `,{"type":"function_call_output","call_id":${JSON.stringify(call.id)},"output":${JSON.stringify(results[index])}}`;
++  });
++  return `${output}]`;
++}
++
++function commandPathsAllowed(command: string): boolean {
++  if (/(^|[\s"'=<>|;&(])\/(?:[^\s"'<>|;&()]*)/.test(command)) return false;
++  return !/(^|[\s/"'=<>|;&(])\.\.(?:\/|[\s"'<>|;&)]|$)/.test(command);
++}
++
++async function executeCommand(
++  command: string,
++  workdir: string,
++): Promise<string> {
++  return await new Promise((resolve, reject) => {
++    const child = spawn('/bin/sh', ['-c', command], {
++      cwd: workdir,
++      env: {
++        PATH: '/usr/bin:/bin',
++        HOME: workdir,
++        LANG: 'C.UTF-8',
++        PWD: workdir,
++      },
++      detached: true,
++      stdio: ['ignore', 'pipe', 'pipe'],
++    });
++    const stdout: Buffer[] = [];
++    const stderr: Buffer[] = [];
++    let total = 0;
++    let timedOut = false;
++    let tooLarge = false;
++    let settled = false;
++    const stop = () => {
++      if (child.pid !== undefined) {
++        try {
++          process.kill(-child.pid, 'SIGKILL');
++        } catch {
++          /* process already exited */
++        }
++      }
++    };
++    const timer = setTimeout(() => {
++      timedOut = true;
++      stop();
++    }, 5000);
++    const collect = (target: Buffer[]) => (chunk: Buffer) => {
++      total += chunk.length;
++      if (total > 1_048_576) {
++        tooLarge = true;
++        stop();
++      } else {
++        target.push(chunk);
++      }
++    };
++    child.stdout.on('data', collect(stdout));
++    child.stderr.on('data', collect(stderr));
++    child.on('error', () => {
++      if (settled) return;
++      settled = true;
++      clearTimeout(timer);
++      reject(new Error('command start failed'));
++    });
++    child.on('close', (code) => {
++      if (settled) return;
++      settled = true;
++      clearTimeout(timer);
++      if (timedOut || tooLarge) {
++        reject(new Error('command limit exceeded'));
++        return;
++      }
++      try {
++        const decoder = new TextDecoder('utf-8', { fatal: true });
++        const stdoutText = decoder.decode(Buffer.concat(stdout));
++        const stderrText = decoder.decode(Buffer.concat(stderr));
++        resolve(
++          JSON.stringify({
++            exit_code: code ?? -1,
++            stdout: stdoutText,
++            stderr: stderrText,
++          }),
++        );
++      } catch {
++        reject(new Error('command output is not UTF-8'));
++      }
++    });
++  });
++}
++
++async function executeTool(call: Call, workdir: string): Promise<string> {
++  let args: unknown;
++  try {
++    args = JSON.parse(call.arguments);
++  } catch {
++    throw new Error('invalid tool arguments');
++  }
++  if (typeof args !== 'object' || args === null || Array.isArray(args))
++    throw new Error('invalid tool arguments');
++  const values = args as Record<string, unknown>;
++  if (call.name === 'read_file') {
++    if (
++      Object.keys(values).length !== 1 ||
++      typeof values.path !== 'string' ||
++      !values.path ||
++      path.isAbsolute(values.path)
++    )
++      throw new Error('invalid file path');
++    const file = await realpath(path.resolve(workdir, values.path));
++    const relative = path.relative(workdir, file);
++    if (
++      relative === '..' ||
++      relative.startsWith(`..${path.sep}`) ||
++      path.isAbsolute(relative)
++    )
++      throw new Error('file outside workdir');
++    if (!(await stat(file)).isFile()) throw new Error('not a file');
++    try {
++      return new TextDecoder('utf-8', { fatal: true }).decode(
++        await readFile(file),
++      );
++    } catch {
++      throw new Error('file is not UTF-8');
++    }
++  }
++  if (call.name === 'run_command') {
++    if (
++      Object.keys(values).length !== 1 ||
++      typeof values.command !== 'string' ||
++      !values.command ||
++      !commandPathsAllowed(values.command)
++    )
++      throw new Error('invalid command');
++    return await executeCommand(values.command, workdir);
++  }
++  throw new Error('unknown tool');
++}
++
++async function main(): Promise<void> {
++  const options = parseArgs(process.argv.slice(2));
++  let prompt: string;
++  try {
++    prompt = new TextDecoder('utf-8', { fatal: true }).decode(
++      await readFile(options.promptFile),
++    );
++  } catch {
++    throw new LoopFailure(1, 'loop: cannot read prompt file');
++  }
++  let workdir: string;
++  try {
++    workdir = await realpath(options.workdir ?? process.cwd());
++    if (!(await stat(workdir)).isDirectory()) throw new Error('not directory');
++  } catch {
++    throw new LoopFailure(1, 'loop: invalid workdir');
++  }
++  let records: Awaited<ReturnType<typeof open>>;
++  try {
++    records = await open(options.records, 'w');
++  } catch {
++    throw new LoopFailure(1, 'loop: cannot write records file');
++  }
++  const runStart = performance.now();
++  let history = `[${JSON.stringify({ role: 'user', content: [{ type: 'input_text', text: prompt }] })}]`;
++  let historyItems = 1;
++  try {
++    while (true) {
++      const body = requestBody(history);
++      let retry = 0;
++      let response: StreamResponse | undefined;
++      while (response === undefined) {
++        const attemptResult = await attempt(
++          options,
++          body,
++          retry,
++          historyItems,
++          runStart,
++          records,
++        );
++        if (attemptResult.response !== undefined) {
++          response = attemptResult.response;
++          break;
++        }
++        const failure = attemptResult.failure;
++        if (failure === undefined)
++          throw new LoopFailure(15, 'loop: invalid response');
++        if (failure.kind === 'rejected' || failure.kind === 'invalid')
++          throw failureCode(failure.kind);
++        if (retry >= options.maxRetries) throw failureCode(failure.kind);
++        await new Promise((resolve) =>
++          setTimeout(resolve, options.backoffMs * 2 ** retry),
++        );
++        retry += 1;
++      }
++      if (response.calls.length === 0) {
++        await Bun.write(Bun.stdout, response.text);
++        return;
++      }
++      const results: string[] = [];
++      for (const call of response.calls) {
++        try {
++          results.push(await executeTool(call, workdir));
++        } catch {
++          throw new LoopFailure(16, 'loop: tool execution failed');
++        }
++      }
++      history = appendHistory(history, response.calls, results);
++      historyItems += response.calls.length * 2;
++    }
++  } finally {
++    await records.close();
++  }
++}
++
++try {
++  await main();
++} catch (error) {
++  if (error instanceof LoopFailure) {
++    await Bun.write(Bun.stderr, `${error.message}\n`);
++    process.exit(error.code);
++  }
++  await Bun.write(Bun.stderr, 'loop: invalid response\n');
++  process.exit(15);
++}
+

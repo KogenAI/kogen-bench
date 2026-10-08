@@ -1,0 +1,58 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-ladder",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H39",
+    "H41",
+    "H42",
+    "H47",
+    "H49"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-ladder-model-screen",
+      "arms": "Luna max; Sol 6.1 high; Luna high",
+      "planned_n": "8 tasks × 2 reps for reported primary comparison",
+      "reported_results": "15/16; 15/16; 12/16 respectively",
+      "classification": "source-reported small development screen"
+    },
+    {
+      "experiment_id": "x-ladder-matrix",
+      "arms": "multiple ladder profiles",
+      "planned_n": null,
+      "attempts": 117,
+      "correct": 109,
+      "incorrect": 7,
+      "infrastructure": 1,
+      "visible_check_note": "all 7 incorrect outputs reportedly passed visible checks",
+      "classification": "separate source-reported matrix; arm crosswalk unavailable"
+    },
+    {
+      "experiment_id": "x-ladder-time-first",
+      "arms": "time-first ladder vs control",
+      "reported_results": "6/6 vs 6/6; 2 rescues; about 141 additional seconds per attempt",
+      "classification": "source-reported small screen"
+    },
+    {
+      "experiment_id": "x-ladder-patient",
+      "arms": "patient profile vs control",
+      "reported_results": "4/4 vs 4/4",
+      "classification": "source-reported small screen"
+    },
+    {
+      "experiment_id": "x-ladder-checkpoints",
+      "arms": "reproducible checkpoint scan",
+      "reported_results": "0/145 runs",
+      "classification": "development inventory; not a task-success comparison"
+    }
+  ]
+}

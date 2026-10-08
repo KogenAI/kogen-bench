@@ -1,0 +1,160 @@
+diff --git a/lib/core.ex b/lib/core.ex
+index 06e64e8..52d6bac 100644
+--- a/lib/core.ex
++++ b/lib/core.ex
+@@ -1,5 +1,152 @@
+ defmodule Kogen.Core do
+-  @moduledoc "Configuration or CLI core, awaiting implementation."
+-  @doc "Execute arguments."
+-  def execute(_args), do: ""
++  @moduledoc "Strict flat YAML subset parser."
++  alias Kogen.Input
++
++  @help """
++  Usage: kogen-config [FILE|-]
++  Parse a strict YAML-subset configuration from FILE or stdin.
++  Options:
++    --help  Show this help.
++  """
++  @defaults %{"name" => "kogen", "workers" => "1", "enabled" => "true", "directory" => "."}
++  @keys ["name", "workers", "enabled", "directory"]
++
++  @doc "Parse CLI options and the configuration in-process."
++  def execute(["--help"]), do: @help
++
++  def execute(args) do
++    Enum.each(args, &validate_arg/1)
++    if length(args) > 1, do: Input.fail("config: expected at most one input path", 2)
++    bytes = Input.read(List.first(args), "config")
++    ascii(bytes, 1, 1)
++    parse(bytes)
++  end
++
++  defp validate_arg(arg) do
++    if String.starts_with?(arg, "-") and arg != "-" do
++      Input.fail("config: unknown option '#{arg}'", 2)
++    end
++  end
++
++  defp ascii(<<>>, _line, _col), do: :ok
++
++  defp ascii(<<byte, _rest::binary>>, line, col) when byte > 127,
++    do: error(line, col, "expected ASCII input")
++
++  defp ascii(<<10, rest::binary>>, line, _col), do: ascii(rest, line + 1, 1)
++  defp ascii(<<_byte, rest::binary>>, line, col), do: ascii(rest, line, col + 1)
++
++  defp parse(bytes) do
++    {values, _seen} =
++      bytes
++      |> Input.physical_lines()
++      |> Enum.with_index(1)
++      |> Enum.reduce({@defaults, MapSet.new()}, &entry/2)
++
++    Enum.map_join(@keys, fn key -> "#{key}=#{values[key]}\n" end)
++  end
++
++  defp entry({line, number}, state) do
++    case :binary.match(line, "\t") do
++      {pos, _len} -> error(number, pos + 1, "tab is not allowed")
++      :nomatch -> :ok
++    end
++
++    trimmed = String.trim_leading(line, " ")
++
++    cond do
++      trimmed == "" or String.starts_with?(trimmed, "#") -> state
++      String.starts_with?(line, " ") -> error(number, 1, "unexpected indentation")
++      true -> mapping(line, number, state)
++    end
++  end
++
++  defp mapping(line, number, {values, seen}) do
++    {key, prefix} = key(line, number)
++    unless Map.has_key?(values, key), do: error(number, 1, "unknown key '#{key}'")
++    if MapSet.member?(seen, key), do: error(number, 1, "duplicate key '#{key}'")
++    remainder = binary_part(line, byte_size(prefix), byte_size(line) - byte_size(prefix))
++    scalar = String.trim_leading(remainder, " ")
++    col = byte_size(line) - byte_size(scalar) + 1
++    {value, quoted} = scalar(scalar, number, col)
++    value = validate(key, value, quoted, number, col)
++    {Map.put(values, key, value), MapSet.put(seen, key)}
++  end
++
++  defp key(line, number) do
++    case Regex.run(~r/^([a-z][a-z_]*):/, line) do
++      [prefix, key] -> {key, prefix}
++      nil -> error(number, 1, "expected key: value")
++    end
++  end
++
++  defp scalar("", line, col), do: error(line, col, "missing value")
++  defp scalar(<<35, _rest::binary>>, line, col), do: error(line, col, "missing value")
++
++  defp scalar(<<quote, rest::binary>>, line, col) when quote in [34, 39],
++    do: quoted(rest, quote, line, col, col + 1, [])
++
++  defp scalar(text, line, col) do
++    value = text |> String.split(" #", parts: 2) |> hd() |> String.trim_trailing(" ")
++
++    unless Regex.match?(~r/^[A-Za-z0-9 _.\/:#-]+$/, value),
++      do: error(line, col, "invalid bare scalar")
++
++    {value, false}
++  end
++
++  defp quoted("", _quote, line, col, _pos, _value),
++    do: error(line, col, "unterminated quoted scalar")
++
++  defp quoted(<<39, 39, rest::binary>>, 39, line, col, pos, value),
++    do: quoted(rest, 39, line, col, pos + 2, [39 | value])
++
++  defp quoted(<<quote, rest::binary>>, quote, line, _col, pos, value) do
++    trailing(rest, line, pos + 1)
++    {value |> Enum.reverse() |> :erlang.list_to_binary(), true}
++  end
++
++  defp quoted(<<92, next, rest::binary>>, 34, line, col, pos, value) when next in [34, 92],
++    do: quoted(rest, 34, line, col, pos + 2, [next | value])
++
++  defp quoted(<<92, _rest::binary>>, 34, line, _col, pos, _value),
++    do: error(line, pos, "invalid escape")
++
++  defp quoted(<<byte, _rest::binary>>, _quote, line, col, _pos, _value)
++       when byte < 32 or byte > 126,
++       do: error(line, col, "invalid quoted scalar")
++
++  defp quoted(<<byte, rest::binary>>, quote, line, col, pos, value),
++    do: quoted(rest, quote, line, col, pos + 1, [byte | value])
++
++  defp trailing("", _line, _pos), do: :ok
++
++  defp trailing(<<32, rest::binary>>, line, pos) do
++    trimmed = String.trim_leading(rest, " ")
++
++    unless trimmed == "" or String.starts_with?(trimmed, "#") do
++      error(line, pos + 1 + byte_size(rest) - byte_size(trimmed), "unexpected trailing text")
++    end
++  end
++
++  defp trailing(_rest, line, pos), do: error(line, pos, "unexpected trailing text")
++
++  defp validate("workers", value, quoted, line, col) do
++    valid = not quoted and Regex.match?(~r/^[1-9][0-9]*$/, value) and byte_size(value) <= 2
++    unless valid, do: error(line, col, "expected integer 1..64")
++    count = String.to_integer(value)
++    if count > 64, do: error(line, col, "expected integer 1..64")
++    Integer.to_string(count)
++  end
++
++  defp validate("enabled", value, quoted, line, col) do
++    if quoted or value not in ["true", "false"], do: error(line, col, "expected true or false")
++    value
++  end
++
++  defp validate(_key, "", _quoted, line, col), do: error(line, col, "expected nonempty string")
++  defp validate(_key, value, _quoted, _line, _col), do: value
++
++  @spec error(integer(), integer(), String.t()) :: no_return()
++  defp error(line, col, message), do: Input.fail("config:#{line}:#{col}: #{message}")
+ end

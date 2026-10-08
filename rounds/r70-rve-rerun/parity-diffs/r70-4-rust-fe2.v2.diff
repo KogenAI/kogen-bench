@@ -1,0 +1,22 @@
+--- levers/r70/public/r70-4-rust-fe2/skeleton/src/main.rs (FE2 v1)
++++ levers/r70/public/r70-4-rust-fe2/skeleton/src/main.rs (FE2 v2)
+@@ -21,9 +21,16 @@
+     let args: Vec<String> = std::env::args().skip(1).collect();
+     match core::execute(&args) {
+         Ok(output) => {
+-            let _ = io::stdout().write_all(output.as_bytes());
+-            if output.starts_with("rebased ") {
+-                std::process::exit(10);
++            let exit_code = if output.starts_with("rebased ") {
++                10
++            } else {
++                0
++            };
++            let mut stdout = io::stdout().lock();
++            let _ = stdout.write_all(output.as_bytes());
++            let _ = stdout.flush();
++            if exit_code != 0 {
++                std::process::exit(exit_code);
+             }
+         }
+         Err((code, message)) => {

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ORIGINAL_PATH=$PATH
+. "$ROOT/toolchain-env.sh"
+PATH="$ORIGINAL_PATH:$PATH"
+export PATH
+exec "$ROOT/build/bin/kogen" "$@"

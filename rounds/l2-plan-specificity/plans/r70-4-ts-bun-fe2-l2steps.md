@@ -1,0 +1,11 @@
+1. Implement argument parsing in `src/core.ts`: accept only the four required options, each once with one separate value, in any order. Reject missing, duplicate, unknown, or positional arguments with the exact usage error, exit 2, and no stdout.
+
+2. Use the system `git` to validate the repository, target ref and current commit, and base and candidate commits. Confirm the candidate has exactly one parent and that parent equals the base. Map invalid inputs to the exact invalid-repository-or-commit error and exit 1. Capture Git output so it cannot leak into the command’s output.
+
+3. Read and retain the target’s current commit. If it equals the base, use the candidate as the landing commit. Otherwise, rebase the candidate onto that captured commit with the base as the upstream. Run the rebase in temporary state so the caller’s checkout and target ref are not changed during preparation.
+
+4. On a rebase conflict, abort and remove temporary state, then report only the specified conflict message and exit 20. On a clean rebase, capture the resulting full commit OID. Remove temporary refs or worktrees on every path.
+
+5. Update the target with Git’s atomic compare-and-swap ref update, supplying the exact target value captured before preparing the landing. If the target changed, leave its competing value untouched and report only the lost-race message with exit 30. For success, print the full lowercase OID with `landed` when the target initially equaled the base, or `rebased` when it had moved; use exit 0 or 10 respectively. Preserve these output and exit behaviors through `src/main.ts`, using the existing `Failure` path for errors as appropriate.
+
+6. Build with `make build`, then run `make check` for the skeleton’s strict TypeScript, Biome, and Bun checks. Exercise `./run` against disposable Git repositories to verify exact stdout, stderr, and exit codes for valid CLI forms, usage errors, invalid inputs and candidate shape, an unchanged target, a clean rebase, a rebase conflict with cleanup, and a target change before the compare-and-swap update.

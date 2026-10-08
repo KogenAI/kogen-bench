@@ -1,0 +1,37 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "x-parallel",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H29",
+    "H30"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "x-parallel-v03",
+      "arms": "solo vs planned DAG",
+      "task_n": 2,
+      "reps_per_arm": 2,
+      "reported_results": "4/4 vs 4/4",
+      "classification": "source-reported exploratory result"
+    },
+    {
+      "experiment_id": "x-parallel-v03-cost",
+      "reported_results": "about 1.4× wall; about 1.9× requests",
+      "classification": "source-reported summary"
+    },
+    {
+      "experiment_id": "x-parallel-token-summary",
+      "reported_results": "1.84× input tokens; 2.50× output tokens",
+      "classification": "separate source-reported token summary; raw rows unavailable"
+    }
+  ]
+}

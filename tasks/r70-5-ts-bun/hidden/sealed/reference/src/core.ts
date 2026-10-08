@@ -1,0 +1,118 @@
+import { Failure, load, physicalLines } from './shared.ts';
+
+const HELP =
+  'Usage: kogen-config [FILE|-]\nParse a strict YAML-subset configuration from FILE or stdin.\nOptions:\n  --help  Show this help.\n';
+
+export async function execute(args: string[]): Promise<string> {
+  if (args.length === 1 && args[0] === '--help') return HELP;
+  for (const arg of args) {
+    if (arg.startsWith('-') && arg !== '-')
+      throw new Failure(2, `config: unknown option '${arg}'`);
+  }
+  if (args.length > 1)
+    throw new Failure(2, 'config: expected at most one input path');
+  const raw = await load(args[0], 'config');
+  let line = 1;
+  let col = 1;
+  for (const byte of raw) {
+    if (byte > 127)
+      throw new Failure(1, `config:${line}:${col}: expected ASCII input`);
+    if (byte === 10) {
+      line++;
+      col = 1;
+    } else col++;
+  }
+  return parseConfig(new TextDecoder().decode(raw));
+}
+
+function scalar(
+  line: string,
+  start: number,
+  fail: (col: number, msg: string) => never,
+): [string, boolean] {
+  const col = start + 1;
+  if (start === line.length || line[start] === '#') fail(col, 'missing value');
+  const quote = line[start];
+  if (quote !== "'" && quote !== '"') {
+    const value = line
+      .slice(start)
+      .split(' #')[0]
+      .replace(/ +$(?![\s\S])/, '');
+    if (!/^[A-Za-z0-9 _./:#-]+$(?![\s\S])/.test(value))
+      fail(col, 'invalid bare scalar');
+    return [value, false];
+  }
+  let value = '';
+  let pos = start + 1;
+  let closed = false;
+  while (pos < line.length) {
+    const ch = line[pos];
+    if (ch === quote) {
+      if (quote === "'" && line[pos + 1] === quote) {
+        value += ch;
+        pos += 2;
+        continue;
+      }
+      pos++;
+      closed = true;
+      break;
+    }
+    if (ch === '\\' && quote === '"') {
+      const next = line[pos + 1];
+      if (next !== '"' && next !== '\\') fail(pos + 1, 'invalid escape');
+      value += next;
+      pos += 2;
+      continue;
+    }
+    if (ch.charCodeAt(0) < 32 || ch.charCodeAt(0) > 126)
+      fail(col, 'invalid quoted scalar');
+    value += ch;
+    pos++;
+  }
+  if (!closed) fail(col, 'unterminated quoted scalar');
+  const end = pos;
+  while (line[pos] === ' ') pos++;
+  if (pos < line.length && !(pos > end && line[pos] === '#'))
+    fail(pos + 1, 'unexpected trailing text');
+  return [value, true];
+}
+
+function parseConfig(text: string): string {
+  const values = new Map<string, string>([
+    ['name', 'kogen'],
+    ['workers', '1'],
+    ['enabled', 'true'],
+    ['directory', '.'],
+  ]);
+  const seen = new Set<string>();
+  for (const [index, line] of physicalLines(text).entries()) {
+    const fail = (col: number, message: string): never => {
+      throw new Failure(1, `config:${index + 1}:${col}: ${message}`);
+    };
+    const tab = line.indexOf('\t');
+    if (tab >= 0) fail(tab + 1, 'tab is not allowed');
+    const trim = line.replace(/^ +/, '');
+    if (trim === '' || trim.startsWith('#')) continue;
+    if (line.startsWith(' ')) fail(1, 'unexpected indentation');
+    const match = /^([a-z][a-z_]*):/.exec(line);
+    if (match === null) return fail(1, 'expected key: value');
+    const key = match[1];
+    if (!values.has(key)) fail(1, `unknown key '${key}'`);
+    if (seen.has(key)) fail(1, `duplicate key '${key}'`);
+    seen.add(key);
+    let start = match[0].length;
+    while (line[start] === ' ') start++;
+    let [value, quoted] = scalar(line, start, fail);
+    if (key === 'workers') {
+      const n = Number(value);
+      if (quoted || !/^[1-9][0-9]*$(?![\s\S])/.test(value) || n > 64 || n < 1)
+        fail(start + 1, 'expected integer 1..64');
+      value = String(n);
+    } else if (key === 'enabled') {
+      if (quoted || (value !== 'true' && value !== 'false'))
+        fail(start + 1, 'expected true or false');
+    } else if (value === '') fail(start + 1, 'expected nonempty string');
+    values.set(key, value);
+  }
+  return `name=${values.get('name')}\nworkers=${values.get('workers')}\nenabled=${values.get('enabled')}\ndirectory=${values.get('directory')}\n`;
+}

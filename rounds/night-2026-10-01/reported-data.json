@@ -1,0 +1,81 @@
+{
+  "research_cut": "2026-10-07",
+  "reproducibility_label": "source-reported, not reproducible from public data",
+  "source_kind": "documentary research synthesis; underlying row-level receipts are not published here",
+  "public_export_check": {
+    "results/cells.jsonl exact round matches": 0,
+    "results/run-records/index.json exact audit_round_or_round_id matches": 0,
+    "check": "literal string match on round, audit_round, or round_id fields in committed public exports"
+  },
+  "raw_records": "No sanitized per-cell raw records for this round are present in the public snapshot.",
+  "round_id": "night-2026-10-01",
+  "status": "INTERIM",
+  "hypothesis_ids": [
+    "H19",
+    "H21",
+    "H29",
+    "H31",
+    "H80",
+    "H81",
+    "H82",
+    "H84",
+    "H85",
+    "H86",
+    "H87",
+    "H88",
+    "H89",
+    "H90"
+  ],
+  "experiment_records": [
+    {
+      "experiment_id": "night-overall",
+      "approx_cells": 265,
+      "host_n": 4,
+      "invalid_grade_n": 30,
+      "invalid_task_n": 7,
+      "syn-33_invalid_n": 20,
+      "cause": "missing Trackline start overlay",
+      "classification": "approximate cross-lane inventory; invalid grades excluded from model-loss claims"
+    },
+    {
+      "experiment_id": "night-p1",
+      "environment": "env-v1",
+      "planned_n": null,
+      "reported_results": "not recovered",
+      "classification": "keep separate from P2"
+    },
+    {
+      "experiment_id": "night-p2",
+      "environment": "env-v2",
+      "admitted_task_n": 52,
+      "valid_results": "Kogen L1 34/47; Codex 35/48",
+      "model_effort": "Luna max reported",
+      "classification": "valid-only source-reported summary; exact cells unavailable"
+    },
+    {
+      "experiment_id": "night-p3a",
+      "reported_results": "relay 5/5; L1 3/5",
+      "classification": "separate exploratory lane"
+    },
+    {
+      "experiment_id": "night-p3c",
+      "reported_results": "relay 4/5; L1 5/5",
+      "classification": "separate exploratory lane; do not pool with P3a"
+    },
+    {
+      "experiment_id": "night-p5",
+      "reported_results": "relay 2/9; L1 0/9 on selected failures; seven Rails tasks reportedly all failed",
+      "classification": "selected subset; exact task mapping unavailable"
+    },
+    {
+      "experiment_id": "night-parallel-read",
+      "reported_results": "5/5 tie; about 20–30% fewer requests",
+      "classification": "lane mapping and raw request counts unavailable"
+    },
+    {
+      "experiment_id": "night-pi-mining",
+      "reported_results": "Pi 1.0.0 installed for mining, not run as a benchmark arm",
+      "classification": "not-run model arm"
+    }
+  ]
+}
