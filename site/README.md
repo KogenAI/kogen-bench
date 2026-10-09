@@ -33,3 +33,9 @@ The site preserves authored Markdown twins and uses the shared Cloudflare Pages 
 JSONL downloads preserve source bytes and the per-round directory layout, so index-relative filenames resolve correctly. Source indexes record checksums and byte lengths. The build rejects assets over the static host limit.
 
 Round badges come from the reviewed `rounds/STATUS.md` inventory. Historical source prose is retained, including qualifications. The stack comparison page abbreviates three unpublished local artifact locators for web reading; source links and hashes still identify the unmodified repository files.
+
+## Share card
+
+Bench uses the approved Kogen Bench card at `public/brand/kogen-bench-card.png` (1280 × 640); its outlined SVG is preserved alongside it. `public/og.png` is an identical compatibility copy. Open Graph and X metadata use the Bench-specific URL so the former product-card URL does not retain the old preview in caches. Existing social posts may retain cached cards.
+
+The Kogen brand bundle owns the composition and generator; these are deployment copies. Approved 9 October 2026. The card preserves the existing Kogen sprue and IBM Plex Sans typography, with a decorative measurement grid rather than plotted results. To refresh, export the canonical SVG/PNG, synchronize these three files, run the normal release build, and verify image dimensions, metadata, and the saved live card. Keep the previous verified files if export or build fails. Brand and font provenance remain governed by the Kogen brand bundle; the marks are not licensed by the repository's source-code license.

@@ -2,9 +2,9 @@
 
 The source code in this repository is licensed under the [Apache License 2.0](LICENSE). The license does not grant rights to the product names below.
 
-Protected names: **Kogen** and **kogen-bench**, including their use in repository, package and domain names. The site contains a circular **K** navigation mark in `site/public/favicon.svg` and `site/src/layouts/SiteLayout.astro`. It is a site-specific icon, not an official Kogen or Kogen Bench logo and not a claim of endorsement.
+Protected names: **Kogen** and **Kogen Bench**, including their use in repository, package and domain names. The site uses the official Kogen sprue, wordmark and favicon. Its Bench share card uses the same sprue with IBM Plex Sans lettering and a decorative measurement grid. These are Kogen brand assets, not a separately licensed site-specific logo.
 
-The authored SVG and site styling are repository source assets covered by Apache-2.0. That license does not grant rights to the Kogen or Kogen Bench names, trademarks, or any separately protected brand asset. Forks and public deployments must replace the site-specific mark and use their own identity.
+The Kogen name, logo and associated brand assets are excluded from the repository's Apache-2.0 source-code license. IBM Plex font software is distributed under the SIL Open Font License; the card's outlined lettering derives from that family.
 
 Forks and public deployments must use their own name, logo, visual identity,
 domain, content, credentials, and data. The Kogen name, logo, and associated
