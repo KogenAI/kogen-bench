@@ -4,9 +4,9 @@ Rust passed more often than Elixir in every comparison we ran, except two extra 
 
 | Run | What was compared | Rust passed | Elixir passed | Status | Round page |
 |---|---|---:|---:|---|---|
-| Original comparison | Tasks 1, 3, 4 and 6, run separately for each language | 8 of 10 | 2 of 10 | Limited evidence: incomplete list of attempts, no test plan recorded in advance | [Round page](../rounds/r70/README.md) |
-| Extension | Tasks 2, 5 and 7, run separately for each language | 5 of 6 | 4 of 6 | Valid, but the sample is small | [Round page](../rounds/r70-rve-ext/README.md) |
-| Re-run with corrected task setup | Task 4 only, run separately for each language | 3 of 3 | 0 of 3 | Limited evidence: the corrected setup's own control checks did not pass | [Round page](../rounds/r70-rve-rerun/README.md) |
+| Original comparison | Tasks 1, 3, 4 and 6, run separately for each language | 8 of 10 | 2 of 10 | Limited evidence: incomplete list of attempts, no test plan recorded in advance | [Round page](https://bench.kogen.dev/rounds/r70/) |
+| Extension | Tasks 2, 5 and 7, run separately for each language | 5 of 6 | 4 of 6 | Valid, but the sample is small | [Round page](https://bench.kogen.dev/rounds/r70-rve-ext/) |
+| Re-run with corrected task setup | Task 4 only, run separately for each language | 3 of 3 | 0 of 3 | Limited evidence: the corrected setup's own control checks did not pass | [Round page](https://bench.kogen.dev/rounds/r70-rve-rerun/) |
 | First paired run, 9 Oct | Tasks 1, 5 and 7; each pair tested both languages on the same machine; 6 pairs counted before the run stopped | 1 of 6 | 0 of 6 | Invalid: two task prompts differed from their originals |  |
 | Paired re-run, 9 Oct | Tasks 1, 5 and 7; each pair tested both languages on the same machine; first 9 pairs | 8 of 9 | 3 of 9 | Invalid under the advance test plan: a rule for checking the run flagged harmless text in tool output. These counts are the official test results. |  |
 | Paired re-run, extra pairs | 2 more pairs finished after that run stopped | 1 of 2 | 1 of 2 | Additional results outside the planned comparison |  |

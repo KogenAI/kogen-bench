@@ -88,7 +88,7 @@ These sections are an entry point into the public evidence. Each summarizes the 
 
 ## F08 Language and executable spec
 
-Cross-round review: [Rust versus Elixir evidence synthesis](research/RUST-VS-ELIXIR-EVIDENCE.md).
+Cross-round review: [Rust vs Elixir: what our runs showed](research/RUST-VS-ELIXIR-EVIDENCE.md).
 
 **Hypothesis:** H91–H99 ask whether language or executable specifications change runtime, parity, or task outcomes. The records inform a bounded product choice but do not establish a broad language effect.
 

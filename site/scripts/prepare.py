@@ -664,6 +664,7 @@ The research behind Kogen. What helps a coding agent finish software correctly, 
 ## Start with a question
 
 - [Read findings](/findings/)
+- [Language comparison](/languages/)
 - [Browse hypotheses](/hypotheses/)
 - [Find an experiment](/rounds/)
 - [Trace a specification clause to evidence](/evidence/)
@@ -689,6 +690,23 @@ The findings pages summarize the source record. A status such as INTERIM, CONFOU
 
     pages.append(
         page_record(
+            "/languages/",
+            "Kogen language round: early elimination",
+            read_text("research/LANGUAGES.md"),
+            ["research/LANGUAGES.md", "rounds/r70/README.md", "rounds/r70-rve-ext/README.md"],
+        )
+    )
+    pages.append(
+        page_record(
+            "/languages/rust-vs-elixir/",
+            "Rust vs Elixir: what our runs showed",
+            read_text("research/RUST-VS-ELIXIR-EVIDENCE.md"),
+            ["research/RUST-VS-ELIXIR-EVIDENCE.md", "rounds/r70/README.md", "rounds/r70-rve-ext/README.md", "rounds/r70-rve-rerun/README.md"],
+        )
+    )
+
+    pages.append(
+        page_record(
             "/findings/",
             "Findings",
             "# Findings\n\nThe family-by-family source summary is reproduced below. Figures that are not reconciled to a claim ledger remain source-reported; follow the source and related claim records for the limits.\n\n" + "\n".join(
@@ -703,6 +721,7 @@ The findings pages summarize the source record. A status such as INTERIM, CONFOU
             f"# {item['id']} — {item['title']}\n\n"
             "> Source narrative: values not linked to an eligible claim ledger row are source-reported and not independently promoted here.\n\n"
             + item["markdown"]
+            + ("\n\nSee the [language round summary](/languages/) for the current comparison and final-round status.\n" if item["id"] == "F08" else "")
             + "\n\n## Related records\n\n"
             + related_markdown(family["hypothesis_ids"], family["round_ids"], family["claim_ids"])
         )
