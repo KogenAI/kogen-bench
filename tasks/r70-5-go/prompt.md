@@ -10,7 +10,7 @@ Implement `kogen-config`, a small strict YAML-subset configuration parser. Keep 
 Usage: kogen-config [FILE|-]
 Parse a strict YAML-subset configuration from FILE or stdin.
 Options:
- --help Show this help.
+  --help  Show this help.
 ```
 
 No arguments or one `-` reads stdin. One other argument reads that file. Any argument beginning with `-` other than `-` or sole `--help` is an option error: stderr `config: unknown option '<arg>'\n`, exit 2. Otherwise more than one argument is stderr `config: expected at most one input path\n`, exit 2. Scan for option errors left to right before checking argument count. A file read failure is stderr `config: cannot read input\n`, exit 1. Success is exit 0 with empty stderr. Errors have empty stdout and exactly one stderr line. All inputs are ASCII, with LF or CRLF line endings; the final line need not end in LF. No BOM. Non-ASCII bytes are invalid at the first such byte: `expected ASCII input`. Read failure precedes parsing; ASCII validation precedes all grammar checks.

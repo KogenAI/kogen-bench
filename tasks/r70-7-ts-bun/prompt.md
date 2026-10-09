@@ -9,11 +9,11 @@ Sole `--help`, sole `-h`, or no arguments prints this to stdout, exits 0 and rea
 ```text
 Usage: kogen <command> [options] [FILE|-]
 Commands:
- sum Sum signed integers.
- status Count job states.
+  sum     Sum signed integers.
+  status  Count job states.
 Options:
- -h, --help Show help.
- --version Show version.
+  -h, --help  Show help.
+  --version   Show version.
 ```
 
 Sole `--version` prints `kogen 1.0.0\n`, exits 0. `sum --help` or `sum -h` as the ONLY arguments after the command prints:
