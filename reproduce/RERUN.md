@@ -35,7 +35,7 @@ sudo ./reproduce/setup-host.sh --dry-run
 sudo ./reproduce/setup-host.sh
 sudo /usr/local/bin/bench-doctor
 sudo -u bench -H /opt/bench/tools/bin/codex login --device-auth
-sudo chmod -R go-rwx /home/bench/.codex
+sudo chmod -R go-rwx ~bench/.codex
 sudo /usr/local/bin/bench-run-controls r70-1-go
 ```
 
