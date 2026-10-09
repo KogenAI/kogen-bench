@@ -73,9 +73,10 @@ The prior reconciliation table is removed because its run-record classifications
 
 ## Recomputed from raw records
 
-[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r61.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 34 rows (fail 18, pass 16); overall pass rate is 47.1% (16/34) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/r61.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 40 rows (fail 18, pass 16, ungraded 6); overall pass rate is 47.1% (16/34) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
 
 Published-export outcome cross-check: 34/34 shared cell IDs match; 0/20 public-export rows have no mined source record. Exact IDs and results for unpaired rows are in `recomputed.json`.
 No per-cell outcome mismatches were found in the shared IDs.
 Token reconciliation under [METHOD.md](../../METHOD.md): 34/34 published metadata totals equal the manifest `input + cached input + output` sum; 0 differ (no mismatches). Reasoning remains a separate reported component and is not added to output.
 The recompute keeps both numbers visible. 0 unexplained single-response numeric errors were identified; multi-response rows retain the published full-cell total and the manifest counter separately because per-response usage records are excluded.
+This round also has 6 raw-only or non-public rows; they are kept separate from the published-export denominator.

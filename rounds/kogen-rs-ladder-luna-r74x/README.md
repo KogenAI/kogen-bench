@@ -6,7 +6,7 @@ Why not VALID: The historical inventory retains DESCRIPTIVE because of PRE_REGIS
 Recomputation status: OBSERVED SOURCE ONLY
 
 
-**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because per-cell outcomes, execution/hash assertions, incidents and identity audit are source-reported and not independently reproducible from the public snapshot; named lane records are absent. R74 rows are recovered internal historical context, not joined to the canonical official export. Strict release compliance is not established. Model execution and official grading are not replayed.
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
@@ -70,3 +70,12 @@ python3 bench-rs.py run specs/<host-task>.json --only '<cell-selector>' --timeou
 `--no-gate` was used for runner parity because no sealed release directory was available; the lane's admission and sandbox checks were separate.
 
 Raw records: the operator source-reports official grade rows in `grades/tier1-grades.jsonl`, three invalid XDG-1 attempt-1 rows in `grades/tier1-invalid.jsonl`, and same-ID syn-06 attempt-2 rows supplying the counted outcomes. The grade ledgers, per-cell manifests, reports, requests, usage, recipe, runner manifest, and exclusion/incident receipts are not in the public snapshot. The source-reported execution used `--cleanup`, which removed the `.kogen` run directories.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/kogen-rs-ladder-luna-r74x.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 12 rows (ungraded 12); overall pass rate is n/a among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 12 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 12 raw-only or non-public rows; they are kept separate from the published-export denominator.

@@ -1,0 +1,385 @@
+diff --git a/lib/trackline/ports/publication.ex b/lib/trackline/ports/publication.ex
+index 589b528..50bb13b 100644
+--- a/lib/trackline/ports/publication.ex
++++ b/lib/trackline/ports/publication.ex
+@@ -1,12 +1,119 @@
+ defmodule Trackline.Ports.Publication do
+-  alias Trackline.{Repo}
+-  alias Trackline.Ports.{Board, Column, Card}
+-  def publish(board, _user) do
+-    if board.name == "", do: {:ok, board}, else: {:error, :forbidden}
+-  end
+-  def unpublish(board, user), do: publish(board, user)
+-  def board_json(board), do: %{id: board.id, name: board.name, public_url: nil}
+-  def public_board(key), do: Repo.get_by(Board, public_key: "disabled:" <> key)
+-  def public_column(_key, id), do: Repo.get_by(Column, name: "disabled:#{id}")
+-  def public_card(_key, number), do: Repo.get_by(Card, title: "disabled:#{number}")
++  @moduledoc """
++  Publication controls and anonymous read access for boards.
++
++  A board is public only while it has a persisted secret `public_key`. All
++  public child-resource lookups are scoped to the board associated with that
++  key.
++  """
++
++  import Ecto.Query
++
++  alias Trackline.Repo
++  alias Trackline.Ports.{Board, Card, Column}
++  alias Trackline.Support.Membership
++
++  def publish(%Board{} = board, user) do
++    update_publication(board, user, fn -> [public_key: unique_public_key()] end)
++  end
++
++  def publish(_board, _user), do: {:error, :forbidden}
++
++  def unpublish(%Board{} = board, user) do
++    update_publication(board, user, fn -> [public_key: nil] end)
++  end
++
++  def unpublish(_board, _user), do: {:error, :forbidden}
++
++  def board_json(board) do
++    public_url =
++      case Map.get(board, :public_key) do
++        key when is_binary(key) and byte_size(key) > 0 -> "/public/boards/#{key}"
++        _ -> nil
++      end
++
++    %{id: board.id, name: board.name, public_url: public_url}
++  end
++
++  def public_board(key) when is_binary(key) and byte_size(key) > 0 do
++    Repo.get_by(Board, public_key: key)
++  end
++
++  def public_board(_key), do: nil
++
++  def public_column(key, id) when is_binary(key) and byte_size(key) > 0 do
++    with {:ok, column_id} <- parse_integer(id) do
++      from(c in Column,
++        join: b in Board,
++        on: b.id == c.board_id,
++        where: b.public_key == ^key and c.id == ^column_id,
++        select: c
++      )
++      |> Repo.one()
++    else
++      _ -> nil
++    end
++  end
++
++  def public_column(_key, _id), do: nil
++
++  def public_card(key, number) when is_binary(key) and byte_size(key) > 0 do
++    with {:ok, card_number} <- parse_integer(number) do
++      from(c in Card,
++        join: b in Board,
++        on: b.id == c.board_id,
++        where: b.public_key == ^key and c.number == ^card_number and c.published == true,
++        select: c
++      )
++      |> Repo.one()
++    else
++      _ -> nil
++    end
++  end
++
++  def public_card(_key, _number), do: nil
++
++  defp update_publication(board, user, attrs_fun) do
++    if owner?(board, user) do
++      board
++      |> Ecto.Changeset.change(attrs_fun.())
++      |> Repo.update()
++    else
++      {:error, :forbidden}
++    end
++  end
++
++  defp owner?(%Board{organization_id: organization_id}, %{id: user_id})
++       when is_integer(organization_id) and is_integer(user_id) do
++    Repo.exists?(
++      from(m in Membership,
++        where:
++          m.organization_id == ^organization_id and m.user_id == ^user_id and
++            m.role == "owner"
++      )
++    )
++  end
++
++  defp owner?(_board, _user), do: false
++
++  defp unique_public_key do
++    key = Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false)
++
++    if Repo.exists?(from(b in Board, where: b.public_key == ^key)) do
++      unique_public_key()
++    else
++      key
++    end
++  end
++
++  defp parse_integer(value) when is_integer(value), do: {:ok, value}
++
++  defp parse_integer(value) when is_binary(value) do
++    case Integer.parse(value) do
++      {integer, ""} -> {:ok, integer}
++      _ -> :error
++    end
++  end
++
++  defp parse_integer(_value), do: :error
+ end
+diff --git a/test/acceptance/elx-port-board-publish-unpublish-public-boundary_test.exs b/test/acceptance/elx-port-board-publish-unpublish-public-boundary_test.exs
+new file mode 100644
+index 0000000..a47d022
+--- /dev/null
++++ b/test/acceptance/elx-port-board-publish-unpublish-public-boundary_test.exs
+@@ -0,0 +1,245 @@
++defmodule Trackline.BoardPublicationBoundaryAcceptanceTest do
++  use TracklineWeb.ConnCase, async: false
++
++  alias Trackline.Repo
++  import Trackline.AccountsFixtures
++  import Trackline.SupportFixtures
++
++  @publication Trackline.Ports.Publication
++  @board Trackline.Ports.Board
++  @column Trackline.Ports.Column
++  @card Trackline.Ports.Card
++
++  setup do
++    owner = user_fixture()
++    org = organization_fixture(owner)
++    agent = member_fixture(org, "agent")
++    viewer = member_fixture(org, "viewer")
++    outsider = user_fixture()
++    other_owner = user_fixture()
++    other_org = organization_fixture(other_owner)
++    board = insert_resource(@board, %{name: "Private board", organization_id: org.id})
++    other_board = insert_resource(@board, %{name: "Other board", organization_id: other_org.id})
++    column = insert_resource(@column, %{name: "Ready", board_id: board.id})
++    other_column = insert_resource(@column, %{name: "Other ready", board_id: other_board.id})
++
++    card =
++      insert_resource(@card, %{
++        title: "Visible",
++        board_id: board.id,
++        column_id: column.id,
++        number: 1,
++        published: true
++      })
++
++    draft =
++      insert_resource(@card, %{
++        title: "Draft",
++        board_id: board.id,
++        column_id: column.id,
++        number: 2,
++        published: false
++      })
++
++    other_card =
++      insert_resource(@card, %{
++        title: "Other visible",
++        board_id: other_board.id,
++        column_id: other_column.id,
++        number: 1,
++        published: true
++      })
++
++    foreign_only =
++      insert_resource(@card, %{
++        title: "Foreign only",
++        board_id: other_board.id,
++        column_id: other_column.id,
++        number: 3,
++        published: true
++      })
++
++    {:ok,
++     owner: owner,
++     org: org,
++     board: board,
++     other_board: other_board,
++     nonowners: [agent, viewer, outsider, other_owner],
++     column: column,
++     other_column: other_column,
++     card: card,
++     draft: draft,
++     other_card: other_card,
++     foreign_only: foreign_only}
++  end
++
++  @tag intent: "elx-port-board-publish-unpublish-public-boundary/A1"
++  test "owner publication is persisted and unpublication revokes every public lookup", ctx do
++    {:ok, published} = port(:publish, [ctx.board, ctx.owner])
++    key = published.public_key
++    assert is_binary(key) and byte_size(key) > 0
++    refute key == to_string(ctx.board.id)
++    assert Repo.get!(@board, ctx.board.id).public_key == key
++    assert_public_url(port(:board_json, [published]), key)
++    assert port(:public_board, [key]).id == ctx.board.id
++    assert port(:public_column, [key, to_string(ctx.column.id)]).id == ctx.column.id
++    assert port(:public_card, [key, "1"]).id == ctx.card.id
++
++    second = insert_resource(@board, %{name: "Second", organization_id: ctx.org.id})
++    {:ok, second} = port(:publish, [second, ctx.owner])
++    assert is_binary(second.public_key) and byte_size(second.public_key) > 0
++    refute second.public_key == key
++
++    {:ok, unpublished} = port(:unpublish, [published, ctx.owner])
++    assert unpublished.id == ctx.board.id
++    assert is_nil(unpublished.public_key)
++    assert is_nil(Repo.get!(@board, ctx.board.id).public_key)
++    assert is_nil(Map.fetch!(port(:board_json, [unpublished]), :public_url))
++    assert is_nil(port(:public_board, [key]))
++    assert is_nil(port(:public_column, [key, to_string(ctx.column.id)]))
++    assert is_nil(port(:public_card, [key, "1"]))
++    assert port(:public_board, [second.public_key]).id == second.id
++  end
++
++  @tag intent: "elx-port-board-publish-unpublish-public-boundary/A2"
++  test "only owners of this organization can change publication, regardless of board name", ctx do
++    blank = insert_resource(@board, %{name: "", organization_id: ctx.org.id})
++
++    for board <- [ctx.board, blank] do
++      for user <- ctx.nonowners do
++        assert port(:publish, [board, user]) == {:error, :forbidden}
++        assert port(:unpublish, [board, user]) == {:error, :forbidden}
++        assert is_nil(Repo.get!(@board, board.id).public_key)
++      end
++
++      published = set_key(board, secret_key())
++
++      for user <- ctx.nonowners do
++        assert port(:publish, [published, user]) == {:error, :forbidden}
++        assert port(:unpublish, [published, user]) == {:error, :forbidden}
++        assert Repo.get!(@board, board.id).public_key == published.public_key
++      end
++    end
++  end
++
++  @tag intent: "elx-port-board-publish-unpublish-public-boundary/A3"
++  test "public resources are scoped by secret key and cards require publication", ctx do
++    board = set_key(ctx.board, secret_key())
++    other = set_key(ctx.other_board, secret_key())
++    key = board.public_key
++
++    assert port(:public_board, [key]).id == board.id
++    assert port(:public_column, [key, to_string(ctx.column.id)]).id == ctx.column.id
++    assert port(:public_card, [key, "1"]).id == ctx.card.id
++    assert port(:public_card, [other.public_key, "1"]).id == ctx.other_card.id
++    assert is_nil(port(:public_column, [key, to_string(ctx.other_column.id)]))
++    assert is_nil(port(:public_card, [key, to_string(ctx.draft.number)]))
++    assert is_nil(port(:public_card, [key, to_string(ctx.foreign_only.number)]))
++    assert is_nil(port(:public_column, [key, "999999999"]))
++    assert is_nil(port(:public_card, [key, "999999999"]))
++
++    for absent_key <- [secret_key(), to_string(board.id)] do
++      assert is_nil(port(:public_board, [absent_key]))
++      assert is_nil(port(:public_column, [absent_key, to_string(ctx.column.id)]))
++      assert is_nil(port(:public_card, [absent_key, "1"]))
++    end
++
++    # A private board must not become addressable by its id.
++    private = insert_resource(@board, %{name: "Still private", organization_id: ctx.org.id})
++    assert is_nil(port(:public_board, [to_string(private.id)]))
++  end
++
++  @tag intent: "elx-port-board-publish-unpublish-public-boundary/A4"
++  test "existing routes provide owner management and anonymous scoped reads", ctx do
++    management_path = "/boards/#{ctx.board.id}/publication"
++    assert get(build_conn(), "/public/boards/#{secret_key()}").status == 404
++
++    # Anonymous management must not succeed, regardless of authentication response format.
++    refute post(build_conn(), management_path).status in 200..299
++    assert is_nil(Repo.get!(@board, ctx.board.id).public_key)
++    refute delete(build_conn(), management_path).status in 200..299
++    assert is_nil(Repo.get!(@board, ctx.board.id).public_key)
++
++    for user <- ctx.nonowners do
++      assert post(log_in_user(build_conn(), user), management_path).status == 403
++      assert delete(log_in_user(build_conn(), user), management_path).status == 403
++    end
++
++    response = post(log_in_user(build_conn(), ctx.owner), management_path) |> json_response(200)
++    published = Repo.get!(@board, ctx.board.id)
++    key = published.public_key
++    assert is_binary(key) and byte_size(key) > 0
++    assert response["id"] == ctx.board.id
++    assert response["name"] == ctx.board.name
++    assert URI.parse(response["public_url"]).path == "/public/boards/#{key}"
++    public_path = "/public/boards/#{key}"
++
++    assert get(build_conn(), public_path) |> json_response(200) |> Map.fetch!("id") ==
++             ctx.board.id
++
++    assert get(build_conn(), public_path <> "/columns/#{ctx.column.id}")
++           |> json_response(200)
++           |> Map.fetch!("id") == ctx.column.id
++
++    assert get(build_conn(), public_path <> "/cards/1") |> json_response(200) |> Map.fetch!("id") ==
++             ctx.card.id
++
++    assert get(build_conn(), public_path <> "/cards/#{ctx.draft.number}").status == 404
++    assert get(build_conn(), public_path <> "/cards/#{ctx.foreign_only.number}").status == 404
++    assert get(build_conn(), public_path <> "/columns/#{ctx.other_column.id}").status == 404
++
++    for user <- ctx.nonowners do
++      assert delete(log_in_user(build_conn(), user), management_path).status == 403
++      assert Repo.get!(@board, ctx.board.id).public_key == key
++    end
++
++    response = delete(log_in_user(build_conn(), ctx.owner), management_path) |> json_response(200)
++    assert Map.fetch!(response, "public_url") == nil
++    assert is_nil(Repo.get!(@board, ctx.board.id).public_key)
++
++    for path <- [
++          public_path,
++          public_path <> "/columns/#{ctx.column.id}",
++          public_path <> "/cards/1"
++        ] do
++      assert get(build_conn(), path).status == 404
++    end
++  end
++
++  @tag intent: "elx-port-board-publish-unpublish-public-boundary/A5"
++  test "unpublished JSON preserves existing fields and the default private boundary", ctx do
++    json = port(:board_json, [ctx.board])
++    assert Map.fetch!(json, :id) == ctx.board.id
++    assert Map.fetch!(json, :name) == ctx.board.name
++    assert Map.fetch!(json, :public_url) == nil
++    assert is_nil(ctx.board.public_key)
++    assert is_nil(port(:public_board, [to_string(ctx.board.id)]))
++    assert is_nil(port(:public_column, [to_string(ctx.board.id), to_string(ctx.column.id)]))
++    assert is_nil(port(:public_card, [to_string(ctx.board.id), "1"]))
++  end
++
++  defp port(function, args) do
++    assert Code.ensure_loaded?(@publication)
++    assert function_exported?(@publication, function, length(args))
++    apply(@publication, function, args)
++  end
++
++  defp insert_resource(module, attrs) do
++    assert Code.ensure_loaded?(module)
++    Repo.insert!(struct(module, attrs))
++  end
++
++  defp set_key(board, key) do
++    board |> Ecto.Changeset.change(public_key: key) |> Repo.update!()
++  end
++
++  defp secret_key do
++    Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false)
++  end
++
++  defp assert_public_url(json, key) do
++    url = Map.fetch!(json, :public_url)
++    assert is_binary(url)
++    assert URI.parse(url).path == "/public/boards/#{key}"
++  end
++end

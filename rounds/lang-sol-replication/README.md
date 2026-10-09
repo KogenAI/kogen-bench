@@ -91,3 +91,12 @@ Evidence links: [H91 — matched language comparison](../../hypotheses/f08-langu
 | r70-7-rust | [111a0c776ae6d93f6e7fccd3fc694d5f4fa26838](https://github.com/KogenAI/kogen-ex/commit/111a0c776ae6d93f6e7fccd3fc694d5f4fa26838) |
 | r70-7-go | [dfbf7e2eed40f53f0f694994f08ad50b48ee7de3](https://github.com/KogenAI/kogen-ex/commit/dfbf7e2eed40f53f0f694994f08ad50b48ee7de3) |
 | r70-7-ts-bun | [01c5f1f43377834b800315964c5476aff341b26e](https://github.com/KogenAI/kogen-ex/commit/01c5f1f43377834b800315964c5476aff341b26e) |
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/lang-sol-replication.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 18 rows (fail 5, pass 13); overall pass rate is 72.2% (13/18) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 18 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 18 raw-only or non-public rows; they are kept separate from the published-export denominator.

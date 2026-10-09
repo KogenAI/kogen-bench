@@ -13,3 +13,5 @@ This declaration covers only standard run-record rows in the current public expo
   "round": "hc-4"
 }
 ```
+
+64 US copies of the robust-control-retry1, tokens-control-retry1, cache-base-03 and robust-recovery stores were unreadable; the intact stores were mined from sha-verified Studio objects (data/mined/STUDIO-SOURCES.json).

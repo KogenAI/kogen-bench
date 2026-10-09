@@ -125,9 +125,9 @@ L1-EU source data files: `levers/lanes-2026-10-07/l1/grades.jsonl`, `levers/lane
 
 ## Recomputed from raw records
 
-[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l1-task-grader-trust.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 2 rows (pass 2); overall pass rate is 100.0% (2/2) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l1-task-grader-trust.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 15 rows (fail 9, pass 6); overall pass rate is 40.0% (6/15) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
 
 No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
 No shared public-export cell IDs are available for a paired outcome comparison.
-No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 2 missing published metadata). Missing counters remain unknown, not zero.
-This round also has 2 raw-only or non-public rows; they are kept separate from the published-export denominator.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 15 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 15 raw-only or non-public rows; they are kept separate from the published-export denominator.

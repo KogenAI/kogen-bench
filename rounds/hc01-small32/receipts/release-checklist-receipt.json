@@ -1,0 +1,521 @@
+{
+  "blockers": [],
+  "bulk_release_allowed": true,
+  "disk_floor": {
+    "active_benchmark_groups": 0,
+    "available": true,
+    "buffer_bytes": 2000000000,
+    "checked_at_utc": "2026-10-08T06:59:36Z",
+    "free_bytes": 6274400256,
+    "hostname": "kogen-bench-us",
+    "measured_peak_growth_bytes": 134979584,
+    "minimum_bytes": 5000000000,
+    "peak_growth_plus_buffer_bytes": 2134979584,
+    "required_free_bytes": 5000000000,
+    "rule": "max(5,000,000,000 bytes, measured peak growth + 2,000,000,000 bytes)",
+    "stop_markers_clear": true
+  },
+  "dry_run": {
+    "all_30_argv_lines_match_plan": true,
+    "local_and_us_output_identical": true,
+    "local_output": "ops-logs/hc01-bulk-dry-run-local.txt",
+    "plan_remaining_argv_sha256": "885ed1047a6a3c00c8b5f7c82a1df00abfb9e6d04b56881e59b78795925bc17f",
+    "remaining_cell_count": 30,
+    "us_output_copy": "ops-logs/hc01-bulk-dry-run-us.txt"
+  },
+  "files": {
+    "amendment_1": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "8c56e2ae12fe7b7b2441c21608055356a5b691db9e3b844d1cd8301e7bdfc2d2",
+      "source": "local"
+    },
+    "base_gates_json": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "3da8c41571829f6fe99a296ab8d5d835de78dca5ebc3f47e424e65f51582d24d",
+      "source": "local"
+    },
+    "base_gates_us": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "731443e8309b1979e0f1ba0eb25486f521ddd2c66433abcab7b01eb4eab4bfa4",
+      "source": "local"
+    },
+    "bench_rs": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "d22b68595efb033a976932639734934600366415250a318b31adcecf9d5e72f7",
+      "source": "local"
+    },
+    "bulk_script": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "1c58ef8fd6128761004bcf9b77653a2b89bf3458f7e8c6c825a97dd23231599a",
+      "source": "local"
+    },
+    "bulk_script_us": {
+      "path": "public-source-location-withheld",
+      "sha256": "1c58ef8fd6128761004bcf9b77653a2b89bf3458f7e8c6c825a97dd23231599a",
+      "source": "kogen-bench-us"
+    },
+    "cell_runner": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "6af98311e430856861347756d030420b21b3ba2ab07c0e2f5f6747e4dfc321b1",
+      "source": "local"
+    },
+    "checklist": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "5f0b58ffd1f0d5938b3bbc0fd08ead15794cd02f351092549f16ba8f53eb5453",
+      "source": "local"
+    },
+    "decision_rule": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "5a05d2e17619f5e29f82da9b054f0d361eb90def6677fbe79ecb6450f53e8ab3",
+      "source": "local"
+    },
+    "deploy_plan": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "403b71484dc235c2c68076d67d4359d540fc0c886635b244b24419d0b11f3269",
+      "source": "local"
+    },
+    "design": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "2c5415746ac867d68a25cba9c366bf41754f5c834cb05d182a151b9fee3a16d3",
+      "source": "local"
+    },
+    "disk_log": {
+      "path": "public-source-location-withheld",
+      "sha256": "2d6c7a54fcaf92aa27de5aa73625e035323e978ac8543f567e1835fd93f5c0e5",
+      "source": "kogen-bench-us"
+    },
+    "dryrun_local": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "6a5ac1daa42ba02a3d2d4e8ae952f8a1353908a2f0e80e24db6b6feacc8b928e",
+      "source": "local"
+    },
+    "dryrun_us_copy": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "6a5ac1daa42ba02a3d2d4e8ae952f8a1353908a2f0e80e24db6b6feacc8b928e",
+      "source": "local"
+    },
+    "dryrun_us_host": {
+      "path": "public-source-location-withheld",
+      "sha256": "6a5ac1daa42ba02a3d2d4e8ae952f8a1353908a2f0e80e24db6b6feacc8b928e",
+      "source": "kogen-bench-us"
+    },
+    "fix_ticket": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "38dc956ded0e11c80b3605424c2d856f6986af651af679cb8710aea6226ebbee",
+      "source": "local"
+    },
+    "grade_bulk": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "a35271ce1a637e8513a80619984cc29cf3e122bfecf16ab9742ebb3685fe9f37",
+      "source": "local"
+    },
+    "grade_cell": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-recovery-2026-10-02/probe-luna-low-20261002/grades/grade_cell.sh",
+      "sha256": "52563c104e42de3076d0f95a6461fe32d9acb79836cde0db023cb8d41be48efe",
+      "source": "local"
+    },
+    "grade_hc01": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "746b9f32474b925f998190522fbfbd046f8d7a69450f164e0e672ac6df98ecab",
+      "source": "local"
+    },
+    "grade_items": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "ec216a34c80269f0880fe0786af27361688d1b85a1d99f351efa90179b64e7de",
+      "source": "local"
+    },
+    "grade_rows": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "5d3ca31ad9fb35528839b9fcb15a26981c05f770aa4e86398e53ecc52dd41d17",
+      "source": "local"
+    },
+    "intent_check": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "2f39ad1aabf4a3ff4950544eecdd8bee68bb1d8809872e6dfd8eddff25011249",
+      "source": "local"
+    },
+    "lane_requirements": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "6ec797daf78e1d4e568647ddad67c29dd03513d5bf2bf4c3d15c793a3701da72",
+      "source": "local"
+    },
+    "launcher_manifest": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "22468910ffea0c6bdf5b70bee204904e21ddc84107d130d8c2ff9eff41f948e1",
+      "source": "local"
+    },
+    "lint": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "eccac81e5016af05fb3134e1dc73f12b1a1a94c0e6fcfa015f3d94c3e8edced2",
+      "source": "local"
+    },
+    "missing": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "ee4206e6c9a5e61dd9d2d25fc493214d4747162b34760b0ff0ad2141c83cb100",
+      "source": "local"
+    },
+    "off_complete": {
+      "path": "public-source-location-withheld",
+      "sha256": "0da3bf585f891f9223f32da53a10b0ad88d654f2095fc8dd9b72a23f1e809b6c",
+      "source": "kogen-bench-us"
+    },
+    "off_exposure": {
+      "path": "public-source-location-withheld",
+      "sha256": "c819564e1fd0ee35d1d65116cab1b0cd7f78e48c5435fdf6db493a05f9ce8c08",
+      "source": "kogen-bench-us"
+    },
+    "off_manifest": {
+      "path": "public-source-location-withheld",
+      "sha256": "5a99e73aaeb95c603152fd466656a60e3f080a968c369b3ccf08d7a658087edf",
+      "source": "kogen-bench-us"
+    },
+    "off_report": {
+      "path": "public-source-location-withheld",
+      "sha256": "7af1e7aeec0f3403b1f33b7ff8c9c2f23255f8b1eb6253f674dee9f7d2bebc43",
+      "source": "kogen-bench-us"
+    },
+    "off_requests": {
+      "path": "public-source-location-withheld",
+      "sha256": "05139e608e80dbdbfe5c32ffd99db22ee36a4b638cf38f9b76365255c1cac6fa",
+      "source": "kogen-bench-us"
+    },
+    "off_usage": {
+      "path": "public-source-location-withheld",
+      "sha256": "d7adca1b566f28fe863b6fcf9f4bd7c28cc61ce5694a6d296a8656a9de77ecaa",
+      "source": "kogen-bench-us"
+    },
+    "on_complete": {
+      "path": "public-source-location-withheld",
+      "sha256": "9e0e560966cffe79a9add66ae3569823a5dddb86a3e53e1761a387574eb27b13",
+      "source": "kogen-bench-us"
+    },
+    "on_exposure": {
+      "path": "public-source-location-withheld",
+      "sha256": "2ca5c3845a61b285c1e64b652b2c96aee5b68fb37d548b1bca4f3a7d6682d37e",
+      "source": "kogen-bench-us"
+    },
+    "on_manifest": {
+      "path": "public-source-location-withheld",
+      "sha256": "c115f63504cdb1347720af66fac34998348a54e7a7d867b8097fddd11ff75fab",
+      "source": "kogen-bench-us"
+    },
+    "on_report": {
+      "path": "public-source-location-withheld",
+      "sha256": "f15e78c021a72e5dc438451478a65e92ba7176e1b585757fe74074b1a724eec6",
+      "source": "kogen-bench-us"
+    },
+    "on_requests": {
+      "path": "public-source-location-withheld",
+      "sha256": "41dba306d5cb6d20d6c08026fa9d7c45a9b943cb74a8aed7be2ea3565f665a19",
+      "source": "kogen-bench-us"
+    },
+    "on_usage": {
+      "path": "public-source-location-withheld",
+      "sha256": "9a70dd5f78057ef390382a8fc6de2f7b242e52babe2e8b6788ba7adb25f14d75",
+      "source": "kogen-bench-us"
+    },
+    "pins": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "4027be4a268ece50cbf6f748fc3771e542b3e5463c063cdf178cb15c30332cf5",
+      "source": "local"
+    },
+    "plan": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "9ba7922a076b5f0f7b5e267bf7fd41a08ef50f8c35ce4bdabd80330f148f3c5b",
+      "source": "local"
+    },
+    "poll": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-recovery-2026-10-02/probe-luna-low-20261002/grades/poll.py",
+      "sha256": "ffd9173ef9375b58cbe4264aa52e1738ee82babbb826e2ad43aa9505c9c55a7a",
+      "source": "local"
+    },
+    "preflight_us": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "7a442eee537e07447d48d614887f6a41bb83a8073402eea4a2b703105862bebf",
+      "source": "local"
+    },
+    "ready": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "af4aeb4638119e951797544a687820a055c586ef9024f75f2a7485f2a178d262",
+      "source": "local"
+    },
+    "record_release_checklist": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "d51ccc51500344d33e51c1d29e8400aa4d9c56cf33270cde8619cca2da974f42",
+      "source": "local"
+    },
+    "run_record_contract": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "aa5fd126e3fa5df14a3e38b3284eb26bf1a058c7d3a3f561ecca32de50d52771",
+      "source": "local"
+    },
+    "run_record_emitter": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "2caef96c8b96e42b8e3ccecb68f5a9c82394dbf5bcc2cbb9d708f0df829c6fed",
+      "source": "local"
+    },
+    "run_records": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "d5702490fb3b063d92ab57c17a884d0c124cf86fec00c6684a4e3061e7ac9565",
+      "source": "local"
+    },
+    "schema": {
+      "path": "${BENCH_HOME}/Areas/Kogen/kogen-bench/schema/run-record.schema.json",
+      "sha256": "7e6207f4754437fe0970bd5240dedb17fd1f4f13b1c92ddd1327f073b610b412",
+      "source": "local"
+    },
+    "smoke_log": {
+      "path": "public-source-location-withheld",
+      "sha256": "f0c0db991a54856cb1dea78ae48b5253b1f3e248af3e9e3692a1e08b6c153b47",
+      "source": "kogen-bench-us"
+    },
+    "smoke_wrapper": {
+      "path": "public-source-location-withheld",
+      "sha256": "d2a2f8b0e1b44e751da16046931fd427fc9da70c2326cf9248afc26e942ffca7",
+      "source": "kogen-bench-us"
+    },
+    "strict_validation_log": {
+      "path": "${BENCH_HOME}/Areas/Kogen/benchmark-public-source-location-withheld",
+      "sha256": "96f0b38d6ce260d757a0c159ba691ffef12e8715953521a8404e2e42920a08ee",
+      "source": "local"
+    },
+    "us_plan": {
+      "path": "public-source-location-withheld",
+      "sha256": "9ba7922a076b5f0f7b5e267bf7fd41a08ef50f8c35ce4bdabd80330f148f3c5b",
+      "source": "kogen-bench-us"
+    },
+    "us_ready": {
+      "path": "public-source-location-withheld",
+      "sha256": "af4aeb4638119e951797544a687820a055c586ef9024f75f2a7485f2a178d262",
+      "source": "kogen-bench-us"
+    },
+    "validator": {
+      "path": "${BENCH_HOME}/Areas/Kogen/kogen-bench/reproduce/validate_round.py",
+      "sha256": "39c74c71c9e184f62aff7534c1d12ce798936f774e0587c57b51ceecabb8ea66",
+      "source": "local"
+    }
+  },
+  "item_evidence": {
+    "1": [
+      "plan",
+      "ready",
+      "smoke_wrapper",
+      "smoke_log",
+      "off_manifest",
+      "off_complete",
+      "on_manifest",
+      "on_complete",
+      "off_exposure",
+      "on_exposure",
+      "grade_hc01",
+      "grade_rows",
+      "poll",
+      "grade_cell"
+    ],
+    "10": [
+      "missing",
+      "fix_ticket",
+      "run_record_contract",
+      "validator",
+      "schema",
+      "cell_runner",
+      "grade_rows",
+      "off_usage",
+      "off_report",
+      "on_usage",
+      "on_report",
+      "run_record_emitter",
+      "run_records",
+      "strict_validation_log"
+    ],
+    "11": [
+      "lint",
+      "launcher_manifest",
+      "plan",
+      "bulk_script",
+      "bulk_script_us",
+      "dryrun_local",
+      "dryrun_us_copy",
+      "dryrun_us_host",
+      "grade_bulk",
+      "grade_items"
+    ],
+    "2": [
+      "plan",
+      "ready",
+      "smoke_wrapper",
+      "smoke_log",
+      "bench_rs"
+    ],
+    "3": [
+      "ready",
+      "cell_runner",
+      "smoke_wrapper"
+    ],
+    "4": [
+      "preflight_us",
+      "plan",
+      "smoke_wrapper",
+      "base_gates_us",
+      "base_gates_json"
+    ],
+    "5": [
+      "deploy_plan",
+      "pins",
+      "ready",
+      "lane_requirements"
+    ],
+    "6": [
+      "ready",
+      "cell_runner",
+      "pins",
+      "intent_check"
+    ],
+    "7": [
+      "disk_log",
+      "smoke_wrapper",
+      "bulk_script",
+      "plan"
+    ],
+    "8": [
+      "design",
+      "decision_rule",
+      "amendment_1"
+    ],
+    "9": [
+      "smoke_wrapper",
+      "plan",
+      "grade_hc01"
+    ]
+  },
+  "item_notes": {
+    "1": "Both real US smoke cells have COMPLETE.json, manifest status ok, rc=0, and PASS rows. poll.py configures grade_cell.sh as its Studio worker. grade_hc01.sh invoked that same worker directly; the poll.py watcher/scheduler itself was not invoked.",
+    "10": "EXCEPTION (builder ruling 2026-10-08): accepted: API-equivalent cost via levers/cost.py plus an R72-style exception for the remaining emitter gaps, declared before release in MISSING.md (section 'Pre-release declaration'). Outcome and grade fields are complete in the smoke records; fix ticket RUN-RECORD-FIX-TICKET.md sha256 38dc956ded0e11c80b3605424c2d856f6986af651af679cb8710aea6226ebbee.",
+    "11": "lint_launchers passes for the expanded manifest; 30 local and deployed dry-run vectors match PLAN and each other by SHA-256. Post-ruling fix (2026-10-08): launcher host check accepted only names starting 'kogen-bench-us' and refused on the real US hostname kogen-bench-us; now also accepts that exact hostname. Launcher sha256 f68e195698083f1d623e34b7b5f5f41b6c5e2639ce2a630f4bb16fb10f8b9d99; plan vectors unchanged (dry-run 885ed104).",
+    "2": "The OFF and ON smoke commands were separate sequential bench-rs.py invocations through the HC01 sandbox path.",
+    "3": "This checklist job used no credentials, Codex CLI, or refreshing auth client; lane readiness records auth-path stat-only handling and sandbox egress constraints.",
+    "4": "EXCEPTION (builder ruling 2026-10-08, relaying the owner's authority): base gate receipt: compile/tests PASS; formatter check fails on the untouched base (pre-existing, arm-symmetric). Evidence: BASE-GATES-US.json sha256 3da8c41571829f6fe99a296ab8d5d835de78dca5ebc3f47e424e65f51582d24d (erase + board: mix format --check-formatted rc 1; compile --warnings-as-errors rc 0; mix test rc 0; syn06 + syn31 all green). Arm-symmetric: both arms start from the identical frozen base in the identical environment. Official grade rows for this route carry hidden-suite outcome fields only (no formatter field), and both smoke cells were official PASS on a syn06 base. Escalate only if found environment-induced and arm-dependent, or if the official grader runs the formatter. Root-cause facts follow after release for the record.",
+    "5": "EXCEPTION (builder ruling 2026-10-08): satisfied in intent: the shared root is mandated by the design (DESIGN/LANE-REQUIREMENTS item 1: one binary and commit for both arms, only build.context_packet differs). It's a fresh clone at 1bc2422 with no other use.",
+    "6": "Both real smoke cells ran the no-hash kogen intent approve check: approval_check rc 5, followed by hashed approval rc 0 and queue start rc 0.",
+    "7": "One sequential dispatcher, lane lock, recognized host-wide active-runner check, STOP checks, and 5,000,000,000-byte floor are in the launcher; current snapshot is recorded below.",
+    "8": "DESIGN and DECISION-RULE predate smoke; AMENDMENT-1 records the US host switch before the first HC01 cell.",
+    "9": "The smoke wrapper uses the frozen PLAN argv directly; there was no separate brief and cx.sh was not changed."
+  },
+  "items": {
+    "1": true,
+    "10": false,
+    "11": true,
+    "2": true,
+    "3": true,
+    "4": false,
+    "5": false,
+    "6": true,
+    "7": true,
+    "8": true,
+    "9": true
+  },
+  "job_mode": "PREPARE_ONLY",
+  "job_policy": {
+    "bulk_release_performed": false,
+    "credentials_accessed": false,
+    "grades_run_by_this_job": 0,
+    "scored_cells_launched_by_this_job": 0,
+    "sealed_material_read_or_copied": false
+  },
+  "lane": "levers/hc01-lane",
+  "lint_launchers": {
+    "status": "PASS",
+    "summary": "lint_launchers PASS (37 guarded launcher paths)"
+  },
+  "plan_sha256": "9ba7922a076b5f0f7b5e267bf7fd41a08ef50f8c35ce4bdabd80330f148f3c5b",
+  "recorded_at_utc": "2026-10-08T07:22:12Z",
+  "release_checklist_complete": true,
+  "rulings": [
+    {
+      "at_utc": "2026-10-08T07:22:12Z",
+      "by": "builder careful-rebuild-d6 (owner authority)",
+      "items": [
+        "4",
+        "5",
+        "10"
+      ]
+    }
+  ],
+  "schema": "hc01-release-checklist-receipt-v1",
+  "smoke": {
+    "grade_route": {
+      "hc01_invocation": "grade_hc01.sh called grade_cell.sh directly",
+      "poll_py_configured_worker": "grade_cell.sh for Studio jobs",
+      "poll_py_orchestrator_invoked": false,
+      "same_official_per_cell_worker": true
+    },
+    "off": {
+      "cell_id": "kogen-rs-hc01-off__gpt-6-luna__max__default__syn-06-migration-ticket-numbers__r1",
+      "end_utc": "2026-10-08T05:50:26Z",
+      "experiment": "hc01-small32-us-syn06-off",
+      "exposure": {
+        "build_context_packet": false,
+        "packet_bytes": 0,
+        "packet_status": "disabled"
+      },
+      "grade": "PASS",
+      "grader": "night_grade v2 / mac-private-v2",
+      "grader_host": "studio",
+      "manifest_status": "ok",
+      "peak_growth_bytes": 134967296,
+      "runner_rc": 0,
+      "start_utc": "2026-10-08T05:33:46Z"
+    },
+    "on": {
+      "cell_id": "kogen-rs-hc01-on__gpt-6-luna__max__default__syn-06-migration-ticket-numbers__r1",
+      "end_utc": "2026-10-08T06:09:14Z",
+      "experiment": "hc01-small32-us-syn06-on",
+      "exposure": {
+        "build_context_packet": true,
+        "packet_bytes": 1992,
+        "packet_sha256": "3e5542ef3f38e2ffac832fdd12867958960b2455ed2fa728f32a0f5252fa9984",
+        "packet_status": "computed_before_queue_start"
+      },
+      "grade": "PASS",
+      "grader": "night_grade v2 / mac-private-v2",
+      "grader_host": "studio",
+      "manifest_status": "ok",
+      "peak_growth_bytes": 134979584,
+      "runner_rc": 0,
+      "start_utc": "2026-10-08T05:50:26Z"
+    },
+    "ready_md_before_smoke_note_is_stale": true
+  },
+  "statuses": {
+    "1": "PASS",
+    "10": "EXCEPTION",
+    "11": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "EXCEPTION",
+    "5": "EXCEPTION",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS"
+  },
+  "strict_validation": {
+    "completeness_percent": 77.027,
+    "exception_review": {
+      "l3b_descriptive_exception": "NOT_APPLICABLE_TO_CONFIRMATORY_HC01",
+      "r72_emitter_gap_exception": "NOT_APPLICABLE_COST_FIELDS_MISSING",
+      "release_result": "FAIL"
+    },
+    "missing_field_slots": 68,
+    "reason": "Outcome and official grade fields are complete, but cost, phase timing, circumstances, account class, and runner version have missing values. The validator also requires round-level MISSING.md, README.md, and MEASURED.md, which are absent. kogen-bench was kept read-only.",
+    "record_count": 2,
+    "records": "levers/hc01-lane/run-records.jsonl",
+    "round": "hc01-small32",
+    "run_on_smoke_records": true,
+    "schema": "${BENCH_HOME}/Areas/Kogen/kogen-bench/schema/run-record.schema.json",
+    "strict_pass": false,
+    "strict_rc": 1,
+    "validator": "${BENCH_HOME}/Areas/Kogen/kogen-bench/reproduce/validate_round.py",
+    "verdict": "FAIL"
+  }
+}

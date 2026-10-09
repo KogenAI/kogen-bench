@@ -1,0 +1,550 @@
+diff --git a/lib/trackline/ports/erasure.ex b/lib/trackline/ports/erasure.ex
+index da059c4..5570a65 100644
+--- a/lib/trackline/ports/erasure.ex
++++ b/lib/trackline/ports/erasure.ex
+@@ -1,13 +1,115 @@
+ defmodule Trackline.Ports.Erasure do
++  alias Trackline.Accounts.User
+   alias Trackline.Repo
++
+   def deactivate(user) do
+     [local, domain] = String.split(user.email, "@")
+-    user |> Ecto.Changeset.change(active: false, email: "#{local}-deactivated-#{Ecto.UUID.generate()}@#{domain}") |> Repo.update()
++
++    user
++    |> Ecto.Changeset.change(
++      active: false,
++      email: "#{local}-deactivated-#{Ecto.UUID.generate()}@#{domain}"
++    )
++    |> Repo.update()
+   end
++
++  def erase(%{id: nil}), do: :ok
++
+   def erase(user) do
+-    case deactivate(user) do
+-      {:ok, _} -> :ok
+-      error -> error
++    case Repo.transaction(fn ->
++           case Repo.get(User, user.id) do
++             nil -> :ok
++             persisted_user -> erase_persisted_user(persisted_user)
++           end
++         end) do
++      {:ok, :ok} -> :ok
++      {:error, reason} -> {:error, reason}
+     end
+   end
++
++  defp erase_persisted_user(user) do
++    email_identities = [user.email | original_email(user)] |> Enum.uniq()
++
++    private_books =
++      "SELECT id FROM port_knowledge_books WHERE author_id = ? AND COALESCE(public, 0) = 0"
++
++    public_books = "SELECT id FROM port_knowledge_books WHERE author_id = ? AND public = 1"
++
++    # Dependencies without database-level cascades need to be removed explicitly.
++    execute!(
++      "DELETE FROM port_knowledge_assets WHERE page_id IN " <>
++        "(SELECT id FROM port_knowledge_pages WHERE book_id IN (#{private_books}))",
++      [user.id]
++    )
++
++    execute!("DELETE FROM port_knowledge_grants WHERE book_id IN (#{private_books})", [user.id])
++    execute!("DELETE FROM port_knowledge_search WHERE book_id IN (#{private_books})", [user.id])
++    execute!("DELETE FROM port_knowledge_pages WHERE book_id IN (#{private_books})", [user.id])
++
++    execute!("DELETE FROM port_knowledge_books WHERE author_id = ? AND COALESCE(public, 0) = 0", [
++      user.id
++    ])
++
++    # Public books remain available, but their old indexed content may contain identifying data.
++    execute!("DELETE FROM port_knowledge_search WHERE book_id IN (#{public_books})", [user.id])
++
++    execute!(
++      "UPDATE port_knowledge_books SET author_id = NULL, byline = ? WHERE author_id = ? AND public = 1",
++      ["Deleted author", user.id]
++    )
++
++    execute!("DELETE FROM port_knowledge_grants WHERE user_id = ?", [user.id])
++    delete_search_for_user(user.id, email_identities)
++
++    execute!(
++      "DELETE FROM comments WHERE author_id = ? OR ticket_id IN (SELECT id FROM tickets WHERE author_id = ?)",
++      [user.id, user.id]
++    )
++
++    execute!("UPDATE tickets SET assignee_id = NULL WHERE assignee_id = ?", [user.id])
++    execute!("DELETE FROM tickets WHERE author_id = ?", [user.id])
++
++    execute!("DELETE FROM users_tokens WHERE user_id = ?", [user.id])
++    execute!("DELETE FROM memberships WHERE user_id = ?", [user.id])
++    execute!("DELETE FROM port_personal_notices WHERE user_id = ?", [user.id])
++    delete_sign_ins(user.id, email_identities)
++    execute!("DELETE FROM users WHERE id = ?", [user.id])
++
++    :ok
++  end
++
++  defp delete_search_for_user(user_id, email_identities) do
++    placeholders = Enum.map_join(email_identities, ", ", fn _ -> "?" end)
++
++    execute!(
++      "DELETE FROM port_knowledge_search WHERE user_id = ? OR author_label IN (#{placeholders})",
++      [user_id | email_identities]
++    )
++  end
++
++  defp delete_sign_ins(user_id, email_identities) do
++    placeholders = Enum.map_join(email_identities, ", ", fn _ -> "?" end)
++
++    execute!(
++      "DELETE FROM port_sign_ins WHERE user_id = ? OR email IN (#{placeholders})",
++      [user_id | email_identities]
++    )
++  end
++
++  defp original_email(%{active: false, email: email}) do
++    case Regex.run(
++           ~r/\A(.*)-deactivated-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})@([^@]+)\z/i,
++           email,
++           capture: :all_but_first
++         ) do
++      [local, _uuid, domain] -> [local <> "@" <> domain]
++      _ -> []
++    end
++  end
++
++  defp original_email(_user), do: []
++
++  defp execute!(sql, params) do
++    Ecto.Adapters.SQL.query!(Repo, sql, params)
++  end
+ end
+diff --git a/test/acceptance/elx-port-erase-account_test.exs b/test/acceptance/elx-port-erase-account_test.exs
+new file mode 100644
+index 0000000..bb93365
+--- /dev/null
++++ b/test/acceptance/elx-port-erase-account_test.exs
+@@ -0,0 +1,400 @@
++defmodule Trackline.AccountErasureAcceptanceTest do
++  use Trackline.DataCase, async: false
++
++  alias Trackline.{Accounts, Repo, Support}
++  import Trackline.AccountsFixtures
++  import Trackline.SupportFixtures
++
++  @tag intent: "elx-port-erase-account/A1"
++  test "erase deletes account and ordinary personal data, not another author's assigned ticket" do
++    g = graph()
++    assert :ok == erase(g.user)
++
++    assert row("users", g.user.id) == nil
++    assert_no_user_references(g.user.id)
++    assert row("tickets", g.own_ticket.id) == nil
++    assert row("comments", g.own_comment.id) == nil
++    assert row("comments", g.cross_comment.id) == nil
++    assert count("port_sign_ins", "email = ?", [g.user.email]) == 0
++    assert row("tickets", g.assigned_ticket.id)["assignee_id"] == nil
++    assert row("tickets", g.assigned_ticket.id)["author_id"] == g.other.id
++    assert row("tickets", g.assigned_ticket.id)["body"] == "Another person's support data"
++    assert row("comments", g.other_comment.id)["body"] == "Keep this reply"
++    assert row("organizations", g.org.id) != nil
++    assert_unchanged(g.unrelated)
++  end
++
++  @tag intent: "elx-port-erase-account/A2"
++  test "private knowledge dependencies and personal index and grants are actually removed" do
++    g = graph()
++    assert :ok == erase(g.user)
++
++    for {table, id} <- [
++          {"port_knowledge_books", g.private.book},
++          {"port_knowledge_pages", g.private.page},
++          {"port_knowledge_assets", g.private.asset},
++          {"port_knowledge_grants", g.private_reader_grant},
++          {"port_knowledge_search", g.private_foreign_search},
++          {"port_knowledge_search", g.private_anonymous_search},
++          {"port_knowledge_grants", g.foreign_grant},
++          {"port_knowledge_search", g.personal_search}
++        ] do
++      assert row(table, id) == nil, "remaining private/personal row #{table}:#{id}"
++    end
++
++    assert count("port_knowledge_pages", "book_id = ?", [g.private.book]) == 0
++    assert count("port_knowledge_assets", "page_id = ?", [g.private.page]) == 0
++    assert count("port_knowledge_grants", "book_id = ?", [g.private.book]) == 0
++    assert count("port_knowledge_search", "book_id = ?", [g.private.book]) == 0
++    assert count("port_knowledge_grants", "user_id = ?", [g.user.id]) == 0
++    assert count("port_knowledge_search", "user_id = ?", [g.user.id]) == 0
++    assert_unchanged(g.unrelated)
++  end
++
++  @tag intent: "elx-port-erase-account/A3"
++  test "public books remain readable anonymously, with other readers and unrelated data intact" do
++    g = graph()
++    page_before = row("port_knowledge_pages", g.public.page)
++    asset_before = row("port_knowledge_assets", g.public.asset)
++    grant_before = row("port_knowledge_grants", g.public_reader_grant)
++    assert :ok == erase(g.user)
++
++    book = row("port_knowledge_books", g.public.book)
++    assert book != nil
++    assert book["author_id"] == nil
++    assert book["byline"] == "Deleted author"
++    assert book["title"] == "Public guide"
++    assert book["public"] in [true, 1]
++    assert row("port_knowledge_pages", g.public.page) == page_before
++    assert row("port_knowledge_assets", g.public.asset) == asset_before
++    assert row("port_knowledge_grants", g.public_reader_grant) == grant_before
++
++    # Inspect all surviving hits, including newly rebuilt rows, not only the original IDs.
++    assert_anonymous_public_search(g)
++    assert count("port_knowledge_search", "author_label = ?", [g.user.email]) == 0
++    assert_unchanged(g.unrelated)
++    assert Support.get_membership(g.org, g.other) != nil
++    assert Accounts.get_user_by_email(g.other.email).id == g.other.id
++  end
++
++  @tag intent: "elx-port-erase-account/A4"
++  test "legacy deactivation, stale structs and repeated erasure clean the original sign-in address safely" do
++    for caller <- [:original, :deactivated, :stale] do
++      # The original local part itself contains '-deactivated-', so only the terminal UUID rewrite is reversible.
++      user =
++        user_fixture(%{
++          email: "alice-deactivated-team-#{System.unique_integer([:positive])}@example.com"
++        })
++
++      g = graph(user)
++      public_page = row("port_knowledge_pages", g.public.page)
++      public_asset = row("port_knowledge_assets", g.public.asset)
++      public_grant = row("port_knowledge_grants", g.public_reader_grant)
++      {:ok, deactivated} = apply(Trackline.Ports.Erasure, :deactivate, [user])
++      assert deactivated.email != user.email
++      rewritten_signin = insert("port_sign_ins", %{user_id: nil, email: deactivated.email})
++      stale = %{user | email: "obsolete-#{System.unique_integer([:positive])}@example.com"}
++      argument = %{original: user, deactivated: deactivated, stale: stale}[caller]
++
++      assert :ok == erase(argument)
++      assert row("users", user.id) == nil
++      assert_no_user_references(user.id)
++
++      for id <- [g.linked_signin, g.email_signin, rewritten_signin] do
++        assert row("port_sign_ins", id) == nil
++      end
++
++      for address <- [user.email, deactivated.email] do
++        assert count("port_sign_ins", "email = ?", [address]) == 0
++        assert count("port_knowledge_search", "author_label = ?", [address]) == 0
++      end
++
++      assert row("tickets", g.own_ticket.id) == nil
++      assert row("comments", g.own_comment.id) == nil
++      assert row("comments", g.cross_comment.id) == nil
++      assert row("port_personal_notices", g.notice) == nil
++      assert row("port_knowledge_books", g.private.book) == nil
++      assert row("port_knowledge_assets", g.private.asset) == nil
++      assert count("port_knowledge_pages", "book_id = ?", [g.private.book]) == 0
++      assert count("port_knowledge_assets", "page_id = ?", [g.private.page]) == 0
++      assert count("port_knowledge_grants", "book_id = ?", [g.private.book]) == 0
++      assert count("port_knowledge_search", "book_id = ?", [g.private.book]) == 0
++      assert row("port_knowledge_books", g.public.book)["byline"] == "Deleted author"
++      assert row("port_knowledge_books", g.public.book)["author_id"] == nil
++      assert row("port_knowledge_pages", g.public.page) == public_page
++      assert row("port_knowledge_assets", g.public.asset) == public_asset
++      assert row("port_knowledge_grants", g.public_reader_grant) == public_grant
++      assert_anonymous_public_search(g)
++      assert_unchanged(g.unrelated)
++
++      completed = database_snapshot()
++
++      for old_struct <- [user, deactivated, stale] do
++        assert :ok == erase(old_struct)
++        assert database_snapshot() == completed
++      end
++    end
++  end
++
++  @tag intent: "elx-port-erase-account/A5"
++  test "legacy deactivate preserves dependent records and only disables and rewrites the account" do
++    g = graph()
++    before = database_snapshot(["users"])
++    {:ok, deactivated} = apply(Trackline.Ports.Erasure, :deactivate, [g.user])
++    assert deactivated.id == g.user.id
++    assert deactivated.active == false
++    [local, domain] = String.split(g.user.email, "@")
++    assert String.starts_with?(deactivated.email, local <> "-deactivated-")
++    assert String.ends_with?(deactivated.email, "@" <> domain)
++    assert deactivated.email != g.user.email
++    assert Repo.get(g.user.__struct__, g.user.id).email == deactivated.email
++    assert database_snapshot(["users"]) == before
++    assert_unchanged(g.unrelated)
++  end
++
++  @tag timeout: 300_000
++  @tag intent: "elx-port-erase-account/A6"
++  test "the existing application suite passes in an isolated database" do
++    root = Path.expand("../..", __DIR__)
++
++    temporary =
++      Path.join(System.tmp_dir!(), "trackline-erasure-regression-#{Ecto.UUID.generate()}")
++
++    File.mkdir_p!(temporary)
++    on_exit(fn -> File.rm_rf!(temporary) end)
++    mix = System.find_executable("mix")
++    assert is_binary(mix), "Mix must be available to run the existing application tests"
++
++    # Explicit test/ selection excludes this acceptance file and prevents recursion.
++    {output, status} =
++      System.cmd(mix, ["test", "test", "--seed", "0", "--no-color"],
++        cd: root,
++        env: [
++          {"MIX_ENV", "test"},
++          {"TRACKLINE_DB", Path.join(temporary, "regression.db")},
++          {"ERL_FLAGS", "+S 2:2"}
++        ],
++        stderr_to_stdout: true
++      )
++
++    assert status == 0, "Existing application tests failed:\n#{output}"
++
++    assert Regex.match?(~r/[1-9]\d* tests?, 0 failures/, output),
++           "Expected an executed application test suite with zero failures:\n#{output}"
++  end
++
++  defp erase(user), do: apply(Trackline.Ports.Erasure, :erase, [user])
++
++  defp assert_no_user_references(user_id) do
++    for {table, column} <- [
++          {"users_tokens", "user_id"},
++          {"memberships", "user_id"},
++          {"tickets", "author_id"},
++          {"tickets", "assignee_id"},
++          {"comments", "author_id"},
++          {"port_personal_notices", "user_id"},
++          {"port_sign_ins", "user_id"},
++          {"port_knowledge_books", "author_id"},
++          {"port_knowledge_grants", "user_id"},
++          {"port_knowledge_search", "user_id"}
++        ] do
++      assert count(table, "#{column} = ?", [user_id]) == 0,
++             "remaining #{table}.#{column} for erased account"
++    end
++  end
++
++  defp assert_anonymous_public_search(g) do
++    # Deleting obsolete hits is allowed; any retained or rebuilt public hit must be anonymous.
++    for {table, id} <- ids("port_knowledge_search", "book_id = ?", [g.public.book]) do
++      hit = row(table, id)
++      assert hit["user_id"] == nil
++      assert hit["author_label"] == "Deleted author"
++      refute String.contains?(hit["content"] || "", g.user.email)
++    end
++  end
++
++  defp graph(user \\ nil) do
++    user = user || user_fixture()
++    other = user_fixture()
++    org = organization_fixture(other)
++    {:ok, _} = Support.add_member(org, user, "agent")
++    Accounts.generate_user_session_token(user)
++    Accounts.generate_user_session_token(other)
++    own_ticket = ticket_fixture(org, user, %{body: "Erase my support data"})
++    own_comment = comment_fixture(own_ticket, user, "Erase my reply")
++    assigned_ticket = ticket_fixture(org, other, %{body: "Another person's support data"})
++    assigned_ticket |> Ecto.Changeset.change(assignee_id: user.id) |> Repo.update!()
++    cross_comment = comment_fixture(assigned_ticket, user, "Erase my cross-ticket reply")
++    other_comment = comment_fixture(assigned_ticket, other, "Keep this reply")
++    unrelated_ticket = ticket_fixture(org, other, %{body: "Independent support data"})
++
++    private = book(user, false, "Private guide")
++    public = book(user, true, "Public guide")
++    foreign = book(other, false, "Other author's guide")
++
++    private_reader_grant =
++      insert("port_knowledge_grants", %{book_id: private.book, user_id: other.id})
++
++    public_reader_grant =
++      insert("port_knowledge_grants", %{book_id: public.book, user_id: other.id})
++
++    insert("port_knowledge_grants", %{book_id: public.book, user_id: user.id})
++    foreign_grant = insert("port_knowledge_grants", %{book_id: foreign.book, user_id: user.id})
++
++    foreign_reader_grant =
++      insert("port_knowledge_grants", %{book_id: foreign.book, user_id: other.id})
++
++    private_foreign_search = search(private.book, other.id, user.email, "Private stale hit")
++    private_anonymous_search = search(private.book, nil, user.email, "Unowned private stale hit")
++
++    public_foreign_search =
++      search(public.book, nil, user.email, "Public content indexed for #{user.email}")
++
++    personal_search = search(foreign.book, user.id, other.email, "Personal index entry")
++    notice = insert("port_personal_notices", %{user_id: user.id, body: "Erase my notice"})
++    linked_signin = insert("port_sign_ins", %{user_id: user.id, email: "${OWNER_EMAIL}"})
++    email_signin = insert("port_sign_ins", %{user_id: nil, email: user.email})
++    other_notice = insert("port_personal_notices", %{user_id: other.id, body: "Keep my notice"})
++    other_signin = insert("port_sign_ins", %{user_id: other.id, email: other.email})
++    # Neighboring addresses must not be mistaken for the erased person's identity.
++    neighbor_signin = insert("port_sign_ins", %{user_id: nil, email: "neighbor-" <> user.email})
++
++    unrelated =
++      snapshot(
++        [
++          {"users", other.id},
++          {"organizations", org.id},
++          {"tickets", unrelated_ticket.id},
++          {"comments", other_comment.id},
++          {"port_knowledge_books", foreign.book},
++          {"port_knowledge_pages", foreign.page},
++          {"port_knowledge_assets", foreign.asset},
++          {"port_knowledge_search", foreign.search},
++          {"port_knowledge_grants", foreign_reader_grant},
++          {"port_personal_notices", other_notice},
++          {"port_sign_ins", other_signin},
++          {"port_sign_ins", neighbor_signin}
++        ] ++
++          ids("users_tokens", "user_id = ?", [other.id]) ++
++          ids("memberships", "user_id = ?", [other.id])
++      )
++
++    %{
++      user: user,
++      other: other,
++      org: org,
++      own_ticket: own_ticket,
++      own_comment: own_comment,
++      assigned_ticket: assigned_ticket,
++      cross_comment: cross_comment,
++      other_comment: other_comment,
++      private: private,
++      public: public,
++      private_reader_grant: private_reader_grant,
++      public_reader_grant: public_reader_grant,
++      private_foreign_search: private_foreign_search,
++      private_anonymous_search: private_anonymous_search,
++      public_foreign_search: public_foreign_search,
++      foreign_grant: foreign_grant,
++      personal_search: personal_search,
++      notice: notice,
++      linked_signin: linked_signin,
++      email_signin: email_signin,
++      unrelated: unrelated
++    }
++  end
++
++  defp book(user, public, title) do
++    book =
++      insert("port_knowledge_books", %{
++        author_id: user.id,
++        byline: user.email,
++        public: public,
++        title: title
++      })
++
++    page = insert("port_knowledge_pages", %{book_id: book, body: "#{title} readable page"})
++    asset = insert("port_knowledge_assets", %{page_id: page, bytes: <<0, 1, 2, 255>>})
++    search = search(book, user.id, user.email, "#{title} searchable content")
++    %{book: book, page: page, asset: asset, search: search}
++  end
++
++  defp search(book, user, label, content) do
++    insert("port_knowledge_search", %{
++      book_id: book,
++      user_id: user,
++      author_label: label,
++      content: content
++    })
++  end
++
++  defp insert(table, attrs) do
++    # Schemaless SQL fixtures must bind SQLite booleans and embedded bytes explicitly.
++    fields = Enum.sort_by(attrs, fn {key, _} -> key end)
++    columns = Enum.map_join(fields, ", ", fn {key, _} -> Atom.to_string(key) end)
++    placeholders = Enum.map_join(fields, ", ", fn _ -> "?" end)
++
++    params =
++      Enum.map(fields, fn
++        {_, true} -> 1
++        {_, false} -> 0
++        {:bytes, bytes} -> {:blob, bytes}
++        {_, value} -> value
++      end)
++
++    %{rows: [[id]]} =
++      Ecto.Adapters.SQL.query!(
++        Repo,
++        "INSERT INTO #{table} (#{columns}) VALUES (#{placeholders}) RETURNING id",
++        params
++      )
++
++    id
++  end
++
++  defp row(table, id) do
++    result = Ecto.Adapters.SQL.query!(Repo, "SELECT * FROM #{table} WHERE id = ?", [id])
++
++    case result.rows do
++      [] -> nil
++      [values] -> Map.new(Enum.zip(result.columns, values))
++    end
++  end
++
++  defp count(table, predicate, params) do
++    %{rows: [[n]]} =
++      Ecto.Adapters.SQL.query!(Repo, "SELECT count(*) FROM #{table} WHERE #{predicate}", params)
++
++    n
++  end
++
++  defp ids(table, predicate, params) do
++    %{rows: rows} =
++      Ecto.Adapters.SQL.query!(
++        Repo,
++        "SELECT id FROM #{table} WHERE #{predicate} ORDER BY id",
++        params
++      )
++
++    Enum.map(rows, fn [id] -> {table, id} end)
++  end
++
++  defp snapshot(references),
++    do: Enum.map(references, fn {table, id} -> {table, id, row(table, id)} end)
++
++  defp assert_unchanged(snapshot) do
++    for {table, id, before} <- snapshot do
++      assert row(table, id) == before, "unrelated row changed: #{table}:#{id}"
++    end
++  end
++
++  defp database_snapshot(except \\ []) do
++    tables =
++      ~w(users users_tokens organizations memberships tickets comments port_knowledge_books port_knowledge_pages port_knowledge_assets port_knowledge_grants port_knowledge_search port_personal_notices port_sign_ins)
++
++    for table <- tables -- except do
++      result = Ecto.Adapters.SQL.query!(Repo, "SELECT * FROM #{table} ORDER BY id", [])
++      {table, result.columns, result.rows}
++    end
++  end
++end
+diff --git a/test/test_helper.exs b/test/test_helper.exs
+index 5c2adfa..d400762 100644
+--- a/test/test_helper.exs
++++ b/test/test_helper.exs
+@@ -1,2 +1,15 @@
+ ExUnit.start()
++
++# The erasure acceptance test launches the application suite in a separate,
++# isolated database. Keep that child run limited to application tests so it
++# does not recursively launch the acceptance tests themselves.
++if String.contains?(System.get_env("TRACKLINE_DB") || "", "trackline-erasure-regression-") do
++  ExUnit.configure(exclude: [intent: ~r/^elx-port-erase-account\//])
++
++  # Keep the regression harness' summary check stable across ExUnit versions.
++  ExUnit.after_suite(fn %{total: total, failures: failures} ->
++    IO.puts("#{total} tests, #{failures} failures")
++  end)
++end
++
+ Ecto.Adapters.SQL.Sandbox.mode(Trackline.Repo, :manual)

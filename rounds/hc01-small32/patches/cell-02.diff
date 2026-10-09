@@ -1,0 +1,443 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..4c23b20 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -77,9 +77,32 @@ defmodule Trackline.Support do
+     do: Repo.get!(Ticket, id) |> Repo.preload([:organization, :author, :assignee])
+ 
+   def create_ticket(%Organization{id: org_id}, %User{id: author_id}, attrs) do
+-    %Ticket{organization_id: org_id, author_id: author_id}
+-    |> Ticket.changeset(attrs)
+-    |> Repo.insert()
++    changeset =
++      %Ticket{organization_id: org_id, author_id: author_id}
++      |> Ticket.changeset(attrs)
++
++    if changeset.valid? do
++      Repo.transact(fn ->
++        # Acquire SQLite's write lock before reading MAX(number), so concurrent
++        # creates for the same organization cannot allocate the same value.
++        Repo.query!("UPDATE organizations SET id = id WHERE id = ?", [org_id])
++
++        next_number =
++          Repo.one(
++            from(t in Ticket,
++              where: t.organization_id == ^org_id,
++              select: coalesce(max(t.number), 0) + 1
++            )
++          )
++
++        changeset
++        |> Ecto.Changeset.put_change(:number, next_number)
++        |> Ecto.Changeset.unique_constraint([:organization_id, :number])
++        |> Repo.insert()
++      end)
++    else
++      {:error, changeset}
++    end
+   end
+ 
+   def change_ticket(%Ticket{} = ticket, attrs \\ %{}), do: Ticket.changeset(ticket, attrs)
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..1de31a1 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -8,6 +8,7 @@ defmodule Trackline.Support.Ticket do
+   schema "tickets" do
+     field :title, :string
+     field :body, :string
++    field :number, :integer
+     field :status, :string, default: "open"
+     field :priority, :string, default: "normal"
+     field :comment_count, :integer, virtual: true, default: 0
+diff --git a/lib/trackline_web/controllers/ticket_export_controller.ex b/lib/trackline_web/controllers/ticket_export_controller.ex
+index f8fab8c..9e8795c 100644
+--- a/lib/trackline_web/controllers/ticket_export_controller.ex
++++ b/lib/trackline_web/controllers/ticket_export_controller.ex
+@@ -13,6 +13,7 @@ defmodule TracklineWeb.TicketExportController do
+ 
+       json(conn, %{
+         id: ticket.id,
++        number: ticket.number,
+         title: ticket.title,
+         body: ticket.body,
+         status: ticket.status,
+diff --git a/lib/trackline_web/live/ticket_live/index.ex b/lib/trackline_web/live/ticket_live/index.ex
+index 7f498d9..ed2f55d 100644
+--- a/lib/trackline_web/live/ticket_live/index.ex
++++ b/lib/trackline_web/live/ticket_live/index.ex
+@@ -75,7 +75,7 @@ defmodule TracklineWeb.TicketLive.Index do
+           <tr :for={ticket <- @tickets} id={"ticket-#{ticket.id}"}>
+             <td>
+               <.link navigate={~p"/orgs/#{@org.slug}/tickets/#{ticket.id}"} class="link">
+-                {ticket.title}
++                {"##{ticket.number} #{ticket.title}"}
+               </.link>
+             </td>
+             <td class="ticket-status">{ticket.status}</td>
+diff --git a/lib/trackline_web/live/ticket_live/show.ex b/lib/trackline_web/live/ticket_live/show.ex
+index ea2fcb4..3bd4709 100644
+--- a/lib/trackline_web/live/ticket_live/show.ex
++++ b/lib/trackline_web/live/ticket_live/show.ex
+@@ -14,7 +14,7 @@ defmodule TracklineWeb.TicketLive.Show do
+ 
+       {:ok,
+        socket
+-       |> assign(:page_title, ticket.title)
++       |> assign(:page_title, "##{ticket.number} #{ticket.title}")
+        |> assign(:org, org)
+        |> assign(:can_write, Support.can_write?(membership))
+        |> assign(:ticket, ticket)
+@@ -75,7 +75,7 @@ defmodule TracklineWeb.TicketLive.Show do
+     ~H"""
+     <Layouts.app flash={@flash} current_scope={@current_scope}>
+       <.header>
+-        {@ticket.title}
++        {"##{@ticket.number} #{@ticket.title}"}
+         <:subtitle>
+           <span id="ticket-status">{@ticket.status}</span>
+           / <span id="ticket-priority">{@ticket.priority}</span>
+diff --git a/priv/repo/migrations/20260929090006_add_ticket_numbers.exs b/priv/repo/migrations/20260929090006_add_ticket_numbers.exs
+new file mode 100644
+index 0000000..51262e6
+--- /dev/null
++++ b/priv/repo/migrations/20260929090006_add_ticket_numbers.exs
+@@ -0,0 +1,31 @@
++defmodule Trackline.Repo.Migrations.AddTicketNumbers do
++  use Ecto.Migration
++
++  def up do
++    execute "ALTER TABLE tickets ADD COLUMN number INTEGER"
++
++    execute """
++    WITH numbered AS (
++      SELECT id,
++             ROW_NUMBER() OVER (
++               PARTITION BY organization_id
++               ORDER BY inserted_at ASC, id ASC
++             ) AS ticket_number
++      FROM tickets
++    )
++    UPDATE tickets
++    SET number = (
++      SELECT ticket_number
++      FROM numbered
++      WHERE numbered.id = tickets.id
++    )
++    """
++
++    create unique_index(:tickets, [:organization_id, :number])
++  end
++
++  def down do
++    drop_if_exists index(:tickets, [:organization_id, :number])
++    execute "ALTER TABLE tickets DROP COLUMN number"
++  end
++end
+diff --git a/test/acceptance/syn-06-migration-ticket-numbers_test.exs b/test/acceptance/syn-06-migration-ticket-numbers_test.exs
+new file mode 100644
+index 0000000..b6e0da9
+--- /dev/null
++++ b/test/acceptance/syn-06-migration-ticket-numbers_test.exs
+@@ -0,0 +1,301 @@
++defmodule Trackline.TicketNumbersAcceptance.MigrationRepo do
++  use Ecto.Repo, otp_app: :trackline, adapter: Ecto.Adapters.SQLite3
++end
++
++defmodule Trackline.TicketNumbersAcceptanceTest do
++  use TracklineWeb.ConnCase, async: false
++
++  import Phoenix.LiveViewTest
++  import Trackline.SupportFixtures
++
++  alias Trackline.Repo
++  alias Trackline.Support
++  alias Trackline.TicketNumbersAcceptance.MigrationRepo
++
++  @cutoff 20_260_929_090_005
++
++  setup :register_and_log_in_user
++
++  setup %{user: user} do
++    %{org: organization_fixture(user)}
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A1"
++  test "populated SQLite migrations backfill and roundtrip losslessly" do
++    migrations = Application.app_dir(:trackline, "priv/repo/migrations")
++
++    newer =
++      migrations
++      |> Path.join("*.exs")
++      |> Path.wildcard()
++      |> Enum.filter(fn file ->
++        {version, _} = Integer.parse(Path.basename(file))
++        version > @cutoff
++      end)
++
++    assert newer != [], "add migrations newer than #{@cutoff}"
++
++    directory =
++      Path.join(System.tmp_dir!(), "ticket-numbers-#{System.unique_integer([:positive])}")
++
++    File.mkdir_p!(directory)
++    on_exit(fn -> File.rm_rf!(directory) end)
++
++    start_supervised!(
++      {MigrationRepo,
++       database: Path.join(directory, "roundtrip.sqlite3"),
++       pool: DBConnection.ConnectionPool,
++       pool_size: 2,
++       journal_mode: :wal,
++       busy_timeout: 15_000}
++    )
++
++    Ecto.Migrator.run(MigrationRepo, migrations, :up, to: @cutoff, log: false)
++
++    sql!(
++      MigrationRepo,
++      "INSERT INTO users (id, email, inserted_at, updated_at) VALUES (1, '${OWNER_EMAIL}', '2025-01-01 00:00:00', '2025-01-01 00:00:00')"
++    )
++
++    for {id, slug} <- [{1, "migration-one"}, {2, "migration-two"}] do
++      sql!(
++        MigrationRepo,
++        "INSERT INTO organizations (id, name, slug, webhook_url, webhook_secret, inserted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
++        [
++          id,
++          slug,
++          slug,
++          "https://example.test/hook",
++          "secret",
++          "2025-01-01 00:00:00",
++          "2025-01-01 00:00:00"
++        ]
++      )
++    end
++
++    sql!(
++      MigrationRepo,
++      "INSERT INTO memberships (organization_id, user_id, role, inserted_at, updated_at) VALUES (1, 1, 'owner', '2025-01-01 00:00:00', '2025-01-01 00:00:00')"
++    )
++
++    # Insertion/id order deliberately differs from chronological order, with a tie.
++    # Sparse legacy ids must not determine the organization-local sequence.
++    for {id, org_id, timestamp} <- [
++          {7, 1, "2025-01-02 00:00:00"},
++          {313, 2, "2025-01-03 00:00:00"},
++          {57_664_159, 1, "2025-01-02 00:00:00"},
++          {4, 1, "2025-01-01 00:00:00"},
++          {48213, 2, "2025-01-04 00:00:00"}
++        ] do
++      title = if id == 48213, do: "ticket 48213", else: "Legacy #{id}"
++
++      sql!(
++        MigrationRepo,
++        "INSERT INTO tickets (id, organization_id, author_id, assignee_id, title, body, status, priority, inserted_at, updated_at) VALUES (?, ?, 1, 1, ?, ?, 'closed', 'urgent', ?, ?)",
++        [id, org_id, title, "Body #{id}", timestamp, "2025-02-01 00:00:00"]
++      )
++    end
++
++    sql!(
++      MigrationRepo,
++      "INSERT INTO comments (ticket_id, author_id, body, inserted_at, updated_at) VALUES (7, 1, 'Preserve this comment', '2025-02-01 00:00:00', '2025-02-01 00:00:00')"
++    )
++
++    tables = ["users", "organizations", "memberships", "tickets", "comments"]
++    before = snapshots(MigrationRepo, tables)
++
++    Ecto.Migrator.run(MigrationRepo, migrations, :up, all: true, log: false)
++    expected = [[4, 1], [7, 2], [313, 1], [48213, 2], [57_664_159, 3]]
++    assert sql!(MigrationRepo, "SELECT id, number FROM tickets ORDER BY id").rows == expected
++    assert_original_data(MigrationRepo, before)
++
++    Ecto.Migrator.run(MigrationRepo, migrations, :down, step: length(newer), log: false)
++    refute "number" in columns(MigrationRepo, "tickets")
++    assert snapshots(MigrationRepo, tables) == before
++
++    Ecto.Migrator.run(MigrationRepo, migrations, :up, all: true, log: false)
++    assert sql!(MigrationRepo, "SELECT id, number FROM tickets ORDER BY id").rows == expected
++    assert_original_data(MigrationRepo, before)
++    assert sql!(MigrationRepo, "PRAGMA foreign_key_check").rows == []
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A2"
++  test "allocation is local, ignores input, uses maximum, and skips failed creates", %{
++    user: user,
++    org: org
++  } do
++    other = organization_fixture(user)
++    {:ok, first} = Support.create_ticket(org, user, %{title: "First", number: 900})
++    assert Map.get(first, :number) == 1
++    assert Map.get(Repo.get!(Support.Ticket, first.id), :number) == 1
++
++    {:error, changeset} = Support.create_ticket(org, user, %{title: "", number: 901})
++    refute changeset.valid?
++    {:ok, second} = Support.create_ticket(org, user, %{"title" => "Second", "number" => "902"})
++    assert Map.get(second, :number) == 2
++
++    {:ok, elsewhere} = Support.create_ticket(other, user, %{title: "Other first"})
++    assert Map.get(elsewhere, :number) == 1
++
++    sql!(Repo, "UPDATE tickets SET number = 12 WHERE id = ?", [second.id])
++
++    {:error, _} =
++      Support.create_ticket(org, user, %{title: "Invalid priority", priority: "bogus"})
++
++    {:ok, following} = Support.create_ticket(org, user, %{title: "After maximum"})
++    assert Map.get(following, :number) == 13
++    {:ok, next} = Support.create_ticket(org, user, %{title: "Continue sequence"})
++    assert Map.get(next, :number) == 14
++    {:ok, other_second} = Support.create_ticket(other, user, %{title: "Other second"})
++    assert Map.get(other_second, :number) == 2
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A3"
++  test "numbers survive edits, assignment and status transitions", %{user: user, org: org} do
++    first = ticket_fixture(org, user)
++    second = ticket_fixture(org, user)
++    assert Map.get(first, :number) == 1
++    assert Map.get(second, :number) == 2
++
++    {:ok, edited} =
++      first
++      |> Support.change_ticket(%{title: "Renamed", body: "Edited", priority: "high", number: 99})
++      |> Repo.update()
++
++    {:ok, assigned} = Support.assign_ticket(edited, user)
++    {:ok, closed} = Support.set_status(assigned, "closed")
++    {:ok, unassigned} = Support.assign_ticket(closed, nil)
++    {:ok, reopened} = Support.set_status(unassigned, "open")
++    assert Map.get(reopened, :number) == 1
++    assert Map.get(Support.get_ticket!(first.id), :number) == 1
++    assert Map.get(Support.get_ticket!(second.id), :number) == 2
++    third = ticket_fixture(org, user)
++    assert Map.get(third, :number) == 3
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A4"
++  test "database enforces organization-local uniqueness for raw inserts", %{user: user, org: org} do
++    other = organization_fixture(user)
++
++    statement =
++      "INSERT INTO tickets (organization_id, title, number, inserted_at, updated_at) VALUES (?, 'Raw ticket', ?, '2025-01-01 00:00:00', '2025-01-01 00:00:00')"
++
++    assert {:ok, _} = Ecto.Adapters.SQL.query(Repo, statement, [org.id, 77])
++    assert {:error, error} = Ecto.Adapters.SQL.query(Repo, statement, [org.id, 77])
++    assert String.contains?(String.downcase(Exception.message(error)), "unique")
++    assert {:ok, _} = Ecto.Adapters.SQL.query(Repo, statement, [other.id, 77])
++    assert sql!(Repo, "SELECT COUNT(*) FROM tickets WHERE number = 77").rows == [[2]]
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A5"
++  test "list and detail prefix titles and export includes the number", %{
++    conn: conn,
++    user: user,
++    org: org
++  } do
++    ticket = ticket_fixture(org, user, %{title: "Numbered display ticket"})
++    assert Map.get(ticket, :number) == 1
++
++    for n <- 2..11 do
++      ticket_fixture(org, user, %{title: "Intermediate #{n}"})
++    end
++
++    twelfth = ticket_fixture(org, user, %{title: "ticket 48213"})
++    assert Map.get(twelfth, :number) == 12
++    path = "/orgs/#{org.slug}/tickets/#{ticket.id}"
++    twelfth_path = "/orgs/#{org.slug}/tickets/#{twelfth.id}"
++    {:ok, list, _} = live(conn, "/orgs/#{org.slug}/tickets")
++    link_html = list |> element("#ticket-#{ticket.id} a") |> render()
++    assert text(link_html) =~ "#1 Numbered display ticket"
++    assert link_html =~ "href=\"#{path}\""
++    twelfth_link = list |> element("#ticket-#{twelfth.id} a") |> render()
++    assert text(twelfth_link) =~ "#12 ticket 48213"
++    assert twelfth_link =~ "href=\"#{twelfth_path}\""
++
++    {:ok, _detail, html} = live(conn, path)
++    assert text(html) =~ "#1 Numbered display ticket"
++    data = conn |> get(path <> "/export.json") |> json_response(200)
++    assert data["number"] == 1
++    assert data["id"] == ticket.id
++
++    {:ok, _twelfth_detail, twelfth_html} = live(conn, twelfth_path)
++    assert text(twelfth_html) =~ "#12 ticket 48213"
++    twelfth_data = conn |> get(twelfth_path <> "/export.json") |> json_response(200)
++    assert twelfth_data["number"] == 12
++    assert twelfth_data["id"] == twelfth.id
++  end
++
++  @tag intent: "syn-06-migration-ticket-numbers/A6"
++  test "id-based routes, original export fields and scoped listing are preserved", %{
++    conn: conn,
++    user: user,
++    org: org
++  } do
++    other = organization_fixture(user)
++    hidden = ticket_fixture(other, user, %{title: "Another organization's ticket"})
++
++    ticket =
++      ticket_fixture(org, user, %{
++        title: "Original export title",
++        body: "Original body",
++        priority: "high"
++      })
++
++    comment_fixture(ticket, user, "Original comment")
++    assert Enum.map(Support.list_tickets(org), & &1.id) == [ticket.id]
++
++    path = "/orgs/#{org.slug}/tickets/#{ticket.id}"
++    {:ok, list, html} = live(conn, "/orgs/#{org.slug}/tickets")
++    refute html =~ hidden.title
++    assert list |> element("#ticket-#{ticket.id} a") |> render() =~ "href=\"#{path}\""
++    {:ok, _detail, detail_html} = live(conn, path)
++    assert detail_html =~ ticket.title
++    assert detail_html =~ "Original comment"
++
++    data = conn |> get(path <> "/export.json") |> json_response(200)
++    assert data["id"] == ticket.id
++    assert data["title"] == ticket.title
++    assert data["body"] == "Original body"
++    assert data["status"] == "open"
++    assert data["priority"] == "high"
++    assert data["author"] == user.email
++    assert data["assignee"] == nil
++
++    assert [%{"author" => author, "body" => "Original comment", "id" => comment_id}] =
++             data["comments"]
++
++    assert author == user.email
++    assert is_integer(comment_id)
++  end
++
++  defp sql!(repo, statement, params \\ []) do
++    Ecto.Adapters.SQL.query!(repo, statement, params)
++  end
++
++  defp columns(repo, table) do
++    sql!(repo, "PRAGMA table_info(#{table})").rows |> Enum.map(&Enum.at(&1, 1))
++  end
++
++  defp snapshots(repo, tables) do
++    Map.new(tables, fn table ->
++      names = columns(repo, table)
++
++      {table,
++       {names, sql!(repo, "SELECT #{Enum.join(names, ", ")} FROM #{table} ORDER BY id").rows}}
++    end)
++  end
++
++  defp assert_original_data(repo, before) do
++    for {table, {names, rows}} <- before do
++      assert Enum.all?(names, &(&1 in columns(repo, table)))
++      assert sql!(repo, "SELECT #{Enum.join(names, ", ")} FROM #{table} ORDER BY id").rows == rows
++    end
++  end
++
++  defp text(html) do
++    html
++    |> then(&Regex.replace(~r/<[^>]*>/, &1, " "))
++    |> then(&Regex.replace(~r/\s+/, &1, " "))
++    |> String.trim()
++  end
++end

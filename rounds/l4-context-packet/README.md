@@ -67,3 +67,12 @@ python3 rounds/l4-context-packet/reproduce/l4-context-packet.py
 The script uses only the standard library and checks every reported outcome number against `rounds/l4-context-packet/data/paired-cells.csv` and `rounds/l4-context-packet/data/historical-baselines.csv`.
 
 Raw records: these two CSV files contain the latest official aggregate row for each exact scored cell ID and the registered historical baseline cell IDs. The token total per cell is uncached input + cached input + output; arm totals sum all cell totals.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l4-context-packet.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 6 rows (fail 1, pass 5); overall pass rate is 83.3% (5/6) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 6 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 6 raw-only or non-public rows; they are kept separate from the published-export denominator.

@@ -1,0 +1,11 @@
+{
+  "applied_at": "2026-10-08T08:06:49Z",
+  "applied_by": "benchmark driver via root SSH (orchestrator key)",
+  "approval": "coordinator careful-rebuild-f2 ruling 2026-10-08 (HC01 AMENDMENT-4 §3, owner authority)",
+  "change": "install -d -o root -g root -m 0700 /var/lib/kogen-bench-private /var/lib/kogen-bench-private/hc01-raw",
+  "host": "kogen-bench-us",
+  "purpose": "private retention of full HC01 count-run runner output (files 0600, sha256 per cell); never read into model context",
+  "reversal": "rm -rf /var/lib/kogen-bench-private/hc01-raw only after a verified preserved copy and coordinator approval",
+  "schema": "host-config-change/1",
+  "verification": "stat root:root 700 on both; ${BENCH_USER} ls -> Permission denied"
+}

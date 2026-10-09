@@ -88,3 +88,12 @@ Inputs: `rounds/l4b-confirm/data/cells.csv`, `rounds/l4b-confirm/reproduce/ORDER
 - L4's KEEP came from low-baseline variants. Here the controls passed 6/9, consistent with the ceiling-risk concern recorded before scored cells in the [dated preparation receipt](reproduce/CEILING-RISK-RECEIPT.md). The 0 net pass difference does not confirm a packet advantage and is not evidence against the packet.
 - Per-variant mean `tests_passed` was equal between arms. The small cohort cannot support a general claim beyond these three variants, one model, one host, and three paired seeds per variant.
 - The EU extension, `l4b-confirm-eu`, is **NOT-RUN**. Only task 7 was admitted, its baseline was 5/6, and no cells were spent. The completed 18-cell US cohort is separate; there is no EU scored result.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l4b-confirm.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 18 rows (fail 6, pass 12); overall pass rate is 66.7% (12/18) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 18 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 18 raw-only or non-public rows; they are kept separate from the published-export denominator.

@@ -1,0 +1,588 @@
+diff --git a/lib/trackline/ports/erasure.ex b/lib/trackline/ports/erasure.ex
+index da059c4..35a94eb 100644
+--- a/lib/trackline/ports/erasure.ex
++++ b/lib/trackline/ports/erasure.ex
+@@ -1,13 +1,178 @@
+ defmodule Trackline.Ports.Erasure do
++  import Ecto.Query
++
++  alias Trackline.Accounts.{User, UserToken}
++
++  alias Trackline.Ports.{
++    KnowledgeAsset,
++    KnowledgeBook,
++    KnowledgeGrant,
++    KnowledgePage,
++    KnowledgeSearch,
++    PersonalNotice,
++    SignIn
++  }
++
+   alias Trackline.Repo
++  alias Trackline.Support.{Comment, Membership, Ticket}
++
+   def deactivate(user) do
+     [local, domain] = String.split(user.email, "@")
+-    user |> Ecto.Changeset.change(active: false, email: "#{local}-deactivated-#{Ecto.UUID.generate()}@#{domain}") |> Repo.update()
++
++    user
++    |> Ecto.Changeset.change(
++      active: false,
++      email: "#{local}-deactivated-#{Ecto.UUID.generate()}@#{domain}"
++    )
++    |> Repo.update()
+   end
++
+   def erase(user) do
+-    case deactivate(user) do
+-      {:ok, _} -> :ok
+-      error -> error
++    user_id = Map.get(user, :id)
++
++    case Repo.transaction(fn ->
++           case if(user_id, do: Repo.get(User, user_id), else: nil) do
++             nil ->
++               :ok
++
++             persisted_user ->
++               erase_persisted_user(persisted_user)
++           end
++         end) do
++      {:ok, :ok} -> :ok
++      {:error, reason} -> {:error, reason}
+     end
+   end
++
++  defp erase_persisted_user(user) do
++    user_id = user.id
++    sign_in_emails = attributable_emails(user.email)
++
++    {public_book_ids, private_book_ids} =
++      Repo.query!("SELECT id, public FROM port_knowledge_books WHERE author_id = ?", [user_id]).rows
++      |> Enum.reduce({[], []}, fn [book_id, public], {public_ids, private_ids} ->
++        if public_flag?(public) do
++          {[book_id | public_ids], private_ids}
++        else
++          {public_ids, [book_id | private_ids]}
++        end
++      end)
++
++    # Comments are owned both by their author and by the ticket they belong to.
++    authored_ticket_ids =
++      from(ticket in Ticket, where: ticket.author_id == ^user_id, select: ticket.id)
++
++    Repo.delete_all(
++      from comment in Comment,
++        where:
++          comment.author_id == ^user_id or
++            comment.ticket_id in subquery(authored_ticket_ids)
++    )
++
++    # Tickets authored by the erased user are removed; tickets authored by others survive.
++    Repo.update_all(
++      from(ticket in Ticket, where: ticket.assignee_id == ^user_id),
++      set: [assignee_id: nil]
++    )
++
++    Repo.delete_all(from ticket in Ticket, where: ticket.author_id == ^user_id)
++
++    # Explicitly remove all private-book descendants because several port tables do not
++    # have foreign keys (and therefore cannot cascade on book deletion).
++    private_page_ids =
++      from(page in KnowledgePage,
++        where: page.book_id in ^private_book_ids,
++        select: page.id
++      )
++
++    Repo.delete_all(
++      from asset in KnowledgeAsset,
++        where: asset.page_id in subquery(private_page_ids)
++    )
++
++    Repo.delete_all(from page in KnowledgePage, where: page.book_id in ^private_book_ids)
++    Repo.delete_all(from grant in KnowledgeGrant, where: grant.book_id in ^private_book_ids)
++    Repo.delete_all(from hit in KnowledgeSearch, where: hit.book_id in ^private_book_ids)
++    Repo.delete_all(from book in KnowledgeBook, where: book.id in ^private_book_ids)
++
++    # Preserve public content while removing attribution, including the searchable
++    # copy that may have been indexed only under the author's user ID.
++    Repo.update_all(
++      from(book in KnowledgeBook, where: book.id in ^public_book_ids),
++      set: [author_id: nil, byline: "Deleted author"]
++    )
++
++    normalize_public_flags(public_book_ids)
++
++    Repo.update_all(
++      from(hit in KnowledgeSearch, where: hit.book_id in ^public_book_ids),
++      set: [author_label: "Deleted author"]
++    )
++
++    Repo.update_all(
++      from(hit in KnowledgeSearch,
++        where: hit.book_id in ^public_book_ids and hit.user_id == ^user_id
++      ),
++      set: [user_id: nil]
++    )
++
++    # Grants and search entries can also point at books owned by other users.
++    Repo.delete_all(from grant in KnowledgeGrant, where: grant.user_id == ^user_id)
++    Repo.delete_all(from hit in KnowledgeSearch, where: hit.user_id == ^user_id)
++    Repo.delete_all(from notice in PersonalNotice, where: notice.user_id == ^user_id)
++
++    Repo.delete_all(
++      from sign_in in SignIn,
++        where: sign_in.user_id == ^user_id or sign_in.email in ^sign_in_emails
++    )
++
++    Repo.delete_all(from token in UserToken, where: token.user_id == ^user_id)
++    Repo.delete_all(from membership in Membership, where: membership.user_id == ^user_id)
++
++    Repo.delete_all(from user in User, where: user.id == ^user_id)
++    :ok
++  end
++
++  defp normalize_public_flags([]), do: :ok
++
++  defp normalize_public_flags(book_ids) do
++    placeholders = Enum.map_join(book_ids, ", ", fn _id -> "?" end)
++
++    Repo.query!(
++      "UPDATE port_knowledge_books SET public = 1 WHERE id IN (#{placeholders})",
++      book_ids
++    )
++
++    :ok
++  end
++
++  defp public_flag?(value) when value in [true, 1, "1", "true", "t"], do: true
++  defp public_flag?(_value), do: false
++
++  defp attributable_emails(email) do
++    [email | original_email(email)]
++  end
++
++  defp original_email(email) when is_binary(email) do
++    case String.split(email, "@", parts: 2) do
++      [local, domain] ->
++        case Regex.run(
++               ~r/\A(.+)-deactivated-([0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})\z/,
++               local
++             ) do
++          [_, original_local, uuid] ->
++            if match?({:ok, _}, Ecto.UUID.cast(uuid)),
++              do: [original_local <> "@" <> domain],
++              else: []
++
++          _ ->
++            []
++        end
++
++      _ ->
++        []
++    end
++  end
++
++  defp original_email(_), do: []
+ end
+diff --git a/test/acceptance/elx-port-erase-account_test.exs b/test/acceptance/elx-port-erase-account_test.exs
+new file mode 100644
+index 0000000..5b45a9a
+--- /dev/null
++++ b/test/acceptance/elx-port-erase-account_test.exs
+@@ -0,0 +1,395 @@
++defmodule Trackline.EraseAccountAcceptanceTest do
++  use Trackline.DataCase, async: false
++
++  alias Trackline.{Accounts, Repo, Support}
++  import Trackline.AccountsFixtures
++  import Trackline.SupportFixtures
++
++  @tag intent: "elx-port-erase-account/A1"
++  test "Remove deletes the account and all non-public dependent records" do
++    s = scenario()
++
++    assert erase(s.user) == :ok
++    assert_missing("users", s.user.id)
++    assert_missing("tickets", s.owned_ticket.id)
++    assert_missing("comments", s.owned_comment.id)
++    assert_missing("comments", s.comment_on_other.id)
++    assert_missing("comments", s.reader_comment_on_owned.id)
++    assert_missing("port_knowledge_books", s.private.book)
++    assert_missing("port_knowledge_pages", s.private.page)
++    assert_missing("port_knowledge_assets", s.private.asset)
++    assert_missing("port_knowledge_grants", s.private.reader_grant)
++    assert_missing("port_knowledge_search", s.private.search)
++    assert_missing("port_knowledge_search", s.private.reader_search)
++    assert_missing("port_knowledge_search", s.personal_search)
++    assert_missing("port_personal_notices", s.notice)
++    assert_missing("port_sign_ins", s.sign_in)
++    assert_missing("port_sign_ins", s.email_only_sign_in)
++
++    for table <- [
++          "users_tokens",
++          "memberships",
++          "port_knowledge_grants",
++          "port_personal_notices",
++          "port_sign_ins",
++          "port_knowledge_search"
++        ] do
++      assert no_user_rows?(table, s.user.id), "erased user still referenced in #{table}"
++    end
++
++    refute Enum.any?(rows("port_sign_ins"), &(&1["email"] == s.user.email))
++    assert Accounts.get_user_by_session_token(s.user_token) == nil
++  end
++
++  @tag intent: "elx-port-erase-account/A2"
++  test "public knowledge stays usable with anonymous authorship and search" do
++    s = scenario()
++    page = row("port_knowledge_pages", s.public.page)
++    asset = row("port_knowledge_assets", s.public.asset)
++    grant = row("port_knowledge_grants", s.public.reader_grant)
++
++    assert erase(s.user) == :ok
++    book = row("port_knowledge_books", s.public.book)
++    assert book != nil
++    assert book["title"] == "Public reading"
++    assert book["public"] in [1, true]
++    assert book["author_id"] == nil
++    assert book["byline"] == "Deleted author"
++    assert row("port_knowledge_pages", s.public.page) == page
++    assert row("port_knowledge_assets", s.public.asset) == asset
++    assert row("port_knowledge_grants", s.public.reader_grant) == grant
++    assert_missing("port_knowledge_grants", s.public.author_grant)
++
++    hits = Enum.filter(rows("port_knowledge_search"), &(&1["book_id"] == s.public.book))
++    assert Enum.any?(hits, &(&1["content"] == "Public reading searchable text"))
++
++    for hit <- hits do
++      refute hit["user_id"] == s.user.id
++      assert hit["author_label"] == "Deleted author"
++    end
++  end
++
++  @tag intent: "elx-port-erase-account/A3"
++  test "legacy removed accounts erase original email history with stale or reloaded inputs and allow retries" do
++    for mode <- [:stale, :reloaded] do
++      s = scenario()
++      {:ok, removed} = deactivate(s.user)
++      refute removed.active
++      refute removed.email == s.user.email
++      rewritten_log = insert_row("port_sign_ins", %{email: removed.email})
++      # The persisted email, not the argument's old email, determines current identity.
++      input = if mode == :stale, do: s.user, else: Repo.get!(s.user.__struct__, s.user.id)
++      reader_before = row("users", s.reader.id)
++      reader_history_before = user_rows("port_sign_ins", s.reader.id)
++      public_page_before = row("port_knowledge_pages", s.public.page)
++      public_asset_before = row("port_knowledge_assets", s.public.asset)
++      public_grant_before = row("port_knowledge_grants", s.public.reader_grant)
++
++      assert erase(input) == :ok
++      assert_missing("users", s.user.id)
++      assert_missing("tickets", s.owned_ticket.id)
++      assert_missing("comments", s.owned_comment.id)
++      assert_missing("comments", s.comment_on_other.id)
++      assert_missing("comments", s.reader_comment_on_owned.id)
++      assert_missing("port_personal_notices", s.notice)
++      assert_missing("port_sign_ins", s.sign_in)
++      assert_missing("port_sign_ins", s.email_only_sign_in)
++      assert_missing("port_sign_ins", rewritten_log)
++      assert_missing("port_knowledge_books", s.private.book)
++      assert_missing("port_knowledge_pages", s.private.page)
++      assert_missing("port_knowledge_assets", s.private.asset)
++      assert_missing("port_knowledge_grants", s.private.reader_grant)
++      assert_missing("port_knowledge_search", s.private.search)
++      assert_missing("port_knowledge_search", s.private.reader_search)
++      assert_missing("port_knowledge_search", s.personal_search)
++      assert row("port_knowledge_books", s.public.book)["byline"] == "Deleted author"
++      assert row("port_knowledge_books", s.public.book)["author_id"] == nil
++      assert row("port_knowledge_pages", s.public.page) == public_page_before
++      assert row("port_knowledge_assets", s.public.asset) == public_asset_before
++      assert row("port_knowledge_grants", s.public.reader_grant) == public_grant_before
++
++      for table <- [
++            "users_tokens",
++            "memberships",
++            "port_knowledge_grants",
++            "port_personal_notices",
++            "port_sign_ins",
++            "port_knowledge_search"
++          ] do
++        assert no_user_rows?(table, s.user.id)
++      end
++
++      refute Enum.any?(rows("port_sign_ins"), &(&1["email"] in [s.user.email, removed.email]))
++      assert row("users", s.reader.id) == reader_before
++      assert user_rows("port_sign_ins", s.reader.id) == reader_history_before
++      assert Accounts.get_user_by_session_token(s.reader_token) != nil
++
++      before_retry = snapshot()
++      assert erase(input) == :ok
++      assert erase(removed) == :ok
++      assert snapshot() == before_retry
++    end
++  end
++
++  @tag intent: "elx-port-erase-account/A4"
++  test "erasure preserves unrelated users, grants, search, history, and shared support data" do
++    s = scenario()
++
++    protected = [
++      {"users", s.reader.id},
++      {"organizations", s.org.id},
++      {"comments", s.reader_comment.id},
++      {"port_knowledge_books", s.other.book},
++      {"port_knowledge_pages", s.other.page},
++      {"port_knowledge_assets", s.other.asset},
++      {"port_knowledge_grants", s.other.reader_grant},
++      {"port_knowledge_search", s.other.search},
++      {"port_knowledge_search", s.other.reader_search},
++      {"port_personal_notices", s.reader_notice},
++      {"port_sign_ins", s.reader_sign_in},
++      {"port_sign_ins", s.near_match_sign_in}
++    ]
++
++    before = Enum.map(protected, fn {table, id} -> row(table, id) end)
++    reader_tokens = user_rows("users_tokens", s.reader.id)
++    reader_memberships = user_rows("memberships", s.reader.id)
++    ticket = row("tickets", s.other_ticket.id)
++
++    assert erase(s.user) == :ok
++    assert Enum.map(protected, fn {table, id} -> row(table, id) end) == before
++    assert user_rows("users_tokens", s.reader.id) == reader_tokens
++    assert user_rows("memberships", s.reader.id) == reader_memberships
++    assert row("tickets", s.other_ticket.id) == Map.put(ticket, "assignee_id", nil)
++    assert_missing("port_knowledge_grants", s.other.author_grant)
++    assert Accounts.get_user_by_session_token(s.reader_token) != nil
++    assert Enum.any?(Support.list_members(s.org), &(&1.id == s.reader.id))
++  end
++
++  @tag intent: "elx-port-erase-account/A5"
++  test "legacy deactivate still soft-removes without erasing dependent data" do
++    s = scenario()
++    before = snapshot() |> Map.delete("users")
++    {:ok, inactive} = deactivate(s.user)
++
++    assert inactive.id == s.user.id
++    assert inactive.active == false
++    [local, domain] = String.split(s.user.email, "@")
++    assert String.starts_with?(inactive.email, local <> "-deactivated-")
++    assert String.ends_with?(inactive.email, "@" <> domain)
++    assert inactive.email != s.user.email
++    assert Repo.get!(s.user.__struct__, s.user.id).email == inactive.email
++    assert snapshot() |> Map.delete("users") == before
++  end
++
++  @tag intent: "elx-port-erase-account/A6"
++  test "stale active structs use persisted email and fresh-erasure retries cannot touch another account" do
++    s = scenario()
++    current_email = "current-#{System.unique_integer([:positive])}@example.com"
++    current = s.user |> Ecto.Changeset.change(email: current_email) |> Repo.update!()
++    current_history = insert_row("port_sign_ins", %{user_id: current.id, email: current_email})
++    current_email_only_history = insert_row("port_sign_ins", %{email: current_email})
++    second_private = book_graph(current, s.reader, false, "Second private book")
++
++    extra_private_page =
++      insert_row("port_knowledge_pages", %{book_id: second_private.book, body: "Second page"})
++
++    extra_private_asset =
++      insert_row("port_knowledge_assets", %{page_id: extra_private_page, bytes: <<255, 0, 254>>})
++
++    extra_public_page =
++      insert_row("port_knowledge_pages", %{book_id: s.public.book, body: "Still readable"})
++
++    extra_public_asset =
++      insert_row("port_knowledge_assets", %{page_id: extra_public_page, bytes: <<3, 2, 1>>})
++
++    public_page_before = row("port_knowledge_pages", extra_public_page)
++    public_asset_before = row("port_knowledge_assets", extra_public_asset)
++    reader_history_before = user_rows("port_sign_ins", s.reader.id)
++
++    # The argument predates an email change but still carries the stable account ID.
++    assert s.user.email != current.email
++    assert erase(s.user) == :ok
++    assert_missing("users", current.id)
++    assert_missing("port_sign_ins", current_history)
++    assert_missing("port_sign_ins", current_email_only_history)
++    refute Enum.any?(rows("port_sign_ins"), &(&1["email"] == current_email))
++    assert_missing("port_knowledge_books", second_private.book)
++    assert_missing("port_knowledge_pages", second_private.page)
++    assert_missing("port_knowledge_pages", extra_private_page)
++    assert_missing("port_knowledge_assets", second_private.asset)
++    assert_missing("port_knowledge_assets", extra_private_asset)
++    assert_missing("port_knowledge_grants", second_private.reader_grant)
++    assert_missing("port_knowledge_search", second_private.reader_search)
++    assert row("port_knowledge_pages", extra_public_page) == public_page_before
++    assert row("port_knowledge_assets", extra_public_asset) == public_asset_before
++    assert user_rows("port_sign_ins", s.reader.id) == reader_history_before
++
++    before_retry = snapshot()
++    assert erase(s.user) == :ok
++    assert erase(current) == :ok
++    # A missing account is a no-op even if the obsolete email has since been reused.
++    reused_email_owner = s.reader |> Ecto.Changeset.change(email: s.user.email) |> Repo.update!()
++
++    reused_email_log =
++      insert_row("port_sign_ins", %{user_id: reused_email_owner.id, email: s.user.email})
++
++    before_reused_retry = snapshot()
++    assert erase(s.user) == :ok
++    assert snapshot() == before_reused_retry
++    assert row("port_sign_ins", reused_email_log) != nil
++    assert before_retry["users"] != before_reused_retry["users"]
++  end
++
++  defp erase(user), do: apply(Trackline.Ports.Erasure, :erase, [user])
++  defp deactivate(user), do: apply(Trackline.Ports.Erasure, :deactivate, [user])
++
++  defp scenario do
++    user = user_fixture()
++    reader = user_fixture()
++    org = organization_fixture(reader)
++    {:ok, _} = Support.add_member(org, user, "agent")
++    owned_ticket = ticket_fixture(org, user, %{body: "Erased user's support text"})
++    other_ticket = ticket_fixture(org, reader, %{body: "Reader's support text"})
++    {:ok, other_ticket} = Support.assign_ticket(other_ticket, user)
++    owned_comment = comment_fixture(owned_ticket, user)
++    reader_comment_on_owned = comment_fixture(owned_ticket, reader)
++    comment_on_other = comment_fixture(other_ticket, user)
++    reader_comment = comment_fixture(other_ticket, reader)
++    user_token = Accounts.generate_user_session_token(user)
++    reader_token = Accounts.generate_user_session_token(reader)
++    public = book_graph(user, reader, true, "Public reading")
++    private = book_graph(user, reader, false, "Private writing")
++    other = book_graph(reader, reader, false, "Unrelated private writing")
++    # A grant and a user-specific search hit on someone else's book must also go.
++    other_author_grant =
++      insert_row("port_knowledge_grants", %{book_id: other.book, user_id: user.id})
++
++    personal_search =
++      insert_row("port_knowledge_search", %{
++        book_id: other.book,
++        user_id: user.id,
++        content: "Personal cached result",
++        author_label: reader.email
++      })
++
++    notice = insert_row("port_personal_notices", %{user_id: user.id, body: "Personal notice"})
++
++    reader_notice =
++      insert_row("port_personal_notices", %{user_id: reader.id, body: "Reader notice"})
++
++    sign_in = insert_row("port_sign_ins", %{user_id: user.id, email: user.email})
++    email_only_sign_in = insert_row("port_sign_ins", %{email: user.email})
++    reader_sign_in = insert_row("port_sign_ins", %{user_id: reader.id, email: reader.email})
++    [local, domain] = String.split(user.email, "@")
++
++    near_match_sign_in =
++      insert_row("port_sign_ins", %{
++        user_id: reader.id,
++        email: local <> "-deactivated-not-a-uuid@" <> domain
++      })
++
++    %{
++      user: user,
++      reader: reader,
++      org: org,
++      owned_ticket: owned_ticket,
++      other_ticket: other_ticket,
++      owned_comment: owned_comment,
++      reader_comment_on_owned: reader_comment_on_owned,
++      comment_on_other: comment_on_other,
++      reader_comment: reader_comment,
++      user_token: user_token,
++      reader_token: reader_token,
++      public: public,
++      private: private,
++      other: Map.put(other, :author_grant, other_author_grant),
++      personal_search: personal_search,
++      notice: notice,
++      reader_notice: reader_notice,
++      sign_in: sign_in,
++      email_only_sign_in: email_only_sign_in,
++      reader_sign_in: reader_sign_in,
++      near_match_sign_in: near_match_sign_in
++    }
++  end
++
++  defp book_graph(author, reader, public, title) do
++    book =
++      insert_row("port_knowledge_books", %{
++        author_id: author.id,
++        byline: author.email,
++        public: public,
++        title: title
++      })
++
++    page = insert_row("port_knowledge_pages", %{book_id: book, body: title <> " page body"})
++    asset = insert_row("port_knowledge_assets", %{page_id: page, bytes: <<0, 1, 2, 255>>})
++    author_grant = insert_row("port_knowledge_grants", %{book_id: book, user_id: author.id})
++    reader_grant = insert_row("port_knowledge_grants", %{book_id: book, user_id: reader.id})
++
++    search =
++      insert_row("port_knowledge_search", %{
++        book_id: book,
++        user_id: author.id,
++        content: title <> " searchable text",
++        author_label: author.email
++      })
++
++    reader_search =
++      insert_row("port_knowledge_search", %{
++        book_id: book,
++        user_id: reader.id,
++        content: title <> " searchable text",
++        author_label: author.email
++      })
++
++    %{
++      book: book,
++      page: page,
++      asset: asset,
++      author_grant: author_grant,
++      reader_grant: reader_grant,
++      search: search,
++      reader_search: reader_search
++    }
++  end
++
++  defp insert_row(table, attrs) do
++    {1, [%{id: id}]} = Repo.insert_all(table, [attrs], returning: [:id])
++    id
++  end
++
++  defp rows(table) do
++    result = Ecto.Adapters.SQL.query!(Repo, "SELECT * FROM " <> table <> " ORDER BY id", [])
++    Enum.map(result.rows, fn values -> Map.new(Enum.zip(result.columns, values)) end)
++  end
++
++  defp row(table, id), do: Enum.find(rows(table), &(&1["id"] == id))
++
++  defp assert_missing(table, id),
++    do: assert(row(table, id) == nil, "row #{id} remains in #{table}")
++
++  defp user_rows(table, id), do: Enum.filter(rows(table), &(&1["user_id"] == id))
++  defp no_user_rows?(table, id), do: user_rows(table, id) == []
++
++  defp snapshot do
++    Map.new(
++      [
++        "users",
++        "users_tokens",
++        "organizations",
++        "memberships",
++        "tickets",
++        "comments",
++        "port_knowledge_books",
++        "port_knowledge_pages",
++        "port_knowledge_assets",
++        "port_knowledge_grants",
++        "port_knowledge_search",
++        "port_personal_notices",
++        "port_sign_ins"
++      ],
++      fn table -> {table, rows(table)} end
++    )
++  end
++end

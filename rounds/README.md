@@ -190,3 +190,5 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [x-review](x-review/README.md) — **INTERIM** See the round page for its cohort, evidence coverage, and limitations.
 - [x-roles](x-roles/README.md) — **INTERIM** See the round page for its cohort, evidence coverage, and limitations.
 - [x-surface](x-surface/README.md) — **INTERIM** See the round page for its cohort, evidence coverage, and limitations.
+
+- [hc01-small32](hc01-small32/README.md) — **INCOMPLETE** owner stop at 25/32 graded; descriptive label, ceiling not confirmed.

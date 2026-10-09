@@ -108,3 +108,12 @@ Recompute the 24-cell table, arm rescue counts, usage totals, and rule result wi
     python3 rounds/l3b-repair-vs-continue/reproduce/l3b_repair_vs_continue.py
 
 The reproducer reads only the published aggregate CSV and boolean evidence JSON. It does not replay model execution or official grading. The source grade rows were filtered to scored reps at or above 9000 and sanitized with safe_rows.py before the public exports were written; admission-control rows were excluded.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l3b-repair-vs-continue.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 9 rows (fail 5, pass 4); overall pass rate is 44.4% (4/9) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 9 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 9 raw-only or non-public rows; they are kept separate from the published-export denominator.

@@ -115,3 +115,12 @@ Historical Luna-max no-plan baseline commits:
 | `r70-4-ts-bun-fe2` | `codex__gpt-6-luna__max__default__r70-4-ts-bun-fe2__r10`, `codex__gpt-6-luna__max__default__r70-4-ts-bun-fe2__r13`, `codex__gpt-6-luna__max__default__r70-4-ts-bun-fe2__r9` | [`cc3a831a167020538c4ca2ad90185606a2e4ad6a`](https://github.com/KogenAI/kogen-ex/commit/cc3a831a167020538c4ca2ad90185606a2e4ad6a) |
 | `r70-7-rust` | `codex__gpt-6-luna__max__default__r70-7-rust__r1`, `codex__gpt-6-luna__max__default__r70-7-rust__r2`, `codex__gpt-6-luna__max__default__r70-7-rust__r3`, `codex__gpt-6-luna__max__default__r70-7-rust__r31`, `codex__gpt-6-luna__max__default__r70-7-rust__r32`, `codex__gpt-6-luna__max__default__r70-7-rust__r33`, `codex__gpt-6-luna__max__default__r70-7-rust__r905` | [`111a0c776ae6d93f6e7fccd3fc694d5f4fa26838`](https://github.com/KogenAI/kogen-ex/commit/111a0c776ae6d93f6e7fccd3fc694d5f4fa26838) |
 <!-- L2-COMMIT-MAP:END -->
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l2-plan-specificity.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 39 rows (fail 22, pass 17); overall pass rate is 43.6% (17/39) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 39 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 39 raw-only or non-public rows; they are kept separate from the published-export denominator.

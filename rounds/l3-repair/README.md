@@ -72,3 +72,12 @@ python3 reproduce/validate_repo.py
 ```
 
 The reproducer uses only the standard library and reads [rounds/l3-repair/data/cells.csv](data/cells.csv). The CSV records cell IDs, aggregate test counts, wall seconds, uncached/cached/output token counts, independent base pass rates, and operator variant SHAs. No hidden-test names or reference content are included. The frozen [pre-registration bundle](INPUTS.json) preserves the design-time inputs; the final grades and deployment SHAs are recorded in this page and the CSV.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/l3-repair.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 3 rows (fail 2, pass 1); overall pass rate is 33.3% (1/3) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 3 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 3 raw-only or non-public rows; they are kept separate from the published-export denominator.

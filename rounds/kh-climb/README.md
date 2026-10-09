@@ -6,7 +6,7 @@ Why not VALID: The historical inventory retains DESCRIPTIVE because of DENOMINAT
 Recomputation status: OBSERVED SOURCE ONLY
 
 
-**Recomputation limit:** Published summary figures: planned/observed counts, outcome totals/rates, and numeric estimates as present in README.md and RESULTS.md. These figures cannot be recomputed from repository inputs because no public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled.
+**Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
 ## Status
 
 **DESCRIPTIVE**
@@ -69,3 +69,12 @@ Sources: [reported data file](reported-data.json); [public cells export](../../r
 ## Studio source recovery
 
 Studio retains `state-current.json` and log rows only. Log content is excluded from the mined records, and no per-cell model manifests were present. This source remains in [the source inventory](../../data/mined/STUDIO-SOURCES.json); the round’s published status and numbers are unchanged.
+
+## Recomputed from raw records
+
+[`recomputed.json`](recomputed.json), [mined cell records](../../data/mined/kh-climb.jsonl.gz), and the [token audit](../../data/mined/TOKEN-AUDIT.json) back observed official outcomes, per-arm pass counts/rates, manifest token counters, and wall medians. The source contains 18 rows (fail 11, pass 7); overall pass rate is 38.9% (7/18) among pass/fail grades. Per-arm detail and coverage counts are in the JSON.
+
+No shared cell IDs are present in the committed public grade export; the source-only cohort is checked against the page's reported figures below.
+No shared public-export cell IDs are available for a paired outcome comparison.
+No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 18 missing published metadata). Missing counters remain unknown, not zero.
+This round also has 18 raw-only or non-public rows; they are kept separate from the published-export denominator.

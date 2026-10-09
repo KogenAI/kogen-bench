@@ -1,0 +1,43 @@
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+
+Compiling 46 files (.ex)
+Generated trackline app
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+
+Running ExUnit with seed: 17, max_cases: 20
+
+.....................................................................................................................................
+Finished in 1.3 seconds (0.2s async, 1.1s sync)
+
+Result: 133 passed
+== hidden checks
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+
+Running ExUnit with seed: 0, max_cases: 20
+
+.......
+
+  1) test unpublish closes all deep links even using a stale struct (Trackline.PortPublicationTest)
+     test/port_test.exs:68
+     Assertion with == failed
+     code:  assert Publication.public_board(b.public_key) == nil
+     left:  %Trackline.Ports.Board{
+              __meta__: #Ecto.Schema.Metadata<:loaded, "port_boards">,
+              id: 1,
+              name: "Private board",
+              organization_id: 1,
+              public_key: "pfBHGVryaeSS9qrGJA8_4XUhN9PSZTDK"
+            }
+     right: nil
+     stacktrace:
+       test/port_test.exs:72: (test)
+
+.
+Finished in 0.2 seconds (0.00s async, 0.2s sync)
+
+Result: 8/9 passed
+Failed: 1 test

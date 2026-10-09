@@ -1,0 +1,819 @@
+diff --git a/lib/trackline/support.ex b/lib/trackline/support.ex
+index 42b634f..dc6a205 100644
+--- a/lib/trackline/support.ex
++++ b/lib/trackline/support.ex
+@@ -7,6 +7,7 @@ defmodule Trackline.Support do
+ 
+   alias Trackline.Accounts.User
+   alias Trackline.Repo
++  alias Trackline.Support.InboundEmailMessage
+   alias Trackline.Support.{Comment, Membership, Organization, Ticket}
+ 
+   ## Organizations and membership
+@@ -96,6 +97,107 @@ defmodule Trackline.Support do
+     ticket |> Ecto.Changeset.change(assignee_id: user_id) |> Repo.update()
+   end
+ 
++  @doc "Processes a validated inbound email atomically and deduplicates by organization and message ID."
++  def process_inbound_email(%Organization{id: org_id}, attrs) when is_map(attrs) do
++    result =
++      Repo.transaction(fn ->
++        # SQLite has no SELECT ... FOR UPDATE. A no-op update takes its write
++        # lock before the lookup, serializing concurrent webhook deliveries.
++        Repo.query!("UPDATE organizations SET id = id WHERE id = ?", [org_id])
++
++        case Repo.get_by(InboundEmailMessage,
++               organization_id: org_id,
++               message_id: attrs.message_id
++             ) do
++          %InboundEmailMessage{ticket_id: ticket_id} ->
++            {:duplicate, ticket_id}
++
++          nil ->
++            create_inbound_email(org_id, attrs)
++        end
++      end)
++
++    case result do
++      {:ok, {:created, ticket_id}} -> {:ok, ticket_id, :created}
++      {:ok, {:duplicate, ticket_id}} -> {:ok, ticket_id, :duplicate}
++      {:error, reason} -> {:error, reason}
++    end
++  end
++
++  defp create_inbound_email(org_id, attrs) do
++    parent =
++      case attrs[:in_reply_to] do
++        parent_id when is_binary(parent_id) and parent_id != "" ->
++          Repo.get_by(InboundEmailMessage,
++            organization_id: org_id,
++            message_id: parent_id
++          )
++
++        _ ->
++          nil
++      end
++
++    ticket_id =
++      case parent do
++        %InboundEmailMessage{ticket_id: ticket_id} ->
++          create_inbound_comment!(ticket_id, attrs.text)
++          ticket_id
++
++        nil ->
++          create_inbound_ticket!(org_id, attrs)
++      end
++
++    %InboundEmailMessage{}
++    |> InboundEmailMessage.changeset(%{
++      organization_id: org_id,
++      message_id: attrs.message_id,
++      ticket_id: ticket_id
++    })
++    |> Repo.insert()
++    |> case do
++      {:ok, _mapping} -> {:created, ticket_id}
++      {:error, changeset} -> Repo.rollback(changeset)
++    end
++  end
++
++  defp create_inbound_ticket!(org_id, attrs) do
++    subject = String.trim(attrs.subject)
++    title = if subject == "", do: "(no subject)", else: String.slice(subject, 0, 200)
++
++    ticket = %Ticket{
++      organization_id: org_id,
++      author_id: nil,
++      assignee_id: nil
++    }
++
++    ticket
++    |> Ecto.Changeset.change(%{
++      title: title,
++      body: attrs.text,
++      requester_email: attrs.from,
++      status: "open",
++      priority: "normal"
++    })
++    |> Repo.insert()
++    |> case do
++      {:ok, ticket} -> ticket.id
++      {:error, changeset} -> Repo.rollback(changeset)
++    end
++  end
++
++  defp create_inbound_comment!(ticket_id, body) do
++    comment = %Comment{ticket_id: ticket_id, author_id: nil}
++    body = String.slice(body, 0, 5_000)
++
++    comment
++    |> Ecto.Changeset.change(body: body)
++    |> Repo.insert()
++    |> case do
++      {:ok, comment} -> comment.id
++      {:error, changeset} -> Repo.rollback(changeset)
++    end
++  end
++
+   ## Comments
+ 
+   def add_comment(%Ticket{id: ticket_id}, %User{id: author_id}, attrs) do
+diff --git a/lib/trackline/support/inbound_email_message.ex b/lib/trackline/support/inbound_email_message.ex
+new file mode 100644
+index 0000000..456b697
+--- /dev/null
++++ b/lib/trackline/support/inbound_email_message.ex
+@@ -0,0 +1,23 @@
++defmodule Trackline.Support.InboundEmailMessage do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  alias Trackline.Support.{Organization, Ticket}
++
++  schema "inbound_email_messages" do
++    field :message_id, :string
++    belongs_to :organization, Organization
++    belongs_to :ticket, Ticket
++
++    timestamps(type: :utc_datetime)
++  end
++
++  def changeset(message, attrs) do
++    message
++    |> cast(attrs, [:organization_id, :message_id, :ticket_id])
++    |> validate_required([:organization_id, :message_id, :ticket_id])
++    |> unique_constraint([:organization_id, :message_id],
++      name: :inbound_email_messages_organization_id_message_id_index
++    )
++  end
++end
+diff --git a/lib/trackline/support/ticket.ex b/lib/trackline/support/ticket.ex
+index 8c18355..09b7c57 100644
+--- a/lib/trackline/support/ticket.ex
++++ b/lib/trackline/support/ticket.ex
+@@ -8,6 +8,7 @@ defmodule Trackline.Support.Ticket do
+   schema "tickets" do
+     field :title, :string
+     field :body, :string
++    field :requester_email, :string
+     field :status, :string, default: "open"
+     field :priority, :string, default: "normal"
+     field :comment_count, :integer, virtual: true, default: 0
+diff --git a/lib/trackline_web/controllers/inbound_email_controller.ex b/lib/trackline_web/controllers/inbound_email_controller.ex
+new file mode 100644
+index 0000000..d01117c
+--- /dev/null
++++ b/lib/trackline_web/controllers/inbound_email_controller.ex
+@@ -0,0 +1,58 @@
++defmodule TracklineWeb.InboundEmailController do
++  use TracklineWeb, :controller
++
++  alias Trackline.Support
++
++  def create(conn, _params) do
++    payload = conn.assigns.inbound_email_payload
++
++    with {:ok, attrs} <- validated_attrs(payload),
++         {:ok, ticket_id, result} <-
++           Support.process_inbound_email(conn.assigns.inbound_email_organization, attrs) do
++      case result do
++        :created ->
++          conn |> put_status(:created) |> json(%{ticket_id: ticket_id})
++
++        :duplicate ->
++          json(conn, %{ticket_id: ticket_id, duplicate: true})
++      end
++    else
++      :error ->
++        conn |> put_status(:unprocessable_entity) |> json(%{error: "missing_required_fields"})
++
++      {:error, _reason} ->
++        conn |> put_status(:unprocessable_entity) |> json(%{error: "invalid_email"})
++    end
++  end
++
++  defp validated_attrs(payload) do
++    message_id = payload["message_id"]
++    sender = payload["from"]
++    subject = Map.get(payload, "subject", "")
++    text = Map.get(payload, "text", "")
++    in_reply_to = Map.get(payload, "in_reply_to")
++
++    cond do
++      not non_empty_binary?(message_id) or not non_empty_binary?(sender) ->
++        :error
++
++      not is_binary(subject) or not is_binary(text) ->
++        {:error, :invalid_text_fields}
++
++      not (is_nil(in_reply_to) or is_binary(in_reply_to)) ->
++        {:error, :invalid_reply_reference}
++
++      true ->
++        {:ok,
++         %{
++           message_id: message_id,
++           from: sender,
++           subject: subject,
++           text: text,
++           in_reply_to: in_reply_to
++         }}
++    end
++  end
++
++  defp non_empty_binary?(value), do: is_binary(value) and value != ""
++end
+diff --git a/lib/trackline_web/endpoint.ex b/lib/trackline_web/endpoint.ex
+index 828db3f..3cbe6c5 100644
+--- a/lib/trackline_web/endpoint.ex
++++ b/lib/trackline_web/endpoint.ex
+@@ -39,6 +39,8 @@ defmodule TracklineWeb.Endpoint do
+   plug Plug.RequestId
+   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+ 
++  plug TracklineWeb.Plugs.InboundEmailAuth
++
+   plug Plug.Parsers,
+     parsers: [:urlencoded, :multipart, :json],
+     pass: ["*/*"],
+diff --git a/lib/trackline_web/plugs/inbound_email_auth.ex b/lib/trackline_web/plugs/inbound_email_auth.ex
+new file mode 100644
+index 0000000..788971e
+--- /dev/null
++++ b/lib/trackline_web/plugs/inbound_email_auth.ex
+@@ -0,0 +1,134 @@
++defmodule TracklineWeb.Plugs.InboundEmailAuth do
++  @moduledoc false
++  @behaviour Plug
++
++  import Plug.Conn
++
++  alias Trackline.Support
++
++  @max_body_bytes 65_536
++  @timestamp_window_seconds 300
++  @signature_pattern ~r/\A[0-9a-f]{64}\z/
++  @timestamp_pattern ~r/\A-?[0-9]+\z/
++
++  @impl Plug
++  def init(opts), do: opts
++
++  @impl Plug
++  def call(
++        %Plug.Conn{method: "POST", path_info: ["api", "orgs", slug, "inbound-email"]} = conn,
++        _opts
++      ) do
++    case Support.get_organization_by_slug(slug) do
++      nil ->
++        reject(conn, 404, "organization_not_found")
++
++      organization ->
++        authenticate_and_parse(conn, organization)
++    end
++  end
++
++  def call(conn, _opts), do: conn
++
++  defp authenticate_and_parse(conn, organization) do
++    timestamp_headers = get_req_header(conn, "x-webhook-timestamp")
++    signature_headers = get_req_header(conn, "x-webhook-signature")
++
++    authenticated =
++      with secret when is_binary(secret) and secret != "" <- organization.webhook_secret,
++           [timestamp] <- timestamp_headers,
++           {:ok, timestamp_seconds} <- parse_timestamp(timestamp),
++           true <- within_window?(timestamp_seconds),
++           [signature] <- signature_headers,
++           {:ok, body, conn} <- read_body_limited(conn) do
++        if valid_signature?(secret, timestamp, body, signature) do
++          {:ok, body, conn}
++        else
++          :unauthorized
++        end
++      else
++        :too_large -> :too_large
++        {:error, :read_body} -> :read_error
++        _ -> :unauthorized
++      end
++
++    case authenticated do
++      {:ok, body, conn} ->
++        case Jason.decode(body) do
++          {:ok, payload} when is_map(payload) ->
++            conn
++            |> assign(:inbound_email_organization, organization)
++            |> assign(:inbound_email_payload, payload)
++            |> Map.put(:body_params, payload)
++
++          _ ->
++            reject(conn, 400, "invalid_json")
++        end
++
++      :too_large ->
++        reject(conn, 413, "request_too_large")
++
++      :read_error ->
++        reject(conn, 400, "invalid_request_body")
++
++      :unauthorized ->
++        reject(conn, 401, "unauthorized")
++    end
++  end
++
++  defp parse_timestamp(timestamp) do
++    if is_binary(timestamp) and Regex.match?(@timestamp_pattern, timestamp) do
++      case Integer.parse(timestamp) do
++        {seconds, ""} -> {:ok, seconds}
++        _ -> :error
++      end
++    else
++      :error
++    end
++  end
++
++  defp within_window?(timestamp_seconds) do
++    abs(System.system_time(:second) - timestamp_seconds) <= @timestamp_window_seconds
++  end
++
++  defp valid_signature?(secret, timestamp, body, signature) do
++    if Regex.match?(@signature_pattern, signature) do
++      expected =
++        :crypto.mac(:hmac, :sha256, secret, timestamp <> "." <> body)
++        |> Base.encode16(case: :lower)
++
++      Plug.Crypto.secure_compare(expected, signature)
++    else
++      false
++    end
++  end
++
++  defp read_body_limited(conn), do: read_body_limited(conn, "")
++
++  defp read_body_limited(conn, accumulated) do
++    case read_body(conn, length: @max_body_bytes + 1, read_length: @max_body_bytes + 1) do
++      {:ok, chunk, conn} ->
++        body = accumulated <> chunk
++        if byte_size(body) <= @max_body_bytes, do: {:ok, body, conn}, else: :too_large
++
++      {:more, chunk, conn} ->
++        body = accumulated <> chunk
++
++        if byte_size(body) > @max_body_bytes do
++          :too_large
++        else
++          read_body_limited(conn, body)
++        end
++
++      {:error, _reason} ->
++        {:error, :read_body}
++    end
++  end
++
++  defp reject(conn, status, error) do
++    conn
++    |> put_resp_content_type("application/json")
++    |> send_resp(status, Jason.encode!(%{error: error}))
++    |> halt()
++  end
++end
+diff --git a/lib/trackline_web/router.ex b/lib/trackline_web/router.ex
+index 5e123a6..93a2226 100644
+--- a/lib/trackline_web/router.ex
++++ b/lib/trackline_web/router.ex
+@@ -23,6 +23,12 @@ defmodule TracklineWeb.Router do
+     get "/", PageController, :home
+   end
+ 
++  scope "/api", TracklineWeb do
++    pipe_through :api
++
++    post "/orgs/:slug/inbound-email", InboundEmailController, :create
++  end
++
+   # Other scopes may use custom stacks.
+   # scope "/api", TracklineWeb do
+   #   pipe_through :api
+diff --git a/priv/repo/migrations/20260929090006_add_inbound_email_support.exs b/priv/repo/migrations/20260929090006_add_inbound_email_support.exs
+new file mode 100644
+index 0000000..c457d90
+--- /dev/null
++++ b/priv/repo/migrations/20260929090006_add_inbound_email_support.exs
+@@ -0,0 +1,20 @@
++defmodule Trackline.Repo.Migrations.AddInboundEmailSupport do
++  use Ecto.Migration
++
++  def change do
++    alter table(:tickets) do
++      add :requester_email, :text
++    end
++
++    create table(:inbound_email_messages) do
++      add :organization_id, references(:organizations, on_delete: :delete_all), null: false
++      add :message_id, :text, null: false
++      add :ticket_id, references(:tickets, on_delete: :delete_all), null: false
++
++      timestamps(type: :utc_datetime)
++    end
++
++    create unique_index(:inbound_email_messages, [:organization_id, :message_id])
++    create index(:inbound_email_messages, [:ticket_id])
++  end
++end
+diff --git a/test/acceptance/syn-31-inbound-email-webhook_test.exs b/test/acceptance/syn-31-inbound-email-webhook_test.exs
+new file mode 100644
+index 0000000..8e80fc6
+--- /dev/null
++++ b/test/acceptance/syn-31-inbound-email-webhook_test.exs
+@@ -0,0 +1,392 @@
++defmodule TracklineWeb.InboundEmailIntentAcceptanceTest do
++  use TracklineWeb.ConnCase, async: false
++
++  alias Trackline.Repo
++  alias Trackline.Support
++  alias Trackline.Support.{Comment, Ticket}
++
++  import Trackline.AccountsFixtures
++  import Trackline.SupportFixtures
++
++  defp signed_org(secret \\ "inbound-test-secret") do
++    organization_fixture(nil, %{webhook_secret: secret})
++  end
++
++  defp email(id, fields \\ %{}) do
++    Map.merge(
++      %{
++        "message_id" => id,
++        "from" => "${OWNER_EMAIL}",
++        "subject" => "Help",
++        "text" => "Email body"
++      },
++      fields
++    )
++  end
++
++  defp sign(secret, timestamp, body) do
++    # Provider signature: lowercase hex HMAC-SHA256 of "<timestamp>.<request body>".
++    :crypto.mac(:hmac, :sha256, secret, timestamp <> "." <> body)
++    |> Base.encode16(case: :lower)
++  end
++
++  defp deliver(org, payload, opts \\ []) do
++    body = if is_binary(payload), do: payload, else: Jason.encode!(payload)
++    timestamp = Keyword.get(opts, :timestamp, Integer.to_string(System.system_time(:second)))
++    secret = Keyword.get(opts, :secret, org.webhook_secret || "")
++
++    signature =
++      case Keyword.fetch(opts, :signature) do
++        {:ok, value} -> value
++        :error -> sign(secret, timestamp, body)
++      end
++
++    slug = Keyword.get(opts, :slug, org.slug)
++
++    conn =
++      build_conn()
++      |> put_req_header("content-type", "application/json")
++      |> put_req_header("accept", "application/json")
++
++    conn =
++      if timestamp == :missing,
++        do: conn,
++        else: put_req_header(conn, "x-webhook-timestamp", timestamp)
++
++    conn =
++      if signature == :missing,
++        do: conn,
++        else: put_req_header(conn, "x-webhook-signature", signature)
++
++    post(conn, "/api/orgs/#{slug}/inbound-email", body)
++  end
++
++  defp created(org, payload) do
++    response = org |> deliver(payload) |> json_response(201)
++    assert Map.has_key?(response, "ticket_id")
++    refute response["duplicate"]
++    ticket = Support.get_ticket!(response["ticket_id"])
++    assert ticket.author_id == nil
++    assert ticket.assignee_id == nil
++    ticket
++  end
++
++  defp counts do
++    {Repo.aggregate(Ticket, :count, :id), Repo.aggregate(Comment, :count, :id)}
++  end
++
++  defp records do
++    {Repo.all(Ticket) |> Enum.sort_by(& &1.id), Repo.all(Comment) |> Enum.sort_by(& &1.id)}
++  end
++
++  defp assert_prefix(actual, original, limit) do
++    assert is_binary(actual)
++    assert String.length(actual) > 0
++    assert String.length(actual) <= limit
++    assert String.starts_with?(original, actual)
++    assert actual != original
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A1"
++  test "new email tickets preserve sender and large bodies while normalizing titles and ignoring attachments" do
++    org = signed_org()
++    body = " \n" <> String.duplicate("x", 49_996) <> "\n "
++    assert String.length(body) == 50_000
++
++    payload =
++      email("large", %{
++        "subject" => "Need help",
++        "text" => body,
++        "attachments" => [%{"filename" => "ignored.txt", "content" => "ignore me"}]
++      })
++
++    assert byte_size(Jason.encode!(payload)) < 65_536
++    ticket = created(org, payload)
++    assert ticket.organization_id == org.id
++    assert ticket.title == "Need help"
++    assert ticket.body == body
++    assert Map.get(ticket, :requester_email) == "${OWNER_EMAIL}"
++    assert ticket.status == "open"
++    assert ticket.author_id == nil
++    assert ticket.assignee_id == nil
++    assert Support.list_comments(ticket) == []
++
++    blank = created(org, email("blank", %{"subject" => "", "from" => "${OWNER_EMAIL}"}))
++    assert blank.title == "(no subject)"
++    assert Map.get(blank, :requester_email) == "${OWNER_EMAIL}"
++    long_subject = String.duplicate("é", 230)
++    shortened = created(org, email("long-title", %{"subject" => long_subject}))
++    assert_prefix(shortened.title, long_subject, 200)
++    assert counts() == {3, 0}
++
++    exact_title = String.duplicate("é", 200)
++    at_limit = created(org, email("title-limit", %{"subject" => exact_title}))
++    assert at_limit.title == exact_title
++    assert counts() == {4, 0}
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A2"
++  test "replies thread through replies in arrival order and unknown or foreign references create tickets" do
++    org = signed_org()
++    other = signed_org("other-secret")
++    root = created(org, email("thread-root"))
++
++    first =
++      created(
++        org,
++        email("reply-one", %{
++          "in_reply_to" => "thread-root",
++          "text" => "First reply",
++          "from" => "${OWNER_EMAIL}"
++        })
++      )
++
++    assert first.id == root.id
++    assert Map.get(Support.get_ticket!(root.id), :requester_email) == "${OWNER_EMAIL}"
++    long_reply = String.duplicate("é", 5_400)
++
++    second =
++      created(
++        org,
++        email("reply-two", %{
++          "in_reply_to" => "reply-one",
++          "text" => long_reply,
++          "attachments" => [%{"filename" => "ignored.pdf"}]
++        })
++      )
++
++    assert second.id == root.id
++
++    third =
++      created(org, email("reply-three", %{"in_reply_to" => "reply-two", "text" => "Third reply"}))
++
++    assert third.id == root.id
++    comments = Support.list_comments(root)
++    assert [first_comment, second_comment, third_comment] = comments
++    assert first_comment.body == "First reply"
++    assert_prefix(second_comment.body, long_reply, 5_000)
++    assert third_comment.body == "Third reply"
++    assert Enum.all?(comments, &is_nil(&1.author_id))
++    assert Support.get_ticket!(root.id).assignee_id == nil
++
++    unknown =
++      created(
++        org,
++        email("unknown-parent", %{"in_reply_to" => "never-seen", "text" => "New issue"})
++      )
++
++    assert unknown.id != root.id
++    assert unknown.body == "New issue"
++    foreign = created(other, email("foreign-parent", %{"in_reply_to" => "reply-two"}))
++    assert foreign.organization_id == other.id
++    assert foreign.id != root.id
++    assert foreign.status == "open"
++    assert Support.list_comments(foreign) == []
++    assert length(Support.list_comments(root)) == 3
++    assert counts() == {3, 3}
++
++    exact_reply = String.duplicate("é", 5_000)
++
++    assert created(
++             org,
++             email("reply-limit", %{"in_reply_to" => "reply-three", "text" => exact_reply})
++           ).id == root.id
++
++    assert [a, b, c, last] = Support.list_comments(root)
++    assert [a.id, b.id, c.id] == Enum.map(comments, & &1.id)
++    assert last.body == exact_reply
++    assert last.author_id == nil
++    assert counts() == {3, 4}
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A3"
++  test "ticket and reply duplicates are mutation-free and IDs are independent between organizations" do
++    org = signed_org()
++    other = signed_org("separate-key")
++    root_payload = email("shared-root")
++    root = created(org, root_payload)
++    before = counts()
++    before_records = records()
++
++    assert json_response(deliver(org, root_payload), 200) == %{
++             "ticket_id" => root.id,
++             "duplicate" => true
++           }
++
++    assert counts() == before
++    assert records() == before_records
++    assert Support.get_ticket!(root.id).body == root.body
++
++    reply_payload = email("shared-reply", %{"in_reply_to" => "shared-root", "text" => "A reply"})
++    assert created(org, reply_payload).id == root.id
++    before = counts()
++    before_records = records()
++
++    assert json_response(deliver(org, reply_payload), 200) == %{
++             "ticket_id" => root.id,
++             "duplicate" => true
++           }
++
++    assert counts() == before
++    assert records() == before_records
++    assert [%{body: "A reply"}] = Support.list_comments(root)
++
++    other_root = created(other, root_payload)
++    assert other_root.id != root.id
++    assert other_root.organization_id == other.id
++    assert created(other, reply_payload).id == other_root.id
++    before_records = records()
++
++    assert json_response(deliver(other, root_payload), 200) == %{
++             "ticket_id" => other_root.id,
++             "duplicate" => true
++           }
++
++    assert json_response(deliver(other, reply_payload), 200) == %{
++             "ticket_id" => other_root.id,
++             "duplicate" => true
++           }
++
++    assert [%{body: "A reply"}] = Support.list_comments(other_root)
++    assert counts() == {2, 2}
++    assert records() == before_records
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A4"
++  test "exact raw bytes and timestamp are authenticated before parsing and secrets are mandatory" do
++    org = signed_org()
++    now = System.system_time(:second)
++    before = counts()
++
++    invalid_requests = [
++      {email("wrong-key"), [secret: "wrong-secret"]},
++      {email("bad-signature"), [signature: "not-a-signature"]},
++      {email("missing-signature"), [signature: :missing]},
++      {email("missing-time"), [timestamp: :missing, signature: "00"]},
++      {"not JSON", [timestamp: "not-a-number"]},
++      {"not JSON", [timestamp: "#{now}.5"]},
++      {"not JSON", [timestamp: "#{now}junk"]},
++      {"not JSON", [timestamp: Integer.to_string(now - 601)]},
++      {"not JSON", [timestamp: Integer.to_string(now + 601)]},
++      {"not JSON", [signature: "00"]}
++    ]
++
++    for {payload, opts} <- invalid_requests do
++      assert response(deliver(org, payload, opts), 401)
++      assert counts() == before
++    end
++
++    for offset <- [-305, 305] do
++      timestamp = Integer.to_string(System.system_time(:second) + offset)
++      assert response(deliver(org, "not JSON", timestamp: timestamp), 401)
++      assert counts() == before
++    end
++
++    for secret <- [nil, ""] do
++      unconfigured = signed_org(secret)
++      assert response(deliver(unconfigured, "not JSON", secret: ""), 401)
++      assert response(deliver(unconfigured, email("no-secret"), secret: ""), 401)
++      assert counts() == before
++    end
++
++    # Signatures must cover timestamp, dot, and raw body, not just the body.
++    body = Jason.encode!(email("signature-format"))
++    timestamp = Integer.to_string(System.system_time(:second))
++
++    for signed_bytes <- [body, timestamp <> body, timestamp <> ":" <> body] do
++      incorrect =
++        :crypto.mac(:hmac, :sha256, org.webhook_secret, signed_bytes)
++        |> Base.encode16(case: :lower)
++
++      assert response(deliver(org, body, timestamp: timestamp, signature: incorrect), 401)
++      assert counts() == before
++    end
++
++    # With valid authentication, malformed JSON is 400 instead of 401.
++    assert response(deliver(org, "not JSON"), 400)
++    assert counts() == before
++
++    # A valid signature on different bytes cannot authorize this body.
++    raw =
++      " {\"message_id\":\"raw\", \"from\":\"${OWNER_EMAIL}\", \"subject\":\"Raw\", \"text\":\"Exact bytes\"} \n"
++
++    timestamp = Integer.to_string(System.system_time(:second))
++    normalized = raw |> Jason.decode!() |> Jason.encode!()
++
++    assert response(
++             deliver(org, raw,
++               timestamp: timestamp,
++               signature: sign(org.webhook_secret, timestamp, normalized)
++             ),
++             401
++           )
++
++    assert counts() == before
++    raw_ticket = created(org, raw)
++    assert raw_ticket.body == "Exact bytes"
++
++    # Exercise valid timestamps on both sides, including the future 300-second boundary.
++    for offset <- [-240, 240, -295, 300] do
++      payload = email("window-#{offset}")
++
++      conn =
++        deliver(org, payload, timestamp: Integer.to_string(System.system_time(:second) + offset))
++
++      assert %{"ticket_id" => _} = json_response(conn, 201)
++    end
++
++    assert counts() == {5, 0}
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A5"
++  test "unknown organizations, byte limits, JSON errors and missing required fields return prescribed statuses" do
++    org = signed_org()
++    before = counts()
++    assert response(deliver(org, email("unknown-org"), slug: "not-a-real-organization"), 404)
++    assert response(deliver(org, "{invalid JSON"), 400)
++
++    for field <- ["message_id", "from"] do
++      assert response(deliver(org, Map.delete(email("missing-#{field}"), field)), 422)
++    end
++
++    assert counts() == before
++
++    large = Jason.encode!(email("oversize", %{"text" => String.duplicate("x", 65_536)}))
++    assert byte_size(large) > 65_536
++    assert response(deliver(org, large), 413)
++    assert counts() == before
++
++    # JSON trailing whitespace makes exact byte-boundary probes without changing fields.
++    encoded = Jason.encode!(email("boundary", %{"text" => "At the byte limit"}))
++    boundary = encoded <> String.duplicate(" ", 65_536 - byte_size(encoded))
++    assert byte_size(boundary) == 65_536
++    assert response(deliver(org, boundary <> " "), 413)
++    assert counts() == before
++    ticket = created(org, boundary)
++    assert ticket.body == "At the byte limit"
++    assert counts() == {1, 0}
++  end
++
++  @tag intent: "syn-31-inbound-email-webhook/A6"
++  test "ordinary authored support workflows retain validation and chronological listing" do
++    owner = user_fixture()
++    org = organization_fixture(owner)
++
++    assert {:ok, ticket} =
++             Support.create_ticket(org, owner, %{title: "App ticket", body: "App body"})
++
++    assert ticket.author_id == owner.id
++    assert ticket.assignee_id == nil
++    assert ticket.status == "open"
++    assert ticket.body == "App body"
++    assert {:error, _} = Support.create_ticket(org, owner, %{title: String.duplicate("x", 201)})
++    assert {:error, _} = Support.add_comment(ticket, owner, %{body: "   "})
++    assert {:error, _} = Support.add_comment(ticket, owner, %{body: String.duplicate("x", 5_001)})
++    assert {:ok, first} = Support.add_comment(ticket, owner, %{body: "  First app comment  "})
++    assert first.body == "First app comment"
++    assert {:ok, second} = Support.add_comment(ticket, owner, %{body: "Second app comment"})
++    assert Enum.map(Support.list_comments(ticket), & &1.id) == [first.id, second.id]
++    assert Enum.all?(Support.list_comments(ticket), &(&1.author_id == owner.id))
++    assert counts() == {1, 2}
++  end
++end
