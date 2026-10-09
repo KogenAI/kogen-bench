@@ -121,6 +121,18 @@ SYNTHETIC_GIT_IDENTITIES={
     'r70-author@invalid.local',
     'task-author@example.invalid',
 }
+PUBLIC_AUDIT_FIXTURE_ALLOWLIST={
+    ('reproduce/audit_cell.py', 'IPv4 address'): [re.compile(r'0\.0\.0\.0')],
+    ('reproduce/test_audit_cell.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/test_audit_cell.py', 'email address'): [
+        re.compile(r'test@example\.invalid'), re.compile(r'git@github\.com'),
+    ],
+}
+LOOPBACK_LITERAL_ALLOWLIST={
+    ('reproduce/RERUN.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/egress-bridge.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/test_egress_proxy.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+}
 
 
 def publication_scan_findings(text, relative_path):
@@ -142,6 +154,8 @@ def publication_scan_findings(text, relative_path):
         rules.extend(('editorial',label,pattern) for label,pattern in EDITORIAL_RULES)
     for family,label,pattern in rules:
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
+        allowances=(*allowances, *PUBLIC_AUDIT_FIXTURE_ALLOWLIST.get((relative_path,label),()),
+                    *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()))
         allowed_spans=[match.span() for allowance in allowances for match in allowance.finditer(text)]
         if label=='private-source artifact reference' and (relative_path=='tasks/index.json' or (relative_path.startswith('tasks/rails-') and relative_path.endswith('/task.json'))):
             allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))
