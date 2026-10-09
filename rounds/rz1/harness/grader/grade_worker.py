@@ -30,7 +30,7 @@ def grade(job,window):
  scratch=pathlib.Path(tempfile.mkdtemp(prefix='cell-',dir=window));scratch.chmod(0o700)
  (scratch/'home').mkdir()
  project=scratch/'project';td=ROOT/'new-tasks'/job['task'];meta=json.loads((td/'task.json').read_text())
- env={**os.environ,'RUSTUP_HOME':'/opt/bench/rustup','CARGO_NET_OFFLINE':'true','GOTOOLCHAIN':'local','GOCACHE':str(scratch/'go-cache'),'HOME':str(scratch/'home'),**meta['env'],'GIT_CONFIG_GLOBAL':'/dev/null','GIT_CONFIG_NOSYSTEM':'1'}
+ env={**os.environ,'RUSTUP_HOME':'/opt/bench/rustup','CARGO_NET_OFFLINE':'true','GOTOOLCHAIN':'local','GOCACHE':str(scratch/'go-cache'),'HOME':str(scratch/'home'),**meta['env'],'GIT_CONFIG_GLOBAL':'/dev/null','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_COUNT':'1','GIT_CONFIG_KEY_0':'safe.directory','GIT_CONFIG_VALUE_0':'*'}
  def run(argv,label,hidden=False):
   args=base_args()+['--ro-bind','public-source-location-withheld','public-source-location-withheld','--bind',str(scratch),str(scratch)]
   if hidden:args+=['--ro-bind',str(window/'suites'),str(window/'suites')]
