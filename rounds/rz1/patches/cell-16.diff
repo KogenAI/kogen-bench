@@ -1,0 +1,380 @@
+diff --git a/src/core.zig b/src/core.zig
+index 1549780..b831377 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,19 +1,36 @@
+-const std = @import("std");
+-
+-pub const Failure = struct {
+-    code: u8,
+-    message: []const u8,
++pub const State = enum {
++    queued,
++    running,
++    done,
++    failed,
+ };
+ 
+-pub const Outcome = union(enum) {
+-    output: []const u8,
+-    failure: Failure,
++pub const Counts = struct {
++    total: u32 = 0,
++    queued: u32 = 0,
++    running: u32 = 0,
++    done: u32 = 0,
++    failed: u32 = 0,
+ };
+ 
+-pub fn execute(
+-    _: std.Io,
+-    _: std.mem.Allocator,
+-    _: []const []const u8,
+-) error{OutOfMemory}!Outcome {
+-    return .{ .output = "" };
++/// Sum the already validated values and apply the requested scale.
++pub fn sum(values: []const i64, scale: u32) i64 {
++    var total: i64 = 0;
++    for (values) |value| total += value;
++    return total * @as(i64, scale);
++}
++
++/// Count the already validated states.
++pub fn count(states: []const State) Counts {
++    var result: Counts = .{};
++    for (states) |state| {
++        result.total += 1;
++        switch (state) {
++            .queued => result.queued += 1,
++            .running => result.running += 1,
++            .done => result.done += 1,
++            .failed => result.failed += 1,
++        }
++    }
++    return result;
+ }
+diff --git a/src/main.zig b/src/main.zig
+index c80a271..05e2358 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -1,5 +1,44 @@
+ const std = @import("std");
+ const core = @import("core.zig");
++const shared = @import("shared.zig");
++
++const help_text = "Usage: kogen <command> [options] [FILE|-]\n" ++
++    "Commands:\n" ++
++    "  sum     Sum signed integers.\n" ++
++    "  status  Count job states.\n" ++
++    "Options:\n" ++
++    "  -h, --help  Show help.\n" ++
++    "  --version   Show version.\n";
++const sum_help_text = "Usage: kogen sum [--scale N] [--format text|json] [FILE|-]\n" ++
++    "Sum one signed integer per nonempty line (default scale: 1).\n";
++const status_help_text = "Usage: kogen status [--format text|json] [FILE|-]\n" ++
++    "Count ID,STATE records (states: queued,running,done,failed).\n";
++const version_text = "kogen 1.0.0\n";
++
++const Command = enum { sum, status };
++const Format = enum { text, json };
++
++const Config = struct {
++    command: Command,
++    format: Format = .text,
++    scale: u32 = 1,
++    path: ?[]const u8 = null,
++};
++
++pub const Failure = struct {
++    code: u8,
++    message: []const u8,
++};
++
++pub const Outcome = union(enum) {
++    output: []const u8,
++    failure: Failure,
++};
++
++const ParseResult = union(enum) {
++    config: Config,
++    completed: Outcome,
++};
+ 
+ pub fn main(init: std.process.Init) !void {
+     const allocator = init.arena.allocator();
+@@ -8,7 +47,7 @@ pub fn main(init: std.process.Init) !void {
+     _ = iterator.next();
+     while (iterator.next()) |arg| try args.append(allocator, arg);
+ 
+-    switch (try core.execute(init.io, allocator, args.items)) {
++    switch (try execute(init.io, allocator, args.items)) {
+         .output => |output| std.Io.File.stdout().writeStreamingAll(init.io, output) catch {},
+         .failure => |failure| {
+             const message = try std.fmt.allocPrint(allocator, "{s}\n", .{failure.message});
+@@ -17,3 +56,266 @@ pub fn main(init: std.process.Init) !void {
+         },
+     }
+ }
++
++pub fn execute(
++    io: std.Io,
++    allocator: std.mem.Allocator,
++    args: []const []const u8,
++) std.mem.Allocator.Error!Outcome {
++    const parsed = try parseArgs(allocator, args);
++    const config = switch (parsed) {
++        .completed => |outcome| return outcome,
++        .config => |value| value,
++    };
++
++    const loaded = try shared.load(io, allocator, config.path, "kogen");
++    const input = switch (loaded) {
++        .bytes => |bytes| bytes,
++        .failure => |message| return .{ .failure = .{ .code = 1, .message = message } },
++    };
++    defer allocator.free(input);
++
++    for (input) |byte| {
++        if (byte > 0x7f) return .{ .failure = .{ .code = 1, .message = "kogen: input is not ASCII" } };
++    }
++
++    const lines = try shared.physicalLines(allocator, input);
++    defer allocator.free(lines);
++
++    return switch (config.command) {
++        .sum => try runSum(allocator, lines, config),
++        .status => try runStatus(allocator, lines, config),
++    };
++}
++
++fn parseArgs(allocator: std.mem.Allocator, args: []const []const u8) std.mem.Allocator.Error!ParseResult {
++    if (args.len == 0) return .{ .completed = .{ .output = help_text } };
++    if (args.len == 1) {
++        if (isHelp(args[0])) return .{ .completed = .{ .output = help_text } };
++        if (std.mem.eql(u8, args[0], "--version")) return .{ .completed = .{ .output = version_text } };
++    }
++
++    const command = if (std.mem.eql(u8, args[0], "sum"))
++        Command.sum
++    else if (std.mem.eql(u8, args[0], "status"))
++        Command.status
++    else if (std.mem.startsWith(u8, args[0], "-"))
++        return argumentFailure(allocator, "kogen: unknown option '{s}'", .{args[0]})
++    else
++        return argumentFailure(allocator, "kogen: unknown command '{s}'", .{args[0]});
++
++    if (args.len == 2 and isHelp(args[1])) {
++        return .{ .completed = .{ .output = if (command == .sum) sum_help_text else status_help_text } };
++    }
++
++    var config: Config = .{ .command = command };
++    var format_seen = false;
++    var scale_seen = false;
++    var index: usize = 1;
++    while (index < args.len) {
++        const token = args[index];
++
++        if (std.mem.eql(u8, token, "--format")) {
++            if (format_seen) return argumentFailure(allocator, "kogen: duplicate option '--format'", .{});
++            format_seen = true;
++            if (index + 1 >= args.len) return argumentFailure(allocator, "kogen: option '--format' requires a value", .{});
++            const value = args[index + 1];
++            if (std.mem.eql(u8, value, "text")) {
++                config.format = .text;
++            } else if (std.mem.eql(u8, value, "json")) {
++                config.format = .json;
++            } else {
++                return argumentFailure(allocator, "kogen: invalid value for '--format': '{s}'", .{value});
++            }
++            index += 2;
++            continue;
++        }
++
++        if (command == .sum and std.mem.eql(u8, token, "--scale")) {
++            if (scale_seen) return argumentFailure(allocator, "kogen: duplicate option '--scale'", .{});
++            scale_seen = true;
++            if (index + 1 >= args.len) return argumentFailure(allocator, "kogen: option '--scale' requires a value", .{});
++            const value = args[index + 1];
++            const scale = parseScale(value) orelse return argumentFailure(
++                allocator,
++                "kogen: invalid value for '--scale': '{s}'",
++                .{value},
++            );
++            config.scale = scale;
++            index += 2;
++            continue;
++        }
++
++        if (std.mem.startsWith(u8, token, "-") and !std.mem.eql(u8, token, "-")) {
++            return argumentFailure(allocator, "kogen: unknown option '{s}'", .{token});
++        }
++        if (config.path != null) {
++            return argumentFailure(allocator, "kogen: expected at most one input path", .{});
++        }
++        config.path = token;
++        index += 1;
++    }
++
++    return .{ .config = config };
++}
++
++fn isHelp(token: []const u8) bool {
++    return std.mem.eql(u8, token, "--help") or std.mem.eql(u8, token, "-h");
++}
++
++fn parseScale(value: []const u8) ?u32 {
++    if (value.len == 0) return null;
++    if (value.len > 1 and value[0] == '0') return null;
++
++    var result: u32 = 0;
++    for (value) |byte| {
++        if (byte < '0' or byte > '9') return null;
++        const digit: u32 = byte - '0';
++        if (result > 100 or (result == 100 and digit > 0)) return null;
++        result = result * 10 + digit;
++        if (result > 100) return null;
++    }
++    return result;
++}
++
++fn argumentFailure(
++    allocator: std.mem.Allocator,
++    comptime format: []const u8,
++    values: anytype,
++) std.mem.Allocator.Error!ParseResult {
++    return .{ .completed = .{ .failure = .{
++        .code = 2,
++        .message = try std.fmt.allocPrint(allocator, format, values),
++    } } };
++}
++
++fn runSum(
++    allocator: std.mem.Allocator,
++    lines: []const []const u8,
++    config: Config,
++) std.mem.Allocator.Error!Outcome {
++    var values: std.ArrayList(i64) = .empty;
++    defer values.deinit(allocator);
++
++    for (lines, 0..) |line, index| {
++        if (line.len == 0) continue;
++        const value = parseInteger(line) orelse return .{ .failure = .{
++            .code = 1,
++            .message = try std.fmt.allocPrint(
++                allocator,
++                "kogen:{d}: expected integer -1000000..1000000",
++                .{index + 1},
++            ),
++        } };
++        try values.append(allocator, value);
++    }
++
++    const result = core.sum(values.items, config.scale);
++    const output = if (config.format == .text)
++        try std.fmt.allocPrint(allocator, "sum={d}\n", .{result})
++    else
++        try std.fmt.allocPrint(allocator, "{{\"sum\":{d}}}\n", .{result});
++    return .{ .output = output };
++}
++
++fn parseInteger(line: []const u8) ?i64 {
++    var position: usize = 0;
++    var negative = false;
++    if (line[0] == '+' or line[0] == '-') {
++        negative = line[0] == '-';
++        position = 1;
++    }
++    if (position == line.len) return null;
++
++    var magnitude: i64 = 0;
++    while (position < line.len) : (position += 1) {
++        const byte = line[position];
++        if (byte < '0' or byte > '9') return null;
++        const digit: i64 = byte - '0';
++        if (magnitude > @divTrunc(1_000_000 - digit, 10)) return null;
++        magnitude = magnitude * 10 + digit;
++    }
++    return if (negative) -magnitude else magnitude;
++}
++
++fn runStatus(
++    allocator: std.mem.Allocator,
++    lines: []const []const u8,
++    config: Config,
++) std.mem.Allocator.Error!Outcome {
++    var states: std.ArrayList(core.State) = .empty;
++    defer states.deinit(allocator);
++    var ids = std.StringHashMap(void).init(allocator);
++    defer ids.deinit();
++
++    for (lines, 0..) |line, index| {
++        if (line.len == 0) continue;
++        const record = parseRecord(line) orelse return .{ .failure = .{
++            .code = 1,
++            .message = try std.fmt.allocPrint(allocator, "kogen:{d}: expected ID,STATE", .{index + 1}),
++        } };
++        if (ids.contains(record.id)) {
++            return .{ .failure = .{
++                .code = 1,
++                .message = try std.fmt.allocPrint(
++                    allocator,
++                    "kogen:{d}: duplicate id '{s}'",
++                    .{ index + 1, record.id },
++                ),
++            } };
++        }
++        try ids.put(record.id, {});
++        try states.append(allocator, record.state);
++    }
++
++    const counts = core.count(states.items);
++    const output = if (config.format == .text)
++        try std.fmt.allocPrint(
++            allocator,
++            "total={d}\nqueued={d}\nrunning={d}\ndone={d}\nfailed={d}\n",
++            .{ counts.total, counts.queued, counts.running, counts.done, counts.failed },
++        )
++    else
++        try std.fmt.allocPrint(
++            allocator,
++            "{{\"total\":{d},\"queued\":{d},\"running\":{d},\"done\":{d},\"failed\":{d}}}\n",
++            .{ counts.total, counts.queued, counts.running, counts.done, counts.failed },
++        );
++    return .{ .output = output };
++}
++
++const Record = struct {
++    id: []const u8,
++    state: core.State,
++};
++
++fn parseRecord(line: []const u8) ?Record {
++    const comma = std.mem.indexOfScalar(u8, line, ',') orelse return null;
++    if (std.mem.indexOfScalar(u8, line[comma + 1 ..], ',') != null) return null;
++    const id = line[0..comma];
++    const state_text = line[comma + 1 ..];
++    if (!validId(id)) return null;
++
++    const state: core.State = if (std.mem.eql(u8, state_text, "queued"))
++        .queued
++    else if (std.mem.eql(u8, state_text, "running"))
++        .running
++    else if (std.mem.eql(u8, state_text, "done"))
++        .done
++    else if (std.mem.eql(u8, state_text, "failed"))
++        .failed
++    else
++        return null;
++    return .{ .id = id, .state = state };
++}
++
++fn validId(id: []const u8) bool {
++    if (id.len == 0 or id.len > 32) return false;
++    if (id[0] < 'a' or id[0] > 'z') return false;
++    for (id[1..]) |byte| {
++        if (!((byte >= 'a' and byte <= 'z') or
++            (byte >= '0' and byte <= '9') or
++            byte == '_' or byte == '-')) return false;
++    }
++    return true;
++}

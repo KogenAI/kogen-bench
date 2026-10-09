@@ -1,0 +1,395 @@
+diff --git a/Makefile b/Makefile
+index a39e957..578cd02 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,7 @@ setup:
+ 	"$(ROOT)/setup.sh"
+ 
+ build:
+-	cd "$(ROOT)" && . ./toolchain-env.sh && zig build -Doptimize=ReleaseFast && mkdir -p build/bin && cp zig-out/bin/kogen build/bin/kogen
++	cd "$(ROOT)" && . ./toolchain-env.sh && zig build -Doptimize=ReleaseFast && mkdir -p build/bin && cp zig-out/bin/kogen-config build/bin/kogen-config
+ 
+ check:
+ 	cd "$(ROOT)" && . ./toolchain-env.sh && zig fmt --check build.zig src && zig build test -Doptimize=Debug
+diff --git a/build.zig b/build.zig
+index 9f8d230..6771935 100644
+--- a/build.zig
++++ b/build.zig
+@@ -11,7 +11,7 @@ pub fn build(b: *std.Build) void {
+         .optimize = optimize,
+     });
+     const executable = b.addExecutable(.{
+-        .name = "kogen",
++        .name = "kogen-config",
+         .root_module = executable_module,
+     });
+     b.installArtifact(executable);
+diff --git a/run b/run
+index 9cd6408..f5a109c 100755
+--- a/run
++++ b/run
+@@ -1,4 +1,4 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+-exec "$ROOT/build/bin/kogen" "$@"
++exec "$ROOT/build/bin/kogen-config" "$@"
+diff --git a/src/core.zig b/src/core.zig
+index 1fd7c31..d814b90 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,3 +1,6 @@
++const std = @import("std");
++const shared = @import("shared.zig");
++
+ pub const Failure = struct {
+     code: u8,
+     message: []const u8,
+@@ -8,9 +11,342 @@ pub const Result = union(enum) {
+     failure: Failure,
+ };
+ 
+-pub fn execute(_io: @import("std").Io, _allocator: @import("std").mem.Allocator, _args: []const []const u8) !Result {
+-    _ = _io;
+-    _ = _allocator;
+-    _ = _args;
+-    return .{ .output = "" };
++const Scalar = struct {
++    value: []const u8,
++    quoted: bool,
++};
++
++const Config = struct {
++    name: []const u8 = "kogen",
++    workers: []const u8 = "1",
++    enabled: []const u8 = "true",
++    directory: []const u8 = ".",
++    seen: u4 = 0,
++};
++
++const ParseOutcome = union(enum) {
++    config: Config,
++    failure: Failure,
++};
++
++pub fn execute(io: std.Io, allocator: std.mem.Allocator, args: []const []const u8) !Result {
++    if (args.len == 1 and std.mem.eql(u8, args[0], "--help")) {
++        return .{
++            .output = "Usage: kogen-config [FILE|-]\n" ++
++                "Parse a strict YAML-subset configuration from FILE or stdin.\n" ++
++                "Options:\n" ++
++                "  --help  Show this help.\n",
++        };
++    }
++
++    // Check every argument for an option before applying the argument-count rule.
++    for (args) |arg| {
++        if (arg.len > 0 and arg[0] == '-' and !std.mem.eql(u8, arg, "-")) {
++            return .{ .failure = .{
++                .code = 2,
++                .message = try std.fmt.allocPrint(allocator, "config: unknown option '{s}'", .{arg}),
++            } };
++        }
++    }
++
++    if (args.len > 1) {
++        return .{ .failure = .{
++            .code = 2,
++            .message = "config: expected at most one input path",
++        } };
++    }
++
++    const path: ?[]const u8 = if (args.len == 0 or std.mem.eql(u8, args[0], "-")) null else args[0];
++    const input = shared.load(io, allocator, path) catch {
++        return .{ .failure = .{ .code = 1, .message = "config: cannot read input" } };
++    };
++
++    const parsed = try parse(allocator, input);
++    switch (parsed) {
++        .failure => |failure| return .{ .failure = failure },
++        .config => |config| return .{ .output = try formatConfig(allocator, config) },
++    }
++}
++
++fn formatConfig(allocator: std.mem.Allocator, config: Config) ![]const u8 {
++    return std.fmt.allocPrint(
++        allocator,
++        "name={s}\nworkers={s}\nenabled={s}\ndirectory={s}\n",
++        .{ config.name, config.workers, config.enabled, config.directory },
++    );
++}
++
++fn parse(allocator: std.mem.Allocator, input: []const u8) !ParseOutcome {
++    if (asciiFailure(input)) |position| {
++        return .{ .failure = try makeError(allocator, position.line, position.column, "expected ASCII input") };
++    }
++
++    var config: Config = .{};
++    var lines = shared.physicalLines(input);
++    var line_number: usize = 1;
++    while (lines.next()) |line| : (line_number += 1) {
++        if (isIgnored(line)) continue;
++
++        if (std.mem.indexOfScalar(u8, line, '\t')) |tab_index| {
++            return .{ .failure = try makeError(allocator, line_number, tab_index + 1, "tab is not allowed") };
++        }
++
++        if (line.len > 0 and line[0] == ' ') {
++            return .{ .failure = try makeError(allocator, line_number, 1, "unexpected indentation") };
++        }
++
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse {
++            return .{ .failure = try makeError(allocator, line_number, 1, "expected key: value") };
++        };
++        const key = line[0..colon];
++        if (!validKey(key)) {
++            return .{ .failure = try makeError(allocator, line_number, 1, "expected key: value") };
++        }
++
++        const key_id = keyId(key) orelse {
++            return .{ .failure = try makeError(
++                allocator,
++                line_number,
++                1,
++                try std.fmt.allocPrint(allocator, "unknown key '{s}'", .{key}),
++            ) };
++        };
++        const key_bit: u4 = @as(u4, 1) << @backingInt(key_id);
++        if ((config.seen & key_bit) != 0) {
++            return .{ .failure = try makeError(
++                allocator,
++                line_number,
++                1,
++                try std.fmt.allocPrint(allocator, "duplicate key '{s}'", .{key}),
++            ) };
++        }
++        config.seen |= key_bit;
++
++        var scalar_start = colon + 1;
++        while (scalar_start < line.len and line[scalar_start] == ' ') : (scalar_start += 1) {}
++        if (scalar_start >= line.len or line[scalar_start] == '#') {
++            return .{ .failure = try makeError(allocator, line_number, scalar_start + 1, "missing value") };
++        }
++
++        const scalar_result = try parseScalar(allocator, line, scalar_start, line_number);
++        switch (scalar_result) {
++            .failure => |failure| return .{ .failure = failure },
++            .scalar => |scalar| {
++                switch (key_id) {
++                    .name => {
++                        if (scalar.value.len == 0) {
++                            return .{ .failure = try makeError(allocator, line_number, scalar_start + 1, "expected nonempty string") };
++                        }
++                        config.name = scalar.value;
++                    },
++                    .workers => {
++                        if (scalar.quoted or !validWorkers(scalar.value)) {
++                            return .{ .failure = try makeError(allocator, line_number, scalar_start + 1, "expected integer 1..64") };
++                        }
++                        config.workers = scalar.value;
++                    },
++                    .enabled => {
++                        if (scalar.quoted or
++                            (!std.mem.eql(u8, scalar.value, "true") and !std.mem.eql(u8, scalar.value, "false")))
++                        {
++                            return .{ .failure = try makeError(allocator, line_number, scalar_start + 1, "expected true or false") };
++                        }
++                        config.enabled = scalar.value;
++                    },
++                    .directory => {
++                        if (scalar.value.len == 0) {
++                            return .{ .failure = try makeError(allocator, line_number, scalar_start + 1, "expected nonempty string") };
++                        }
++                        config.directory = scalar.value;
++                    },
++                }
++            },
++        }
++    }
++
++    return .{ .config = config };
++}
++
++const Position = struct {
++    line: usize,
++    column: usize,
++};
++
++fn asciiFailure(input: []const u8) ?Position {
++    var line: usize = 1;
++    var column: usize = 1;
++    for (input) |byte| {
++        if (byte > 0x7f) return .{ .line = line, .column = column };
++        if (byte == '\n') {
++            line += 1;
++            column = 1;
++        } else {
++            column += 1;
++        }
++    }
++    return null;
++}
++
++fn isIgnored(line: []const u8) bool {
++    if (std.mem.indexOfScalar(u8, line, '\t') != null) return false;
++    var index: usize = 0;
++    while (index < line.len and line[index] == ' ') : (index += 1) {}
++    return index == line.len or line[index] == '#';
++}
++
++fn validKey(key: []const u8) bool {
++    if (key.len == 0 or key[0] < 'a' or key[0] > 'z') return false;
++    for (key[1..]) |byte| {
++        if ((byte < 'a' or byte > 'z') and byte != '_') return false;
++    }
++    return true;
++}
++
++const Key = enum(u2) { name, workers, enabled, directory };
++
++fn keyId(key: []const u8) ?Key {
++    if (std.mem.eql(u8, key, "name")) return .name;
++    if (std.mem.eql(u8, key, "workers")) return .workers;
++    if (std.mem.eql(u8, key, "enabled")) return .enabled;
++    if (std.mem.eql(u8, key, "directory")) return .directory;
++    return null;
++}
++
++fn validWorkers(value: []const u8) bool {
++    if (value.len == 0 or value[0] < '1' or value[0] > '9') return false;
++    var number: u16 = 0;
++    for (value) |byte| {
++        if (byte < '0' or byte > '9') return false;
++        number = number * 10 + @as(u16, byte - '0');
++        if (number > 64) return false;
++    }
++    return number >= 1 and number <= 64;
++}
++
++const ScalarOutcome = union(enum) {
++    scalar: Scalar,
++    failure: Failure,
++};
++
++fn parseScalar(
++    allocator: std.mem.Allocator,
++    line: []const u8,
++    start: usize,
++    line_number: usize,
++) !ScalarOutcome {
++    const first = line[start];
++    if (first == '\'' or first == '"') {
++        return parseQuotedScalar(allocator, line, start, line_number, first);
++    }
++
++    var end = line.len;
++    var index = start;
++    while (index < line.len) : (index += 1) {
++        if (line[index] == '#' and index > start and line[index - 1] == ' ') {
++            end = index;
++            break;
++        }
++    }
++    while (end > start and line[end - 1] == ' ') : (end -= 1) {}
++
++    for (line[start..end]) |byte| {
++        if (!isBareByte(byte)) {
++            return .{ .failure = try makeError(allocator, line_number, start + 1, "invalid bare scalar") };
++        }
++    }
++    return .{ .scalar = .{ .value = line[start..end], .quoted = false } };
++}
++
++fn isBareByte(byte: u8) bool {
++    return (byte >= 'a' and byte <= 'z') or
++        (byte >= 'A' and byte <= 'Z') or
++        (byte >= '0' and byte <= '9') or
++        byte == ' ' or byte == '_' or byte == '.' or byte == '/' or
++        byte == ':' or byte == '-' or byte == '#';
++}
++
++fn parseQuotedScalar(
++    allocator: std.mem.Allocator,
++    line: []const u8,
++    start: usize,
++    line_number: usize,
++    quote: u8,
++) !ScalarOutcome {
++    var decoded: std.ArrayList(u8) = .empty;
++    var index = start + 1;
++    while (index < line.len) {
++        const byte = line[index];
++        if (byte < 0x20 or byte == 0x7f) {
++            return .{ .failure = try makeError(allocator, line_number, start + 1, "invalid quoted scalar") };
++        }
++
++        if (quote == '\'') {
++            if (byte == '\'') {
++                if (index + 1 < line.len and line[index + 1] == '\'') {
++                    try decoded.append(allocator, '\'');
++                    index += 2;
++                    continue;
++                }
++                return finishQuoted(allocator, line, start, index, line_number, decoded.items);
++            }
++            try decoded.append(allocator, byte);
++            index += 1;
++            continue;
++        }
++
++        if (byte == '"') {
++            return finishQuoted(allocator, line, start, index, line_number, decoded.items);
++        }
++        if (byte == '\\') {
++            if (index + 1 >= line.len) {
++                return .{ .failure = try makeError(allocator, line_number, index + 1, "invalid escape") };
++            }
++            const escaped = line[index + 1];
++            if (escaped < 0x20 or escaped == 0x7f) {
++                return .{ .failure = try makeError(allocator, line_number, start + 1, "invalid quoted scalar") };
++            }
++            if (escaped != '"' and escaped != '\\') {
++                return .{ .failure = try makeError(allocator, line_number, index + 1, "invalid escape") };
++            }
++            try decoded.append(allocator, escaped);
++            index += 2;
++            continue;
++        }
++        try decoded.append(allocator, byte);
++        index += 1;
++    }
++
++    return .{ .failure = try makeError(allocator, line_number, start + 1, "unterminated quoted scalar") };
++}
++
++fn finishQuoted(
++    allocator: std.mem.Allocator,
++    line: []const u8,
++    start: usize,
++    closing_quote: usize,
++    line_number: usize,
++    decoded: []const u8,
++) !ScalarOutcome {
++    var index = closing_quote + 1;
++    if (index < line.len and line[index] == '#') {
++        return .{ .failure = try makeError(allocator, line_number, index + 1, "unexpected trailing text") };
++    }
++    while (index < line.len and line[index] == ' ') : (index += 1) {}
++    if (index < line.len and line[index] != '#') {
++        return .{ .failure = try makeError(allocator, line_number, index + 1, "unexpected trailing text") };
++    }
++    _ = start;
++    return .{ .scalar = .{ .value = decoded, .quoted = true } };
++}
++
++fn makeError(
++    allocator: std.mem.Allocator,
++    line: usize,
++    column: usize,
++    message: []const u8,
++) !Failure {
++    return .{
++        .code = 1,
++        .message = try std.fmt.allocPrint(allocator, "config:{d}:{d}: {s}", .{ line, column, message }),
++    };
+ }

@@ -1,0 +1,437 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..511a49f 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,408 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use std::ffi::{OsStr, OsString};
++use std::path::{Path, PathBuf};
++use std::process::{Command, Output};
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::time::{SystemTime, UNIX_EPOCH};
++
++const USAGE: &str = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID";
++const INVALID: &str = "cas-land: invalid repository or commit";
++const CONFLICT: &str = "cas-land: conflict";
++const LOST_RACE: &str = "cas-land: lost race";
++
++static TEMP_SEQUENCE: AtomicU64 = AtomicU64::new(0);
++
++#[derive(Debug)]
++struct Options {
++    repo: String,
++    target: String,
++    base: String,
++    candidate: String,
++}
++
++#[derive(Debug)]
++enum Outcome {
++    Landed(String),
++    Rebased(String),
++    Conflict,
++    LostRace,
++    Invalid,
++}
++
++fn usage_error() -> (i32, String) {
++    (2, USAGE.to_owned())
++}
++
++fn invalid_error() -> (i32, String) {
++    (1, INVALID.to_owned())
++}
++
++fn parse_args(args: &[String]) -> Result<Options, (i32, String)> {
++    let mut repo = None;
++    let mut target = None;
++    let mut base = None;
++    let mut candidate = None;
++    let mut index = 0;
++
++    while index < args.len() {
++        let slot = match args[index].as_str() {
++            "--repo" => &mut repo,
++            "--target" => &mut target,
++            "--base" => &mut base,
++            "--candidate" => &mut candidate,
++            _ => return Err(usage_error()),
++        };
++        index += 1;
++        if index >= args.len() || slot.is_some() {
++            return Err(usage_error());
++        }
++        *slot = Some(args[index].clone());
++        index += 1;
++    }
++
++    match (repo, target, base, candidate) {
++        (Some(repo), Some(target), Some(base), Some(candidate)) => Ok(Options {
++            repo,
++            target,
++            base,
++            candidate,
++        }),
++        _ => Err(usage_error()),
++    }
++}
++
++fn git<I, S>(repo: &str, args: I) -> std::io::Result<Output>
++where
++    I: IntoIterator<Item = S>,
++    S: AsRef<OsStr>,
++{
++    Command::new("git").arg("-C").arg(repo).args(args).output()
++}
++
++fn git_at<I, S>(worktree: &Path, args: I) -> std::io::Result<Output>
++where
++    I: IntoIterator<Item = S>,
++    S: AsRef<OsStr>,
++{
++    Command::new("git")
++        .arg("-C")
++        .arg(worktree)
++        .args(args)
++        .output()
++}
++
++fn git_at_with_optional_identity<I, S>(
++    worktree: &Path,
++    args: I,
++    identity: Option<(&str, &str)>,
++) -> std::io::Result<Output>
++where
++    I: IntoIterator<Item = S>,
++    S: AsRef<OsStr>,
++{
++    let mut command = Command::new("git");
++    command.arg("-C").arg(worktree).args(args);
++    if let Some((committer_name, committer_email)) = identity {
++        command
++            .env("GIT_COMMITTER_NAME", committer_name)
++            .env("GIT_COMMITTER_EMAIL", committer_email);
++    }
++    command.output()
++}
++
++fn output_text(output: &Output) -> Option<&str> {
++    std::str::from_utf8(&output.stdout).ok()
++}
++
++fn one_line(output: &Output) -> Option<String> {
++    if !output.status.success() {
++        return None;
++    }
++    let text = output_text(output)?;
++    let line = text.strip_suffix('\n')?;
++    if line.is_empty() || line.contains(['\n', '\r']) {
++        return None;
++    }
++    Some(line.to_owned())
++}
++
++fn valid_oid_syntax(oid: &str, expected_len: usize) -> bool {
++    oid.len() == expected_len && oid.bytes().all(|byte| byte.is_ascii_hexdigit())
++}
++
++fn resolve_commit(repo: &str, oid: &str) -> Option<String> {
++    let output = git(
++        repo,
++        [
++            "rev-parse",
++            "--verify",
++            "--quiet",
++            "--end-of-options",
++            &format!("{oid}^{{commit}}"),
++        ],
++    )
++    .ok()?;
++    let resolved = one_line(&output)?;
++    if !resolved.bytes().all(|byte| byte.is_ascii_hexdigit()) {
++        return None;
++    }
++    Some(resolved.to_ascii_lowercase())
++}
++
++fn read_ref_value(repo: &str, target: &str) -> Option<String> {
++    let output = git(repo, ["show-ref", "--verify", "--hash", target]).ok()?;
++    let value = one_line(&output)?;
++    if !value.bytes().all(|byte| byte.is_ascii_hexdigit()) {
++        return None;
++    }
++    Some(value.to_ascii_lowercase())
++}
++
++fn check_candidate_parent(repo: &str, candidate: &str, base: &str) -> bool {
++    let output = match git(repo, ["rev-list", "--parents", "-n", "1", candidate]) {
++        Ok(output) => output,
++        Err(_) => return false,
++    };
++    let Some(line) = one_line(&output) else {
++        return false;
++    };
++    let parents: Vec<&str> = line.split_ascii_whitespace().collect();
++    parents.len() == 2
++        && parents[0].eq_ignore_ascii_case(candidate)
++        && parents[1].eq_ignore_ascii_case(base)
++}
++
++fn candidate_committer(repo: &str, candidate: &str) -> Option<(String, String)> {
++    let output = git(repo, ["show", "-s", "--format=%cn%x00%ce", candidate]).ok()?;
++    if !output.status.success() {
++        return None;
++    }
++    let identity = output.stdout.strip_suffix(b"\n").unwrap_or(&output.stdout);
++    let separator = identity.iter().position(|byte| *byte == 0)?;
++    if identity[separator + 1..].contains(&0) {
++        return None;
++    }
++    let name = std::str::from_utf8(&identity[..separator]).ok()?;
++    let email = std::str::from_utf8(&identity[separator + 1..]).ok()?;
++    if name.is_empty() || email.is_empty() {
++        return None;
++    }
++    Some((name.to_owned(), email.to_owned()))
++}
++
++fn target_is_valid(repo: &str, target: &str) -> Option<(String, String)> {
++    if !target.starts_with("refs/") {
++        return None;
++    }
++    let formatted = git(repo, ["check-ref-format", target]).ok()?;
++    if !formatted.status.success() {
++        return None;
++    }
++    let value = read_ref_value(repo, target)?;
++    let commit = resolve_commit(repo, &value)?;
++    Some((value, commit))
++}
++
++fn create_worktree_path() -> Option<PathBuf> {
++    let temp_root = std::env::temp_dir();
++    for _ in 0..64 {
++        let now = SystemTime::now()
++            .duration_since(UNIX_EPOCH)
++            .ok()?
++            .as_nanos();
++        let sequence = TEMP_SEQUENCE.fetch_add(1, Ordering::Relaxed);
++        let path = temp_root.join(format!("cas-land-{}-{now}-{sequence}", std::process::id()));
++        match std::fs::create_dir(&path) {
++            Ok(()) => return Some(path),
++            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
++            Err(_) => return None,
++        }
++    }
++    None
++}
++
++fn cleanup_worktree(repo: &str, path: &Path, abort_rebase: bool) -> bool {
++    if abort_rebase {
++        let _ = git_at(path, ["rebase", "--abort"]);
++    }
++    let mut remove_args = vec![
++        OsString::from("worktree"),
++        OsString::from("remove"),
++        OsString::from("--force"),
++    ];
++    remove_args.push(path.as_os_str().to_owned());
++    let removed = git(repo, remove_args)
++        .map(|output| output.status.success())
++        .unwrap_or(false);
++    let directory_removed = match std::fs::remove_dir_all(path) {
++        Ok(()) => true,
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => true,
++        Err(_) => false,
++    };
++    let pruned = if removed {
++        true
++    } else {
++        git(repo, ["worktree", "prune", "--expire=now"])
++            .map(|output| output.status.success())
++            .unwrap_or(false)
++    };
++    directory_removed && (removed || pruned)
++}
++
++fn rebase_candidate(repo: &str, target: &str, base: &str, candidate: &str) -> Outcome {
++    let identity = match git(repo, ["var", "GIT_COMMITTER_IDENT"]) {
++        Ok(output) if output.status.success() => None,
++        _ => {
++            let Some((name, email)) = candidate_committer(repo, candidate) else {
++                return Outcome::Invalid;
++            };
++            Some((name, email))
++        }
++    };
++    let Some(path) = create_worktree_path() else {
++        return Outcome::Invalid;
++    };
++
++    let mut add_args = vec![
++        OsString::from("worktree"),
++        OsString::from("add"),
++        OsString::from("--detach"),
++    ];
++    add_args.push(path.as_os_str().to_owned());
++    add_args.push(OsString::from(candidate));
++    let added = git(repo, add_args)
++        .map(|output| output.status.success())
++        .unwrap_or(false);
++    if !added {
++        let _ = cleanup_worktree(repo, &path, false);
++        return Outcome::Invalid;
++    }
++
++    let rebased = git_at_with_optional_identity(
++        &path,
++        [
++            "-c",
++            "rebase.updateRefs=false",
++            "rebase",
++            "--no-verify",
++            "--onto",
++            target,
++            base,
++        ],
++        identity
++            .as_ref()
++            .map(|(name, email)| (name.as_str(), email.as_str())),
++    );
++    let outcome = match rebased {
++        Ok(output) if output.status.success() => {
++            let head = git_at(&path, ["rev-parse", "--verify", "HEAD"])
++                .ok()
++                .and_then(|head| one_line(&head));
++            match head {
++                Some(oid) => Outcome::Rebased(oid.to_ascii_lowercase()),
++                None => Outcome::Invalid,
++            }
++        }
++        Ok(_) => {
++            let unmerged = git_at(&path, ["ls-files", "-u"])
++                .ok()
++                .and_then(|output| output_text(&output).map(str::to_owned))
++                .is_some_and(|text| !text.is_empty());
++            if unmerged {
++                Outcome::Conflict
++            } else {
++                Outcome::Invalid
++            }
++        }
++        Err(_) => Outcome::Invalid,
++    };
++
++    let needs_abort = matches!(&outcome, Outcome::Conflict);
++    let cleanup_ok = cleanup_worktree(repo, &path, needs_abort);
++    if cleanup_ok {
++        outcome
++    } else {
++        Outcome::Invalid
++    }
++}
++
++fn run(options: Options) -> Outcome {
++    match git(&options.repo, ["rev-parse", "--git-dir"]) {
++        Ok(output) if output.status.success() => {}
++        _ => return Outcome::Invalid,
++    }
++
++    let object_format = match git(&options.repo, ["rev-parse", "--show-object-format"]) {
++        Ok(output) => match one_line(&output) {
++            Some(format) => format,
++            None => return Outcome::Invalid,
++        },
++        Err(_) => return Outcome::Invalid,
++    };
++    let oid_len = match object_format.as_str() {
++        "sha1" => 40,
++        "sha256" => 64,
++        _ => return Outcome::Invalid,
++    };
++    if !valid_oid_syntax(&options.base, oid_len) || !valid_oid_syntax(&options.candidate, oid_len) {
++        return Outcome::Invalid;
++    }
++
++    let Some(base) = resolve_commit(&options.repo, &options.base) else {
++        return Outcome::Invalid;
++    };
++    let Some(candidate) = resolve_commit(&options.repo, &options.candidate) else {
++        return Outcome::Invalid;
++    };
++    if !check_candidate_parent(&options.repo, &candidate, &base) {
++        return Outcome::Invalid;
++    }
++
++    let Some((target_value, target_commit)) = target_is_valid(&options.repo, &options.target)
++    else {
++        return Outcome::Invalid;
++    };
++
++    let (landing_oid, rebased) = if target_commit == base {
++        (candidate, false)
++    } else {
++        match rebase_candidate(&options.repo, &target_commit, &base, &candidate) {
++            Outcome::Rebased(oid) => (oid, true),
++            Outcome::Landed(_) => return Outcome::Invalid,
++            Outcome::Conflict => return Outcome::Conflict,
++            Outcome::LostRace => return Outcome::LostRace,
++            Outcome::Invalid => return Outcome::Invalid,
++        }
++    };
++
++    let updated = git(
++        &options.repo,
++        ["update-ref", &options.target, &landing_oid, &target_value],
++    )
++    .map(|output| output.status.success())
++    .unwrap_or(false);
++    if updated {
++        return if rebased {
++            Outcome::Rebased(landing_oid)
++        } else {
++            Outcome::Landed(landing_oid)
++        };
++    }
++
++    let current_value = read_ref_value(&options.repo, &options.target);
++    if current_value.as_deref() != Some(target_value.as_str()) {
++        Outcome::LostRace
++    } else {
++        Outcome::Invalid
++    }
++}
++
++pub fn execute(args: &[String]) -> Result<(i32, String), (i32, String)> {
++    let options = parse_args(args)?;
++    match run(options) {
++        Outcome::Landed(oid) => Ok((0, format!("landed {oid}\n"))),
++        Outcome::Rebased(oid) => Ok((10, format!("rebased {oid}\n"))),
++        Outcome::Conflict => Err((20, CONFLICT.to_owned())),
++        Outcome::LostRace => Err((30, LOST_RACE.to_owned())),
++        Outcome::Invalid => Err(invalid_error()),
++    }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..a3f324f 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -20,11 +20,16 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ fn main() {
+     let args: Vec<String> = std::env::args().skip(1).collect();
+     match core::execute(&args) {
+-        Ok(output) => {
++        Ok((code, output)) => {
+             let _ = io::stdout().write_all(output.as_bytes());
++            if code != 0 {
++                let _ = io::stdout().flush();
++                std::process::exit(code);
++            }
+         }
+         Err((code, message)) => {
+             let _ = writeln!(io::stderr(), "{message}");
++            let _ = io::stderr().flush();
+             std::process::exit(code);
+         }
+     }

@@ -1,0 +1,448 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index a73853c..6ff7df6 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -3,5 +3,5 @@
+ version = 4
+ 
+ [[package]]
+-name = "kogen"
++name = "kogen-config"
+ version = "0.1.0"
+diff --git a/Cargo.toml b/Cargo.toml
+index 54a2339..b72198b 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,4 +1,4 @@
+ [package]
+-name = "kogen"
++name = "kogen-config"
+ version = "0.1.0"
+ edition = "2024"
+diff --git a/Makefile b/Makefile
+index 172716b..0fe6479 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,7 +9,7 @@ setup:
+ build:
+ 	cargo build --offline --release
+ 	mkdir -p build/bin
+-	cp target/release/kogen build/bin/kogen
++	cp target/release/kogen-config build/bin/kogen-config
+ check:
+ 	cargo fmt --check
+ 	cargo clippy --offline --all-targets -- -D warnings
+diff --git a/run b/run
+index 9cd6408..f5a109c 100755
+--- a/run
++++ b/run
+@@ -1,4 +1,4 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+-exec "$ROOT/build/bin/kogen" "$@"
++exec "$ROOT/build/bin/kogen-config" "$@"
+diff --git a/src/config.rs b/src/config.rs
+new file mode 100644
+index 0000000..3e14e71
+--- /dev/null
++++ b/src/config.rs
+@@ -0,0 +1,353 @@
++#[derive(Clone, Copy)]
++enum Key {
++    Name,
++    Workers,
++    Enabled,
++    Directory,
++}
++
++impl Key {
++    fn parse(key: &str) -> Option<Self> {
++        match key {
++            "name" => Some(Self::Name),
++            "workers" => Some(Self::Workers),
++            "enabled" => Some(Self::Enabled),
++            "directory" => Some(Self::Directory),
++            _ => None,
++        }
++    }
++
++    fn bit(self) -> u8 {
++        match self {
++            Self::Name => 1,
++            Self::Workers => 2,
++            Self::Enabled => 4,
++            Self::Directory => 8,
++        }
++    }
++}
++
++struct Scalar {
++    decoded: String,
++    quoted: bool,
++    line: usize,
++    column: usize,
++}
++
++struct Entry {
++    key: Key,
++    scalar: Scalar,
++}
++
++struct Config {
++    name: String,
++    workers: u32,
++    enabled: bool,
++    directory: String,
++}
++
++pub struct ParseError {
++    pub line: usize,
++    pub column: usize,
++    pub message: String,
++}
++
++fn error(line: usize, column: usize, message: impl Into<String>) -> ParseError {
++    ParseError {
++        line,
++        column,
++        message: message.into(),
++    }
++}
++
++pub fn render(input: &[u8]) -> Result<String, ParseError> {
++    if let Some((line, column)) = first_non_ascii(input) {
++        return Err(error(line, column, "expected ASCII input"));
++    }
++
++    let entries = parse_entries(input)?;
++    let mut config = Config {
++        name: "kogen".to_owned(),
++        workers: 1,
++        enabled: true,
++        directory: ".".to_owned(),
++    };
++
++    for entry in entries {
++        let scalar = entry.scalar;
++        match entry.key {
++            Key::Name => {
++                if scalar.decoded.is_empty() {
++                    return Err(error(
++                        scalar.line,
++                        scalar.column,
++                        "expected nonempty string",
++                    ));
++                }
++                config.name = scalar.decoded;
++            }
++            Key::Workers => {
++                let bytes = scalar.decoded.as_bytes();
++                let valid_digits = matches!(bytes.first(), Some(b'1'..=b'9'))
++                    && bytes[1..].iter().all(u8::is_ascii_digit);
++                let value = if valid_digits && !scalar.quoted {
++                    scalar.decoded.parse::<u32>().ok()
++                } else {
++                    None
++                };
++                match value {
++                    Some(value @ 1..=64) => config.workers = value,
++                    _ => {
++                        return Err(error(scalar.line, scalar.column, "expected integer 1..64"));
++                    }
++                }
++            }
++            Key::Enabled => {
++                if scalar.quoted {
++                    return Err(error(scalar.line, scalar.column, "expected true or false"));
++                }
++                match scalar.decoded.as_str() {
++                    "true" => config.enabled = true,
++                    "false" => config.enabled = false,
++                    _ => {
++                        return Err(error(scalar.line, scalar.column, "expected true or false"));
++                    }
++                }
++            }
++            Key::Directory => {
++                if scalar.decoded.is_empty() {
++                    return Err(error(
++                        scalar.line,
++                        scalar.column,
++                        "expected nonempty string",
++                    ));
++                }
++                config.directory = scalar.decoded;
++            }
++        }
++    }
++
++    Ok(format!(
++        "name={}\nworkers={}\nenabled={}\ndirectory={}\n",
++        config.name, config.workers, config.enabled, config.directory
++    ))
++}
++
++fn first_non_ascii(input: &[u8]) -> Option<(usize, usize)> {
++    let (mut line, mut column) = (1, 1);
++    for byte in input {
++        if *byte > 0x7f {
++            return Some((line, column));
++        }
++        if *byte == b'\n' {
++            line += 1;
++            column = 1;
++        } else {
++            column += 1;
++        }
++    }
++    None
++}
++
++fn parse_entries(input: &[u8]) -> Result<Vec<Entry>, ParseError> {
++    let mut entries = Vec::new();
++    let mut seen = 0;
++
++    for (line_index, raw_line) in input.split(|byte| *byte == b'\n').enumerate() {
++        let line_number = line_index + 1;
++        let line = raw_line.strip_suffix(b"\r").unwrap_or(raw_line);
++
++        if let Some(column) = line.iter().position(|byte| *byte == b'\t') {
++            return Err(error(line_number, column + 1, "tab is not allowed"));
++        }
++        if is_ignored_line_without_tabs(line) {
++            continue;
++        }
++        if line.first() == Some(&b' ') {
++            return Err(error(line_number, 1, "unexpected indentation"));
++        }
++
++        let Some(colon) = line.iter().position(|byte| *byte == b':') else {
++            return Err(error(line_number, 1, "expected key: value"));
++        };
++        let key_text = &line[..colon];
++        if !valid_key(key_text) {
++            return Err(error(line_number, 1, "expected key: value"));
++        }
++        let key = std::str::from_utf8(key_text).expect("ASCII was checked");
++        let Some(key) = Key::parse(key) else {
++            return Err(error(line_number, 1, format!("unknown key '{key}'")));
++        };
++        if seen & key.bit() != 0 {
++            let name = match key {
++                Key::Name => "name",
++                Key::Workers => "workers",
++                Key::Enabled => "enabled",
++                Key::Directory => "directory",
++            };
++            return Err(error(line_number, 1, format!("duplicate key '{name}'")));
++        }
++        seen |= key.bit();
++
++        let mut scalar_start = colon + 1;
++        while scalar_start < line.len() && line[scalar_start] == b' ' {
++            scalar_start += 1;
++        }
++        let column = scalar_start + 1;
++        if scalar_start == line.len() || line[scalar_start] == b'#' {
++            return Err(error(line_number, column, "missing value"));
++        }
++
++        let (decoded, quoted) = parse_scalar(line, scalar_start, line_number)?;
++        entries.push(Entry {
++            key,
++            scalar: Scalar {
++                decoded,
++                quoted,
++                line: line_number,
++                column,
++            },
++        });
++    }
++
++    Ok(entries)
++}
++
++fn is_ignored_line_without_tabs(line: &[u8]) -> bool {
++    if line.iter().all(|byte| *byte == b' ') {
++        return true;
++    }
++    let first_non_space = line.iter().position(|byte| *byte != b' ');
++    first_non_space.is_some_and(|index| line[index] == b'#')
++}
++
++fn valid_key(key: &[u8]) -> bool {
++    matches!(key.first(), Some(b'a'..=b'z'))
++        && key[1..]
++            .iter()
++            .all(|byte| matches!(byte, b'a'..=b'z' | b'_'))
++}
++
++fn parse_scalar(
++    line: &[u8],
++    start: usize,
++    line_number: usize,
++) -> Result<(String, bool), ParseError> {
++    match line[start] {
++        b'\'' => parse_single_quoted(line, start, line_number),
++        b'"' => parse_double_quoted(line, start, line_number),
++        _ => parse_bare(line, start, line_number),
++    }
++}
++
++fn parse_bare(line: &[u8], start: usize, line_number: usize) -> Result<(String, bool), ParseError> {
++    let mut end = line.len();
++    for index in (start + 1)..line.len() {
++        if line[index] == b'#' && line[index - 1] == b' ' {
++            end = index;
++            break;
++        }
++    }
++    while end > start && line[end - 1] == b' ' {
++        end -= 1;
++    }
++    let value = &line[start..end];
++    if value.is_empty()
++        || !value.iter().all(|byte| {
++            matches!(
++                byte,
++                b'a'..=b'z'
++                    | b'A'..=b'Z'
++                    | b'0'..=b'9'
++                    | b' '
++                    | b'_'
++                    | b'.'
++                    | b'/'
++                    | b':'
++                    | b'-'
++                    | b'#'
++            )
++        })
++    {
++        return Err(error(line_number, start + 1, "invalid bare scalar"));
++    }
++    Ok((
++        String::from_utf8(value.to_vec()).expect("ASCII was checked"),
++        false,
++    ))
++}
++
++fn parse_single_quoted(
++    line: &[u8],
++    start: usize,
++    line_number: usize,
++) -> Result<(String, bool), ParseError> {
++    let mut decoded = Vec::new();
++    let mut index = start + 1;
++    while index < line.len() {
++        let byte = line[index];
++        if byte == b'\'' {
++            if line.get(index + 1) == Some(&b'\'') {
++                decoded.push(b'\'');
++                index += 2;
++                continue;
++            }
++            validate_trailing(line, index + 1, line_number)?;
++            return Ok((String::from_utf8(decoded).expect("ASCII was checked"), true));
++        }
++        if !(0x20..=0x7e).contains(&byte) {
++            return Err(error(line_number, start + 1, "invalid quoted scalar"));
++        }
++        decoded.push(byte);
++        index += 1;
++    }
++    Err(error(line_number, start + 1, "unterminated quoted scalar"))
++}
++
++fn parse_double_quoted(
++    line: &[u8],
++    start: usize,
++    line_number: usize,
++) -> Result<(String, bool), ParseError> {
++    let mut decoded = Vec::new();
++    let mut index = start + 1;
++    while index < line.len() {
++        let byte = line[index];
++        if byte == b'"' {
++            validate_trailing(line, index + 1, line_number)?;
++            return Ok((String::from_utf8(decoded).expect("ASCII was checked"), true));
++        }
++        if byte == b'\\' {
++            let Some(escaped) = line.get(index + 1) else {
++                return Err(error(line_number, index + 1, "invalid escape"));
++            };
++            match escaped {
++                b'"' | b'\\' => decoded.push(*escaped),
++                _ => return Err(error(line_number, index + 1, "invalid escape")),
++            }
++            index += 2;
++            continue;
++        }
++        if !(0x20..=0x7e).contains(&byte) {
++            return Err(error(line_number, start + 1, "invalid quoted scalar"));
++        }
++        decoded.push(byte);
++        index += 1;
++    }
++    Err(error(line_number, start + 1, "unterminated quoted scalar"))
++}
++
++fn validate_trailing(line: &[u8], start: usize, line_number: usize) -> Result<(), ParseError> {
++    let mut first_non_space = start;
++    while first_non_space < line.len() && line[first_non_space] == b' ' {
++        first_non_space += 1;
++    }
++    if first_non_space == line.len() || (first_non_space > start && line[first_non_space] == b'#') {
++        return Ok(());
++    }
++    Err(error(
++        line_number,
++        first_non_space + 1,
++        "unexpected trailing text",
++    ))
++}
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..daf0317 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,26 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++const HELP: &str = "Usage: kogen-config [FILE|-]\nParse a strict YAML-subset configuration from FILE or stdin.\nOptions:\n  --help  Show this help.\n";
++
++pub fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    if args.len() == 1 && args[0] == "--help" {
++        return Ok(HELP.to_owned());
++    }
++
++    for arg in args {
++        if arg.starts_with('-') && arg != "-" {
++            return Err((2, format!("config: unknown option '{arg}'")));
++        }
++    }
++
++    if args.len() > 1 {
++        return Err((2, "config: expected at most one input path".to_owned()));
++    }
++
++    let path = args.first().map(String::as_str);
++    let bytes = crate::load(path, "config").map_err(|message| (1, message))?;
++    crate::config::render(&bytes).map_err(|error| {
++        (
++            1,
++            format!("config:{}:{}: {}", error.line, error.column, error.message),
++        )
++    })
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..ac7b9e4 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -30,6 +30,7 @@ fn main() {
+     }
+ }
+ 
++mod config;
+ mod core;
+ 
+ #[cfg(test)]

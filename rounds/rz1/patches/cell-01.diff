@@ -1,0 +1,292 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..36448f5 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,261 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use std::ffi::OsString;
++use std::io;
++use std::path::{Path, PathBuf};
++use std::process::{Command, Output};
++use std::time::{SystemTime, UNIX_EPOCH};
++
++const USAGE: &str = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID";
++const INVALID: &str = "cas-land: invalid repository or commit";
++
++struct Options {
++    repo: PathBuf,
++    target: OsString,
++    base: OsString,
++    candidate: OsString,
++}
++
++fn usage_error() -> (i32, String) {
++    (2, USAGE.to_owned())
++}
++
++fn invalid_error() -> (i32, String) {
++    (1, INVALID.to_owned())
++}
++
++fn parse_args(args: &[OsString]) -> Result<Options, (i32, String)> {
++    let mut repo = None;
++    let mut target = None;
++    let mut base = None;
++    let mut candidate = None;
++    let mut index = 0;
++
++    while index < args.len() {
++        let slot = match args[index].to_str() {
++            Some("--repo") => &mut repo,
++            Some("--target") => &mut target,
++            Some("--base") => &mut base,
++            Some("--candidate") => &mut candidate,
++            _ => return Err(usage_error()),
++        };
++        index += 1;
++        if index == args.len() || slot.is_some() {
++            return Err(usage_error());
++        }
++        *slot = Some(args[index].clone());
++        index += 1;
++    }
++
++    match (repo, target, base, candidate) {
++        (Some(repo), Some(target), Some(base), Some(candidate)) => Ok(Options {
++            repo: PathBuf::from(repo),
++            target,
++            base,
++            candidate,
++        }),
++        _ => Err(usage_error()),
++    }
++}
++
++fn git(repo: &Path, args: &[OsString]) -> io::Result<Output> {
++    Command::new("git").arg("-C").arg(repo).args(args).output()
++}
++
++fn git_args(values: &[&str]) -> Vec<OsString> {
++    values.iter().map(OsString::from).collect()
++}
++
++fn git_success(repo: &Path, args: &[&str]) -> bool {
++    git(repo, &git_args(args)).is_ok_and(|output| output.status.success())
++}
++
++fn git_stdout(repo: &Path, args: &[&str]) -> Option<String> {
++    let output = git(repo, &git_args(args)).ok()?;
++    if !output.status.success() {
++        return None;
++    }
++    String::from_utf8(output.stdout).ok()
++}
++
++fn object_format(repo: &Path) -> Option<usize> {
++    match git_stdout(repo, &["rev-parse", "--show-object-format"])?.trim() {
++        "sha1" => Some(40),
++        "sha256" => Some(64),
++        _ => None,
++    }
++}
++
++fn normalize_oid(value: &str, expected_len: usize) -> Option<String> {
++    if value.len() != expected_len || !value.bytes().all(|byte| byte.is_ascii_hexdigit()) {
++        return None;
++    }
++    Some(value.to_ascii_lowercase())
++}
++
++fn is_commit(repo: &Path, oid: &str) -> bool {
++    git_stdout(repo, &["cat-file", "-t", oid]).is_some_and(|kind| kind.trim() == "commit")
++}
++
++fn commit_oid(repo: &Path, oid: &str) -> Option<String> {
++    let spec = format!("{oid}^{{commit}}");
++    git_stdout(repo, &["rev-parse", "--verify", &spec]).map(|output| output.trim().to_owned())
++}
++
++fn read_ref_oid(repo: &Path, target: &str) -> Option<String> {
++    git_stdout(repo, &["show-ref", "--verify", "--hash", target])
++        .map(|output| output.trim().to_owned())
++}
++
++fn candidate_has_expected_parent(repo: &Path, candidate: &str, base: &str) -> bool {
++    let Some(output) = git_stdout(repo, &["rev-list", "--parents", "--max-count=1", candidate])
++    else {
++        return false;
++    };
++    let mut fields = output.split_whitespace();
++    fields.next() == Some(candidate) && fields.next() == Some(base) && fields.next().is_none()
++}
++
++fn unused_worktree_path() -> Option<PathBuf> {
++    let temp_dir = std::env::temp_dir();
++    let now = SystemTime::now()
++        .duration_since(UNIX_EPOCH)
++        .ok()?
++        .as_nanos();
++    for suffix in 0..100 {
++        let path = temp_dir.join(format!(
++            "cas-land-{}-{}-{}",
++            std::process::id(),
++            now,
++            suffix
++        ));
++        if std::fs::symlink_metadata(&path).is_err() {
++            return Some(path);
++        }
++    }
++    None
++}
++
++struct TemporaryWorktree {
++    repo: PathBuf,
++    path: PathBuf,
++}
++
++impl TemporaryWorktree {
++    fn add(repo: &Path, commit: &str) -> Option<Self> {
++        let path = unused_worktree_path()?;
++        let path_arg = path.as_os_str().to_os_string();
++        let mut args = git_args(&["worktree", "add", "--quiet", "--detach"]);
++        args.push(path_arg);
++        args.push(OsString::from(commit));
++        let output = git(repo, &args).ok()?;
++        if !output.status.success() {
++            return None;
++        }
++        Some(Self {
++            repo: repo.to_owned(),
++            path,
++        })
++    }
++
++    fn rebase_onto(&self, target: &str, base: &str) -> Result<String, bool> {
++        let args = git_args(&[
++            "-c",
++            "rebase.updateRefs=false",
++            "rebase",
++            "--quiet",
++            "--onto",
++            target,
++            base,
++        ]);
++        let output = git(&self.path, &args).map_err(|_| false)?;
++        if !output.status.success() {
++            let unmerged = git_stdout(&self.path, &["ls-files", "--unmerged"])
++                .is_some_and(|entries| !entries.is_empty());
++            return Err(unmerged);
++        }
++        commit_oid(&self.path, "HEAD").ok_or(false)
++    }
++
++    fn abort_rebase(&self) {
++        let _ = git(&self.path, &git_args(&["rebase", "--abort"]));
++    }
++}
++
++impl Drop for TemporaryWorktree {
++    fn drop(&mut self) {
++        let mut args = git_args(&["worktree", "remove", "--force"]);
++        args.push(self.path.as_os_str().to_os_string());
++        let removed = git(&self.repo, &args).is_ok_and(|output| output.status.success());
++        if !removed {
++            let _ = std::fs::remove_dir_all(&self.path);
++        }
++    }
++}
++
++fn execute_land(options: Options) -> Result<(String, i32), (i32, String)> {
++    let repo = options.repo;
++    let target = options.target.to_str().ok_or_else(invalid_error)?;
++    let base_value = options.base.to_str().ok_or_else(invalid_error)?;
++    let candidate_value = options.candidate.to_str().ok_or_else(invalid_error)?;
++    let oid_len = object_format(&repo).ok_or_else(invalid_error)?;
++    let base = normalize_oid(base_value, oid_len).ok_or_else(invalid_error)?;
++    let candidate = normalize_oid(candidate_value, oid_len).ok_or_else(invalid_error)?;
++    if !is_commit(&repo, &base)
++        || !is_commit(&repo, &candidate)
++        || !candidate_has_expected_parent(&repo, &candidate, &base)
++    {
++        return Err(invalid_error());
++    }
++
++    if !target.starts_with("refs/") || !git_success(&repo, &["check-ref-format", target]) {
++        return Err(invalid_error());
++    }
++    let target_ref_oid = read_ref_oid(&repo, target).ok_or_else(invalid_error)?;
++    let target_commit = commit_oid(&repo, &target_ref_oid).ok_or_else(invalid_error)?;
++
++    let target_unchanged = target_commit == base;
++    let landed = if target_unchanged {
++        candidate
++    } else {
++        let worktree = TemporaryWorktree::add(&repo, &candidate).ok_or_else(invalid_error)?;
++        match worktree.rebase_onto(&target_commit, &base) {
++            Ok(landed) => landed,
++            Err(true) => {
++                worktree.abort_rebase();
++                drop(worktree);
++                return Err((20, "cas-land: conflict".to_owned()));
++            }
++            Err(false) => {
++                worktree.abort_rebase();
++                drop(worktree);
++                return Err(invalid_error());
++            }
++        }
++    };
++
++    let update_args = [
++        "update-ref".to_owned(),
++        target.to_owned(),
++        landed.clone(),
++        target_ref_oid.clone(),
++    ];
++    let update_args: Vec<OsString> = update_args.into_iter().map(OsString::from).collect();
++    let update_succeeded = git(&repo, &update_args).is_ok_and(|output| output.status.success());
++    if !update_succeeded {
++        let current = read_ref_oid(&repo, target);
++        if current.as_deref() != Some(target_ref_oid.as_str()) {
++            return Err((30, "cas-land: lost race".to_owned()));
++        }
++        return Err(invalid_error());
++    }
++
++    if target_unchanged {
++        Ok((format!("landed {landed}\n"), 0))
++    } else {
++        Ok((format!("rebased {landed}\n"), 10))
++    }
++}
++
++pub fn execute(args: &[OsString]) -> Result<(String, i32), (i32, String)> {
++    let options = parse_args(args)?;
++    execute_land(options)
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..6e3ccf6 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -18,10 +18,16 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ }
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
++    let args: Vec<std::ffi::OsString> = std::env::args_os().skip(1).collect();
+     match core::execute(&args) {
+-        Ok(output) => {
+-            let _ = io::stdout().write_all(output.as_bytes());
++        Ok((output, code)) => {
++            let stdout = io::stdout();
++            let mut stdout = stdout.lock();
++            let _ = stdout.write_all(output.as_bytes());
++            let _ = stdout.flush();
++            if code != 0 {
++                std::process::exit(code);
++            }
+         }
+         Err((code, message)) => {
+             let _ = writeln!(io::stderr(), "{message}");

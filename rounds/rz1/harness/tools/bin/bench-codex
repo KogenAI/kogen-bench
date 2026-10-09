@@ -1,0 +1,52 @@
+#!/bin/bash
+# Codex contestant wrapper (recovery runtime). Pinned binary, config-driven auth home, task-env PATH preserved.
+#
+# Config (sourced if present; first match wins): $BENCH_CODEX_CONF, <this dir>/bench-codex.conf. Variables:
+#   BENCH_CODEX_HOME   auth/config home (CODEX_HOME). Default: $BENCH_HOMES/codex, else <this dir>/../homes/codex
+#   BENCH_CODEX_BIN    codex executable. Default: /opt/bench/tools/bin/codex (Linux workers), else the mise node 24.20.0 bin/codex
+#   BENCH_NODE_BIN     node bin dir appended to PATH. Default: /opt/bench/mise/installs/node/24.20.0/bin, else the mise node 24.20.0 bin
+#   BENCH_CODEX_PIN    required `codex --version` number. Default 0.160.0
+#
+# PATH policy: the task env PATH (Ruby/Elixir exact install dirs first) and GEM_HOME/MIX_HOME are inherited untouched. Only mise shim dirs are
+# removed (they need a trusted config and a writable state dir, neither exists in the sandbox); BENCH_EXTRA_PATH (exact Elixir/Erlang bins) and
+# the pinned node bin are appended. Nothing is resolved through `latest`, aliases or shims.
+set -eu
+unset OPENAI_API_KEY OPENAI_BASE_URL
+
+here=$(cd "$(dirname "$0")" && pwd)
+conf=${BENCH_CODEX_CONF:-$here/bench-codex.conf}
+[ -r "$conf" ] && . "$conf"
+
+if [ -x /opt/bench/tools/bin/codex ] || [ -d /opt/bench/mise ]; then
+  mise_root=/opt/bench/mise
+  default_bin=/opt/bench/tools/bin/codex
+else
+  mise_root=${BENCH_MISE_ROOT:-$HOME/.local/share/mise}
+  default_bin=$mise_root/installs/node/24.20.0/bin/codex
+fi
+node_bin=${BENCH_NODE_BIN:-$mise_root/installs/node/24.20.0/bin}
+codex_bin=${BENCH_CODEX_BIN:-$default_bin}
+pin=${BENCH_CODEX_PIN:-0.160.0}
+export CODEX_HOME=${BENCH_CODEX_HOME:-${BENCH_HOMES:+$BENCH_HOMES/codex}}
+[ -n "$CODEX_HOME" ] || CODEX_HOME=$here/../homes/codex
+
+# PATH: task PATH minus mise shim dirs, then BENCH_EXTRA_PATH, then the pinned node dir.
+new=
+IFS=:
+for d in $PATH; do
+  case $d in */mise/shims|*/mise/shims/) continue;; esac
+  new=${new:+$new:}$d
+done
+unset IFS
+[ -z "${BENCH_EXTRA_PATH:-}" ] || new=$new:$BENCH_EXTRA_PATH
+export PATH=$new:$node_bin
+
+# Defence in depth if the agent runs `mise` itself: trust the workspace, keep state in the (writable) per-cell tmp.
+export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD${MISE_TRUSTED_CONFIG_PATHS:+:$MISE_TRUSTED_CONFIG_PATHS}"
+export MISE_STATE_DIR=${MISE_STATE_DIR:-${TMPDIR:-/tmp}/bench-mise-state}
+mkdir -p "$MISE_STATE_DIR" 2>/dev/null || true
+
+[ -x "$codex_bin" ] || { echo "bench-codex: codex binary not executable: $codex_bin" >&2; exit 97; }
+got=$("$codex_bin" --version 2>/dev/null | head -1 || true)
+[ "$got" = "codex-cli $pin" ] || { echo "bench-codex: refusing to run: '$got' is not exactly 'codex-cli $pin' ($codex_bin)" >&2; exit 97; }
+exec "$codex_bin" "$@"

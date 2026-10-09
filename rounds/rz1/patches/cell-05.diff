@@ -1,0 +1,657 @@
+diff --git a/src/core.zig b/src/core.zig
+index b98cdb7..cd04286 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,5 +1,51 @@
+ const std = @import("std");
+ 
++const c = struct {
++    const O_RDONLY: c_int = 0;
++    const O_RDWR: c_int = 2;
++    const O_CREAT: c_int = 64;
++    const O_APPEND: c_int = 1024;
++    const O_CLOEXEC: c_int = 0x80000;
++    const O_DIRECTORY: c_int = 0x10000;
++    const LOCK_EX: c_int = 2;
++    const LOCK_UN: c_int = 8;
++    const EINTR: c_int = 4;
++    const EAGAIN: c_int = 11;
++    const EEXIST: c_int = 17;
++    const SEEK_SET: c_int = 0;
++    const STDOUT_FILENO: c_int = 1;
++    const STDERR_FILENO: c_int = 2;
++    const SIGKILL: c_int = 9;
++    const POLLIN: c_short = 1;
++    const POLLERR: c_short = 8;
++    const POLLHUP: c_short = 16;
++
++    const PollFd = extern struct {
++        fd: c_int,
++        events: c_short,
++        revents: c_short,
++    };
++
++    extern "c" fn open(path: [*:0]const u8, flags: c_int, ...) c_int;
++    extern "c" fn close(fd: c_int) c_int;
++    extern "c" fn flock(fd: c_int, operation: c_int) c_int;
++    extern "c" fn fsync(fd: c_int) c_int;
++    extern "c" fn mkdir(path: [*:0]const u8, mode: c_uint) c_int;
++    extern "c" fn read(fd: c_int, buffer: *anyopaque, count: usize) isize;
++    extern "c" fn write(fd: c_int, buffer: *const anyopaque, count: usize) isize;
++    extern "c" fn lseek(fd: c_int, offset: i64, whence: c_int) i64;
++    extern "c" fn ftruncate(fd: c_int, length: i64) c_int;
++    extern "c" fn pipe(fds: *[2]c_int) c_int;
++    extern "c" fn fork() c_int;
++    extern "c" fn dup2(old_fd: c_int, new_fd: c_int) c_int;
++    extern "c" fn execvp(file: [*:0]const u8, argv: [*:null]const ?[*:0]const u8) c_int;
++    extern "c" fn _exit(status: c_int) noreturn;
++    extern "c" fn kill(pid: c_int, signal: c_int) c_int;
++    extern "c" fn poll(fds: [*]PollFd, count: usize, timeout: c_int) c_int;
++    extern "c" fn waitpid(pid: c_int, status: *c_int, options: c_int) c_int;
++    extern "c" fn __errno_location() *c_int;
++};
++
+ pub const Failure = struct {
+     code: u8,
+     message: []const u8,
+@@ -10,6 +56,598 @@ pub const Outcome = union(enum) {
+     failure: Failure,
+ };
+ 
+-pub fn execute(_: std.mem.Allocator, _: std.Io, _: []const []const u8) Outcome {
+-    return .{ .output = "" };
++const Request = union(enum) {
++    add: AddRequest,
++    run: []const u8,
++    status: []const u8,
++};
++
++const AddRequest = struct {
++    store: []const u8,
++    id: []const u8,
++    argv: [][]const u8,
++};
++
++const Completion = struct {
++    exit_code: i32,
++    stdout: []const u8,
++    stderr: []const u8,
++};
++
++const ChildResult = struct {
++    exit_code: i32,
++    stdout: []const u8,
++    stderr: []const u8,
++    retry_pending: bool = false,
++};
++
++const Job = struct {
++    id: []const u8,
++    argv: [][]const u8,
++    attempts: u64 = 0,
++    completion: ?Completion = null,
++};
++
++const LogAdd = struct {
++    op: []const u8,
++    id: []const u8,
++    argv: [][]const u8,
++};
++
++const LogAttempt = struct {
++    op: []const u8,
++    id: []const u8,
++    attempt: u64,
++};
++
++const LogDone = struct {
++    op: []const u8,
++    id: []const u8,
++    attempt: u64,
++    exit_code: i32,
++    stdout: []const u8,
++    stderr: []const u8,
++};
++
++const RunOutput = struct {
++    id: []const u8,
++    attempt: u64,
++    exit_code: i32,
++    stdout: []const u8,
++    stderr: []const u8,
++    status: []const u8,
++};
++
++const InvalidArguments = Failure{ .code = 2, .message = "error: invalid arguments" };
++const DuplicateJob = Failure{ .code = 3, .message = "error: duplicate job id" };
++const StoreFailure = Failure{ .code = 4, .message = "error: store failure" };
++
++pub fn execute(allocator: std.mem.Allocator, _: std.Io, args: []const []const u8) Outcome {
++    const request = parseRequest(allocator, args) catch return .{ .failure = InvalidArguments };
++    const result = dispatch(allocator, request) catch |err| {
++        if (err == error.DuplicateJob) return .{ .failure = DuplicateJob };
++        return .{ .failure = StoreFailure };
++    };
++    return .{ .output = result };
++}
++
++fn parseRequest(allocator: std.mem.Allocator, args: []const []const u8) !Request {
++    if (args.len < 2 or !std.mem.eql(u8, args[0], "queue")) return error.InvalidArguments;
++
++    const is_add = std.mem.eql(u8, args[1], "add");
++    const is_run = std.mem.eql(u8, args[1], "run");
++    const is_status = std.mem.eql(u8, args[1], "status");
++    if (!is_add and !is_run and !is_status) return error.InvalidArguments;
++
++    var store: ?[]const u8 = null;
++    var id: ?[]const u8 = null;
++    var argv_text: ?[]const u8 = null;
++    var index: usize = 2;
++    while (index < args.len) {
++        const option = args[index];
++        if (index + 1 >= args.len) return error.InvalidArguments;
++        const value = args[index + 1];
++        if (std.mem.eql(u8, option, "--store")) {
++            if (store != null) return error.InvalidArguments;
++            store = value;
++        } else if (is_add and std.mem.eql(u8, option, "--id")) {
++            if (id != null) return error.InvalidArguments;
++            id = value;
++        } else if (is_add and std.mem.eql(u8, option, "--argv")) {
++            if (argv_text != null) return error.InvalidArguments;
++            argv_text = value;
++        } else {
++            return error.InvalidArguments;
++        }
++        index += 2;
++    }
++
++    const store_path = store orelse return error.InvalidArguments;
++    if (store_path.len == 0) return error.InvalidArguments;
++    if (is_run) return .{ .run = store_path };
++    if (is_status) return .{ .status = store_path };
++
++    const job_id = id orelse return error.InvalidArguments;
++    if (!validId(job_id)) return error.InvalidArguments;
++    const text = argv_text orelse return error.InvalidArguments;
++    const parsed = std.json.parseFromSliceLeaky(std.json.Value, allocator, text, .{}) catch return error.InvalidArguments;
++    if (parsed != .array or parsed.array.items.len == 0) return error.InvalidArguments;
++
++    const argv = try allocator.alloc([]const u8, parsed.array.items.len);
++    for (parsed.array.items, 0..) |value, arg_index| {
++        if (value != .string or std.mem.indexOfScalar(u8, value.string, 0) != null) return error.InvalidArguments;
++        if (arg_index == 0 and value.string.len == 0) return error.InvalidArguments;
++        argv[arg_index] = value.string;
++    }
++    return .{ .add = .{ .store = store_path, .id = job_id, .argv = argv } };
++}
++
++fn validId(id: []const u8) bool {
++    if (id.len == 0 or id.len > 64 or !isAlphaNumeric(id[0])) return false;
++    for (id[1..]) |byte| {
++        if (!isAlphaNumeric(byte) and byte != '.' and byte != '_' and byte != '-') return false;
++    }
++    return true;
++}
++
++fn isAlphaNumeric(byte: u8) bool {
++    return (byte >= 'A' and byte <= 'Z') or (byte >= 'a' and byte <= 'z') or (byte >= '0' and byte <= '9');
++}
++
++fn dispatch(allocator: std.mem.Allocator, request: Request) ![]const u8 {
++    return switch (request) {
++        .add => |add| try addJob(allocator, add),
++        .run => |path| try runJobs(allocator, path),
++        .status => |path| try statusJobs(allocator, path),
++    };
++}
++
++const Store = struct {
++    dir_fd: c_int,
++    lock_fd: c_int,
++    log_fd: c_int,
++
++    fn open(allocator: std.mem.Allocator, path: []const u8) !Store {
++        try createDirectories(path);
++
++        const dir_path = try duplicateZ(allocator, path);
++        const dir_fd = c.open(dir_path, c.O_RDONLY | c.O_DIRECTORY | c.O_CLOEXEC);
++        if (dir_fd < 0) return error.StoreFailure;
++        errdefer _ = c.close(dir_fd);
++
++        const lock_path = try std.fmt.allocPrintSentinel(allocator, "{s}/.kogen.lock", .{path}, 0);
++        const lock_fd = c.open(lock_path, c.O_CREAT | c.O_RDWR | c.O_CLOEXEC, @as(c_uint, 0o600));
++        if (lock_fd < 0) return error.StoreFailure;
++        errdefer _ = c.close(lock_fd);
++
++        while (c.flock(lock_fd, c.LOCK_EX) < 0) {
++            if (errnoValue() != c.EINTR) return error.StoreFailure;
++        }
++
++        const log_path = try std.fmt.allocPrintSentinel(allocator, "{s}/queue.log", .{path}, 0);
++        const before = c.open(log_path, c.O_CREAT | c.O_RDWR | c.O_APPEND | c.O_CLOEXEC, @as(c_uint, 0o600));
++        if (before < 0) return error.StoreFailure;
++        const log_fd: c_int = before;
++        errdefer _ = c.close(log_fd);
++
++        // Sync the directory even when the file already existed. This makes a newly
++        // created journal entry durable before any command reports success.
++        if (c.fsync(dir_fd) < 0) return error.StoreFailure;
++        return .{ .dir_fd = dir_fd, .lock_fd = lock_fd, .log_fd = log_fd };
++    }
++
++    fn close(self: Store) void {
++        _ = c.close(self.log_fd);
++        _ = c.flock(self.lock_fd, c.LOCK_UN);
++        _ = c.close(self.lock_fd);
++        _ = c.close(self.dir_fd);
++    }
++};
++
++fn addJob(allocator: std.mem.Allocator, request: AddRequest) ![]const u8 {
++    var store = try Store.open(allocator, request.store);
++    defer store.close();
++
++    const jobs = try loadJobs(allocator, store.log_fd);
++    for (jobs.items) |job| {
++        if (std.mem.eql(u8, job.id, request.id)) return error.DuplicateJob;
++    }
++
++    try appendRecord(allocator, store, LogAdd{ .op = "add", .id = request.id, .argv = request.argv });
++    return std.fmt.allocPrint(allocator, "queued {s}\n", .{request.id});
++}
++
++fn runJobs(allocator: std.mem.Allocator, path: []const u8) ![]const u8 {
++    var store = try Store.open(allocator, path);
++    defer store.close();
++
++    const jobs = try loadJobs(allocator, store.log_fd);
++    var output: std.ArrayList(u8) = .empty;
++    for (jobs.items) |*job| {
++        if (job.completion != null) continue;
++        const attempt = std.math.add(u64, job.attempts, 1) catch return error.StoreFailure;
++        try appendRecord(allocator, store, LogAttempt{ .op = "attempt", .id = job.id, .attempt = attempt });
++        job.attempts = attempt;
++
++        const child_result = try runChild(allocator, job.argv);
++        if (child_result.retry_pending) continue;
++        const status = if (child_result.exit_code == 0) "succeeded" else "failed";
++        const line = try std.json.Stringify.valueAlloc(allocator, RunOutput{
++            .id = job.id,
++            .attempt = attempt,
++            .exit_code = child_result.exit_code,
++            .stdout = child_result.stdout,
++            .stderr = child_result.stderr,
++            .status = status,
++        }, .{});
++        try output.appendSlice(allocator, line);
++        try output.append(allocator, '\n');
++
++        try appendRecord(allocator, store, LogDone{
++            .op = "done",
++            .id = job.id,
++            .attempt = attempt,
++            .exit_code = child_result.exit_code,
++            .stdout = child_result.stdout,
++            .stderr = child_result.stderr,
++        });
++        job.completion = .{
++            .exit_code = child_result.exit_code,
++            .stdout = child_result.stdout,
++            .stderr = child_result.stderr,
++        };
++    }
++    return output.toOwnedSlice(allocator);
++}
++
++fn statusJobs(allocator: std.mem.Allocator, path: []const u8) ![]const u8 {
++    var store = try Store.open(allocator, path);
++    defer store.close();
++
++    const jobs = try loadJobs(allocator, store.log_fd);
++    var output: std.ArrayList(u8) = .empty;
++    for (jobs.items) |job| {
++        if (job.completion) |completion| {
++            const state = if (completion.exit_code == 0) "succeeded" else "failed";
++            const line = if (completion.exit_code == 0)
++                try std.fmt.allocPrint(allocator, "{s} {s}\n", .{ job.id, state })
++            else
++                try std.fmt.allocPrint(allocator, "{s} {s} {d}\n", .{ job.id, state, completion.exit_code });
++            try output.appendSlice(allocator, line);
++        } else {
++            try output.appendSlice(allocator, job.id);
++            try output.appendSlice(allocator, " pending\n");
++        }
++    }
++    return output.toOwnedSlice(allocator);
++}
++
++fn appendRecord(allocator: std.mem.Allocator, store: Store, record: anytype) !void {
++    const json_line = try std.json.Stringify.valueAlloc(allocator, record, .{});
++    const framed = try std.fmt.allocPrint(allocator, "{s}\n", .{json_line});
++    try writeAll(store.log_fd, framed);
++    if (c.fsync(store.log_fd) < 0) return error.StoreFailure;
++    if (c.fsync(store.dir_fd) < 0) return error.StoreFailure;
++}
++
++fn loadJobs(allocator: std.mem.Allocator, fd: c_int) !std.ArrayList(Job) {
++    if (c.lseek(fd, 0, c.SEEK_SET) < 0) return error.StoreFailure;
++    var data: std.ArrayList(u8) = .empty;
++    var buffer: [8192]u8 = undefined;
++    while (true) {
++        const amount = c.read(fd, &buffer, buffer.len);
++        if (amount < 0) {
++            if (errnoValue() == c.EINTR) continue;
++            return error.StoreFailure;
++        }
++        if (amount == 0) break;
++        try data.appendSlice(allocator, buffer[0..@intCast(amount)]);
++    }
++
++    var valid_len = data.items.len;
++    if (valid_len > 0 and data.items[valid_len - 1] != '\n') {
++        if (std.mem.lastIndexOfScalar(u8, data.items, '\n')) |last_lf| {
++            valid_len = last_lf + 1;
++        } else {
++            valid_len = 0;
++        }
++        if (c.ftruncate(fd, @intCast(valid_len)) < 0 or c.fsync(fd) < 0) return error.StoreFailure;
++    }
++
++    var jobs: std.ArrayList(Job) = .empty;
++    var start: usize = 0;
++    while (start < valid_len) {
++        const relative = std.mem.indexOfScalarPos(u8, data.items, start, '\n') orelse return error.StoreFailure;
++        if (relative == start) return error.StoreFailure;
++        const line = data.items[start..relative];
++        try applyRecord(allocator, &jobs, line);
++        start = relative + 1;
++    }
++    return jobs;
++}
++
++fn applyRecord(allocator: std.mem.Allocator, jobs: *std.ArrayList(Job), line: []const u8) !void {
++    const value = std.json.parseFromSliceLeaky(std.json.Value, allocator, line, .{}) catch return error.StoreFailure;
++    const op = valueField(value, "op") orelse return error.StoreFailure;
++    if (op != .string) return error.StoreFailure;
++
++    if (std.mem.eql(u8, op.string, "add")) {
++        const id_value = valueField(value, "id") orelse return error.StoreFailure;
++        const argv_value = valueField(value, "argv") orelse return error.StoreFailure;
++        if (id_value != .string or !validId(id_value.string) or argv_value != .array or argv_value.array.items.len == 0) return error.StoreFailure;
++        for (jobs.items) |job| {
++            if (std.mem.eql(u8, job.id, id_value.string)) return error.StoreFailure;
++        }
++        const argv = try allocator.alloc([]const u8, argv_value.array.items.len);
++        for (argv_value.array.items, 0..) |arg, index| {
++            if (arg != .string or std.mem.indexOfScalar(u8, arg.string, 0) != null or (index == 0 and arg.string.len == 0)) return error.StoreFailure;
++            argv[index] = arg.string;
++        }
++        try jobs.append(allocator, .{ .id = id_value.string, .argv = argv });
++        return;
++    }
++
++    const id_value = valueField(value, "id") orelse return error.StoreFailure;
++    if (id_value != .string) return error.StoreFailure;
++    const job = findJob(jobs.items, id_value.string) orelse return error.StoreFailure;
++
++    if (std.mem.eql(u8, op.string, "attempt")) {
++        const attempt_value = valueField(value, "attempt") orelse return error.StoreFailure;
++        const attempt = valueUnsigned(attempt_value) orelse return error.StoreFailure;
++        if (job.completion != null or attempt != job.attempts +| 1) return error.StoreFailure;
++        job.attempts = attempt;
++        return;
++    }
++    if (std.mem.eql(u8, op.string, "done")) {
++        const attempt_value = valueField(value, "attempt") orelse return error.StoreFailure;
++        const exit_value = valueField(value, "exit_code") orelse return error.StoreFailure;
++        const stdout_value = valueField(value, "stdout") orelse return error.StoreFailure;
++        const stderr_value = valueField(value, "stderr") orelse return error.StoreFailure;
++        const attempt = valueUnsigned(attempt_value) orelse return error.StoreFailure;
++        const exit_code = valueSigned(exit_value) orelse return error.StoreFailure;
++        if (job.completion != null or attempt == 0 or attempt != job.attempts or exit_code < std.math.minInt(i32) or exit_code > std.math.maxInt(i32)) return error.StoreFailure;
++        if (stdout_value != .string or stderr_value != .string) return error.StoreFailure;
++        job.completion = .{ .exit_code = @intCast(exit_code), .stdout = stdout_value.string, .stderr = stderr_value.string };
++        return;
++    }
++    return error.StoreFailure;
++}
++
++fn valueField(value: std.json.Value, key: []const u8) ?std.json.Value {
++    if (value != .object) return null;
++    const found = value.object.get(key) orelse return null;
++    return found;
++}
++
++fn valueUnsigned(value: std.json.Value) ?u64 {
++    return switch (value) {
++        .integer => |number| if (number >= 0) @intCast(number) else null,
++        .number_string => |text| std.fmt.parseInt(u64, text, 10) catch null,
++        else => null,
++    };
++}
++
++fn valueSigned(value: std.json.Value) ?i64 {
++    return switch (value) {
++        .integer => |number| number,
++        .number_string => |text| std.fmt.parseInt(i64, text, 10) catch null,
++        else => null,
++    };
++}
++
++fn findJob(jobs: []Job, id: []const u8) ?*Job {
++    for (jobs) |*job| {
++        if (std.mem.eql(u8, job.id, id)) return job;
++    }
++    return null;
++}
++
++fn runChild(allocator: std.mem.Allocator, argv: [][]const u8) !ChildResult {
++    var args = try allocator.allocSentinel(?[*:0]const u8, argv.len, null);
++    for (argv, 0..) |arg, index| args[index] = try duplicateZ(allocator, arg);
++
++    var out_pipe: [2]c_int = undefined;
++    var err_pipe: [2]c_int = undefined;
++    if (c.pipe(&out_pipe) < 0) return error.StoreFailure;
++    errdefer {
++        _ = c.close(out_pipe[0]);
++        _ = c.close(out_pipe[1]);
++    }
++    if (c.pipe(&err_pipe) < 0) return error.StoreFailure;
++    errdefer {
++        _ = c.close(err_pipe[0]);
++        _ = c.close(err_pipe[1]);
++    }
++
++    const child = c.fork();
++    if (child < 0) {
++        _ = c.close(out_pipe[0]);
++        _ = c.close(out_pipe[1]);
++        _ = c.close(err_pipe[0]);
++        _ = c.close(err_pipe[1]);
++        return .{ .exit_code = 127, .stdout = "", .stderr = "exec failed\n" };
++    }
++    if (child == 0) {
++        _ = c.close(out_pipe[0]);
++        _ = c.close(err_pipe[0]);
++        if (c.dup2(out_pipe[1], c.STDOUT_FILENO) < 0 or c.dup2(err_pipe[1], c.STDERR_FILENO) < 0) {
++            childExecFailure();
++        }
++        _ = c.close(out_pipe[1]);
++        _ = c.close(err_pipe[1]);
++        _ = c.execvp(args[0].?, args.ptr);
++        childExecFailure();
++    }
++
++    _ = c.close(out_pipe[1]);
++    _ = c.close(err_pipe[1]);
++    var stdout = std.ArrayList(u8).empty;
++    var stderr = std.ArrayList(u8).empty;
++    readPipes(allocator, child, out_pipe[0], err_pipe[0], &stdout, &stderr) catch |err| {
++        _ = c.kill(child, c.SIGKILL);
++        _ = waitForChild(child) catch {};
++        _ = c.close(out_pipe[0]);
++        _ = c.close(err_pipe[0]);
++        return err;
++    };
++    _ = c.close(out_pipe[0]);
++    _ = c.close(err_pipe[0]);
++
++    const wait_status = try waitForChild(child);
++    const term_signal = wait_status & 0x7f;
++    const exit_code: i32 = if (term_signal == 0)
++        @intCast((wait_status >> 8) & 0xff)
++    else
++        @as(i32, 128) + @as(i32, @intCast(term_signal));
++    return .{
++        .exit_code = exit_code,
++        .stdout = try decodeUtf8ReplacingInvalid(allocator, stdout.items),
++        .stderr = try decodeUtf8ReplacingInvalid(allocator, stderr.items),
++        .retry_pending = term_signal == c.SIGKILL,
++    };
++}
++
++fn childExecFailure() noreturn {
++    const message = "exec failed\n";
++    _ = c.write(c.STDERR_FILENO, message.ptr, message.len);
++    c._exit(127);
++}
++
++fn readPipes(
++    allocator: std.mem.Allocator,
++    _: c_int,
++    stdout_fd: c_int,
++    stderr_fd: c_int,
++    stdout: *std.ArrayList(u8),
++    stderr: *std.ArrayList(u8),
++) !void {
++    var fds = [2]c.PollFd{
++        .{ .fd = stdout_fd, .events = c.POLLIN, .revents = 0 },
++        .{ .fd = stderr_fd, .events = c.POLLIN, .revents = 0 },
++    };
++    var buffer: [8192]u8 = undefined;
++    var open_count: usize = 2;
++    while (open_count > 0) {
++        const polled = c.poll(&fds, fds.len, -1);
++        if (polled < 0) {
++            if (errnoValue() == c.EINTR) continue;
++            return error.StoreFailure;
++        }
++        for (&fds, 0..) |*fd, index| {
++            if (fd.fd < 0 or (fd.revents & (c.POLLIN | c.POLLHUP | c.POLLERR)) == 0) continue;
++            const amount = c.read(fd.fd, &buffer, buffer.len);
++            if (amount < 0) {
++                if (errnoValue() == c.EINTR or errnoValue() == c.EAGAIN) continue;
++                return error.StoreFailure;
++            }
++            if (amount == 0) {
++                _ = c.close(fd.fd);
++                fd.fd = -1;
++                open_count -= 1;
++            } else if (index == 0) {
++                try stdout.appendSlice(allocator, buffer[0..@intCast(amount)]);
++            } else {
++                try stderr.appendSlice(allocator, buffer[0..@intCast(amount)]);
++            }
++        }
++    }
++}
++
++fn waitForChild(child: c_int) !c_int {
++    var status: c_int = 0;
++    while (true) {
++        const result = c.waitpid(child, &status, 0);
++        if (result == child) return status;
++        if (result < 0 and errnoValue() == c.EINTR) continue;
++        return error.StoreFailure;
++    }
++}
++
++fn decodeUtf8ReplacingInvalid(allocator: std.mem.Allocator, bytes: []const u8) ![]const u8 {
++    var output: std.ArrayList(u8) = .empty;
++    var index: usize = 0;
++    while (index < bytes.len) {
++        const sequence_len = std.unicode.utf8ByteSequenceLength(bytes[index]) catch {
++            try output.appendSlice(allocator, "\xef\xbf\xbd");
++            index += 1;
++            continue;
++        };
++        const length: usize = sequence_len;
++        if (length > bytes.len - index) {
++            try output.appendSlice(allocator, "\xef\xbf\xbd");
++            index += 1;
++            continue;
++        }
++        _ = std.unicode.utf8Decode(bytes[index .. index + length]) catch {
++            try output.appendSlice(allocator, "\xef\xbf\xbd");
++            index += 1;
++            continue;
++        };
++        try output.appendSlice(allocator, bytes[index .. index + length]);
++        index += length;
++    }
++    return output.toOwnedSlice(allocator);
++}
++
++fn writeAll(fd: c_int, bytes: []const u8) !void {
++    var offset: usize = 0;
++    while (offset < bytes.len) {
++        const amount = c.write(fd, bytes[offset..].ptr, bytes.len - offset);
++        if (amount < 0) {
++            if (errnoValue() == c.EINTR) continue;
++            return error.StoreFailure;
++        }
++        if (amount == 0) return error.StoreFailure;
++        offset += @intCast(amount);
++    }
++}
++
++fn createDirectories(path: []const u8) !void {
++    if (path.len == 0) return error.StoreFailure;
++    var component_start: usize = if (path[0] == '/') 1 else 0;
++    var index: usize = component_start;
++    while (index <= path.len) : (index += 1) {
++        if (index < path.len and path[index] != '/') continue;
++        if (index == component_start) continue;
++        const prefix = path[0..index];
++        const prefix_z = try duplicateZ(std.heap.page_allocator, prefix);
++        defer std.heap.page_allocator.free(prefix_z);
++        if (c.mkdir(prefix_z, @as(c_uint, 0o755)) == 0) {
++            try syncParentDirectory(prefix);
++        } else if (errnoValue() != c.EEXIST) {
++            return error.StoreFailure;
++        }
++        component_start = index + 1;
++    }
++}
++
++fn syncParentDirectory(path: []const u8) !void {
++    var end = path.len;
++    while (end > 1 and path[end - 1] == '/') end -= 1;
++    const trimmed = path[0..end];
++    const slash = std.mem.lastIndexOfScalar(u8, trimmed, '/') orelse {
++        try syncDirectory(".");
++        return;
++    };
++    const parent = if (slash == 0) "/" else trimmed[0..slash];
++    try syncDirectory(parent);
++}
++
++fn syncDirectory(path: []const u8) !void {
++    const path_z = try duplicateZ(std.heap.page_allocator, path);
++    defer std.heap.page_allocator.free(path_z);
++    const fd = c.open(path_z, c.O_RDONLY | c.O_DIRECTORY | c.O_CLOEXEC);
++    if (fd < 0) return error.StoreFailure;
++    defer _ = c.close(fd);
++    if (c.fsync(fd) < 0) return error.StoreFailure;
++}
++
++fn errnoValue() c_int {
++    return c.__errno_location().*;
++}
++
++fn duplicateZ(allocator: std.mem.Allocator, bytes: []const u8) ![:0]u8 {
++    const result = try allocator.allocSentinel(u8, bytes.len, 0);
++    @memcpy(result, bytes);
++    return result;
+ }

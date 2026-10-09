@@ -1,0 +1,176 @@
+diff --git a/src/core.zig b/src/core.zig
+index bcfcc94..f77b240 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,18 +1,167 @@
+ const std = @import("std");
+ 
++const usage_text = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n";
++const invalid_text = "cas-land: invalid repository or commit\n";
++const conflict_text = "cas-land: conflict\n";
++const race_text = "cas-land: lost race\n";
++
+ pub const Result = struct {
+     stdout: []const u8 = "",
+     stderr: []const u8 = "",
+     exit_code: u8 = 0,
+ };
+ 
++const Options = struct {
++    repo: []const u8,
++    target: []const u8,
++    base: []const u8,
++    candidate: []const u8,
++};
++
++fn usage() Result {
++    return .{ .stderr = usage_text, .exit_code = 2 };
++}
++
++fn invalid() Result {
++    return .{ .stderr = invalid_text, .exit_code = 1 };
++}
++
++fn gitSucceeded(term: std.process.Child.Term) bool {
++    return switch (term) {
++        .exited => |code| code == 0,
++        else => false,
++    };
++}
++
++fn runGit(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    args: []const []const u8,
++) ?std.process.RunResult {
++    const argv = allocator.alloc([]const u8, args.len + 3) catch return null;
++    argv[0] = "git";
++    argv[1] = "-C";
++    argv[2] = repo;
++    @memcpy(argv[3..], args);
++    return std.process.run(allocator, io, .{ .argv = argv }) catch null;
++}
++
++fn gitText(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    args: []const []const u8,
++) ?[]const u8 {
++    const result = runGit(allocator, io, repo, args) orelse return null;
++    if (!gitSucceeded(result.term)) return null;
++    return std.mem.trim(u8, result.stdout, " \t\r\n");
++}
++
++fn cleanup(allocator: std.mem.Allocator, io: std.Io, repo: []const u8, work: []const u8) void {
++    const args = [_][]const u8{ "worktree", "remove", "--force", work };
++    _ = runGit(allocator, io, repo, &args);
++}
++
++fn parseOptions(args: []const []const u8) ?Options {
++    var repo: ?[]const u8 = null;
++    var target: ?[]const u8 = null;
++    var base: ?[]const u8 = null;
++    var candidate: ?[]const u8 = null;
++
++    var i: usize = 0;
++    while (i < args.len) {
++        const slot: *?[]const u8 = if (std.mem.eql(u8, args[i], "--repo"))
++            &repo
++        else if (std.mem.eql(u8, args[i], "--target"))
++            &target
++        else if (std.mem.eql(u8, args[i], "--base"))
++            &base
++        else if (std.mem.eql(u8, args[i], "--candidate"))
++            &candidate
++        else
++            return null;
++
++        if (slot.* != null or i + 1 >= args.len or args[i + 1].len == 0) return null;
++        slot.* = args[i + 1];
++        i += 2;
++    }
++
++    return .{
++        .repo = repo orelse return null,
++        .target = target orelse return null,
++        .base = base orelse return null,
++        .candidate = candidate orelse return null,
++    };
++}
++
++fn doLand(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    args: []const []const u8,
++) Result {
++    const options = parseOptions(args) orelse return usage();
++
++    if (!std.mem.startsWith(u8, options.target, "refs/")) return invalid();
++    const check_ref_args = [_][]const u8{ "check-ref-format", options.target };
++    _ = gitText(allocator, io, options.repo, &check_ref_args) orelse return invalid();
++
++    const parent_args = [_][]const u8{ "rev-list", "--parents", "-n", "1", options.candidate };
++    const parent_line = gitText(allocator, io, options.repo, &parent_args) orelse return invalid();
++    var parents = std.mem.tokenizeAny(u8, parent_line, " \t\r\n");
++    _ = parents.next() orelse return invalid();
++    const actual_base = parents.next() orelse return invalid();
++    if (parents.next() != null or !std.mem.eql(u8, actual_base, options.base)) return invalid();
++
++    const current_args = [_][]const u8{ "rev-parse", "--verify", options.target };
++    const current = gitText(allocator, io, options.repo, &current_args) orelse return invalid();
++    const rebased = !std.mem.eql(u8, current, options.base);
++    var landing_oid = options.candidate;
++
++    if (rebased) {
++        const work = std.fmt.allocPrint(
++            allocator,
++            "/tmp/cas-land-r70-zig-{d}",
++            .{std.posix.system.getpid()},
++        ) catch return invalid();
++        const add_args = [_][]const u8{ "worktree", "add", "--detach", work, options.candidate };
++        _ = gitText(allocator, io, options.repo, &add_args) orelse return invalid();
++
++        var worktree_active = true;
++        defer if (worktree_active) cleanup(allocator, io, options.repo, work);
++
++        const rebase_args = [_][]const u8{ "rebase", "--onto", current, options.base };
++        const rebase = runGit(allocator, io, work, &rebase_args) orelse return invalid();
++        if (gitSucceeded(rebase.term)) {
++            const head_args = [_][]const u8{ "rev-parse", "HEAD" };
++            landing_oid = gitText(allocator, io, work, &head_args) orelse return invalid();
++            cleanup(allocator, io, options.repo, work);
++            worktree_active = false;
++        } else {
++            const conflict_args = [_][]const u8{ "diff", "--name-only", "--diff-filter=U" };
++            const conflict_paths = gitText(allocator, io, work, &conflict_args);
++            const has_conflict = if (conflict_paths) |paths| paths.len != 0 else false;
++            const abort_args = [_][]const u8{ "rebase", "--abort" };
++            _ = gitText(allocator, io, work, &abort_args);
++            cleanup(allocator, io, options.repo, work);
++            worktree_active = false;
++            if (has_conflict) return .{ .stderr = conflict_text, .exit_code = 20 };
++            return invalid();
++        }
++    }
++
++    const update_args = [_][]const u8{ "update-ref", options.target, landing_oid, current };
++    _ = gitText(allocator, io, options.repo, &update_args) orelse return .{ .stderr = race_text, .exit_code = 30 };
++
++    const label: []const u8 = if (rebased) "rebased" else "landed";
++    const output = std.fmt.allocPrint(allocator, "{s} {s}\n", .{ label, landing_oid }) catch return invalid();
++    return .{ .stdout = output, .exit_code = if (rebased) 10 else 0 };
++}
++
+ pub fn execute(
+     allocator: std.mem.Allocator,
+     io: std.Io,
+     args: []const []const u8,
+ ) Result {
+-    _ = allocator;
+-    _ = io;
+-    _ = args;
+-    return .{};
++    return doLand(allocator, io, args);
+ }

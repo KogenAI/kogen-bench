@@ -1,0 +1,353 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..4e85851 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,298 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use std::ffi::{OsStr, OsString};
++use std::io::{self, Write};
++use std::process::{Child, Command, ExitStatus, Stdio};
++use std::thread;
++use std::time::{Duration, Instant};
++
++#[cfg(unix)]
++use std::os::unix::ffi::OsStrExt;
++#[cfg(unix)]
++use std::os::unix::process::{CommandExt, ExitStatusExt};
++
++const INVALID_ARGUMENTS: &[u8] = b"error: invalid arguments\n";
++const CANNOT_START: &[u8] = b"error: cannot start command\n";
++const POLL_INTERVAL: Duration = Duration::from_millis(10);
++
++struct Options {
++    timeout: Duration,
++    grace: Duration,
++    command: OsString,
++    command_args: Vec<OsString>,
++}
++
++fn is_arg(value: &OsStr, expected: &str) -> bool {
++    value == OsStr::new(expected)
++}
++
++fn parse_millis(value: &OsStr) -> Option<u64> {
++    #[cfg(unix)]
++    let bytes = value.as_bytes();
++    #[cfg(not(unix))]
++    let bytes = value.to_str()?.as_bytes();
++
++    if bytes.is_empty() {
++        return None;
++    }
++
++    let mut parsed = 0_u64;
++    for byte in bytes {
++        if !byte.is_ascii_digit() {
++            return None;
++        }
++        parsed = parsed
++            .checked_mul(10)?
++            .checked_add(u64::from(byte - b'0'))?;
++    }
++    (1..=60_000).contains(&parsed).then_some(parsed)
++}
++
++fn parse_args(args: &[OsString]) -> Option<Options> {
++    if args.len() < 7
++        || !is_arg(&args[0], "supervise")
++        || !is_arg(&args[1], "--timeout-ms")
++        || !is_arg(&args[3], "--grace-ms")
++        || !is_arg(&args[5], "--")
++    {
++        return None;
++    }
++
++    let timeout = parse_millis(&args[2])?;
++    let grace = parse_millis(&args[4])?;
++
++    Some(Options {
++        timeout: Duration::from_millis(timeout),
++        grace: Duration::from_millis(grace),
++        command: args[6].clone(),
++        command_args: args[7..].to_vec(),
++    })
++}
++
++/// Run the process-tree supervisor and return the command's status (or the
++/// supervisor's fixed CLI/startup error status).
++pub fn run(args: &[OsString]) -> i32 {
++    let Some(options) = parse_args(args) else {
++        let _ = io::stderr().write_all(INVALID_ARGUMENTS);
++        return 2;
++    };
++
++    supervise(options)
++}
++
++fn supervise(options: Options) -> i32 {
++    let mut command = Command::new(&options.command);
++    command
++        .args(&options.command_args)
++        .stdin(Stdio::null())
++        .stdout(Stdio::inherit())
++        .stderr(Stdio::inherit());
++
++    #[cfg(unix)]
++    command.process_group(0);
++
++    let mut child = match command.spawn() {
++        Ok(child) => child,
++        Err(_) => {
++            let _ = io::stderr().write_all(CANNOT_START);
++            return 127;
++        }
++    };
++
++    // process_group(0) makes the child's pid the id of its new process group.
++    let process_group = child.id() as i32;
++    let started = Instant::now();
++    let timeout_at = started + options.timeout;
++
++    loop {
++        let direct_child_exited = match child.try_wait() {
++            Ok(Some(_)) => true,
++            Ok(None) => false,
++            Err(_) => true,
++        };
++        let now = Instant::now();
++        let timeout_reached = now >= timeout_at;
++
++        // While the direct child is running, the group is known to be live.
++        // Scan /proc only after it exits, and once at the timeout boundary to
++        // account for descendants that outlive it.
++        if direct_child_exited || timeout_reached {
++            if !group_has_live_member(process_group) {
++                let (exit_code, reaped) = reap(&mut child);
++                write_status("exited", exit_code, false, false, reaped);
++                return exit_code;
++            }
++            if timeout_reached {
++                break;
++            }
++        }
++
++        thread::sleep(POLL_INTERVAL.min(timeout_at.saturating_duration_since(now)));
++    }
++
++    let term_sent = signal_group(process_group, 15);
++    let grace_at = Instant::now() + options.grace;
++    while Instant::now() < grace_at {
++        thread::sleep(grace_at.saturating_duration_since(Instant::now()));
++    }
++
++    let kill_sent = if group_has_live_member(process_group) {
++        signal_group(process_group, 9)
++    } else {
++        false
++    };
++
++    while group_has_live_member(process_group) {
++        thread::sleep(POLL_INTERVAL);
++    }
++
++    let (_, reaped) = reap(&mut child);
++    write_status("timeout", 124, term_sent, kill_sent, reaped);
++    124
++}
++
++fn reap(child: &mut Child) -> (i32, bool) {
++    match child.wait() {
++        Ok(status) => (exit_code(status), true),
++        Err(_) => (1, false),
++    }
++}
++
++fn exit_code(status: ExitStatus) -> i32 {
++    if let Some(code) = status.code() {
++        code
++    } else {
++        #[cfg(unix)]
++        {
++            status.signal().map_or(1, |signal| 128 + signal)
++        }
++        #[cfg(not(unix))]
++        {
++            1
++        }
++    }
++}
++
++fn write_status(state: &str, exit_code: i32, term_sent: bool, kill_sent: bool, reaped: bool) {
++    let line = format!(
++        "status={state} exit_code={exit_code} term_sent={term_sent} kill_sent={kill_sent} reaped={}\n",
++        u8::from(reaped)
++    );
++    let _ = io::stderr().write_all(line.as_bytes());
++}
++
++#[cfg(unix)]
++fn signal_group(process_group: i32, signal: i32) -> bool {
++    // A negative pid asks kill(2) to signal every process in that group.
++    unsafe extern "C" {
++        fn kill(pid: i32, signal: i32) -> i32;
++    }
++
++    // SAFETY: kill has no memory-safety preconditions; the negative process
++    // group id is the one assigned to the child by CommandExt::process_group.
++    unsafe { kill(-process_group, signal) == 0 }
++}
++
++#[cfg(not(unix))]
++fn signal_group(_process_group: i32, _signal: i32) -> bool {
++    false
++}
++
++#[cfg(unix)]
++fn group_has_live_member(process_group: i32) -> bool {
++    let Ok(entries) = std::fs::read_dir("/proc") else {
++        return true;
++    };
++
++    for entry in entries.flatten() {
++        if entry.file_name().as_bytes().iter().all(u8::is_ascii_digit) {
++            let stat_path = entry.path().join("stat");
++            let Ok(stat) = std::fs::read(stat_path) else {
++                continue;
++            };
++            if stat_has_live_group_member(&stat, process_group) {
++                return true;
++            }
++        }
++    }
++    false
++}
++
++#[cfg(unix)]
++fn stat_has_live_group_member(stat: &[u8], process_group: i32) -> bool {
++    // The comm field is parenthesized and can itself contain spaces or `)`,
++    // so parse from its final closing parenthesis.
++    let Some(comm_end) = stat.windows(2).rposition(|pair| pair == b") ") else {
++        return false;
++    };
++    let mut fields = stat[comm_end + 2..].split(|byte| byte.is_ascii_whitespace());
++    let Some(state) = fields.next() else {
++        return false;
++    };
++    let _parent_pid = fields.next();
++    let Some(group) = fields.next() else {
++        return false;
++    };
++
++    state != b"Z" && state != b"X" && parse_i32(group) == Some(process_group)
++}
++
++#[cfg(unix)]
++fn parse_i32(bytes: &[u8]) -> Option<i32> {
++    let text = std::str::from_utf8(bytes).ok()?;
++    text.parse().ok()
++}
++
++#[cfg(not(unix))]
++fn group_has_live_member(_process_group: i32) -> bool {
++    true
++}
++
++#[cfg(test)]
++mod tests {
++    use super::{parse_args, parse_millis};
++    use std::ffi::{OsStr, OsString};
++
++    #[test]
++    fn parses_valid_supervise_arguments_and_preserves_command_args() {
++        let args: Vec<OsString> = [
++            "supervise",
++            "--timeout-ms",
++            "0001",
++            "--grace-ms",
++            "60000",
++            "--",
++            "printf",
++            "%s",
++            "--literal",
++        ]
++        .into_iter()
++        .map(OsString::from)
++        .collect();
++
++        let options = parse_args(&args).expect("arguments should be valid");
++        assert_eq!(options.timeout, std::time::Duration::from_millis(1));
++        assert_eq!(options.grace, std::time::Duration::from_millis(60_000));
++        assert_eq!(options.command, OsStr::new("printf"));
++        assert_eq!(options.command_args, ["%s", "--literal"]);
++    }
++
++    #[test]
++    fn rejects_invalid_option_values_and_order() {
++        for value in ["", "+1", "-1", " 1", "1 ", "0", "60001", "١"] {
++            assert_eq!(parse_millis(OsStr::new(value)), None, "{value:?}");
++        }
++
++        let args: Vec<OsString> = [
++            "supervise",
++            "--grace-ms",
++            "1",
++            "--timeout-ms",
++            "1",
++            "--",
++            "true",
++        ]
++        .into_iter()
++        .map(OsString::from)
++        .collect();
++        assert!(parse_args(&args).is_none());
++    }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..01c8e0d 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,41 +1,6 @@
+-use std::io::{self, Read, Write};
+-
+-pub fn physical_lines(text: &str) -> Vec<&str> {
+-    text.split('\n')
+-        .map(|line| line.strip_suffix('\r').unwrap_or(line))
+-        .collect()
+-}
+-
+-pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+-    let result = match path {
+-        None | Some("-") => {
+-            let mut bytes = Vec::new();
+-            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
+-        }
+-        Some(path) => std::fs::read(path),
+-    };
+-    result.map_err(|_| format!("{prefix}: cannot read input"))
+-}
+-
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
+-    match core::execute(&args) {
+-        Ok(output) => {
+-            let _ = io::stdout().write_all(output.as_bytes());
+-        }
+-        Err((code, message)) => {
+-            let _ = writeln!(io::stderr(), "{message}");
+-            std::process::exit(code);
+-        }
+-    }
++    let args: Vec<std::ffi::OsString> = std::env::args_os().skip(1).collect();
++    std::process::exit(core::run(&args));
+ }
+ 
+ mod core;
+-
+-#[cfg(test)]
+-mod tests {
+-    #[test]
+-    fn physical_line_endings() {
+-        assert_eq!(super::physical_lines("a\r\n\nb\r"), vec!["a", "", "b"]);
+-    }
+-}

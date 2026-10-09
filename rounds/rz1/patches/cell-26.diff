@@ -1,0 +1,664 @@
+diff --git a/src/core.zig b/src/core.zig
+index 740bf60..6f4212b 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,3 +1,657 @@
+-pub fn execute(_: @import("std").mem.Allocator, _: []const []const u8) error{ InvalidArguments, NotImplemented }![]const u8 {
+-    return error.NotImplemented;
++const std = @import("std");
++const c = @import("c");
++
++const Allocator = std.mem.Allocator;
++const AttemptError = error{ Retryable, Fatal };
++
++const Options = struct {
++    prompt: []const u8,
++    idle_timeout_ms: u32,
++    usage_path: []const u8,
++    uri: std.Uri,
++};
++
++const Usage = struct {
++    input_tokens: u64,
++    output_tokens: u64,
++};
++
++const Result = struct {
++    output: []u8,
++    usage: Usage,
++};
++
++pub fn execute(allocator: Allocator, args: []const []const u8) error{ InvalidArguments, RequestFailed }![]u8 {
++    const options = parseArguments(args) catch return error.InvalidArguments;
++
++    var result: ?Result = null;
++    var attempt_index: usize = 0;
++    while (attempt_index < 2) : (attempt_index += 1) {
++        result = doAttempt(allocator, options) catch |err| switch (err) {
++            error.Retryable => {
++                if (attempt_index == 0) continue;
++                return error.RequestFailed;
++            },
++            error.Fatal => return error.RequestFailed,
++        };
++        break;
++    }
++    const completed = result orelse return error.RequestFailed;
++
++    const usage_line = std.fmt.allocPrint(
++        allocator,
++        "{{\"input_tokens\":{d},\"output_tokens\":{d}}}\n",
++        .{ completed.usage.input_tokens, completed.usage.output_tokens },
++    ) catch return error.RequestFailed;
++    atomicReplace(allocator, options.usage_path, usage_line) catch return error.RequestFailed;
++    return completed.output;
++}
++
++fn parseArguments(args: []const []const u8) !Options {
++    if (args.len != 11 or !std.mem.eql(u8, args[0], "model")) return error.InvalidArguments;
++
++    var url_text: ?[]const u8 = null;
++    var prompt: ?[]const u8 = null;
++    var timeout: ?u32 = null;
++    var usage_path: ?[]const u8 = null;
++
++    var index: usize = 1;
++    while (index < args.len) : (index += 2) {
++        const option = args[index];
++        const value = args[index + 1];
++        if (std.mem.eql(u8, option, "--url")) {
++            if (url_text != null) return error.InvalidArguments;
++            url_text = value;
++        } else if (std.mem.eql(u8, option, "--prompt")) {
++            if (prompt != null) return error.InvalidArguments;
++            prompt = value;
++        } else if (std.mem.eql(u8, option, "--idle-timeout-ms")) {
++            if (timeout != null or value.len == 0) return error.InvalidArguments;
++            for (value) |byte| if (byte < '0' or byte > '9') return error.InvalidArguments;
++            const parsed = std.fmt.parseInt(u32, value, 10) catch return error.InvalidArguments;
++            if (parsed == 0 or parsed > 60000) return error.InvalidArguments;
++            timeout = parsed;
++        } else if (std.mem.eql(u8, option, "--usage-file")) {
++            if (usage_path != null or value.len == 0) return error.InvalidArguments;
++            usage_path = value;
++        } else {
++            return error.InvalidArguments;
++        }
++    }
++
++    const final_url = url_text orelse return error.InvalidArguments;
++    const final_prompt = prompt orelse return error.InvalidArguments;
++    const final_timeout = timeout orelse return error.InvalidArguments;
++    const final_usage_path = usage_path orelse return error.InvalidArguments;
++    if (!std.mem.startsWith(u8, final_url, "http://")) return error.InvalidArguments;
++    if (!std.unicode.utf8ValidateSlice(final_prompt)) return error.InvalidArguments;
++    for (final_url) |byte| {
++        if (byte <= 0x20 or byte == 0x7f or byte == '\\') return error.InvalidArguments;
++    }
++    if (!validPercentEncoding(final_url)) return error.InvalidArguments;
++
++    const uri = std.Uri.parse(final_url) catch return error.InvalidArguments;
++    if (!std.mem.eql(u8, uri.scheme, "http")) return error.InvalidArguments;
++    const host = uri.host orelse return error.InvalidArguments;
++    if (host.isEmpty()) return error.InvalidArguments;
++    var host_buffer: [std.Io.net.HostName.max_len + 2]u8 = undefined;
++    const raw_host = host.toRaw(&host_buffer) catch return error.InvalidArguments;
++    if (std.mem.indexOfAny(u8, raw_host, "\r\n /\\")) |_| return error.InvalidArguments;
++    if (!validUriComponent(uri.path)) return error.InvalidArguments;
++    if (uri.query) |query| if (!validUriComponent(query)) return error.InvalidArguments;
++    if (uri.fragment) |fragment| if (!validUriComponent(fragment)) return error.InvalidArguments;
++    if (uri.user) |user| if (!validUriComponent(user)) return error.InvalidArguments;
++    if (uri.password) |password| if (!validUriComponent(password)) return error.InvalidArguments;
++
++    return .{
++        .prompt = final_prompt,
++        .idle_timeout_ms = final_timeout,
++        .usage_path = final_usage_path,
++        .uri = uri,
++    };
++}
++
++fn doAttempt(allocator: Allocator, options: Options) AttemptError!Result {
++    const body = std.json.Stringify.valueAlloc(allocator, .{ .prompt = options.prompt }, .{}) catch return error.Fatal;
++    const request_bytes = makeRequest(allocator, options, body) catch return error.Fatal;
++
++    const host_component = options.uri.host orelse return error.Fatal;
++    const host_storage = allocator.alloc(u8, std.Io.net.HostName.max_len + 2) catch return error.Fatal;
++    const host_raw = host_component.toRaw(host_storage) catch return error.Fatal;
++    var lookup_host = host_raw;
++    if (lookup_host.len >= 2 and lookup_host[0] == '[' and lookup_host[lookup_host.len - 1] == ']') {
++        lookup_host = lookup_host[1 .. lookup_host.len - 1];
++    }
++    if (lookup_host.len == 0 or std.mem.indexOfScalar(u8, lookup_host, 0) != null) return error.Fatal;
++    const host_z = allocator.dupeSentinel(u8, lookup_host, 0) catch return error.Fatal;
++    const port = options.uri.port orelse 80;
++    const port_z = std.fmt.allocPrintSentinel(allocator, "{d}", .{port}, 0) catch return error.Fatal;
++
++    var hints: c.struct_addrinfo = std.mem.zeroes(c.struct_addrinfo);
++    hints.ai_family = c.AF_UNSPEC;
++    hints.ai_socktype = c.SOCK_STREAM;
++    hints.ai_protocol = c.IPPROTO_TCP;
++    var addresses: ?*c.struct_addrinfo = null;
++    if (c.getaddrinfo(host_z.ptr, port_z.ptr, &hints, &addresses) != 0) return error.Retryable;
++    defer c.freeaddrinfo(addresses);
++
++    var fd: c_int = -1;
++    var address = addresses;
++    while (address) |entry| : (address = entry.ai_next) {
++        const candidate = c.socket(entry.ai_family, entry.ai_socktype, entry.ai_protocol);
++        if (candidate < 0) continue;
++        if (c.connect(candidate, entry.ai_addr, entry.ai_addrlen) == 0) {
++            fd = candidate;
++            break;
++        }
++        _ = c.close(candidate);
++    }
++    if (fd < 0) return error.Retryable;
++    defer _ = c.close(fd);
++
++    var sent: usize = 0;
++    while (sent < request_bytes.len) {
++        const amount = c.send(fd, request_bytes[sent..].ptr, request_bytes.len - sent, c.MSG_NOSIGNAL);
++        if (amount <= 0) return error.Retryable;
++        sent += @intCast(amount);
++    }
++
++    var reader = SocketReader{ .fd = fd };
++    const deadline = monotonicMillis() + options.idle_timeout_ms;
++    var response_head: ResponseHead = undefined;
++    var interim_count: usize = 0;
++    while (true) {
++        const header = readHeader(allocator, &reader, deadline) catch |err| return err;
++        response_head = parseResponseHead(header) catch return error.Fatal;
++        if (response_head.status >= 100 and response_head.status < 200 and response_head.status != 101) {
++            interim_count += 1;
++            if (interim_count > 16) return error.Fatal;
++            continue;
++        }
++        break;
++    }
++
++    if (response_head.status >= 500 and response_head.status <= 599) return error.Retryable;
++    if (response_head.status < 200 or response_head.status > 299) return error.Fatal;
++    if (response_head.status == 204 or response_head.status == 205) return error.Fatal;
++
++    var sse = SseParser.init(allocator);
++    const body_ended_early = readResponseBody(&reader, response_head, options.idle_timeout_ms, &sse) catch |err| return err;
++    _ = body_ended_early;
++    if (!sse.done or !sse.usage_seen) return error.Fatal;
++
++    const output = allocator.alloc(u8, sse.text.items.len + 1) catch return error.Fatal;
++    @memcpy(output[0..sse.text.items.len], sse.text.items);
++    output[output.len - 1] = '\n';
++    return .{ .output = output, .usage = sse.usage };
++}
++
++fn makeRequest(allocator: Allocator, options: Options, body: []const u8) ![]u8 {
++    var request = std.array_list.Managed(u8).init(allocator);
++    var target = std.array_list.Managed(u8).init(allocator);
++    try appendUriComponent(&target, options.uri.path);
++    if (target.items.len == 0) try target.append('/');
++    if (options.uri.query) |query| {
++        try target.append('?');
++        try appendUriComponent(&target, query);
++    }
++    if (std.mem.indexOfAny(u8, target.items, "\r\n \\")) |_| return error.InvalidUrl;
++
++    var host_buffer: [std.Io.net.HostName.max_len + 2]u8 = undefined;
++    const host = (options.uri.host orelse return error.InvalidUrl).toRaw(&host_buffer) catch return error.InvalidUrl;
++    if (std.mem.indexOfAny(u8, host, "\r\n /\\")) |_| return error.InvalidUrl;
++
++    try request.appendSlice("POST ");
++    try request.appendSlice(target.items);
++    try request.appendSlice(" HTTP/1.1\r\nHost: ");
++    try request.appendSlice(host);
++    if (options.uri.port) |port| {
++        try request.appendSlice(try std.fmt.allocPrint(allocator, ":{d}", .{port}));
++    }
++    try request.appendSlice("\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nContent-Length: ");
++    try request.appendSlice(try std.fmt.allocPrint(allocator, "{d}", .{body.len}));
++    try request.appendSlice("\r\nConnection: close\r\n\r\n");
++    try request.appendSlice(body);
++    return request.toOwnedSlice();
++}
++
++fn appendUriComponent(list: *std.array_list.Managed(u8), component: std.Uri.Component) !void {
++    switch (component) {
++        .raw, .percent_encoded => |bytes| try list.appendSlice(bytes),
++    }
++}
++
++fn validPercentEncoding(value: []const u8) bool {
++    var index: usize = 0;
++    while (index < value.len) : (index += 1) {
++        if (value[index] != '%') continue;
++        if (value.len - index < 3 or !std.ascii.isHex(value[index + 1]) or !std.ascii.isHex(value[index + 2])) return false;
++        index += 2;
++    }
++    return true;
++}
++
++fn validUriComponent(component: std.Uri.Component) bool {
++    const value = switch (component) {
++        .raw, .percent_encoded => |bytes| bytes,
++    };
++    if (!validPercentEncoding(value)) return false;
++    for (value) |byte| if (byte <= 0x20 or byte == 0x7f or byte == '\\') return false;
++    return true;
++}
++
++const SocketReader = struct {
++    fd: c_int,
++    buffer: [8192]u8 = undefined,
++    index: usize = 0,
++    end: usize = 0,
++
++    fn readByteUntil(self: *SocketReader, deadline_ms: i64) AttemptError!u8 {
++        if (self.index == self.end) try self.fillUntilHeader(deadline_ms);
++        const byte = self.buffer[self.index];
++        self.index += 1;
++        return byte;
++    }
++
++    fn fillUntilHeader(self: *SocketReader, deadline_ms: i64) AttemptError!void {
++        const remaining = deadline_ms - monotonicMillis();
++        if (remaining <= 0) return error.Retryable;
++        try waitReadable(self.fd, @intCast(@min(remaining, std.math.maxInt(c_int))));
++        const count = c.recv(self.fd, &self.buffer, self.buffer.len, 0);
++        if (count <= 0) return error.Retryable;
++        self.index = 0;
++        self.end = @intCast(count);
++    }
++
++    fn readSome(self: *SocketReader, timeout_ms: u32) AttemptError!?[]const u8 {
++        if (self.index < self.end) {
++            const available = self.buffer[self.index..self.end];
++            self.index = self.end;
++            return available;
++        }
++        waitReadable(self.fd, @intCast(timeout_ms)) catch |err| return err;
++        const count = c.recv(self.fd, &self.buffer, self.buffer.len, 0);
++        if (count < 0) return error.Retryable;
++        if (count == 0) return null;
++        self.index = @intCast(count);
++        self.end = self.index;
++        return self.buffer[0..self.end];
++    }
++
++    fn readByte(self: *SocketReader, timeout_ms: u32) AttemptError!?u8 {
++        if (self.index == self.end) {
++            try waitReadable(self.fd, @intCast(timeout_ms));
++            const count = c.recv(self.fd, &self.buffer, self.buffer.len, 0);
++            if (count < 0) return error.Retryable;
++            if (count == 0) return null;
++            self.index = 0;
++            self.end = @intCast(count);
++        }
++        const byte = self.buffer[self.index];
++        self.index += 1;
++        return byte;
++    }
++};
++
++fn waitReadable(fd: c_int, timeout_ms: c_int) AttemptError!void {
++    var item = c.struct_pollfd{ .fd = fd, .events = c.POLLIN, .revents = 0 };
++    const result = c.poll(&item, 1, timeout_ms);
++    if (result <= 0) return error.Retryable;
++    if ((item.revents & (c.POLLERR | c.POLLNVAL)) != 0) return error.Retryable;
++}
++
++fn monotonicMillis() i64 {
++    var now: c.struct_timespec = undefined;
++    if (c.clock_gettime(c.CLOCK_MONOTONIC, &now) != 0) return 0;
++    return @as(i64, @intCast(now.tv_sec)) * 1000 + @divTrunc(@as(i64, @intCast(now.tv_nsec)), 1_000_000);
++}
++
++fn readHeader(allocator: Allocator, reader: *SocketReader, deadline_ms: i64) AttemptError![]u8 {
++    var bytes = std.array_list.Managed(u8).init(allocator);
++    defer bytes.deinit();
++    var matched: usize = 0;
++    var previous: u8 = 0;
++    const delimiter = "\r\n\r\n";
++    while (bytes.items.len <= 65536) {
++        const byte = try reader.readByteUntil(deadline_ms);
++        if ((byte == '\n' and previous != '\r') or (previous == '\r' and byte != '\n')) return error.Fatal;
++        bytes.append(byte) catch return error.Fatal;
++        if (byte == delimiter[matched]) {
++            matched += 1;
++            if (matched == delimiter.len) return bytes.toOwnedSlice() catch return error.Fatal;
++        } else {
++            matched = if (byte == '\r') 1 else 0;
++        }
++        previous = byte;
++    }
++    return error.Fatal;
++}
++
++const ResponseHead = struct {
++    status: u16,
++    content_length: ?u64 = null,
++    chunked: bool = false,
++    has_content_length: bool = false,
++};
++
++fn parseResponseHead(bytes: []const u8) !ResponseHead {
++    if (!std.mem.endsWith(u8, bytes, "\r\n\r\n")) return error.InvalidResponse;
++    var lines = std.mem.splitSequence(u8, bytes[0 .. bytes.len - 4], "\r\n");
++    const status_line = lines.next() orelse return error.InvalidResponse;
++    if (status_line.len < 13 or
++        !(std.mem.startsWith(u8, status_line, "HTTP/1.0 ") or std.mem.startsWith(u8, status_line, "HTTP/1.1 ")) or
++        status_line[8] != ' ' or status_line[12] != ' ')
++    {
++        return error.InvalidResponse;
++    }
++    if (status_line[9] < '0' or status_line[9] > '9' or status_line[10] < '0' or status_line[10] > '9' or status_line[11] < '0' or status_line[11] > '9') return error.InvalidResponse;
++    const status = std.fmt.parseInt(u16, status_line[9..12], 10) catch return error.InvalidResponse;
++    if (status < 100 or status > 599) return error.InvalidResponse;
++    for (status_line[13..]) |byte| if ((byte < 0x20 and byte != '\t') or byte == 0x7f) return error.InvalidResponse;
++
++    var head: ResponseHead = .{ .status = status };
++    while (lines.next()) |line| {
++        if (line.len == 0 or line[0] == ' ' or line[0] == '\t') return error.InvalidResponse;
++        if (std.mem.indexOfAny(u8, line, "\r\n")) |_| return error.InvalidResponse;
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse return error.InvalidResponse;
++        if (colon == 0) return error.InvalidResponse;
++        const name = line[0..colon];
++        const value = std.mem.trim(u8, line[colon + 1 ..], " \t");
++        for (name) |byte| if (!isHttpToken(byte)) return error.InvalidResponse;
++        for (value) |byte| if ((byte < 0x20 and byte != '\t') or byte == 0x7f) return error.InvalidResponse;
++        if (std.ascii.eqlIgnoreCase(name, "content-length")) {
++            if (head.has_content_length or value.len == 0) return error.InvalidResponse;
++            for (value) |byte| if (byte < '0' or byte > '9') return error.InvalidResponse;
++            head.content_length = std.fmt.parseInt(u64, value, 10) catch return error.InvalidResponse;
++            head.has_content_length = true;
++        } else if (std.ascii.eqlIgnoreCase(name, "transfer-encoding")) {
++            if (head.chunked or !std.ascii.eqlIgnoreCase(value, "chunked")) return error.InvalidResponse;
++            head.chunked = true;
++        }
++    }
++    if (head.chunked and head.has_content_length) return error.InvalidResponse;
++    return head;
++}
++
++fn isHttpToken(byte: u8) bool {
++    return std.ascii.isAlphanumeric(byte) or switch (byte) {
++        '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~' => true,
++        else => false,
++    };
++}
++
++fn readResponseBody(reader: *SocketReader, head: ResponseHead, timeout_ms: u32, sse: *SseParser) AttemptError!bool {
++    if (head.chunked) return readChunkedBody(reader, timeout_ms, sse);
++    if (head.content_length) |length| {
++        var remaining = length;
++        while (remaining > 0) {
++            const bytes = try reader.readSome(timeout_ms) orelse return error.Retryable;
++            const take: usize = @intCast(@min(remaining, bytes.len));
++            if (try sse.feed(bytes[0..take])) return true;
++            remaining -= take;
++            reader.index -= bytes.len - take;
++        }
++        try sse.finish();
++        return false;
++    }
++
++    while (true) {
++        const bytes = try reader.readSome(timeout_ms) orelse break;
++        if (try sse.feed(bytes)) return true;
++    }
++    try sse.finish();
++    return false;
++}
++
++fn readChunkedBody(reader: *SocketReader, timeout_ms: u32, sse: *SseParser) AttemptError!bool {
++    while (true) {
++        const size_line = try readBodyLine(reader, timeout_ms, 8192) orelse return error.Retryable;
++        const semicolon = std.mem.indexOfScalar(u8, size_line, ';') orelse size_line.len;
++        if (semicolon == 0) return error.Fatal;
++        const digits = size_line[0..semicolon];
++        if (digits.len == 0) return error.Fatal;
++        for (digits) |byte| if (!std.ascii.isHex(byte)) return error.Fatal;
++        for (size_line[semicolon..]) |byte| if (byte < 0x20 or byte > 0x7e) return error.Fatal;
++        const chunk_size = std.fmt.parseInt(u64, digits, 16) catch return error.Fatal;
++        std.heap.page_allocator.free(size_line);
++        if (chunk_size == 0) {
++            while (true) {
++                const trailer = try readBodyLine(reader, timeout_ms, 65536) orelse return error.Retryable;
++                if (trailer.len == 0) {
++                    std.heap.page_allocator.free(trailer);
++                    break;
++                }
++                const colon = std.mem.indexOfScalar(u8, trailer, ':') orelse return error.Fatal;
++                if (colon == 0) return error.Fatal;
++                for (trailer[0..colon]) |byte| if (!isHttpToken(byte)) return error.Fatal;
++                for (trailer[colon + 1 ..]) |byte| if ((byte < 0x20 and byte != '\t') or byte == 0x7f) return error.Fatal;
++                std.heap.page_allocator.free(trailer);
++            }
++            try sse.finish();
++            return false;
++        }
++        var remaining = chunk_size;
++        while (remaining > 0) {
++            const bytes = try reader.readSome(timeout_ms) orelse return error.Retryable;
++            const take: usize = @intCast(@min(remaining, bytes.len));
++            if (try sse.feed(bytes[0..take])) return true;
++            remaining -= take;
++            reader.index -= bytes.len - take;
++        }
++        const cr = try reader.readByte(timeout_ms) orelse return error.Retryable;
++        const lf = try reader.readByte(timeout_ms) orelse return error.Retryable;
++        if (cr != '\r' or lf != '\n') return error.Fatal;
++    }
++}
++
++fn readBodyLine(reader: *SocketReader, timeout_ms: u32, max_len: usize) AttemptError!?[]u8 {
++    var line = std.array_list.Managed(u8).init(std.heap.page_allocator);
++    defer line.deinit();
++    while (line.items.len <= max_len) {
++        const byte = try reader.readByte(timeout_ms) orelse return null;
++        if (byte == '\n') {
++            if (line.items.len == 0 or line.items[line.items.len - 1] != '\r') return error.Fatal;
++            line.items.len -= 1;
++            return line.toOwnedSlice() catch return error.Fatal;
++        }
++        line.append(byte) catch return error.Fatal;
++    }
++    return error.Fatal;
++}
++
++const SseParser = struct {
++    allocator: Allocator,
++    line: std.array_list.Managed(u8),
++    data: std.array_list.Managed(u8),
++    text: std.array_list.Managed(u8),
++    data_seen: bool = false,
++    done: bool = false,
++    usage_seen: bool = false,
++    usage: Usage = .{ .input_tokens = 0, .output_tokens = 0 },
++
++    fn init(allocator: Allocator) SseParser {
++        return .{
++            .allocator = allocator,
++            .line = std.array_list.Managed(u8).init(allocator),
++            .data = std.array_list.Managed(u8).init(allocator),
++            .text = std.array_list.Managed(u8).init(allocator),
++        };
++    }
++
++    fn feed(self: *SseParser, bytes: []const u8) AttemptError!bool {
++        for (bytes) |byte| {
++            if (byte != '\n') {
++                self.line.append(byte) catch return error.Fatal;
++                continue;
++            }
++            var line = self.line.items;
++            if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
++            if (!std.unicode.utf8ValidateSlice(line)) return error.Fatal;
++            if (line.len == 0) {
++                if (try self.dispatch()) return true;
++            } else if (line[0] != ':') {
++                if (std.mem.startsWith(u8, line, "data:")) {
++                    var value = line[5..];
++                    if (value.len > 0 and value[0] == ' ') value = value[1..];
++                    if (self.data_seen) self.data.append('\n') catch return error.Fatal;
++                    self.data.appendSlice(value) catch return error.Fatal;
++                    self.data_seen = true;
++                }
++            }
++            self.line.clearRetainingCapacity();
++        }
++        return false;
++    }
++
++    fn finish(self: *SseParser) AttemptError!void {
++        if (!std.unicode.utf8ValidateSlice(self.line.items)) return error.Fatal;
++    }
++
++    fn dispatch(self: *SseParser) AttemptError!bool {
++        if (!self.data_seen) {
++            self.data.clearRetainingCapacity();
++            self.line.clearRetainingCapacity();
++            return false;
++        }
++        const record = self.data.items;
++        if (std.mem.eql(u8, record, "[DONE]")) {
++            self.done = true;
++            return true;
++        }
++        var parsed = std.json.parseFromSlice(std.json.Value, self.allocator, record, .{
++            .duplicate_field_behavior = .use_last,
++            .parse_numbers = false,
++        }) catch return error.Fatal;
++        defer parsed.deinit();
++        const value = parsed.value;
++        if (value != .object) return error.Fatal;
++        const object = value.object;
++        if (object.get("type")) |kind| {
++            if (kind == .string and std.mem.eql(u8, kind.string, "text")) {
++                const text_value = object.get("text") orelse return error.Fatal;
++                if (text_value != .string) return error.Fatal;
++                self.text.appendSlice(text_value.string) catch return error.Fatal;
++            } else if (kind == .string and std.mem.eql(u8, kind.string, "usage")) {
++                const input_value = object.get("input_tokens") orelse return error.Fatal;
++                const output_value = object.get("output_tokens") orelse return error.Fatal;
++                const input_tokens = parseExactUsageInteger(input_value) catch return error.Fatal;
++                const output_tokens = parseExactUsageInteger(output_value) catch return error.Fatal;
++                self.usage = .{ .input_tokens = input_tokens, .output_tokens = output_tokens };
++                self.usage_seen = true;
++            }
++        }
++        self.data.clearRetainingCapacity();
++        self.data_seen = false;
++        self.line.clearRetainingCapacity();
++        return false;
++    }
++};
++
++fn parseExactUsageInteger(value: std.json.Value) !u64 {
++    if (value != .number_string) return error.InvalidUsage;
++    const number = value.number_string;
++    if (number.len == 0) return error.InvalidUsage;
++
++    var exponent_index = number.len;
++    for (number, 0..) |byte, index| {
++        if (byte == 'e' or byte == 'E') {
++            exponent_index = index;
++            break;
++        }
++    }
++    const significand = number[0..exponent_index];
++    var negative = false;
++    var start: usize = 0;
++    if (significand[0] == '-') {
++        negative = true;
++        start = 1;
++    }
++    var dot_index: ?usize = null;
++    var digits = std.array_list.Managed(u8).init(std.heap.page_allocator);
++    defer digits.deinit();
++    for (significand[start..], start..) |byte, index| {
++        if (byte == '.') {
++            if (dot_index != null) return error.InvalidUsage;
++            dot_index = index;
++        } else {
++            digits.append(byte) catch return error.OutOfMemory;
++        }
++    }
++    const fraction_len: i64 = if (dot_index) |dot| @intCast(significand.len - dot - 1) else 0;
++    var first_nonzero: usize = 0;
++    while (first_nonzero < digits.items.len and digits.items[first_nonzero] == '0') : (first_nonzero += 1) {}
++    if (first_nonzero == digits.items.len) return 0;
++    if (negative) return error.InvalidUsage;
++
++    var exponent: i64 = 0;
++    if (exponent_index < number.len) {
++        exponent = std.fmt.parseInt(i64, number[exponent_index + 1 ..], 10) catch return error.InvalidUsage;
++    }
++
++    const scale = std.math.sub(i64, exponent, fraction_len) catch return error.InvalidUsage;
++    var significant = digits.items[first_nonzero..];
++    if (scale < 0) {
++        if (scale == std.math.minInt(i64)) return error.InvalidUsage;
++        const remove_count: u64 = @intCast(-scale);
++        if (remove_count >= significant.len) return error.InvalidUsage;
++        const remove: usize = @intCast(remove_count);
++        for (significant[significant.len - remove ..]) |byte| if (byte != '0') return error.InvalidUsage;
++        significant = significant[0 .. significant.len - remove];
++    }
++    const appended_zeroes: u64 = if (scale > 0) @intCast(scale) else 0;
++    if (significant.len + appended_zeroes > 16) return error.InvalidUsage;
++
++    var result: u64 = 0;
++    for (significant) |byte| {
++        if (byte < '0' or byte > '9') return error.InvalidUsage;
++        result = result * 10 + (byte - '0');
++    }
++    var zero_index: u64 = 0;
++    while (zero_index < appended_zeroes) : (zero_index += 1) result *= 10;
++    if (result > 9007199254740991) return error.InvalidUsage;
++    return result;
++}
++
++fn atomicReplace(allocator: Allocator, path: []const u8, contents: []const u8) !void {
++    try makeParentDirectories(path);
++    const template = try std.fmt.allocPrintSentinel(allocator, "{s}.tmp.XXXXXX", .{path}, 0);
++    const fd = c.mkstemp(template.ptr);
++    if (fd < 0) return error.WriteFailed;
++    var keep_temp = false;
++    var fd_open = true;
++    defer {
++        if (fd_open) _ = c.close(fd);
++        if (!keep_temp) _ = c.unlink(template.ptr);
++    }
++
++    var offset: usize = 0;
++    while (offset < contents.len) {
++        const count = c.write(fd, contents[offset..].ptr, contents.len - offset);
++        if (count <= 0) return error.WriteFailed;
++        offset += @intCast(count);
++    }
++    if (c.fsync(fd) != 0) return error.WriteFailed;
++    if (c.close(fd) != 0) return error.WriteFailed;
++    fd_open = false;
++    const path_z = try allocator.dupeSentinel(u8, path, 0);
++    if (c.rename(template.ptr, path_z.ptr) != 0) return error.WriteFailed;
++    keep_temp = true;
++}
++
++fn makeParentDirectories(path: []const u8) !void {
++    const last_slash = std.mem.lastIndexOfScalar(u8, path, '/') orelse return;
++    if (last_slash == 0) return;
++    const parent = path[0..last_slash];
++    const mutable = try std.heap.page_allocator.dupeSentinel(u8, parent, 0);
++    var index: usize = 1;
++    while (index <= parent.len) : (index += 1) {
++        if (index != parent.len and mutable[index] != '/') continue;
++        const saved = mutable[index];
++        mutable[index] = 0;
++        if (c.mkdir(mutable.ptr, 0o755) != 0) {
++            var info: c.struct_stat = undefined;
++            if (c.stat(mutable.ptr, &info) != 0 or (info.st_mode & c.S_IFMT) != c.S_IFDIR) return error.DirectoryCreateFailed;
++        }
++        mutable[index] = saved;
++    }
+ }

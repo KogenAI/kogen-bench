@@ -1,0 +1,46 @@
+{
+ "captured_at_utc": "2026-10-08T13:43:38Z",
+ "fake_sealed_reference_results_and_auth_tests_denied": true,
+ "launch_gate_pass": false,
+ "legacy_qualifier_note": "Used the r70-equivalent sandbox_linux.wrap probe with an empty egress allowlist; the legacy linux_qualify.py includes an auth.openai.com-allowed check and its default public-source-location-withheld fixture already exists.",
+ "method": "deployed sandbox_linux.wrap + bubblewrap; empty egress allowlist; dummy rust and zig cells",
+ "own_auth_isolated_from_command": false,
+ "real_auth_read": false,
+ "real_sealed_or_result_file_read": false,
+ "results": [
+  {
+   "dummy_cell_config_path": "public-source-location-withheld",
+   "isolated_targets_readable": {
+    "fake_hidden_suite": null,
+    "fake_reference": null,
+    "other_harness_auth": null,
+    "other_result": null
+   },
+   "own_codex_home_dummy_auth_readable_by_command": null,
+   "own_codex_home_mount": "read-write whole directory in current sandbox_linux.agent_args",
+   "sandbox_record_sha256": "354fef39192be1c0cf7b5083d2b349ef83902a833809f935f9bfc8d75f308ee0",
+   "sandbox_returncode": 1,
+   "shape": "rust",
+   "task_id": "r70-1-rust",
+   "teardown_remaining": 0
+  },
+  {
+   "dummy_cell_config_path": "public-source-location-withheld",
+   "isolated_targets_readable": {
+    "fake_hidden_suite": null,
+    "fake_reference": null,
+    "other_harness_auth": null,
+    "other_result": null
+   },
+   "own_codex_home_dummy_auth_readable_by_command": null,
+   "own_codex_home_mount": "read-write whole directory in current sandbox_linux.agent_args",
+   "sandbox_record_sha256": "869612132bacfcae46ed027e0e809970021f41f78e4e18d469e056d66e242a56",
+   "sandbox_returncode": 1,
+   "shape": "zig",
+   "task_id": "r70-1-zig",
+   "teardown_remaining": 0
+  }
+ ],
+ "runner_sandbox_sha256": "89f025d1dc47bfafb7058a1b45d818bb38cf6d957eb8e17a6c16165ef683afe6",
+ "schema": "rz1-isolation-receipt/1"
+}

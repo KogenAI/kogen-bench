@@ -1,0 +1,270 @@
+const std = @import("std");
+
+const Allocator = std.mem.Allocator;
+const Event = struct {
+    id: []const u8,
+    kind: []const u8,
+    job: []const u8,
+    ts: i64,
+    line: usize,
+};
+
+pub const Response = struct {
+    stdout: []const u8 = "",
+    stderr: ?[]const u8 = null,
+    exit_code: u8 = 0,
+};
+
+const ParseResult = union(enum) {
+    event: Event,
+    failure: []const u8,
+};
+
+const EventsResult = union(enum) {
+    events: []Event,
+    failure: []const u8,
+};
+
+const ReconcileResult = union(enum) {
+    output: []const u8,
+    failure: []const u8,
+};
+
+const State = enum {
+    queued,
+    running,
+    done,
+    failed,
+};
+
+fn invalidLine(allocator: Allocator, line: usize) ![]const u8 {
+    return try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid event", .{line});
+}
+
+fn parseEvent(allocator: Allocator, raw: []const u8, line: usize) !ParseResult {
+    const value = std.json.parseFromSliceLeaky(std.json.Value, allocator, raw, .{
+        .duplicate_field_behavior = .@"error",
+        .parse_numbers = false,
+    }) catch return .{ .failure = try invalidLine(allocator, line) };
+
+    const object = switch (value) {
+        .object => |items| items,
+        else => return .{ .failure = try invalidLine(allocator, line) },
+    };
+    if (object.count() != 4) return .{ .failure = try invalidLine(allocator, line) };
+
+    const id_value = object.get("id") orelse return .{ .failure = try invalidLine(allocator, line) };
+    const kind_value = object.get("type") orelse return .{ .failure = try invalidLine(allocator, line) };
+    const job_value = object.get("job") orelse return .{ .failure = try invalidLine(allocator, line) };
+    const ts_value = object.get("ts") orelse return .{ .failure = try invalidLine(allocator, line) };
+
+    const id = switch (id_value) {
+        .string => |text| text,
+        else => return .{ .failure = try invalidLine(allocator, line) },
+    };
+    const kind = switch (kind_value) {
+        .string => |text| text,
+        else => return .{ .failure = try invalidLine(allocator, line) },
+    };
+    const job = switch (job_value) {
+        .string => |text| text,
+        else => return .{ .failure = try invalidLine(allocator, line) },
+    };
+    const ts_text = switch (ts_value) {
+        .number_string => |text| text,
+        else => return .{ .failure = try invalidLine(allocator, line) },
+    };
+    const ts = std.fmt.parseInt(i64, ts_text, 10) catch return .{ .failure = try invalidLine(allocator, line) };
+
+    if (!validId(id) or !validJob(job) or ts < 0) {
+        return .{ .failure = try invalidLine(allocator, line) };
+    }
+    if (!validKind(kind)) {
+        return .{ .failure = try std.fmt.allocPrint(allocator, "eventlog:{d}: unknown event type '{s}'", .{ line, kind }) };
+    }
+    return .{ .event = .{ .id = id, .kind = kind, .job = job, .ts = ts, .line = line } };
+}
+
+fn validId(value: []const u8) bool {
+    if (!std.mem.startsWith(u8, value, "e-")) return false;
+    const suffix = value[2..];
+    if (suffix.len == 0 or suffix.len > 16) return false;
+    for (suffix) |byte| {
+        if (!((byte >= 'a' and byte <= 'z') or (byte >= '0' and byte <= '9'))) return false;
+    }
+    return true;
+}
+
+fn validJob(value: []const u8) bool {
+    if (value.len == 0 or value.len > 32 or value[0] < 'a' or value[0] > 'z') return false;
+    for (value) |byte| {
+        if (!((byte >= 'a' and byte <= 'z') or (byte >= '0' and byte <= '9') or byte == '-')) return false;
+    }
+    return true;
+}
+
+fn validKind(value: []const u8) bool {
+    return std.mem.eql(u8, value, "created") or
+        std.mem.eql(u8, value, "started") or
+        std.mem.eql(u8, value, "completed") or
+        std.mem.eql(u8, value, "failed");
+}
+
+fn parseCompleteRows(allocator: Allocator, data: []const u8) !EventsResult {
+    var events: std.ArrayList(Event) = .empty;
+    var ids = std.StringHashMap(usize).init(allocator);
+    defer ids.deinit();
+
+    var start: usize = 0;
+    var line: usize = 1;
+    for (data, 0..) |byte, index| {
+        if (byte != '\n') continue;
+        const result = try parseEvent(allocator, data[start..index], line);
+        const event = switch (result) {
+            .event => |parsed| parsed,
+            .failure => |message| return .{ .failure = message },
+        };
+        if (ids.contains(event.id)) {
+            return .{ .failure = try std.fmt.allocPrint(allocator, "eventlog:{d}: duplicate event id '{s}'", .{ event.line, event.id }) };
+        }
+        try ids.put(event.id, event.line);
+        try events.append(allocator, event);
+        start = index + 1;
+        line += 1;
+    }
+    return .{ .events = events.items };
+}
+
+fn lessByTimestamp(_: void, left: Event, right: Event) bool {
+    if (left.ts != right.ts) return left.ts < right.ts;
+    return left.line < right.line;
+}
+
+fn transitionError(allocator: Allocator, event: Event) ![]const u8 {
+    return try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid transition for job '{s}'", .{ event.line, event.job });
+}
+
+fn reconcile(allocator: Allocator, events: []Event) !ReconcileResult {
+    std.mem.sort(Event, events, {}, lessByTimestamp);
+    var states = std.StringHashMap(State).init(allocator);
+    defer states.deinit();
+    var previous_timestamps = std.StringHashMap(i64).init(allocator);
+    defer previous_timestamps.deinit();
+
+    for (events) |event| {
+        if (previous_timestamps.get(event.job)) |previous| {
+            if (previous == event.ts) return .{ .failure = try transitionError(allocator, event) };
+        }
+
+        const previous_state = states.get(event.job);
+        const next_state: State = if (previous_state) |state| switch (state) {
+            .queued => if (std.mem.eql(u8, event.kind, "started")) .running else return .{ .failure = try transitionError(allocator, event) },
+            .running => if (std.mem.eql(u8, event.kind, "completed")) .done else if (std.mem.eql(u8, event.kind, "failed")) .failed else return .{ .failure = try transitionError(allocator, event) },
+            .done, .failed => return .{ .failure = try transitionError(allocator, event) },
+        } else if (std.mem.eql(u8, event.kind, "created")) .queued else return .{ .failure = try transitionError(allocator, event) };
+
+        try states.put(event.job, next_state);
+        try previous_timestamps.put(event.job, event.ts);
+    }
+
+    var queued: usize = 0;
+    var running: usize = 0;
+    var done: usize = 0;
+    var failed: usize = 0;
+    var state_it = states.valueIterator();
+    while (state_it.next()) |state| switch (state.*) {
+        .queued => queued += 1,
+        .running => running += 1,
+        .done => done += 1,
+        .failed => failed += 1,
+    };
+    const output = try std.fmt.allocPrint(
+        allocator,
+        "total={d}\nqueued={d}\nrunning={d}\ndone={d}\nfailed={d}\n",
+        .{ states.count(), queued, running, done, failed },
+    );
+    return .{ .output = output };
+}
+
+fn readLog(allocator: Allocator, io: std.Io, path: []const u8) error{CannotAccessLog}![]const u8 {
+    return std.Io.Dir.cwd().readFileAlloc(io, path, allocator, .unlimited) catch |err| switch (err) {
+        error.FileNotFound => "",
+        else => error.CannotAccessLog,
+    };
+}
+
+fn cannotAccess() Response {
+    return .{ .stderr = "eventlog: cannot access log", .exit_code = 1 };
+}
+
+fn errorResponse(message: []const u8) Response {
+    return .{ .stderr = message, .exit_code = 1 };
+}
+
+fn countNewlines(data: []const u8) usize {
+    var count: usize = 0;
+    for (data) |byte| {
+        if (byte == '\n') count += 1;
+    }
+    return count;
+}
+
+pub fn execute(allocator: Allocator, io: std.Io, args: []const [:0]const u8) !Response {
+    if (args.len == 3 and std.mem.eql(u8, args[0], "reconcile") and std.mem.eql(u8, args[1], "--log")) {
+        const data = readLog(allocator, io, args[2]) catch return cannotAccess();
+        const parsed = try parseCompleteRows(allocator, data);
+        const events = switch (parsed) {
+            .events => |items| items,
+            .failure => |message| return errorResponse(message),
+        };
+        const reconciled = try reconcile(allocator, events);
+        const output = switch (reconciled) {
+            .output => |text| text,
+            .failure => |message| return errorResponse(message),
+        };
+        return .{ .stdout = output };
+    }
+
+    if (args.len == 5 and
+        std.mem.eql(u8, args[0], "append") and
+        std.mem.eql(u8, args[1], "--log") and
+        std.mem.eql(u8, args[3], "--event"))
+    {
+        const parsed = try parseEvent(allocator, args[4], 1);
+        const event = switch (parsed) {
+            .event => |value| value,
+            .failure => |message| return errorResponse(message),
+        };
+
+        const data = readLog(allocator, io, args[2]) catch return cannotAccess();
+        if (data.len > 0 and data[data.len - 1] != '\n') {
+            return errorResponse(try invalidLine(allocator, countNewlines(data) + 1));
+        }
+        const existing_result = try parseCompleteRows(allocator, data);
+        const existing = switch (existing_result) {
+            .events => |items| items,
+            .failure => |message| return errorResponse(message),
+        };
+        for (existing) |old| {
+            if (std.mem.eql(u8, old.id, event.id)) {
+                return errorResponse(try std.fmt.allocPrint(allocator, "eventlog:{d}: duplicate event id '{s}'", .{ old.line, old.id }));
+            }
+        }
+
+        const row = try std.fmt.allocPrint(allocator, "{{\"id\":\"{s}\",\"type\":\"{s}\",\"job\":\"{s}\",\"ts\":{d}}}\n", .{ event.id, event.kind, event.job, event.ts });
+        var file = std.Io.Dir.cwd().createFile(io, args[2], .{ .read = true, .truncate = false }) catch return cannotAccess();
+        defer file.close(io);
+        const stat = file.stat(io) catch return cannotAccess();
+        file.writePositionalAll(io, row, stat.size) catch return cannotAccess();
+        return .{ .stdout = try std.fmt.allocPrint(allocator, "appended {s}\n", .{event.id}) };
+    }
+
+    return .{ .stderr = "eventlog: usage error", .exit_code = 2 };
+}
+
+test "identifier validation matches the documented ASCII forms" {
+    try std.testing.expect(validId("e-a0"));
+    try std.testing.expect(!validId("e-"));
+    try std.testing.expect(validJob("build-3"));
+    try std.testing.expect(!validJob("3build"));
+}

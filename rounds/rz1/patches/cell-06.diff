@@ -1,0 +1,449 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..28ba76f 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,429 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use serde::{Deserialize, Serialize};
++use std::collections::HashSet;
++use std::ffi::OsString;
++use std::fs::{self, File, OpenOptions};
++use std::io::{self, Read, Write};
++use std::os::fd::AsRawFd;
++use std::os::unix::process::ExitStatusExt;
++use std::path::{Path, PathBuf};
++use std::process::Command;
++use std::sync::atomic::{AtomicU64, Ordering};
++
++const INVALID_ARGUMENTS: &str = "error: invalid arguments";
++const DUPLICATE_ID: &str = "error: duplicate job id";
++const STORE_FAILURE: &str = "error: store failure";
++const STATE_FILE: &str = "queue.json";
++const LOCK_FILE: &str = ".kogen.lock";
++
++static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
++
++#[allow(dead_code)]
++pub fn physical_lines(text: &str) -> Vec<&str> {
++    text.split('\n')
++        .map(|line| line.strip_suffix('\r').unwrap_or(line))
++        .collect()
++}
++
++#[allow(dead_code)]
++pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
++    let result = match path {
++        None | Some("-") => {
++            let mut bytes = Vec::new();
++            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
++        }
++        Some(path) => fs::read(path),
++    };
++    result.map_err(|_| format!("{prefix}: cannot read input"))
++}
++
++#[derive(Debug)]
++enum Request {
++    Add {
++        store: PathBuf,
++        id: String,
++        argv: Vec<String>,
++    },
++    Run {
++        store: PathBuf,
++    },
++    Status {
++        store: PathBuf,
++    },
++}
++
++#[derive(Debug)]
++enum AppError {
++    Duplicate,
++    Store,
++}
++
++impl From<io::Error> for AppError {
++    fn from(_: io::Error) -> Self {
++        Self::Store
++    }
++}
++
++#[derive(Serialize, Deserialize)]
++struct Store {
++    jobs: Vec<Job>,
++}
++
++#[derive(Serialize, Deserialize)]
++struct Job {
++    id: String,
++    argv: Vec<String>,
++    attempt: u64,
++    completion: Option<Completion>,
++}
++
++#[derive(Clone, Serialize, Deserialize)]
++struct Completion {
++    exit_code: i32,
++    stdout: String,
++    stderr: String,
++}
++
++#[derive(Serialize)]
++struct RunRecord {
++    id: String,
++    attempt: u64,
++    exit_code: i32,
++    stdout: String,
++    stderr: String,
++    status: &'static str,
++}
++
++struct StoreLock {
++    _file: File,
++}
++
++fn parse_args(args: &[OsString]) -> Result<Request, ()> {
++    if args.len() < 2 || args[0] != "queue" {
++        return Err(());
++    }
++
++    let command = args[1].to_str().ok_or(())?;
++    let (is_add, is_run) = match command {
++        "add" => (true, false),
++        "run" => (false, true),
++        "status" => (false, false),
++        _ => return Err(()),
++    };
++
++    let mut store: Option<OsString> = None;
++    let mut id: Option<OsString> = None;
++    let mut argv: Option<OsString> = None;
++    let mut index = 2;
++    while index < args.len() {
++        let option = args[index].to_str().ok_or(())?;
++        let target = match option {
++            "--store" => &mut store,
++            "--id" if is_add => &mut id,
++            "--argv" if is_add => &mut argv,
++            _ => return Err(()),
++        };
++        if target.is_some() || index + 1 >= args.len() {
++            return Err(());
++        }
++        // A flag cannot stand in for an option's missing value.
++        if args[index + 1]
++            .to_str()
++            .is_some_and(|value| value.starts_with("--"))
++        {
++            return Err(());
++        }
++        *target = Some(args[index + 1].clone());
++        index += 2;
++    }
++
++    let store = store.ok_or(())?;
++    if store.is_empty() {
++        return Err(());
++    }
++    let store = PathBuf::from(store);
++    if is_add {
++        let id = id.and_then(|value| value.into_string().ok()).ok_or(())?;
++        if !valid_id(&id) {
++            return Err(());
++        }
++        let argv = argv.and_then(|value| value.into_string().ok()).ok_or(())?;
++        let argv: Vec<String> = serde_json::from_str(&argv).map_err(|_| ())?;
++        if argv.is_empty()
++            || argv[0].is_empty()
++            || argv.iter().any(|argument| argument.contains('\0'))
++        {
++            return Err(());
++        }
++        Ok(Request::Add { store, id, argv })
++    } else if id.is_some() || argv.is_some() {
++        Err(())
++    } else if is_run {
++        Ok(Request::Run { store })
++    } else {
++        Ok(Request::Status { store })
++    }
++}
++
++fn valid_id(id: &str) -> bool {
++    let bytes = id.as_bytes();
++    if bytes.is_empty() || bytes.len() > 64 || !bytes[0].is_ascii_alphanumeric() {
++        return false;
++    }
++    bytes[1..]
++        .iter()
++        .all(|byte| byte.is_ascii_alphanumeric() || matches!(*byte, b'.' | b'_' | b'-'))
++}
++
++pub fn execute(args: &[OsString]) -> Result<String, (i32, String)> {
++    let request = parse_args(args).map_err(|_| (2, INVALID_ARGUMENTS.to_owned()))?;
++    let result = match request {
++        Request::Add { store, id, argv } => add_job(&store, id, argv),
++        Request::Run { store } => run_jobs(&store),
++        Request::Status { store } => status_jobs(&store),
++    };
++    result.map_err(|error| match error {
++        AppError::Duplicate => (3, DUPLICATE_ID.to_owned()),
++        AppError::Store => (4, STORE_FAILURE.to_owned()),
++    })
++}
++
++fn add_job(store_path: &Path, id: String, argv: Vec<String>) -> Result<String, AppError> {
++    let (_lock, directory) = lock_store(store_path)?;
++    let mut store = read_store(&directory)?;
++    if store.jobs.iter().any(|job| job.id == id) {
++        return Err(AppError::Duplicate);
++    }
++    store.jobs.push(Job {
++        id: id.clone(),
++        argv,
++        attempt: 0,
++        completion: None,
++    });
++    persist_store(&directory, &store)?;
++    Ok(format!("queued {id}\n"))
++}
++
++fn run_jobs(store_path: &Path) -> Result<String, AppError> {
++    let (_lock, directory) = lock_store(store_path)?;
++    let mut store = read_store(&directory)?;
++    // The lock prevents additions during this run. Record the initial pending set
++    // explicitly so this remains true if the implementation later gains updates.
++    let pending: Vec<usize> = store
++        .jobs
++        .iter()
++        .enumerate()
++        .filter_map(|(index, job)| job.completion.is_none().then_some(index))
++        .collect();
++    let mut output = String::new();
++
++    for index in pending {
++        let attempt = store.jobs[index]
++            .attempt
++            .checked_add(1)
++            .ok_or(AppError::Store)?;
++        store.jobs[index].attempt = attempt;
++        // A start is never attempted until its new attempt count is durable.
++        persist_store(&directory, &store)?;
++
++        let child_result = start_job(&store.jobs[index].argv);
++        let exit_code = child_result.exit_code;
++        let completion = Completion {
++            exit_code,
++            stdout: child_result.stdout,
++            stderr: child_result.stderr,
++        };
++        store.jobs[index].completion = Some(completion.clone());
++        // This atomic, synced replacement is the completion commit point.
++        persist_store(&directory, &store)?;
++
++        let record = RunRecord {
++            id: store.jobs[index].id.clone(),
++            attempt,
++            exit_code,
++            stdout: completion.stdout,
++            stderr: completion.stderr,
++            status: if exit_code == 0 {
++                "succeeded"
++            } else {
++                "failed"
++            },
++        };
++        output.push_str(&serde_json::to_string(&record).map_err(|_| AppError::Store)?);
++        output.push('\n');
++    }
++    Ok(output)
++}
++
++struct ChildResult {
++    exit_code: i32,
++    stdout: String,
++    stderr: String,
++}
++
++fn start_job(argv: &[String]) -> ChildResult {
++    match Command::new(&argv[0]).args(&argv[1..]).output() {
++        Ok(output) => {
++            let exit_code = output
++                .status
++                .code()
++                .unwrap_or_else(|| 128 + output.status.signal().unwrap_or(0));
++            ChildResult {
++                exit_code,
++                stdout: decode_replacing_each_invalid_byte(&output.stdout),
++                stderr: decode_replacing_each_invalid_byte(&output.stderr),
++            }
++        }
++        Err(_) => ChildResult {
++            exit_code: 127,
++            stdout: String::new(),
++            stderr: "exec failed\n".to_owned(),
++        },
++    }
++}
++
++fn decode_replacing_each_invalid_byte(bytes: &[u8]) -> String {
++    let mut result = String::new();
++    let mut remaining = bytes;
++    while !remaining.is_empty() {
++        match std::str::from_utf8(remaining) {
++            Ok(text) => {
++                result.push_str(text);
++                break;
++            }
++            Err(error) => {
++                let valid = error.valid_up_to();
++                // from_utf8 guarantees that this prefix is valid UTF-8.
++                result.push_str(std::str::from_utf8(&remaining[..valid]).unwrap_or(""));
++                remaining = &remaining[valid..];
++                let invalid_length = error.error_len().unwrap_or(remaining.len());
++                for _ in 0..invalid_length {
++                    result.push('\u{FFFD}');
++                }
++                remaining = &remaining[invalid_length..];
++            }
++        }
++    }
++    result
++}
++
++fn status_jobs(store_path: &Path) -> Result<String, AppError> {
++    let (_lock, directory) = lock_store(store_path)?;
++    let store = read_store(&directory)?;
++    let mut output = String::new();
++    for job in store.jobs {
++        match job.completion {
++            None => output.push_str(&format!("{} pending\n", job.id)),
++            Some(completion) if completion.exit_code == 0 => {
++                output.push_str(&format!("{} succeeded\n", job.id));
++            }
++            Some(completion) => {
++                output.push_str(&format!("{} failed {}\n", job.id, completion.exit_code));
++            }
++        }
++    }
++    Ok(output)
++}
++
++fn lock_store(path: &Path) -> Result<(StoreLock, PathBuf), AppError> {
++    fs::create_dir_all(path)?;
++    if !fs::metadata(path)?.is_dir() {
++        return Err(AppError::Store);
++    }
++    sync_directory_chain(path)?;
++
++    let directory = fs::canonicalize(path)?;
++    let lock_path = directory.join(LOCK_FILE);
++    let lock = OpenOptions::new()
++        .read(true)
++        .write(true)
++        .create(true)
++        .truncate(false)
++        .open(lock_path)?;
++    loop {
++        // flock locks the open file description and releases it on process exit.
++        let result = unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX) };
++        if result == 0 {
++            break;
++        }
++        let error = io::Error::last_os_error();
++        if error.kind() != io::ErrorKind::Interrupted {
++            return Err(AppError::Store);
++        }
++    }
++    Ok((StoreLock { _file: lock }, directory))
++}
++
++fn read_store(directory: &Path) -> Result<Store, AppError> {
++    let state_path = directory.join(STATE_FILE);
++    let bytes = match fs::read(state_path) {
++        Ok(bytes) => bytes,
++        Err(error) if error.kind() == io::ErrorKind::NotFound => {
++            return Ok(Store { jobs: Vec::new() });
++        }
++        Err(_) => return Err(AppError::Store),
++    };
++    let store: Store = serde_json::from_slice(&bytes).map_err(|_| AppError::Store)?;
++    validate_store(&store)?;
++    Ok(store)
++}
++
++fn validate_store(store: &Store) -> Result<(), AppError> {
++    let mut ids = HashSet::new();
++    for job in &store.jobs {
++        if !valid_id(&job.id)
++            || !ids.insert(job.id.as_str())
++            || job.argv.is_empty()
++            || job.argv[0].is_empty()
++            || job.argv.iter().any(|argument| argument.contains('\0'))
++            || (job.completion.is_some() && job.attempt == 0)
++        {
++            return Err(AppError::Store);
++        }
++    }
++    Ok(())
++}
++
++fn persist_store(directory: &Path, store: &Store) -> Result<(), AppError> {
++    let bytes = serde_json::to_vec(store).map_err(|_| AppError::Store)?;
++    let mut temporary = None;
++    for _ in 0..128 {
++        let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
++        let path = directory.join(format!(".queue.tmp.{}.{}", std::process::id(), counter));
++        match OpenOptions::new().write(true).create_new(true).open(&path) {
++            Ok(file) => {
++                temporary = Some((path, file));
++                break;
++            }
++            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
++            Err(_) => return Err(AppError::Store),
++        }
++    }
++    let (temporary_path, mut file) = temporary.ok_or(AppError::Store)?;
++    let write_result = file.write_all(&bytes).and_then(|()| file.sync_all());
++    drop(file);
++    if write_result.is_err() {
++        let _ = fs::remove_file(&temporary_path);
++        return Err(AppError::Store);
++    }
++    if fs::rename(&temporary_path, directory.join(STATE_FILE)).is_err() {
++        let _ = fs::remove_file(&temporary_path);
++        return Err(AppError::Store);
++    }
++    File::open(directory)?.sync_all()?;
++    Ok(())
++}
++
++fn sync_directory_chain(path: &Path) -> Result<(), AppError> {
++    let mut directory = fs::canonicalize(path)?;
++    loop {
++        File::open(&directory)?.sync_all()?;
++        let Some(parent) = directory.parent() else {
++            break;
++        };
++        if parent == directory {
++            break;
++        }
++        directory = parent.to_path_buf();
++    }
++    Ok(())
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..4e73bb5 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -18,7 +18,7 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ }
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
++    let args: Vec<std::ffi::OsString> = std::env::args_os().skip(1).collect();
+     match core::execute(&args) {
+         Ok(output) => {
+             let _ = io::stdout().write_all(output.as_bytes());

@@ -1,0 +1,345 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..d3a4918 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,338 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use serde::de::{MapAccess, Visitor};
++use serde::{Deserialize, Deserializer};
++use serde_json::Value;
++use std::collections::{HashMap, HashSet};
++use std::fmt;
++use std::fs::{self, OpenOptions};
++use std::io::Write;
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum EventType {
++    Created,
++    Started,
++    Completed,
++    Failed,
++}
++
++impl EventType {
++    fn as_str(self) -> &'static str {
++        match self {
++            Self::Created => "created",
++            Self::Started => "started",
++            Self::Completed => "completed",
++            Self::Failed => "failed",
++        }
++    }
++
++    fn parse(value: &str) -> Option<Self> {
++        match value {
++            "created" => Some(Self::Created),
++            "started" => Some(Self::Started),
++            "completed" => Some(Self::Completed),
++            "failed" => Some(Self::Failed),
++            _ => None,
++        }
++    }
++}
++
++#[derive(Debug)]
++struct Event {
++    id: String,
++    kind: EventType,
++    job: String,
++    ts: i64,
++    line: usize,
++}
++
++#[derive(Default)]
++struct RawEvent {
++    id: Option<Value>,
++    kind: Option<Value>,
++    job: Option<Value>,
++    ts: Option<Value>,
++    has_extra_key: bool,
++    has_duplicate_key: bool,
++}
++
++impl<'de> Deserialize<'de> for RawEvent {
++    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
++    where
++        D: Deserializer<'de>,
++    {
++        struct RawEventVisitor;
++
++        impl<'de> Visitor<'de> for RawEventVisitor {
++            type Value = RawEvent;
++
++            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
++                formatter.write_str("a JSON object")
++            }
++
++            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
++            where
++                M: MapAccess<'de>,
++            {
++                let mut event = RawEvent::default();
++                while let Some(key) = map.next_key::<String>()? {
++                    let slot = match key.as_str() {
++                        "id" => &mut event.id,
++                        "type" => &mut event.kind,
++                        "job" => &mut event.job,
++                        "ts" => &mut event.ts,
++                        _ => {
++                            let _: Value = map.next_value()?;
++                            event.has_extra_key = true;
++                            continue;
++                        }
++                    };
++                    let value = map.next_value::<Value>()?;
++                    if slot.is_some() {
++                        event.has_duplicate_key = true;
++                    } else {
++                        *slot = Some(value);
++                    }
++                }
++                Ok(event)
++            }
++        }
++
++        deserializer.deserialize_map(RawEventVisitor)
++    }
++}
++
++#[derive(Debug)]
++struct AppError {
++    code: i32,
++    message: String,
++}
++
++impl AppError {
++    fn usage() -> Self {
++        Self {
++            code: 2,
++            message: "eventlog: usage error".to_owned(),
++        }
++    }
++
++    fn access() -> Self {
++        Self {
++            code: 1,
++            message: "eventlog: cannot access log".to_owned(),
++        }
++    }
++
++    fn invalid(line: usize) -> Self {
++        Self {
++            code: 1,
++            message: format!("eventlog:{line}: invalid event"),
++        }
++    }
++
++    fn unknown_type(line: usize, value: &str) -> Self {
++        Self {
++            code: 1,
++            message: format!("eventlog:{line}: unknown event type '{value}'"),
++        }
++    }
++
++    fn duplicate_id(line: usize, id: &str) -> Self {
++        Self {
++            code: 1,
++            message: format!("eventlog:{line}: duplicate event id '{id}'"),
++        }
++    }
++
++    fn transition(line: usize, job: &str) -> Self {
++        Self {
++            code: 1,
++            message: format!("eventlog:{line}: invalid transition for job '{job}'"),
++        }
++    }
++}
++
++fn valid_id(value: &str) -> bool {
++    let Some(rest) = value.strip_prefix("e-") else {
++        return false;
++    };
++    (1..=16).contains(&rest.len())
++        && rest
++            .bytes()
++            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
++}
++
++fn valid_job(value: &str) -> bool {
++    let bytes = value.as_bytes();
++    !bytes.is_empty()
++        && bytes.len() <= 32
++        && bytes[0].is_ascii_lowercase()
++        && bytes[1..]
++            .iter()
++            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-')
++}
++
++fn parse_event(bytes: &[u8], line: usize) -> Result<Event, AppError> {
++    let raw: RawEvent = serde_json::from_slice(bytes).map_err(|_| AppError::invalid(line))?;
++    if raw.has_extra_key
++        || raw.has_duplicate_key
++        || raw.id.is_none()
++        || raw.kind.is_none()
++        || raw.job.is_none()
++        || raw.ts.is_none()
++    {
++        return Err(AppError::invalid(line));
++    }
++
++    let id = raw.id.and_then(|value| value.as_str().map(str::to_owned));
++    let kind_value = raw.kind.and_then(|value| value.as_str().map(str::to_owned));
++    let job = raw.job.and_then(|value| value.as_str().map(str::to_owned));
++    let ts = raw.ts.and_then(|value| value.as_i64());
++
++    let (Some(id), Some(kind_value), Some(job), Some(ts)) = (id, kind_value, job, ts) else {
++        return Err(AppError::invalid(line));
++    };
++    if !valid_id(&id) || !valid_job(&job) {
++        return Err(AppError::invalid(line));
++    }
++    let Some(kind) = EventType::parse(&kind_value) else {
++        return Err(AppError::unknown_type(line, &kind_value));
++    };
++
++    Ok(Event {
++        id,
++        kind,
++        job,
++        ts,
++        line,
++    })
++}
++
++fn complete_events(bytes: &[u8], allow_fragment: bool) -> Result<Vec<Event>, AppError> {
++    let mut events = Vec::new();
++    let mut ids = HashSet::new();
++    let mut start = 0;
++    let mut line = 1;
++
++    for (index, byte) in bytes.iter().enumerate() {
++        if *byte != b'\n' {
++            continue;
++        }
++        let event = parse_event(&bytes[start..index], line)?;
++        if !ids.insert(event.id.clone()) {
++            return Err(AppError::duplicate_id(line, &event.id));
++        }
++        events.push(event);
++        start = index + 1;
++        line += 1;
++    }
++
++    if start < bytes.len() && !allow_fragment {
++        return Err(AppError::invalid(line));
++    }
++    Ok(events)
++}
++
++fn append(log_path: &str, event_json: &str) -> Result<String, AppError> {
++    let event = parse_event(event_json.as_bytes(), 1)?;
++    let contents = match fs::read(log_path) {
++        Ok(contents) => contents,
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Vec::new(),
++        Err(_) => return Err(AppError::access()),
++    };
++    let existing = complete_events(&contents, false)?;
++    if existing.iter().any(|old_event| old_event.id == event.id) {
++        return Err(AppError::duplicate_id(1, &event.id));
++    }
++
++    #[derive(serde::Serialize)]
++    struct CompactEvent<'a> {
++        id: &'a str,
++        #[serde(rename = "type")]
++        kind: &'a str,
++        job: &'a str,
++        ts: i64,
++    }
++
++    let compact = serde_json::to_vec(&CompactEvent {
++        id: &event.id,
++        kind: event.kind.as_str(),
++        job: &event.job,
++        ts: event.ts,
++    })
++    .map_err(|_| AppError::access())?;
++    let mut file = OpenOptions::new()
++        .create(true)
++        .append(true)
++        .open(log_path)
++        .map_err(|_| AppError::access())?;
++    file.write_all(&compact).map_err(|_| AppError::access())?;
++    file.write_all(b"\n").map_err(|_| AppError::access())?;
++    Ok(format!("appended {}\n", event.id))
++}
++
++#[derive(Clone, Copy, Debug)]
++enum JobState {
++    Created,
++    Started,
++    Completed,
++    Failed,
++}
++
++fn reconcile(log_path: &str) -> Result<String, AppError> {
++    let contents = match fs::read(log_path) {
++        Ok(contents) => contents,
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Vec::new(),
++        Err(_) => return Err(AppError::access()),
++    };
++    let mut events = complete_events(&contents, true)?;
++    events.sort_by(|left, right| left.ts.cmp(&right.ts).then(left.line.cmp(&right.line)));
++
++    let mut states = HashMap::<String, JobState>::new();
++    let mut last_timestamps = HashMap::<String, i64>::new();
++    for event in events {
++        if last_timestamps.get(&event.job) == Some(&event.ts) {
++            return Err(AppError::transition(event.line, &event.job));
++        }
++        last_timestamps.insert(event.job.clone(), event.ts);
++
++        let next_state = match (states.get(&event.job), event.kind) {
++            (None, EventType::Created) => JobState::Created,
++            (Some(JobState::Created), EventType::Started) => JobState::Started,
++            (Some(JobState::Started), EventType::Completed) => JobState::Completed,
++            (Some(JobState::Started), EventType::Failed) => JobState::Failed,
++            _ => return Err(AppError::transition(event.line, &event.job)),
++        };
++        states.insert(event.job, next_state);
++    }
++
++    let mut queued = 0;
++    let mut running = 0;
++    let mut done = 0;
++    let mut failed = 0;
++    for state in states.values() {
++        match state {
++            JobState::Created => queued += 1,
++            JobState::Started => running += 1,
++            JobState::Completed => done += 1,
++            JobState::Failed => failed += 1,
++        }
++    }
++    let total = states.len();
++    Ok(format!(
++        "total={total}\nqueued={queued}\nrunning={running}\ndone={done}\nfailed={failed}\n"
++    ))
++}
++
++pub fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    let result = match args {
++        [command, log_flag, log_path, event_flag, event_json]
++            if command == "append" && log_flag == "--log" && event_flag == "--event" =>
++        {
++            append(log_path, event_json)
++        }
++        [command, log_flag, log_path] if command == "reconcile" && log_flag == "--log" => {
++            reconcile(log_path)
++        }
++        _ => return Err((2, AppError::usage().message)),
++    };
++    result.map_err(|error| (error.code, error.message))
+ }

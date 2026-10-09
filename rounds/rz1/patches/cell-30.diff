@@ -1,0 +1,322 @@
+diff --git a/Makefile b/Makefile
+index a2dc1fe..c64b0b1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,7 @@ setup:
+ build:
+ 	. ./toolchain-env.sh && zig build -Doptimize=ReleaseFast
+ 	mkdir -p build/bin
+-	cp zig-out/bin/kogen build/bin/kogen
++	cp zig-out/bin/cas-land build/bin/cas-land
+ 
+ check:
+ 	. ./toolchain-env.sh && zig fmt --check build.zig src/*.zig
+diff --git a/build.zig b/build.zig
+index 26c4ca3..4ca3c9b 100644
+--- a/build.zig
++++ b/build.zig
+@@ -4,7 +4,7 @@ pub fn build(b: *std.Build) void {
+     const target = b.standardTargetOptions(.{});
+     const optimize = b.standardOptimizeOption(.{});
+     const exe = b.addExecutable(.{
+-        .name = "kogen",
++        .name = "cas-land",
+         .root_module = b.createModule(.{
+             .root_source_file = b.path("src/main.zig"),
+             .target = target,
+diff --git a/run b/run
+index 9cd6408..9d3e524 100755
+--- a/run
++++ b/run
+@@ -1,4 +1,4 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+-exec "$ROOT/build/bin/kogen" "$@"
++exec "$ROOT/build/bin/cas-land" "$@"
+diff --git a/src/core.zig b/src/core.zig
+index bcfcc94..f33d7fb 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -6,13 +6,277 @@ pub const Result = struct {
+     exit_code: u8 = 0,
+ };
+ 
++const usage_result = Result{
++    .stderr = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n",
++    .exit_code = 2,
++};
++const invalid_result = Result{
++    .stderr = "cas-land: invalid repository or commit\n",
++    .exit_code = 1,
++};
++const conflict_result = Result{
++    .stderr = "cas-land: conflict\n",
++    .exit_code = 20,
++};
++const lost_race_result = Result{
++    .stderr = "cas-land: lost race\n",
++    .exit_code = 30,
++};
++
++const Options = struct {
++    repo: []const u8,
++    target: []const u8,
++    base: []const u8,
++    candidate: []const u8,
++};
++
++fn parseOptions(args: []const []const u8) ?Options {
++    var repo: ?[]const u8 = null;
++    var target: ?[]const u8 = null;
++    var base: ?[]const u8 = null;
++    var candidate: ?[]const u8 = null;
++
++    var i: usize = 0;
++    while (i < args.len) : (i += 1) {
++        const option = args[i];
++        if (i + 1 >= args.len) return null;
++        const value = args[i + 1];
++        if (std.mem.eql(u8, option, "--repo")) {
++            if (repo != null) return null;
++            repo = value;
++        } else if (std.mem.eql(u8, option, "--target")) {
++            if (target != null) return null;
++            target = value;
++        } else if (std.mem.eql(u8, option, "--base")) {
++            if (base != null) return null;
++            base = value;
++        } else if (std.mem.eql(u8, option, "--candidate")) {
++            if (candidate != null) return null;
++            candidate = value;
++        } else {
++            return null;
++        }
++        i += 1;
++    }
++
++    return .{
++        .repo = repo orelse return null,
++        .target = target orelse return null,
++        .base = base orelse return null,
++        .candidate = candidate orelse return null,
++    };
++}
++
++fn runGit(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    cwd: []const u8,
++    args: []const []const u8,
++) ?std.process.RunResult {
++    const argv = allocator.alloc([]const u8, args.len + 1) catch return null;
++    defer allocator.free(argv);
++    argv[0] = "git";
++    @memcpy(argv[1..], args);
++
++    return std.process.run(allocator, io, .{
++        .argv = argv,
++        .cwd = .{ .path = cwd },
++    }) catch null;
++}
++
++fn freeRunResult(allocator: std.mem.Allocator, result: std.process.RunResult) void {
++    allocator.free(result.stdout);
++    allocator.free(result.stderr);
++}
++
++fn gitSucceeded(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    cwd: []const u8,
++    args: []const []const u8,
++) bool {
++    var result = runGit(allocator, io, cwd, args) orelse return false;
++    defer freeRunResult(allocator, result);
++    return result.term.success();
++}
++
++fn gitOutput(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    cwd: []const u8,
++    args: []const []const u8,
++) ?[]u8 {
++    var result = runGit(allocator, io, cwd, args) orelse return null;
++    defer freeRunResult(allocator, result);
++    if (!result.term.success()) return null;
++    return allocator.dupe(u8, result.stdout) catch null;
++}
++
++fn trimmed(bytes: []const u8) []const u8 {
++    return std.mem.trim(u8, bytes, " \t\r\n");
++}
++
++fn isHexString(value: []const u8) bool {
++    if (value.len == 0) return false;
++    for (value) |char| {
++        if (!std.ascii.isHex(char)) return false;
++    }
++    return true;
++}
++
++fn resolveCommit(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    value: []const u8,
++) ?[]u8 {
++    if (!isHexString(value)) return null;
++    const output = gitOutput(allocator, io, repo, &.{
++        "rev-parse", "--verify", "--quiet", "--end-of-options", value,
++    }) orelse return null;
++    const oid = trimmed(output);
++    if (!isHexString(oid)) return null;
++    const object_type = gitOutput(allocator, io, repo, &.{ "cat-file", "-t", oid }) orelse return null;
++    if (!std.mem.eql(u8, trimmed(object_type), "commit")) return null;
++    return allocator.dupe(u8, oid) catch null;
++}
++
++fn readRefValue(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    target: []const u8,
++) ?[]u8 {
++    const output = gitOutput(allocator, io, repo, &.{
++        "rev-parse", "--verify", "--quiet", "--end-of-options", target,
++    }) orelse return null;
++    const value = trimmed(output);
++    if (!isHexString(value)) return null;
++    return allocator.dupe(u8, value) catch null;
++}
++
++fn resolveTargetCommit(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    ref_value: []const u8,
++) ?[]u8 {
++    const expression = std.fmt.allocPrint(allocator, "{s}^{{commit}}", .{ref_value}) catch return null;
++    const output = gitOutput(allocator, io, repo, &.{
++        "rev-parse", "--verify", "--quiet", "--end-of-options", expression,
++    }) orelse return null;
++    const oid = trimmed(output);
++    if (!isHexString(oid)) return null;
++    return allocator.dupe(u8, oid) catch null;
++}
++
++fn candidateParentIsBase(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    candidate: []const u8,
++    base: []const u8,
++) bool {
++    const output = gitOutput(allocator, io, repo, &.{
++        "rev-list", "--parents", "-n", "1", candidate,
++    }) orelse return false;
++    var tokens = std.mem.tokenizeAny(u8, trimmed(output), " \t\r\n");
++    const commit = tokens.next() orelse return false;
++    const parent = tokens.next() orelse return false;
++    return std.mem.eql(u8, commit, candidate) and
++        std.mem.eql(u8, parent, base) and
++        tokens.next() == null;
++}
++
++fn randomWorktreePath(allocator: std.mem.Allocator, io: std.Io) ?[]u8 {
++    const prefix = "/tmp/cas-land-";
++    const hex = "0123456789abcdef";
++    var random_bytes: [16]u8 = undefined;
++    io.random(&random_bytes);
++    const path = allocator.alloc(u8, prefix.len + random_bytes.len * 2) catch return null;
++    @memcpy(path[0..prefix.len], prefix);
++    for (random_bytes, 0..) |byte, index| {
++        path[prefix.len + index * 2] = hex[byte >> 4];
++        path[prefix.len + index * 2 + 1] = hex[byte & 0x0f];
++    }
++    return path;
++}
++
++fn cleanupWorktree(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    path: []const u8,
++) void {
++    if (gitSucceeded(allocator, io, repo, &.{ "worktree", "remove", "--force", path })) return;
++
++    // If Git could not remove the directory itself, remove the generated path
++    // and prune the now-stale worktree registration.
++    std.Io.Dir.cwd().deleteTree(io, path) catch {};
++    _ = gitSucceeded(allocator, io, repo, &.{ "worktree", "prune", "--expire", "now" });
++}
++
++fn abortRebase(allocator: std.mem.Allocator, io: std.Io, path: []const u8) void {
++    _ = gitSucceeded(allocator, io, path, &.{ "rebase", "--abort" });
++}
++
++fn successResult(
++    allocator: std.mem.Allocator,
++    prefix: []const u8,
++    oid: []const u8,
++    exit_code: u8,
++) Result {
++    const output = std.fmt.allocPrint(allocator, "{s} {s}\n", .{ prefix, oid }) catch return invalid_result;
++    return .{ .stdout = output, .exit_code = exit_code };
++}
++
+ pub fn execute(
+     allocator: std.mem.Allocator,
+     io: std.Io,
+     args: []const []const u8,
+ ) Result {
+-    _ = allocator;
+-    _ = io;
+-    _ = args;
+-    return .{};
++    const options = parseOptions(args) orelse return usage_result;
++    if (!std.mem.startsWith(u8, options.target, "refs/")) return invalid_result;
++    if (!gitSucceeded(allocator, io, options.repo, &.{ "check-ref-format", options.target })) return invalid_result;
++
++    const base = resolveCommit(allocator, io, options.repo, options.base) orelse return invalid_result;
++    const candidate = resolveCommit(allocator, io, options.repo, options.candidate) orelse return invalid_result;
++    if (!candidateParentIsBase(allocator, io, options.repo, candidate, base)) return invalid_result;
++
++    const expected = readRefValue(allocator, io, options.repo, options.target) orelse return invalid_result;
++    const current_commit = resolveTargetCommit(allocator, io, options.repo, expected) orelse return invalid_result;
++
++    var landed_oid = candidate;
++    var was_rebased = false;
++    var worktree_path: ?[]u8 = null;
++    var worktree_created = false;
++    defer if (worktree_created) cleanupWorktree(allocator, io, options.repo, worktree_path.?);
++
++    if (!std.mem.eql(u8, current_commit, base)) {
++        const path = randomWorktreePath(allocator, io) orelse return invalid_result;
++        worktree_path = path;
++        if (!gitSucceeded(allocator, io, options.repo, &.{
++            "worktree", "add", "--detach", "--quiet", path, candidate,
++        })) return invalid_result;
++        worktree_created = true;
++
++        if (!gitSucceeded(allocator, io, path, &.{
++            "rebase", "--no-update-refs", "--onto", current_commit, base,
++        })) {
++            abortRebase(allocator, io, path);
++            return conflict_result;
++        }
++
++        landed_oid = gitOutput(allocator, io, path, &.{
++            "rev-parse", "--verify", "--quiet", "--end-of-options", "HEAD",
++        }) orelse return invalid_result;
++        landed_oid = allocator.dupe(u8, trimmed(landed_oid)) catch return invalid_result;
++        was_rebased = true;
++    }
++
++    if (!gitSucceeded(allocator, io, options.repo, &.{
++        "update-ref", options.target, landed_oid, expected,
++    })) return lost_race_result;
++
++    return successResult(allocator, if (was_rebased) "rebased" else "landed", landed_oid, if (was_rebased) 10 else 0);
+ }

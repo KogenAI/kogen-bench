@@ -1,0 +1,514 @@
+diff --git a/src/core.zig b/src/core.zig
+index 24ab652..5c7bb7b 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,5 +1,494 @@
+ const std = @import("std");
+ 
+-pub fn execute(_: std.mem.Allocator, _: []const [*:0]const u8) c_int {
+-    return 0;
++const Timespec = extern struct {
++    tv_sec: c_long,
++    tv_nsec: c_long,
++};
++
++const PollFd = extern struct {
++    fd: c_int,
++    events: c_short,
++    revents: c_short,
++};
++
++const Dir = opaque {};
++const Dirent = extern struct {
++    d_ino: u64,
++    d_off: i64,
++    d_reclen: u16,
++    d_type: u8,
++    d_name: [256]u8,
++};
++
++extern "c" fn pipe2(fds: *[2]c_int, flags: c_int) c_int;
++extern "c" fn fork() c_int;
++extern "c" fn setpgid(pid: c_int, pgid: c_int) c_int;
++extern "c" fn dup2(oldfd: c_int, newfd: c_int) c_int;
++extern "c" fn open(path: [*:0]const u8, flags: c_int, ...) c_int;
++extern "c" fn close(fd: c_int) c_int;
++extern "c" fn read(fd: c_int, buffer: [*]u8, count: usize) isize;
++extern "c" fn write(fd: c_int, buffer: [*]const u8, count: usize) isize;
++extern "c" fn execve(path: [*:0]const u8, argv: [*:null]const ?[*:0]const u8, envp: [*:null]const ?[*:0]const u8) c_int;
++extern "c" fn waitpid(pid: c_int, status: *c_int, options: c_int) c_int;
++extern "c" fn kill(pid: c_int, signal: c_int) c_int;
++extern "c" fn clock_gettime(clock: c_int, time: *Timespec) c_int;
++extern "c" fn poll(fds: [*]PollFd, count: usize, timeout_ms: c_int) c_int;
++extern "c" fn fcntl(fd: c_int, command: c_int, ...) c_int;
++extern "c" fn getenv(name: [*:0]const u8) ?[*:0]u8;
++extern "c" fn opendir(path: [*:0]const u8) ?*Dir;
++extern "c" fn readdir(dir: *Dir) ?*Dirent;
++extern "c" fn closedir(dir: *Dir) c_int;
++extern "c" fn __errno_location() *c_int;
++extern "c" var environ: [*:null]?[*:0]const u8;
++extern "c" fn _exit(status: c_int) noreturn;
++
++const O_CLOEXEC = 0x80000;
++const O_RDONLY = 0;
++const O_NONBLOCK = 0x800;
++const F_SETFL = 4;
++const POLLIN = 0x001;
++const POLLERR = 0x008;
++const POLLHUP = 0x010;
++const POLLNVAL = 0x020;
++const CLOCK_MONOTONIC = 1;
++
++const Options = struct {
++    timeout_ms: u64,
++    grace_ms: u64,
++    command: []const [*:0]const u8,
++};
++
++const ProcessInfo = struct {
++    state: u8,
++    pgrp: u32,
++};
++
++const OutputPipe = struct {
++    fd: c_int,
++    destination: c_int,
++};
++
++fn parseOptions(args: []const [*:0]const u8) ?Options {
++    if (args.len < 7) return null;
++    if (!std.mem.eql(u8, std.mem.span(args[0]), "supervise")) return null;
++    if (!std.mem.eql(u8, std.mem.span(args[1]), "--timeout-ms")) return null;
++    const timeout_ms = parseMillis(std.mem.span(args[2])) orelse return null;
++    if (!std.mem.eql(u8, std.mem.span(args[3]), "--grace-ms")) return null;
++    const grace_ms = parseMillis(std.mem.span(args[4])) orelse return null;
++    if (!std.mem.eql(u8, std.mem.span(args[5]), "--")) return null;
++    if (args.len == 6) return null;
++    return .{ .timeout_ms = timeout_ms, .grace_ms = grace_ms, .command = args[6..] };
++}
++
++fn parseMillis(text: []const u8) ?u64 {
++    if (text.len == 0) return null;
++    for (text) |byte| {
++        if (byte < '0' or byte > '9') return null;
++    }
++    const value = std.fmt.parseInt(u64, text, 10) catch return null;
++    if (value < 1 or value > 60000) return null;
++    return value;
++}
++
++fn writeAll(fd: c_int, bytes: []const u8) bool {
++    var offset: usize = 0;
++    while (offset < bytes.len) {
++        const count = write(fd, bytes[offset..].ptr, bytes.len - offset);
++        if (count > 0) {
++            offset += @intCast(count);
++            continue;
++        }
++        if (count < 0 and errno() == 4) continue;
++        return false;
++    }
++    return true;
++}
++
++fn diagnostic(bytes: []const u8) void {
++    _ = writeAll(2, bytes);
++}
++
++fn errno() c_int {
++    return __errno_location().*;
++}
++
++fn duplicateCommandArguments(allocator: std.mem.Allocator, command: []const [*:0]const u8) ?[]?[*:0]const u8 {
++    const storage = allocator.alloc(?[*:0]const u8, command.len + 1) catch return null;
++    for (command, 0..) |argument, index| storage[index] = argument;
++    storage[command.len] = null;
++    return storage;
++}
++
++fn buildCandidates(allocator: std.mem.Allocator, command: [*:0]const u8) ?[][:0]u8 {
++    const command_slice = std.mem.span(command);
++    var candidates: std.ArrayList([:0]u8) = .empty;
++    errdefer {
++        for (candidates.items) |candidate| allocator.free(candidate);
++        candidates.deinit(allocator);
++    }
++
++    if (std.mem.indexOfScalar(u8, command_slice, '/') != null) {
++        const only = allocator.dupeSentinel(u8, command_slice, 0) catch return null;
++        candidates.append(allocator, only) catch {
++            allocator.free(only);
++            return null;
++        };
++        return candidates.toOwnedSlice(allocator) catch return null;
++    }
++
++    const path_value = getenv("PATH");
++    const path = if (path_value) |value| std.mem.span(value) else "/bin:/usr/bin";
++    var start: usize = 0;
++    while (true) {
++        const end = std.mem.indexOfScalarPos(u8, path, start, ':') orelse path.len;
++        const component = path[start..end];
++        const needs_slash = component.len > 0;
++        const total_len = component.len + @as(usize, if (needs_slash) 1 else 0) + command_slice.len;
++        const candidate = allocator.allocSentinel(u8, total_len, 0) catch return null;
++        var cursor: usize = 0;
++        if (component.len > 0) {
++            @memcpy(candidate[cursor..][0..component.len], component);
++            cursor += component.len;
++            candidate[cursor] = '/';
++            cursor += 1;
++        }
++        @memcpy(candidate[cursor..][0..command_slice.len], command_slice);
++        candidates.append(allocator, candidate) catch {
++            allocator.free(candidate);
++            return null;
++        };
++        if (end == path.len) break;
++        start = end + 1;
++    }
++    return candidates.toOwnedSlice(allocator) catch return null;
++}
++
++fn childFail(error_fd: c_int) noreturn {
++    const saved_errno = errno();
++    const raw: [*]const u8 = @ptrCast(&saved_errno);
++    var offset: usize = 0;
++    while (offset < @sizeOf(c_int)) {
++        const count = write(error_fd, raw + offset, @sizeOf(c_int) - offset);
++        if (count > 0) {
++            offset += @intCast(count);
++        } else if (count < 0 and errno() == 4) {
++            continue;
++        } else break;
++    }
++    _exit(127);
++}
++
++fn childRun(
++    command_argv: [*:null]const ?[*:0]const u8,
++    candidates: []const [:0]u8,
++    out_pipe: [2]c_int,
++    err_pipe: [2]c_int,
++    exec_pipe: [2]c_int,
++) noreturn {
++    if (setpgid(0, 0) != 0) childFail(exec_pipe[1]);
++    const null_fd = open("/dev/null", O_RDONLY);
++    if (null_fd < 0) childFail(exec_pipe[1]);
++    if (dup2(null_fd, 0) < 0) childFail(exec_pipe[1]);
++    if (dup2(out_pipe[1], 1) < 0) childFail(exec_pipe[1]);
++    if (dup2(err_pipe[1], 2) < 0) childFail(exec_pipe[1]);
++
++    _ = close(null_fd);
++    _ = close(out_pipe[0]);
++    _ = close(out_pipe[1]);
++    _ = close(err_pipe[0]);
++    _ = close(err_pipe[1]);
++    _ = close(exec_pipe[0]);
++
++    for (candidates) |candidate| {
++        _ = execve(candidate.ptr, command_argv, environ);
++        const code = errno();
++        // Continue PATH lookup for absent paths and inaccessible candidates.
++        if (code != 2 and code != 13 and code != 20) childFail(exec_pipe[1]);
++    }
++    childFail(exec_pipe[1]);
++}
++
++fn readExecError(fd: c_int, child_errno: *c_int) bool {
++    var offset: usize = 0;
++    const raw: [*]u8 = @ptrCast(child_errno);
++    while (offset < @sizeOf(c_int)) {
++        const count = read(fd, raw + offset, @sizeOf(c_int) - offset);
++        if (count > 0) {
++            offset += @intCast(count);
++            continue;
++        }
++        if (count == 0) return offset != 0;
++        if (errno() == 4) continue;
++        return true;
++    }
++    return true;
++}
++
++fn closePipePair(pair: [2]c_int) void {
++    _ = close(pair[0]);
++    _ = close(pair[1]);
++}
++
++fn nowNs() u64 {
++    var time: Timespec = undefined;
++    if (clock_gettime(CLOCK_MONOTONIC, &time) != 0) return 0;
++    return @as(u64, @intCast(time.tv_sec)) * std.time.ns_per_s + @as(u64, @intCast(time.tv_nsec));
++}
++
++fn readProcessInfo(pid: u32) ?ProcessInfo {
++    var path_buf: [64]u8 = undefined;
++    const path = std.fmt.bufPrint(path_buf[0 .. path_buf.len - 1], "/proc/{d}/stat", .{pid}) catch return null;
++    path_buf[path.len] = 0;
++    const fd = open(@ptrCast(&path_buf), O_RDONLY);
++    if (fd < 0) return null;
++    defer _ = close(fd);
++
++    var buffer: [4096]u8 = undefined;
++    const count = read(fd, &buffer, buffer.len);
++    if (count <= 0) return null;
++    const data = buffer[0..@intCast(count)];
++    const close_paren = std.mem.lastIndexOfScalar(u8, data, ')') orelse return null;
++    var index = close_paren + 1;
++    while (index < data.len and data[index] == ' ') : (index += 1) {}
++    if (index >= data.len) return null;
++    const state = data[index];
++    index += 1;
++    while (index < data.len and data[index] == ' ') : (index += 1) {}
++    const ppid_start = index;
++    while (index < data.len and data[index] >= '0' and data[index] <= '9') : (index += 1) {}
++    if (index == ppid_start) return null;
++    while (index < data.len and data[index] == ' ') : (index += 1) {}
++    const pgrp_start = index;
++    while (index < data.len and data[index] >= '0' and data[index] <= '9') : (index += 1) {}
++    if (index == pgrp_start) return null;
++    const pgrp = std.fmt.parseInt(u32, data[pgrp_start..index], 10) catch return null;
++    return .{ .state = state, .pgrp = pgrp };
++}
++
++fn liveState(state: u8) bool {
++    return state != 'Z' and state != 'X';
++}
++
++fn groupHasLiveMember(group_id: u32) bool {
++    if (readProcessInfo(group_id)) |direct| {
++        if (direct.pgrp == group_id and liveState(direct.state)) return true;
++    }
++
++    const proc = opendir("/proc") orelse return kill(-@as(c_int, @intCast(group_id)), 0) == 0;
++    defer _ = closedir(proc);
++    while (readdir(proc)) |entry| {
++        const name = std.mem.sliceTo(&entry.d_name, 0);
++        if (name.len == 0) continue;
++        const pid = std.fmt.parseInt(u32, name, 10) catch continue;
++        if (readProcessInfo(pid)) |info| {
++            if (info.pgrp == group_id and liveState(info.state)) return true;
++        }
++    }
++    return false;
++}
++
++fn drainOutput(pipe: *OutputPipe) void {
++    if (pipe.fd < 0) return;
++    var buffer: [8192]u8 = undefined;
++    var total_read: usize = 0;
++    while (true) {
++        const count = read(pipe.fd, &buffer, buffer.len);
++        if (count > 0) {
++            if (!writeAll(pipe.destination, buffer[0..@intCast(count)])) return;
++            total_read += @intCast(count);
++            if (total_read >= 65536) return;
++            continue;
++        }
++        if (count == 0) {
++            _ = close(pipe.fd);
++            pipe.fd = -1;
++            return;
++        }
++        if (errno() == 4) continue;
++        if (errno() == 11) return;
++        _ = close(pipe.fd);
++        pipe.fd = -1;
++        return;
++    }
++}
++
++fn pollOutput(out_pipe: *OutputPipe, err_pipe: *OutputPipe, wait_ms: c_int) void {
++    var fds = [_]PollFd{
++        .{ .fd = out_pipe.fd, .events = POLLIN, .revents = 0 },
++        .{ .fd = err_pipe.fd, .events = POLLIN, .revents = 0 },
++    };
++    _ = poll(&fds, fds.len, wait_ms);
++    for (fds, 0..) |fd, index| {
++        if ((fd.revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL)) == 0) continue;
++        if (index == 0) drainOutput(out_pipe) else drainOutput(err_pipe);
++    }
++}
++
++fn waitForOutputEof(out_pipe: *OutputPipe, err_pipe: *OutputPipe) void {
++    while (out_pipe.fd >= 0 or err_pipe.fd >= 0) {
++        pollOutput(out_pipe, err_pipe, -1);
++        // A poll error should not prevent the remaining buffered bytes from being read.
++        drainOutput(out_pipe);
++        drainOutput(err_pipe);
++    }
++}
++
++fn pollInterval(deadline_ns: u64) c_int {
++    const current = nowNs();
++    if (current >= deadline_ns) return 0;
++    const remaining = deadline_ns - current;
++    const remaining_ms = (remaining + std.time.ns_per_ms - 1) / std.time.ns_per_ms;
++    return @intCast(@min(remaining_ms, 5));
++}
++
++fn setNonBlocking(fd: c_int) bool {
++    return fcntl(fd, F_SETFL, @as(c_int, O_NONBLOCK)) == 0;
++}
++
++fn reapDirectChild(pid: c_int) ?c_int {
++    var status: c_int = 0;
++    while (true) {
++        const result = waitpid(pid, &status, 0);
++        if (result == pid) return status;
++        if (result < 0 and errno() == 4) continue;
++        return null;
++    }
++}
++
++fn statusExitCode(raw_status: c_int) c_int {
++    if ((raw_status & 0x7f) == 0) return (raw_status >> 8) & 0xff;
++    const signal = raw_status & 0x7f;
++    if (signal != 0x7f) return 128 + signal;
++    return 127;
++}
++
++fn printStatus(exit_code: c_int, timed_out: bool, term_sent: bool, kill_sent: bool, reaped: bool) void {
++    var buffer: [160]u8 = undefined;
++    const line = std.fmt.bufPrint(&buffer, "status={s} exit_code={d} term_sent={s} kill_sent={s} reaped={d}\n", .{
++        if (timed_out) "timeout" else "exited",
++        exit_code,
++        if (term_sent) "true" else "false",
++        if (kill_sent) "true" else "false",
++        @intFromBool(reaped),
++    }) catch return;
++    diagnostic(line);
++}
++
++pub fn execute(allocator: std.mem.Allocator, args: []const [*:0]const u8) c_int {
++    const options = parseOptions(args) orelse {
++        diagnostic("error: invalid arguments\n");
++        return 2;
++    };
++
++    const command_argv_storage = duplicateCommandArguments(allocator, options.command) orelse {
++        diagnostic("error: cannot start command\n");
++        return 127;
++    };
++    defer allocator.free(command_argv_storage);
++    const command_argv: [*:null]const ?[*:0]const u8 = @ptrCast(command_argv_storage.ptr);
++
++    const candidates = buildCandidates(allocator, options.command[0]) orelse {
++        diagnostic("error: cannot start command\n");
++        return 127;
++    };
++    defer {
++        for (candidates) |candidate| allocator.free(candidate);
++        allocator.free(candidates);
++    }
++
++    var out_pair: [2]c_int = undefined;
++    var err_pair: [2]c_int = undefined;
++    var exec_pair: [2]c_int = undefined;
++    if (pipe2(&out_pair, O_CLOEXEC) != 0) {
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++    if (pipe2(&err_pair, O_CLOEXEC) != 0) {
++        closePipePair(out_pair);
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++    if (pipe2(&exec_pair, O_CLOEXEC) != 0) {
++        closePipePair(out_pair);
++        closePipePair(err_pair);
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++
++    const pid = fork();
++    if (pid < 0) {
++        closePipePair(out_pair);
++        closePipePair(err_pair);
++        closePipePair(exec_pair);
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++    if (pid == 0) childRun(command_argv, candidates, out_pair, err_pair, exec_pair);
++
++    _ = close(out_pair[1]);
++    _ = close(err_pair[1]);
++    _ = close(exec_pair[1]);
++
++    var child_errno: c_int = 0;
++    const failed_to_exec = readExecError(exec_pair[0], &child_errno);
++    const started_ns = nowNs();
++    _ = close(exec_pair[0]);
++    if (failed_to_exec) {
++        _ = close(out_pair[0]);
++        _ = close(err_pair[0]);
++        _ = reapDirectChild(pid);
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++
++    if (!setNonBlocking(out_pair[0]) or !setNonBlocking(err_pair[0])) {
++        _ = kill(-pid, 9);
++        _ = close(out_pair[0]);
++        _ = close(err_pair[0]);
++        _ = reapDirectChild(pid);
++        diagnostic("error: cannot start command\n");
++        return 127;
++    }
++
++    var output = OutputPipe{ .fd = out_pair[0], .destination = 1 };
++    var error_output = OutputPipe{ .fd = err_pair[0], .destination = 2 };
++    const timeout_deadline = started_ns + options.timeout_ms * std.time.ns_per_ms;
++
++    var timed_out = false;
++    var term_sent = false;
++    var kill_sent = false;
++    while (true) {
++        drainOutput(&output);
++        drainOutput(&error_output);
++        const current = nowNs();
++        const live = groupHasLiveMember(@intCast(pid));
++        if (!live) break;
++        if (current >= timeout_deadline) {
++            timed_out = true;
++            term_sent = kill(-pid, 15) == 0;
++            const grace_deadline = nowNs() + options.grace_ms * std.time.ns_per_ms;
++            while (nowNs() < grace_deadline) {
++                drainOutput(&output);
++                drainOutput(&error_output);
++                pollOutput(&output, &error_output, pollInterval(grace_deadline));
++            }
++            if (groupHasLiveMember(@intCast(pid))) {
++                kill_sent = kill(-pid, 9) == 0;
++            }
++            while (groupHasLiveMember(@intCast(pid))) {
++                drainOutput(&output);
++                drainOutput(&error_output);
++                pollOutput(&output, &error_output, 20);
++            }
++            break;
++        }
++        pollOutput(&output, &error_output, pollInterval(timeout_deadline));
++    }
++
++    const child_status = reapDirectChild(pid);
++    waitForOutputEof(&output, &error_output);
++    const was_reaped = child_status != null;
++    const exit_code = if (timed_out) 124 else if (child_status) |status| statusExitCode(status) else 127;
++    printStatus(exit_code, timed_out, term_sent, kill_sent, was_reaped);
++    return exit_code;
+ }
+diff --git a/src/main.zig b/src/main.zig
+index add0315..e3f9617 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -56,7 +56,7 @@ extern "c" fn close(fd: c_int) c_int;
+ pub fn main(init: std.process.Init.Minimal) u8 {
+     const allocator = std.heap.page_allocator;
+     const args = init.args.vector;
+-    if (args.len == 0) return 2;
++    if (args.len == 0) return @intCast(core.execute(allocator, args));
+     return @intCast(core.execute(allocator, args[1..]));
+ }
+ 

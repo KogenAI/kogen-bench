@@ -1367,6 +1367,19 @@
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
     },
     {
+      "round_id": "rz1",
+      "script": "python3 rounds/rz1/reproduce_decision.py",
+      "inputs": [
+        "rounds/rz1/receipts/PLAN.json",
+        "rounds/rz1/receipts/interim-output.json",
+        "rounds/rz1/receipts/final-output.json",
+        "data/mined/rz1.jsonl.gz"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the preregistered interim and final decision from the sanitized plan receipts and 42 mined records; model execution and hidden grading are not replayed."
+    },
+    {
       "round_id": "stack-oneshot-conformance",
       "script": null,
       "inputs": [],

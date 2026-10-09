@@ -14,7 +14,7 @@ class ReleasePolicyTest(unittest.TestCase):
     def test_every_historical_round_has_publication_metadata(self):
         errors, historical = validate_historical_inventory()
         self.assertEqual(errors, [])
-        self.assertEqual(len(historical), 178)
+        self.assertEqual(len(historical), 179)
 
     def test_l3b_keeps_valid_status_and_declares_narrow_limits(self):
         self.assertIn("VALID", read_field("l3b-repair-vs-continue", "Publication badge"))

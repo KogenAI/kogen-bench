@@ -1,0 +1,282 @@
+diff --git a/Makefile b/Makefile
+index a2dc1fe..c64b0b1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,7 @@ setup:
+ build:
+ 	. ./toolchain-env.sh && zig build -Doptimize=ReleaseFast
+ 	mkdir -p build/bin
+-	cp zig-out/bin/kogen build/bin/kogen
++	cp zig-out/bin/cas-land build/bin/cas-land
+ 
+ check:
+ 	. ./toolchain-env.sh && zig fmt --check build.zig src/*.zig
+diff --git a/build.zig b/build.zig
+index 26c4ca3..4ca3c9b 100644
+--- a/build.zig
++++ b/build.zig
+@@ -4,7 +4,7 @@ pub fn build(b: *std.Build) void {
+     const target = b.standardTargetOptions(.{});
+     const optimize = b.standardOptimizeOption(.{});
+     const exe = b.addExecutable(.{
+-        .name = "kogen",
++        .name = "cas-land",
+         .root_module = b.createModule(.{
+             .root_source_file = b.path("src/main.zig"),
+             .target = target,
+diff --git a/run b/run
+index 9cd6408..9d3e524 100755
+--- a/run
++++ b/run
+@@ -1,4 +1,4 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+-exec "$ROOT/build/bin/kogen" "$@"
++exec "$ROOT/build/bin/cas-land" "$@"
+diff --git a/src/core.zig b/src/core.zig
+index bcfcc94..dc34d40 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -6,13 +6,237 @@ pub const Result = struct {
+     exit_code: u8 = 0,
+ };
+ 
++const ParsedArgs = struct {
++    repo: []const u8,
++    target: []const u8,
++    base: []const u8,
++    candidate: []const u8,
++};
++
++const ParentCheck = enum {
++    clean,
++    conflict,
++    invalid,
++};
++
++const ParentResult = struct {
++    check: ParentCheck,
++    commit: []const u8 = "",
++};
++
++const usage_text = "cas-land: usage: cas-land --repo DIR --target REF --base OID --candidate OID\n";
++const invalid_text = "cas-land: invalid repository or commit\n";
++const conflict_text = "cas-land: conflict\n";
++const lost_race_text = "cas-land: lost race\n";
++
+ pub fn execute(
+     allocator: std.mem.Allocator,
+     io: std.Io,
+     args: []const []const u8,
+ ) Result {
+-    _ = allocator;
+-    _ = io;
+-    _ = args;
+-    return .{};
++    const parsed = parseArgs(args) orelse return .{
++        .stderr = usage_text,
++        .exit_code = 2,
++    };
++
++    return executeParsed(allocator, io, parsed) catch .{
++        .stderr = invalid_text,
++        .exit_code = 1,
++    };
++}
++
++fn parseArgs(args: []const []const u8) ?ParsedArgs {
++    var repo: ?[]const u8 = null;
++    var target: ?[]const u8 = null;
++    var base: ?[]const u8 = null;
++    var candidate: ?[]const u8 = null;
++
++    var index: usize = 0;
++    while (index < args.len) : (index += 2) {
++        if (index + 1 >= args.len) return null;
++        const value = args[index + 1];
++        if (std.mem.eql(u8, args[index], "--repo")) {
++            if (repo != null) return null;
++            repo = value;
++        } else if (std.mem.eql(u8, args[index], "--target")) {
++            if (target != null) return null;
++            target = value;
++        } else if (std.mem.eql(u8, args[index], "--base")) {
++            if (base != null) return null;
++            base = value;
++        } else if (std.mem.eql(u8, args[index], "--candidate")) {
++            if (candidate != null) return null;
++            candidate = value;
++        } else {
++            return null;
++        }
++    }
++
++    return .{
++        .repo = repo orelse return null,
++        .target = target orelse return null,
++        .base = base orelse return null,
++        .candidate = candidate orelse return null,
++    };
++}
++
++fn executeParsed(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    args: ParsedArgs,
++) !Result {
++    const repo_check = try runGit(allocator, io, args.repo, &.{ "rev-parse", "--git-dir" });
++    if (!repo_check.term.success()) return invalid();
++
++    if (!std.mem.startsWith(u8, args.target, "refs/")) return invalid();
++    const ref_check = try runGit(allocator, io, args.repo, &.{ "check-ref-format", args.target });
++    if (!ref_check.term.success()) return invalid();
++
++    const base = try resolveCommitOid(allocator, io, args.repo, args.base) orelse return invalid();
++    const candidate = try resolveCommitOid(allocator, io, args.repo, args.candidate) orelse return invalid();
++    const parent_check = try runGit(allocator, io, args.repo, &.{ "rev-list", "--parents", "-n", "1", candidate });
++    if (!parent_check.term.success()) return invalid();
++
++    var parent_tokens = std.mem.tokenizeAny(u8, parent_check.stdout, " \t\r\n");
++    const commit_token = parent_tokens.next() orelse return invalid();
++    const parent_token = parent_tokens.next() orelse return invalid();
++    if (parent_tokens.next() != null or
++        !std.mem.eql(u8, commit_token, candidate) or
++        !std.mem.eql(u8, parent_token, base))
++    {
++        return invalid();
++    }
++
++    const initial_target = try resolveTargetOid(allocator, io, args.repo, args.target) orelse return invalid();
++    const needs_rebase = !std.mem.eql(u8, initial_target, base);
++
++    var landing = candidate;
++    if (needs_rebase) {
++        const rebase = try prepareRebase(allocator, io, args.repo, candidate, base, initial_target);
++        switch (rebase.check) {
++            .clean => landing = rebase.commit,
++            .conflict => return .{ .stderr = conflict_text, .exit_code = 20 },
++            .invalid => return invalid(),
++        }
++    }
++
++    const update = try runGit(allocator, io, args.repo, &.{ "update-ref", args.target, landing, initial_target });
++    if (!update.term.success()) {
++        const current_target = try resolveTargetOid(allocator, io, args.repo, args.target);
++        if (current_target == null or !std.mem.eql(u8, current_target.?, initial_target)) {
++            return .{ .stderr = lost_race_text, .exit_code = 30 };
++        }
++        return invalid();
++    }
++
++    const stdout = try std.fmt.allocPrint(
++        allocator,
++        "{s} {s}\n",
++        .{ if (needs_rebase) "rebased" else "landed", landing },
++    );
++    return .{ .stdout = stdout, .exit_code = if (needs_rebase) 10 else 0 };
++}
++
++fn invalid() Result {
++    return .{ .stderr = invalid_text, .exit_code = 1 };
++}
++
++fn isHexOid(value: []const u8) bool {
++    if (value.len < 4) return false;
++    for (value) |byte| {
++        if (!std.ascii.isHex(byte)) return false;
++    }
++    return true;
++}
++
++fn resolveCommitOid(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    oid: []const u8,
++) !?[]const u8 {
++    if (!isHexOid(oid)) return null;
++    const object_type = try runGit(allocator, io, repo, &.{ "cat-file", "-t", oid });
++    if (!object_type.term.success() or !std.mem.eql(u8, trimOutput(object_type.stdout), "commit")) return null;
++    const resolved = try runGit(allocator, io, repo, &.{ "rev-parse", "--verify", "--end-of-options", oid });
++    if (!resolved.term.success()) return null;
++    return trimOutput(resolved.stdout);
++}
++
++fn resolveTargetOid(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    target: []const u8,
++) !?[]const u8 {
++    const resolved = try runGit(allocator, io, repo, &.{ "rev-parse", "--verify", "--end-of-options", target });
++    if (!resolved.term.success()) return null;
++    const oid = trimOutput(resolved.stdout);
++    const object_type = try runGit(allocator, io, repo, &.{ "cat-file", "-t", oid });
++    if (!object_type.term.success() or !std.mem.eql(u8, trimOutput(object_type.stdout), "commit")) return null;
++    return oid;
++}
++
++fn trimOutput(output: []const u8) []const u8 {
++    return std.mem.trim(u8, output, " \t\r\n");
++}
++
++fn prepareRebase(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    repo: []const u8,
++    candidate: []const u8,
++    base: []const u8,
++    target: []const u8,
++) !ParentResult {
++    var random_bytes: [16]u8 = undefined;
++    io.random(&random_bytes);
++    const prefix = "/tmp/cas-land-";
++    const temp_path = try allocator.alloc(u8, prefix.len + random_bytes.len * 2);
++    @memcpy(temp_path[0..prefix.len], prefix);
++    const hex = "0123456789abcdef";
++    for (random_bytes, 0..) |byte, index| {
++        temp_path[prefix.len + index * 2] = hex[byte >> 4];
++        temp_path[prefix.len + index * 2 + 1] = hex[byte & 0x0f];
++    }
++
++    var worktree_attempted = false;
++    defer {
++        if (worktree_attempted) {
++            _ = runGit(allocator, io, repo, &.{ "worktree", "remove", "--force", temp_path }) catch {};
++        }
++    }
++
++    worktree_attempted = true;
++    const add = try runGit(allocator, io, repo, &.{ "worktree", "add", "--detach", temp_path, candidate });
++    if (!add.term.success()) return .{ .check = .invalid };
++
++    const rebase = try runGit(allocator, io, temp_path, &.{ "rebase", "--onto", target, base });
++    if (!rebase.term.success()) {
++        const unmerged = try runGit(allocator, io, temp_path, &.{ "ls-files", "--unmerged" });
++        if (unmerged.term.success() and unmerged.stdout.len != 0) {
++            _ = runGit(allocator, io, temp_path, &.{ "rebase", "--abort" }) catch {};
++            return .{ .check = .conflict };
++        }
++        return .{ .check = .invalid };
++    }
++
++    const head = try runGit(allocator, io, temp_path, &.{ "rev-parse", "--verify", "HEAD" });
++    if (!head.term.success()) return .{ .check = .invalid };
++    return .{ .check = .clean, .commit = trimOutput(head.stdout) };
++}
++
++fn runGit(
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    cwd: []const u8,
++    arguments: []const []const u8,
++) !std.process.RunResult {
++    const argv = try allocator.alloc([]const u8, arguments.len + 1);
++    argv[0] = "git";
++    @memcpy(argv[1..], arguments);
++    return std.process.run(allocator, io, .{
++        .argv = argv,
++        .cwd = .{ .path = cwd },
++    });
+ }

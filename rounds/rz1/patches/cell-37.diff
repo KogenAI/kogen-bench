@@ -1,0 +1,1253 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index a73853c..11f3a93 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2,6 +2,395 @@
+ # It is not intended for manual editing.
+ version = 4
+ 
++[[package]]
++name = "displaydoc"
++version = "0.2.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "c6232dd377dcc64799954cbd3a9bb882e9cdc1308ccd87b1c098f1fb2eaf82a8"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.6",
++]
++
++[[package]]
++name = "form_urlencoded"
++version = "1.2.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
++dependencies = [
++ "percent-encoding",
++]
++
++[[package]]
++name = "icu_collections"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "fa68d21081c4a05d5a901a1c62add574c77048b6a1c67be3b50ce0b60d4ca513"
++dependencies = [
++ "displaydoc",
++ "potential_utf",
++ "utf8_iter",
++ "yoke",
++ "zerofrom",
++ "zerovec",
++]
++
++[[package]]
++name = "icu_locale_core"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d56e28588da92eee5c3201a6eff33fabdd49b62269c8938d4ff050ce4d900deb"
++dependencies = [
++ "displaydoc",
++ "litemap",
++ "tinystr",
++ "writeable",
++ "zerovec",
++]
++
++[[package]]
++name = "icu_normalizer"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "12f9cf5f235641ed274641dd81c3f28d870e276763d0797aeeab72317b1c646f"
++dependencies = [
++ "icu_collections",
++ "icu_normalizer_data",
++ "icu_properties",
++ "icu_provider",
++ "smallvec",
++ "zerovec",
++]
++
++[[package]]
++name = "icu_normalizer_data"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1563da1ed3e0b3bf3d74c9b85917ac9c56464d2f57242270c09c9e752f8021a0"
++
++[[package]]
++name = "icu_properties"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "7e7ca276ad3145661a65914e6daf131ca5120cd3dcee8f8f3214b8875184a148"
++dependencies = [
++ "displaydoc",
++ "icu_collections",
++ "icu_locale_core",
++ "icu_properties_data",
++ "icu_provider",
++ "zerotrie",
++ "zerovec",
++]
++
++[[package]]
++name = "icu_properties_data"
++version = "2.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "e590f038c1464a96894fd6d10127e90a8be4509f56ff7ecef851b15cee0b7caa"
++
++[[package]]
++name = "icu_provider"
++version = "2.3.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d27bbb9d3abbefac45d55f647c9de1d44aafcd1186eb91879afef17c396c3e73"
++dependencies = [
++ "displaydoc",
++ "icu_locale_core",
++ "writeable",
++ "yoke",
++ "zerofrom",
++ "zerotrie",
++ "zerovec",
++]
++
++[[package]]
++name = "idna"
++version = "1.1.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de"
++dependencies = [
++ "idna_adapter",
++ "smallvec",
++ "utf8_iter",
++]
++
++[[package]]
++name = "idna_adapter"
++version = "1.2.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "cb68373c0d6620ef8105e855e7745e18b0d00d3bdb07fb532e434244cdb9a714"
++dependencies = [
++ "icu_normalizer",
++ "icu_properties",
++]
++
++[[package]]
++name = "itoa"
++version = "1.0.18"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
++
+ [[package]]
+ name = "kogen"
+ version = "0.1.0"
++dependencies = [
++ "serde_json",
++ "url",
++]
++
++[[package]]
++name = "litemap"
++version = "0.8.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
++
++[[package]]
++name = "memchr"
++version = "2.8.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
++
++[[package]]
++name = "percent-encoding"
++version = "2.3.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
++
++[[package]]
++name = "potential_utf"
++version = "0.1.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d83eb9bc6d8e5cf568e7a1101d60ee05e81ed50ea106026f3d18deeb046d7661"
++dependencies = [
++ "zerovec",
++]
++
++[[package]]
++name = "proc-macro2"
++version = "1.0.107"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
++dependencies = [
++ "unicode-ident",
++]
++
++[[package]]
++name = "quote"
++version = "1.0.47"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
++dependencies = [
++ "proc-macro2",
++]
++
++[[package]]
++name = "ryu"
++version = "1.0.23"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
++
++[[package]]
++name = "serde"
++version = "1.0.228"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
++dependencies = [
++ "serde_core",
++]
++
++[[package]]
++name = "serde_core"
++version = "1.0.228"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
++dependencies = [
++ "serde_derive",
++]
++
++[[package]]
++name = "serde_derive"
++version = "1.0.228"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 2.0.119",
++]
++
++[[package]]
++name = "serde_json"
++version = "1.0.145"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "402a6f66d8c709116cf22f558eab210f5a50187f702eb4d7e5ef38d9a7f1c79c"
++dependencies = [
++ "itoa",
++ "memchr",
++ "ryu",
++ "serde",
++ "serde_core",
++]
++
++[[package]]
++name = "smallvec"
++version = "1.16.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f9395f0f0eee849a9b707b2f06bb92a6a422090e2123bb2ef8e87a0e61892a8e"
++
++[[package]]
++name = "stable_deref_trait"
++version = "1.2.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
++
++[[package]]
++name = "syn"
++version = "2.0.119"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "unicode-ident",
++]
++
++[[package]]
++name = "syn"
++version = "3.0.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "8593e8e72159ed2257d083c7a454a85cbf854f37a0966d8d483aff8c8a3ebcee"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "unicode-ident",
++]
++
++[[package]]
++name = "synstructure"
++version = "0.14.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "901704edd0dfe137f1987838ee4f259e4e063c31371bdb423f7ae38ec6f77f02"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.6",
++]
++
++[[package]]
++name = "tinystr"
++version = "0.8.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b1e27c91459209c2986af3dcf603a5a74a4368754ce37414f59acc971167f643"
++dependencies = [
++ "displaydoc",
++ "zerovec",
++]
++
++[[package]]
++name = "unicode-ident"
++version = "1.0.26"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d245f478577f809a851594d02313b640fb437e0bb33866753cff937863096954"
++
++[[package]]
++name = "url"
++version = "2.5.8"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
++dependencies = [
++ "form_urlencoded",
++ "idna",
++ "percent-encoding",
++ "serde",
++]
++
++[[package]]
++name = "utf8_iter"
++version = "1.0.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
++
++[[package]]
++name = "writeable"
++version = "0.6.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
++
++[[package]]
++name = "yoke"
++version = "0.8.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "709fe23a0424b6a435d82152b1bd3fdfb0833487d5fa90d05d42762a9891fef5"
++dependencies = [
++ "stable_deref_trait",
++ "yoke-derive",
++ "zerofrom",
++]
++
++[[package]]
++name = "yoke-derive"
++version = "0.8.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.6",
++ "synstructure",
++]
++
++[[package]]
++name = "zerofrom"
++version = "0.1.8"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "0ec05a11813ea801ff6d75110ad09cd0824ddba17dfe17128ea0d5f68e6c5272"
++dependencies = [
++ "zerofrom-derive",
++]
++
++[[package]]
++name = "zerofrom-derive"
++version = "0.1.8"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f75b4683f6c7f45248d4d64056a24298c6281e0993356d7d1b4a1a962ef10d4a"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.6",
++ "synstructure",
++]
++
++[[package]]
++name = "zerotrie"
++version = "0.2.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "4ea269c3bd32f0a32c321907a2ae912ba6f4649bb0fc764a15627e99a7095a3f"
++dependencies = [
++ "displaydoc",
++ "yoke",
++ "zerofrom",
++]
++
++[[package]]
++name = "zerovec"
++version = "0.11.8"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "bb0464e17806c1d976d5cba29399c7f08e516e279e2ba493f63123b5fca67dd8"
++dependencies = [
++ "yoke",
++ "zerofrom",
++ "zerovec-derive",
++]
++
++[[package]]
++name = "zerovec-derive"
++version = "0.11.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "34df6fc39dbd26ddc9c10e6a2984476e13acce22e64e4487636ef494369225da"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.6",
++]
+diff --git a/Cargo.toml b/Cargo.toml
+index 54a2339..c9bfb79 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -2,3 +2,7 @@
+ name = "kogen"
+ version = "0.1.0"
+ edition = "2024"
++
++[dependencies]
++serde_json = { version = "1.0.145", features = ["arbitrary_precision"] }
++url = "2.5.8"
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..376b83d 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,813 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use serde_json::Value;
++use std::fs::{self, OpenOptions};
++use std::io::{self, Read, Write};
++use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
++use std::path::{Path, PathBuf};
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::time::{Duration, Instant};
++use url::Url;
++
++const INVALID_ARGUMENTS: &str = "error: invalid arguments";
++const REQUEST_FAILED: &str = "error: request failed";
++const MAX_SAFE_INTEGER: &str = "9007199254740991";
++
++struct Options {
++    url: Url,
++    prompt: String,
++    idle_timeout: Duration,
++    usage_path: PathBuf,
++}
++
++struct Success {
++    text: String,
++    input_tokens: u64,
++    output_tokens: u64,
++}
++
++#[derive(Clone, Copy, Debug)]
++enum AttemptError {
++    Retryable,
++    Fatal,
++}
++
++#[derive(Clone, Copy)]
++enum Framing {
++    Length(u64),
++    Chunked,
++    UntilClose,
++}
++
++pub fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    let options = parse_args(args).map_err(|_| (2, INVALID_ARGUMENTS.to_owned()))?;
++    let body = serde_json::to_vec(&serde_json::json!({ "prompt": options.prompt }))
++        .map_err(|_| (5, REQUEST_FAILED.to_owned()))?;
++
++    let result = match perform_attempt(&options, &body) {
++        Ok(success) => Ok(success),
++        Err(AttemptError::Retryable) => perform_attempt(&options, &body),
++        Err(AttemptError::Fatal) => Err(AttemptError::Fatal),
++    };
++
++    let success = result.map_err(|_| (5, REQUEST_FAILED.to_owned()))?;
++    let usage = format!(
++        "{{\"input_tokens\":{},\"output_tokens\":{}}}\n",
++        success.input_tokens, success.output_tokens
++    );
++    atomic_replace(&options.usage_path, usage.as_bytes())
++        .map_err(|_| (5, REQUEST_FAILED.to_owned()))?;
++
++    let mut output = success.text;
++    output.push('\n');
++    Ok(output)
++}
++
++fn parse_args(args: &[String]) -> Result<Options, ()> {
++    if args.first().map(String::as_str) != Some("model") {
++        return Err(());
++    }
++
++    let mut url_value: Option<&str> = None;
++    let mut prompt: Option<&str> = None;
++    let mut timeout: Option<&str> = None;
++    let mut usage_path: Option<&str> = None;
++    let mut index = 1;
++
++    while index < args.len() {
++        let name = args[index].as_str();
++        let value = args.get(index + 1).ok_or(())?.as_str();
++        let slot = match name {
++            "--url" => &mut url_value,
++            "--prompt" => &mut prompt,
++            "--idle-timeout-ms" => &mut timeout,
++            "--usage-file" => &mut usage_path,
++            _ => return Err(()),
++        };
++        if slot.replace(value).is_some() {
++            return Err(());
++        }
++        index += 2;
++    }
++
++    let raw_url = url_value.ok_or(())?;
++    let prompt = prompt.ok_or(())?;
++    let timeout = timeout.ok_or(())?;
++    let raw_path = usage_path.ok_or(())?;
++    if raw_path.is_empty()
++        || !raw_url
++            .get(..7)
++            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("http://"))
++        || timeout.is_empty()
++        || !timeout.bytes().all(|byte| byte.is_ascii_digit())
++    {
++        return Err(());
++    }
++
++    let significant_timeout = timeout.trim_start_matches('0');
++    let timeout_ms: u64 = if significant_timeout.is_empty() {
++        0
++    } else if significant_timeout.len() > 5 {
++        return Err(());
++    } else {
++        significant_timeout.parse().map_err(|_| ())?
++    };
++    if !(1..=60_000).contains(&timeout_ms) {
++        return Err(());
++    }
++
++    let url = Url::parse(raw_url).map_err(|_| ())?;
++    if url.scheme() != "http" || url.host().is_none() {
++        return Err(());
++    }
++
++    Ok(Options {
++        url,
++        prompt: prompt.to_owned(),
++        idle_timeout: Duration::from_millis(timeout_ms),
++        usage_path: PathBuf::from(raw_path),
++    })
++}
++
++fn perform_attempt(options: &Options, body: &[u8]) -> Result<Success, AttemptError> {
++    let mut connection = connect(&options.url, options.idle_timeout)?;
++    let request = build_request(&options.url, body)?;
++    connection
++        .stream
++        .set_write_timeout(Some(options.idle_timeout))
++        .map_err(|_| AttemptError::Retryable)?;
++    connection
++        .stream
++        .write_all(&request)
++        .map_err(|_| AttemptError::Retryable)?;
++
++    let (status, framing) = connection.read_response_head(options.idle_timeout)?;
++    if (500..=599).contains(&status) {
++        return Err(AttemptError::Retryable);
++    }
++    if !(200..=299).contains(&status) {
++        return Err(AttemptError::Fatal);
++    }
++
++    let mut response_body = ResponseBody::new(connection, framing, options.idle_timeout);
++    parse_sse(&mut response_body)
++}
++
++fn connect(url: &Url, timeout: Duration) -> Result<Connection, AttemptError> {
++    let port = url.port_or_known_default().ok_or(AttemptError::Fatal)?;
++    let host = url.host().ok_or(AttemptError::Fatal)?.to_string();
++    let address = format!("{host}:{port}");
++    let addresses: Vec<SocketAddr> = address
++        .to_socket_addrs()
++        .map_err(|_| AttemptError::Retryable)?
++        .collect();
++    if addresses.is_empty() {
++        return Err(AttemptError::Retryable);
++    }
++
++    for address in addresses {
++        if let Ok(stream) = TcpStream::connect_timeout(&address, timeout) {
++            return Ok(Connection::new(stream));
++        }
++    }
++    Err(AttemptError::Retryable)
++}
++
++fn build_request(url: &Url, body: &[u8]) -> Result<Vec<u8>, AttemptError> {
++    let mut target = url.path().to_owned();
++    if target.is_empty() {
++        target.push('/');
++    }
++    if let Some(query) = url.query() {
++        target.push('?');
++        target.push_str(query);
++    }
++
++    let mut host = url.host().ok_or(AttemptError::Fatal)?.to_string();
++    if let Some(port) = url.port() {
++        host.push(':');
++        host.push_str(&port.to_string());
++    }
++
++    let mut request = format!(
++        "POST {target} HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
++        body.len()
++    )
++    .into_bytes();
++    request.extend_from_slice(body);
++    Ok(request)
++}
++
++struct Connection {
++    stream: TcpStream,
++    buffer: [u8; 8192],
++    offset: usize,
++    available: usize,
++}
++
++impl Connection {
++    fn new(stream: TcpStream) -> Self {
++        Self {
++            stream,
++            buffer: [0; 8192],
++            offset: 0,
++            available: 0,
++        }
++    }
++
++    fn raw_byte(&mut self, timeout: Duration) -> Result<Option<u8>, AttemptError> {
++        if self.offset == self.available {
++            self.offset = 0;
++            self.available = 0;
++            self.stream
++                .set_read_timeout(Some(timeout))
++                .map_err(|_| AttemptError::Retryable)?;
++            loop {
++                match self.stream.read(&mut self.buffer) {
++                    Ok(0) => return Ok(None),
++                    Ok(count) => {
++                        self.available = count;
++                        break;
++                    }
++                    Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
++                    Err(_) => return Err(AttemptError::Retryable),
++                }
++            }
++        }
++        let byte = self.buffer[self.offset];
++        self.offset += 1;
++        Ok(Some(byte))
++    }
++
++    fn read_response_head(&mut self, timeout: Duration) -> Result<(u16, Framing), AttemptError> {
++        let deadline = Instant::now() + timeout;
++        let mut bytes = Vec::new();
++        loop {
++            let remaining = deadline.saturating_duration_since(Instant::now());
++            if remaining.is_zero() {
++                return Err(AttemptError::Retryable);
++            }
++            let byte = self.raw_byte(remaining)?.ok_or(AttemptError::Retryable)?;
++            bytes.push(byte);
++            if bytes.ends_with(b"\r\n\r\n") {
++                return parse_response_head(&bytes);
++            }
++        }
++    }
++}
++
++fn parse_response_head(bytes: &[u8]) -> Result<(u16, Framing), AttemptError> {
++    let header_bytes = bytes.strip_suffix(b"\r\n\r\n").ok_or(AttemptError::Fatal)?;
++    let header_text = std::str::from_utf8(header_bytes).map_err(|_| AttemptError::Fatal)?;
++    let mut lines = header_text.split("\r\n");
++    let status_line = lines.next().ok_or(AttemptError::Fatal)?;
++    let (version, status_and_reason) = status_line.split_once(' ').ok_or(AttemptError::Fatal)?;
++    if version != "HTTP/1.0" && version != "HTTP/1.1" {
++        return Err(AttemptError::Fatal);
++    }
++    let status_text = status_and_reason.get(..3).ok_or(AttemptError::Fatal)?;
++    if !status_text.bytes().all(|byte| byte.is_ascii_digit())
++        || (status_and_reason.len() > 3 && !status_and_reason[3..].starts_with(' '))
++        || !valid_field_bytes(&status_and_reason[3..])
++    {
++        return Err(AttemptError::Fatal);
++    }
++    let status = status_text
++        .parse::<u16>()
++        .map_err(|_| AttemptError::Fatal)?;
++    if !(100..=999).contains(&status) {
++        return Err(AttemptError::Fatal);
++    }
++
++    let mut content_length: Option<u64> = None;
++    let mut transfer_encoding: Option<String> = None;
++    for line in lines {
++        let (name, value) = line.split_once(':').ok_or(AttemptError::Fatal)?;
++        if name.is_empty() || !name.bytes().all(is_token_byte) || !valid_field_bytes(value) {
++            return Err(AttemptError::Fatal);
++        }
++        let value = value.trim_matches([' ', '\t']);
++        if name.eq_ignore_ascii_case("content-length") {
++            if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
++                return Err(AttemptError::Fatal);
++            }
++            let parsed = value.parse::<u64>().map_err(|_| AttemptError::Fatal)?;
++            if content_length
++                .replace(parsed)
++                .is_some_and(|old| old != parsed)
++            {
++                return Err(AttemptError::Fatal);
++            }
++        } else if name.eq_ignore_ascii_case("transfer-encoding") {
++            if transfer_encoding.is_some() {
++                return Err(AttemptError::Fatal);
++            }
++            transfer_encoding = Some(value.to_ascii_lowercase());
++        }
++    }
++
++    if content_length.is_some() && transfer_encoding.is_some() {
++        return Err(AttemptError::Fatal);
++    }
++    let framing = if (100..200).contains(&status) || status == 204 || status == 304 {
++        Framing::Length(0)
++    } else if let Some(encoding) = transfer_encoding {
++        if encoding != "chunked" {
++            return Err(AttemptError::Fatal);
++        }
++        Framing::Chunked
++    } else if let Some(length) = content_length {
++        Framing::Length(length)
++    } else {
++        Framing::UntilClose
++    };
++    Ok((status, framing))
++}
++
++fn valid_field_bytes(value: &str) -> bool {
++    value
++        .bytes()
++        .all(|byte| byte == b'\t' || (byte >= b' ' && byte != 0x7f))
++}
++
++fn is_token_byte(byte: u8) -> bool {
++    byte.is_ascii_alphanumeric()
++        || matches!(
++            byte,
++            b'!' | b'#'
++                | b'$'
++                | b'%'
++                | b'&'
++                | b'\''
++                | b'*'
++                | b'+'
++                | b'-'
++                | b'.'
++                | b'^'
++                | b'_'
++                | b'`'
++                | b'|'
++                | b'~'
++        )
++}
++
++struct ResponseBody {
++    connection: Connection,
++    framing: Framing,
++    timeout: Duration,
++    remaining: u64,
++    chunk_remaining: u64,
++    chunk_ending_pending: bool,
++    finished: bool,
++}
++
++impl ResponseBody {
++    fn new(connection: Connection, framing: Framing, timeout: Duration) -> Self {
++        let remaining = match framing {
++            Framing::Length(length) => length,
++            Framing::Chunked | Framing::UntilClose => 0,
++        };
++        Self {
++            connection,
++            framing,
++            timeout,
++            remaining,
++            chunk_remaining: 0,
++            chunk_ending_pending: false,
++            finished: false,
++        }
++    }
++
++    fn next_byte(&mut self) -> Result<Option<u8>, AttemptError> {
++        if self.finished {
++            return Ok(None);
++        }
++        match self.framing {
++            Framing::Length(_) => {
++                if self.remaining == 0 {
++                    self.finished = true;
++                    return Ok(None);
++                }
++                let byte = self
++                    .connection
++                    .raw_byte(self.timeout)?
++                    .ok_or(AttemptError::Retryable)?;
++                self.remaining -= 1;
++                Ok(Some(byte))
++            }
++            Framing::UntilClose => match self.connection.raw_byte(self.timeout)? {
++                Some(byte) => Ok(Some(byte)),
++                None => {
++                    self.finished = true;
++                    Ok(None)
++                }
++            },
++            Framing::Chunked => self.next_chunked_byte(),
++        }
++    }
++
++    fn next_chunked_byte(&mut self) -> Result<Option<u8>, AttemptError> {
++        loop {
++            if self.chunk_remaining > 0 {
++                let byte = self
++                    .connection
++                    .raw_byte(self.timeout)?
++                    .ok_or(AttemptError::Retryable)?;
++                self.chunk_remaining -= 1;
++                if self.chunk_remaining == 0 {
++                    self.chunk_ending_pending = true;
++                }
++                return Ok(Some(byte));
++            }
++
++            if self.chunk_ending_pending {
++                self.expect_crlf()?;
++                self.chunk_ending_pending = false;
++            }
++
++            let size_line = self.read_crlf_line()?;
++            let size = parse_chunk_line(&size_line)?;
++            if size == 0 {
++                loop {
++                    if self.read_crlf_line()?.is_empty() {
++                        self.finished = true;
++                        return Ok(None);
++                    }
++                }
++            }
++            self.chunk_remaining = size;
++        }
++    }
++
++    fn expect_crlf(&mut self) -> Result<(), AttemptError> {
++        if self.connection.raw_byte(self.timeout)? != Some(b'\r')
++            || self.connection.raw_byte(self.timeout)? != Some(b'\n')
++        {
++            return Err(AttemptError::Fatal);
++        }
++        Ok(())
++    }
++
++    fn read_crlf_line(&mut self) -> Result<Vec<u8>, AttemptError> {
++        let mut line = Vec::new();
++        loop {
++            let byte = self
++                .connection
++                .raw_byte(self.timeout)?
++                .ok_or(AttemptError::Retryable)?;
++            if byte == b'\r' {
++                if self.connection.raw_byte(self.timeout)? != Some(b'\n') {
++                    return Err(AttemptError::Fatal);
++                }
++                return Ok(line);
++            }
++            if byte == b'\n' {
++                return Err(AttemptError::Fatal);
++            }
++            line.push(byte);
++        }
++    }
++}
++
++fn parse_chunk_line(line: &[u8]) -> Result<u64, AttemptError> {
++    let semicolon = line.iter().position(|byte| *byte == b';');
++    let size_end = if let Some(semicolon) = semicolon {
++        let mut size_end = semicolon;
++        while size_end > 0 && matches!(line[size_end - 1], b' ' | b'\t') {
++            size_end -= 1;
++        }
++        validate_chunk_extensions(line, semicolon)?;
++        size_end
++    } else {
++        line.len()
++    };
++    let size_text = &line[..size_end];
++    if size_text.is_empty() || !size_text.iter().all(u8::is_ascii_hexdigit) {
++        return Err(AttemptError::Fatal);
++    }
++    let size_text = std::str::from_utf8(size_text).map_err(|_| AttemptError::Fatal)?;
++    u64::from_str_radix(size_text, 16).map_err(|_| AttemptError::Fatal)
++}
++
++fn validate_chunk_extensions(line: &[u8], mut index: usize) -> Result<(), AttemptError> {
++    while index < line.len() {
++        while index < line.len() && matches!(line[index], b' ' | b'\t') {
++            index += 1;
++        }
++        if index == line.len() || line[index] != b';' {
++            return Err(AttemptError::Fatal);
++        }
++        index += 1;
++        while index < line.len() && matches!(line[index], b' ' | b'\t') {
++            index += 1;
++        }
++
++        let name_start = index;
++        while index < line.len() && is_token_byte(line[index]) {
++            index += 1;
++        }
++        if index == name_start {
++            return Err(AttemptError::Fatal);
++        }
++        let before_optional_value = index;
++        while index < line.len() && matches!(line[index], b' ' | b'\t') {
++            index += 1;
++        }
++        if index == line.len() {
++            return if index == before_optional_value {
++                Ok(())
++            } else {
++                Err(AttemptError::Fatal)
++            };
++        }
++
++        if index < line.len() && line[index] == b'=' {
++            index += 1;
++            while index < line.len() && matches!(line[index], b' ' | b'\t') {
++                index += 1;
++            }
++            if index < line.len() && line[index] == b'"' {
++                index += 1;
++                let mut closed = false;
++                while index < line.len() {
++                    match line[index] {
++                        b'"' => {
++                            index += 1;
++                            closed = true;
++                            break;
++                        }
++                        b'\\' => {
++                            index += 1;
++                            if index == line.len() || !valid_quoted_pair_byte(line[index]) {
++                                return Err(AttemptError::Fatal);
++                            }
++                            index += 1;
++                        }
++                        byte if valid_quoted_byte(byte) && byte != b'"' => index += 1,
++                        _ => return Err(AttemptError::Fatal),
++                    }
++                }
++                if !closed {
++                    return Err(AttemptError::Fatal);
++                }
++            } else {
++                let value_start = index;
++                while index < line.len() && is_token_byte(line[index]) {
++                    index += 1;
++                }
++                if index == value_start {
++                    return Err(AttemptError::Fatal);
++                }
++            }
++        }
++        let before_next_extension = index;
++        while index < line.len() && matches!(line[index], b' ' | b'\t') {
++            index += 1;
++        }
++        if index == line.len() {
++            return if index == before_next_extension {
++                Ok(())
++            } else {
++                Err(AttemptError::Fatal)
++            };
++        }
++    }
++    Ok(())
++}
++
++fn valid_quoted_byte(byte: u8) -> bool {
++    byte == b'\t' || (byte >= b' ' && byte != b'"' && byte != b'\\' && byte != 0x7f)
++}
++
++fn valid_quoted_pair_byte(byte: u8) -> bool {
++    byte == b'\t' || (byte >= b' ' && byte != 0x7f)
++}
++
++fn parse_sse(body: &mut ResponseBody) -> Result<Success, AttemptError> {
++    let mut parser = SseParser::default();
++    while let Some(byte) = body.next_byte()? {
++        if parser.push(byte)? {
++            return parser.finish();
++        }
++    }
++    std::str::from_utf8(&parser.line).map_err(|_| AttemptError::Fatal)?;
++    parser.finish()
++}
++
++#[derive(Default)]
++struct SseParser {
++    line: Vec<u8>,
++    data: Vec<String>,
++    text: String,
++    usage: Option<(u64, u64)>,
++    done: bool,
++}
++
++impl SseParser {
++    fn push(&mut self, byte: u8) -> Result<bool, AttemptError> {
++        if byte != b'\n' {
++            self.line.push(byte);
++            return Ok(false);
++        }
++
++        if self.line.last() == Some(&b'\r') {
++            self.line.pop();
++        }
++        let line = std::str::from_utf8(&self.line)
++            .map_err(|_| AttemptError::Fatal)?
++            .to_owned();
++        self.process_line(&line)?;
++        self.line.clear();
++        Ok(self.done)
++    }
++
++    fn process_line(&mut self, line: &str) -> Result<(), AttemptError> {
++        if line.is_empty() {
++            return self.end_record();
++        }
++        if line.starts_with(':') {
++            return Ok(());
++        }
++        if let Some(value) = line.strip_prefix("data:") {
++            self.data
++                .push(value.strip_prefix(' ').unwrap_or(value).to_owned());
++        }
++        Ok(())
++    }
++
++    fn end_record(&mut self) -> Result<(), AttemptError> {
++        if !self.data.is_empty() {
++            let data = self.data.join("\n");
++            if data == "[DONE]" {
++                self.done = true;
++            } else {
++                let value: Value = serde_json::from_str(&data).map_err(|_| AttemptError::Fatal)?;
++                let object = value.as_object().ok_or(AttemptError::Fatal)?;
++                match object.get("type").and_then(Value::as_str) {
++                    Some("text") => {
++                        let text = object
++                            .get("text")
++                            .and_then(Value::as_str)
++                            .ok_or(AttemptError::Fatal)?;
++                        self.text.push_str(text);
++                    }
++                    Some("usage") => {
++                        let input = object
++                            .get("input_tokens")
++                            .and_then(safe_integer)
++                            .ok_or(AttemptError::Fatal)?;
++                        let output = object
++                            .get("output_tokens")
++                            .and_then(safe_integer)
++                            .ok_or(AttemptError::Fatal)?;
++                        self.usage = Some((input, output));
++                    }
++                    _ => {}
++                }
++            }
++        }
++        self.data.clear();
++        Ok(())
++    }
++
++    fn finish(self) -> Result<Success, AttemptError> {
++        if !self.done {
++            return Err(AttemptError::Fatal);
++        }
++        let (input_tokens, output_tokens) = self.usage.ok_or(AttemptError::Fatal)?;
++        Ok(Success {
++            text: self.text,
++            input_tokens,
++            output_tokens,
++        })
++    }
++}
++
++fn safe_integer(value: &Value) -> Option<u64> {
++    let raw = value.as_number()?.to_string();
++    parse_safe_integer(&raw)
++}
++
++fn parse_safe_integer(raw: &str) -> Option<u64> {
++    let (negative, unsigned) = match raw.strip_prefix('-') {
++        Some(rest) => (true, rest),
++        None => (false, raw),
++    };
++    let exponent_index = unsigned.find(['e', 'E']).unwrap_or(unsigned.len());
++    let mantissa = &unsigned[..exponent_index];
++    let exponent = unsigned
++        .get(exponent_index + usize::from(exponent_index < unsigned.len())..)
++        .unwrap_or("");
++    let exponent = if exponent.is_empty() {
++        0
++    } else {
++        parse_saturated_exponent(exponent)
++    };
++
++    let dot_index = mantissa.find('.').unwrap_or(mantissa.len());
++    let fraction_length = mantissa
++        .len()
++        .saturating_sub(dot_index + usize::from(dot_index < mantissa.len()));
++    let mut coefficient = String::with_capacity(mantissa.len());
++    coefficient.push_str(&mantissa[..dot_index]);
++    if dot_index < mantissa.len() {
++        coefficient.push_str(&mantissa[dot_index + 1..]);
++    }
++    let coefficient = coefficient.trim_start_matches('0');
++    if coefficient.is_empty() {
++        return Some(0);
++    }
++    if negative {
++        return None;
++    }
++
++    let scale = exponent.saturating_sub(i128::try_from(fraction_length).ok()?);
++    let integer_digits = if scale >= 0 {
++        let scale = usize::try_from(scale).ok()?;
++        if coefficient.len().saturating_add(scale) > MAX_SAFE_INTEGER.len() {
++            return None;
++        }
++        let mut digits = coefficient.to_owned();
++        digits.extend(std::iter::repeat_n('0', scale));
++        digits
++    } else {
++        let remove = usize::try_from(scale.saturating_neg()).ok()?;
++        if remove > coefficient.len()
++            || !coefficient[coefficient.len() - remove..]
++                .bytes()
++                .all(|byte| byte == b'0')
++        {
++            return None;
++        }
++        coefficient[..coefficient.len() - remove].to_owned()
++    };
++
++    if integer_digits.is_empty()
++        || integer_digits.len() > MAX_SAFE_INTEGER.len()
++        || (integer_digits.len() == MAX_SAFE_INTEGER.len()
++            && integer_digits.as_str() > MAX_SAFE_INTEGER)
++    {
++        return None;
++    }
++    integer_digits.parse().ok()
++}
++
++fn parse_saturated_exponent(raw: &str) -> i128 {
++    let (negative, digits) = match raw.strip_prefix('-') {
++        Some(rest) => (true, rest),
++        None => (false, raw.strip_prefix('+').unwrap_or(raw)),
++    };
++    let limit = i128::MAX / 4;
++    let magnitude = digits.bytes().fold(0_i128, |value, byte| {
++        value
++            .saturating_mul(10)
++            .saturating_add(i128::from(byte - b'0'))
++            .min(limit)
++    });
++    if negative { -magnitude } else { magnitude }
++}
++
++fn atomic_replace(path: &Path, contents: &[u8]) -> io::Result<()> {
++    static NEXT_TEMP_ID: AtomicU64 = AtomicU64::new(0);
++
++    let parent = path
++        .parent()
++        .filter(|parent| !parent.as_os_str().is_empty())
++        .unwrap_or_else(|| Path::new("."));
++    let file_name = path.file_name().ok_or_else(|| {
++        io::Error::new(io::ErrorKind::InvalidInput, "usage path has no file name")
++    })?;
++    fs::create_dir_all(parent)?;
++
++    for _ in 0..100 {
++        let serial = NEXT_TEMP_ID.fetch_add(1, Ordering::Relaxed);
++        let mut temp_name = std::ffi::OsString::from(".");
++        temp_name.push(file_name);
++        temp_name.push(format!(".kogen.{}.{}.tmp", std::process::id(), serial));
++        let temp_path = parent.join(temp_name);
++        let mut file = match OpenOptions::new()
++            .write(true)
++            .create_new(true)
++            .open(&temp_path)
++        {
++            Ok(file) => file,
++            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
++            Err(error) => return Err(error),
++        };
++
++        let write_result = file.write_all(contents).and_then(|()| file.sync_all());
++        drop(file);
++        if let Err(error) = write_result {
++            let _ = fs::remove_file(&temp_path);
++            return Err(error);
++        }
++        if let Err(error) = fs::rename(&temp_path, path) {
++            let _ = fs::remove_file(&temp_path);
++            return Err(error);
++        }
++        return Ok(());
++    }
++
++    Err(io::Error::new(
++        io::ErrorKind::AlreadyExists,
++        "unable to create a temporary usage file",
++    ))
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..58bcab3 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -18,7 +18,15 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ }
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
++    let raw_args: Vec<std::ffi::OsString> = std::env::args_os().skip(1).collect();
++    let args: Option<Vec<String>> = raw_args
++        .iter()
++        .map(|arg| arg.to_str().map(str::to_owned))
++        .collect();
++    let Some(args) = args else {
++        let _ = writeln!(io::stderr(), "error: invalid arguments");
++        std::process::exit(2);
++    };
+     match core::execute(&args) {
+         Ok(output) => {
+             let _ = io::stdout().write_all(output.as_bytes());

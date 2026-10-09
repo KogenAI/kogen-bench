@@ -1,0 +1,376 @@
+diff --git a/src/core.zig b/src/core.zig
+index 54871b5..1e0141d 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -6,10 +6,367 @@ pub const Response = struct {
+     exit_code: u8 = 0,
+ };
+ 
++const EventType = enum {
++    created,
++    started,
++    completed,
++    failed,
++
++    fn asString(self: EventType) []const u8 {
++        return switch (self) {
++            .created => "created",
++            .started => "started",
++            .completed => "completed",
++            .failed => "failed",
++        };
++    }
++};
++
++const Event = struct {
++    id: []const u8,
++    kind: EventType,
++    job: []const u8,
++    ts: i64,
++};
++
++const EventAtLine = struct {
++    event: Event,
++    line: usize,
++};
++
++const ParsedEvent = union(enum) {
++    event: Event,
++    invalid,
++    unknown_type: []const u8,
++};
++
++const JobState = enum {
++    queued,
++    running,
++    done,
++    failed,
++};
++
++const LogResult = union(enum) {
++    bytes: []u8,
++    failure,
++};
++
++const Counts = struct {
++    total: usize,
++    queued: usize,
++    running: usize,
++    done: usize,
++    failed: usize,
++};
++
++const ReconcileResult = union(enum) {
++    counts: Counts,
++    failure: Response,
++};
++
++fn usageError() Response {
++    return .{ .stderr = "eventlog: usage error", .exit_code = 2 };
++}
++
++fn cannotAccess() Response {
++    return .{ .stderr = "eventlog: cannot access log", .exit_code = 1 };
++}
++
++fn invalidEvent(allocator: std.mem.Allocator, line: usize) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid event", .{line}),
++        .exit_code = 1,
++    };
++}
++
++fn unknownType(allocator: std.mem.Allocator, line: usize, value: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: unknown event type '{s}'", .{ line, value }),
++        .exit_code = 1,
++    };
++}
++
++fn duplicateId(allocator: std.mem.Allocator, line: usize, id: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: duplicate event id '{s}'", .{ line, id }),
++        .exit_code = 1,
++    };
++}
++
++fn invalidTransition(allocator: std.mem.Allocator, line: usize, job: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid transition for job '{s}'", .{ line, job }),
++        .exit_code = 1,
++    };
++}
++
++fn isId(value: []const u8) bool {
++    if (value.len < 3 or value.len > 18 or !std.mem.startsWith(u8, value, "e-")) return false;
++    for (value[2..]) |byte| {
++        if (!isLowerAlpha(byte) and !std.ascii.isDigit(byte)) return false;
++    }
++    return true;
++}
++
++fn isJob(value: []const u8) bool {
++    if (value.len == 0 or value.len > 32 or !isLowerAlpha(value[0])) return false;
++    for (value[1..]) |byte| {
++        if (!isLowerAlpha(byte) and !std.ascii.isDigit(byte) and byte != '-') return false;
++    }
++    return true;
++}
++
++fn isLowerAlpha(byte: u8) bool {
++    return byte >= 'a' and byte <= 'z';
++}
++
++fn parseEvent(allocator: std.mem.Allocator, input: []const u8) ParsedEvent {
++    const value = std.json.parseFromSliceLeaky(std.json.Value, allocator, input, .{
++        .duplicate_field_behavior = .@"error",
++    }) catch return .invalid;
++
++    const object = switch (value) {
++        .object => |fields| fields,
++        else => return .invalid,
++    };
++    if (object.count() != 4) return .invalid;
++
++    const id_value = object.get("id") orelse return .invalid;
++    const type_value = object.get("type") orelse return .invalid;
++    const job_value = object.get("job") orelse return .invalid;
++    const ts_value = object.get("ts") orelse return .invalid;
++
++    const id = switch (id_value) {
++        .string => |text| text,
++        else => return .invalid,
++    };
++    const type_text = switch (type_value) {
++        .string => |text| text,
++        else => return .invalid,
++    };
++    const job = switch (job_value) {
++        .string => |text| text,
++        else => return .invalid,
++    };
++    const ts = switch (ts_value) {
++        .integer => |number| number,
++        else => return .invalid,
++    };
++
++    if (!isId(id) or !isJob(job) or ts < 0) return .invalid;
++
++    const kind: EventType = if (std.mem.eql(u8, type_text, "created")) .created else if (std.mem.eql(u8, type_text, "started")) .started else if (std.mem.eql(u8, type_text, "completed")) .completed else if (std.mem.eql(u8, type_text, "failed")) .failed else return .{ .unknown_type = type_text };
++
++    return .{ .event = .{ .id = id, .kind = kind, .job = job, .ts = ts } };
++}
++
++fn parseLog(
++    allocator: std.mem.Allocator,
++    contents: []const u8,
++    require_final_lf: bool,
++    events: *std.ArrayList(EventAtLine),
++    ids: *std.StringHashMap(void),
++) !?Response {
++    var start: usize = 0;
++    var line_number: usize = 1;
++
++    for (contents, 0..) |byte, index| {
++        if (byte != '\n') continue;
++
++        const parsed = parseEvent(allocator, contents[start..index]);
++        const event = switch (parsed) {
++            .event => |value| value,
++            .invalid => return try invalidEvent(allocator, line_number),
++            .unknown_type => |value| return try unknownType(allocator, line_number, value),
++        };
++
++        if (ids.contains(event.id)) return try duplicateId(allocator, line_number, event.id);
++        try ids.put(event.id, {});
++        try events.append(allocator, .{ .event = event, .line = line_number });
++        start = index + 1;
++        line_number += 1;
++    }
++
++    if (require_final_lf and contents.len > 0 and contents[contents.len - 1] != '\n') {
++        return try invalidEvent(allocator, line_number);
++    }
++
++    return null;
++}
++
++fn lessEvent(_: void, lhs: EventAtLine, rhs: EventAtLine) bool {
++    if (lhs.event.ts != rhs.event.ts) return lhs.event.ts < rhs.event.ts;
++    return lhs.line < rhs.line;
++}
++
++fn reconcileEvents(
++    allocator: std.mem.Allocator,
++    events: *std.ArrayList(EventAtLine),
++) !ReconcileResult {
++    std.mem.sort(EventAtLine, events.items, {}, lessEvent);
++
++    var states = std.StringHashMap(JobState).init(allocator);
++    var last_timestamps = std.StringHashMap(i64).init(allocator);
++
++    for (events.items) |item| {
++        const event = item.event;
++
++        if (last_timestamps.get(event.job)) |previous| {
++            if (previous == event.ts) return .{ .failure = try invalidTransition(allocator, item.line, event.job) };
++        }
++        try last_timestamps.put(event.job, event.ts);
++
++        const previous_state = states.get(event.job);
++        switch (event.kind) {
++            .created => {
++                if (previous_state != null) return .{ .failure = try invalidTransition(allocator, item.line, event.job) };
++                try states.put(event.job, .queued);
++            },
++            .started => {
++                if (previous_state == null or previous_state.? != .queued) {
++                    return .{ .failure = try invalidTransition(allocator, item.line, event.job) };
++                }
++                try states.put(event.job, .running);
++            },
++            .completed => {
++                if (previous_state == null or previous_state.? != .running) {
++                    return .{ .failure = try invalidTransition(allocator, item.line, event.job) };
++                }
++                try states.put(event.job, .done);
++            },
++            .failed => {
++                if (previous_state == null or previous_state.? != .running) {
++                    return .{ .failure = try invalidTransition(allocator, item.line, event.job) };
++                }
++                try states.put(event.job, .failed);
++            },
++        }
++    }
++
++    var counts: Counts = .{
++        .total = states.count(),
++        .queued = 0,
++        .running = 0,
++        .done = 0,
++        .failed = 0,
++    };
++    var iterator = states.iterator();
++    while (iterator.next()) |entry| {
++        switch (entry.value_ptr.*) {
++            .queued => counts.queued += 1,
++            .running => counts.running += 1,
++            .done => counts.done += 1,
++            .failed => counts.failed += 1,
++        }
++    }
++    return .{ .counts = counts };
++}
++
++fn readLog(allocator: std.mem.Allocator, io: std.Io, path: []const u8) !LogResult {
++    const bytes = std.Io.Dir.cwd().readFileAlloc(io, path, allocator, .unlimited) catch |err| {
++        if (err == error.FileNotFound) return .{ .bytes = try allocator.dupe(u8, "") };
++        return .failure;
++    };
++    return .{ .bytes = bytes };
++}
++
++fn appendToLog(io: std.Io, path: []const u8, bytes: []const u8) bool {
++    var file = std.Io.Dir.cwd().createFile(io, path, .{ .truncate = false }) catch return false;
++    defer file.close(io);
++
++    const stat = file.stat(io) catch return false;
++    var buffer: [1024]u8 = undefined;
++    var writer = file.writer(io, &buffer);
++    writer.seekTo(stat.size) catch return false;
++    writer.interface.writeAll(bytes) catch return false;
++    writer.interface.flush() catch return false;
++    return true;
++}
++
++fn executeAppend(allocator: std.mem.Allocator, io: std.Io, path: []const u8, json_text: []const u8) !Response {
++    const parsed = parseEvent(allocator, json_text);
++    const event = switch (parsed) {
++        .event => |value| value,
++        .invalid => return try invalidEvent(allocator, 1),
++        .unknown_type => |value| return try unknownType(allocator, 1, value),
++    };
++
++    const log_result = try readLog(allocator, io, path);
++    const contents = switch (log_result) {
++        .bytes => |value| value,
++        .failure => return cannotAccess(),
++    };
++
++    var events: std.ArrayList(EventAtLine) = .empty;
++    var ids = std.StringHashMap(void).init(allocator);
++    if (try parseLog(allocator, contents, true, &events, &ids)) |response| return response;
++
++    if (ids.contains(event.id)) return try duplicateId(allocator, 1, event.id);
++    try ids.put(event.id, {});
++    try events.append(allocator, .{ .event = event, .line = 1 });
++
++    const result = try reconcileEvents(allocator, &events);
++    switch (result) {
++        .failure => |response| return response,
++        .counts => {},
++    }
++
++    const line = try std.json.Stringify.valueAlloc(allocator, .{
++        .id = event.id,
++        .type = event.kind.asString(),
++        .job = event.job,
++        .ts = event.ts,
++    }, .{});
++    const output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
++    if (!appendToLog(io, path, output_line)) return cannotAccess();
++
++    return .{ .stdout = try std.fmt.allocPrint(allocator, "appended {s}\n", .{event.id}) };
++}
++
++fn executeReconcile(allocator: std.mem.Allocator, io: std.Io, path: []const u8) !Response {
++    const log_result = try readLog(allocator, io, path);
++    const contents = switch (log_result) {
++        .bytes => |value| value,
++        .failure => return cannotAccess(),
++    };
++
++    var events: std.ArrayList(EventAtLine) = .empty;
++    var ids = std.StringHashMap(void).init(allocator);
++    if (try parseLog(allocator, contents, false, &events, &ids)) |response| return response;
++
++    const result = try reconcileEvents(allocator, &events);
++    switch (result) {
++        .failure => |response| return response,
++        .counts => |counts| return .{
++            .stdout = try std.fmt.allocPrint(
++                allocator,
++                "total={d}\nqueued={d}\nrunning={d}\ndone={d}\nfailed={d}\n",
++                .{ counts.total, counts.queued, counts.running, counts.done, counts.failed },
++            ),
++        },
++    }
++}
++
+ pub fn execute(
+-    _: std.mem.Allocator,
+-    _: std.Io,
+-    _: []const [:0]const u8,
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    args: []const [:0]const u8,
+ ) !Response {
+-    return .{};
++    if (args.len == 5 and
++        std.mem.eql(u8, args[0], "append") and
++        std.mem.eql(u8, args[1], "--log") and
++        std.mem.eql(u8, args[3], "--event"))
++    {
++        return executeAppend(allocator, io, args[2], args[4]);
++    }
++
++    if (args.len == 3 and
++        std.mem.eql(u8, args[0], "reconcile") and
++        std.mem.eql(u8, args[1], "--log"))
++    {
++        return executeReconcile(allocator, io, args[2]);
++    }
++
++    return usageError();
+ }

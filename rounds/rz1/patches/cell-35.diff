@@ -1,0 +1,305 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..bd10882 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,3 @@
+ pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++    Err((2, "error: invalid arguments".to_owned()))
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..83306af 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,5 +1,7 @@
+ use std::io::{self, Read, Write};
+ 
++mod supervise;
++
+ pub fn physical_lines(text: &str) -> Vec<&str> {
+     text.split('\n')
+         .map(|line| line.strip_suffix('\r').unwrap_or(line))
+@@ -18,8 +20,16 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ }
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
+-    match core::execute(&args) {
++    let args: Vec<_> = std::env::args_os().skip(1).collect();
++    if args.first().is_some_and(|arg| arg == "supervise") {
++        std::process::exit(supervise::execute(&args));
++    }
++
++    let legacy_args: Vec<_> = args
++        .iter()
++        .map(|arg| arg.to_string_lossy().into_owned())
++        .collect();
++    match core::execute(&legacy_args) {
+         Ok(output) => {
+             let _ = io::stdout().write_all(output.as_bytes());
+         }
+diff --git a/src/supervise.rs b/src/supervise.rs
+new file mode 100644
+index 0000000..93ad4e5
+--- /dev/null
++++ b/src/supervise.rs
+@@ -0,0 +1,259 @@
++use std::ffi::{OsStr, c_int};
++use std::fs;
++use std::io::{self, Read, Write};
++use std::os::unix::ffi::OsStrExt;
++use std::os::unix::process::{CommandExt, ExitStatusExt};
++use std::process::{Command, ExitStatus, Stdio};
++use std::thread::{self, JoinHandle};
++use std::time::{Duration, Instant};
++
++unsafe extern "C" {
++    fn kill(pid: c_int, signal: c_int) -> c_int;
++}
++
++const INVALID_ARGS: &[u8] = b"error: invalid arguments\n";
++const CANNOT_START: &[u8] = b"error: cannot start command\n";
++const POLL_INTERVAL: Duration = Duration::from_millis(5);
++const READER_STACK_SIZE: usize = 128 * 1024;
++
++struct Options {
++    timeout: Duration,
++    grace: Duration,
++}
++
++enum Stream {
++    Stdout,
++    Stderr,
++}
++
++pub fn execute(args: &[std::ffi::OsString]) -> i32 {
++    let Some(options) = parse_args(args) else {
++        let _ = io::stderr().write_all(INVALID_ARGS);
++        return 2;
++    };
++
++    let mut command = Command::new(&args[6]);
++    command
++        .args(&args[7..])
++        .stdin(Stdio::null())
++        .stdout(Stdio::piped())
++        .stderr(Stdio::piped());
++    command.process_group(0);
++
++    let mut child = match command.spawn() {
++        Ok(child) => child,
++        Err(_) => {
++            let _ = io::stderr().write_all(CANNOT_START);
++            return 127;
++        }
++    };
++    // The timeout starts as soon as spawn has successfully created the command.
++    let started = Instant::now();
++    let process_group = child.id();
++
++    let stdout_reader = spawn_reader(child.stdout.take().expect("piped stdout"), Stream::Stdout);
++    let stderr_reader = spawn_reader(child.stderr.take().expect("piped stderr"), Stream::Stderr);
++
++    let deadline = started + options.timeout;
++    let timed_out = wait_until_group_exits(process_group, deadline);
++    let mut term_sent = false;
++    let mut kill_sent = false;
++
++    if timed_out {
++        term_sent = signal_group(process_group, 15);
++        wait_full_interval(options.grace);
++
++        if group_has_live_member(process_group) {
++            kill_sent = signal_group(process_group, 9);
++        }
++
++        while group_has_live_member(process_group) {
++            thread::sleep(POLL_INTERVAL);
++        }
++    }
++
++    // A direct child can exit before its descendants. Only wait after the full
++    // process group has completed so the group state remains observable.
++    let waited = child.wait();
++    let (reaped, exited_code) = match waited {
++        Ok(status) => (true, status_code(status)),
++        Err(_) => (false, 1),
++    };
++
++    // Each reader drains its pipe concurrently, and is joined before writing
++    // the final status line so that command stderr always precedes it.
++    let _ = stdout_reader.join();
++    let _ = stderr_reader.join();
++
++    let (status, exit_code) = if timed_out {
++        ("timeout", 124)
++    } else {
++        ("exited", exited_code)
++    };
++    let reaped_number = u8::from(reaped);
++    let status_line = format!(
++        "status={status} exit_code={exit_code} term_sent={term_sent} kill_sent={kill_sent} reaped={reaped_number}\n"
++    );
++    let _ = io::stderr().write_all(status_line.as_bytes());
++    exit_code
++}
++
++fn parse_args(args: &[std::ffi::OsString]) -> Option<Options> {
++    if args.len() < 7
++        || args[0] != "supervise"
++        || args[1] != "--timeout-ms"
++        || args[3] != "--grace-ms"
++        || args[5] != "--"
++    {
++        return None;
++    }
++
++    let timeout = parse_milliseconds(&args[2])?;
++    let grace = parse_milliseconds(&args[4])?;
++    Some(Options { timeout, grace })
++}
++
++fn parse_milliseconds(value: &OsStr) -> Option<Duration> {
++    let bytes = value.as_bytes();
++    if bytes.is_empty() || !bytes.iter().all(u8::is_ascii_digit) {
++        return None;
++    }
++
++    let mut parsed = 0_u32;
++    for digit in bytes {
++        parsed = parsed
++            .checked_mul(10)?
++            .checked_add(u32::from(digit - b'0'))?;
++    }
++    (1..=60_000)
++        .contains(&parsed)
++        .then(|| Duration::from_millis(u64::from(parsed)))
++}
++
++fn spawn_reader<R>(reader: R, stream: Stream) -> JoinHandle<()>
++where
++    R: Read + Send + 'static,
++{
++    thread::Builder::new()
++        .stack_size(READER_STACK_SIZE)
++        .spawn(move || match stream {
++            Stream::Stdout => {
++                let stdout = io::stdout();
++                let mut output = stdout.lock();
++                forward_bytes(reader, &mut output);
++                let _ = output.flush();
++            }
++            Stream::Stderr => {
++                let stderr = io::stderr();
++                let mut output = stderr.lock();
++                forward_bytes(reader, &mut output);
++                let _ = output.flush();
++            }
++        })
++        .expect("failed to create output forwarding thread")
++}
++
++fn forward_bytes<R: Read, W: Write>(mut reader: R, output: &mut W) {
++    let mut buffer = [0_u8; 8192];
++    let mut forwarding = true;
++    loop {
++        match reader.read(&mut buffer) {
++            Ok(0) => break,
++            Ok(count) => {
++                if forwarding && output.write_all(&buffer[..count]).is_err() {
++                    // Keep draining the child pipe after a downstream write
++                    // failure so the command cannot become stuck on a full pipe.
++                    forwarding = false;
++                }
++            }
++            Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
++            Err(_) => break,
++        }
++    }
++}
++
++fn wait_until_group_exits(process_group: u32, deadline: Instant) -> bool {
++    loop {
++        if !group_has_live_member(process_group) {
++            return false;
++        }
++
++        let now = Instant::now();
++        if now >= deadline {
++            // Recheck at the boundary. A group that became empty just before
++            // the deadline is ordinary completion even if this loop woke late.
++            return group_has_live_member(process_group);
++        }
++
++        thread::sleep((deadline - now).min(POLL_INTERVAL));
++    }
++}
++
++fn wait_full_interval(interval: Duration) {
++    let deadline = Instant::now() + interval;
++    loop {
++        let now = Instant::now();
++        if now >= deadline {
++            return;
++        }
++        thread::sleep(deadline - now);
++    }
++}
++
++fn group_has_live_member(process_group: u32) -> bool {
++    let Ok(entries) = fs::read_dir("/proc") else {
++        // If /proc cannot be inspected, do not mistake that for an empty group.
++        return true;
++    };
++
++    for entry in entries.flatten() {
++        let name = entry.file_name();
++        if !name.as_bytes().iter().all(u8::is_ascii_digit) {
++            continue;
++        }
++        let Ok(stat) = fs::read(entry.path().join("stat")) else {
++            continue;
++        };
++        if process_stat_is_live_in_group(&stat, process_group) {
++            return true;
++        }
++    }
++    false
++}
++
++fn process_stat_is_live_in_group(stat: &[u8], process_group: u32) -> bool {
++    let Some(close_paren) = stat.iter().rposition(|byte| *byte == b')') else {
++        return false;
++    };
++    let Some(fields) = stat.get(close_paren + 1..) else {
++        return false;
++    };
++    let mut fields = fields
++        .split(u8::is_ascii_whitespace)
++        .filter(|field| !field.is_empty());
++    let Some(state) = fields.next().and_then(|field| field.first()) else {
++        return false;
++    };
++    let _parent_pid = fields.next();
++    let Some(group) = fields
++        .next()
++        .and_then(|field| std::str::from_utf8(field).ok())
++        .and_then(|field| field.parse::<u32>().ok())
++    else {
++        return false;
++    };
++
++    group == process_group && *state != b'Z' && *state != b'X'
++}
++
++fn signal_group(process_group: u32, signal: c_int) -> bool {
++    // A negative pid targets the process group whose ID is process_group.
++    unsafe { kill(-(process_group as c_int), signal) == 0 }
++}
++
++fn status_code(status: ExitStatus) -> i32 {
++    status
++        .code()
++        .or_else(|| status.signal().map(|signal| 128 + signal))
++        .unwrap_or(1)
++}

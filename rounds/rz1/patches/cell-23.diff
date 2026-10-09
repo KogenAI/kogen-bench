@@ -1,0 +1,322 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..967423b 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,266 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use std::ffi::{OsStr, OsString};
++use std::fs;
++use std::io::{self, Read, Write};
++use std::os::unix::process::{CommandExt, ExitStatusExt};
++use std::process::{Command, ExitStatus, Stdio};
++use std::thread::{self, JoinHandle};
++use std::time::{Duration, Instant};
++
++const POLL_INTERVAL: Duration = Duration::from_millis(10);
++
++unsafe extern "C" {
++    fn kill(pid: i32, signal: i32) -> i32;
++}
++
++struct Options {
++    timeout: Duration,
++    grace: Duration,
++    command: OsString,
++    command_args: Vec<OsString>,
++}
++
++enum Outcome {
++    Exited,
++    TimedOut { term_sent: bool, kill_sent: bool },
++}
++
++fn parse_milliseconds(value: &OsStr) -> Option<u64> {
++    let bytes = value.as_encoded_bytes();
++    if bytes.is_empty() || !bytes.iter().all(u8::is_ascii_digit) {
++        return None;
++    }
++
++    let text = std::str::from_utf8(bytes).ok()?;
++    let milliseconds = text.parse::<u64>().ok()?;
++    (1..=60_000).contains(&milliseconds).then_some(milliseconds)
++}
++
++fn parse_args(args: &[OsString]) -> Option<Options> {
++    if args.len() < 6 || args[0] != "supervise" || args[1] != "--timeout-ms" {
++        return None;
++    }
++
++    let timeout_ms = parse_milliseconds(&args[2])?;
++    if args[3] != "--grace-ms" {
++        return None;
++    }
++    let grace_ms = parse_milliseconds(&args[4])?;
++    if args[5] != "--" || args.len() < 7 {
++        return None;
++    }
++
++    Some(Options {
++        timeout: Duration::from_millis(timeout_ms),
++        grace: Duration::from_millis(grace_ms),
++        command: args[6].clone(),
++        command_args: args[7..].to_vec(),
++    })
++}
++
++fn forward<R: Read + Send + 'static>(mut reader: R, to_stderr: bool) -> io::Result<JoinHandle<()>> {
++    thread::Builder::new().spawn(move || {
++        let mut buffer = [0_u8; 16 * 1024];
++        if to_stderr {
++            let stderr = io::stderr();
++            let mut output = stderr.lock();
++            loop {
++                match reader.read(&mut buffer) {
++                    Ok(0) => break,
++                    Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
++                    Err(_) => break,
++                    Ok(count) => {
++                        let _ = output.write_all(&buffer[..count]);
++                    }
++                }
++            }
++            let _ = output.flush();
++        } else {
++            let stdout = io::stdout();
++            let mut output = stdout.lock();
++            loop {
++                match reader.read(&mut buffer) {
++                    Ok(0) => break,
++                    Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
++                    Err(_) => break,
++                    Ok(count) => {
++                        let _ = output.write_all(&buffer[..count]);
++                    }
++                }
++            }
++            let _ = output.flush();
++        }
++    })
++}
++
++fn process_group_has_live_member(group_id: u32) -> bool {
++    let Ok(entries) = fs::read_dir("/proc") else {
++        return false;
++    };
++
++    for entry in entries.flatten() {
++        let name = entry.file_name();
++        if name.as_encoded_bytes().iter().all(u8::is_ascii_digit) {
++            let Ok(stat) = fs::read(entry.path().join("stat")) else {
++                continue;
++            };
++            let Some(close_paren) = stat.iter().rposition(|byte| *byte == b')') else {
++                continue;
++            };
++            let mut fields = stat[close_paren + 1..]
++                .split(u8::is_ascii_whitespace)
++                .filter(|field| !field.is_empty());
++            let Some(state) = fields.next() else {
++                continue;
++            };
++            let Some(_parent_pid) = fields.next() else {
++                continue;
++            };
++            let Some(process_group) = fields.next() else {
++                continue;
++            };
++
++            if state != b"Z"
++                && state != b"X"
++                && std::str::from_utf8(process_group)
++                    .ok()
++                    .and_then(|group| group.parse::<u32>().ok())
++                    == Some(group_id)
++            {
++                return true;
++            }
++        }
++    }
++
++    false
++}
++
++fn signal_group(group_id: u32, signal: i32) {
++    // A concurrent exit can make the group disappear between inspection and signaling.
++    let _ = unsafe { kill(-(group_id as i32), signal) };
++}
++
++fn wait_for_group_to_finish(group_id: u32) {
++    while process_group_has_live_member(group_id) {
++        thread::sleep(POLL_INTERVAL);
++    }
++}
++
++fn supervise(options: Options) -> Result<(Outcome, i32, bool), ()> {
++    let mut command = Command::new(&options.command);
++    command
++        .args(&options.command_args)
++        .stdin(Stdio::null())
++        .stdout(Stdio::piped())
++        .stderr(Stdio::piped())
++        .process_group(0);
++
++    let mut child = command.spawn().map_err(|_| ())?;
++    let started_at = Instant::now();
++    let group_id = child.id();
++    let timeout_at = started_at + options.timeout;
++
++    let stdout_forwarder = child
++        .stdout
++        .take()
++        .and_then(|stdout| forward(stdout, false).ok());
++    let stderr_forwarder = child
++        .stderr
++        .take()
++        .and_then(|stderr| forward(stderr, true).ok());
++
++    let outcome = loop {
++        if Instant::now() >= timeout_at {
++            if process_group_has_live_member(group_id) {
++                signal_group(group_id, 15);
++                let grace_at = Instant::now() + options.grace;
++                thread::sleep(grace_at.saturating_duration_since(Instant::now()));
++                let kill_sent = process_group_has_live_member(group_id);
++                if kill_sent {
++                    signal_group(group_id, 9);
++                    wait_for_group_to_finish(group_id);
++                }
++                break Outcome::TimedOut {
++                    term_sent: true,
++                    kill_sent,
++                };
++            }
++            break Outcome::Exited;
++        }
++
++        if !process_group_has_live_member(group_id) {
++            // If scanning /proc crossed the deadline, rescan from the timeout
++            // boundary so a group that is still live there is timed out.
++            if Instant::now() >= timeout_at {
++                continue;
++            }
++            break Outcome::Exited;
++        }
++
++        let remaining = timeout_at.saturating_duration_since(Instant::now());
++        thread::sleep(POLL_INTERVAL.min(remaining));
++    };
++
++    // Once the group is gone, the leader is either already reaped by the OS or is
++    // the remaining zombie. Waiting here records its status and releases it.
++    let (exit_code, reaped) = match child.wait() {
++        Ok(status) => (exit_code(status), true),
++        Err(_) => (255, false),
++    };
++
++    if let Some(forwarder) = stdout_forwarder {
++        let _ = forwarder.join();
++    }
++    if let Some(forwarder) = stderr_forwarder {
++        let _ = forwarder.join();
++    }
++
++    Ok((outcome, exit_code, reaped))
++}
++
++fn exit_code(status: ExitStatus) -> i32 {
++    status
++        .code()
++        .or_else(|| status.signal().map(|signal| 128 + signal))
++        .unwrap_or(255)
++}
++
++pub fn execute(args: &[OsString]) -> i32 {
++    let Some(options) = parse_args(args) else {
++        let _ = io::stderr().write_all(b"error: invalid arguments\n");
++        return 2;
++    };
++
++    let (outcome, child_exit_code, reaped) = match supervise(options) {
++        Ok(result) => result,
++        Err(()) => {
++            let _ = io::stderr().write_all(b"error: cannot start command\n");
++            return 127;
++        }
++    };
++
++    let stderr = io::stderr();
++    let mut output = stderr.lock();
++    match outcome {
++        Outcome::Exited => {
++            let _ = writeln!(
++                output,
++                "status=exited exit_code={child_exit_code} term_sent=false kill_sent=false reaped={}",
++                u8::from(reaped)
++            );
++            child_exit_code
++        }
++        Outcome::TimedOut {
++            term_sent,
++            kill_sent,
++        } => {
++            let _ = writeln!(
++                output,
++                "status=timeout exit_code=124 term_sent={} kill_sent={} reaped={}",
++                term_sent,
++                kill_sent,
++                u8::from(reaped)
++            );
++            124
++        }
++    }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..18bb42a 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,41 +1,6 @@
+-use std::io::{self, Read, Write};
+-
+-pub fn physical_lines(text: &str) -> Vec<&str> {
+-    text.split('\n')
+-        .map(|line| line.strip_suffix('\r').unwrap_or(line))
+-        .collect()
+-}
+-
+-pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+-    let result = match path {
+-        None | Some("-") => {
+-            let mut bytes = Vec::new();
+-            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
+-        }
+-        Some(path) => std::fs::read(path),
+-    };
+-    result.map_err(|_| format!("{prefix}: cannot read input"))
+-}
+-
+-fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
+-    match core::execute(&args) {
+-        Ok(output) => {
+-            let _ = io::stdout().write_all(output.as_bytes());
+-        }
+-        Err((code, message)) => {
+-            let _ = writeln!(io::stderr(), "{message}");
+-            std::process::exit(code);
+-        }
+-    }
+-}
+-
+ mod core;
+ 
+-#[cfg(test)]
+-mod tests {
+-    #[test]
+-    fn physical_line_endings() {
+-        assert_eq!(super::physical_lines("a\r\n\nb\r"), vec!["a", "", "b"]);
+-    }
++fn main() {
++    let args: Vec<_> = std::env::args_os().skip(1).collect();
++    std::process::exit(core::execute(&args));
+ }

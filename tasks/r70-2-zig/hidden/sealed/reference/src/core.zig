@@ -1,0 +1,290 @@
+const std = @import("std");
+
+const Timespec = extern struct {
+    tv_sec: i64,
+    tv_nsec: c_long,
+};
+
+const Dir = opaque {};
+const File = opaque {};
+const Dirent = extern struct {
+    d_ino: u64,
+    d_off: i64,
+    d_reclen: u16,
+    d_type: u8,
+    d_name: [256]u8,
+};
+
+extern "c" fn pipe(fds: *[2]c_int) c_int;
+extern "c" fn fork() c_int;
+extern "c" fn execvp(file: [*:0]const u8, argv: [*:null]?[*:0]const u8) c_int;
+extern "c" fn setpgid(pid: c_int, pgid: c_int) c_int;
+extern "c" fn waitpid(pid: c_int, status: *c_int, options: c_int) c_int;
+extern "c" fn kill(pid: c_int, signal: c_int) c_int;
+extern "c" fn open(path: [*:0]const u8, flags: c_int, ...) c_int;
+extern "c" fn dup2(old_fd: c_int, new_fd: c_int) c_int;
+extern "c" fn close(fd: c_int) c_int;
+extern "c" fn read(fd: c_int, buffer: [*]u8, count: usize) isize;
+extern "c" fn write(fd: c_int, buffer: [*]const u8, count: usize) isize;
+extern "c" fn fcntl(fd: c_int, command: c_int, ...) c_int;
+extern "c" fn _exit(status: c_int) noreturn;
+extern "c" fn clock_gettime(clock_id: c_int, time: *Timespec) c_int;
+extern "c" fn nanosleep(request: *const Timespec, remaining: ?*Timespec) c_int;
+extern "c" fn opendir(path: [*:0]const u8) ?*Dir;
+extern "c" fn readdir(dir: *Dir) ?*Dirent;
+extern "c" fn closedir(dir: *Dir) c_int;
+extern "c" fn fopen(path: [*:0]const u8, mode: [*:0]const u8) ?*File;
+extern "c" fn fgets(buffer: [*]u8, size: c_int, file: *File) ?[*]u8;
+extern "c" fn fclose(file: *File) c_int;
+
+pub fn execute(allocator: std.mem.Allocator, args: []const [*:0]const u8) c_int {
+    if (args.len < 7 or
+        !std.mem.eql(u8, std.mem.span(args[0]), "supervise") or
+        !std.mem.eql(u8, std.mem.span(args[1]), "--timeout-ms") or
+        !std.mem.eql(u8, std.mem.span(args[3]), "--grace-ms") or
+        !std.mem.eql(u8, std.mem.span(args[5]), "--") or
+        std.mem.span(args[6]).len == 0)
+    {
+        return invalidArguments();
+    }
+
+    const timeout_ms = parseMillis(std.mem.span(args[2])) orelse return invalidArguments();
+    const grace_ms = parseMillis(std.mem.span(args[4])) orelse return invalidArguments();
+    const command_count = args.len - 6;
+    const child_argv = allocator.allocSentinel(?[*:0]const u8, command_count, null) catch {
+        return cannotStart();
+    };
+    for (0..command_count) |index| child_argv[index] = args[index + 6];
+
+    const null_fd = open("/dev/null", @as(c_int, 0));
+    if (null_fd < 0) return cannotStart();
+
+    var error_pipe: [2]c_int = undefined;
+    if (pipe(&error_pipe) != 0) {
+        _ = close(null_fd);
+        return cannotStart();
+    }
+    if (fcntl(error_pipe[1], @as(c_int, 2), @as(c_int, 1)) < 0) {
+        _ = close(error_pipe[0]);
+        _ = close(error_pipe[1]);
+        _ = close(null_fd);
+        return cannotStart();
+    }
+
+    const child = fork();
+    if (child < 0) {
+        _ = close(error_pipe[0]);
+        _ = close(error_pipe[1]);
+        _ = close(null_fd);
+        return cannotStart();
+    }
+    if (child == 0) {
+        _ = close(error_pipe[0]);
+        if (setpgid(0, 0) != 0) childStartFailed(error_pipe[1]);
+        if (dup2(null_fd, 0) < 0) childStartFailed(error_pipe[1]);
+        if (null_fd != 0) _ = close(null_fd);
+        _ = execvp(child_argv[0].?, child_argv.ptr);
+        childStartFailed(error_pipe[1]);
+    }
+
+    _ = close(error_pipe[1]);
+    _ = close(null_fd);
+    _ = setpgid(child, child);
+
+    var child_error: u8 = 0;
+    const error_bytes = read(error_pipe[0], @ptrCast(&child_error), 1);
+    _ = close(error_pipe[0]);
+    if (error_bytes != 0) {
+        _ = waitForChild(child);
+        return cannotStart();
+    }
+
+    const pgid = child;
+    const deadline = monotonicNanos() + @as(i128, timeout_ms) * 1_000_000;
+    while (true) {
+        if (!groupHasLiveMember(pgid)) {
+            const waited = waitForChild(child);
+            const exit_code = waited orelse 1;
+            writeText(2, "status=exited exit_code=");
+            writeInteger(2, exit_code);
+            writeText(2, if (waited != null) " term_sent=false kill_sent=false reaped=1\n" else " term_sent=false kill_sent=false reaped=0\n");
+            return exit_code;
+        }
+        if (monotonicNanos() >= deadline) break;
+        sleepForPoll();
+    }
+
+    _ = kill(-pgid, 15);
+    const grace_deadline = monotonicNanos() + @as(i128, grace_ms) * 1_000_000;
+    while (monotonicNanos() < grace_deadline) sleepForPoll();
+
+    const kill_sent = groupHasLiveMember(pgid);
+    if (kill_sent) {
+        _ = kill(-pgid, 9);
+        while (groupHasLiveMember(pgid)) sleepForPoll();
+    }
+    const reaped = waitForChild(child) != null;
+    writeText(2, "status=timeout exit_code=124 term_sent=true kill_sent=");
+    writeText(2, if (kill_sent) "true" else "false");
+    writeText(2, if (reaped) " reaped=1\n" else " reaped=0\n");
+    return 124;
+}
+
+fn invalidArguments() c_int {
+    writeText(2, "error: invalid arguments\n");
+    return 2;
+}
+
+fn cannotStart() c_int {
+    writeText(2, "error: cannot start command\n");
+    return 127;
+}
+
+fn childStartFailed(error_fd: c_int) noreturn {
+    const failed = [_]u8{1};
+    _ = write(error_fd, &failed, failed.len);
+    _exit(127);
+}
+
+fn parseMillis(value: []const u8) ?u32 {
+    if (value.len == 0) return null;
+    var parsed: u32 = 0;
+    for (value) |byte| {
+        if (byte < '0' or byte > '9') return null;
+        parsed = parsed *| 10 +| (byte - '0');
+        if (parsed > 60_000) return null;
+    }
+    if (parsed < 1) return null;
+    return parsed;
+}
+
+fn waitForChild(pid: c_int) ?c_int {
+    var status: c_int = 0;
+    const result = waitpid(pid, &status, 0);
+    if (result != pid) return null;
+    const signal = status & 0x7f;
+    if (signal == 0) return (status >> 8) & 0xff;
+    if (signal != 0x7f) return 128 + signal;
+    return 1;
+}
+
+fn groupHasLiveMember(pgid: c_int) bool {
+    const directory = opendir("/proc") orelse return false;
+    defer _ = closedir(directory);
+
+    while (readdir(directory)) |entry| {
+        const name = std.mem.sliceTo(entry.d_name[0..], 0);
+        if (parseUnsigned(name) == null) continue;
+        var path_buffer: [64]u8 = undefined;
+        const stat_path = procStatPath(&path_buffer, name) orelse continue;
+        const file = fopen(stat_path, "r") orelse continue;
+        var buffer: [4096]u8 = undefined;
+        const line = fgets(&buffer, buffer.len, file);
+        _ = fclose(file);
+        if (line) |stat_line| {
+            const stat = std.mem.sliceTo(stat_line, 0);
+            if (statBelongsToLiveGroup(stat, pgid)) return true;
+        }
+    }
+    return false;
+}
+
+fn procStatPath(buffer: *[64]u8, pid: []const u8) ?[*:0]const u8 {
+    const prefix = "/proc/";
+    const suffix = "/stat";
+    const length = prefix.len + pid.len + suffix.len;
+    if (length >= buffer.len) return null;
+    @memcpy(buffer[0..prefix.len], prefix);
+    @memcpy(buffer[prefix.len .. prefix.len + pid.len], pid);
+    @memcpy(buffer[prefix.len + pid.len .. length], suffix);
+    buffer[length] = 0;
+    return @ptrCast(buffer);
+}
+
+fn statBelongsToLiveGroup(stat: []const u8, pgid: c_int) bool {
+    const close_paren = std.mem.lastIndexOfScalar(u8, stat, ')') orelse return false;
+    var fields = stat[close_paren + 1 ..];
+    const state = nextField(&fields) orelse return false;
+    if (state.len == 0 or state[0] == 'Z' or state[0] == 'X') return false;
+    _ = nextField(&fields) orelse return false;
+    const group = nextField(&fields) orelse return false;
+    if (parseSigned(group)) |parsed| return parsed == @as(i64, pgid);
+    return false;
+}
+
+fn nextField(rest: *[]const u8) ?[]const u8 {
+    while (rest.*.len > 0 and isSpace(rest.*[0])) rest.* = rest.*[1..];
+    if (rest.*.len == 0) return null;
+    var end: usize = 0;
+    while (end < rest.*.len and !isSpace(rest.*[end])) : (end += 1) {}
+    const field = rest.*[0..end];
+    rest.* = rest.*[end..];
+    return field;
+}
+
+fn isSpace(byte: u8) bool {
+    return byte == ' ' or byte == '\t' or byte == '\n' or byte == '\r';
+}
+
+fn parseUnsigned(value: []const u8) ?u64 {
+    if (value.len == 0) return null;
+    var result: u64 = 0;
+    for (value) |byte| {
+        if (byte < '0' or byte > '9') return null;
+        const digit: u64 = byte - '0';
+        if (result > (std.math.maxInt(u64) - digit) / 10) return null;
+        result = result * 10 + digit;
+    }
+    return result;
+}
+
+fn parseSigned(value: []const u8) ?i64 {
+    if (value.len == 0) return null;
+    if (value[0] == '-') {
+        const magnitude = parseUnsigned(value[1..]) orelse return null;
+        if (magnitude > @as(u64, std.math.maxInt(i64)) + 1) return null;
+        if (magnitude == @as(u64, std.math.maxInt(i64)) + 1) return std.math.minInt(i64);
+        return -@as(i64, @intCast(magnitude));
+    }
+    const magnitude = parseUnsigned(value) orelse return null;
+    if (magnitude > std.math.maxInt(i64)) return null;
+    return @intCast(magnitude);
+}
+
+fn monotonicNanos() i128 {
+    var time: Timespec = undefined;
+    if (clock_gettime(1, &time) != 0) return 0;
+    return @as(i128, time.tv_sec) * 1_000_000_000 + @as(i128, time.tv_nsec);
+}
+
+fn sleepForPoll() void {
+    const interval = Timespec{ .tv_sec = 0, .tv_nsec = 5_000_000 };
+    _ = nanosleep(&interval, null);
+}
+
+fn writeText(fd: c_int, text: []const u8) void {
+    var offset: usize = 0;
+    while (offset < text.len) {
+        const count = write(fd, text[offset..].ptr, text.len - offset);
+        if (count <= 0) return;
+        offset += @intCast(count);
+    }
+}
+
+fn writeInteger(fd: c_int, value: c_int) void {
+    var digits: [16]u8 = undefined;
+    var remaining: u32 = @intCast(value);
+    var used: usize = 0;
+    if (remaining == 0) {
+        writeText(fd, "0");
+        return;
+    }
+    while (remaining > 0) : (remaining /= 10) {
+        digits[used] = @intCast('0' + remaining % 10);
+        used += 1;
+    }
+    while (used > 0) {
+        used -= 1;
+        writeText(fd, digits[used .. used + 1]);
+    }
+}

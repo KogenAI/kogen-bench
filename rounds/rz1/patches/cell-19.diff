@@ -1,0 +1,372 @@
+diff --git a/src/core.zig b/src/core.zig
+index 54871b5..2d8b1ac 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -6,10 +6,363 @@ pub const Response = struct {
+     exit_code: u8 = 0,
+ };
+ 
++const EventType = enum {
++    created,
++    started,
++    completed,
++    failed,
++};
++
++const Event = struct {
++    id: []const u8,
++    job: []const u8,
++    kind: EventType,
++    ts: i64,
++    line: usize,
++};
++
++const ParsedEvent = union(enum) {
++    event: Event,
++    unknown_type: []const u8,
++    invalid,
++};
++
++const Log = struct {
++    events: std.ArrayList(Event) = .empty,
++    ids: std.StringHashMap(void),
++
++    fn init(allocator: std.mem.Allocator) Log {
++        return .{ .ids = std.StringHashMap(void).init(allocator) };
++    }
++
++    fn deinit(self: *Log) void {
++        self.ids.deinit();
++    }
++};
++
++const State = enum {
++    created,
++    started,
++    completed,
++    failed,
++};
++
++const JobProgress = struct {
++    ts: i64,
++    state: State,
++};
++
++const OutputEvent = struct {
++    id: []const u8,
++    type: []const u8,
++    job: []const u8,
++    ts: i64,
++};
++
++fn usageError() Response {
++    return .{ .stderr = "eventlog: usage error", .exit_code = 2 };
++}
++
++fn accessError() Response {
++    return .{ .stderr = "eventlog: cannot access log", .exit_code = 1 };
++}
++
++fn invalidError(allocator: std.mem.Allocator, line: usize) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid event", .{line}),
++        .exit_code = 1,
++    };
++}
++
++fn duplicateIdError(allocator: std.mem.Allocator, line: usize, id: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: duplicate event id '{s}'", .{ line, id }),
++        .exit_code = 1,
++    };
++}
++
++fn unknownTypeError(allocator: std.mem.Allocator, line: usize, value: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: unknown event type '{s}'", .{ line, value }),
++        .exit_code = 1,
++    };
++}
++
++fn transitionError(allocator: std.mem.Allocator, line: usize, job: []const u8) !Response {
++    return .{
++        .stderr = try std.fmt.allocPrint(allocator, "eventlog:{d}: invalid transition for job '{s}'", .{ line, job }),
++        .exit_code = 1,
++    };
++}
++
++fn validId(id: []const u8) bool {
++    if (id.len < 3 or id.len > 18 or !std.mem.startsWith(u8, id, "e-")) return false;
++    for (id[2..]) |byte| {
++        if (!isLowerAlpha(byte) and !isDigit(byte)) return false;
++    }
++    return true;
++}
++
++fn validJob(job: []const u8) bool {
++    if (job.len == 0 or job.len > 32 or !isLowerAlpha(job[0])) return false;
++    for (job[1..]) |byte| {
++        if (!isLowerAlpha(byte) and !isDigit(byte) and byte != '-') return false;
++    }
++    return true;
++}
++
++fn isLowerAlpha(byte: u8) bool {
++    return byte >= 'a' and byte <= 'z';
++}
++
++fn isDigit(byte: u8) bool {
++    return byte >= '0' and byte <= '9';
++}
++
++fn parseTimestamp(value: std.json.Value) ?i64 {
++    const raw = switch (value) {
++        .number_string => |number| number,
++        else => return null,
++    };
++    // Exponents and decimal points are JSON numbers but not integer tokens.
++    if (std.mem.indexOfAny(u8, raw, ".eE") != null) return null;
++    const parsed = std.fmt.parseInt(i64, raw, 10) catch return null;
++    if (parsed < 0) return null;
++    return parsed;
++}
++
++fn parseEvent(allocator: std.mem.Allocator, text: []const u8, line: usize) ParsedEvent {
++    const parsed = std.json.parseFromSliceLeaky(std.json.Value, allocator, text, .{
++        .duplicate_field_behavior = .@"error",
++        .parse_numbers = false,
++    }) catch return .invalid;
++
++    const object = switch (parsed) {
++        .object => |obj| obj,
++        else => return .invalid,
++    };
++    if (object.count() != 4) return .invalid;
++
++    const id_value = object.get("id") orelse return .invalid;
++    const type_value = object.get("type") orelse return .invalid;
++    const job_value = object.get("job") orelse return .invalid;
++    const ts_value = object.get("ts") orelse return .invalid;
++
++    const id = switch (id_value) {
++        .string => |value| value,
++        else => return .invalid,
++    };
++    const type_name = switch (type_value) {
++        .string => |value| value,
++        else => return .invalid,
++    };
++    const job = switch (job_value) {
++        .string => |value| value,
++        else => return .invalid,
++    };
++    const ts = parseTimestamp(ts_value) orelse return .invalid;
++
++    if (!validId(id) or !validJob(job)) return .invalid;
++
++    const kind: EventType = if (std.mem.eql(u8, type_name, "created"))
++        .created
++    else if (std.mem.eql(u8, type_name, "started"))
++        .started
++    else if (std.mem.eql(u8, type_name, "completed"))
++        .completed
++    else if (std.mem.eql(u8, type_name, "failed"))
++        .failed
++    else
++        return .{ .unknown_type = type_name };
++
++    return .{ .event = .{ .id = id, .job = job, .kind = kind, .ts = ts, .line = line } };
++}
++
++fn addEvent(allocator: std.mem.Allocator, log: *Log, event: Event, line: usize) !?Response {
++    if (log.ids.contains(event.id)) return try duplicateIdError(allocator, line, event.id);
++    try log.ids.put(event.id, {});
++    try log.events.append(allocator, event);
++    return null;
++}
++
++fn parseLog(
++    allocator: std.mem.Allocator,
++    bytes: []const u8,
++    ignore_final_fragment: bool,
++) !struct { log: Log, error_response: ?Response } {
++    var log = Log.init(allocator);
++    errdefer log.deinit();
++
++    var start: usize = 0;
++    var line: usize = 1;
++    for (bytes, 0..) |byte, index| {
++        if (byte != '\n') continue;
++        switch (parseEvent(allocator, bytes[start..index], line)) {
++            .event => |event| {
++                if (try addEvent(allocator, &log, event, line)) |response| {
++                    return .{ .log = log, .error_response = response };
++                }
++            },
++            .unknown_type => |value| return .{ .log = log, .error_response = try unknownTypeError(allocator, line, value) },
++            .invalid => return .{ .log = log, .error_response = try invalidError(allocator, line) },
++        }
++        start = index + 1;
++        line += 1;
++    }
++
++    if (!ignore_final_fragment and start < bytes.len) {
++        // An append target must end at a line boundary. Report the unterminated
++        // fragment's physical line without trying to parse it.
++        return .{ .log = log, .error_response = try invalidError(allocator, line) };
++    }
++
++    return .{ .log = log, .error_response = null };
++}
++
++fn eventLessThan(_: void, lhs: Event, rhs: Event) bool {
++    if (lhs.ts != rhs.ts) return lhs.ts < rhs.ts;
++    return lhs.line < rhs.line;
++}
++
++fn transitionResponse(allocator: std.mem.Allocator, log: *Log) !?Response {
++    std.mem.sort(Event, log.events.items, {}, eventLessThan);
++
++    var progress = std.StringHashMap(JobProgress).init(allocator);
++    defer progress.deinit();
++
++    for (log.events.items) |event| {
++        if (progress.getPtr(event.job)) |job_progress| {
++            if (job_progress.ts == event.ts) return try transitionError(allocator, event.line, event.job);
++            const next_state: State = switch (job_progress.state) {
++                .created => if (event.kind == .started) .started else return try transitionError(allocator, event.line, event.job),
++                .started => switch (event.kind) {
++                    .completed => .completed,
++                    .failed => .failed,
++                    else => return try transitionError(allocator, event.line, event.job),
++                },
++                .completed, .failed => return try transitionError(allocator, event.line, event.job),
++            };
++            job_progress.ts = event.ts;
++            job_progress.state = next_state;
++        } else {
++            if (event.kind != .created) return try transitionError(allocator, event.line, event.job);
++            try progress.put(event.job, .{ .ts = event.ts, .state = .created });
++        }
++    }
++
++    var queued: usize = 0;
++    var running: usize = 0;
++    var done: usize = 0;
++    var failed: usize = 0;
++    var iterator = progress.valueIterator();
++    while (iterator.next()) |job_progress| {
++        switch (job_progress.state) {
++            .created => queued += 1,
++            .started => running += 1,
++            .completed => done += 1,
++            .failed => failed += 1,
++        }
++    }
++    const total = progress.count();
++    return .{ .stdout = try std.fmt.allocPrint(
++        allocator,
++        "total={d}\nqueued={d}\nrunning={d}\ndone={d}\nfailed={d}\n",
++        .{ total, queued, running, done, failed },
++    ) };
++}
++
++fn readLog(allocator: std.mem.Allocator, io: std.Io, path: []const u8) !union(enum) {
++    bytes: []u8,
++    missing,
++    inaccessible,
++} {
++    if (path.len == 0) return .inaccessible;
++    const bytes = std.Io.Dir.cwd().readFileAlloc(io, path, allocator, .unlimited) catch |err| switch (err) {
++        error.FileNotFound => return .missing,
++        else => return .inaccessible,
++    };
++    return .{ .bytes = bytes };
++}
++
++fn executeAppend(allocator: std.mem.Allocator, io: std.Io, path: []const u8, event_json: []const u8) !Response {
++    const input_event = switch (parseEvent(allocator, event_json, 1)) {
++        .event => |event| event,
++        .unknown_type => |value| return try unknownTypeError(allocator, 1, value),
++        .invalid => return try invalidError(allocator, 1),
++    };
++
++    const loaded = try readLog(allocator, io, path);
++    const existing_bytes: []const u8 = switch (loaded) {
++        .bytes => |bytes| bytes,
++        .missing => "",
++        .inaccessible => return accessError(),
++    };
++
++    var parsed_log = try parseLog(allocator, existing_bytes, false);
++    if (parsed_log.error_response) |response| return response;
++    defer parsed_log.log.deinit();
++
++    if (parsed_log.log.ids.contains(input_event.id)) {
++        return try duplicateIdError(allocator, 1, input_event.id);
++    }
++
++    try parsed_log.log.ids.put(input_event.id, {});
++    try parsed_log.log.events.append(allocator, input_event);
++    if (try transitionResponse(allocator, &parsed_log.log)) |response| return response;
++
++    const type_text = switch (input_event.kind) {
++        .created => "created",
++        .started => "started",
++        .completed => "completed",
++        .failed => "failed",
++    };
++    const compact = try std.json.Stringify.valueAlloc(allocator, OutputEvent{
++        .id = input_event.id,
++        .type = type_text,
++        .job = input_event.job,
++        .ts = input_event.ts,
++    }, .{});
++    const append_bytes = try std.mem.concat(allocator, u8, &.{ compact, "\n" });
++
++    var file = std.Io.Dir.cwd().createFile(io, path, .{ .truncate = false }) catch return accessError();
++    defer file.close(io);
++    file.writePositionalAll(io, append_bytes, existing_bytes.len) catch return accessError();
++
++    return .{ .stdout = try std.fmt.allocPrint(allocator, "appended {s}\n", .{input_event.id}) };
++}
++
++fn executeReconcile(allocator: std.mem.Allocator, io: std.Io, path: []const u8) !Response {
++    const loaded = try readLog(allocator, io, path);
++    const bytes = switch (loaded) {
++        .bytes => |contents| contents,
++        .missing => "",
++        .inaccessible => return accessError(),
++    };
++
++    var parsed_log = try parseLog(allocator, bytes, true);
++    defer parsed_log.log.deinit();
++    if (parsed_log.error_response) |response| return response;
++
++    return (try transitionResponse(allocator, &parsed_log.log)) orelse unreachable;
++}
++
+ pub fn execute(
+-    _: std.mem.Allocator,
+-    _: std.Io,
+-    _: []const [:0]const u8,
++    allocator: std.mem.Allocator,
++    io: std.Io,
++    args: []const [:0]const u8,
+ ) !Response {
+-    return .{};
++    if (args.len == 5 and
++        std.mem.eql(u8, args[0], "append") and
++        std.mem.eql(u8, args[1], "--log") and
++        std.mem.eql(u8, args[3], "--event"))
++    {
++        return try executeAppend(allocator, io, args[2], args[4]);
++    }
++    if (args.len == 3 and
++        std.mem.eql(u8, args[0], "reconcile") and
++        std.mem.eql(u8, args[1], "--log"))
++    {
++        return try executeReconcile(allocator, io, args[2]);
++    }
++    return usageError();
+ }

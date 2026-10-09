@@ -1,0 +1,1067 @@
+diff --git a/src/main.zig b/src/main.zig
+index 902b554db075c1aa8c2a58d7b9f088a5f93bd741..fee9f91fcae8955f24c98611cd595c58ea9e7508 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -1 +1,1061 @@
+-pub fn main() void {}
++const std = @import("std");
++const builtin = @import("builtin");
++
++const Timespec = extern struct { tv_sec: i64, tv_nsec: i64 };
++const SockAddr = opaque {};
++const DirHandle = opaque {};
++const LinuxAddrInfo = extern struct {
++    ai_flags: c_int,
++    ai_family: c_int,
++    ai_socktype: c_int,
++    ai_protocol: c_int,
++    ai_addrlen: u32,
++    ai_addr: ?*SockAddr,
++    ai_canonname: ?[*:0]u8,
++    ai_next: ?*LinuxAddrInfo,
++};
++const DarwinAddrInfo = extern struct {
++    ai_flags: c_int,
++    ai_family: c_int,
++    ai_socktype: c_int,
++    ai_protocol: c_int,
++    ai_addrlen: u32,
++    ai_canonname: ?[*:0]u8,
++    ai_addr: ?*SockAddr,
++    ai_next: ?*DarwinAddrInfo,
++};
++const AddrInfo = if (builtin.os.tag == .macos) DarwinAddrInfo else LinuxAddrInfo;
++const PollFd = extern struct { fd: c_int, events: i16, revents: i16 };
++
++const c = struct {
++    pub const struct_timespec = Timespec;
++    pub const struct_addrinfo = AddrInfo;
++    pub const struct_pollfd = PollFd;
++    pub const pid_t = c_int;
++    pub const mode_t = u32;
++    pub const AF_UNSPEC: c_int = 0;
++    pub const SOCK_STREAM: c_int = 1;
++    pub const IPPROTO_TCP: c_int = 6;
++    pub const POLLIN: i16 = 1;
++    pub const O_RDONLY: c_int = 0;
++    pub const O_WRONLY: c_int = 1;
++    pub const O_CREAT: c_int = if (builtin.os.tag == .macos) 0x0200 else 0x0040;
++    pub const O_TRUNC: c_int = if (builtin.os.tag == .macos) 0x0400 else 0x0200;
++    pub const O_NONBLOCK: c_int = if (builtin.os.tag == .macos) 0x0004 else 0x0800;
++    pub const F_GETFL: c_int = 3;
++    pub const F_SETFL: c_int = 4;
++    pub const CLOCK_MONOTONIC: c_int = if (builtin.os.tag == .macos) 6 else 1;
++    pub const SIGKILL: c_int = 9;
++    pub const WNOHANG: c_int = 1;
++    pub const STDIN_FILENO: c_int = 0;
++    pub const STDOUT_FILENO: c_int = 1;
++    pub const STDERR_FILENO: c_int = 2;
++    pub const S_IFMT: u32 = 0o170000;
++    pub const S_IFDIR: u32 = 0o040000;
++    pub const S_IFREG: u32 = 0o100000;
++
++    pub extern "c" fn clock_gettime(clock_id: c_int, tp: *Timespec) c_int;
++    pub extern "c" fn nanosleep(request: *const Timespec, remaining: ?*Timespec) c_int;
++    pub extern "c" fn write(fd: c_int, src: [*]const u8, count: usize) isize;
++    pub extern "c" fn read(fd: c_int, dst: [*]u8, count: usize) isize;
++    pub extern "c" fn open(path: [*:0]const u8, flags: c_int, ...) c_int;
++    pub extern "c" fn close(fd: c_int) c_int;
++    pub extern "c" fn fsync(fd: c_int) c_int;
++    pub extern "c" fn realpath(path: [*:0]const u8, resolved: ?[*:0]u8) ?[*:0]u8;
++    pub extern "c" fn getcwd(buffer: ?[*:0]u8, size: usize) ?[*:0]u8;
++    pub extern "c" fn free(ptr: ?*anyopaque) void;
++    pub extern "c" fn stat(path: [*:0]const u8, buffer: *anyopaque) c_int;
++    pub extern "c" fn fstat(fd: c_int, buffer: *anyopaque) c_int;
++    pub extern "c" fn opendir(path: [*:0]const u8) ?*DirHandle;
++    pub extern "c" fn closedir(dir: *DirHandle) c_int;
++    pub extern "c" fn getpid() c_int;
++    pub extern "c" fn getaddrinfo(node: [*:0]const u8, service: [*:0]const u8, hints: *const AddrInfo, result: *?*AddrInfo) c_int;
++    pub extern "c" fn freeaddrinfo(result: *AddrInfo) void;
++    pub extern "c" fn socket(domain: c_int, socket_type: c_int, protocol: c_int) c_int;
++    pub extern "c" fn connect(fd: c_int, address: *const SockAddr, address_len: u32) c_int;
++    pub extern "c" fn poll(fds: [*]PollFd, count: usize, timeout_ms: c_int) c_int;
++    pub extern "c" fn recv(fd: c_int, dst: [*]u8, count: usize, flags: c_int) isize;
++    pub extern "c" fn pipe(fds: *[2]c_int) c_int;
++    pub extern "c" fn fork() c_int;
++    pub extern "c" fn setpgid(pid: c_int, pgid: c_int) c_int;
++    pub extern "c" fn dup2(oldfd: c_int, newfd: c_int) c_int;
++    pub extern "c" fn chdir(path: [*:0]const u8) c_int;
++    pub extern "c" fn execve(path: [*:0]const u8, argv: [*:null]?[*:0]const u8, envp: [*:null]?[*:0]const u8) c_int;
++    pub extern "c" fn _exit(status: c_int) noreturn;
++    pub extern "c" fn fcntl(fd: c_int, command: c_int, ...) c_int;
++    pub extern "c" fn kill(pid: c_int, signal: c_int) c_int;
++    pub extern "c" fn waitpid(pid: c_int, status: *c_int, options: c_int) c_int;
++};
++
++const Allocator = std.mem.Allocator;
++const Failure = error{
++    InvalidCli,
++    CannotReadPrompt,
++    InvalidWorkdir,
++    CannotWriteRecords,
++    Timeout,
++    Stall,
++    Transport,
++    Overload,
++    Rejected,
++    InvalidResponse,
++    ToolFailed,
++    OutOfMemory,
++};
++
++var gpa: Allocator = undefined;
++
++const tools_json =
++    "[{\"type\":\"function\",\"name\":\"read_file\",\"description\":\"Read a UTF-8 file under the workdir\",\"parameters\":{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"}},\"required\":[\"path\"],\"additionalProperties\":false}},{\"type\":\"function\",\"name\":\"run_command\",\"description\":\"Run a shell command with the workdir as its current directory\",\"parameters\":{\"type\":\"object\",\"properties\":{\"command\":{\"type\":\"string\"}},\"required\":[\"command\"],\"additionalProperties\":false}}]";
++
++const Options = struct {
++    prompt_file: []const u8,
++    server: []const u8,
++    records: []const u8,
++    workdir: ?[]const u8,
++    session: []const u8,
++    first_byte_ms: u64,
++    idle_ms: u64,
++    max_retries: u64,
++    backoff_ms: u64,
++};
++
++const Usage = struct {
++    input_tokens: ?i64 = null,
++    output_tokens: ?i64 = null,
++    cached_tokens: ?i64 = null,
++};
++
++const Call = struct {
++    id: []const u8,
++    name: []const u8,
++    arguments: std.array_list.Managed(u8),
++};
++
++const StreamResponse = struct {
++    text: []const u8,
++    calls: []Call,
++    usage: Usage,
++};
++
++const RequestRecord = struct {
++    start_ms: u64,
++    first_byte_ms: ?u64 = null,
++    end_ms: u64 = 0,
++    outcome: []const u8 = "transport",
++    retries: u64,
++    usage: Usage = .{},
++    request_bytes: usize,
++    history_items: usize,
++};
++
++fn monotonicMs() u64 {
++    var ts: c.struct_timespec = undefined;
++    if (c.clock_gettime(c.CLOCK_MONOTONIC, &ts) != 0) return 0;
++    return @as(u64, @intCast(ts.tv_sec)) * 1000 + @as(u64, @intCast(ts.tv_nsec)) / 1_000_000;
++}
++
++fn sleepMs(ms: u64) void {
++    const deadline = monotonicMs() + ms;
++    while (monotonicMs() < deadline) {
++        const remaining = deadline - monotonicMs();
++        var request = c.struct_timespec{
++            .tv_sec = @intCast(remaining / 1000),
++            .tv_nsec = @intCast((remaining % 1000) * 1_000_000),
++        };
++        _ = c.nanosleep(&request, null);
++    }
++}
++
++fn allocPrint(comptime fmt: []const u8, args: anytype) Failure![]u8 {
++    return std.fmt.allocPrint(gpa, fmt, args) catch error.OutOfMemory;
++}
++
++fn jsonQuote(value: []const u8) Failure![]u8 {
++    return std.json.Stringify.valueAlloc(gpa, value, .{}) catch error.OutOfMemory;
++}
++
++fn writeAll(fd: c_int, bytes: []const u8) bool {
++    var index: usize = 0;
++    while (index < bytes.len) {
++        const written = c.write(fd, bytes.ptr + index, bytes.len - index);
++        if (written <= 0) return false;
++        index += @intCast(written);
++    }
++    return true;
++}
++
++fn cString(value: []const u8) Failure![:0]u8 {
++    return gpa.dupeSentinel(u8, value, 0) catch error.OutOfMemory;
++}
++
++fn validSession(value: []const u8) bool {
++    if (value.len == 0 or value.len > 128) return false;
++    for (value) |byte| {
++        if (!std.ascii.isAlphanumeric(byte) and std.mem.indexOfScalar(u8, "._:-", byte) == null) return false;
++    }
++    return true;
++}
++
++fn validServer(value: []const u8) bool {
++    if (!std.mem.startsWith(u8, value, "http://")) return false;
++    const rest = value[7..];
++    const authority = std.mem.trimEnd(u8, rest, "/");
++    if (authority.len == 0) return false;
++    for (authority) |byte| {
++        if (byte == '/' or byte == '?' or byte == '#' or byte == '@') return false;
++    }
++    return true;
++}
++
++fn boundedNumber(value: []const u8, min: u64, max: u64) ?u64 {
++    if (value.len == 0) return null;
++    for (value) |byte| if (!std.ascii.isDigit(byte)) return null;
++    const parsed = std.fmt.parseInt(u64, value, 10) catch return null;
++    if (parsed < min or parsed > max) return null;
++    return parsed;
++}
++
++fn generatedSession() Failure![]u8 {
++    const pid: u64 = @intCast(c.getpid());
++    return allocPrint("loop-{d}-{d}", .{ pid, monotonicMs() });
++}
++
++fn parseArgs(args: []const []const u8) Failure!Options {
++    if (args.len < 2 or !std.mem.eql(u8, args[0], "loop") or !std.mem.eql(u8, args[1], "run")) return error.InvalidCli;
++
++    var prompt_file: ?[]const u8 = null;
++    var server: ?[]const u8 = null;
++    var records: ?[]const u8 = null;
++    var workdir: ?[]const u8 = null;
++    var session: ?[]const u8 = null;
++    var first_byte: u64 = 5000;
++    var idle: u64 = 3000;
++    var max_retries: u64 = 2;
++    var backoff: u64 = 50;
++    var seen = std.array_list.Managed([]const u8).init(gpa);
++
++    var index: usize = 2;
++    while (index < args.len) : (index += 2) {
++        if (!std.mem.startsWith(u8, args[index], "--") or index + 1 >= args.len) return error.InvalidCli;
++        const flag = args[index];
++        const value = args[index + 1];
++        for (seen.items) |prior| if (std.mem.eql(u8, prior, flag)) return error.InvalidCli;
++        seen.append(flag) catch return error.OutOfMemory;
++
++        if (std.mem.eql(u8, flag, "--prompt-file")) {
++            prompt_file = value;
++        } else if (std.mem.eql(u8, flag, "--server")) {
++            server = value;
++        } else if (std.mem.eql(u8, flag, "--records")) {
++            records = value;
++        } else if (std.mem.eql(u8, flag, "--workdir")) {
++            workdir = value;
++        } else if (std.mem.eql(u8, flag, "--session")) {
++            if (!validSession(value)) return error.InvalidCli;
++            session = value;
++        } else if (std.mem.eql(u8, flag, "--first-byte-timeout-ms")) {
++            first_byte = boundedNumber(value, 1, 60_000) orelse return error.InvalidCli;
++        } else if (std.mem.eql(u8, flag, "--idle-timeout-ms")) {
++            idle = boundedNumber(value, 1, 60_000) orelse return error.InvalidCli;
++        } else if (std.mem.eql(u8, flag, "--max-retries")) {
++            max_retries = boundedNumber(value, 0, 5) orelse return error.InvalidCli;
++        } else if (std.mem.eql(u8, flag, "--backoff-ms")) {
++            backoff = boundedNumber(value, 0, 5000) orelse return error.InvalidCli;
++        } else return error.InvalidCli;
++    }
++
++    const required_prompt = prompt_file orelse return error.InvalidCli;
++    const required_server = server orelse return error.InvalidCli;
++    const required_records = records orelse return error.InvalidCli;
++    if (!validServer(required_server)) return error.InvalidCli;
++    return .{
++        .prompt_file = required_prompt,
++        .server = required_server,
++        .records = required_records,
++        .workdir = workdir,
++        .session = session orelse try generatedSession(),
++        .first_byte_ms = first_byte,
++        .idle_ms = idle,
++        .max_retries = max_retries,
++        .backoff_ms = backoff,
++    };
++}
++
++fn readFile(path: []const u8) Failure![]u8 {
++    const path_z = try cString(path);
++    const fd = c.open(path_z, c.O_RDONLY);
++    if (fd < 0) return error.CannotReadPrompt;
++    defer _ = c.close(fd);
++    return readFd(fd, error.CannotReadPrompt);
++}
++
++fn readFd(fd: c_int, failure: Failure) Failure![]u8 {
++    var buffer = std.array_list.Managed(u8).init(gpa);
++    var chunk: [16 * 1024]u8 = undefined;
++    while (true) {
++        const n = c.read(fd, chunk[0..].ptr, chunk.len);
++        if (n < 0) return failure;
++        if (n == 0) break;
++        buffer.appendSlice(chunk[0..@intCast(n)]) catch return error.OutOfMemory;
++    }
++    if (!std.unicode.utf8ValidateSlice(buffer.items)) return failure;
++    return buffer.toOwnedSlice() catch error.OutOfMemory;
++}
++
++fn canonicalPath(path: []const u8) Failure![]u8 {
++    const path_z = try cString(path);
++    const resolved = c.realpath(path_z, null) orelse return error.InvalidWorkdir;
++    defer c.free(resolved);
++    return gpa.dupe(u8, std.mem.span(resolved)) catch error.OutOfMemory;
++}
++
++fn resolveWorkdir(value: ?[]const u8) Failure![]u8 {
++    var path: []const u8 = undefined;
++    if (value) |provided| {
++        path = provided;
++    } else {
++        const cwd = c.getcwd(null, 0) orelse return error.InvalidWorkdir;
++        defer c.free(cwd);
++        path = std.mem.span(cwd);
++    }
++    const resolved = try canonicalPath(path);
++    const z = try cString(resolved);
++    const dir = c.opendir(z) orelse return error.InvalidWorkdir;
++    _ = c.closedir(dir);
++    return resolved;
++}
++
++fn modeFromStatBytes(bytes: []const u8) u32 {
++    if (builtin.os.tag == .macos) return std.mem.readInt(u16, bytes[4..6], .little);
++    if (builtin.cpu.arch == .x86_64) return std.mem.readInt(u32, bytes[24..28], .little);
++    return std.mem.readInt(u32, bytes[16..20], .little);
++}
++
++fn getString(value: std.json.Value, key: []const u8) ?[]const u8 {
++    if (value != .object) return null;
++    const field = value.object.get(key) orelse return null;
++    if (field != .string) return null;
++    return field.string;
++}
++
++fn parseJson(raw: []const u8) ?std.json.Value {
++    return std.json.parseFromSliceLeaky(std.json.Value, gpa, raw, .{}) catch null;
++}
++
++fn compactObject(raw: []const u8) Failure![]u8 {
++    const value = parseJson(raw) orelse return error.ToolFailed;
++    if (value != .object) return error.ToolFailed;
++    return std.json.Stringify.valueAlloc(gpa, value, .{}) catch error.OutOfMemory;
++}
++
++fn jsonInteger(object: std.json.Value, key: []const u8) ?i64 {
++    if (object != .object) return null;
++    const value = object.object.get(key) orelse return null;
++    if (value != .integer or value.integer < 0) return null;
++    return value.integer;
++}
++
++fn validUtf8(bytes: []const u8) bool {
++    return std.unicode.utf8ValidateSlice(bytes);
++}
++
++const Parser = struct {
++    buffer: std.array_list.Managed(u8),
++    event_name: std.array_list.Managed(u8),
++    data: ?[]const u8 = null,
++    calls: std.array_list.Managed(Call),
++    text: std.array_list.Managed(u8),
++    saw_text: bool = false,
++    completed: bool = false,
++    invalid: bool = false,
++    usage: Usage = .{},
++
++    fn init() Parser {
++        return .{
++            .buffer = std.array_list.Managed(u8).init(gpa),
++            .event_name = std.array_list.Managed(u8).init(gpa),
++            .calls = std.array_list.Managed(Call).init(gpa),
++            .text = std.array_list.Managed(u8).init(gpa),
++        };
++    }
++
++    fn feed(self: *Parser, chunk: []const u8) bool {
++        self.buffer.appendSlice(chunk) catch {
++            self.invalid = true;
++            return true;
++        };
++        var consumed: usize = 0;
++        while (std.mem.indexOfScalarPos(u8, self.buffer.items, consumed, '\n')) |newline| {
++            var line = self.buffer.items[consumed..newline];
++            consumed = newline + 1;
++            if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
++            if (!validUtf8(line)) {
++                self.invalid = true;
++                break;
++            }
++            if (line.len == 0) {
++                if (self.event_name.items.len != 0 or self.data != null) self.dispatch();
++                self.event_name.clearRetainingCapacity();
++                self.data = null;
++                if (self.completed or self.invalid) break;
++            } else if (line[0] == ':') {
++                continue;
++            } else if (std.mem.startsWith(u8, line, "event: ")) {
++                if (self.event_name.items.len != 0) {
++                    self.invalid = true;
++                    break;
++                }
++                self.event_name.appendSlice(line[7..]) catch {
++                    self.invalid = true;
++                    break;
++                };
++            } else if (std.mem.startsWith(u8, line, "data: ")) {
++                if (self.data != null) {
++                    self.invalid = true;
++                    break;
++                }
++                self.data = gpa.dupe(u8, line[6..]) catch {
++                    self.invalid = true;
++                    break;
++                };
++            } else {
++                self.invalid = true;
++                break;
++            }
++        }
++        if (consumed != 0) {
++            const remaining = self.buffer.items.len - consumed;
++            std.mem.copyForwards(u8, self.buffer.items[0..remaining], self.buffer.items[consumed..]);
++            self.buffer.shrinkRetainingCapacity(remaining);
++        }
++        return self.completed or self.invalid;
++    }
++
++    fn dispatch(self: *Parser) void {
++        if (self.event_name.items.len == 0 or self.data == null or self.completed) {
++            self.invalid = true;
++            return;
++        }
++        const value = parseJson(self.data.?) orelse {
++            self.invalid = true;
++            return;
++        };
++        const event = self.event_name.items;
++        if (std.mem.eql(u8, event, "response.function_call_arguments.delta")) {
++            const call_id = getString(value, "call_id") orelse {
++                self.invalid = true;
++                return;
++            };
++            const name = getString(value, "name") orelse {
++                self.invalid = true;
++                return;
++            };
++            const delta = getString(value, "delta") orelse {
++                self.invalid = true;
++                return;
++            };
++            if (call_id.len == 0 or (!std.mem.eql(u8, name, "read_file") and !std.mem.eql(u8, name, "run_command"))) {
++                self.invalid = true;
++                return;
++            }
++            for (self.calls.items) |*call| {
++                if (std.mem.eql(u8, call.id, call_id)) {
++                    if (!std.mem.eql(u8, call.name, name)) {
++                        self.invalid = true;
++                        return;
++                    }
++                    call.arguments.appendSlice(delta) catch {
++                        self.invalid = true;
++                    };
++                    return;
++                }
++            }
++            var arguments = std.array_list.Managed(u8).init(gpa);
++            arguments.appendSlice(delta) catch {
++                self.invalid = true;
++                return;
++            };
++            self.calls.append(.{ .id = call_id, .name = name, .arguments = arguments }) catch {
++                self.invalid = true;
++            };
++        } else if (std.mem.eql(u8, event, "response.output_text.delta")) {
++            const delta = getString(value, "delta") orelse {
++                self.invalid = true;
++                return;
++            };
++            self.saw_text = true;
++            self.text.appendSlice(delta) catch {
++                self.invalid = true;
++            };
++        } else if (std.mem.eql(u8, event, "response.completed")) {
++            if (value != .object) {
++                self.invalid = true;
++                return;
++            }
++            const usage_value = value.object.get("usage") orelse {
++                self.invalid = true;
++                return;
++            };
++            const input = jsonInteger(usage_value, "input_tokens") orelse {
++                self.invalid = true;
++                return;
++            };
++            const output = jsonInteger(usage_value, "output_tokens") orelse {
++                self.invalid = true;
++                return;
++            };
++            const details = usage_value.object.get("input_tokens_details") orelse {
++                self.invalid = true;
++                return;
++            };
++            const cached = jsonInteger(details, "cached_tokens") orelse {
++                self.invalid = true;
++                return;
++            };
++            if ((self.saw_text and self.calls.items.len != 0)) {
++                self.invalid = true;
++                return;
++            }
++            self.usage = .{ .input_tokens = input, .output_tokens = output, .cached_tokens = cached };
++            self.completed = true;
++        } else {
++            self.invalid = true;
++        }
++    }
++
++    fn finish(self: *Parser) ?StreamResponse {
++        if (self.invalid or !self.completed or self.buffer.items.len != 0 or self.event_name.items.len != 0 or self.data != null or (self.saw_text and self.calls.items.len != 0)) return null;
++        return .{
++            .text = self.text.toOwnedSlice() catch return null,
++            .calls = self.calls.toOwnedSlice() catch return null,
++            .usage = self.usage,
++        };
++    }
++};
++
++fn requestBody(history: []const u8) Failure![]u8 {
++    return allocPrint("{{\"model\":\"fake-agent\",\"stream\":true,\"tools\":{s},\"tool_choice\":\"auto\",\"input\":{s}}}", .{ tools_json, history });
++}
++
++fn optionalInt(value: ?i64) Failure![]u8 {
++    if (value) |number| return allocPrint("{d}", .{number});
++    return allocPrint("null", .{});
++}
++
++fn writeRecord(fd: c_int, record: *const RequestRecord, run_start: u64) Failure!void {
++    const first = try optionalInt(if (record.first_byte_ms) |value| @intCast(value) else null);
++    const input = try optionalInt(record.usage.input_tokens);
++    const output = try optionalInt(record.usage.output_tokens);
++    const cached = try optionalInt(record.usage.cached_tokens);
++    const end_ms = monotonicMs() -| run_start;
++    const line = try allocPrint(
++        "{{\"start_ms\":{d},\"first_byte_ms\":{s},\"end_ms\":{d},\"outcome\":\"{s}\",\"retries\":{d},\"usage\":{{\"input_tokens\":{s},\"output_tokens\":{s},\"cached_tokens\":{s}}},\"request_bytes\":{d},\"history_items\":{d}}}\n",
++        .{ record.start_ms, first, end_ms, record.outcome, record.retries, input, output, cached, record.request_bytes, record.history_items },
++    );
++    if (!writeAll(fd, line) or c.fsync(fd) != 0) return error.CannotWriteRecords;
++}
++
++const ServerParts = struct {
++    host: []const u8,
++    port: []const u8,
++    authority: []const u8,
++};
++
++fn serverParts(server: []const u8) Failure!ServerParts {
++    const rest = if (std.mem.startsWith(u8, server, "http://")) server[7..] else return error.Transport;
++    const authority = std.mem.trimEnd(u8, rest, "/");
++    if (authority.len == 0) return error.Transport;
++    if (authority[0] == '[') {
++        const close = std.mem.indexOfScalar(u8, authority, ']') orelse return error.Transport;
++        const host = authority[1..close];
++        if (close + 1 == authority.len) return .{ .host = host, .port = "80", .authority = authority };
++        if (authority[close + 1] != ':') return error.Transport;
++        return .{ .host = host, .port = authority[close + 2 ..], .authority = authority };
++    }
++    const colon = std.mem.lastIndexOfScalar(u8, authority, ':') orelse return .{ .host = authority, .port = "80", .authority = authority };
++    if (std.mem.indexOfScalar(u8, authority[0..colon], ':') != null) return error.Transport;
++    return .{ .host = authority[0..colon], .port = authority[colon + 1 ..], .authority = authority };
++}
++
++fn connectServer(parts: ServerParts) ?c_int {
++    const host_z = gpa.dupeSentinel(u8, parts.host, 0) catch return null;
++    const port_z = gpa.dupeSentinel(u8, parts.port, 0) catch return null;
++    var hints: c.struct_addrinfo = std.mem.zeroes(c.struct_addrinfo);
++    hints.ai_family = c.AF_UNSPEC;
++    hints.ai_socktype = c.SOCK_STREAM;
++    hints.ai_protocol = c.IPPROTO_TCP;
++    var result: ?*c.struct_addrinfo = null;
++    if (c.getaddrinfo(host_z, port_z, &hints, &result) != 0) return null;
++    defer if (result) |ptr| c.freeaddrinfo(ptr);
++    var current = result;
++    while (current) |entry| : (current = entry.ai_next) {
++        const fd = c.socket(entry.ai_family, entry.ai_socktype, entry.ai_protocol);
++        if (fd < 0) continue;
++        const address = entry.ai_addr orelse {
++            _ = c.close(fd);
++            continue;
++        };
++        if (c.connect(fd, address, entry.ai_addrlen) == 0) return fd;
++        _ = c.close(fd);
++    }
++    return null;
++}
++
++fn findHeaderEnd(bytes: []const u8) ?usize {
++    if (std.mem.indexOf(u8, bytes, "\r\n\r\n")) |index| return index + 4;
++    if (std.mem.indexOf(u8, bytes, "\n\n")) |index| return index + 2;
++    return null;
++}
++
++const HeaderInfo = struct {
++    status: u16,
++    event_stream: bool,
++};
++
++fn parseHeaders(header: []const u8) ?HeaderInfo {
++    var lines = std.mem.splitScalar(u8, header, '\n');
++    const status_line_raw = lines.next() orelse return null;
++    const status_line = std.mem.trimEnd(u8, status_line_raw, "\r");
++    var status_parts = std.mem.tokenizeScalar(u8, status_line, ' ');
++    _ = status_parts.next() orelse return null;
++    const status_text = status_parts.next() orelse return null;
++    const status = std.fmt.parseInt(u16, status_text, 10) catch return null;
++    var content_type: ?[]const u8 = null;
++    while (lines.next()) |raw_line| {
++        const line = std.mem.trimEnd(u8, raw_line, "\r");
++        if (line.len == 0) continue;
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse continue;
++        if (std.ascii.eqlIgnoreCase(line[0..colon], "content-type")) content_type = std.mem.trim(u8, line[colon + 1 ..], " \t");
++    }
++    const is_stream = if (content_type) |value| std.ascii.startsWithIgnoreCase(value, "text/event-stream") else false;
++    return .{ .status = status, .event_stream = is_stream };
++}
++
++fn responseFailure(fd: c_int, record: *RequestRecord, run_start: u64, record_fd: c_int, failure: Failure) Failure!StreamResponse {
++    _ = c.close(fd);
++    try writeRecord(record_fd, record, run_start);
++    return failure;
++}
++
++fn performRequest(
++    options: Options,
++    body: []const u8,
++    retry_index: u64,
++    history_items: usize,
++    run_start: u64,
++    record_fd: c_int,
++) Failure!StreamResponse {
++    var record = RequestRecord{
++        .start_ms = monotonicMs() -| run_start,
++        .retries = retry_index,
++        .request_bytes = body.len,
++        .history_items = history_items,
++    };
++    const attempt_started = monotonicMs();
++    const first_deadline = attempt_started + options.first_byte_ms;
++    const parts = serverParts(options.server) catch return responseFailure(-1, &record, run_start, record_fd, error.Transport);
++    const fd = connectServer(parts) orelse return responseFailure(-1, &record, run_start, record_fd, error.Transport);
++    const request = try allocPrint(
++        "POST /v1/responses HTTP/1.1\r\nHost: {s}\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nX-Session-ID: {s}\r\nContent-Length: {d}\r\nConnection: close\r\n\r\n{s}",
++        .{ parts.authority, options.session, body.len, body },
++    );
++    if (!writeAll(fd, request)) return responseFailure(fd, &record, run_start, record_fd, error.Transport);
++
++    var received_headers = std.array_list.Managed(u8).init(gpa);
++    var parser = Parser.init();
++    var has_body_byte = false;
++    var last_body_byte: u64 = 0;
++    var header_info: ?HeaderInfo = null;
++    var chunk: [16 * 1024]u8 = undefined;
++    while (true) {
++        const now = monotonicMs();
++        const deadline = if (has_body_byte) last_body_byte + options.idle_ms else first_deadline;
++        if (now >= deadline) {
++            record.outcome = if (has_body_byte) "stall" else "timeout";
++            return responseFailure(fd, &record, run_start, record_fd, if (has_body_byte) error.Stall else error.Timeout);
++        }
++        const remaining: c_int = @intCast(@min(deadline - now, std.math.maxInt(c_int)));
++        var pollfd = c.struct_pollfd{ .fd = fd, .events = c.POLLIN, .revents = 0 };
++        const poll_result = c.poll(@ptrCast(&pollfd), 1, remaining);
++        if (poll_result == 0) {
++            record.outcome = if (has_body_byte) "stall" else "timeout";
++            return responseFailure(fd, &record, run_start, record_fd, if (has_body_byte) error.Stall else error.Timeout);
++        }
++        if (poll_result < 0) return responseFailure(fd, &record, run_start, record_fd, error.Transport);
++        const n = c.recv(fd, chunk[0..].ptr, chunk.len, 0);
++        if (n <= 0) return responseFailure(fd, &record, run_start, record_fd, error.Transport);
++        const bytes = chunk[0..@intCast(n)];
++        if (header_info == null) {
++            received_headers.appendSlice(bytes) catch return responseFailure(fd, &record, run_start, record_fd, error.OutOfMemory);
++            const header_end = findHeaderEnd(received_headers.items) orelse {
++                if (received_headers.items.len > 64 * 1024) {
++                    record.outcome = "transport";
++                    return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++                }
++                continue;
++            };
++            const separator_len: usize = if (std.mem.indexOf(u8, received_headers.items, "\r\n\r\n") != null) 4 else 2;
++            const parsed = parseHeaders(received_headers.items[0 .. header_end - separator_len]) orelse {
++                record.outcome = "transport";
++                return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++            };
++            header_info = parsed;
++            if (parsed.status == 429 or parsed.status == 529 or parsed.status >= 500) {
++                record.outcome = "overload";
++                return responseFailure(fd, &record, run_start, record_fd, error.Overload);
++            }
++            if (parsed.status != 200) {
++                record.outcome = "transport";
++                return responseFailure(fd, &record, run_start, record_fd, error.Rejected);
++            }
++            if (!parsed.event_stream) {
++                record.outcome = "transport";
++                return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++            }
++            if (header_end < received_headers.items.len) {
++                const body_bytes = received_headers.items[header_end..];
++                if (body_bytes.len != 0) {
++                    has_body_byte = true;
++                    record.first_byte_ms = monotonicMs() -| run_start;
++                    last_body_byte = monotonicMs();
++                    if (parser.feed(body_bytes)) {
++                        if (parser.invalid) {
++                            record.outcome = "transport";
++                            return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++                        }
++                        const response = parser.finish() orelse {
++                            record.outcome = "transport";
++                            return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++                        };
++                        record.outcome = "ok";
++                        record.usage = response.usage;
++                        _ = c.close(fd);
++                        try writeRecord(record_fd, &record, run_start);
++                        return response;
++                    }
++                }
++            }
++            received_headers.clearRetainingCapacity();
++        } else {
++            if (bytes.len != 0) {
++                if (!has_body_byte) {
++                    has_body_byte = true;
++                    record.first_byte_ms = monotonicMs() -| run_start;
++                }
++                last_body_byte = monotonicMs();
++                if (parser.feed(bytes)) {
++                    if (parser.invalid) {
++                        record.outcome = "transport";
++                        return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++                    }
++                    const response = parser.finish() orelse {
++                        record.outcome = "transport";
++                        return responseFailure(fd, &record, run_start, record_fd, error.InvalidResponse);
++                    };
++                    record.outcome = "ok";
++                    record.usage = response.usage;
++                    _ = c.close(fd);
++                    try writeRecord(record_fd, &record, run_start);
++                    return response;
++                }
++            }
++        }
++    }
++}
++
++fn relativePathAllowed(path: []const u8) bool {
++    if (path.len == 0 or path[0] == '/') return false;
++    var components = std.mem.splitScalar(u8, path, '/');
++    while (components.next()) |component| if (std.mem.eql(u8, component, "..")) return false;
++    return true;
++}
++
++fn readToolFile(path: []const u8, workdir: []const u8) Failure![]u8 {
++    if (!relativePathAllowed(path)) return error.ToolFailed;
++    const candidate = try allocPrint("{s}/{s}", .{ workdir, path });
++    const resolved = canonicalPath(candidate) catch return error.ToolFailed;
++    if (std.mem.eql(u8, workdir, "/")) {
++        if (resolved.len < 2 or resolved[0] != '/') return error.ToolFailed;
++    } else if (!std.mem.startsWith(u8, resolved, workdir) or resolved.len <= workdir.len or resolved[workdir.len] != '/') return error.ToolFailed;
++    const resolved_z = try cString(resolved);
++    const fd = c.open(resolved_z, c.O_RDONLY | c.O_NONBLOCK);
++    if (fd < 0) return error.ToolFailed;
++    defer _ = c.close(fd);
++    var stat_bytes: [256]u8 align(8) = undefined;
++    if (c.fstat(fd, @ptrCast(&stat_bytes)) != 0 or (modeFromStatBytes(&stat_bytes) & c.S_IFMT) != c.S_IFREG) return error.ToolFailed;
++    return readFd(fd, error.ToolFailed) catch return error.ToolFailed;
++}
++
++fn isCommandBoundary(byte: u8) bool {
++    return std.ascii.isWhitespace(byte) or std.mem.indexOfScalar(u8, "\"'=<>|;&(", byte) != null;
++}
++
++fn commandPathsAllowed(command: []const u8) bool {
++    for (command, 0..) |byte, index| {
++        if (byte == '/' and (index == 0 or isCommandBoundary(command[index - 1]))) return false;
++        if (index + 1 < command.len and byte == '.' and command[index + 1] == '.') {
++            const left = index == 0 or isCommandBoundary(command[index - 1]) or command[index - 1] == '/';
++            const right = index + 2 == command.len or command[index + 2] == '/' or isCommandBoundary(command[index + 2]);
++            if (left and right) return false;
++        }
++    }
++    return true;
++}
++
++fn closeFd(fd: *c_int) void {
++    if (fd.* >= 0) {
++        _ = c.close(fd.*);
++        fd.* = -1;
++    }
++}
++
++fn appendPipeOutput(fd: c_int, output: *std.array_list.Managed(u8), open: *bool) Failure!void {
++    var buffer: [8192]u8 = undefined;
++    while (true) {
++        const n = c.read(fd, buffer[0..].ptr, buffer.len);
++        if (n == 0) {
++            open.* = false;
++            return;
++        }
++        if (n < 0) return;
++        output.appendSlice(buffer[0..@intCast(n)]) catch return error.OutOfMemory;
++        if (output.items.len > 1_048_576) return error.ToolFailed;
++    }
++}
++
++fn terminateGroup(pid: c.pid_t) void {
++    _ = c.kill(-pid, c.SIGKILL);
++}
++
++fn runCommand(command: []const u8, workdir: []const u8) Failure![]u8 {
++    if (!commandPathsAllowed(command)) return error.ToolFailed;
++    var out_pipe: [2]c_int = undefined;
++    var err_pipe: [2]c_int = undefined;
++    if (c.pipe(&out_pipe) != 0) return error.ToolFailed;
++    if (c.pipe(&err_pipe) != 0) {
++        _ = c.close(out_pipe[0]);
++        _ = c.close(out_pipe[1]);
++        return error.ToolFailed;
++    }
++    const pid = c.fork();
++    if (pid < 0) {
++        for (out_pipe ++ err_pipe) |fd| _ = c.close(fd);
++        return error.ToolFailed;
++    }
++
++    if (pid == 0) {
++        _ = c.setpgid(0, 0);
++        _ = c.close(out_pipe[0]);
++        _ = c.close(err_pipe[0]);
++        const devnull = c.open("/dev/null", c.O_RDONLY);
++        if (devnull < 0 or c.dup2(devnull, c.STDIN_FILENO) < 0 or c.dup2(out_pipe[1], c.STDOUT_FILENO) < 0 or c.dup2(err_pipe[1], c.STDERR_FILENO) < 0) c._exit(127);
++        _ = c.close(devnull);
++        _ = c.close(out_pipe[1]);
++        _ = c.close(err_pipe[1]);
++        const cwd_z = cString(workdir) catch c._exit(127);
++        if (c.chdir(cwd_z) != 0) c._exit(127);
++        const command_z = cString(command) catch c._exit(127);
++        const shell_z = "/bin/sh";
++        const flag_z = "-c";
++        const path_env = "PATH=/usr/bin:/bin";
++        const lang_env = "LANG=C.UTF-8";
++        const home_env = std.fmt.allocPrintSentinel(gpa, "HOME={s}", .{workdir}, 0) catch c._exit(127);
++        const pwd_env = std.fmt.allocPrintSentinel(gpa, "PWD={s}", .{workdir}, 0) catch c._exit(127);
++        var argv: [4:null]?[*:0]const u8 = .{ shell_z, flag_z, command_z, null };
++        var envp: [5:null]?[*:0]const u8 = .{ path_env, home_env, lang_env, pwd_env, null };
++        _ = c.execve(shell_z, @ptrCast(&argv), @ptrCast(&envp));
++        c._exit(127);
++    }
++
++    _ = c.close(out_pipe[1]);
++    _ = c.close(err_pipe[1]);
++    var out_fd = out_pipe[0];
++    var err_fd = err_pipe[0];
++    defer closeFd(&out_fd);
++    defer closeFd(&err_fd);
++    for ([2]c_int{ out_fd, err_fd }) |fd| {
++        const flags = c.fcntl(fd, c.F_GETFL);
++        if (flags >= 0) _ = c.fcntl(fd, c.F_SETFL, flags | c.O_NONBLOCK);
++    }
++
++    var stdout = std.array_list.Managed(u8).init(gpa);
++    var stderr = std.array_list.Managed(u8).init(gpa);
++    var out_open = true;
++    var err_open = true;
++    var child_done = false;
++    var status: c_int = 0;
++    const deadline = monotonicMs() + 5000;
++    while (out_open or err_open or !child_done) {
++        const now = monotonicMs();
++        if (now >= deadline) {
++            terminateGroup(pid);
++            _ = c.waitpid(pid, &status, 0);
++            return error.ToolFailed;
++        }
++        var fds = [2]c.struct_pollfd{
++            .{ .fd = if (out_open) out_fd else -1, .events = c.POLLIN, .revents = 0 },
++            .{ .fd = if (err_open) err_fd else -1, .events = c.POLLIN, .revents = 0 },
++        };
++        _ = c.poll(&fds, 2, @intCast(@min(deadline - now, 50)));
++        if (out_open and fds[0].revents != 0) {
++            appendPipeOutput(out_fd, &stdout, &out_open) catch |err| {
++                terminateGroup(pid);
++                _ = c.waitpid(pid, &status, 0);
++                return err;
++            };
++            if (!out_open) closeFd(&out_fd);
++        }
++        if (err_open and fds[1].revents != 0) {
++            appendPipeOutput(err_fd, &stderr, &err_open) catch |err| {
++                terminateGroup(pid);
++                _ = c.waitpid(pid, &status, 0);
++                return err;
++            };
++            if (!err_open) closeFd(&err_fd);
++        }
++        if (stdout.items.len + stderr.items.len > 1_048_576) {
++            terminateGroup(pid);
++            _ = c.waitpid(pid, &status, 0);
++            return error.ToolFailed;
++        }
++        if (!child_done) {
++            const waited = c.waitpid(pid, &status, c.WNOHANG);
++            if (waited == pid) {
++                child_done = true;
++                terminateGroup(pid);
++            } else if (waited < 0) return error.ToolFailed;
++        }
++    }
++    if (!validUtf8(stdout.items) or !validUtf8(stderr.items)) return error.ToolFailed;
++    const exit_code: i64 = if ((status & 0x7f) == 0) @as(i64, status >> 8) else -1;
++    const stdout_json = try jsonQuote(stdout.items);
++    const stderr_json = try jsonQuote(stderr.items);
++    return allocPrint("{{\"exit_code\":{d},\"stdout\":{s},\"stderr\":{s}}}", .{ exit_code, stdout_json, stderr_json });
++}
++
++fn executeTool(call: Call, workdir: []const u8) Failure![]u8 {
++    const arguments = parseJson(call.arguments.items) orelse return error.ToolFailed;
++    if (arguments != .object or arguments.object.count() != 1) return error.ToolFailed;
++    if (std.mem.eql(u8, call.name, "read_file")) {
++        const path = getString(arguments, "path") orelse return error.ToolFailed;
++        return readToolFile(path, workdir);
++    }
++    if (std.mem.eql(u8, call.name, "run_command")) {
++        const command = getString(arguments, "command") orelse return error.ToolFailed;
++        if (command.len == 0) return error.ToolFailed;
++        return runCommand(command, workdir);
++    }
++    return error.ToolFailed;
++}
++
++fn appendHistory(history: []const u8, calls: []const Call, outputs: []const []const u8) Failure![]u8 {
++    if (history.len == 0 or history[history.len - 1] != ']') return error.InvalidResponse;
++    var next = std.array_list.Managed(u8).init(gpa);
++    next.appendSlice(history[0 .. history.len - 1]) catch return error.OutOfMemory;
++    for (calls, 0..) |call, index| {
++        if (index >= outputs.len) return error.InvalidResponse;
++        const arguments = compactObject(call.arguments.items) catch return error.ToolFailed;
++        const arguments_json = try jsonQuote(arguments);
++        const id_json = try jsonQuote(call.id);
++        const name_json = try jsonQuote(call.name);
++        const output_json = try jsonQuote(outputs[index]);
++        const call_item = try allocPrint("{{\"type\":\"function_call\",\"call_id\":{s},\"name\":{s},\"arguments\":{s}}}", .{ id_json, name_json, arguments_json });
++        const output_item = try allocPrint("{{\"type\":\"function_call_output\",\"call_id\":{s},\"output\":{s}}}", .{ id_json, output_json });
++        next.append(',') catch return error.OutOfMemory;
++        next.appendSlice(call_item) catch return error.OutOfMemory;
++        next.append(',') catch return error.OutOfMemory;
++        next.appendSlice(output_item) catch return error.OutOfMemory;
++    }
++    next.append(']') catch return error.OutOfMemory;
++    return next.toOwnedSlice() catch error.OutOfMemory;
++}
++
++fn writeError(failure: Failure) noreturn {
++    const code: u8 = switch (failure) {
++        error.InvalidCli => 2,
++        error.CannotReadPrompt, error.InvalidWorkdir, error.CannotWriteRecords, error.OutOfMemory => 1,
++        error.Timeout => 10,
++        error.Stall => 11,
++        error.Transport => 12,
++        error.Overload => 13,
++        error.Rejected => 14,
++        error.InvalidResponse => 15,
++        error.ToolFailed => 16,
++    };
++    const message: []const u8 = switch (failure) {
++        error.InvalidCli => "loop: invalid command line\n",
++        error.CannotReadPrompt => "loop: cannot read prompt file\n",
++        error.InvalidWorkdir => "loop: invalid workdir\n",
++        error.CannotWriteRecords, error.OutOfMemory => "loop: cannot write records file\n",
++        error.Timeout => "loop: first-byte timeout\n",
++        error.Stall => "loop: stream stalled\n",
++        error.Transport => "loop: transport error\n",
++        error.Overload => "loop: server overloaded\n",
++        error.Rejected => "loop: server rejected request\n",
++        error.InvalidResponse => "loop: invalid response\n",
++        error.ToolFailed => "loop: tool execution failed\n",
++    };
++    _ = writeAll(c.STDERR_FILENO, message);
++    std.process.exit(code);
++}
++
++fn run(args: []const []const u8) Failure!void {
++    const options = try parseArgs(args);
++    const prompt = try readFile(options.prompt_file);
++    const workdir = try resolveWorkdir(options.workdir);
++    const records_path = try cString(options.records);
++    const records_fd = c.open(records_path, c.O_WRONLY | c.O_CREAT | c.O_TRUNC, @as(c.mode_t, 0o666));
++    if (records_fd < 0) return error.CannotWriteRecords;
++    defer _ = c.close(records_fd);
++
++    const prompt_json = try jsonQuote(prompt);
++    const user_item = try allocPrint("{{\"role\":\"user\",\"content\":[{{\"type\":\"input_text\",\"text\":{s}}}]}}", .{prompt_json});
++    var history = try allocPrint("[{s}]", .{user_item});
++    var history_items: usize = 1;
++    const run_start = monotonicMs();
++
++    while (true) {
++        const body = try requestBody(history);
++        var retries: u64 = 0;
++        const response = while (true) {
++            const attempt = performRequest(options, body, retries, history_items, run_start, records_fd) catch |failure| {
++                switch (failure) {
++                    error.Timeout, error.Stall, error.Transport, error.Overload => {
++                        if (retries >= options.max_retries) return failure;
++                        const factor: u64 = @as(u64, 1) << @intCast(retries);
++                        sleepMs(options.backoff_ms * factor);
++                        retries += 1;
++                        continue;
++                    },
++                    else => return failure,
++                }
++            };
++            break attempt;
++        };
++
++        if (response.calls.len == 0) {
++            if (!writeAll(c.STDOUT_FILENO, response.text)) return error.CannotWriteRecords;
++            return;
++        }
++        var outputs = std.array_list.Managed([]const u8).init(gpa);
++        for (response.calls) |call| {
++            _ = try compactObject(call.arguments.items);
++            const output = try executeTool(call, workdir);
++            outputs.append(output) catch return error.OutOfMemory;
++        }
++        history = try appendHistory(history, response.calls, outputs.items);
++        history_items += response.calls.len * 2;
++    }
++}
++
++pub fn main(init: std.process.Init) void {
++    gpa = init.arena.allocator();
++    var iterator = std.process.Args.Iterator.init(init.minimal.args);
++    _ = iterator.next();
++    var args = std.array_list.Managed([]const u8).init(gpa);
++    while (iterator.next()) |arg| {
++        args.append(arg) catch writeError(error.OutOfMemory);
++    }
++    run(args.items) catch |failure| writeError(failure);
++}

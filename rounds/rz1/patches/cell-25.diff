@@ -1,0 +1,1153 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..1e19dde 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,1123 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use std::collections::HashMap;
++use std::io::{self, Read, Write};
++use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
++use std::path::{Path, PathBuf};
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::time::{Duration, Instant};
++
++const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
++const MAX_HEADER_BYTES: usize = 64 * 1024;
++
++#[derive(Debug)]
++struct Options {
++    url: HttpUrl,
++    prompt: String,
++    idle_timeout: Duration,
++    usage_path: PathBuf,
++}
++
++#[derive(Debug)]
++struct HttpUrl {
++    host: String,
++    port: u16,
++    authority: String,
++    target: String,
++}
++
++#[derive(Debug)]
++enum Failure {
++    Retryable,
++    Permanent,
++}
++
++#[derive(Clone, Copy, Debug)]
++struct Usage {
++    input_tokens: u64,
++    output_tokens: u64,
++}
++
++pub fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    let options = parse_args(args).ok_or((2, "error: invalid arguments".to_owned()))?;
++    let request_body = encode_prompt(&options.prompt);
++
++    let mut response = None;
++    for attempt in 0..2 {
++        match request_once(&options.url, &request_body, options.idle_timeout) {
++            Ok(parsed) => {
++                response = Some(parsed);
++                break;
++            }
++            Err(Failure::Retryable) if attempt == 0 => continue,
++            Err(_) => return Err((5, "error: request failed".to_owned())),
++        }
++    }
++
++    let (text, usage) = response.ok_or((5, "error: request failed".to_owned()))?;
++    let usage_json = format!(
++        "{{\"input_tokens\":{},\"output_tokens\":{}}}\n",
++        usage.input_tokens, usage.output_tokens
++    );
++    replace_atomically(&options.usage_path, usage_json.as_bytes())
++        .map_err(|_| (5, "error: request failed".to_owned()))?;
++
++    let mut output = text;
++    output.push('\n');
++    Ok(output)
++}
++
++fn parse_args(args: &[String]) -> Option<Options> {
++    if args.first().map(String::as_str) != Some("model") {
++        return None;
++    }
++
++    let mut url = None;
++    let mut prompt = None;
++    let mut idle_timeout = None;
++    let mut usage_path = None;
++    let mut index = 1;
++    while index < args.len() {
++        let option = args[index].as_str();
++        index += 1;
++        if index >= args.len() {
++            return None;
++        }
++        let value = &args[index];
++        index += 1;
++        match option {
++            "--url" if url.is_none() => url = Some(parse_url(value)?),
++            "--prompt" if prompt.is_none() => prompt = Some(value.clone()),
++            "--idle-timeout-ms" if idle_timeout.is_none() => {
++                let millis = parse_timeout(value)?;
++                idle_timeout = Some(Duration::from_millis(millis));
++            }
++            "--usage-file" if usage_path.is_none() && !value.is_empty() => {
++                usage_path = Some(PathBuf::from(value));
++            }
++            _ => return None,
++        }
++    }
++
++    Some(Options {
++        url: url?,
++        prompt: prompt?,
++        idle_timeout: idle_timeout?,
++        usage_path: usage_path?,
++    })
++}
++
++fn parse_timeout(value: &str) -> Option<u64> {
++    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
++        return None;
++    }
++    let millis = value.parse::<u64>().ok()?;
++    (1..=60_000).contains(&millis).then_some(millis)
++}
++
++fn parse_url(value: &str) -> Option<HttpUrl> {
++    let scheme_end = value.find("://")?;
++    if !value[..scheme_end].eq_ignore_ascii_case("http") {
++        return None;
++    }
++    if !valid_percent_escapes(value) {
++        return None;
++    }
++    let rest = &value[scheme_end + 3..];
++    if rest
++        .bytes()
++        .any(|byte| byte.is_ascii_control() || byte == b' ')
++    {
++        return None;
++    }
++
++    let authority_end = rest.find(['/', '?', '#']).unwrap_or(rest.len());
++    let raw_authority = &rest[..authority_end];
++    if raw_authority.is_empty() {
++        return None;
++    }
++    let authority_without_userinfo = raw_authority
++        .rsplit_once('@')
++        .map_or(raw_authority, |(_, host)| host);
++    if authority_without_userinfo.is_empty() {
++        return None;
++    }
++
++    let (host, port, authority) = if authority_without_userinfo.starts_with('[') {
++        let closing = authority_without_userinfo.find(']')?;
++        let host = &authority_without_userinfo[1..closing];
++        if host.is_empty() || host.parse::<std::net::Ipv6Addr>().is_err() {
++            return None;
++        }
++        let after = &authority_without_userinfo[closing + 1..];
++        let (port, authority_suffix) = if after.is_empty() {
++            (80, String::new())
++        } else {
++            let port_text = after.strip_prefix(':')?;
++            let port = parse_port(port_text)?;
++            (port, format!(":{port_text}"))
++        };
++        (host.to_owned(), port, format!("[{host}]{authority_suffix}"))
++    } else {
++        if authority_without_userinfo.matches(':').count() > 1 {
++            return None;
++        }
++        let (raw_host, port, authority_suffix) = match authority_without_userinfo.rsplit_once(':') {
++            Some((host, port_text)) => (host, parse_port(port_text)?, format!(":{port_text}")),
++            None => (authority_without_userinfo, 80, String::new()),
++        };
++        if raw_host.is_empty()
++            || !raw_host
++                .bytes()
++                .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'-' | b'_'))
++        {
++            return None;
++        }
++        (
++            raw_host.to_owned(),
++            port,
++            format!("{raw_host}{authority_suffix}"),
++        )
++    };
++
++    let tail = &rest[authority_end..];
++    let without_fragment = tail.split('#').next()?;
++    let target = if without_fragment.is_empty() {
++        "/".to_owned()
++    } else if without_fragment.starts_with('?') {
++        format!("/{without_fragment}")
++    } else {
++        without_fragment.to_owned()
++    };
++    if target.bytes().any(|byte| byte <= b' ' || byte == 0x7f) {
++        return None;
++    }
++    if !valid_percent_escapes(&target) {
++        return None;
++    }
++
++    Some(HttpUrl {
++        host,
++        port,
++        authority,
++        target,
++    })
++}
++
++fn parse_port(text: &str) -> Option<u16> {
++    if text.is_empty() || !text.bytes().all(|byte| byte.is_ascii_digit()) {
++        return None;
++    }
++    text.parse::<u16>().ok()
++}
++
++fn valid_percent_escapes(value: &str) -> bool {
++    let bytes = value.as_bytes();
++    let mut index = 0;
++    while index < bytes.len() {
++        if bytes[index] == b'%' {
++            if index + 2 >= bytes.len()
++                || !bytes[index + 1].is_ascii_hexdigit()
++                || !bytes[index + 2].is_ascii_hexdigit()
++            {
++                return false;
++            }
++            index += 3;
++        } else {
++            index += 1;
++        }
++    }
++    true
++}
++
++fn encode_prompt(prompt: &str) -> Vec<u8> {
++    let mut encoded = String::with_capacity(prompt.len() + 16);
++    encoded.push_str("{\"prompt\":");
++    append_json_string(&mut encoded, prompt);
++    encoded.push('}');
++    encoded.into_bytes()
++}
++
++fn append_json_string(destination: &mut String, value: &str) {
++    destination.push('"');
++    for character in value.chars() {
++        match character {
++            '"' => destination.push_str("\\\""),
++            '\\' => destination.push_str("\\\\"),
++            '\u{08}' => destination.push_str("\\b"),
++            '\u{0c}' => destination.push_str("\\f"),
++            '\n' => destination.push_str("\\n"),
++            '\r' => destination.push_str("\\r"),
++            '\t' => destination.push_str("\\t"),
++            character if character <= '\u{1f}' => {
++                use std::fmt::Write as _;
++                let _ = write!(destination, "\\u{:04x}", character as u32);
++            }
++            character => destination.push(character),
++        }
++    }
++    destination.push('"');
++}
++
++fn request_once(url: &HttpUrl, body: &[u8], timeout: Duration) -> Result<(String, Usage), Failure> {
++    let address_text = if url.host.contains(':') {
++        format!("[{}]:{}", url.host, url.port)
++    } else {
++        format!("{}:{}", url.host, url.port)
++    };
++    let addresses = address_text
++        .to_socket_addrs()
++        .map_err(|_| Failure::Retryable)?
++        .collect::<Vec<SocketAddr>>();
++    if addresses.is_empty() {
++        return Err(Failure::Retryable);
++    }
++
++    let mut connected = None;
++    for address in addresses {
++        if let Ok(stream) = TcpStream::connect_timeout(&address, timeout) {
++            connected = Some(stream);
++            break;
++        }
++    }
++    let mut stream = connected.ok_or(Failure::Retryable)?;
++    stream
++        .set_write_timeout(Some(timeout))
++        .map_err(|_| Failure::Retryable)?;
++
++    let request_headers = format!(
++        "POST {} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nContent-Length: {}\r\n\r\n",
++        url.target,
++        url.authority,
++        body.len()
++    );
++    stream
++        .write_all(request_headers.as_bytes())
++        .and_then(|()| stream.write_all(body))
++        .map_err(|_| Failure::Retryable)?;
++
++    let header_deadline = Instant::now() + timeout;
++    let (header_bytes, headers_arrived) = read_response_headers(&mut stream, header_deadline)?;
++    let (status, mut framing) = parse_response_headers(&header_bytes)?;
++    if (500..=599).contains(&status) {
++        return Err(Failure::Retryable);
++    }
++    if !(200..=299).contains(&status) {
++        return Err(Failure::Permanent);
++    }
++    if matches!(status, 204 | 205) {
++        framing = Framing::Empty;
++    }
++
++    let mut reader = BodyReader::new(stream, framing, timeout, headers_arrived);
++    parse_sse(&mut reader)
++}
++
++fn read_response_headers(
++    stream: &mut TcpStream,
++    deadline: Instant,
++) -> Result<(Vec<u8>, Instant), Failure> {
++    let mut bytes = Vec::new();
++    loop {
++        let now = Instant::now();
++        let remaining = deadline
++            .checked_duration_since(now)
++            .ok_or(Failure::Retryable)?;
++        if remaining.is_zero() {
++            return Err(Failure::Retryable);
++        }
++        stream
++            .set_read_timeout(Some(remaining))
++            .map_err(|_| Failure::Retryable)?;
++        let mut byte = [0u8; 1];
++        match stream.read(&mut byte) {
++            Ok(0) => return Err(Failure::Retryable),
++            Ok(_) => bytes.push(byte[0]),
++            Err(error) if is_timeout(&error) => return Err(Failure::Retryable),
++            Err(_) => return Err(Failure::Retryable),
++        }
++        if bytes.len() > MAX_HEADER_BYTES {
++            return Err(Failure::Permanent);
++        }
++        if bytes.ends_with(b"\r\n\r\n") {
++            return Ok((bytes, Instant::now()));
++        }
++    }
++}
++
++fn is_timeout(error: &io::Error) -> bool {
++    matches!(
++        error.kind(),
++        io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
++    )
++}
++
++#[derive(Clone, Copy, Debug)]
++enum Framing {
++    ContentLength(u64),
++    Chunked,
++    UntilEof,
++    Empty,
++}
++
++fn parse_response_headers(bytes: &[u8]) -> Result<(u16, Framing), Failure> {
++    let block = bytes.strip_suffix(b"\r\n\r\n").ok_or(Failure::Permanent)?;
++    let raw_lines = block.split(|byte| *byte == b'\n').collect::<Vec<_>>();
++    let mut lines = Vec::with_capacity(raw_lines.len());
++    for (index, line) in raw_lines.iter().enumerate() {
++        if index + 1 < raw_lines.len() {
++            lines.push(line.strip_suffix(b"\r").ok_or(Failure::Permanent)?);
++        } else if line.contains(&b'\r') {
++            return Err(Failure::Permanent);
++        } else {
++            lines.push(*line);
++        }
++    }
++    let mut lines = lines.into_iter();
++    let status_line = lines.next().ok_or(Failure::Permanent)?;
++    let version_len = if status_line.starts_with(b"HTTP/1.0 ") {
++        b"HTTP/1.0".len()
++    } else if status_line.starts_with(b"HTTP/1.1 ") {
++        b"HTTP/1.1".len()
++    } else {
++        return Err(Failure::Permanent);
++    };
++    let status_start = version_len + 1;
++    let status_end = status_start + 3;
++    if status_line.get(status_end) != Some(&b' ')
++        || !status_line
++            .get(status_start..status_end)
++            .is_some_and(|status| status.iter().all(u8::is_ascii_digit))
++        || status_line[status_end + 1..]
++            .iter()
++            .any(|byte| (*byte < b' ' && *byte != b'\t') || *byte == 0x7f)
++    {
++        return Err(Failure::Permanent);
++    }
++    let status = std::str::from_utf8(&status_line[status_start..status_end])
++        .map_err(|_| Failure::Permanent)?
++        .parse::<u16>()
++        .map_err(|_| Failure::Permanent)?;
++
++    let mut content_length = None;
++    let mut transfer_encoding = None;
++    for line in lines {
++        if line.is_empty() {
++            continue;
++        }
++        if line.starts_with(b" \t") {
++            return Err(Failure::Permanent);
++        }
++        let colon = line
++            .iter()
++            .position(|byte| *byte == b':')
++            .ok_or(Failure::Permanent)?;
++        let name = &line[..colon];
++        let value = &line[colon + 1..];
++        if name.is_empty()
++            || !name
++                .iter()
++                .copied()
++                .all(|byte| byte.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&byte))
++        {
++            return Err(Failure::Permanent);
++        }
++        let value = trim_ascii_whitespace(value);
++        if value
++            .iter()
++            .any(|byte| (*byte < b' ' && *byte != b'\t') || *byte == 0x7f)
++        {
++            return Err(Failure::Permanent);
++        }
++        if name.eq_ignore_ascii_case(b"content-length") {
++            if value.is_empty() || !value.iter().all(u8::is_ascii_digit) {
++                return Err(Failure::Permanent);
++            }
++            let parsed = std::str::from_utf8(value)
++                .map_err(|_| Failure::Permanent)?
++                .parse::<u64>()
++                .map_err(|_| Failure::Permanent)?;
++            if content_length.is_some_and(|old| old != parsed) {
++                return Err(Failure::Permanent);
++            }
++            content_length = Some(parsed);
++        } else if name.eq_ignore_ascii_case(b"transfer-encoding") {
++            if transfer_encoding.is_some() {
++                return Err(Failure::Permanent);
++            }
++            transfer_encoding = Some(value.to_ascii_lowercase());
++        }
++    }
++
++    if content_length.is_some() && transfer_encoding.is_some() {
++        return Err(Failure::Permanent);
++    }
++    let framing = match transfer_encoding.as_deref() {
++        Some(encoding) if encoding.eq_ignore_ascii_case(b"chunked") => Framing::Chunked,
++        Some(_) => return Err(Failure::Permanent),
++        None => match content_length {
++            Some(length) => Framing::ContentLength(length),
++            None => Framing::UntilEof,
++        },
++    };
++    Ok((status, framing))
++}
++
++fn trim_ascii_whitespace(mut value: &[u8]) -> &[u8] {
++    while value
++        .first()
++        .is_some_and(|byte| matches!(byte, b' ' | b'\t'))
++    {
++        value = &value[1..];
++    }
++    while value
++        .last()
++        .is_some_and(|byte| matches!(byte, b' ' | b'\t'))
++    {
++        value = &value[..value.len() - 1];
++    }
++    value
++}
++
++struct BodyReader {
++    stream: TcpStream,
++    framing: Framing,
++    timeout: Duration,
++    last_body_byte: Instant,
++    content_remaining: u64,
++    chunk_remaining: u64,
++    chunk_started: bool,
++    ended: bool,
++}
++
++impl BodyReader {
++    fn new(
++        stream: TcpStream,
++        framing: Framing,
++        timeout: Duration,
++        headers_arrived: Instant,
++    ) -> Self {
++        let content_remaining = match framing {
++            Framing::ContentLength(length) => length,
++            _ => 0,
++        };
++        Self {
++            stream,
++            framing,
++            timeout,
++            last_body_byte: headers_arrived,
++            content_remaining,
++            chunk_remaining: 0,
++            chunk_started: false,
++            ended: false,
++        }
++    }
++
++    fn next_byte(&mut self) -> Result<Option<u8>, Failure> {
++        if self.ended {
++            return Ok(None);
++        }
++        match self.framing {
++            Framing::ContentLength(_) => {
++                if self.content_remaining == 0 {
++                    self.ended = true;
++                    return Ok(None);
++                }
++                match self.read_raw_byte()? {
++                    Some(byte) => {
++                        self.content_remaining -= 1;
++                        self.last_body_byte = Instant::now();
++                        Ok(Some(byte))
++                    }
++                    None => Err(Failure::Retryable),
++                }
++            }
++            Framing::Empty => {
++                self.ended = true;
++                Ok(None)
++            }
++            Framing::UntilEof => match self.read_raw_byte()? {
++                Some(byte) => {
++                    self.last_body_byte = Instant::now();
++                    Ok(Some(byte))
++                }
++                None => {
++                    self.ended = true;
++                    Ok(None)
++                }
++            },
++            Framing::Chunked => self.next_chunked_byte(),
++        }
++    }
++
++    fn next_chunked_byte(&mut self) -> Result<Option<u8>, Failure> {
++        if self.chunk_remaining == 0 {
++            if self.chunk_started {
++                self.read_crlf()?;
++            }
++            let line = self.read_crlf_line(8192)?;
++            let chunk_size_text = line.split(';').next().ok_or(Failure::Permanent)?;
++            if chunk_size_text.is_empty()
++                || !chunk_size_text.bytes().all(|byte| byte.is_ascii_hexdigit())
++            {
++                return Err(Failure::Permanent);
++            }
++            let chunk_size =
++                u64::from_str_radix(chunk_size_text, 16).map_err(|_| Failure::Permanent)?;
++            self.chunk_started = true;
++            if chunk_size == 0 {
++                loop {
++                    let trailer = self.read_crlf_line(8192)?;
++                    if trailer.is_empty() {
++                        self.ended = true;
++                        return Ok(None);
++                    }
++                    let (name, _) = trailer.split_once(':').ok_or(Failure::Permanent)?;
++                    if name.is_empty()
++                        || !name.bytes().all(|byte| {
++                            byte.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&byte)
++                        })
++                    {
++                        return Err(Failure::Permanent);
++                    }
++                }
++            }
++            self.chunk_remaining = chunk_size;
++        }
++
++        match self.read_raw_byte()? {
++            Some(byte) => {
++                self.chunk_remaining -= 1;
++                self.last_body_byte = Instant::now();
++                Ok(Some(byte))
++            }
++            None => Err(Failure::Retryable),
++        }
++    }
++
++    fn read_crlf(&mut self) -> Result<(), Failure> {
++        let first = self.read_raw_byte()?.ok_or(Failure::Retryable)?;
++        let second = self.read_raw_byte()?.ok_or(Failure::Retryable)?;
++        if first != b'\r' || second != b'\n' {
++            return Err(Failure::Permanent);
++        }
++        Ok(())
++    }
++
++    fn read_crlf_line(&mut self, limit: usize) -> Result<String, Failure> {
++        let mut bytes = Vec::new();
++        loop {
++            let byte = self.read_raw_byte()?.ok_or(Failure::Retryable)?;
++            match byte {
++                b'\r' => {
++                    let next = self.read_raw_byte()?.ok_or(Failure::Retryable)?;
++                    if next != b'\n' {
++                        return Err(Failure::Permanent);
++                    }
++                    return String::from_utf8(bytes).map_err(|_| Failure::Permanent);
++                }
++                b'\n' => return Err(Failure::Permanent),
++                _ => bytes.push(byte),
++            }
++            if bytes.len() > limit {
++                return Err(Failure::Permanent);
++            }
++        }
++    }
++
++    fn read_raw_byte(&mut self) -> Result<Option<u8>, Failure> {
++        let deadline = self.last_body_byte + self.timeout;
++        let remaining = deadline
++            .checked_duration_since(Instant::now())
++            .ok_or(Failure::Retryable)?;
++        if remaining.is_zero() {
++            return Err(Failure::Retryable);
++        }
++        self.stream
++            .set_read_timeout(Some(remaining))
++            .map_err(|_| Failure::Retryable)?;
++        let mut byte = [0u8; 1];
++        match self.stream.read(&mut byte) {
++            Ok(0) => Ok(None),
++            Ok(_) => Ok(Some(byte[0])),
++            Err(error) if is_timeout(&error) => Err(Failure::Retryable),
++            Err(_) => Err(Failure::Retryable),
++        }
++    }
++}
++
++fn parse_sse(reader: &mut BodyReader) -> Result<(String, Usage), Failure> {
++    let mut line = Vec::new();
++    let mut data_values = Vec::new();
++    let mut appended_text = String::new();
++    let mut last_usage = None;
++
++    loop {
++        match reader.next_byte()? {
++            Some(b'\n') => {
++                if line.last() == Some(&b'\r') {
++                    line.pop();
++                }
++                let line_text =
++                    String::from_utf8(std::mem::take(&mut line)).map_err(|_| Failure::Permanent)?;
++                if line_text.is_empty() {
++                    if finish_event(&mut data_values, &mut appended_text, &mut last_usage)? {
++                        return complete_sse(appended_text, last_usage);
++                    }
++                } else if let Some(value) = line_text.strip_prefix("data:") {
++                    data_values.push(value.strip_prefix(' ').unwrap_or(value).to_owned());
++                }
++            }
++            Some(byte) => line.push(byte),
++            None => {
++                if std::str::from_utf8(&line).is_err() {
++                    return Err(Failure::Permanent);
++                }
++                return Err(Failure::Permanent);
++            }
++        }
++    }
++}
++
++fn finish_event(
++    data_values: &mut Vec<String>,
++    appended_text: &mut String,
++    last_usage: &mut Option<Usage>,
++) -> Result<bool, Failure> {
++    if data_values.is_empty() {
++        return Ok(false);
++    }
++    let data = data_values.join("\n");
++    data_values.clear();
++    if data == "[DONE]" {
++        return Ok(true);
++    }
++
++    let value = JsonParser::parse(&data).map_err(|_| Failure::Permanent)?;
++    let JsonValue::Object(object) = value else {
++        return Err(Failure::Permanent);
++    };
++    match object.get("type") {
++        Some(JsonValue::String(kind)) if kind == "text" => {
++            let Some(JsonValue::String(text)) = object.get("text") else {
++                return Err(Failure::Permanent);
++            };
++            appended_text.push_str(text);
++        }
++        Some(JsonValue::String(kind)) if kind == "usage" => {
++            let Some(JsonValue::Number(input)) = object.get("input_tokens") else {
++                return Err(Failure::Permanent);
++            };
++            let Some(JsonValue::Number(output)) = object.get("output_tokens") else {
++                return Err(Failure::Permanent);
++            };
++            *last_usage = Some(Usage {
++                input_tokens: parse_integral_token_count(input).ok_or(Failure::Permanent)?,
++                output_tokens: parse_integral_token_count(output).ok_or(Failure::Permanent)?,
++            });
++        }
++        _ => {}
++    }
++    Ok(false)
++}
++
++fn complete_sse(text: String, usage: Option<Usage>) -> Result<(String, Usage), Failure> {
++    usage.map(|usage| (text, usage)).ok_or(Failure::Permanent)
++}
++
++#[derive(Debug)]
++enum JsonValue {
++    Object(HashMap<String, JsonValue>),
++    Array,
++    String(String),
++    Number(String),
++    Bool,
++    Null,
++}
++
++struct JsonParser<'a> {
++    source: &'a str,
++    bytes: &'a [u8],
++    index: usize,
++    depth: usize,
++}
++
++impl<'a> JsonParser<'a> {
++    fn parse(source: &'a str) -> Result<JsonValue, ()> {
++        let mut parser = Self {
++            source,
++            bytes: source.as_bytes(),
++            index: 0,
++            depth: 0,
++        };
++        parser.skip_whitespace();
++        let value = parser.parse_value()?;
++        parser.skip_whitespace();
++        (parser.index == parser.bytes.len())
++            .then_some(value)
++            .ok_or(())
++    }
++
++    fn parse_value(&mut self) -> Result<JsonValue, ()> {
++        self.skip_whitespace();
++        match self.peek().ok_or(())? {
++            b'{' => self.parse_object(),
++            b'[' => self.parse_array(),
++            b'"' => self.parse_string().map(JsonValue::String),
++            b't' => {
++                self.expect_literal(b"true")?;
++                Ok(JsonValue::Bool)
++            }
++            b'f' => {
++                self.expect_literal(b"false")?;
++                Ok(JsonValue::Bool)
++            }
++            b'n' => {
++                self.expect_literal(b"null")?;
++                Ok(JsonValue::Null)
++            }
++            b'-' | b'0'..=b'9' => self.parse_number().map(JsonValue::Number),
++            _ => Err(()),
++        }
++    }
++
++    fn parse_object(&mut self) -> Result<JsonValue, ()> {
++        self.enter_depth()?;
++        self.index += 1;
++        self.skip_whitespace();
++        let mut values = HashMap::new();
++        if self.consume(b'}') {
++            self.depth -= 1;
++            return Ok(JsonValue::Object(values));
++        }
++        loop {
++            if self.peek() != Some(b'"') {
++                return Err(());
++            }
++            let key = self.parse_string()?;
++            self.skip_whitespace();
++            if !self.consume(b':') {
++                return Err(());
++            }
++            let value = self.parse_value()?;
++            values.insert(key, value);
++            self.skip_whitespace();
++            if self.consume(b'}') {
++                self.depth -= 1;
++                return Ok(JsonValue::Object(values));
++            }
++            if !self.consume(b',') {
++                return Err(());
++            }
++            self.skip_whitespace();
++        }
++    }
++
++    fn parse_array(&mut self) -> Result<JsonValue, ()> {
++        self.enter_depth()?;
++        self.index += 1;
++        self.skip_whitespace();
++        if self.consume(b']') {
++            self.depth -= 1;
++            return Ok(JsonValue::Array);
++        }
++        loop {
++            let _ = self.parse_value()?;
++            self.skip_whitespace();
++            if self.consume(b']') {
++                self.depth -= 1;
++                return Ok(JsonValue::Array);
++            }
++            if !self.consume(b',') {
++                return Err(());
++            }
++        }
++    }
++
++    fn enter_depth(&mut self) -> Result<(), ()> {
++        self.depth += 1;
++        if self.depth > 512 { Err(()) } else { Ok(()) }
++    }
++
++    fn parse_string(&mut self) -> Result<String, ()> {
++        if !self.consume(b'"') {
++            return Err(());
++        }
++        let mut result = String::new();
++        loop {
++            let byte = self.peek().ok_or(())?;
++            match byte {
++                b'"' => {
++                    self.index += 1;
++                    return Ok(result);
++                }
++                b'\\' => {
++                    self.index += 1;
++                    let escaped = self.peek().ok_or(())?;
++                    self.index += 1;
++                    match escaped {
++                        b'"' => result.push('"'),
++                        b'\\' => result.push('\\'),
++                        b'/' => result.push('/'),
++                        b'b' => result.push('\u{08}'),
++                        b'f' => result.push('\u{0c}'),
++                        b'n' => result.push('\n'),
++                        b'r' => result.push('\r'),
++                        b't' => result.push('\t'),
++                        b'u' => {
++                            let first = self.parse_hex_quad()?;
++                            let scalar = if (0xd800..=0xdbff).contains(&first) {
++                                if self.bytes.get(self.index..self.index + 2) != Some(b"\\u") {
++                                    return Err(());
++                                }
++                                self.index += 2;
++                                let second = self.parse_hex_quad()?;
++                                if !(0xdc00..=0xdfff).contains(&second) {
++                                    return Err(());
++                                }
++                                0x10000
++                                    + (((first - 0xd800) as u32) << 10)
++                                    + (second - 0xdc00) as u32
++                            } else if (0xdc00..=0xdfff).contains(&first) {
++                                return Err(());
++                            } else {
++                                first as u32
++                            };
++                            result.push(char::from_u32(scalar).ok_or(())?);
++                        }
++                        _ => return Err(()),
++                    }
++                }
++                0x00..=0x1f => return Err(()),
++                _ => {
++                    let character = self.source[self.index..].chars().next().ok_or(())?;
++                    result.push(character);
++                    self.index += character.len_utf8();
++                }
++            }
++        }
++    }
++
++    fn parse_hex_quad(&mut self) -> Result<u16, ()> {
++        let end = self.index.checked_add(4).ok_or(())?;
++        let bytes = self.bytes.get(self.index..end).ok_or(())?;
++        let mut value = 0u16;
++        for byte in bytes {
++            value = value.checked_mul(16).ok_or(())?;
++            value += match byte {
++                b'0'..=b'9' => (byte - b'0') as u16,
++                b'a'..=b'f' => (byte - b'a' + 10) as u16,
++                b'A'..=b'F' => (byte - b'A' + 10) as u16,
++                _ => return Err(()),
++            };
++        }
++        self.index = end;
++        Ok(value)
++    }
++
++    fn parse_number(&mut self) -> Result<String, ()> {
++        let start = self.index;
++        self.consume(b'-');
++        match self.peek() {
++            Some(b'0') => {
++                self.index += 1;
++                if self.peek().is_some_and(|byte| byte.is_ascii_digit()) {
++                    return Err(());
++                }
++            }
++            Some(b'1'..=b'9') => {
++                self.index += 1;
++                while self.peek().is_some_and(|byte| byte.is_ascii_digit()) {
++                    self.index += 1;
++                }
++            }
++            _ => return Err(()),
++        }
++        if self.consume(b'.') {
++            let fraction_start = self.index;
++            while self.peek().is_some_and(|byte| byte.is_ascii_digit()) {
++                self.index += 1;
++            }
++            if self.index == fraction_start {
++                return Err(());
++            }
++        }
++        if self.peek().is_some_and(|byte| matches!(byte, b'e' | b'E')) {
++            self.index += 1;
++            if self.peek().is_some_and(|byte| matches!(byte, b'+' | b'-')) {
++                self.index += 1;
++            }
++            let exponent_start = self.index;
++            while self.peek().is_some_and(|byte| byte.is_ascii_digit()) {
++                self.index += 1;
++            }
++            if self.index == exponent_start {
++                return Err(());
++            }
++        }
++        Ok(self.source[start..self.index].to_owned())
++    }
++
++    fn expect_literal(&mut self, literal: &[u8]) -> Result<(), ()> {
++        let end = self.index.checked_add(literal.len()).ok_or(())?;
++        if self.bytes.get(self.index..end) != Some(literal) {
++            return Err(());
++        }
++        self.index = end;
++        Ok(())
++    }
++
++    fn skip_whitespace(&mut self) {
++        while self
++            .peek()
++            .is_some_and(|byte| matches!(byte, b' ' | b'\t' | b'\r' | b'\n'))
++        {
++            self.index += 1;
++        }
++    }
++
++    fn consume(&mut self, byte: u8) -> bool {
++        if self.peek() == Some(byte) {
++            self.index += 1;
++            true
++        } else {
++            false
++        }
++    }
++
++    fn peek(&self) -> Option<u8> {
++        self.bytes.get(self.index).copied()
++    }
++}
++
++fn parse_integral_token_count(number: &str) -> Option<u64> {
++    let bytes = number.as_bytes();
++    let mut index = 0;
++    let negative = if bytes.first() == Some(&b'-') {
++        index += 1;
++        true
++    } else {
++        false
++    };
++
++    let integer_start = index;
++    while bytes.get(index).is_some_and(u8::is_ascii_digit) {
++        index += 1;
++    }
++    let integer_end = index;
++    let (fraction_start, fraction_end) = if bytes.get(index) == Some(&b'.') {
++        index += 1;
++        let fraction_start = index;
++        while bytes.get(index).is_some_and(u8::is_ascii_digit) {
++            index += 1;
++        }
++        (fraction_start, index)
++    } else {
++        (index, index)
++    };
++    let mut exponent = 0i64;
++    if bytes
++        .get(index)
++        .is_some_and(|byte| matches!(byte, b'e' | b'E'))
++    {
++        index += 1;
++        let exponent_negative = if bytes.get(index) == Some(&b'-') {
++            index += 1;
++            true
++        } else {
++            if bytes.get(index) == Some(&b'+') {
++                index += 1;
++            }
++            false
++        };
++        while bytes.get(index).is_some_and(u8::is_ascii_digit) {
++            exponent = exponent
++                .saturating_mul(10)
++                .saturating_add((bytes[index] - b'0') as i64)
++                .min(1_000_000_000);
++            index += 1;
++        }
++        if exponent_negative {
++            exponent = -exponent;
++        }
++    }
++    let mut digits =
++        Vec::with_capacity((integer_end - integer_start) + (fraction_end - fraction_start));
++    digits.extend_from_slice(&bytes[integer_start..integer_end]);
++    digits.extend_from_slice(&bytes[fraction_start..fraction_end]);
++    let first_nonzero = digits.iter().position(|byte| *byte != b'0');
++    if first_nonzero.is_none() {
++        return Some(0);
++    }
++    if negative {
++        return None;
++    }
++    let mut digits = digits[first_nonzero.unwrap()..].to_vec();
++    let fraction_digits = (fraction_end - fraction_start) as i64;
++    let scale = exponent.saturating_sub(fraction_digits);
++    if scale < 0 {
++        let remove = usize::try_from(-scale).ok()?;
++        if remove > digits.len()
++            || digits[digits.len() - remove..]
++                .iter()
++                .any(|byte| *byte != b'0')
++        {
++            return None;
++        }
++        digits.truncate(digits.len() - remove);
++    } else if scale > 0 {
++        let extra = usize::try_from(scale).ok()?;
++        if digits.len().saturating_add(extra) > 16 {
++            return None;
++        }
++        digits.extend(std::iter::repeat_n(b'0', extra));
++    }
++    if digits.len() > 16 {
++        return None;
++    }
++    let value = std::str::from_utf8(&digits).ok()?.parse::<u64>().ok()?;
++    (value <= MAX_SAFE_INTEGER).then_some(value)
++}
++
++static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
++
++fn replace_atomically(path: &Path, contents: &[u8]) -> io::Result<()> {
++    let parent = path
++        .parent()
++        .filter(|parent| !parent.as_os_str().is_empty())
++        .unwrap_or(Path::new("."));
++    std::fs::create_dir_all(parent)?;
++    let file_name = path.file_name().ok_or_else(|| {
++        io::Error::new(io::ErrorKind::InvalidInput, "usage file needs a file name")
++    })?;
++
++    for _ in 0..32 {
++        let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
++        let mut temporary_name = std::ffi::OsString::from(".");
++        temporary_name.push(file_name);
++        temporary_name.push(format!(".kogen-{}-{counter}.tmp", std::process::id()));
++        let temporary_path = parent.join(temporary_name);
++        let opened = std::fs::OpenOptions::new()
++            .write(true)
++            .create_new(true)
++            .open(&temporary_path);
++        let mut file = match opened {
++            Ok(file) => file,
++            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
++            Err(error) => return Err(error),
++        };
++        let write_result = file.write_all(contents).and_then(|()| file.sync_all());
++        drop(file);
++        if let Err(error) = write_result {
++            let _ = std::fs::remove_file(&temporary_path);
++            return Err(error);
++        }
++        if let Err(error) = std::fs::rename(&temporary_path, path) {
++            let _ = std::fs::remove_file(&temporary_path);
++            return Err(error);
++        }
++        return Ok(());
++    }
++    Err(io::Error::new(
++        io::ErrorKind::AlreadyExists,
++        "could not create a unique temporary file",
++    ))
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..96a29e8 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -18,7 +18,17 @@ pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+ }
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
++    let args: Result<Vec<String>, _> = std::env::args_os()
++        .skip(1)
++        .map(|argument| argument.into_string())
++        .collect();
++    let args = match args {
++        Ok(args) => args,
++        Err(_) => {
++            let _ = writeln!(io::stderr(), "error: invalid arguments");
++            std::process::exit(2);
++        }
++    };
+     match core::execute(&args) {
+         Ok(output) => {
+             let _ = io::stdout().write_all(output.as_bytes());

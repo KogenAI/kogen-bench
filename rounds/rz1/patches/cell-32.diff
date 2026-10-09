@@ -1,0 +1,331 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..a13c15f 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,38 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub enum JobState {
++    Queued,
++    Running,
++    Done,
++    Failed,
++}
++
++#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
++pub struct StateCounts {
++    pub total: usize,
++    pub queued: usize,
++    pub running: usize,
++    pub done: usize,
++    pub failed: usize,
++}
++
++pub fn sum(values: &[i64], scale: u32) -> i64 {
++    values.iter().sum::<i64>() * i64::from(scale)
++}
++
++pub fn count_states(states: &[JobState]) -> StateCounts {
++    let mut counts = StateCounts {
++        total: states.len(),
++        ..StateCounts::default()
++    };
++
++    for state in states {
++        match state {
++            JobState::Queued => counts.queued += 1,
++            JobState::Running => counts.running += 1,
++            JobState::Done => counts.done += 1,
++            JobState::Failed => counts.failed += 1,
++        }
++    }
++
++    counts
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..a0570e7 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,25 +1,34 @@
++use std::collections::HashSet;
+ use std::io::{self, Read, Write};
+ 
+-pub fn physical_lines(text: &str) -> Vec<&str> {
+-    text.split('\n')
+-        .map(|line| line.strip_suffix('\r').unwrap_or(line))
+-        .collect()
++mod core;
++
++const HELP: &str = "Usage: kogen <command> [options] [FILE|-]\nCommands:\n  sum     Sum signed integers.\n  status  Count job states.\nOptions:\n  -h, --help  Show help.\n  --version   Show version.\n";
++const SUM_HELP: &str = "Usage: kogen sum [--scale N] [--format text|json] [FILE|-]\nSum one signed integer per nonempty line (default scale: 1).\n";
++const STATUS_HELP: &str = "Usage: kogen status [--format text|json] [FILE|-]\nCount ID,STATE records (states: queued,running,done,failed).\n";
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++enum Format {
++    Text,
++    Json,
+ }
+ 
+-pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+-    let result = match path {
+-        None | Some("-") => {
+-            let mut bytes = Vec::new();
+-            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
+-        }
+-        Some(path) => std::fs::read(path),
+-    };
+-    result.map_err(|_| format!("{prefix}: cannot read input"))
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++enum Command {
++    Sum,
++    Status,
++}
++
++struct Options {
++    command: Command,
++    format: Format,
++    scale: u32,
++    path: Option<String>,
+ }
+ 
+ fn main() {
+     let args: Vec<String> = std::env::args().skip(1).collect();
+-    match core::execute(&args) {
++    match execute(&args) {
+         Ok(output) => {
+             let _ = io::stdout().write_all(output.as_bytes());
+         }
+@@ -30,7 +39,231 @@ fn main() {
+     }
+ }
+ 
+-mod core;
++fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    if args.is_empty() || args == ["--help"] || args == ["-h"] {
++        return Ok(HELP.to_owned());
++    }
++    if args == ["--version"] {
++        return Ok("kogen 1.0.0\n".to_owned());
++    }
++
++    let command = match args[0].as_str() {
++        "sum" => Command::Sum,
++        "status" => Command::Status,
++        token if token.starts_with('-') => {
++            return Err((2, format!("kogen: unknown option '{token}'")));
++        }
++        token => return Err((2, format!("kogen: unknown command '{token}'"))),
++    };
++
++    let command_args = &args[1..];
++    if command_args == ["--help"] || command_args == ["-h"] {
++        return Ok(match command {
++            Command::Sum => SUM_HELP,
++            Command::Status => STATUS_HELP,
++        }
++        .to_owned());
++    }
++
++    let options = parse_options(command, command_args)?;
++    let input = load(options.path.as_deref())?;
++    if input.iter().any(|byte| !byte.is_ascii()) {
++        return Err((1, "kogen: input is not ASCII".to_owned()));
++    }
++    let text = std::str::from_utf8(&input).expect("ASCII input is valid UTF-8");
++    let lines = physical_lines(text);
++
++    match options.command {
++        Command::Sum => run_sum(&lines, options.scale, options.format),
++        Command::Status => run_status(&lines, options.format),
++    }
++}
++
++fn parse_options(command: Command, args: &[String]) -> Result<Options, (i32, String)> {
++    let mut format = Format::Text;
++    let mut scale = 1;
++    let mut format_seen = false;
++    let mut scale_seen = false;
++    let mut path = None;
++    let mut index = 0;
++
++    while index < args.len() {
++        let token = args[index].as_str();
++        match token {
++            "--format" => {
++                if format_seen {
++                    return Err((2, "kogen: duplicate option '--format'".to_owned()));
++                }
++                format_seen = true;
++                let value = args
++                    .get(index + 1)
++                    .ok_or_else(|| (2, "kogen: option '--format' requires a value".to_owned()))?;
++                format = match value.as_str() {
++                    "text" => Format::Text,
++                    "json" => Format::Json,
++                    _ => {
++                        return Err((2, format!("kogen: invalid value for '--format': '{value}'")));
++                    }
++                };
++                index += 2;
++            }
++            "--scale" if command == Command::Sum => {
++                if scale_seen {
++                    return Err((2, "kogen: duplicate option '--scale'".to_owned()));
++                }
++                scale_seen = true;
++                let value = args
++                    .get(index + 1)
++                    .ok_or_else(|| (2, "kogen: option '--scale' requires a value".to_owned()))?;
++                scale = parse_scale(value)
++                    .ok_or_else(|| (2, format!("kogen: invalid value for '--scale': '{value}'")))?;
++                index += 2;
++            }
++            _ if token.starts_with('-') && token != "-" => {
++                return Err((2, format!("kogen: unknown option '{token}'")));
++            }
++            _ => {
++                if path.is_some() {
++                    return Err((2, "kogen: expected at most one input path".to_owned()));
++                }
++                path = Some(token.to_owned());
++                index += 1;
++            }
++        }
++    }
++
++    Ok(Options {
++        command,
++        format,
++        scale,
++        path,
++    })
++}
++
++fn parse_scale(value: &str) -> Option<u32> {
++    let bytes = value.as_bytes();
++    if bytes.is_empty()
++        || (bytes.len() > 1 && bytes[0] == b'0')
++        || !bytes.iter().all(u8::is_ascii_digit)
++    {
++        return None;
++    }
++    let scale = value.parse::<u32>().ok()?;
++    (scale <= 100).then_some(scale)
++}
++
++fn load(path: Option<&str>) -> Result<Vec<u8>, (i32, String)> {
++    let result = match path {
++        None | Some("-") => {
++            let mut bytes = Vec::new();
++            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
++        }
++        Some(path) => std::fs::read(path),
++    };
++    result.map_err(|_| (1, "kogen: cannot read input".to_owned()))
++}
++
++fn physical_lines(text: &str) -> Vec<&str> {
++    text.split('\n')
++        .map(|line| line.strip_suffix('\r').unwrap_or(line))
++        .collect()
++}
++
++fn run_sum(lines: &[&str], scale: u32, format: Format) -> Result<String, (i32, String)> {
++    let mut values = Vec::new();
++    for (index, line) in lines.iter().enumerate() {
++        if line.is_empty() {
++            continue;
++        }
++        let value = parse_integer(line).ok_or_else(|| {
++            (
++                1,
++                format!("kogen:{}: expected integer -1000000..1000000", index + 1),
++            )
++        })?;
++        values.push(value);
++    }
++
++    let sum = core::sum(&values, scale);
++    Ok(match format {
++        Format::Text => format!("sum={sum}\n"),
++        Format::Json => format!("{{\"sum\":{sum}}}\n"),
++    })
++}
++
++fn parse_integer(line: &str) -> Option<i64> {
++    let bytes = line.as_bytes();
++    let start = usize::from(matches!(bytes.first(), Some(b'+') | Some(b'-')));
++    if start == bytes.len() || !bytes[start..].iter().all(u8::is_ascii_digit) {
++        return None;
++    }
++
++    let mut magnitude = 0_i64;
++    for digit in &bytes[start..] {
++        magnitude = magnitude * 10 + i64::from(digit - b'0');
++        if magnitude > 1_000_000 {
++            return None;
++        }
++    }
++    Some(if bytes.first() == Some(&b'-') {
++        -magnitude
++    } else {
++        magnitude
++    })
++}
++
++fn run_status(lines: &[&str], format: Format) -> Result<String, (i32, String)> {
++    let mut ids = HashSet::new();
++    let mut states = Vec::new();
++    for (index, line) in lines.iter().enumerate() {
++        if line.is_empty() {
++            continue;
++        }
++        let line_number = index + 1;
++        let (id, state) = parse_record(line)
++            .ok_or_else(|| (1, format!("kogen:{line_number}: expected ID,STATE")))?;
++        if !ids.insert(id.to_owned()) {
++            return Err((1, format!("kogen:{line_number}: duplicate id '{id}'")));
++        }
++        states.push(state);
++    }
++
++    let counts = core::count_states(&states);
++    Ok(match format {
++        Format::Text => format!(
++            "total={}\nqueued={}\nrunning={}\ndone={}\nfailed={}\n",
++            counts.total, counts.queued, counts.running, counts.done, counts.failed
++        ),
++        Format::Json => format!(
++            "{{\"total\":{},\"queued\":{},\"running\":{},\"done\":{},\"failed\":{}}}\n",
++            counts.total, counts.queued, counts.running, counts.done, counts.failed
++        ),
++    })
++}
++
++fn parse_record(line: &str) -> Option<(&str, core::JobState)> {
++    let (id, state) = line.split_once(',')?;
++    if state.contains(',') || !valid_id(id) {
++        return None;
++    }
++    let state = match state {
++        "queued" => core::JobState::Queued,
++        "running" => core::JobState::Running,
++        "done" => core::JobState::Done,
++        "failed" => core::JobState::Failed,
++        _ => return None,
++    };
++    Some((id, state))
++}
++
++fn valid_id(id: &str) -> bool {
++    let bytes = id.as_bytes();
++    (1..=32).contains(&bytes.len())
++        && bytes[0].is_ascii_lowercase()
++        && bytes[1..].iter().all(|byte| {
++            byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'_' || *byte == b'-'
++        })
++}
+ 
+ #[cfg(test)]
+ mod tests {

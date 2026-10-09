@@ -1,0 +1,507 @@
+diff --git a/src/core.zig b/src/core.zig
+index 24ab652..6d56777 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,5 +1,487 @@
+ const std = @import("std");
+ 
+-pub fn execute(_: std.mem.Allocator, _: []const [*:0]const u8) c_int {
+-    return 0;
++const size_t = usize;
++const ssize_t = isize;
++
++const O_RDONLY: c_int = 0;
++const O_CLOEXEC: c_int = 0x80000;
++const O_NONBLOCK: c_int = 0x800;
++const F_GETFL: c_int = 3;
++const F_SETFL: c_int = 4;
++const EINTR: c_int = 4;
++const EAGAIN: c_int = 11;
++const ENOENT: c_int = 2;
++const ENOTDIR: c_int = 20;
++const EACCES: c_int = 13;
++const WNOHANG: c_int = 1;
++const SIGTERM: c_int = 15;
++const SIGKILL: c_int = 9;
++const CLOCK_MONOTONIC: c_int = 1;
++
++const Timespec = extern struct {
++    tv_sec: i64,
++    tv_nsec: i64,
++};
++
++const PollFd = extern struct {
++    fd: c_int,
++    events: i16,
++    revents: i16,
++};
++
++const Dir = opaque {};
++
++const Dirent = extern struct {
++    d_ino: u64,
++    d_off: i64,
++    d_reclen: u16,
++    d_type: u8,
++    d_name: [256]u8,
++};
++
++extern "c" fn pipe2(fds: *[2]c_int, flags: c_int) c_int;
++extern "c" fn fork() c_int;
++extern "c" fn setpgid(pid: c_int, pgid: c_int) c_int;
++extern "c" fn dup2(oldfd: c_int, newfd: c_int) c_int;
++extern "c" fn open(path: [*:0]const u8, flags: c_int, ...) c_int;
++extern "c" fn close(fd: c_int) c_int;
++extern "c" fn execv(path: [*:0]const u8, argv: [*]const ?[*:0]const u8) c_int;
++extern "c" fn getenv(name: [*:0]const u8) ?[*:0]u8;
++extern "c" fn _exit(status: c_int) noreturn;
++extern "c" fn read(fd: c_int, buffer: [*]u8, count: size_t) ssize_t;
++extern "c" fn write(fd: c_int, buffer: [*]const u8, count: size_t) ssize_t;
++extern "c" fn fcntl(fd: c_int, command: c_int, ...) c_int;
++extern "c" fn waitpid(pid: c_int, status: *c_int, options: c_int) c_int;
++extern "c" fn kill(pid: c_int, signal: c_int) c_int;
++extern "c" fn poll(fds: [*]PollFd, count: usize, timeout_ms: c_int) c_int;
++extern "c" fn clock_gettime(clock_id: c_int, value: *Timespec) c_int;
++extern "c" fn opendir(name: [*:0]const u8) ?*Dir;
++extern "c" fn readdir(dir: *Dir) ?*Dirent;
++extern "c" fn closedir(dir: *Dir) c_int;
++extern "c" fn __errno_location() *c_int;
++
++const Options = struct {
++    timeout_ns: u64,
++    grace_ns: u64,
++    command_args: []const [*:0]const u8,
++};
++
++const OutputPipes = struct {
++    fds: [2]c_int,
++    ended: [2]bool = .{ false, false },
++
++    fn allEnded(self: OutputPipes) bool {
++        return self.ended[0] and self.ended[1];
++    }
++};
++
++const StartedChild = struct {
++    pid: c_int,
++    started_ns: u64,
++};
++
++fn errno() c_int {
++    return __errno_location().*;
++}
++
++fn argEquals(arg: [*:0]const u8, text: []const u8) bool {
++    return std.mem.eql(u8, std.mem.span(arg), text);
++}
++
++fn parseMillis(value: [*:0]const u8) ?u64 {
++    const bytes = std.mem.span(value);
++    if (bytes.len == 0) return null;
++    var number: u64 = 0;
++    for (bytes) |byte| {
++        if (byte < '0' or byte > '9') return null;
++        const digit: u64 = byte - '0';
++        if (number > (60000 - digit) / 10) return null;
++        number = number * 10 + digit;
++    }
++    if (number == 0) return null;
++    return number;
++}
++
++fn parseArgs(args: []const [*:0]const u8) ?Options {
++    if (args.len < 7 or !argEquals(args[0], "supervise")) return null;
++    if (!argEquals(args[1], "--timeout-ms")) return null;
++    const timeout_ms = parseMillis(args[2]) orelse return null;
++    if (!argEquals(args[3], "--grace-ms")) return null;
++    const grace_ms = parseMillis(args[4]) orelse return null;
++    if (!argEquals(args[5], "--") or args.len == 6) return null;
++    return .{
++        .timeout_ns = timeout_ms * std.time.ns_per_ms,
++        .grace_ns = grace_ms * std.time.ns_per_ms,
++        .command_args = args[6..],
++    };
++}
++
++fn writeAll(fd: c_int, bytes: []const u8) void {
++    var offset: usize = 0;
++    while (offset < bytes.len) {
++        const count = write(fd, bytes[offset..].ptr, bytes.len - offset);
++        if (count > 0) {
++            offset += @intCast(count);
++            continue;
++        }
++        if (count < 0 and errno() == EINTR) continue;
++        return;
++    }
++}
++
++fn diagnostic(bytes: []const u8) void {
++    writeAll(2, bytes);
++}
++
++fn monotonicNs() u64 {
++    var value: Timespec = undefined;
++    if (clock_gettime(CLOCK_MONOTONIC, &value) != 0) return 0;
++    return @intCast(value.tv_sec * std.time.ns_per_s + value.tv_nsec);
++}
++
++fn waitChild(pid: c_int, status: *c_int, options: c_int) c_int {
++    while (true) {
++        const result = waitpid(pid, status, options);
++        if (result >= 0) return result;
++        if (errno() != EINTR) return result;
++    }
++}
++
++fn reapNonBlocking(pid: c_int, reaped: *bool, wait_status: *c_int) void {
++    if (reaped.*) return;
++    const result = waitChild(pid, wait_status, WNOHANG);
++    if (result == pid) reaped.* = true;
++}
++
++fn groupHasLiveMember(pgid: c_int) bool {
++    const proc_path: [:0]const u8 = "/proc";
++    const directory = opendir(proc_path.ptr) orelse return false;
++    defer _ = closedir(directory);
++
++    while (readdir(directory)) |entry| {
++        const name = entry.d_name[0 .. std.mem.indexOfScalar(u8, &entry.d_name, 0) orelse entry.d_name.len];
++        if (name.len == 0) continue;
++        var pid: u64 = 0;
++        var numeric = true;
++        for (name) |byte| {
++            if (byte < '0' or byte > '9') {
++                numeric = false;
++                break;
++            }
++            pid = pid * 10 + @as(u64, byte - '0');
++        }
++        if (!numeric or pid == 0) continue;
++
++        var path_buffer: [64]u8 = undefined;
++        const path = std.fmt.bufPrint(path_buffer[0 .. path_buffer.len - 1], "/proc/{s}/stat", .{name}) catch continue;
++        path_buffer[path.len] = 0;
++        const path_z = path_buffer[0..path.len :0];
++        const fd = open(path_z.ptr, O_RDONLY);
++        if (fd < 0) continue;
++        defer _ = close(fd);
++        var stat_buffer: [4096]u8 = undefined;
++        const count = read(fd, &stat_buffer, stat_buffer.len);
++        if (count <= 0) continue;
++        const stat = stat_buffer[0..@intCast(count)];
++
++        // comm is parenthesized and may contain spaces or ')' characters. The
++        // final ')' separates it from the state and numeric fields.
++        const close_paren = std.mem.lastIndexOfScalar(u8, stat, ')') orelse continue;
++        var fields = std.mem.tokenizeScalar(u8, stat[close_paren + 1 ..], ' ');
++        const state = fields.next() orelse continue;
++        const parent_pid = fields.next() orelse continue;
++        const process_group = fields.next() orelse continue;
++        _ = parent_pid;
++        const process_group_id = std.fmt.parseInt(c_int, process_group, 10) catch continue;
++        if (process_group_id == pgid and state.len == 1 and state[0] != 'Z' and state[0] != 'X') return true;
++    }
++    return false;
++}
++
++fn configureNonblocking(fd: c_int) void {
++    const flags = fcntl(fd, F_GETFL);
++    if (flags >= 0) _ = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
++}
++
++fn drainOne(output: *OutputPipes, index: usize) void {
++    if (output.ended[index]) return;
++    const source_fd = output.fds[index];
++    const destination_fd: c_int = if (index == 0) 1 else 2;
++    var buffer: [8192]u8 = undefined;
++    var budget: usize = 65536;
++    while (budget > 0) {
++        const count = read(source_fd, &buffer, @min(buffer.len, budget));
++        if (count > 0) {
++            const amount: usize = @intCast(count);
++            writeAll(destination_fd, buffer[0..amount]);
++            budget -= amount;
++            continue;
++        }
++        if (count == 0) {
++            output.ended[index] = true;
++            _ = close(source_fd);
++            return;
++        }
++        const error_number = errno();
++        if (error_number == EINTR) continue;
++        if (error_number == EAGAIN) return;
++        output.ended[index] = true;
++        _ = close(source_fd);
++        return;
++    }
++}
++
++fn serviceOutput(output: *OutputPipes, timeout_ms: c_int) void {
++    var fds = [_]PollFd{
++        .{ .fd = if (output.ended[0]) -1 else output.fds[0], .events = 1, .revents = 0 },
++        .{ .fd = if (output.ended[1]) -1 else output.fds[1], .events = 1, .revents = 0 },
++    };
++    while (true) {
++        const result = poll(&fds, fds.len, timeout_ms);
++        if (result >= 0) break;
++        if (errno() != EINTR) return;
++    }
++    for (0..fds.len) |index| {
++        if (output.ended[index]) continue;
++        if ((fds[index].revents & (1 | 8 | 16 | 32)) != 0) drainOne(output, index);
++    }
++}
++
++fn timeoutUntil(deadline: u64, cap_ms: c_int) c_int {
++    const now = monotonicNs();
++    if (now >= deadline) return 0;
++    const remaining = deadline - now;
++    const rounded_ms: u64 = @divTrunc(remaining + std.time.ns_per_ms - 1, std.time.ns_per_ms);
++    return @intCast(@min(rounded_ms, @as(u64, @intCast(cap_ms))));
++}
++
++fn childFail(error_fd: c_int) noreturn {
++    var error_code = errno();
++    if (error_code == 0) error_code = 1;
++    _ = write(error_fd, @ptrCast(&error_code), @sizeOf(c_int));
++    _exit(127);
++}
++
++fn childExec(command_args: []const [*:0]const u8, argv: [*]const ?[*:0]const u8, error_fd: c_int) noreturn {
++    const command = std.mem.span(command_args[0]);
++    if (std.mem.indexOfScalar(u8, command, '/') != null) {
++        _ = execv(command_args[0], argv);
++        childFail(error_fd);
++    }
++
++    const path = if (getenv("PATH")) |value| std.mem.span(value) else "/bin:/usr/bin";
++    var start: usize = 0;
++    while (true) {
++        const rest = path[start..];
++        const colon = std.mem.indexOfScalar(u8, rest, ':');
++        const end = start + (colon orelse rest.len);
++        const directory = path[start..end];
++        const directory_len = if (directory.len == 0) 1 else directory.len;
++        const slash_len: usize = 1;
++        if (directory_len + slash_len + command.len < 4096) {
++            var candidate: [4096]u8 = undefined;
++            var written: usize = 0;
++            if (directory.len == 0) {
++                candidate[0] = '.';
++                written = 1;
++            } else {
++                @memcpy(candidate[0..directory.len], directory);
++                written = directory.len;
++            }
++            candidate[written] = '/';
++            written += 1;
++            @memcpy(candidate[written .. written + command.len], command);
++            written += command.len;
++            candidate[written] = 0;
++            const candidate_z = candidate[0..written :0];
++            _ = execv(candidate_z.ptr, argv);
++            const error_number = errno();
++            if (error_number != ENOENT and error_number != ENOTDIR and error_number != EACCES) {
++                childFail(error_fd);
++            }
++        }
++        if (colon == null) break;
++        start = end + 1;
++    }
++    childFail(error_fd);
++}
++
++fn closePipePair(pair: [2]c_int) void {
++    _ = close(pair[0]);
++    _ = close(pair[1]);
++}
++
++fn startChild(allocator: std.mem.Allocator, command_args: []const [*:0]const u8, stdout_pipe: *[2]c_int, stderr_pipe: *[2]c_int, error_pipe: *[2]c_int) ?StartedChild {
++    if (pipe2(stdout_pipe, O_CLOEXEC) != 0) return null;
++    if (pipe2(stderr_pipe, O_CLOEXEC) != 0) {
++        closePipePair(stdout_pipe.*);
++        return null;
++    }
++    if (pipe2(error_pipe, O_CLOEXEC) != 0) {
++        closePipePair(stdout_pipe.*);
++        closePipePair(stderr_pipe.*);
++        return null;
++    }
++
++    const argv = allocator.alloc(?[*:0]const u8, command_args.len + 1) catch {
++        closePipePair(stdout_pipe.*);
++        closePipePair(stderr_pipe.*);
++        closePipePair(error_pipe.*);
++        return null;
++    };
++    for (command_args, 0..) |arg, index| argv[index] = arg;
++    argv[command_args.len] = null;
++
++    const pid = fork();
++    if (pid < 0) {
++        closePipePair(stdout_pipe.*);
++        closePipePair(stderr_pipe.*);
++        closePipePair(error_pipe.*);
++        return null;
++    }
++    if (pid == 0) {
++        _ = close(stdout_pipe[0]);
++        _ = close(stderr_pipe[0]);
++        _ = close(error_pipe[0]);
++        if (setpgid(0, 0) != 0) childFail(error_pipe[1]);
++
++        const null_path: [:0]const u8 = "/dev/null";
++        const null_fd = open(null_path.ptr, O_RDONLY);
++        if (null_fd < 0) childFail(error_pipe[1]);
++        if (dup2(null_fd, 0) < 0) childFail(error_pipe[1]);
++        if (dup2(stdout_pipe[1], 1) < 0) childFail(error_pipe[1]);
++        if (dup2(stderr_pipe[1], 2) < 0) childFail(error_pipe[1]);
++        if (null_fd != 0) _ = close(null_fd);
++        if (stdout_pipe[1] != 1) _ = close(stdout_pipe[1]);
++        if (stderr_pipe[1] != 2) _ = close(stderr_pipe[1]);
++        childExec(command_args, @ptrCast(argv.ptr), error_pipe[1]);
++    }
++
++    // The child calls setpgid before exec. This second call closes the race
++    // where the parent starts supervising before that setup has run.
++    _ = setpgid(pid, pid);
++    _ = close(stdout_pipe[1]);
++    _ = close(stderr_pipe[1]);
++    _ = close(error_pipe[1]);
++
++    var error_bytes: [@sizeOf(c_int)]u8 = undefined;
++    var received: usize = 0;
++    while (received < error_bytes.len) {
++        const count = read(error_pipe[0], error_bytes[received..].ptr, error_bytes.len - received);
++        if (count > 0) {
++            received += @intCast(count);
++            continue;
++        }
++        if (count == 0) break;
++        if (errno() == EINTR) continue;
++        break;
++    }
++    _ = close(error_pipe[0]);
++    if (received != 0) {
++        var ignored_status: c_int = 0;
++        _ = waitChild(pid, &ignored_status, 0);
++        closePipePair(stdout_pipe.*);
++        closePipePair(stderr_pipe.*);
++        return null;
++    }
++    const started_ns = monotonicNs();
++    configureNonblocking(stdout_pipe[0]);
++    configureNonblocking(stderr_pipe[0]);
++    return .{ .pid = pid, .started_ns = started_ns };
++}
++
++fn commandExitCode(wait_status: c_int) c_int {
++    if ((wait_status & 0x7f) == 0) return (wait_status >> 8) & 0xff;
++    const signal_number = wait_status & 0x7f;
++    if (signal_number == 0x7f) return 127;
++    return 128 + signal_number;
++}
++
++fn printStatus(is_timeout: bool, exit_code: c_int, term_sent: bool, kill_sent: bool, reaped: bool) void {
++    var buffer: [160]u8 = undefined;
++    const line = std.fmt.bufPrint(&buffer, "status={s} exit_code={d} term_sent={s} kill_sent={s} reaped={d}\n", .{
++        if (is_timeout) "timeout" else "exited",
++        exit_code,
++        if (term_sent) "true" else "false",
++        if (kill_sent) "true" else "false",
++        @as(u8, if (reaped) 1 else 0),
++    }) catch unreachable;
++    writeAll(2, line);
++}
++
++fn finishGroup(pid: c_int, reaped: *bool, wait_status: *c_int, output: *OutputPipes) void {
++    while (groupHasLiveMember(pid) or !reaped.* or !output.allEnded()) {
++        reapNonBlocking(pid, reaped, wait_status);
++        serviceOutput(output, 10);
++    }
++}
++
++pub fn execute(allocator: std.mem.Allocator, args: []const [*:0]const u8) c_int {
++    const options = parseArgs(args) orelse {
++        diagnostic("error: invalid arguments\n");
++        return 2;
++    };
++
++    var stdout_pipe: [2]c_int = undefined;
++    var stderr_pipe: [2]c_int = undefined;
++    var error_pipe: [2]c_int = undefined;
++    const child = startChild(allocator, options.command_args, &stdout_pipe, &stderr_pipe, &error_pipe) orelse {
++        diagnostic("error: cannot start command\n");
++        return 127;
++    };
++    const pid = child.pid;
++
++    var output = OutputPipes{ .fds = .{ stdout_pipe[0], stderr_pipe[0] } };
++    var reaped = false;
++    var wait_status: c_int = 0;
++    const timeout_deadline = child.started_ns + options.timeout_ns;
++    var timed_out = false;
++    var term_sent = false;
++    var kill_sent = false;
++
++    while (true) {
++        reapNonBlocking(pid, &reaped, &wait_status);
++        const has_live_member = groupHasLiveMember(pid);
++        const now = monotonicNs();
++        if (now >= timeout_deadline) {
++            if (has_live_member) {
++                timed_out = true;
++                _ = kill(-pid, SIGTERM);
++                term_sent = true;
++                break;
++            }
++            break;
++        }
++        if (!has_live_member) break;
++        serviceOutput(&output, timeoutUntil(timeout_deadline, 10));
++    }
++
++    if (timed_out) {
++        const grace_deadline = monotonicNs() + options.grace_ns;
++        while (monotonicNs() < grace_deadline) {
++            reapNonBlocking(pid, &reaped, &wait_status);
++            serviceOutput(&output, timeoutUntil(grace_deadline, 10));
++        }
++        if (groupHasLiveMember(pid)) {
++            _ = kill(-pid, SIGKILL);
++            kill_sent = true;
++        }
++        finishGroup(pid, &reaped, &wait_status, &output);
++        printStatus(true, 124, term_sent, kill_sent, reaped);
++        return 124;
++    }
++
++    finishGroup(pid, &reaped, &wait_status, &output);
++    const exit_code = if (reaped) commandExitCode(wait_status) else 127;
++    printStatus(false, exit_code, false, false, reaped);
++    return exit_code;
++}
++
++test "timeout value parser accepts only bounded decimal digits" {
++    try std.testing.expectEqual(@as(?u64, 1), parseMillis("1"));
++    try std.testing.expectEqual(@as(?u64, 60000), parseMillis("060000"));
++    try std.testing.expect(parseMillis("0") == null);
++    try std.testing.expect(parseMillis("60001") == null);
++    try std.testing.expect(parseMillis("+1") == null);
++    try std.testing.expect(parseMillis("1 ") == null);
+ }
+diff --git a/src/main.zig b/src/main.zig
+index add0315..e3f9617 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -56,7 +56,7 @@ extern "c" fn close(fd: c_int) c_int;
+ pub fn main(init: std.process.Init.Minimal) u8 {
+     const allocator = std.heap.page_allocator;
+     const args = init.args.vector;
+-    if (args.len == 0) return 2;
++    if (args.len == 0) return @intCast(core.execute(allocator, args));
+     return @intCast(core.execute(allocator, args[1..]));
+ }
+ 

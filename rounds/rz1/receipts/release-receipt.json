@@ -1,0 +1,39 @@
+{
+ "allows_scored_launch": true,
+ "allows_smoke_launch": true,
+ "blocking_items": [],
+ "checklist_status": {
+  "cancellation": "pass for dry-run simulation; live stop untested because no cells launched",
+  "controls": "pass (official, tasks 1-7 both stacks)",
+  "host_admission": "pass at dry-run capture; EU login probe ok, zero active cells, disk above 6 GiB",
+  "isolation": "strict pass (isolation-v2); own-auth declared per ruling D",
+  "settings": "pass; lane wrapper reports Codex 0.161.0; adapter argv is gpt-6-luna/max",
+  "smoke_rust_official_grade": "PASS 18/18",
+  "smoke_zig_official_grade": "FAIL 17/18 (valid)",
+  "task_inputs": "pass (tasks 1-7 staged on EU; parity reports local)",
+  "usage_capture": "pass; safe_rows confirms top-level manifest.usage fields"
+ },
+ "host": "kogen-bench-eu",
+ "isolation_v2": "gate/isolation-v2.json: fake hidden suite/reference/other result/other auth unreadable in real bench mode (strict gate pass); own auth readable = declared (ruling D)",
+ "lane": "rz1-eu",
+ "plan_sha256": "56978c2927e9bc0b0cf494483ebc866006a5f684730a6cd127683bc799dc45cc",
+ "prereg_sha256_file": "prereg/PRE-LAUNCH-SHA256 66d56f8ea5b6fd3ebfaac492da5e1b831a769709c6cf158b055f51e9248cc759 (frozen 2026-10-08T15:28:24Z)",
+ "resolved_items": {
+  "config_toml": "not required: lane codex 0.161.0 reports \"Logged in using ChatGPT\" from probe-kgn-eu home without it; auth.json mtime unchanged (no refresh)",
+  "controls": "official r70 admission controls windows 1-3 on EU (levers/r70/grades.jsonl rows 811+): all admitted tasks reference all-pass with checks green, noop fail with all tests executed, identical suite shas",
+  "isolation": "owner ruling D (8 Oct): own-Codex-home credential readability is a declared, arm-symmetric hardening item, not a launch blocker; hidden suites/references/other cells unreadable (gate/isolation.json)",
+  "task_inputs": "admitted tasks 1-7 (ADMITTED-TASKS.json); task 8 dropped (Rust reference make check rc 2); PLAN.json regenerated 21 pairs/42 cells"
+ },
+ "schema": "rz1-release-receipt/1",
+ "smoke_gate": {
+  "graded_utc": "2026-10-08T16:00:23Z",
+  "pair": "task-4-rep-2",
+  "prior_attempts": "4 launch-gate env failures kept (AMENDMENT-1 b)",
+  "route": "r70-macbook-window-v1 (grade_window --cell-ids)",
+  "rust": "official PASS 18/18, build ok, check 0, 13/17 tool calls exit 0",
+  "validity": "both valid per AMENDMENT-1 smoke rule; smoke stays in ITT",
+  "zig": "official FAIL 17/18 (hidden_tests_failed), build ok, check 0, 23/28 tool calls exit 0"
+ },
+ "updated_by": "benchmark driver",
+ "updated_utc": "2026-10-08T16:01:00Z"
+}

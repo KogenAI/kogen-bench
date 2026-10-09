@@ -112,6 +112,7 @@ The official [cells.jsonl](../results/cells.jsonl) export records public outcome
 - [r71](r71/README.md) — **INCOMPLETE** Official cells outcomes do not match the prior Kogen arm results; the table and result summary are removed.
 - [r73](r73/README.md) — **INCOMPLETE** pre-registered proper-shaping design; no cells have run
 - [r74](r74/README.md) — **INCOMPLETE** 6 Oct 2026; cells ran before the withdrawal, but no r74-tagged rows are in the current public export and the executed count is not re-derivable
+- [rz1](rz1/README.md) — **VALID** pre-registered Zig vs Rust on Round-70 tasks 1–7 (21 pairs, 42 graded cells): INCONCLUSIVE, Rust stays. Zig 14/21 vs Rust 18/21 full passes; D −0.19 missed the Zig-worse bar (p_minus 0.145).
 - [grok-frontier](grok-frontier/README.md) — **NOT-RUN** plan cancelled after abort; no smoke or scored cells ran
 - [rails-catalogue](rails-catalogue/README.md) — **INTERIM** pooled r60/r63/r64 view; published denominators and $/pass do not reproduce
 - [unmapped](unmapped/README.md) — **INTERIM** round ownership unresolved for 500 deliveries

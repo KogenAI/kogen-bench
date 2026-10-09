@@ -1,0 +1,562 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..303ec95 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,504 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use serde::{Deserialize, Serialize};
++use std::collections::HashSet;
++use std::ffi::OsString;
++use std::fs::{self, File, OpenOptions};
++use std::io::{self, Write};
++use std::os::unix::fs::OpenOptionsExt;
++use std::path::{Path, PathBuf};
++use std::process::Command;
++use std::sync::atomic::{AtomicU64, Ordering};
++
++const STORE_FILE: &str = ".kogen-state.json";
++const LOCK_FILE: &str = ".kogen.lock";
++
++static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
++
++#[derive(Serialize, Deserialize)]
++struct Queue {
++    version: u32,
++    jobs: Vec<Job>,
++}
++
++impl Default for Queue {
++    fn default() -> Self {
++        Self {
++            version: 1,
++            jobs: Vec::new(),
++        }
++    }
++}
++
++#[derive(Serialize, Deserialize)]
++struct Job {
++    id: String,
++    argv: Vec<String>,
++    attempts: u64,
++    completion: Option<Completion>,
++}
++
++#[derive(Serialize, Deserialize)]
++struct Completion {
++    attempt: u64,
++    exit_code: i32,
++    stdout: String,
++    stderr: String,
++}
++
++#[derive(Serialize)]
++struct JobReport<'a> {
++    id: &'a str,
++    attempt: u64,
++    exit_code: i32,
++    stdout: &'a str,
++    stderr: &'a str,
++    status: &'static str,
++}
++
++pub struct Outcome {
++    pub stdout: String,
++    pub error: Option<(i32, &'static str)>,
++    _lock: Option<StoreLock>,
++}
++
++impl Outcome {
++    fn success(stdout: String, lock: Option<StoreLock>) -> Self {
++        Self {
++            stdout,
++            error: None,
++            _lock: lock,
++        }
++    }
++
++    fn error(code: i32, message: &'static str, lock: Option<StoreLock>) -> Self {
++        Self {
++            stdout: String::new(),
++            error: Some((code, message)),
++            _lock: lock,
++        }
++    }
++}
++
++struct StoreLock {
++    _file: File,
++}
++
++enum ParsedCommand {
++    Add {
++        store: PathBuf,
++        id: String,
++        argv: Vec<String>,
++    },
++    Run {
++        store: PathBuf,
++    },
++    Status {
++        store: PathBuf,
++    },
++}
++
++pub fn execute(args: &[OsString]) -> Outcome {
++    let command = match parse_args(args) {
++        Ok(command) => command,
++        Err(()) => return Outcome::error(2, "error: invalid arguments", None),
++    };
++
++    let store = match &command {
++        ParsedCommand::Add { store, .. }
++        | ParsedCommand::Run { store }
++        | ParsedCommand::Status { store } => store.clone(),
++    };
++
++    if let Err(()) = ensure_store_directory(&store) {
++        return Outcome::error(4, "error: store failure", None);
++    }
++
++    let lock = match acquire_lock(&store) {
++        Ok(lock) => lock,
++        Err(()) => return Outcome::error(4, "error: store failure", None),
++    };
++
++    match command {
++        ParsedCommand::Add { id, argv, .. } => add_job(&store, id, argv, lock),
++        ParsedCommand::Run { .. } => run_jobs(&store, lock),
++        ParsedCommand::Status { .. } => status_jobs(&store, lock),
++    }
++}
++
++fn parse_args(args: &[OsString]) -> Result<ParsedCommand, ()> {
++    if args.len() < 2 || args[0].to_str() != Some("queue") {
++        return Err(());
++    }
++
++    match args[1].to_str() {
++        Some("add") => parse_add(&args[2..]),
++        Some("run") => parse_store_only(&args[2..], false),
++        Some("status") => parse_store_only(&args[2..], true),
++        _ => Err(()),
++    }
++}
++
++fn parse_add(args: &[OsString]) -> Result<ParsedCommand, ()> {
++    let mut store = None;
++    let mut id = None;
++    let mut argv = None;
++    let mut index = 0;
++
++    while index < args.len() {
++        let option = args[index].to_str().ok_or(())?;
++        let value = args.get(index + 1).ok_or(())?;
++        if value.to_str().is_some_and(|text| text.starts_with("--")) {
++            return Err(());
++        }
++
++        match option {
++            "--store" if store.is_none() => store = Some(PathBuf::from(value)),
++            "--id" if id.is_none() => {
++                let value = value.to_str().ok_or(())?;
++                if !valid_id(value) {
++                    return Err(());
++                }
++                id = Some(value.to_owned());
++            }
++            "--argv" if argv.is_none() => {
++                let value = value.to_str().ok_or(())?;
++                let parsed: Vec<String> = serde_json::from_str(value).map_err(|_| ())?;
++                if parsed.is_empty()
++                    || parsed[0].is_empty()
++                    || parsed.iter().any(|item| item.contains('\0'))
++                {
++                    return Err(());
++                }
++                argv = Some(parsed);
++            }
++            _ => return Err(()),
++        }
++        index += 2;
++    }
++
++    Ok(ParsedCommand::Add {
++        store: store.ok_or(())?,
++        id: id.ok_or(())?,
++        argv: argv.ok_or(())?,
++    })
++}
++
++fn parse_store_only(args: &[OsString], status: bool) -> Result<ParsedCommand, ()> {
++    let mut store = None;
++    let mut index = 0;
++
++    while index < args.len() {
++        let option = args[index].to_str().ok_or(())?;
++        let value = args.get(index + 1).ok_or(())?;
++        if value.to_str().is_some_and(|text| text.starts_with("--"))
++            || option != "--store"
++            || store.is_some()
++        {
++            return Err(());
++        }
++        store = Some(PathBuf::from(value));
++        index += 2;
++    }
++
++    let store = store.ok_or(())?;
++    if status {
++        Ok(ParsedCommand::Status { store })
++    } else {
++        Ok(ParsedCommand::Run { store })
++    }
++}
++
++fn valid_id(id: &str) -> bool {
++    let bytes = id.as_bytes();
++    !bytes.is_empty()
++        && bytes.len() <= 64
++        && bytes[0].is_ascii_alphanumeric()
++        && bytes[1..]
++            .iter()
++            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-'))
++}
++
++fn ensure_store_directory(path: &Path) -> Result<(), ()> {
++    let exists = match fs::metadata(path) {
++        Ok(metadata) => {
++            if !metadata.is_dir() {
++                return Err(());
++            }
++            true
++        }
++        Err(error) if error.kind() == io::ErrorKind::NotFound => false,
++        Err(_) => return Err(()),
++    };
++
++    if !exists {
++        fs::create_dir_all(path).map_err(|_| ())?;
++        sync_directory_chain(path)?;
++    }
++    Ok(())
++}
++
++fn sync_directory_chain(path: &Path) -> Result<(), ()> {
++    let absolute = fs::canonicalize(path).map_err(|_| ())?;
++    for ancestor in absolute.ancestors() {
++        File::open(ancestor)
++            .and_then(|directory| directory.sync_all())
++            .map_err(|_| ())?;
++    }
++    Ok(())
++}
++
++fn acquire_lock(store: &Path) -> Result<StoreLock, ()> {
++    let lock_path = store.join(LOCK_FILE);
++    let file = OpenOptions::new()
++        .read(true)
++        .write(true)
++        .create(true)
++        .mode(0o600)
++        .custom_flags(libc::O_CLOEXEC)
++        .open(lock_path)
++        .map_err(|_| ())?;
++
++    loop {
++        // SAFETY: flock only uses the valid descriptor owned by `file`.
++        let result = unsafe { libc::flock(std::os::fd::AsRawFd::as_raw_fd(&file), libc::LOCK_EX) };
++        if result == 0 {
++            return Ok(StoreLock { _file: file });
++        }
++        let error = io::Error::last_os_error();
++        if error.kind() != io::ErrorKind::Interrupted {
++            return Err(());
++        }
++    }
++}
++
++fn load_queue(store: &Path) -> Result<Queue, ()> {
++    let path = store.join(STORE_FILE);
++    let bytes = match fs::read(path) {
++        Ok(bytes) => bytes,
++        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(Queue::default()),
++        Err(_) => return Err(()),
++    };
++    let queue: Queue = serde_json::from_slice(&bytes).map_err(|_| ())?;
++    validate_queue(&queue)?;
++    Ok(queue)
++}
++
++fn validate_queue(queue: &Queue) -> Result<(), ()> {
++    if queue.version != 1 {
++        return Err(());
++    }
++    let mut ids = HashSet::with_capacity(queue.jobs.len());
++    for job in &queue.jobs {
++        if !valid_id(&job.id)
++            || !ids.insert(job.id.as_str())
++            || job.argv.is_empty()
++            || job.argv[0].is_empty()
++            || job.argv.iter().any(|item| item.contains('\0'))
++        {
++            return Err(());
++        }
++        if let Some(completion) = &job.completion
++            && (completion.attempt == 0 || completion.attempt != job.attempts)
++        {
++            return Err(());
++        }
++    }
++    Ok(())
++}
++
++fn save_queue(store: &Path, queue: &Queue) -> Result<(), ()> {
++    let contents = serde_json::to_vec(queue).map_err(|_| ())?;
++    let mut temp_path = None;
++    let mut temp_file = None;
++
++    for _ in 0..100 {
++        let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
++        let name = format!(".kogen-state.tmp-{}-{counter}", std::process::id());
++        let candidate = store.join(name);
++        match OpenOptions::new()
++            .write(true)
++            .create_new(true)
++            .mode(0o600)
++            .custom_flags(libc::O_CLOEXEC)
++            .open(&candidate)
++        {
++            Ok(file) => {
++                temp_path = Some(candidate);
++                temp_file = Some(file);
++                break;
++            }
++            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
++            Err(_) => return Err(()),
++        }
++    }
++
++    let temp_path = temp_path.ok_or(())?;
++    let result = (|| {
++        let mut file = temp_file.ok_or(())?;
++        file.write_all(&contents).map_err(|_| ())?;
++        file.sync_all().map_err(|_| ())?;
++        drop(file);
++        fs::rename(&temp_path, store.join(STORE_FILE)).map_err(|_| ())?;
++        File::open(store)
++            .and_then(|directory| directory.sync_all())
++            .map_err(|_| ())?;
++        Ok(())
++    })();
++
++    if result.is_err() {
++        let _ = fs::remove_file(temp_path);
++    }
++    result
++}
++
++fn add_job(store: &Path, id: String, argv: Vec<String>, lock: StoreLock) -> Outcome {
++    let mut queue = match load_queue(store) {
++        Ok(queue) => queue,
++        Err(()) => return Outcome::error(4, "error: store failure", Some(lock)),
++    };
++    if queue.jobs.iter().any(|job| job.id == id) {
++        return Outcome::error(3, "error: duplicate job id", Some(lock));
++    }
++    queue.jobs.push(Job {
++        id: id.clone(),
++        argv,
++        attempts: 0,
++        completion: None,
++    });
++    if save_queue(store, &queue).is_err() {
++        return Outcome::error(4, "error: store failure", Some(lock));
++    }
++    Outcome::success(format!("queued {id}\n"), Some(lock))
++}
++
++fn run_jobs(store: &Path, lock: StoreLock) -> Outcome {
++    let mut queue = match load_queue(store) {
++        Ok(queue) => queue,
++        Err(()) => return Outcome::error(4, "error: store failure", Some(lock)),
++    };
++    let pending: Vec<usize> = queue
++        .jobs
++        .iter()
++        .enumerate()
++        .filter_map(|(index, job)| job.completion.is_none().then_some(index))
++        .collect();
++    let mut output = String::new();
++
++    for index in pending {
++        let Some(attempt) = queue.jobs[index].attempts.checked_add(1) else {
++            return Outcome::error(4, "error: store failure", Some(lock));
++        };
++        queue.jobs[index].attempts = attempt;
++        if save_queue(store, &queue).is_err() {
++            return Outcome::error(4, "error: store failure", Some(lock));
++        }
++
++        let child = Command::new(&queue.jobs[index].argv[0])
++            .args(&queue.jobs[index].argv[1..])
++            .output();
++        let completion = match child {
++            Ok(result) => Completion {
++                attempt,
++                exit_code: child_exit_code(result.status),
++                stdout: decode_bytes(&result.stdout),
++                stderr: decode_bytes(&result.stderr),
++            },
++            Err(_) => Completion {
++                attempt,
++                exit_code: 127,
++                stdout: String::new(),
++                stderr: "exec failed\n".to_owned(),
++            },
++        };
++
++        queue.jobs[index].completion = Some(completion);
++        if save_queue(store, &queue).is_err() {
++            return Outcome::error(4, "error: store failure", Some(lock));
++        }
++        let completion = queue.jobs[index]
++            .completion
++            .as_ref()
++            .expect("completion was just stored");
++        let report = JobReport {
++            id: &queue.jobs[index].id,
++            attempt: completion.attempt,
++            exit_code: completion.exit_code,
++            stdout: &completion.stdout,
++            stderr: &completion.stderr,
++            status: if completion.exit_code == 0 {
++                "succeeded"
++            } else {
++                "failed"
++            },
++        };
++        match serde_json::to_string(&report) {
++            Ok(line) => {
++                output.push_str(&line);
++                output.push('\n');
++            }
++            Err(_) => return Outcome::error(4, "error: store failure", Some(lock)),
++        }
++    }
++
++    Outcome::success(output, Some(lock))
++}
++
++fn child_exit_code(status: std::process::ExitStatus) -> i32 {
++    if let Some(code) = status.code() {
++        code
++    } else {
++        #[cfg(unix)]
++        {
++            use std::os::unix::process::ExitStatusExt;
++            status.signal().map_or(128, |signal| 128 + signal)
++        }
++        #[cfg(not(unix))]
++        {
++            128
++        }
++    }
++}
++
++fn decode_bytes(bytes: &[u8]) -> String {
++    let mut remaining = bytes;
++    let mut output = String::new();
++    while !remaining.is_empty() {
++        match std::str::from_utf8(remaining) {
++            Ok(valid) => {
++                output.push_str(valid);
++                break;
++            }
++            Err(error) => {
++                let valid_up_to = error.valid_up_to();
++                // SAFETY: from_utf8 reports this prefix as valid UTF-8.
++                output
++                    .push_str(unsafe { std::str::from_utf8_unchecked(&remaining[..valid_up_to]) });
++                let invalid_len = error.error_len().unwrap_or(remaining.len() - valid_up_to);
++                for _ in 0..invalid_len {
++                    output.push('\u{fffd}');
++                }
++                remaining = &remaining[valid_up_to + invalid_len..];
++            }
++        }
++    }
++    output
++}
++
++fn status_jobs(store: &Path, lock: StoreLock) -> Outcome {
++    let queue = match load_queue(store) {
++        Ok(queue) => queue,
++        Err(()) => return Outcome::error(4, "error: store failure", Some(lock)),
++    };
++    let mut output = String::new();
++    for job in queue.jobs {
++        match job.completion {
++            Some(completion) if completion.exit_code == 0 => {
++                output.push_str(&format!("{} succeeded\n", job.id));
++            }
++            Some(completion) => {
++                output.push_str(&format!("{} failed {}\n", job.id, completion.exit_code));
++            }
++            None => output.push_str(&format!("{} pending\n", job.id)),
++        }
++    }
++    Outcome::success(output, Some(lock))
+ }
+diff --git a/src/main.rs b/src/main.rs
+index 911ca47..df07d9a 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,32 +1,25 @@
+-use std::io::{self, Read, Write};
++use std::ffi::OsString;
++use std::io::{self, Write};
+ 
++#[cfg(test)]
+ pub fn physical_lines(text: &str) -> Vec<&str> {
+     text.split('\n')
+         .map(|line| line.strip_suffix('\r').unwrap_or(line))
+         .collect()
+ }
+ 
+-pub fn load(path: Option<&str>, prefix: &str) -> Result<Vec<u8>, String> {
+-    let result = match path {
+-        None | Some("-") => {
+-            let mut bytes = Vec::new();
+-            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
+-        }
+-        Some(path) => std::fs::read(path),
+-    };
+-    result.map_err(|_| format!("{prefix}: cannot read input"))
+-}
+-
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
+-    match core::execute(&args) {
+-        Ok(output) => {
+-            let _ = io::stdout().write_all(output.as_bytes());
+-        }
+-        Err((code, message)) => {
+-            let _ = writeln!(io::stderr(), "{message}");
+-            std::process::exit(code);
+-        }
++    let args: Vec<OsString> = std::env::args_os().skip(1).collect();
++    let outcome = core::execute(&args);
++    let code = if let Some((code, message)) = outcome.error {
++        let _ = writeln!(io::stderr(), "{message}");
++        code
++    } else {
++        let _ = io::stdout().write_all(outcome.stdout.as_bytes());
++        0
++    };
++    if code != 0 {
++        std::process::exit(code);
+     }
+ }
+ 

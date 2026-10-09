@@ -1,0 +1,931 @@
+diff --git a/src/c.h b/src/c.h
+index b5fc2f8..2dd13e8 100644
+--- a/src/c.h
++++ b/src/c.h
+@@ -1,5 +1,6 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
++#include <arpa/inet.h>
+ #include <netdb.h>
+ #include <poll.h>
+ #include <unistd.h>
+@@ -8,3 +9,188 @@
+ #include <sys/stat.h>
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <stdint.h>
++#include <string.h>
++#include <errno.h>
++
++static inline int64_t kogen_now_ms(void) {
++    struct timespec ts;
++    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return 0;
++    return (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
++}
++
++static inline int kogen_poll_fd(int fd, short events, int timeout_ms) {
++    struct pollfd pfd;
++    pfd.fd = fd;
++    pfd.events = events;
++    pfd.revents = 0;
++    for (;;) {
++        int result = poll(&pfd, 1, timeout_ms);
++        if (result < 0 && errno == EINTR) continue;
++        if (result <= 0) return result;
++        if (pfd.revents & (events | POLLHUP)) return 1;
++        if (pfd.revents & (POLLERR | POLLNVAL)) return -1;
++    }
++}
++
++static inline int kogen_connect(const char *host, unsigned short port, int timeout_ms) {
++    char service[8];
++    snprintf(service, sizeof(service), "%u", (unsigned)port);
++    struct addrinfo hints;
++    memset(&hints, 0, sizeof(hints));
++    hints.ai_family = AF_UNSPEC;
++    hints.ai_socktype = SOCK_STREAM;
++    hints.ai_protocol = IPPROTO_TCP;
++    struct addrinfo *results = NULL;
++    if (getaddrinfo(host, service, &hints, &results) != 0) return -1;
++
++    int fd = -1;
++    int64_t deadline = kogen_now_ms() + timeout_ms;
++    for (struct addrinfo *ai = results; ai != NULL; ai = ai->ai_next) {
++        fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
++        if (fd < 0) continue;
++        int flags = fcntl(fd, F_GETFL, 0);
++        if (flags < 0 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
++            close(fd);
++            fd = -1;
++            continue;
++        }
++
++        int result = connect(fd, ai->ai_addr, ai->ai_addrlen);
++        if (result == 0) break;
++        if (errno != EINPROGRESS) {
++            close(fd);
++            fd = -1;
++            continue;
++        }
++
++        int64_t remaining = deadline - kogen_now_ms();
++        if (remaining <= 0 || kogen_poll_fd(fd, POLLOUT, (int)remaining) <= 0) {
++            close(fd);
++            fd = -1;
++            continue;
++        }
++        int socket_error = 0;
++        socklen_t error_len = sizeof(socket_error);
++        if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &socket_error, &error_len) < 0 || socket_error != 0) {
++            close(fd);
++            fd = -1;
++            continue;
++        }
++        break;
++    }
++    freeaddrinfo(results);
++    return fd;
++}
++
++static inline int kogen_send_all(int fd, const void *data, size_t len, int timeout_ms) {
++    const unsigned char *bytes = (const unsigned char *)data;
++    size_t offset = 0;
++    while (offset < len) {
++        int ready = kogen_poll_fd(fd, POLLOUT, timeout_ms);
++        if (ready <= 0) return -1;
++        ssize_t count = send(fd, bytes + offset, len - offset, MSG_NOSIGNAL);
++        if (count < 0 && errno == EINTR) continue;
++        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) continue;
++        if (count <= 0) return -1;
++        offset += (size_t)count;
++    }
++    return 0;
++}
++
++static inline ssize_t kogen_recv(int fd, void *buffer, size_t len) {
++    for (;;) {
++        ssize_t count = recv(fd, buffer, len, 0);
++        if (count < 0 && errno == EINTR) continue;
++        return count;
++    }
++}
++
++static inline int kogen_close(int fd) {
++    return close(fd);
++}
++
++static inline int kogen_is_ipv6_literal(const char *host) {
++    struct in6_addr address;
++    return inet_pton(AF_INET6, host, &address) == 1;
++}
++
++static int kogen_ensure_directory(const char *path) {
++    if (mkdir(path, 0777) == 0) return 0;
++    if (errno != EEXIST) return -1;
++    struct stat st;
++    if (stat(path, &st) != 0 || !S_ISDIR(st.st_mode)) return -1;
++    return 0;
++}
++
++static int kogen_make_parent_directories(const char *path) {
++    size_t len = strlen(path);
++    char *parent = (char *)malloc(len + 1);
++    if (!parent) return -1;
++    memcpy(parent, path, len + 1);
++    char *last_slash = strrchr(parent, '/');
++    if (!last_slash) {
++        free(parent);
++        return 0;
++    }
++    if (last_slash == parent) {
++        parent[1] = '\0';
++        free(parent);
++        return 0;
++    }
++    *last_slash = '\0';
++    char *p = parent;
++    if (parent[0] == '/') p++;
++    for (; ; p++) {
++        if (*p == '/' || *p == '\0') {
++            char saved = *p;
++            *p = '\0';
++            if (parent[0] != '\0' && kogen_ensure_directory(parent) != 0) {
++                free(parent);
++                return -1;
++            }
++            *p = saved;
++            if (saved == '\0') break;
++        }
++    }
++    free(parent);
++    return 0;
++}
++
++static inline int kogen_atomic_write(const char *path, const void *data, size_t len) {
++    if (kogen_make_parent_directories(path) != 0) return -1;
++    size_t path_len = strlen(path);
++    if (path_len > SIZE_MAX - 80) return -1;
++    char *temporary = (char *)malloc(path_len + 80);
++    if (!temporary) return -1;
++
++    int fd = -1;
++    for (unsigned int attempt = 0; attempt < 100; attempt++) {
++        snprintf(temporary, path_len + 80, "%s.kogen-tmp-%ld-%u", path, (long)getpid(), attempt);
++        fd = open(temporary, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0666);
++        if (fd >= 0 || errno != EEXIST) break;
++    }
++    if (fd < 0) {
++        free(temporary);
++        return -1;
++    }
++
++    const unsigned char *bytes = (const unsigned char *)data;
++    size_t offset = 0;
++    int result = 0;
++    while (offset < len) {
++        ssize_t count = write(fd, bytes + offset, len - offset);
++        if (count < 0 && errno == EINTR) continue;
++        if (count <= 0) {
++            result = -1;
++            break;
++        }
++        offset += (size_t)count;
++    }
++    if (result == 0 && fsync(fd) != 0) result = -1;
++    if (close(fd) != 0) result = -1;
++    if (result == 0 && rename(temporary, path) != 0) result = -1;
++    if (result != 0) unlink(temporary);
++    free(temporary);
++    return result;
++}
+diff --git a/src/core.zig b/src/core.zig
+index 740bf60..3719466 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,3 +1,652 @@
+-pub fn execute(_: @import("std").mem.Allocator, _: []const []const u8) error{ InvalidArguments, NotImplemented }![]const u8 {
+-    return error.NotImplemented;
++const std = @import("std");
++const c = @import("c");
++
++const Usage = struct {
++    input_tokens: u64,
++    output_tokens: u64,
++};
++
++const Options = struct {
++    url: []const u8,
++    prompt: []const u8,
++    idle_timeout_ms: u32,
++    usage_path: []const u8,
++};
++
++const UrlParts = struct {
++    hostname: []const u8,
++    host: []const u8,
++    target: []u8,
++    port: u16,
++    explicit_port: ?u16,
++};
++
++const AttemptSuccess = struct {
++    output: []u8,
++    usage: Usage,
++};
++
++const AttemptError = error{ Retryable, Malformed, OutOfMemory };
++
++pub fn execute(allocator: std.mem.Allocator, args: []const []const u8) error{ InvalidArguments, RequestFailed }![]u8 {
++    const options = parseArguments(args) catch return error.InvalidArguments;
++    if (!std.unicode.utf8ValidateSlice(options.prompt)) return error.InvalidArguments;
++
++    const url = parseUrl(allocator, options.url) catch |err| switch (err) {
++        error.InvalidUrl => return error.InvalidArguments,
++        error.OutOfMemory => return error.RequestFailed,
++    };
++    defer allocator.free(url.target);
++
++    const request_body = std.json.Stringify.valueAlloc(allocator, .{ .prompt = options.prompt }, .{}) catch return error.RequestFailed;
++    defer allocator.free(request_body);
++
++    const request = buildRequest(allocator, url, request_body) catch return error.RequestFailed;
++    defer allocator.free(request);
++
++    var attempt_index: u8 = 0;
++    while (attempt_index < 2) : (attempt_index += 1) {
++        const response = performAttempt(allocator, options, url, request) catch |err| switch (err) {
++            error.Retryable => {
++                if (attempt_index == 0) continue;
++                return error.RequestFailed;
++            },
++            error.Malformed, error.OutOfMemory => return error.RequestFailed,
++        };
++
++        const usage_json = std.fmt.allocPrint(
++            allocator,
++            "{{\"input_tokens\":{d},\"output_tokens\":{d}}}\n",
++            .{ response.usage.input_tokens, response.usage.output_tokens },
++        ) catch return error.RequestFailed;
++        defer allocator.free(usage_json);
++
++        const path_z = allocator.dupeSentinel(u8, options.usage_path, 0) catch return error.RequestFailed;
++        defer allocator.free(path_z);
++        const output = allocator.alloc(u8, response.output.len + 1) catch return error.RequestFailed;
++        @memcpy(output[0..response.output.len], response.output);
++        output[response.output.len] = '\n';
++        if (c.kogen_atomic_write(path_z.ptr, usage_json.ptr, usage_json.len) != 0) return error.RequestFailed;
++        return output;
++    }
++    return error.RequestFailed;
++}
++
++fn parseArguments(args: []const []const u8) error{InvalidArguments}!Options {
++    if (args.len != 11 or !std.mem.eql(u8, args[0], "model")) return error.InvalidArguments;
++
++    var url: ?[]const u8 = null;
++    var prompt: ?[]const u8 = null;
++    var idle_timeout_ms: ?u32 = null;
++    var usage_path: ?[]const u8 = null;
++
++    var index: usize = 1;
++    while (index < args.len) : (index += 2) {
++        const name = args[index];
++        const value = args[index + 1];
++        if (std.mem.eql(u8, name, "--url")) {
++            if (url != null) return error.InvalidArguments;
++            url = value;
++        } else if (std.mem.eql(u8, name, "--prompt")) {
++            if (prompt != null) return error.InvalidArguments;
++            prompt = value;
++        } else if (std.mem.eql(u8, name, "--idle-timeout-ms")) {
++            if (idle_timeout_ms != null or value.len == 0) return error.InvalidArguments;
++            for (value) |byte| {
++                if (byte < '0' or byte > '9') return error.InvalidArguments;
++            }
++            const parsed = std.fmt.parseInt(u32, value, 10) catch return error.InvalidArguments;
++            if (parsed < 1 or parsed > 60000) return error.InvalidArguments;
++            idle_timeout_ms = parsed;
++        } else if (std.mem.eql(u8, name, "--usage-file")) {
++            if (usage_path != null or value.len == 0) return error.InvalidArguments;
++            usage_path = value;
++        } else {
++            return error.InvalidArguments;
++        }
++    }
++
++    return .{
++        .url = url orelse return error.InvalidArguments,
++        .prompt = prompt orelse return error.InvalidArguments,
++        .idle_timeout_ms = idle_timeout_ms orelse return error.InvalidArguments,
++        .usage_path = usage_path orelse return error.InvalidArguments,
++    };
++}
++
++fn parseUrl(allocator: std.mem.Allocator, text: []const u8) error{ InvalidUrl, OutOfMemory }!UrlParts {
++    if (!std.mem.startsWith(u8, text, "http://") or !safeRequestComponent(text) or !validPercentEncoding(text)) return error.InvalidUrl;
++    const uri = std.Uri.parse(text) catch return error.InvalidUrl;
++    if (!std.mem.eql(u8, uri.scheme, "http")) return error.InvalidUrl;
++    const host_component = uri.host orelse return error.InvalidUrl;
++    const host = componentBytes(host_component);
++    if (host.len == 0 or std.mem.indexOfScalar(u8, host, '%') != null) return error.InvalidUrl;
++    if (!safeRequestComponent(host)) return error.InvalidUrl;
++
++    var hostname = host;
++    if (host[0] == '[') {
++        if (host.len < 3 or host[host.len - 1] != ']') return error.InvalidUrl;
++        hostname = host[1 .. host.len - 1];
++        const hostname_z = allocator.dupeSentinel(u8, hostname, 0) catch return error.OutOfMemory;
++        defer allocator.free(hostname_z);
++        if (c.kogen_is_ipv6_literal(hostname_z.ptr) == 0) return error.InvalidUrl;
++    } else if (std.mem.indexOfScalar(u8, host, '[') != null or std.mem.indexOfScalar(u8, host, ']') != null) {
++        return error.InvalidUrl;
++    } else {
++        for (host) |byte| {
++            if (!(std.ascii.isAlphanumeric(byte) or switch (byte) {
++                '-', '.', '_', '~', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=' => true,
++                else => false,
++            })) return error.InvalidUrl;
++        }
++    }
++    if (hostname.len == 0) return error.InvalidUrl;
++
++    const path = componentBytes(uri.path);
++    const query = if (uri.query) |value| componentBytes(value) else null;
++    if (!safeRequestComponent(path) or (if (query) |value| !safeRequestComponent(value) else false)) {
++        return error.InvalidUrl;
++    }
++
++    var target = std.array_list.Managed(u8).init(allocator);
++    errdefer target.deinit();
++    if (path.len == 0) {
++        target.append('/') catch return error.OutOfMemory;
++    } else {
++        target.appendSlice(path) catch return error.OutOfMemory;
++    }
++    if (query) |value| {
++        target.append('?') catch return error.OutOfMemory;
++        target.appendSlice(value) catch return error.OutOfMemory;
++    }
++
++    return .{
++        .hostname = hostname,
++        .host = host,
++        .target = target.toOwnedSlice() catch return error.OutOfMemory,
++        .port = uri.port orelse 80,
++        .explicit_port = uri.port,
++    };
++}
++
++fn componentBytes(component: std.Uri.Component) []const u8 {
++    return switch (component) {
++        .raw => |value| value,
++        .percent_encoded => |value| value,
++    };
++}
++
++fn safeRequestComponent(value: []const u8) bool {
++    for (value) |byte| {
++        if (byte <= 0x20 or byte == 0x7f) return false;
++    }
++    return true;
++}
++
++fn validPercentEncoding(value: []const u8) bool {
++    var index: usize = 0;
++    while (index < value.len) : (index += 1) {
++        if (value[index] != '%') continue;
++        if (value.len - index < 3 or !std.ascii.isHex(value[index + 1]) or !std.ascii.isHex(value[index + 2])) return false;
++        index += 2;
++    }
++    return true;
++}
++
++fn buildRequest(allocator: std.mem.Allocator, url: UrlParts, body: []const u8) ![]u8 {
++    var request = std.array_list.Managed(u8).init(allocator);
++    errdefer request.deinit();
++    try request.appendSlice("POST ");
++    try request.appendSlice(url.target);
++    try request.appendSlice(" HTTP/1.1\r\nHost: ");
++    try request.appendSlice(url.host);
++    if (url.explicit_port) |port| {
++        const port_text = try std.fmt.allocPrint(allocator, ":{d}", .{port});
++        defer allocator.free(port_text);
++        try request.appendSlice(port_text);
++    }
++    try request.appendSlice("\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nContent-Length: ");
++    const length_text = try std.fmt.allocPrint(allocator, "{d}", .{body.len});
++    defer allocator.free(length_text);
++    try request.appendSlice(length_text);
++    try request.appendSlice("\r\n\r\n");
++    try request.appendSlice(body);
++    return request.toOwnedSlice();
++}
++
++fn performAttempt(allocator: std.mem.Allocator, options: Options, url: UrlParts, request: []const u8) AttemptError!AttemptSuccess {
++    const hostname_z = allocator.dupeSentinel(u8, url.hostname, 0) catch return error.OutOfMemory;
++    defer allocator.free(hostname_z);
++    const timeout: c_int = @intCast(options.idle_timeout_ms);
++    const fd = c.kogen_connect(hostname_z.ptr, url.port, timeout);
++    if (fd < 0) return error.Retryable;
++    defer _ = c.kogen_close(fd);
++
++    if (c.kogen_send_all(fd, request.ptr, request.len, timeout) != 0) return error.Retryable;
++
++    var reader = SocketReader.init(fd);
++    const headers_deadline = c.kogen_now_ms() + @as(i64, @intCast(options.idle_timeout_ms));
++    var headers: ResponseHeaders = undefined;
++    while (true) {
++        headers = try readResponseHeaders(allocator, &reader, headers_deadline);
++        if (headers.status < 100 or headers.status >= 200) break;
++        if (headers.status == 101) return error.Malformed;
++    }
++
++    if (headers.status >= 500 and headers.status <= 599) return error.Retryable;
++    if (headers.status < 200 or headers.status >= 300) return error.Malformed;
++
++    var sse = SseParser.init(allocator);
++    defer sse.deinit();
++    const reached_done = switch (headers.framing) {
++        .content_length => |length| try readContentLength(&reader, &sse, options.idle_timeout_ms, length),
++        .chunked => try readChunked(&reader, &sse, options.idle_timeout_ms),
++        .until_eof => try readUntilEof(&reader, &sse, options.idle_timeout_ms),
++    };
++    if (reached_done) {
++        return .{
++            .output = sse.output.toOwnedSlice() catch return error.OutOfMemory,
++            .usage = sse.usage orelse return error.Malformed,
++        };
++    }
++    try sse.finish();
++    return error.Malformed;
++}
++
++const Framing = union(enum) {
++    content_length: usize,
++    chunked,
++    until_eof,
++};
++
++const ResponseHeaders = struct {
++    status: u16,
++    framing: Framing,
++};
++
++fn readResponseHeaders(allocator: std.mem.Allocator, reader: *SocketReader, deadline: i64) AttemptError!ResponseHeaders {
++    var bytes = std.array_list.Managed(u8).init(allocator);
++    defer bytes.deinit();
++    while (true) {
++        const byte = try reader.headerByte(deadline);
++        if (byte == '\n' and (bytes.items.len == 0 or bytes.items[bytes.items.len - 1] != '\r')) return error.Malformed;
++        if (byte == '\r' and bytes.items.len > 0 and bytes.items[bytes.items.len - 1] == '\r') return error.Malformed;
++        bytes.append(byte) catch return error.OutOfMemory;
++        if (bytes.items.len > 65536) return error.Malformed;
++        if (std.mem.endsWith(u8, bytes.items, "\r\n\r\n")) break;
++    }
++
++    const header_lines = bytes.items[0 .. bytes.items.len - 4];
++    var lines = std.mem.splitSequence(u8, header_lines, "\r\n");
++    const status_line = lines.next() orelse return error.Malformed;
++    if (status_line.len < 12 or
++        (!std.mem.startsWith(u8, status_line, "HTTP/1.0 ") and !std.mem.startsWith(u8, status_line, "HTTP/1.1 ")) or
++        (status_line.len > 12 and status_line[12] != ' ')) return error.Malformed;
++    for (status_line[9..12]) |digit| {
++        if (digit < '0' or digit > '9') return error.Malformed;
++    }
++    if (status_line.len > 12) {
++        for (status_line[13..]) |byte| {
++            if (byte < 0x20 or byte == 0x7f or byte > 0x7e) return error.Malformed;
++        }
++    }
++    const status = std.fmt.parseInt(u16, status_line[9..12], 10) catch return error.Malformed;
++
++    var content_length: ?usize = null;
++    var transfer_encoding: ?[]const u8 = null;
++    while (lines.next()) |line| {
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse return error.Malformed;
++        if (colon == 0 or line[0] == ' ' or line[0] == '\t') return error.Malformed;
++        const name = line[0..colon];
++        for (name) |byte| {
++            if (!isTokenByte(byte)) return error.Malformed;
++        }
++        const value = trimOptionalWhitespace(line[colon + 1 ..]);
++        for (value) |byte| {
++            if ((byte < 0x20 and byte != '\t') or byte == 0x7f or byte > 0x7e) return error.Malformed;
++        }
++        if (std.ascii.eqlIgnoreCase(name, "content-length")) {
++            if (content_length != null or value.len == 0) return error.Malformed;
++            for (value) |byte| {
++                if (byte < '0' or byte > '9') return error.Malformed;
++            }
++            content_length = std.fmt.parseInt(usize, value, 10) catch return error.Malformed;
++        } else if (std.ascii.eqlIgnoreCase(name, "transfer-encoding")) {
++            if (transfer_encoding != null) return error.Malformed;
++            transfer_encoding = value;
++        }
++    }
++
++    if (content_length != null and transfer_encoding != null) return error.Malformed;
++    const framing: Framing = if (transfer_encoding) |encoding| blk: {
++        if (!std.ascii.eqlIgnoreCase(encoding, "chunked")) return error.Malformed;
++        break :blk .chunked;
++    } else if (content_length) |length| .{ .content_length = length } else .until_eof;
++
++    return .{ .status = status, .framing = framing };
++}
++
++fn isTokenByte(byte: u8) bool {
++    return std.ascii.isAlphanumeric(byte) or switch (byte) {
++        '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~' => true,
++        else => false,
++    };
++}
++
++fn trimOptionalWhitespace(value: []const u8) []const u8 {
++    var start: usize = 0;
++    var end = value.len;
++    while (start < end and (value[start] == ' ' or value[start] == '\t')) : (start += 1) {}
++    while (end > start and (value[end - 1] == ' ' or value[end - 1] == '\t')) : (end -= 1) {}
++    return value[start..end];
++}
++
++const SocketReader = struct {
++    fd: c_int,
++    buffer: [8192]u8 = undefined,
++    start: usize = 0,
++    end: usize = 0,
++
++    const BodyReadError = error{ Timeout, Io, EndOfStream };
++
++    fn init(fd: c_int) SocketReader {
++        return .{ .fd = fd };
++    }
++
++    fn headerByte(self: *SocketReader, deadline: i64) AttemptError!u8 {
++        if (self.start < self.end) return self.takeBuffered();
++        const remaining = deadline - c.kogen_now_ms();
++        if (remaining <= 0) return error.Retryable;
++        const ready = c.kogen_poll_fd(self.fd, c.POLLIN, @intCast(remaining));
++        if (ready <= 0) return error.Retryable;
++        const count = c.kogen_recv(self.fd, &self.buffer, self.buffer.len);
++        if (count <= 0) return error.Retryable;
++        self.start = 0;
++        self.end = @intCast(count);
++        return self.takeBuffered();
++    }
++
++    fn bodyByte(self: *SocketReader, timeout_ms: u32) BodyReadError!u8 {
++        if (self.start < self.end) return self.takeBuffered();
++        const ready = c.kogen_poll_fd(self.fd, c.POLLIN, @intCast(timeout_ms));
++        if (ready == 0) return error.Timeout;
++        if (ready < 0) return error.Io;
++        const count = c.kogen_recv(self.fd, &self.buffer, self.buffer.len);
++        if (count == 0) return error.EndOfStream;
++        if (count < 0) return error.Io;
++        self.start = 0;
++        self.end = @intCast(count);
++        return self.takeBuffered();
++    }
++
++    fn takeBuffered(self: *SocketReader) u8 {
++        const byte = self.buffer[self.start];
++        self.start += 1;
++        return byte;
++    }
++};
++
++const SseParser = struct {
++    allocator: std.mem.Allocator,
++    line: std.array_list.Managed(u8),
++    event_data: std.array_list.Managed(u8),
++    output: std.array_list.Managed(u8),
++    has_data: bool = false,
++    usage: ?Usage = null,
++    done: bool = false,
++
++    fn init(allocator: std.mem.Allocator) SseParser {
++        return .{
++            .allocator = allocator,
++            .line = std.array_list.Managed(u8).init(allocator),
++            .event_data = std.array_list.Managed(u8).init(allocator),
++            .output = std.array_list.Managed(u8).init(allocator),
++        };
++    }
++
++    fn deinit(self: *SseParser) void {
++        self.line.deinit();
++        self.event_data.deinit();
++        self.output.deinit();
++    }
++
++    fn feed(self: *SseParser, byte: u8) AttemptError!bool {
++        if (byte != '\n') {
++            self.line.append(byte) catch return error.OutOfMemory;
++            return false;
++        }
++        var line = self.line.items;
++        if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
++        if (!std.unicode.utf8ValidateSlice(line)) return error.Malformed;
++        const is_done = try self.processLine(line);
++        self.line.clearRetainingCapacity();
++        return is_done;
++    }
++
++    fn processLine(self: *SseParser, line: []const u8) AttemptError!bool {
++        if (line.len == 0) {
++            if (self.has_data) {
++                if (std.mem.eql(u8, self.event_data.items, "[DONE]")) {
++                    self.done = true;
++                    return true;
++                }
++                try self.processDataEvent(self.event_data.items);
++            }
++            self.event_data.clearRetainingCapacity();
++            self.has_data = false;
++            return false;
++        }
++        if (line[0] == ':') return false;
++        if (std.mem.startsWith(u8, line, "data:")) {
++            var value = line[5..];
++            if (value.len > 0 and value[0] == ' ') value = value[1..];
++            if (self.has_data) self.event_data.append('\n') catch return error.OutOfMemory;
++            self.event_data.appendSlice(value) catch return error.OutOfMemory;
++            self.has_data = true;
++        }
++        return false;
++    }
++
++    fn processDataEvent(self: *SseParser, data: []const u8) AttemptError!void {
++        var parsed = std.json.parseFromSlice(std.json.Value, self.allocator, data, .{
++            .parse_numbers = false,
++            .duplicate_field_behavior = .use_last,
++        }) catch |err| {
++            if (err == error.OutOfMemory) return error.OutOfMemory;
++            return error.Malformed;
++        };
++        defer parsed.deinit();
++        const object = switch (parsed.value) {
++            .object => |value| value,
++            else => return error.Malformed,
++        };
++        const type_value = object.get("type") orelse return;
++        if (type_value != .string) return;
++        if (std.mem.eql(u8, type_value.string, "text")) {
++            const text_value = object.get("text") orelse return error.Malformed;
++            if (text_value != .string) return error.Malformed;
++            self.output.appendSlice(text_value.string) catch return error.OutOfMemory;
++        } else if (std.mem.eql(u8, type_value.string, "usage")) {
++            const input_value = object.get("input_tokens") orelse return error.Malformed;
++            const output_value = object.get("output_tokens") orelse return error.Malformed;
++            const input_tokens = switch (input_value) {
++                .number_string => |number| parseIntegralTokenCount(number) orelse return error.Malformed,
++                else => return error.Malformed,
++            };
++            const output_tokens = switch (output_value) {
++                .number_string => |number| parseIntegralTokenCount(number) orelse return error.Malformed,
++                else => return error.Malformed,
++            };
++            self.usage = .{ .input_tokens = input_tokens, .output_tokens = output_tokens };
++        }
++    }
++
++    fn finish(self: *SseParser) AttemptError!void {
++        if (!std.unicode.utf8ValidateSlice(self.line.items)) return error.Malformed;
++    }
++};
++
++fn parseIntegralTokenCount(raw: []const u8) ?u64 {
++    if (raw.len == 0) return null;
++    var index: usize = 0;
++    var negative = false;
++    if (raw[index] == '-') {
++        negative = true;
++        index += 1;
++    }
++
++    const exponent_start = std.mem.findAnyPos(u8, raw, index, "eE") orelse raw.len;
++    const mantissa = raw[index..exponent_start];
++    const exponent_text = if (exponent_start < raw.len) raw[exponent_start + 1 ..] else "0";
++    var exponent_negative = false;
++    var exp_index: usize = 0;
++    if (exponent_text.len > 0 and (exponent_text[0] == '+' or exponent_text[0] == '-')) {
++        exponent_negative = exponent_text[0] == '-';
++        exp_index = 1;
++    }
++    var exponent_magnitude: i128 = 0;
++    const exponent_limit: i128 = 1 << 100;
++    while (exp_index < exponent_text.len) : (exp_index += 1) {
++        const digit = exponent_text[exp_index] - '0';
++        if (exponent_magnitude > @divTrunc(exponent_limit - digit, 10)) {
++            exponent_magnitude = exponent_limit;
++        } else {
++            exponent_magnitude = exponent_magnitude * 10 + digit;
++        }
++    }
++    const exponent: i128 = if (exponent_negative) -exponent_magnitude else exponent_magnitude;
++
++    const dot = std.mem.indexOfScalar(u8, mantissa, '.') orelse mantissa.len;
++    const fraction_digits: i128 = @intCast(if (dot < mantissa.len) mantissa.len - dot - 1 else 0);
++    var digit_count: usize = 0;
++    var leading_zeroes: usize = 0;
++    var found_nonzero = false;
++    for (mantissa) |byte| {
++        if (byte == '.') continue;
++        digit_count += 1;
++        if (!found_nonzero and byte == '0') {
++            leading_zeroes += 1;
++        } else if (byte != '0') {
++            found_nonzero = true;
++        }
++    }
++    if (!found_nonzero) return 0;
++    if (negative) return null;
++
++    const significant_digits = digit_count - leading_zeroes;
++    const scale = exponent - fraction_digits;
++    var kept_digits: usize = significant_digits;
++    var appended_zeroes: usize = 0;
++    if (scale >= 0) {
++        const scale_usize = std.math.cast(usize, scale) orelse return null;
++        if (significant_digits +| scale_usize > 16) return null;
++        appended_zeroes = scale_usize;
++    } else {
++        const removed_i128 = -scale;
++        const removed = std.math.cast(usize, removed_i128) orelse return null;
++        if (removed > significant_digits) return null;
++        var trailing_zeroes: usize = 0;
++        var reverse_index = mantissa.len;
++        while (reverse_index > 0 and trailing_zeroes < removed) {
++            reverse_index -= 1;
++            const byte = mantissa[reverse_index];
++            if (byte == '.') continue;
++            if (byte != '0') return null;
++            trailing_zeroes += 1;
++        }
++        if (trailing_zeroes != removed) return null;
++        kept_digits -= removed;
++        if (kept_digits == 0) return 0;
++    }
++    if (kept_digits + appended_zeroes > 16) return null;
++
++    var value: u64 = 0;
++    var seen_nonzero = false;
++    var consumed: usize = 0;
++    for (mantissa) |byte| {
++        if (byte == '.') continue;
++        if (!seen_nonzero and byte == '0') continue;
++        seen_nonzero = true;
++        if (consumed >= kept_digits) break;
++        value = value * 10 + (byte - '0');
++        consumed += 1;
++    }
++    while (appended_zeroes > 0) : (appended_zeroes -= 1) value *= 10;
++    if (value > 9007199254740991) return null;
++    return value;
++}
++
++fn readContentLength(reader: *SocketReader, sse: *SseParser, timeout_ms: u32, length: usize) AttemptError!bool {
++    var remaining = length;
++    while (remaining > 0) : (remaining -= 1) {
++        const byte = reader.bodyByte(timeout_ms) catch return error.Retryable;
++        if (try sse.feed(byte)) return true;
++    }
++    return false;
++}
++
++fn readUntilEof(reader: *SocketReader, sse: *SseParser, timeout_ms: u32) AttemptError!bool {
++    while (true) {
++        const byte = reader.bodyByte(timeout_ms) catch |err| switch (err) {
++            error.EndOfStream => return false,
++            error.Timeout, error.Io => return error.Retryable,
++        };
++        if (try sse.feed(byte)) return true;
++    }
++}
++
++fn readChunked(reader: *SocketReader, sse: *SseParser, timeout_ms: u32) AttemptError!bool {
++    while (true) {
++        const size_line = try readCrlfLine(sse.allocator, reader, timeout_ms, 8192);
++        defer sse.allocator.free(size_line);
++        const extension = std.mem.indexOfScalar(u8, size_line, ';') orelse size_line.len;
++        if (extension == 0) return error.Malformed;
++        for (size_line[0..extension]) |byte| {
++            if (!std.ascii.isHex(byte)) return error.Malformed;
++        }
++        const size = std.fmt.parseInt(u64, size_line[0..extension], 16) catch return error.Malformed;
++        if (size == 0) {
++            while (true) {
++                const trailer = try readCrlfLine(sse.allocator, reader, timeout_ms, 8192);
++                defer sse.allocator.free(trailer);
++                if (trailer.len == 0) return false;
++                try validateHeaderLine(trailer);
++            }
++        }
++
++        var remaining = size;
++        while (remaining > 0) : (remaining -= 1) {
++            const byte = reader.bodyByte(timeout_ms) catch return error.Retryable;
++            if (try sse.feed(byte)) return true;
++        }
++        const cr = reader.bodyByte(timeout_ms) catch return error.Retryable;
++        const lf = reader.bodyByte(timeout_ms) catch return error.Retryable;
++        if (cr != '\r' or lf != '\n') return error.Malformed;
++    }
++}
++
++fn readCrlfLine(allocator: std.mem.Allocator, reader: *SocketReader, timeout_ms: u32, maximum: usize) AttemptError![]u8 {
++    var line = std.array_list.Managed(u8).init(allocator);
++    defer line.deinit();
++    while (true) {
++        const byte = reader.bodyByte(timeout_ms) catch return error.Retryable;
++        if (byte == '\n') {
++            if (line.items.len == 0 or line.items[line.items.len - 1] != '\r') return error.Malformed;
++            line.items.len -= 1;
++            return line.toOwnedSlice() catch return error.OutOfMemory;
++        }
++        line.append(byte) catch return error.OutOfMemory;
++        if (line.items.len > maximum) return error.Malformed;
++    }
++}
++
++fn validateHeaderLine(line: []const u8) AttemptError!void {
++    const colon = std.mem.indexOfScalar(u8, line, ':') orelse return error.Malformed;
++    if (colon == 0 or line[0] == ' ' or line[0] == '\t') return error.Malformed;
++    for (line[0..colon]) |byte| {
++        if (!isTokenByte(byte)) return error.Malformed;
++    }
++    for (line[colon + 1 ..]) |byte| {
++        if ((byte < 0x20 and byte != '\t') or byte == 0x7f or byte > 0x7e) return error.Malformed;
++    }
+ }
+diff --git a/src/main.zig b/src/main.zig
+index 33a122b..c4f0c06 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -11,46 +11,6 @@ fn writeAll(fd: c_int, bytes: []const u8) void {
+     }
+ }
+ 
+-pub fn physicalLines(allocator: std.mem.Allocator, input: []const u8) ![][]const u8 {
+-    var lines = std.array_list.Managed([]const u8).init(allocator);
+-    var start: usize = 0;
+-    for (input, 0..) |byte, index| {
+-        if (byte == '\n') {
+-            var line = input[start..index];
+-            if (std.mem.endsWith(u8, line, "\r")) line = line[0 .. line.len - 1];
+-            try lines.append(line);
+-            start = index + 1;
+-        }
+-    }
+-    var last = input[start..];
+-    if (std.mem.endsWith(u8, last, "\r")) last = last[0 .. last.len - 1];
+-    try lines.append(last);
+-    return lines.toOwnedSlice();
+-}
+-
+-pub fn load(allocator: std.mem.Allocator, path: ?[]const u8, prefix: []const u8) ![]u8 {
+-    _ = prefix;
+-    var fd: c_int = c.STDIN_FILENO;
+-    if (path) |path_value| {
+-        if (!std.mem.eql(u8, path_value, "-")) {
+-            const path_z = try allocator.dupeSentinel(u8, path_value, 0);
+-            defer allocator.free(path_z);
+-            fd = c.open(path_z.ptr, c.O_RDONLY);
+-            if (fd < 0) return error.CannotReadInput;
+-            defer _ = c.close(fd);
+-        }
+-    }
+-    var bytes = std.array_list.Managed(u8).init(allocator);
+-    var chunk: [4096]u8 = undefined;
+-    while (true) {
+-        const count = c.read(fd, &chunk, chunk.len);
+-        if (count < 0) return error.CannotReadInput;
+-        if (count == 0) break;
+-        try bytes.appendSlice(chunk[0..@intCast(count)]);
+-    }
+-    return bytes.toOwnedSlice();
+-}
+-
+ pub fn main(init: std.process.Init.Minimal) void {
+     const allocator = std.heap.page_allocator;
+     var iterator = std.process.Args.Iterator.init(init.args);
+@@ -60,6 +20,7 @@ pub fn main(init: std.process.Init.Minimal) void {
+         writeAll(2, "error: request failed\n");
+         c.exit(5);
+     };
++
+     const output = core.execute(allocator, args.items) catch |err| {
+         if (err == error.InvalidArguments) {
+             writeAll(2, "error: invalid arguments\n");
+@@ -70,12 +31,3 @@ pub fn main(init: std.process.Init.Minimal) void {
+     };
+     writeAll(1, output);
+ }
+-
+-test "physical line endings" {
+-    const lines = try physicalLines(std.testing.allocator, "a\r\n\nb\r");
+-    defer std.testing.allocator.free(lines);
+-    try std.testing.expectEqual(@as(usize, 3), lines.len);
+-    try std.testing.expectEqualStrings("a", lines[0]);
+-    try std.testing.expectEqualStrings("", lines[1]);
+-    try std.testing.expectEqualStrings("b", lines[2]);
+-}

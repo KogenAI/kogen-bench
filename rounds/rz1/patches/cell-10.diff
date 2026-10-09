@@ -1,0 +1,348 @@
+diff --git a/src/core.rs b/src/core.rs
+index b4e3d0f..ffbc9e5 100644
+--- a/src/core.rs
++++ b/src/core.rs
+@@ -1,3 +1,341 @@
+-pub fn execute(_args: &[String]) -> Result<String, (i32, String)> {
+-    Ok(String::new())
++use serde::de::{MapAccess, Visitor};
++use serde::{Deserialize, Deserializer, Serialize};
++use serde_json::Value;
++use std::collections::{BTreeMap, HashMap, HashSet};
++use std::fmt;
++use std::fs::{self, OpenOptions};
++use std::io::Write;
++
++#[derive(Clone, Debug, Serialize)]
++struct Event {
++    id: String,
++    #[serde(rename = "type")]
++    event_type: String,
++    job: String,
++    ts: u64,
++    #[serde(skip)]
++    line: usize,
++}
++
++#[derive(Debug)]
++struct UniqueObject(BTreeMap<String, Value>);
++
++impl<'de> Deserialize<'de> for UniqueObject {
++    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
++    where
++        D: Deserializer<'de>,
++    {
++        struct ObjectVisitor;
++
++        impl<'de> Visitor<'de> for ObjectVisitor {
++            type Value = UniqueObject;
++
++            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
++                formatter.write_str("a JSON object with unique keys")
++            }
++
++            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
++            where
++                A: MapAccess<'de>,
++            {
++                let mut values = BTreeMap::new();
++                while let Some((key, value)) = map.next_entry::<String, Value>()? {
++                    if values.insert(key, value).is_some() {
++                        return Err(serde::de::Error::custom("duplicate object key"));
++                    }
++                }
++                Ok(UniqueObject(values))
++            }
++        }
++
++        deserializer.deserialize_map(ObjectVisitor)
++    }
++}
++
++#[derive(Debug)]
++enum EventProblem {
++    Invalid,
++    UnknownType(String),
++}
++
++#[derive(Debug)]
++enum LogProblem {
++    Invalid { line: usize },
++    UnknownType { line: usize, value: String },
++    DuplicateId { line: usize, id: String },
++    InvalidTransition { line: usize, job: String },
++    CannotAccess,
++}
++
++fn invalid_at(line: usize) -> LogProblem {
++    LogProblem::Invalid { line }
++}
++
++fn parse_event(text: &str) -> Result<Event, EventProblem> {
++    let object: UniqueObject = serde_json::from_str(text).map_err(|_| EventProblem::Invalid)?;
++    let values = object.0;
++    if values.len() != 4
++        || !values.contains_key("id")
++        || !values.contains_key("type")
++        || !values.contains_key("job")
++        || !values.contains_key("ts")
++    {
++        return Err(EventProblem::Invalid);
++    }
++
++    let id = values
++        .get("id")
++        .and_then(Value::as_str)
++        .ok_or(EventProblem::Invalid)?;
++    if !valid_id(id) {
++        return Err(EventProblem::Invalid);
++    }
++
++    let event_type = values
++        .get("type")
++        .and_then(Value::as_str)
++        .ok_or(EventProblem::Invalid)?;
++    if !matches!(event_type, "created" | "started" | "completed" | "failed") {
++        return Err(EventProblem::UnknownType(event_type.to_owned()));
++    }
++
++    let job = values
++        .get("job")
++        .and_then(Value::as_str)
++        .ok_or(EventProblem::Invalid)?;
++    if !valid_job(job) {
++        return Err(EventProblem::Invalid);
++    }
++
++    let ts = values
++        .get("ts")
++        .and_then(Value::as_u64)
++        .filter(|timestamp| *timestamp <= i64::MAX as u64)
++        .ok_or(EventProblem::Invalid)?;
++
++    Ok(Event {
++        id: id.to_owned(),
++        event_type: event_type.to_owned(),
++        job: job.to_owned(),
++        ts,
++        line: 0,
++    })
++}
++
++fn valid_id(id: &str) -> bool {
++    let Some(suffix) = id.strip_prefix("e-") else {
++        return false;
++    };
++    (1..=16).contains(&suffix.len())
++        && suffix
++            .bytes()
++            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
++}
++
++fn valid_job(job: &str) -> bool {
++    let bytes = job.as_bytes();
++    (1..=32).contains(&bytes.len())
++        && bytes[0].is_ascii_lowercase()
++        && bytes
++            .iter()
++            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-')
++}
++
++fn parse_line(bytes: &[u8], line: usize) -> Result<Event, LogProblem> {
++    let text = std::str::from_utf8(bytes).map_err(|_| invalid_at(line))?;
++    match parse_event(text) {
++        Ok(mut event) => {
++            event.line = line;
++            Ok(event)
++        }
++        Err(EventProblem::Invalid) => Err(invalid_at(line)),
++        Err(EventProblem::UnknownType(value)) => Err(LogProblem::UnknownType { line, value }),
++    }
++}
++
++fn scan_complete_lines<F>(bytes: &[u8], mut callback: F) -> Result<(), LogProblem>
++where
++    F: FnMut(&[u8], usize) -> Result<(), LogProblem>,
++{
++    let mut start = 0;
++    let mut line = 1;
++    for (index, byte) in bytes.iter().enumerate() {
++        if *byte == b'\n' {
++            callback(&bytes[start..index], line)?;
++            start = index + 1;
++            line += 1;
++        }
++    }
++    Ok(())
++}
++
++fn read_log(path: &str) -> Result<Vec<u8>, LogProblem> {
++    match fs::read(path) {
++        Ok(bytes) => Ok(bytes),
++        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
++        Err(_) => Err(LogProblem::CannotAccess),
++    }
++}
++
++fn append(path: &str, supplied: &str) -> Result<String, LogProblem> {
++    let mut event = match parse_event(supplied) {
++        Ok(event) => event,
++        Err(EventProblem::Invalid) => return Err(invalid_at(1)),
++        Err(EventProblem::UnknownType(value)) => {
++            return Err(LogProblem::UnknownType { line: 1, value });
++        }
++    };
++
++    let bytes = read_log(path)?;
++    let complete_length = bytes
++        .iter()
++        .rposition(|byte| *byte == b'\n')
++        .map_or(0, |index| index + 1);
++    let complete = &bytes[..complete_length];
++    let mut seen = HashSet::new();
++    scan_complete_lines(complete, |line_bytes, line_number| {
++        let existing = parse_line(line_bytes, line_number)?;
++        if !seen.insert(existing.id.clone()) {
++            return Err(LogProblem::DuplicateId {
++                line: line_number,
++                id: existing.id,
++            });
++        }
++        if existing.id == event.id {
++            return Err(LogProblem::DuplicateId {
++                line: line_number,
++                id: existing.id,
++            });
++        }
++        Ok(())
++    })?;
++
++    if !bytes.is_empty() && !bytes.ends_with(b"\n") {
++        let line_number = bytes.iter().filter(|byte| **byte == b'\n').count() + 1;
++        return Err(invalid_at(line_number));
++    }
++
++    event.line = 0;
++    let encoded = serde_json::to_vec(&event).map_err(|_| LogProblem::CannotAccess)?;
++    let mut file = OpenOptions::new()
++        .create(true)
++        .append(true)
++        .open(path)
++        .map_err(|_| LogProblem::CannotAccess)?;
++    file.write_all(&encoded)
++        .and_then(|()| file.write_all(b"\n"))
++        .map_err(|_| LogProblem::CannotAccess)?;
++    Ok(format!("appended {}\n", event.id))
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum State {
++    Queued,
++    Running,
++    Done,
++    Failed,
++}
++
++fn reconcile(path: &str) -> Result<String, LogProblem> {
++    let bytes = read_log(path)?;
++    let mut ids = HashSet::new();
++    let mut events = Vec::new();
++
++    scan_complete_lines(&bytes, |line_bytes, line_number| {
++        let event = parse_line(line_bytes, line_number)?;
++        if !ids.insert(event.id.clone()) {
++            return Err(LogProblem::DuplicateId {
++                line: line_number,
++                id: event.id,
++            });
++        }
++        events.push(event);
++        Ok(())
++    })?;
++
++    let mut by_job: HashMap<String, Vec<Event>> = HashMap::new();
++    for event in events {
++        by_job.entry(event.job.clone()).or_default().push(event);
++    }
++
++    let mut problems: Vec<(u64, usize, String)> = Vec::new();
++    let mut counts = [0usize; 4];
++    for (job, mut job_events) in by_job {
++        job_events.sort_by_key(|event| (event.ts, event.line));
++        for tied in job_events.windows(2) {
++            if tied[0].ts == tied[1].ts {
++                problems.push((tied[1].ts, tied[1].line, job.clone()));
++            }
++        }
++
++        let mut state = None;
++        let mut transition_invalid = false;
++        for event in &job_events {
++            state = match (state, event.event_type.as_str()) {
++                (None, "created") => Some(State::Queued),
++                (Some(State::Queued), "started") => Some(State::Running),
++                (Some(State::Running), "completed") => Some(State::Done),
++                (Some(State::Running), "failed") => Some(State::Failed),
++                _ => {
++                    problems.push((event.ts, event.line, job.clone()));
++                    transition_invalid = true;
++                    state
++                }
++            };
++        }
++
++        if !transition_invalid && let Some(final_state) = state {
++            match final_state {
++                State::Queued => counts[0] += 1,
++                State::Running => counts[1] += 1,
++                State::Done => counts[2] += 1,
++                State::Failed => counts[3] += 1,
++            }
++        }
++    }
++
++    if let Some((_, line, job)) = problems
++        .into_iter()
++        .min_by_key(|(timestamp, line, _)| (*timestamp, *line))
++    {
++        return Err(LogProblem::InvalidTransition { line, job });
++    }
++
++    let total = counts.iter().sum::<usize>();
++    Ok(format!(
++        "total={total}\nqueued={}\nrunning={}\ndone={}\nfailed={}\n",
++        counts[0], counts[1], counts[2], counts[3]
++    ))
++}
++
++fn format_problem(problem: LogProblem) -> (i32, String) {
++    let message = match problem {
++        LogProblem::Invalid { line } => format!("eventlog:{line}: invalid event"),
++        LogProblem::UnknownType { line, value } => {
++            format!("eventlog:{line}: unknown event type '{value}'")
++        }
++        LogProblem::DuplicateId { line, id } => {
++            format!("eventlog:{line}: duplicate event id '{id}'")
++        }
++        LogProblem::InvalidTransition { line, job } => {
++            format!("eventlog:{line}: invalid transition for job '{job}'")
++        }
++        LogProblem::CannotAccess => "eventlog: cannot access log".to_owned(),
++    };
++    (1, message)
++}
++
++pub fn execute(args: &[String]) -> Result<String, (i32, String)> {
++    let result = match args {
++        [command, log_option, path, event_option, event]
++            if command == "append" && log_option == "--log" && event_option == "--event" =>
++        {
++            append(path, event)
++        }
++        [command, log_option, path] if command == "reconcile" && log_option == "--log" => {
++            reconcile(path)
++        }
++        _ => return Err((2, "eventlog: usage error".to_owned())),
++    };
++    result.map_err(format_problem)
+ }

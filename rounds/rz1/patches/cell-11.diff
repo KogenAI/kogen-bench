@@ -1,0 +1,474 @@
+diff --git a/Makefile b/Makefile
+index a39e957..3fca922 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,10 +6,10 @@ setup:
+ 	"$(ROOT)/setup.sh"
+ 
+ build:
+-	cd "$(ROOT)" && . ./toolchain-env.sh && zig build -Doptimize=ReleaseFast && mkdir -p build/bin && cp zig-out/bin/kogen build/bin/kogen
++	cd "$(ROOT)" && . ./toolchain-env.sh && zig build -Doptimize=ReleaseFast && mkdir -p build/bin && cp zig-out/bin/kogen-config build/bin/kogen-config
+ 
+ check:
+-	cd "$(ROOT)" && . ./toolchain-env.sh && zig fmt --check build.zig src && zig build test -Doptimize=Debug
++	cd "$(ROOT)" && . ./toolchain-env.sh && zig fmt --check build.zig src && zig build test
+ 
+ format:
+ 	cd "$(ROOT)" && . ./toolchain-env.sh && zig fmt build.zig src
+diff --git a/build.zig b/build.zig
+index 9f8d230..6771935 100644
+--- a/build.zig
++++ b/build.zig
+@@ -11,7 +11,7 @@ pub fn build(b: *std.Build) void {
+         .optimize = optimize,
+     });
+     const executable = b.addExecutable(.{
+-        .name = "kogen",
++        .name = "kogen-config",
+         .root_module = executable_module,
+     });
+     b.installArtifact(executable);
+diff --git a/run b/run
+index 9cd6408..f5a109c 100755
+--- a/run
++++ b/run
+@@ -1,4 +1,4 @@
+ #!/bin/sh
+ set -eu
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+-exec "$ROOT/build/bin/kogen" "$@"
++exec "$ROOT/build/bin/kogen-config" "$@"
+diff --git a/src/config.zig b/src/config.zig
+new file mode 100644
+index 0000000..5b4368f
+--- /dev/null
++++ b/src/config.zig
+@@ -0,0 +1,355 @@
++const std = @import("std");
++const shared = @import("shared.zig");
++
++pub const Config = struct {
++    name: []const u8 = "kogen",
++    workers: u8 = 1,
++    enabled: bool = true,
++    directory: []const u8 = ".",
++};
++
++pub const ParseError = struct {
++    line: usize,
++    column: usize,
++    message: []const u8,
++};
++
++pub const Outcome = union(enum) {
++    config: Config,
++    failure: ParseError,
++};
++
++const Scalar = struct {
++    value: []const u8,
++    quoted: bool,
++    column: usize,
++};
++
++const ScalarOutcome = union(enum) {
++    scalar: Scalar,
++    failure: ParseError,
++};
++
++pub fn parse(input: []const u8, allocator: std.mem.Allocator) !Outcome {
++    if (firstNonAscii(input)) |location| {
++        return .{ .failure = .{
++            .line = location.line,
++            .column = location.column,
++            .message = "expected ASCII input",
++        } };
++    }
++
++    var config: Config = .{};
++    var seen_name = false;
++    var seen_workers = false;
++    var seen_enabled = false;
++    var seen_directory = false;
++
++    var lines = shared.physicalLines(input);
++    var line_number: usize = 1;
++    while (lines.next()) |line| : (line_number += 1) {
++        if (isIgnored(line)) continue;
++
++        if (std.mem.indexOfScalar(u8, line, '\t')) |tab_index| {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = tab_index + 1,
++                .message = "tab is not allowed",
++            } };
++        }
++
++        if (line.len > 0 and line[0] == ' ') {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = 1,
++                .message = "unexpected indentation",
++            } };
++        }
++
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = 1,
++                .message = "expected key: value",
++            } };
++        };
++        const key = line[0..colon];
++        if (!validKey(key)) {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = 1,
++                .message = "expected key: value",
++            } };
++        }
++
++        const field = fieldFor(key);
++        if (field == .unknown) {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = 1,
++                .message = try std.fmt.allocPrint(allocator, "unknown key '{s}'", .{key}),
++            } };
++        }
++
++        const seen = switch (field) {
++            .name => &seen_name,
++            .workers => &seen_workers,
++            .enabled => &seen_enabled,
++            .directory => &seen_directory,
++            .unknown => unreachable,
++        };
++        if (seen.*) {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = 1,
++                .message = try std.fmt.allocPrint(allocator, "duplicate key '{s}'", .{key}),
++            } };
++        }
++        seen.* = true;
++
++        var scalar_start = colon + 1;
++        while (scalar_start < line.len and line[scalar_start] == ' ') : (scalar_start += 1) {}
++        if (scalar_start == line.len or line[scalar_start] == '#') {
++            return .{ .failure = .{
++                .line = line_number,
++                .column = scalar_start + 1,
++                .message = "missing value",
++            } };
++        }
++
++        const scalar_result = try parseScalar(line, scalar_start, line_number, allocator);
++        const scalar = switch (scalar_result) {
++            .scalar => |value| value,
++            .failure => |parse_error| return .{ .failure = parse_error },
++        };
++
++        switch (field) {
++            .name => {
++                if (scalar.value.len == 0) return .{ .failure = schemaError(line_number, scalar, "expected nonempty string") };
++                config.name = scalar.value;
++            },
++            .workers => {
++                if (scalar.quoted) return .{ .failure = schemaError(line_number, scalar, "expected integer 1..64") };
++                const workers = parseWorkers(scalar.value) orelse {
++                    return .{ .failure = schemaError(line_number, scalar, "expected integer 1..64") };
++                };
++                config.workers = workers;
++            },
++            .enabled => {
++                if (scalar.quoted) return .{ .failure = schemaError(line_number, scalar, "expected true or false") };
++                if (std.mem.eql(u8, scalar.value, "true")) {
++                    config.enabled = true;
++                } else if (std.mem.eql(u8, scalar.value, "false")) {
++                    config.enabled = false;
++                } else {
++                    return .{ .failure = schemaError(line_number, scalar, "expected true or false") };
++                }
++            },
++            .directory => {
++                if (scalar.value.len == 0) return .{ .failure = schemaError(line_number, scalar, "expected nonempty string") };
++                config.directory = scalar.value;
++            },
++            .unknown => unreachable,
++        }
++    }
++
++    return .{ .config = config };
++}
++
++const Field = enum {
++    name,
++    workers,
++    enabled,
++    directory,
++    unknown,
++};
++
++fn fieldFor(key: []const u8) Field {
++    if (std.mem.eql(u8, key, "name")) return .name;
++    if (std.mem.eql(u8, key, "workers")) return .workers;
++    if (std.mem.eql(u8, key, "enabled")) return .enabled;
++    if (std.mem.eql(u8, key, "directory")) return .directory;
++    return .unknown;
++}
++
++fn validKey(key: []const u8) bool {
++    if (key.len == 0 or key[0] < 'a' or key[0] > 'z') return false;
++    for (key[1..]) |c| {
++        if (!((c >= 'a' and c <= 'z') or c == '_')) return false;
++    }
++    return true;
++}
++
++fn isIgnored(line: []const u8) bool {
++    if (std.mem.indexOfScalar(u8, line, '\t') != null) return false;
++    var index: usize = 0;
++    while (index < line.len and line[index] == ' ') : (index += 1) {}
++    return index == line.len or (index < line.len and line[index] == '#');
++}
++
++fn firstNonAscii(input: []const u8) ?struct { line: usize, column: usize } {
++    var line: usize = 1;
++    var column: usize = 1;
++    for (input) |c| {
++        if (c > 0x7f) return .{ .line = line, .column = column };
++        if (c == '\n') {
++            line += 1;
++            column = 1;
++        } else {
++            column += 1;
++        }
++    }
++    return null;
++}
++
++fn parseScalar(line: []const u8, start: usize, line_number: usize, allocator: std.mem.Allocator) !ScalarOutcome {
++    return switch (line[start]) {
++        '\'' => parseSingleQuoted(line, start, line_number, allocator),
++        '"' => parseDoubleQuoted(line, start, line_number, allocator),
++        else => parseBare(line, start, line_number),
++    };
++}
++
++fn parseBare(line: []const u8, start: usize, line_number: usize) ScalarOutcome {
++    var end = line.len;
++    var index = start + 1;
++    while (index < line.len) : (index += 1) {
++        if (line[index] == '#' and line[index - 1] == ' ') {
++            end = index;
++            break;
++        }
++    }
++    while (end > start and line[end - 1] == ' ') : (end -= 1) {}
++
++    for (line[start..end]) |c| {
++        if (!isBareCharacter(c)) {
++            return .{ .failure = parseError(line_number, start + 1, "invalid bare scalar") };
++        }
++    }
++    return .{ .scalar = .{ .value = line[start..end], .quoted = false, .column = start + 1 } };
++}
++
++fn isBareCharacter(c: u8) bool {
++    return (c >= 'a' and c <= 'z') or
++        (c >= 'A' and c <= 'Z') or
++        (c >= '0' and c <= '9') or
++        c == ' ' or c == '_' or c == '.' or c == '/' or c == ':' or c == '-' or c == '#';
++}
++
++fn parseSingleQuoted(line: []const u8, start: usize, line_number: usize, allocator: std.mem.Allocator) !ScalarOutcome {
++    var decoded = try allocator.alloc(u8, line.len - start);
++    var decoded_len: usize = 0;
++    var index = start + 1;
++    while (index < line.len) {
++        const c = line[index];
++        if (!isPrintable(c)) {
++            return .{ .failure = parseError(line_number, start + 1, "invalid quoted scalar") };
++        }
++        if (c == '\'') {
++            if (index + 1 < line.len and line[index + 1] == '\'') {
++                decoded[decoded_len] = '\'';
++                decoded_len += 1;
++                index += 2;
++                continue;
++            }
++            return finishQuoted(line, start, index, line_number, decoded[0..decoded_len]);
++        }
++        decoded[decoded_len] = c;
++        decoded_len += 1;
++        index += 1;
++    }
++    return .{ .failure = parseError(line_number, start + 1, "unterminated quoted scalar") };
++}
++
++fn parseDoubleQuoted(line: []const u8, start: usize, line_number: usize, allocator: std.mem.Allocator) !ScalarOutcome {
++    var decoded = try allocator.alloc(u8, line.len - start);
++    var decoded_len: usize = 0;
++    var index = start + 1;
++    while (index < line.len) {
++        const c = line[index];
++        if (!isPrintable(c)) {
++            return .{ .failure = parseError(line_number, start + 1, "invalid quoted scalar") };
++        }
++        if (c == '"') {
++            return finishQuoted(line, start, index, line_number, decoded[0..decoded_len]);
++        }
++        if (c == '\\') {
++            if (index + 1 >= line.len or (line[index + 1] != '"' and line[index + 1] != '\\')) {
++                return .{ .failure = parseError(line_number, index + 1, "invalid escape") };
++            }
++            decoded[decoded_len] = line[index + 1];
++            decoded_len += 1;
++            index += 2;
++            continue;
++        }
++        decoded[decoded_len] = c;
++        decoded_len += 1;
++        index += 1;
++    }
++    return .{ .failure = parseError(line_number, start + 1, "unterminated quoted scalar") };
++}
++
++fn finishQuoted(line: []const u8, start: usize, close: usize, line_number: usize, value: []const u8) ScalarOutcome {
++    var trailing = close + 1;
++    while (trailing < line.len and line[trailing] == ' ') : (trailing += 1) {}
++    if (trailing < line.len and line[trailing] != '#') {
++        return .{ .failure = parseError(line_number, trailing + 1, "unexpected trailing text") };
++    }
++    if (trailing < line.len and close + 1 == trailing) {
++        return .{ .failure = parseError(line_number, trailing + 1, "unexpected trailing text") };
++    }
++    return .{ .scalar = .{ .value = value, .quoted = true, .column = start + 1 } };
++}
++
++fn isPrintable(c: u8) bool {
++    return c >= 0x20 and c <= 0x7e;
++}
++
++fn parseWorkers(value: []const u8) ?u8 {
++    if (value.len == 0 or value[0] < '1' or value[0] > '9') return null;
++    var workers: u8 = value[0] - '0';
++    for (value[1..]) |c| {
++        if (c < '0' or c > '9') return null;
++        if (workers > 64) return null;
++        const digit: u8 = c - '0';
++        if (workers > 6 or (workers == 6 and digit > 4)) return null;
++        workers = workers * 10 + digit;
++    }
++    if (workers < 1 or workers > 64) return null;
++    return workers;
++}
++
++fn schemaError(line_number: usize, scalar: Scalar, message: []const u8) ParseError {
++    return parseError(line_number, scalar.column, message);
++}
++
++fn parseError(line_number: usize, column: usize, message: []const u8) ParseError {
++    return .{ .line = line_number, .column = column, .message = message };
++}
++
++test "strict configuration parsing and defaults" {
++    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
++    defer arena.deinit();
++
++    const parsed = try parse("name: 'Ada''s config'\r\nworkers: 64\nenabled: false\ndirectory: \"a\\\\b\\\"c\"\r", arena.allocator());
++    switch (parsed) {
++        .failure => return error.UnexpectedParseFailure,
++        .config => |config| {
++            try std.testing.expectEqualStrings("Ada's config", config.name);
++            try std.testing.expectEqual(@as(u8, 64), config.workers);
++            try std.testing.expect(!config.enabled);
++            try std.testing.expectEqualStrings("a\\b\"c", config.directory);
++        },
++    }
++
++    const defaults = try parse("  # comment\n", arena.allocator());
++    switch (defaults) {
++        .failure => return error.UnexpectedParseFailure,
++        .config => |config| {
++            try std.testing.expectEqualStrings("kogen", config.name);
++            try std.testing.expectEqual(@as(u8, 1), config.workers);
++            try std.testing.expect(config.enabled);
++            try std.testing.expectEqualStrings(".", config.directory);
++        },
++    }
++}
+diff --git a/src/core.zig b/src/core.zig
+index 1fd7c31..c1192f9 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,3 +1,7 @@
++const std = @import("std");
++const config_parser = @import("config.zig");
++const shared = @import("shared.zig");
++
+ pub const Failure = struct {
+     code: u8,
+     message: []const u8,
+@@ -8,9 +12,55 @@ pub const Result = union(enum) {
+     failure: Failure,
+ };
+ 
+-pub fn execute(_io: @import("std").Io, _allocator: @import("std").mem.Allocator, _args: []const []const u8) !Result {
+-    _ = _io;
+-    _ = _allocator;
+-    _ = _args;
+-    return .{ .output = "" };
++const help_text =
++    "Usage: kogen-config [FILE|-]\n" ++
++    "Parse a strict YAML-subset configuration from FILE or stdin.\n" ++
++    "Options:\n" ++
++    "  --help  Show this help.\n";
++
++pub fn execute(io: std.Io, allocator: std.mem.Allocator, args: []const []const u8) !Result {
++    for (args) |arg| {
++        if (!std.mem.startsWith(u8, arg, "-") or std.mem.eql(u8, arg, "-")) continue;
++        if (std.mem.eql(u8, arg, "--help") and args.len == 1) {
++            return .{ .output = help_text };
++        }
++        return .{ .failure = .{
++            .code = 2,
++            .message = try std.fmt.allocPrint(allocator, "config: unknown option '{s}'", .{arg}),
++        } };
++    }
++
++    if (args.len > 1) {
++        return .{ .failure = .{
++            .code = 2,
++            .message = "config: expected at most one input path",
++        } };
++    }
++
++    const path: ?[]const u8 = if (args.len == 0) null else args[0];
++    const input = shared.load(io, allocator, path) catch {
++        return .{ .failure = .{ .code = 1, .message = "config: cannot read input" } };
++    };
++
++    const parsed = try config_parser.parse(input, allocator);
++    switch (parsed) {
++        .failure => |parse_error| return .{ .failure = .{
++            .code = 1,
++            .message = try std.fmt.allocPrint(
++                allocator,
++                "config:{d}:{d}: {s}",
++                .{ parse_error.line, parse_error.column, parse_error.message },
++            ),
++        } },
++        .config => |value| return .{ .output = try std.fmt.allocPrint(
++            allocator,
++            "name={s}\nworkers={d}\nenabled={s}\ndirectory={s}\n",
++            .{
++                value.name,
++                value.workers,
++                if (value.enabled) "true" else "false",
++                value.directory,
++            },
++        ) },
++    }
+ }

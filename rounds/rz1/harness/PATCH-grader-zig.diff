@@ -1,0 +1,15 @@
+diff --git a/levers/r70/grade_worker.py b/levers/r70/grade_worker.py
+--- a/levers/r70/grade_worker.py
++++ b/levers/r70/grade_worker.py
+@@ -16,1 +16,1 @@
+- for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json','rec-lever-l4b-*/*/*/COMPLETE.json','rec-lever-l3b/*/*/COMPLETE.json') for c in pathlib.Path('public-source-location-withheld').glob(pattern)]:
++ for complete in [c for pattern in ('rec-lever-r70-*/*/*/COMPLETE.json','rec-lever-rz1-eu-*/*/*/COMPLETE.json','rec-lever-lang-sol-*/*/*/COMPLETE.json','rec-lever-l2-*/*/*/COMPLETE.json','rec-lever-l3-*/*/*/COMPLETE.json','rec-lever-l4-*/*/*/COMPLETE.json','rec-lever-l5-*/*/*/COMPLETE.json','rec-lever-l4b-*/*/*/COMPLETE.json','rec-lever-l3b/*/*/COMPLETE.json') for c in pathlib.Path('public-source-location-withheld').glob(pattern)]:
+@@ -24,1 +24,1 @@
+-  stack=next((k for k in ('ts-bun','elixir','rust','gleam','go') if stack==k or stack.startswith(k+'-')),stack)  # lane variant suffixes (-l3r31, -fe2-l2steps, ...)
++  stack=next((k for k in ('ts-bun','elixir','rust','gleam','go','zig') if stack==k or stack.startswith(k+'-')),stack)  # lane variant suffixes (-l3r31, -fe2-l2steps, ...)
+diff --git a/levers/r70/grade_window.py b/levers/r70/grade_window.py
+--- a/levers/r70/grade_window.py
++++ b/levers/r70/grade_window.py
+@@ -102,1 +102,1 @@
+-     subprocess.run(['rsync','-a','--exclude=.git','--exclude=target','--exclude=_build','--exclude=deps','--exclude=node_modules','--exclude=build','--exclude=.cache','--exclude=control-env.json',str(source)+'/',f'{host}:{target}/'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);j['reference_source']=target;uploaded[source_task]={'reference_source':target}
++     subprocess.run(['rsync','-a','--exclude=.git','--exclude=target','--exclude=_build','--exclude=deps','--exclude=node_modules','--exclude=build','--exclude=.cache','--exclude=.zig-cache','--exclude=zig-out','--exclude=control-env.json',str(source)+'/',f'{host}:{target}/'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);j['reference_source']=target;uploaded[source_task]={'reference_source':target}

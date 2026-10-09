@@ -1,0 +1,811 @@
+diff --git a/src/core.zig b/src/core.zig
+index 740bf60..2240bef 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -1,3 +1,736 @@
+-pub fn execute(_: @import("std").mem.Allocator, _: []const []const u8) error{ InvalidArguments, NotImplemented }![]const u8 {
+-    return error.NotImplemented;
++const std = @import("std");
++const c = @import("c");
++
++const Allocator = std.mem.Allocator;
++
++pub const Usage = struct {
++    input_tokens: u64,
++    output_tokens: u64,
++};
++
++pub const Response = struct {
++    text: []u8,
++    usage: Usage,
++};
++
++const Arguments = struct {
++    prompt: []const u8,
++    timeout_ms: u32,
++    usage_path: []const u8,
++    uri: std.Uri,
++};
++
++const AttemptResult = union(enum) {
++    retryable,
++    failed,
++    success: Response,
++};
++
++const HttpResponse = struct {
++    status: u16,
++    content_length: ?u64,
++    chunked: bool,
++    body_prefix: []const u8,
++};
++
++pub fn execute(allocator: Allocator, args: []const []const u8) !Response {
++    const parsed_args = try parseArguments(args);
++
++    var attempt: u8 = 0;
++    while (attempt < 2) : (attempt += 1) {
++        const result = try runAttempt(allocator, parsed_args);
++        switch (result) {
++            .failed => return error.RequestFailed,
++            .retryable => if (attempt == 1) return error.RequestFailed,
++            .success => |response| {
++                try writeUsageAtomically(allocator, parsed_args.usage_path, response.usage);
++                return response;
++            },
++        }
++    }
++    return error.RequestFailed;
++}
++
++fn parseArguments(args: []const []const u8) error{InvalidArguments}!Arguments {
++    if (args.len != 9 or !std.mem.eql(u8, args[0], "model")) return error.InvalidArguments;
++
++    var url_value: ?[]const u8 = null;
++    var prompt_value: ?[]const u8 = null;
++    var timeout_value: ?[]const u8 = null;
++    var path_value: ?[]const u8 = null;
++    var index: usize = 1;
++    while (index < args.len) : (index += 2) {
++        if (index + 1 >= args.len) return error.InvalidArguments;
++        const name = args[index];
++        const value = args[index + 1];
++        if (std.mem.eql(u8, name, "--url")) {
++            if (url_value != null) return error.InvalidArguments;
++            url_value = value;
++        } else if (std.mem.eql(u8, name, "--prompt")) {
++            if (prompt_value != null) return error.InvalidArguments;
++            prompt_value = value;
++        } else if (std.mem.eql(u8, name, "--idle-timeout-ms")) {
++            if (timeout_value != null) return error.InvalidArguments;
++            timeout_value = value;
++        } else if (std.mem.eql(u8, name, "--usage-file")) {
++            if (path_value != null) return error.InvalidArguments;
++            path_value = value;
++        } else {
++            return error.InvalidArguments;
++        }
++    }
++
++    const url_text = url_value orelse return error.InvalidArguments;
++    const prompt = prompt_value orelse return error.InvalidArguments;
++    const timeout_text = timeout_value orelse return error.InvalidArguments;
++    const usage_path = path_value orelse return error.InvalidArguments;
++    if (usage_path.len == 0) return error.InvalidArguments;
++    if (!std.unicode.utf8ValidateSlice(prompt)) return error.InvalidArguments;
++
++    var timeout: u32 = 0;
++    if (timeout_text.len == 0) return error.InvalidArguments;
++    for (timeout_text) |ch| {
++        if (ch < '0' or ch > '9') return error.InvalidArguments;
++        const digit: u32 = ch - '0';
++        if (timeout > 60000 / 10 or timeout * 10 > 60000 - digit) return error.InvalidArguments;
++        timeout = timeout * 10 + digit;
++    }
++    if (timeout < 1 or timeout > 60000) return error.InvalidArguments;
++
++    if (!validUriText(url_text)) return error.InvalidArguments;
++    const uri = std.Uri.parse(url_text) catch return error.InvalidArguments;
++    if (!std.ascii.eqlIgnoreCase(uri.scheme, "http") or uri.host == null or uri.host.?.isEmpty())
++        return error.InvalidArguments;
++
++    return .{
++        .prompt = prompt,
++        .timeout_ms = timeout,
++        .usage_path = usage_path,
++        .uri = uri,
++    };
++}
++
++fn validUriText(text: []const u8) bool {
++    var index: usize = 0;
++    while (index < text.len) : (index += 1) {
++        const byte = text[index];
++        if (byte <= 0x20 or byte >= 0x7f or byte == '\\') return false;
++        if (byte == '%') {
++            if (index + 2 >= text.len or !std.ascii.isHex(text[index + 1]) or !std.ascii.isHex(text[index + 2])) return false;
++            index += 2;
++        }
++    }
++    return true;
++}
++
++fn runAttempt(allocator: Allocator, args: Arguments) !AttemptResult {
++    var arena = std.heap.ArenaAllocator.init(allocator);
++    defer arena.deinit();
++    const a = arena.allocator();
++
++    const request_body = try makeRequestBody(a, args.prompt);
++    const request = try makeRequest(a, args.uri, request_body);
++
++    const fd = connectTo(a, args.uri) catch return .retryable;
++    defer _ = c.close(fd);
++
++    if (!sendAll(fd, request)) return .retryable;
++
++    const headers_deadline = monotonicNanos() + @as(i128, args.timeout_ms) * 1_000_000;
++    const http = receiveHeaders(a, fd, headers_deadline) catch |err| switch (err) {
++        error.Timeout, error.ConnectionFailure => return .retryable,
++        error.InvalidResponse => return .failed,
++        error.OutOfMemory => return error.OutOfMemory,
++    };
++
++    if (http.status >= 500 and http.status <= 599) return .retryable;
++    if (http.status < 200 or http.status > 299) return .failed;
++
++    var sse = SseParser.init(a);
++    var body = BodyDecoder.init(a, &sse, http.content_length, http.chunked);
++    const initial = body.feed(http.body_prefix) catch |err| switch (err) {
++        error.InvalidResponse => return .failed,
++        error.OutOfMemory => return error.OutOfMemory,
++    };
++    if (initial) return try successResponse(allocator, &sse);
++    if (body.finished()) return if (sse.complete()) try successResponse(allocator, &sse) else .failed;
++
++    while (true) {
++        const body_deadline = monotonicNanos() + @as(i128, args.timeout_ms) * 1_000_000;
++        var chunk: [4096]u8 = undefined;
++        const count = receiveSome(fd, &chunk, body_deadline) catch |err| switch (err) {
++            error.Timeout, error.ConnectionFailure => return .retryable,
++            error.InvalidResponse => return .failed,
++        };
++        if (count == 0) {
++            if (body.isCloseDelimited()) {
++                sse.finish() catch return .failed;
++                return if (sse.complete()) try successResponse(allocator, &sse) else .failed;
++            }
++            return .retryable;
++        }
++
++        const completed = body.feed(chunk[0..count]) catch |err| switch (err) {
++            error.InvalidResponse => return .failed,
++            error.OutOfMemory => return error.OutOfMemory,
++        };
++        if (completed) return try successResponse(allocator, &sse);
++        if (body.finished()) return if (sse.complete()) try successResponse(allocator, &sse) else .failed;
++    }
++}
++
++fn successResponse(allocator: Allocator, parser: *const SseParser) !AttemptResult {
++    const usage = parser.usage orelse return .failed;
++    return .{ .success = .{ .text = try allocator.dupe(u8, parser.text.items), .usage = usage } };
++}
++
++fn makeRequestBody(allocator: Allocator, prompt: []const u8) ![]u8 {
++    const encoded = try std.json.Stringify.valueAlloc(allocator, prompt, .{});
++    return try std.fmt.allocPrint(allocator, "{{\"prompt\":{s}}}", .{encoded});
++}
++
++fn makeRequest(allocator: Allocator, uri: std.Uri, body: []const u8) ![]u8 {
++    const host_component = uri.host orelse return error.InvalidArguments;
++    const host = try host_component.toRawMaybeAlloc(allocator);
++
++    var target = std.array_list.Managed(u8).init(allocator);
++    if (uri.path.isEmpty()) {
++        try target.append('/');
++    } else {
++        try target.appendSlice(componentBytes(uri.path));
++    }
++    if (uri.query) |query| {
++        try target.append('?');
++        try target.appendSlice(componentBytes(query));
++    }
++
++    var host_header = std.array_list.Managed(u8).init(allocator);
++    try host_header.appendSlice(host);
++    if (uri.port) |port| try host_header.appendSlice(try std.fmt.allocPrint(allocator, ":{d}", .{port}));
++
++    return try std.fmt.allocPrint(
++        allocator,
++        "POST {s} HTTP/1.1\r\nHost: {s}\r\nContent-Type: application/json\r\nAccept: text/event-stream\r\nContent-Length: {d}\r\n\r\n{s}",
++        .{ target.items, host_header.items, body.len, body },
++    );
++}
++
++fn connectTo(allocator: Allocator, uri: std.Uri) !c_int {
++    const host_component = uri.host orelse return error.ConnectionFailure;
++    const raw_host = try host_component.toRawMaybeAlloc(allocator);
++    const host = if (raw_host.len >= 2 and raw_host[0] == '[' and raw_host[raw_host.len - 1] == ']')
++        raw_host[1 .. raw_host.len - 1]
++    else
++        raw_host;
++    const host_z = try allocator.dupeSentinel(u8, host, 0);
++    const port_text = try std.fmt.allocPrintSentinel(allocator, "{d}", .{uri.port orelse 80}, 0);
++
++    var hints = std.mem.zeroes(c.struct_addrinfo);
++    hints.ai_family = c.AF_UNSPEC;
++    hints.ai_socktype = c.SOCK_STREAM;
++    hints.ai_protocol = c.IPPROTO_TCP;
++    var result: [*c]c.struct_addrinfo = null;
++    if (c.getaddrinfo(host_z.ptr, port_text.ptr, &hints, &result) != 0) return error.ConnectionFailure;
++    defer c.freeaddrinfo(result);
++
++    var entry = result;
++    while (entry != null) : (entry = entry.*.ai_next) {
++        const fd = c.socket(entry.*.ai_family, entry.*.ai_socktype, entry.*.ai_protocol);
++        if (fd < 0) continue;
++        if (c.connect(fd, entry.*.ai_addr, entry.*.ai_addrlen) == 0) return fd;
++        _ = c.close(fd);
++    }
++    return error.ConnectionFailure;
++}
++
++fn sendAll(fd: c_int, bytes: []const u8) bool {
++    var sent: usize = 0;
++    while (sent < bytes.len) {
++        const n = c.send(fd, bytes[sent..].ptr, bytes.len - sent, c.MSG_NOSIGNAL);
++        if (n <= 0) return false;
++        sent += @intCast(n);
++    }
++    return true;
++}
++
++const IoError = error{ Timeout, ConnectionFailure, InvalidResponse };
++
++fn monotonicNanos() i128 {
++    var ts: c.struct_timespec = undefined;
++    if (c.clock_gettime(c.CLOCK_MONOTONIC, &ts) != 0) return 0;
++    return @as(i128, ts.tv_sec) * 1_000_000_000 + ts.tv_nsec;
++}
++
++fn receiveSome(fd: c_int, output: []u8, deadline: i128) IoError!usize {
++    while (true) {
++        const remaining = deadline - monotonicNanos();
++        if (remaining <= 0) return error.Timeout;
++        const ms_i128 = @divTrunc(remaining + 999_999, 1_000_000);
++        const ms: c_int = @intCast(@min(ms_i128, std.math.maxInt(c_int)));
++        var pollfd = c.struct_pollfd{ .fd = fd, .events = c.POLLIN };
++        const poll_result = c.poll(&pollfd, 1, ms);
++        if (poll_result == 0) return error.Timeout;
++        if (poll_result < 0) return error.ConnectionFailure;
++        if ((pollfd.revents & (c.POLLIN | c.POLLHUP | c.POLLERR)) == 0) return error.ConnectionFailure;
++        const got = c.recv(fd, output.ptr, output.len, 0);
++        if (got < 0) return error.ConnectionFailure;
++        return @intCast(got);
++    }
++}
++
++fn receiveHeaders(allocator: Allocator, fd: c_int, deadline: i128) (IoError || Allocator.Error)!HttpResponse {
++    var received = std.array_list.Managed(u8).init(allocator);
++    var chunk: [4096]u8 = undefined;
++    while (true) {
++        const count = try receiveSome(fd, &chunk, deadline);
++        if (count == 0) return error.ConnectionFailure;
++        try received.appendSlice(chunk[0..count]);
++        if (std.mem.indexOf(u8, received.items, "\r\n\r\n")) |split| {
++            const header_end = split + 4;
++            const parsed = try parseHeaders(received.items[0..split]);
++            return .{
++                .status = parsed.status,
++                .content_length = parsed.content_length,
++                .chunked = parsed.chunked,
++                .body_prefix = try allocator.dupe(u8, received.items[header_end..]),
++            };
++        }
++        if (received.items.len > 65536) return error.InvalidResponse;
++    }
++}
++
++const ParsedHeaders = struct {
++    status: u16,
++    content_length: ?u64 = null,
++    chunked: bool = false,
++};
++
++fn parseHeaders(bytes: []const u8) error{InvalidResponse}!ParsedHeaders {
++    var lines = std.mem.splitSequence(u8, bytes, "\r\n");
++    const status_line = lines.next() orelse return error.InvalidResponse;
++    if (status_line.len < 12 or
++        !(std.mem.startsWith(u8, status_line, "HTTP/1.0 ") or std.mem.startsWith(u8, status_line, "HTTP/1.1 ")) or
++        status_line[9] < '0' or status_line[9] > '9' or
++        status_line[10] < '0' or status_line[10] > '9' or
++        status_line[11] < '0' or status_line[11] > '9' or
++        (status_line.len > 12 and status_line[12] != ' ')) return error.InvalidResponse;
++    var parsed = ParsedHeaders{ .status = (@as(u16, status_line[9] - '0') * 100) + (@as(u16, status_line[10] - '0') * 10) + (status_line[11] - '0') };
++
++    while (lines.next()) |line| {
++        if (line.len == 0 or line[0] == ' ' or line[0] == '\t') return error.InvalidResponse;
++        const colon = std.mem.indexOfScalar(u8, line, ':') orelse return error.InvalidResponse;
++        if (colon == 0) return error.InvalidResponse;
++        for (line[0..colon]) |ch| {
++            if (!isHeaderNameByte(ch)) return error.InvalidResponse;
++        }
++        const value = trimOws(line[colon + 1 ..]);
++        if (std.ascii.eqlIgnoreCase(line[0..colon], "content-length")) {
++            if (parsed.content_length != null or parsed.chunked) return error.InvalidResponse;
++            parsed.content_length = parseU64Decimal(value) catch return error.InvalidResponse;
++        } else if (std.ascii.eqlIgnoreCase(line[0..colon], "transfer-encoding")) {
++            if (parsed.chunked or parsed.content_length != null or !std.ascii.eqlIgnoreCase(value, "chunked"))
++                return error.InvalidResponse;
++            parsed.chunked = true;
++        }
++    }
++    return parsed;
++}
++
++fn isHeaderNameByte(ch: u8) bool {
++    return std.ascii.isAlphanumeric(ch) or switch (ch) {
++        '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~' => true,
++        else => false,
++    };
++}
++
++fn trimOws(value: []const u8) []const u8 {
++    var start: usize = 0;
++    var end = value.len;
++    while (start < end and (value[start] == ' ' or value[start] == '\t')) : (start += 1) {}
++    while (end > start and (value[end - 1] == ' ' or value[end - 1] == '\t')) : (end -= 1) {}
++    return value[start..end];
++}
++
++fn componentBytes(component: std.Uri.Component) []const u8 {
++    return switch (component) {
++        .raw => |bytes| bytes,
++        .percent_encoded => |bytes| bytes,
++    };
++}
++
++fn parseU64Decimal(value: []const u8) !u64 {
++    if (value.len == 0) return error.InvalidNumber;
++    var result: u64 = 0;
++    for (value) |ch| {
++        if (ch < '0' or ch > '9') return error.InvalidNumber;
++        const digit: u64 = ch - '0';
++        if (result > (std.math.maxInt(u64) - digit) / 10) return error.InvalidNumber;
++        result = result * 10 + digit;
++    }
++    return result;
++}
++
++const SseParser = struct {
++    allocator: Allocator,
++    line: std.array_list.Managed(u8),
++    event_data: std.array_list.Managed(u8),
++    text: std.array_list.Managed(u8),
++    has_data: bool = false,
++    usage: ?Usage = null,
++    done: bool = false,
++
++    fn init(allocator: Allocator) SseParser {
++        return .{
++            .allocator = allocator,
++            .line = std.array_list.Managed(u8).init(allocator),
++            .event_data = std.array_list.Managed(u8).init(allocator),
++            .text = std.array_list.Managed(u8).init(allocator),
++        };
++    }
++
++    fn feedByte(self: *SseParser, byte: u8) !bool {
++        if (self.done) return true;
++        if (byte == '\n') {
++            var line = self.line.items;
++            if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
++            if (!std.unicode.utf8ValidateSlice(line)) return error.InvalidResponse;
++            self.line.clearRetainingCapacity();
++            return try self.processLine(line);
++        }
++        try self.line.append(byte);
++        return false;
++    }
++
++    fn processLine(self: *SseParser, line: []const u8) !bool {
++        if (line.len == 0) {
++            if (self.has_data) {
++                const completed = try self.processEvent();
++                self.event_data.clearRetainingCapacity();
++                self.has_data = false;
++                if (completed) return true;
++            }
++            return false;
++        }
++        if (line[0] == ':') return false;
++        if (std.mem.startsWith(u8, line, "data:")) {
++            if (self.has_data) try self.event_data.append('\n');
++            self.has_data = true;
++            var value = line[5..];
++            if (value.len > 0 and value[0] == ' ') value = value[1..];
++            try self.event_data.appendSlice(value);
++        }
++        return false;
++    }
++
++    fn processEvent(self: *SseParser) !bool {
++        if (std.mem.eql(u8, self.event_data.items, "[DONE]")) {
++            self.done = true;
++            return true;
++        }
++        var arena = std.heap.ArenaAllocator.init(self.allocator);
++        defer arena.deinit();
++        const value = std.json.parseFromSliceLeaky(std.json.Value, arena.allocator(), self.event_data.items, .{
++            .allocate = .alloc_always,
++            .duplicate_field_behavior = .use_last,
++            .parse_numbers = false,
++        }) catch return error.InvalidResponse;
++        if (value != .object) return error.InvalidResponse;
++        const type_value = value.object.get("type") orelse return false;
++        if (type_value != .string) return false;
++        if (std.mem.eql(u8, type_value.string, "text")) {
++            const text_value = value.object.get("text") orelse return error.InvalidResponse;
++            if (text_value != .string) return error.InvalidResponse;
++            try self.text.appendSlice(text_value.string);
++        } else if (std.mem.eql(u8, type_value.string, "usage")) {
++            const input_value = value.object.get("input_tokens") orelse return error.InvalidResponse;
++            const output_value = value.object.get("output_tokens") orelse return error.InvalidResponse;
++            const input_tokens = try jsonSafeInteger(input_value);
++            const output_tokens = try jsonSafeInteger(output_value);
++            self.usage = .{ .input_tokens = input_tokens, .output_tokens = output_tokens };
++        }
++        return false;
++    }
++
++    fn finish(self: *SseParser) !void {
++        if (!std.unicode.utf8ValidateSlice(self.line.items)) return error.InvalidResponse;
++    }
++
++    fn complete(self: *const SseParser) bool {
++        return self.done and self.usage != null;
++    }
++};
++
++fn jsonSafeInteger(value: std.json.Value) error{InvalidResponse}!u64 {
++    if (value != .number_string) return error.InvalidResponse;
++    return parseMathematicalInteger(value.number_string) catch return error.InvalidResponse;
++}
++
++fn parseMathematicalInteger(number: []const u8) !u64 {
++    if (number.len == 0) return error.InvalidNumber;
++    var i: usize = 0;
++    var negative = false;
++    if (number[i] == '-') {
++        negative = true;
++        i += 1;
++    }
++    const coefficient_start = i;
++    var exponent_start = number.len;
++    while (i < number.len) : (i += 1) {
++        if (number[i] == 'e' or number[i] == 'E') {
++            exponent_start = i;
++            break;
++        }
++    }
++    var fraction_digits: usize = 0;
++    var after_dot = false;
++    var digit_count: usize = 0;
++    var nonzero = false;
++    var trailing_zero_count: usize = 0;
++    for (number[coefficient_start..exponent_start]) |ch| {
++        if (ch == '.') {
++            after_dot = true;
++            continue;
++        }
++        if (ch < '0' or ch > '9') return error.InvalidNumber;
++        digit_count += 1;
++        if (after_dot) fraction_digits += 1;
++        if (ch != '0') {
++            nonzero = true;
++            trailing_zero_count = 0;
++        } else if (nonzero) {
++            trailing_zero_count += 1;
++        }
++    }
++    var exponent: i64 = 0;
++    if (exponent_start < number.len) {
++        i = exponent_start + 1;
++        var exponent_negative = false;
++        if (i < number.len and (number[i] == '+' or number[i] == '-')) {
++            exponent_negative = number[i] == '-';
++            i += 1;
++        }
++        while (i < number.len and number[i] >= '0' and number[i] <= '9') : (i += 1) {
++            const digit: i64 = number[i] - '0';
++            exponent = @min(exponent * 10 + digit, 1_000_000_000);
++        }
++        if (exponent_negative) exponent = -exponent;
++    }
++    if (i != number.len) return error.InvalidNumber;
++
++    if (!nonzero) return 0;
++    if (negative) return error.InvalidNumber;
++
++    const decimal_shift = exponent - @as(i64, @intCast(fraction_digits));
++    var cut_digits: usize = 0;
++    var appended_zeros: usize = 0;
++    if (decimal_shift < 0) {
++        const magnitude: u64 = @intCast(-decimal_shift);
++        if (magnitude > digit_count) return error.InvalidNumber;
++        cut_digits = @intCast(magnitude);
++    } else {
++        if (decimal_shift > 16) return error.InvalidNumber;
++        appended_zeros = @intCast(decimal_shift);
++    }
++
++    if (cut_digits > digit_count or trailing_zero_count < cut_digits) return error.InvalidNumber;
++
++    const kept_digits = digit_count - cut_digits;
++    var value: u64 = 0;
++    var digits_seen: usize = 0;
++    var started = false;
++    for (number[coefficient_start..exponent_start]) |ch| {
++        if (ch == '.') continue;
++        if (digits_seen >= kept_digits) break;
++        digits_seen += 1;
++        if (!started and ch == '0') continue;
++        started = true;
++        const digit: u64 = ch - '0';
++        if (value > (9_007_199_254_740_991 - digit) / 10) return error.InvalidNumber;
++        value = value * 10 + digit;
++    }
++    for (0..appended_zeros) |_| {
++        if (value > 9_007_199_254_740_991 / 10) return error.InvalidNumber;
++        value *= 10;
++    }
++    return value;
++}
++
++const BodyDecoder = struct {
++    sse: *SseParser,
++    mode: enum { content_length, chunked, close_delimited },
++    remaining: u64 = 0,
++    chunk_state: enum { size, size_lf, data, data_cr, data_lf, trailers } = .size,
++    chunk_line: std.array_list.Managed(u8),
++    trailer_line: std.array_list.Managed(u8),
++    trailer_saw_cr: bool = false,
++    is_finished: bool = false,
++
++    fn init(allocator: Allocator, sse: *SseParser, content_length: ?u64, chunked: bool) BodyDecoder {
++        return .{
++            .sse = sse,
++            .mode = if (chunked) .chunked else if (content_length != null) .content_length else .close_delimited,
++            .remaining = content_length orelse 0,
++            .chunk_line = std.array_list.Managed(u8).init(allocator),
++            .trailer_line = std.array_list.Managed(u8).init(allocator),
++            .is_finished = !chunked and content_length != null and content_length.? == 0,
++        };
++    }
++
++    fn finished(self: *const BodyDecoder) bool {
++        return self.is_finished;
++    }
++
++    fn isCloseDelimited(self: *const BodyDecoder) bool {
++        return self.mode == .close_delimited;
++    }
++
++    fn feed(self: *BodyDecoder, bytes: []const u8) !bool {
++        if (self.is_finished) return false;
++        switch (self.mode) {
++            .content_length => {
++                const take: usize = @intCast(@min(self.remaining, bytes.len));
++                for (bytes[0..take]) |byte| {
++                    if (try self.sse.feedByte(byte)) return true;
++                }
++                self.remaining -= take;
++                if (self.remaining == 0) self.is_finished = true;
++            },
++            .close_delimited => {
++                for (bytes) |byte| {
++                    if (try self.sse.feedByte(byte)) return true;
++                }
++            },
++            .chunked => {
++                var index: usize = 0;
++                while (index < bytes.len) : (index += 1) {
++                    const byte = bytes[index];
++                    switch (self.chunk_state) {
++                        .size => {
++                            if (byte == '\r') {
++                                self.remaining = try parseChunkSize(self.chunk_line.items);
++                                self.chunk_line.clearRetainingCapacity();
++                                self.chunk_state = .size_lf;
++                            } else {
++                                if (byte == '\n' or self.chunk_line.items.len > 128) return error.InvalidResponse;
++                                try self.chunk_line.append(byte);
++                            }
++                        },
++                        .size_lf => {
++                            if (byte != '\n') return error.InvalidResponse;
++                            self.chunk_state = if (self.remaining == 0) .trailers else .data;
++                        },
++                        .data => {
++                            const take = @min(@as(u64, bytes.len - index), self.remaining);
++                            const n: usize = @intCast(take);
++                            for (bytes[index .. index + n]) |content_byte| {
++                                if (try self.sse.feedByte(content_byte)) return true;
++                            }
++                            index += n - 1;
++                            self.remaining -= take;
++                            if (self.remaining == 0) self.chunk_state = .data_cr;
++                        },
++                        .data_cr => {
++                            if (byte != '\r') return error.InvalidResponse;
++                            self.chunk_state = .data_lf;
++                        },
++                        .data_lf => {
++                            if (byte != '\n') return error.InvalidResponse;
++                            self.chunk_state = .size;
++                        },
++                        .trailers => {
++                            if (self.trailer_saw_cr) {
++                                if (byte != '\n') return error.InvalidResponse;
++                                self.trailer_saw_cr = false;
++                                if (self.trailer_line.items.len == 0) {
++                                    self.is_finished = true;
++                                    return false;
++                                }
++                                if (std.mem.indexOfScalar(u8, self.trailer_line.items, ':') == null)
++                                    return error.InvalidResponse;
++                                self.trailer_line.clearRetainingCapacity();
++                            } else if (byte == '\r') {
++                                self.trailer_saw_cr = true;
++                            } else if (byte == '\n' or self.trailer_line.items.len > 8192) {
++                                return error.InvalidResponse;
++                            } else {
++                                try self.trailer_line.append(byte);
++                            }
++                        },
++                    }
++                }
++            },
++        }
++        return false;
++    }
++};
++
++fn parseChunkSize(line: []const u8) error{InvalidResponse}!u64 {
++    const end = std.mem.indexOfScalar(u8, line, ';') orelse line.len;
++    if (end == 0) return error.InvalidResponse;
++    var value: u64 = 0;
++    for (line[0..end]) |ch| {
++        const digit: u64 = if (ch >= '0' and ch <= '9') ch - '0' else if (ch >= 'a' and ch <= 'f') ch - 'a' + 10 else if (ch >= 'A' and ch <= 'F') ch - 'A' + 10 else return error.InvalidResponse;
++        if (value > (std.math.maxInt(u64) - digit) / 16) return error.InvalidResponse;
++        value = value * 16 + digit;
++    }
++    return value;
++}
++
++fn writeUsageAtomically(allocator: Allocator, path: []const u8, usage: ?Usage) !void {
++    const record = usage orelse return error.RequestFailed;
++    try makeParentDirectories(allocator, path);
++    const bytes = try std.fmt.allocPrint(allocator, "{{\"input_tokens\":{d},\"output_tokens\":{d}}}\n", .{ record.input_tokens, record.output_tokens });
++
++    const pid = c.getpid();
++    var suffix: u32 = 0;
++    while (suffix < 100) : (suffix += 1) {
++        const temp_path = try std.fmt.allocPrint(allocator, "{s}.tmp.{d}.{d}", .{ path, pid, suffix });
++        const temp_z = try allocator.dupeSentinel(u8, temp_path, 0);
++        const fd = c.open(temp_z.ptr, c.O_WRONLY | c.O_CREAT | c.O_EXCL | c.O_CLOEXEC, @as(c_uint, 0o600));
++        if (fd < 0) continue;
++
++        var okay = writeFdAll(fd, bytes);
++        if (c.close(fd) != 0) okay = false;
++        if (!okay) {
++            _ = c.unlink(temp_z.ptr);
++            return error.RequestFailed;
++        }
++
++        const path_z = try allocator.dupeSentinel(u8, path, 0);
++        if (c.rename(temp_z.ptr, path_z.ptr) != 0) {
++            _ = c.unlink(temp_z.ptr);
++            return error.RequestFailed;
++        }
++        return;
++    }
++    return error.RequestFailed;
++}
++
++fn writeFdAll(fd: c_int, bytes: []const u8) bool {
++    var offset: usize = 0;
++    while (offset < bytes.len) {
++        const count = c.write(fd, bytes[offset..].ptr, bytes.len - offset);
++        if (count <= 0) return false;
++        offset += @intCast(count);
++    }
++    return true;
++}
++
++fn makeParentDirectories(allocator: Allocator, path: []const u8) !void {
++    const last_slash = std.mem.lastIndexOfScalar(u8, path, '/') orelse return;
++    if (last_slash == 0) return;
++    var end: usize = 0;
++    while (end < last_slash) {
++        const next = std.mem.indexOfScalarPos(u8, path, end, '/') orelse last_slash;
++        if (next > 0) {
++            const prefix = try allocator.dupeSentinel(u8, path[0..next], 0);
++            _ = c.mkdir(prefix.ptr, 0o777);
++        }
++        if (next == last_slash) break;
++        end = next + 1;
++    }
++    if (last_slash > 0) {
++        const parent = try allocator.dupeSentinel(u8, path[0..last_slash], 0);
++        _ = c.mkdir(parent.ptr, 0o777);
++    }
+ }
+diff --git a/src/main.zig b/src/main.zig
+index 33a122b..56d2977 100644
+--- a/src/main.zig
++++ b/src/main.zig
+@@ -11,46 +11,6 @@ fn writeAll(fd: c_int, bytes: []const u8) void {
+     }
+ }
+ 
+-pub fn physicalLines(allocator: std.mem.Allocator, input: []const u8) ![][]const u8 {
+-    var lines = std.array_list.Managed([]const u8).init(allocator);
+-    var start: usize = 0;
+-    for (input, 0..) |byte, index| {
+-        if (byte == '\n') {
+-            var line = input[start..index];
+-            if (std.mem.endsWith(u8, line, "\r")) line = line[0 .. line.len - 1];
+-            try lines.append(line);
+-            start = index + 1;
+-        }
+-    }
+-    var last = input[start..];
+-    if (std.mem.endsWith(u8, last, "\r")) last = last[0 .. last.len - 1];
+-    try lines.append(last);
+-    return lines.toOwnedSlice();
+-}
+-
+-pub fn load(allocator: std.mem.Allocator, path: ?[]const u8, prefix: []const u8) ![]u8 {
+-    _ = prefix;
+-    var fd: c_int = c.STDIN_FILENO;
+-    if (path) |path_value| {
+-        if (!std.mem.eql(u8, path_value, "-")) {
+-            const path_z = try allocator.dupeSentinel(u8, path_value, 0);
+-            defer allocator.free(path_z);
+-            fd = c.open(path_z.ptr, c.O_RDONLY);
+-            if (fd < 0) return error.CannotReadInput;
+-            defer _ = c.close(fd);
+-        }
+-    }
+-    var bytes = std.array_list.Managed(u8).init(allocator);
+-    var chunk: [4096]u8 = undefined;
+-    while (true) {
+-        const count = c.read(fd, &chunk, chunk.len);
+-        if (count < 0) return error.CannotReadInput;
+-        if (count == 0) break;
+-        try bytes.appendSlice(chunk[0..@intCast(count)]);
+-    }
+-    return bytes.toOwnedSlice();
+-}
+-
+ pub fn main(init: std.process.Init.Minimal) void {
+     const allocator = std.heap.page_allocator;
+     var iterator = std.process.Args.Iterator.init(init.args);
+@@ -68,14 +28,6 @@ pub fn main(init: std.process.Init.Minimal) void {
+         writeAll(2, "error: request failed\n");
+         c.exit(5);
+     };
+-    writeAll(1, output);
+-}
+-
+-test "physical line endings" {
+-    const lines = try physicalLines(std.testing.allocator, "a\r\n\nb\r");
+-    defer std.testing.allocator.free(lines);
+-    try std.testing.expectEqual(@as(usize, 3), lines.len);
+-    try std.testing.expectEqualStrings("a", lines[0]);
+-    try std.testing.expectEqualStrings("", lines[1]);
+-    try std.testing.expectEqualStrings("b", lines[2]);
++    writeAll(1, output.text);
++    writeAll(1, "\n");
+ }
