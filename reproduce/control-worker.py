@@ -48,6 +48,57 @@ def sandbox(task_dir: Path, work: Path, log_path=None):
     return verdict
 
 
+def reference_root(reference: Path) -> Path:
+    """Return the shallowest directory of a published reference tree that holds its Makefile."""
+    if reference.is_symlink():
+        raise RuntimeError("reference tree root is a symlink")
+    if (reference / "Makefile").is_file() and not (reference / "Makefile").is_symlink():
+        return reference
+    def safe_makefile(makefile: Path) -> bool:
+        if makefile.is_symlink():
+            return False
+        cursor = makefile.parent
+        while cursor != reference:
+            if cursor.is_symlink():
+                return False
+            cursor = cursor.parent
+        return not reference.is_symlink()
+
+    found = sorted((p.parent for p in reference.glob("*/Makefile") if safe_makefile(p)), key=str) or \
+        sorted((p.parent for p in reference.glob("*/*/Makefile") if safe_makefile(p)), key=str)
+    if len(found) != 1:
+        raise RuntimeError("reference tree has no unique Makefile root")
+    return found[0]
+
+
+def copy_reference(source: Path, work: Path):
+    """Overlay reference files onto the base checkout without the kit's root-only modes."""
+    for item in sorted(source.rglob("*")):
+        if item.is_symlink():
+            raise RuntimeError("reference tree contains a symlink")
+        rel = item.relative_to(source)
+        if ".git" in rel.parts:
+            continue
+        target = work / rel
+        cursor = target
+        unsafe = False
+        while cursor == target or cursor != work.parent:
+            if cursor.is_symlink():
+                unsafe = True
+                break
+            cursor = cursor.parent
+        if unsafe or not target.resolve().is_relative_to(work.resolve()):
+            raise RuntimeError("reference target escapes work tree")
+        if item.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+        elif item.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, target)
+            with item.open("rb") as handle:
+                executable = handle.read(2) == b"#!"
+            os.chmod(target, 0o755 if executable else 0o644)
+
+
 def control(kit: Path, task_id: str):
     task = kit / "tasks" / task_id
     if not task.is_dir() or not (task / "task.json").is_file():
@@ -79,14 +130,18 @@ def control(kit: Path, task_id: str):
                 if patch.is_file():
                     run(["git", "-C", str(work), "apply", "--whitespace=nowarn", str(patch)])
                 else:
-                    source = reference
-                    if not (source / "Makefile").exists():
-                        for candidate in (source / meta.get("stack", ""), source / task_id):
-                            if candidate.is_dir():
-                                source = candidate
-                                break
-                    shutil.copytree(source, work, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git"))
-            outcomes[variant] = sandbox(task, work)
+                    copy_reference(reference_root(reference), work)
+            log_path = None
+            keep = os.environ.get("KOGEN_CONTROLS_KEEP")
+            if keep:  # opt-in diagnostics: root-only, host-local; never copied off-host or printed
+                log_dir = Path(keep) / task_id / variant
+                log_dir.mkdir(parents=True, exist_ok=True)
+                for part in (Path(keep), Path(keep) / task_id, log_dir):
+                    os.chmod(part, 0o700)
+                log_path = log_dir / "grader.log"
+            outcomes[variant] = sandbox(task, work, log_path)
+            if log_path is not None:
+                os.chmod(log_path, 0o600)
         return outcomes
 
 

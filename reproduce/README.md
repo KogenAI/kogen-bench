@@ -28,7 +28,20 @@ The per-round [reproduction inventory](round-inventory.json) lists one row per r
 
 This is an official-grade snapshot, not every planned delivery. It cannot establish a full intention-to-treat denominator on its own: historical round records account for ungraded timeouts, cancellations, and corrections. External ledgers require matching approved numeric metadata. Cost estimates in the committed records are source-reported API equivalents; the calculator and analysis inputs are absent, so the calculations are not re-derivable from the public record.
 
-Task hidden suites and graders are shipped under `tasks/<id>/hidden/` and `tasks/<id>/grader/`; they are for post-run grading and must not be visible to the agent. Reruns require Linux, Bubblewrap (`bwrap`), the task's documented dependencies, and your own Codex login. The host kit now includes `setup-host.sh`, `doctor.sh`, and `run-controls.sh`; fresh-machine verification is pending the first host rebuild. See [RERUN.md](RERUN.md). Before any scored release, follow the [release checklist](../levers/RELEASE-CHECKLIST.md), including officially graded real-sandbox smoke cells for every arm.
+Task hidden suites and graders are shipped under `tasks/<id>/hidden/` and `tasks/<id>/grader/`; they are for post-run grading and must not be visible to the agent. Reruns require Linux, Bubblewrap (`bwrap`), the task's documented dependencies, and your own Codex login. The host kit now includes `setup-host.sh`, `doctor.sh`, and `run-controls.sh`; fresh-machine verification passed for tasks 1, 5 and 7 (see Scope below). See [RERUN.md](RERUN.md). Before any scored release, follow the [release checklist](../levers/RELEASE-CHECKLIST.md), including officially graded real-sandbox smoke cells for every arm.
+
+## Offline dependency snapshots
+
+Grading runs offline. The r70 kits read prebuilt dependency templates from the host, which `setup-host.sh` builds from the lockfiles in [`deps/`](deps/). The package managers verify the lockfile checksums.
+- **Elixir:** `toolchains/elixir-1.20.2-otp29/{mix-home,hex-home,project}`, built from `deps/elixir/mix.exs` and `mix.lock` with Hex 2.5.1 (built from its SHA-256-pinned source tag on the host OTP), `deps.get --check-locked`, `deps.compile` and the Dialyzer PLTs (MIX_ENV=test).
+- **Bun:** `toolchains/bun-1.4.2/node-template`, built by `bun install --frozen-lockfile` from `deps/bun/`.
+- **Gleam:** `toolchains/gleam-1.18.1/cache/project`, built by `gleam deps download` and `gleam build` from `deps/gleam/`.
+- **Go:** golangci-lint 2.14.0 in `toolchains/go-1.27.1/bin`, pinned by release-archive and binary SHA-256, plus an empty `cache/gomodcache`.
+- **Rust:** `toolchains/rust-1.97.1/vendor`, the Cargo directory source that the r70 Rust references' `.cargo/config.toml` points at. It is rebuilt from `deps/rust/vendor.tsv` (160 crates, each verified against its crates.io SHA-256) by `deps/rust/build_vendor.py`, which writes `cargo vendor`-identical checksum files. There is also an empty `cache/cargo-home`; the r70 Go kits declare no module requirements.
+
+Each template carries a `.kogen-lock-sha256` marker that binds it to the shipped lockfile bytes, and `doctor.sh` checks the markers. These snapshots replace the dependency sets that were provisioned by hand on the original hosts. Dependency trees are never committed.
+
+Scope: the Linux host kit targets the r70-family kits. On a freshly installed host (9 October 2026), the admission controls admitted every stack of tasks 1, 5 and 7. Tasks 2, 3, 4, 6 and 8 are not yet rerunnable from this kit: several of their published grader entry points need repair, and only the Zig kit of task 8 is published. The Rails and Phoenix kits were graded on macOS (their grader entry points use macOS tool paths), and 18 kits have no bundled base; neither group is rerunnable on a Linux host from this kit. The published fresh-host proof runs the admission controls on the six task-1 kits (r70-1-rust, r70-1-go, r70-1-elixir, r70-1-ts-bun, r70-1-gleam and r70-1-zig); a sweep over all kits is optional for anyone rerunning older rounds.
 
 ## Standard records and historical gaps
 

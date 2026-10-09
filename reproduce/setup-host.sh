@@ -52,17 +52,8 @@ reset_partial() {
 }
 begin_install() { if (( ! DRY )); then touch "$1/.kogen-installing"; fi; }
 
-action 'Update Ubuntu APT package indexes'
-action "Install Ubuntu $UBUNTU_VERSION packages: bubblewrap=$BWRAP_APT_VERSION sudo fail2ban ca-certificates curl git rsync jq zstd unzip xz-utils zip build-essential autoconf m4 bison libssl-dev libreadline-dev libncurses-dev libffi-dev libxml2-dev libsqlite3-dev libyaml-dev libgdbm-dev libdb-dev libbz2-dev liblzma-dev zlib1g-dev libexpat1-dev uuid-dev libmpdec-dev libcrypt-dev pkg-config perl make python3 (APT verifies hashes from signed metadata)"
-if (( ! DRY )); then
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y --no-install-recommends "bubblewrap=$BWRAP_APT_VERSION" sudo fail2ban ca-certificates curl git rsync jq zstd unzip xz-utils zip \
-    build-essential autoconf m4 bison libssl-dev libreadline-dev libncurses-dev libffi-dev libxml2-dev \
-    libsqlite3-dev libyaml-dev libgdbm-dev libdb-dev libbz2-dev liblzma-dev zlib1g-dev \
-    libexpat1-dev uuid-dev libmpdec-dev libcrypt-dev pkg-config perl make python3
-fi
-
+# Accounts and SSH protection come first: Ubuntu starts fail2ban's sshd jail as soon as the package is installed,
+# so the operator account and its key, and the operator's ignore list, must exist before that happens.
 if (( DRY )); then action 'Ensure groups benchadmin and bench, users benchadmin and bench'; else
   getent group benchadmin >/dev/null || groupadd benchadmin
   getent passwd benchadmin >/dev/null || useradd -m -s /bin/bash -g benchadmin benchadmin
@@ -70,6 +61,31 @@ if (( DRY )); then action 'Ensure groups benchadmin and bench, users benchadmin 
   getent passwd bench >/dev/null || useradd -m -s /bin/bash -g bench bench
   usermod -aG bench benchadmin
 fi
+ADMIN_KEYS=${BENCHADMIN_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}
+action "Seed benchadmin SSH keys from $ADMIN_KEYS if benchadmin has none"
+ADMIN_HOME=$(getent passwd benchadmin | cut -d: -f6 || true)
+if (( ! DRY )) && [[ -s $ADMIN_KEYS && ! -s $ADMIN_HOME/.ssh/authorized_keys ]]; then
+  install -d -m 0700 -o benchadmin -g benchadmin "$ADMIN_HOME/.ssh"
+  install -m 0600 -o benchadmin -g benchadmin "$ADMIN_KEYS" "$ADMIN_HOME/.ssh/authorized_keys"
+fi
+action 'Write /etc/fail2ban/jail.d/90-kogen-bench.conf (ignoreself plus BENCH_FAIL2BAN_IGNOREIP)'
+if (( ! DRY )); then
+  install -d -m 0755 /etc/fail2ban/jail.d
+  printf '[DEFAULT]\nignoreself = true\nignoreip = %s\n' "${BENCH_FAIL2BAN_IGNOREIP:-}" > /etc/fail2ban/jail.d/90-kogen-bench.conf
+  if systemctl is-active --quiet fail2ban; then systemctl reload fail2ban; fi
+fi
+
+action 'Update Ubuntu APT package indexes'
+action "Install Ubuntu $UBUNTU_VERSION packages: bubblewrap=$BWRAP_APT_VERSION sudo fail2ban ca-certificates curl git rsync jq zstd unzip xz-utils zip build-essential autoconf m4 bison libssl-dev libreadline-dev libncurses-dev libffi-dev libxml2-dev libsqlite3-dev libyaml-dev libgdbm-dev libdb-dev libbz2-dev liblzma-dev zlib1g-dev libexpat1-dev uuid-dev libcrypt-dev pkg-config perl make python3 (APT verifies hashes from signed metadata)"
+if (( ! DRY )); then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get install -y --no-install-recommends "bubblewrap=$BWRAP_APT_VERSION" sudo fail2ban ca-certificates curl git rsync jq zstd unzip xz-utils zip \
+    build-essential autoconf m4 bison libssl-dev libreadline-dev libncurses-dev libffi-dev libxml2-dev \
+    libsqlite3-dev libyaml-dev libgdbm-dev libdb-dev libbz2-dev liblzma-dev zlib1g-dev \
+    libexpat1-dev uuid-dev libcrypt-dev pkg-config perl make python3
+fi
+
 mkdir_owned 0755 benchadmin bench "$ROOT"
 for d in tools tools-next toolchains tasks runner results work recovery-2026-10-02; do mkdir_owned 0755 benchadmin bench "$ROOT/$d"; done
 mkdir_owned 0755 root root "$TOOLS"
@@ -161,7 +177,7 @@ if (( DRY )); then action "extract Elixir -> $ELIXIR_DIR"; elif ! ready "$ELIXIR
   unzip -qo "$CACHE/elixir" -d "$ELIXIR_DIR"
   mark "$ELIXIR_DIR" "$ELIXIR_SHA256"
 fi
-build_source python "$PYTHON_URL" "$PYTHON_SHA256" "$TOOLS/mise/installs/python/$PYTHON_VERSION" "Python-$PYTHON_VERSION" --with-ensurepip=install
+build_source python "$PYTHON_URL" "$PYTHON_SHA256" "$TOOLS/mise/installs/python/$PYTHON_VERSION" "Python-$PYTHON_VERSION" --with-ensurepip=install --with-system-libmpdec=no
 build_source ruby "$RUBY_URL" "$RUBY_SHA256" "$TOOLS/mise/installs/ruby/$RUBY_VERSION" "ruby-$RUBY_VERSION" --disable-install-doc
 for gem in BUNDLER_WRITEBOOK BUNDLER_OTHER; do
   url_name="${gem}_URL"; sha_name="${gem}_SHA256"; version_name="${gem}_VERSION"
@@ -208,6 +224,88 @@ for item in "rust-$RUST_VERSION:$RUST_DIR" "elixir-1.20.2-otp29:$ELIXIR_DIR"; do
   fi
 done
 
+# Offline dependency snapshots for the r70 task kits. Each template is rebuilt
+# from the lockfiles in reproduce/deps/ (the package managers verify their
+# checksums) and is bound to those exact bytes by a .kogen-lock-sha256 marker.
+# Graders read these trees through the sandbox's read-only bind of $ROOT.
+deps_sha() { (cd "$HERE/deps" && sha256sum "$@") | sha256sum | cut -d' ' -f1; }
+lock_ready() { [[ -f $1/.kogen-lock-sha256 && $(cat "$1/.kogen-lock-sha256") == "$2" ]]; }
+lock_mark() { chown -R root:root "$1"; chmod -R a+rX,go-w "$1"; printf '%s\n' "$2" > "$1/.kogen-lock-sha256"; chmod 0644 "$1/.kogen-lock-sha256"; }
+ERLANG_BIN="$TOOLS/mise/installs/erlang/$ERLANG_VERSION/bin"
+ELIXIR_KIT="$ROOT/toolchains/elixir-1.20.2-otp29"
+BUN_TEMPLATE="$ROOT/toolchains/bun-$BUN_VERSION/node-template"
+GLEAM_PROJECT="$GLEAM_DIR/cache/project"
+ELIXIR_DEPS_SHA=$(deps_sha elixir/mix.exs elixir/mix.lock)
+ELIXIR_DEPS_SHA=$(printf '%s hex-%s\n' "$ELIXIR_DEPS_SHA" "$HEX_VERSION" | sha256sum | cut -d' ' -f1)
+BUN_DEPS_SHA=$(deps_sha bun/package.json bun/bun.lock)
+GLEAM_DEPS_SHA=$(deps_sha gleam/gleam.toml gleam/manifest.toml gleam/src/r70_gleam_cache.gleam gleam/test/r70_gleam_cache_test.gleam)
+
+# Rust kits resolve crates offline from a vendored directory source (their
+# .cargo/config.toml replaces crates-io with toolchains/rust-*/vendor). The Rust
+# and Go module caches only need to exist (read-only in the sandbox).
+RUST_VENDOR="$ROOT/toolchains/rust-$RUST_VERSION/vendor"
+RUST_DEPS_SHA=$(deps_sha rust/vendor.tsv rust/build_vendor.py)
+mkdir_owned 0755 root root "$ROOT/toolchains/rust-$RUST_VERSION/cache"
+mkdir_owned 0755 root root "$ROOT/toolchains/rust-$RUST_VERSION/cache/cargo-home"
+if (( DRY )); then action "rebuild $RUST_VENDOR from deps/rust/vendor.tsv ($(wc -l < "$HERE/deps/rust/vendor.tsv") crates, each verified against its crates.io SHA-256); marker $RUST_DEPS_SHA"
+elif ! lock_ready "$RUST_VENDOR" "$RUST_DEPS_SHA"; then
+  "$TOOLS/mise/installs/python/$PYTHON_VERSION/bin/python3" "$HERE/deps/rust/build_vendor.py" "$RUST_VENDOR" "$CACHE/crates"
+  lock_mark "$RUST_VENDOR" "$RUST_DEPS_SHA"
+fi
+mkdir_owned 0755 root root "$GO_DIR/cache"
+mkdir_owned 0755 root root "$GO_DIR/cache/gomodcache"
+
+fetch golangci-lint "$GOLANGCI_LINT_URL" "$GOLANGCI_LINT_SHA256"
+if (( DRY )); then action "install golangci-lint $GOLANGCI_LINT_VERSION -> $GO_DIR/bin/golangci-lint; verify binary SHA-256 $GOLANGCI_LINT_BINARY_SHA256"
+elif [[ ! -x $GO_DIR/bin/golangci-lint || $(sha256sum "$GO_DIR/bin/golangci-lint" | cut -d' ' -f1) != "$GOLANGCI_LINT_BINARY_SHA256" ]]; then
+  rm -rf "$TMP/golangci-lint"; mkdir -p "$TMP/golangci-lint"
+  tar -xzf "$CACHE/golangci-lint" -C "$TMP/golangci-lint" --strip-components=1 "golangci-lint-$GOLANGCI_LINT_VERSION-linux-amd64/golangci-lint"
+  [[ $(sha256sum "$TMP/golangci-lint/golangci-lint" | cut -d' ' -f1) == "$GOLANGCI_LINT_BINARY_SHA256" ]] || { echo 'golangci-lint binary SHA-256 mismatch' >&2; exit 1; }
+  install -m 0755 -o root -g root "$TMP/golangci-lint/golangci-lint" "$GO_DIR/bin/golangci-lint"
+fi
+
+fetch hex-src "$HEX_SRC_URL" "$HEX_SRC_SHA256"
+if (( DRY )); then action "build $ELIXIR_KIT/{mix-home,hex-home,project} from deps/elixir: Hex $HEX_VERSION built from verified source, deps.get --check-locked, deps.compile and Dialyzer PLTs (MIX_ENV=test); marker $ELIXIR_DEPS_SHA"
+elif ! lock_ready "$ELIXIR_KIT/project" "$ELIXIR_DEPS_SHA"; then
+  rm -rf -- "$ELIXIR_KIT/mix-home" "$ELIXIR_KIT/hex-home" "$ELIXIR_KIT/project"
+  mkdir -p "$ELIXIR_KIT/project/lib" "$ELIXIR_KIT/project/test"
+  install -m 0644 "$HERE/deps/elixir/mix.exs" "$HERE/deps/elixir/mix.lock" "$ELIXIR_KIT/project/"
+  (
+    export PATH="$ERLANG_BIN:$ELIXIR_DIR/bin:/usr/bin:/bin" MIX_HOME="$ELIXIR_KIT/mix-home" HEX_HOME="$ELIXIR_KIT/hex-home" MIX_ENV=test
+    cd "$ELIXIR_KIT/project"
+    # Hex is built from its pinned source tag with this host's OTP; the published
+    # prebuilt archives target older OTP releases and do not load on OTP 29.
+    rm -rf "$TMP/hex-src"; mkdir -p "$TMP/hex-src"
+    tar -xzf "$CACHE/hex-src" -C "$TMP/hex-src" --strip-components=1
+    (cd "$TMP/hex-src" && MIX_ENV=prod mix archive.build -o "$TMP/hex-$HEX_VERSION.ez")
+    mix archive.install "$TMP/hex-$HEX_VERSION.ez" --force
+    mix deps.get --check-locked
+    mix deps.compile
+    mix dialyzer --plt
+  )
+  lock_mark "$ELIXIR_KIT/mix-home" "$ELIXIR_DEPS_SHA"
+  lock_mark "$ELIXIR_KIT/hex-home" "$ELIXIR_DEPS_SHA"
+  lock_mark "$ELIXIR_KIT/project" "$ELIXIR_DEPS_SHA"
+fi
+
+if (( DRY )); then action "build $BUN_TEMPLATE from deps/bun with bun install --frozen-lockfile; marker $BUN_DEPS_SHA"
+elif ! lock_ready "$BUN_TEMPLATE" "$BUN_DEPS_SHA"; then
+  rm -rf -- "$BUN_TEMPLATE" "$TMP/bun-cache"; mkdir -p "$BUN_TEMPLATE"
+  install -m 0644 "$HERE/deps/bun/package.json" "$HERE/deps/bun/bun.lock" "$BUN_TEMPLATE/"
+  ( cd "$BUN_TEMPLATE" && BUN_INSTALL_CACHE_DIR="$TMP/bun-cache" "$ROOT/toolchains/bun-$BUN_VERSION/bin/bun" install --frozen-lockfile )
+  lock_mark "$BUN_TEMPLATE" "$BUN_DEPS_SHA"
+fi
+
+if (( DRY )); then action "build $GLEAM_PROJECT from deps/gleam with gleam deps download and gleam build; marker $GLEAM_DEPS_SHA"
+elif ! lock_ready "$GLEAM_PROJECT" "$GLEAM_DEPS_SHA"; then
+  rm -rf -- "$GLEAM_PROJECT" "$TMP/gleam-home"; mkdir -p "$GLEAM_PROJECT" "$TMP/gleam-home"
+  cp -R "$HERE/deps/gleam/." "$GLEAM_PROJECT/"
+  ( cd "$GLEAM_PROJECT" && export PATH="$ERLANG_BIN:$GLEAM_DIR/bin:/usr/bin:/bin" HOME="$TMP/gleam-home" XDG_CACHE_HOME="$TMP/gleam-home/.cache" && gleam deps download && gleam build )
+  cmp -s "$HERE/deps/gleam/manifest.toml" "$GLEAM_PROJECT/manifest.toml" || { echo 'gleam changed the locked manifest' >&2; exit 1; }
+  lock_mark "$GLEAM_DIR/cache" "$GLEAM_DEPS_SHA"
+  printf '%s\n' "$GLEAM_DEPS_SHA" > "$GLEAM_PROJECT/.kogen-lock-sha256"
+fi
+
 fetch codex "$CODEX_URL" "$CODEX_SHA256"
 CODEX_DIR="$TOOLS/tools/codex-$CODEX_VERSION"
 CODEX_VENDOR="$CODEX_DIR/vendor/$CODEX_TARGET/bin"
@@ -232,6 +330,7 @@ run ln -sfn "$CODEX_VENDOR/codex-code-mode-host" "$TOOLS/tools/bin/codex-code-mo
 action "Write $TOOLS/mise/config.toml (Elixir $ELIXIR_VERSION, Erlang $ERLANG_VERSION, Node $NODE_VERSION, Python $PYTHON_VERSION, Ruby $RUBY_VERSION)"
 action "Write /etc/sysctl.d/90-kogen-bench.conf (user namespaces on, max $USER_MAX_USER_NAMESPACES, ptrace scope 1, swappiness 10) and apply it"
 action 'Write /etc/systemd/system/bench.slice (CPU 180%, memory high 5G/max 6G, swap max 2G, tasks 4096) and daemon-reload'
+action 'Write /etc/apparmor.d/bwrap (unconfined, userns) and load it: Ubuntu 24.04 restricts unprivileged user namespaces'
 action 'Enable and start fail2ban.service'
 if (( ! DRY )); then
   cat > "$TOOLS/mise/config.toml" <<EOF
@@ -263,6 +362,8 @@ MemorySwapMax=2G
 TasksMax=4096
 EOF
   systemctl daemon-reload
+  printf 'profile bwrap /usr/bin/bwrap flags=(unconfined) {\n  userns,\n}\n' > /etc/apparmor.d/bwrap
+  apparmor_parser -r /etc/apparmor.d/bwrap
   systemctl enable --now fail2ban.service
 fi
 
@@ -275,7 +376,7 @@ if (( ! DRY )); then
   if [[ ! -f $KIT/.complete ]]; then
     mkdir -p "$KIT/tasks" "$KIT/reproduce"
     rsync -a "$REPO/tasks/" "$KIT/tasks/"
-    rsync -a --include='*.sh' --include='*.py' --include='host-pins.lock' --exclude='*' "$HERE/" "$KIT/reproduce/"
+    rsync -a --include='*.sh' --include='*.py' --include='host-pins.lock' --include='deps/***' --exclude='*' "$HERE/" "$KIT/reproduce/"
     ( cd "$KIT/tasks/_bases" && sha256sum -c MANIFEST.sha256 >/dev/null )
     find "$KIT/tasks" -type d \( -name hidden -o -name grader \) -prune -exec chmod 0700 {} +
     find "$KIT/tasks" -type f -path '*/hidden/*' -exec chmod go-rwx {} +
