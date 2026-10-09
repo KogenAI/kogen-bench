@@ -88,6 +88,8 @@ These sections are an entry point into the public evidence. Each summarizes the 
 
 ## F08 Language and executable spec
 
+Cross-round review: [Rust versus Elixir evidence synthesis](research/RUST-VS-ELIXIR-EVIDENCE.md).
+
 **Hypothesis:** H91–H99 ask whether language or executable specifications change runtime, parity, or task outcomes. The records inform a bounded product choice but do not establish a broad language effect.
 
 **What ran:** The stack one-shot conformance round compares the planned Rust, Go, and TypeScript builds at their first recorded post-build conformance snapshots. It is **DESCRIPTIVE** because suite versions, spec revisions, hosts, and gate timing differ. The Sol-medium language replication adds 27 new cells and 31 reused cells; its task-equal rates are a post-hoc sensitivity analysis ([CL-SOL-LANG-REPLICATION-POSTHOC-EQUAL-TASK](results/claim-ledger.jsonl), **STATUS_ONLY**). Other R70 original, fixed-skeleton rerun, extension, compile-time, and task-eight smoke records are distinct cohorts.
