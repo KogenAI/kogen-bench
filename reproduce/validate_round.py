@@ -168,11 +168,18 @@ def validate(rid, all_rows, strict=False):
         errors.append('Strict historical validation with gaps requires explicit protocol deviations in MISSING.md')
     for name in ['README.md','MEASURED.md']:
         if not (ROOT/'rounds'/rid/name).is_file():errors.append('Missing round document '+name)
-    total=sum(1 for r in rows for _ in coverage_leaves(r)); absent=sum(isinstance(v,dict) and 'missing' in v for r in rows for _,v in coverage_leaves(r))
+    missing_fields=defaultdict(int)
+    total=absent=0
+    for r in rows:
+        for path,value in coverage_leaves(r):
+            total+=1
+            if isinstance(value,dict) and 'missing' in value:
+                absent+=1
+                missing_fields[path]+=1
     complete=100*(total-absent)/total if total else None
     release_eligible=bool(rows) and not errors and not actual and not declared_protocol_deviations
     verdict='FAIL' if errors else ('PASS WITH DECLARED DEVIATIONS' if actual or declared_protocol_deviations else ('PASS' if rows else 'NO DELIVERED DATA'))
-    return {'round':rid,'cells':len(rows),'fields':total,'missing':absent,'completeness':complete,'verdict':verdict,'strict_release_eligible':release_eligible,'protocol_deviations':declared_protocol_deviations,'errors':errors,'groups':group_completeness(rows),'gap_sources':gap_sources(rows),'graded_cells':sum(r.get('graded') is True for r in rows)}
+    return {'round':rid,'cells':len(rows),'fields':total,'missing':absent,'missing_fields':dict(sorted(missing_fields.items())),'completeness':complete,'verdict':verdict,'strict_release_eligible':release_eligible,'protocol_deviations':declared_protocol_deviations,'errors':errors,'groups':group_completeness(rows),'gap_sources':gap_sources(rows),'graded_cells':sum(r.get('graded') is True for r in rows)}
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--round',required=True);ap.add_argument('--strict',action='store_true');ap.add_argument('--records',type=Path)

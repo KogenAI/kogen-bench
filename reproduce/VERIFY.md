@@ -50,6 +50,8 @@ python3 rounds/r70-rve-task8v2/reproduce.py
 
 `validate_release.py` and `scrutinize.py --json` are separate checks. On this snapshot, `validate_release.py` validates historical round labels, applies strict Standard-record checks only to rounds dated 2026-10-09 or later, checks the registered publication gates, and then runs `validate_repo.py`; it does not run scrutiny or inspect independent-review receipts. It reports 177 historical rounds, zero new strict rounds, and `RELEASE GATE: PASS`. `scrutinize.py --json` independently recomputes configured evidence checks and returns nonzero when its report contains findings; inspect those findings rather than treating a nonzero exit as proof that no figures were recomputed.
 
+For rounds dated 2026-10-09 or later, `VALID` requires complete Standard capture and no protocol deviations. `DESCRIPTIVE`, `INVALID`, `INCOMPLETE`, and `PILOT` may have missing Standard fields only when every missing field is listed in that round's `MISSING-DECLARED.json`, with a reason code from `results/missing-reasons.json` and a plain-language note. Their README must include the matching `What's missing and why` section; the release validator checks it against the declaration and reports how many missing fields were declared. This exception documents capture gaps and does not upgrade a round's analytical status. Historical rounds before the cutoff retain their labelled historical publication route.
+
 | Check | What it proves | Limit |
 | --- | --- | --- |
 | `export_results.py` | Rebuilds official outcome exports from the grade snapshot and numeric metadata; reconciles duplicate grades and preserves missing usage as null. | Does not reconstruct ungraded delivery denominators by itself or regrade tasks. |
