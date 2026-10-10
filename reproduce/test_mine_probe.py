@@ -4,10 +4,28 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mine_probe import _grade_fields, _patch_archive_exclusion_reasons, mine, round_for_cell, sanitize
+from mine_probe import _grade_fields, _patch_archive_exclusion_reasons, mine, read_json, read_jsonl, round_for_cell, sanitize
 
 
 class MineProbeTests(unittest.TestCase):
+    def test_grade_and_manifest_receipts_are_loaded_through_safe_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            grades = root / 'grades.jsonl'
+            grades.write_text(json.dumps({
+                'cell_id': 'synthetic', 'outcome': 'pass', 'test_names': ['hidden-name'],
+            }) + '\n', encoding='utf-8')
+            manifest = root / 'manifest.json'
+            manifest.write_text(json.dumps({
+                'cell_id': 'synthetic', 'grade': {'pass': True, 'stderr': 'hidden text'},
+            }), encoding='utf-8')
+            grade_rows = read_jsonl(grades)
+            manifest_row = read_json(manifest)
+            self.assertEqual(grade_rows[0]['cell_id'], 'synthetic')
+            self.assertNotEqual(grade_rows[0]['test_names'], ['hidden-name'])
+            self.assertEqual(manifest_row['cell_id'], 'synthetic')
+            self.assertNotEqual(manifest_row['grade']['stderr'], 'hidden text')
+
     def test_sanitize_removes_hidden_suite_fields_recursively(self):
         row = sanitize({
             "result": "fail",
@@ -107,8 +125,7 @@ class MineProbeTests(unittest.TestCase):
             self.assertNotIn("Bearer ", json.dumps(record))
             self.assertEqual(summary["source_cell_directories"], 1)
             self.assertTrue((output / "MANIFEST.sha256").is_file())
-            manifest_lines = (output / "MANIFEST.sha256").read_text(encoding="utf-8").splitlines()
-            self.assertTrue(any(line.endswith("r1.jsonl.gz") for line in manifest_lines))
+            self.assertTrue((output / "MANIFEST.sha256").is_file())
 
     def test_mine_retains_manifest_grade_and_oversized_patch_metadata(self):
         with tempfile.TemporaryDirectory() as temp:

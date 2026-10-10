@@ -309,6 +309,23 @@ def main(root: Path = ROOT, records_override=None, validate_override=None) -> No
             declared_missing_total += declared_count
             declared_missing_by_status[status] = declared_missing_by_status.get(status, 0) + declared_count
 
+    # Keep the shipped writer coupled to the current Standard schema. This
+    # uses a checked-in synthetic run and the same finalizer used by run-lane.
+    try:
+        from record_contract import validate_fixture
+
+        contract = validate_fixture()
+        if not contract['contract_ok']:
+            errors.append(
+                'record-writer contract failed: '
+                f"missing={contract['missing']}, "
+                f"schema_errors={len(contract['schema_errors'])}, "
+                f"validation_errors={len(contract['errors'])}, "
+                f"model.effective_set={contract['model_effective_set']}"
+            )
+    except Exception as exc:
+        errors.append(f'record-writer contract could not run: {type(exc).__name__}')
+
     register = json.loads((root / "results/publication-blockers.json").read_text(encoding="utf-8"))
     blockers = register.get("blockers")
     if not isinstance(blockers, list) or not blockers:

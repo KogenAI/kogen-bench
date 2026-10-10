@@ -21,6 +21,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 from collections import Counter, defaultdict
@@ -37,6 +38,9 @@ DEFAULT_PUBLIC_GRADES = ROOT / "reproduce/inputs/grades.final.jsonl"
 DEFAULT_ROUND_INDEX = ROOT / "rounds/index.json"
 DEFAULT_FINDINGS = ROOT / "FINDINGS.md"
 DEFAULT_OUTPUT = ROOT / "data/mined"
+SAFE_ROWS_HOST = Path("/root/Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py")
+SAFE_ROWS_USER = Path.home() / "Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py"
+SAFE_ROWS_LOCAL = ROOT / "reproduce/safe_rows.py"
 
 HIDDEN_KEY = re.compile(
     r"(test_names|failing|^tail$|_tail$|failure_summary|stdout|stderr|"
@@ -115,21 +119,28 @@ def sanitize(obj: Any) -> Any:
 
 
 def read_json(path: Path) -> Any:
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        return sanitize(json.load(handle))
+    rows = read_safe_rows(path)
+    return rows[0] if rows else None
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for line in handle:
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            if isinstance(row, dict):
-                cleaned = sanitize(row)
-                if isinstance(cleaned, dict):
-                    rows.append(cleaned)
+    return [row for row in read_safe_rows(path) if isinstance(row, dict)]
+
+
+def read_safe_rows(path: Path) -> list[Any]:
+    """Read protected receipts only through the approved sanitizer CLI."""
+    helper = next((candidate for candidate in (SAFE_ROWS_HOST, SAFE_ROWS_USER, SAFE_ROWS_LOCAL)
+                   if candidate.is_file() and not candidate.is_symlink()), None)
+    if helper is None:
+        raise FileNotFoundError("the approved safe_rows.py helper is unavailable")
+    result = subprocess.run(
+        [sys.executable, str(helper), str(path)],
+        check=True, capture_output=True, text=True, timeout=30,
+    )
+    rows = []
+    for line in result.stdout.splitlines():
+        if line.strip():
+            rows.append(json.loads(line))
     return rows
 
 

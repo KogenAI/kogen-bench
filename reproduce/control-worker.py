@@ -5,9 +5,120 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
+import time
+
+
+COPY_MAX_BYTES = 2 * 1024**3
+COPY_TIMEOUT_SECONDS = 120
+BUILD_CACHE_DIRS = {"target", "_build", "build"}
+
+
+class CandidateCopyError(RuntimeError):
+    pass
+
+
+def copy_candidate_tree(source, target, max_bytes=COPY_MAX_BYTES,
+                        timeout_seconds=COPY_TIMEOUT_SECONDS):
+    """Copy a candidate without following links or copying special files."""
+    deadline = time.monotonic() + timeout_seconds
+    total = 0
+
+    def check_time():
+        if time.monotonic() > deadline:
+            raise CandidateCopyError(f"copy exceeded {timeout_seconds} second limit")
+
+    source_fd = target_fd = None
+    try:
+        source_fd = os.open(os.fspath(source), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        os.mkdir(target, 0o700)
+        target_fd = os.open(target, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+
+        def copy_dir(src_fd, dst_fd):
+            nonlocal total
+            check_time()
+            with os.scandir(src_fd) as entries:
+                for entry in entries:
+                    check_time()
+                    name = entry.name
+                    if name == ".git":
+                        continue
+                    try:
+                        mode = entry.stat(follow_symlinks=False).st_mode
+                    except FileNotFoundError:
+                        continue
+                    if name in BUILD_CACHE_DIRS and (stat.S_ISDIR(mode) or stat.S_ISLNK(mode)):
+                        continue
+                    if stat.S_ISLNK(mode):
+                        link = os.readlink(name, dir_fd=src_fd)
+                        total += len(os.fsencode(link))
+                        if total > max_bytes:
+                            raise CandidateCopyError(f"copy exceeded {max_bytes} byte limit")
+                        os.symlink(link, name, dir_fd=dst_fd)
+                    elif stat.S_ISDIR(mode):
+                        os.mkdir(name, 0o700, dir_fd=dst_fd)
+                        child_src = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                                            dir_fd=src_fd)
+                        child_dst = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                                            dir_fd=dst_fd)
+                        try:
+                            copy_dir(child_src, child_dst)
+                        finally:
+                            os.close(child_src)
+                            os.close(child_dst)
+                        os.chmod(name, stat.S_IMODE(mode), dir_fd=dst_fd, follow_symlinks=False)
+                    elif stat.S_ISREG(mode):
+                        src_file = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                                           dir_fd=src_fd)
+                        try:
+                            info = os.fstat(src_file)
+                            if not stat.S_ISREG(info.st_mode):
+                                continue
+                            if total + info.st_size > max_bytes:
+                                raise CandidateCopyError(f"copy exceeded {max_bytes} byte limit")
+                            dst_file = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                               0o600, dir_fd=dst_fd)
+                            try:
+                                while True:
+                                    check_time()
+                                    block = os.read(src_file, 1024 * 1024)
+                                    if not block:
+                                        break
+                                    total += len(block)
+                                    if total > max_bytes:
+                                        raise CandidateCopyError(f"copy exceeded {max_bytes} byte limit")
+                                    view = memoryview(block)
+                                    while view:
+                                        written = os.write(dst_file, view)
+                                        view = view[written:]
+                                os.fchmod(dst_file, stat.S_IMODE(info.st_mode))
+                            finally:
+                                os.close(dst_file)
+                        finally:
+                            os.close(src_file)
+                    # FIFOs, sockets, devices and other special entries are omitted.
+                    check_time()
+
+        copy_dir(source_fd, target_fd)
+        check_time()
+        return total
+    except CandidateCopyError:
+        raise
+    except Exception as exc:
+        raise CandidateCopyError(f"copy failed: {exc}") from exc
+    finally:
+        if target_fd is not None:
+            os.close(target_fd)
+        if source_fd is not None:
+            os.close(source_fd)
+
+
+def copy_error_record(task_id, reason):
+    return {"task": task_id, "pass_": False, "stage": "copy-error",
+            "reason": str(reason)[:500]}
 
 
 def run(argv, **kwargs):
@@ -151,9 +262,18 @@ def main():
         task_id = sys.argv[3]
         task = kit / "tasks" / task_id
         result = Path(sys.argv[5]).resolve()
-        with tempfile.TemporaryDirectory(prefix="kogen-grade-", dir="/srv/bh/bench/work") as tmp:
+        temp_root = Path(sys.argv[6]) if len(sys.argv) > 6 else Path("/srv/bh/bench/work")
+        with tempfile.TemporaryDirectory(prefix="kogen-grade-", dir=temp_root) as tmp:
             work = Path(tmp) / "candidate"
-            shutil.copytree(sys.argv[4], work, ignore=shutil.ignore_patterns(".git"))
+            try:
+                copy_candidate_tree(sys.argv[4], work)
+            except CandidateCopyError as exc:
+                record = copy_error_record(task_id, exc)
+                (result / "grader.log").write_text(f"copy-error: {record['reason']}\n")
+                (result / "grade.json").write_text(json.dumps(record) + "\n")
+                print(json.dumps({"task": task_id, "grade_pass": False,
+                                  "stage": "copy-error", "reason": record["reason"]}))
+                return 1
             passed = sandbox(task, work, result / "grader.log")
         counts = {}
         for line in (result / "grader.log").read_text().splitlines():

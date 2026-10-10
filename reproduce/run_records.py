@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 from missing_reasons import load_legend
@@ -15,6 +17,24 @@ ROOT = Path(__file__).resolve().parents[1]
 INDEX_PATH = Path("results/run-records/index.json")
 MAX_FILE_BYTES = MAX_PARTITION_BYTES
 INDEX_SCHEMA_VERSION = "1.0"
+
+
+def safe_rows(path: Path) -> list[dict]:
+    """Load a record through the approved sanitizer before using its fields."""
+    helper_candidates = (
+        Path.home() / "Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py",
+        Path(__file__).resolve().with_name("safe_rows.py"),
+    )
+    helper = next((candidate for candidate in helper_candidates
+                   if candidate.is_file() and not candidate.is_symlink()), None)
+    if helper is None:
+        raise FileNotFoundError("approved safe_rows.py helper is unavailable")
+    result = subprocess.run([sys.executable, str(helper), str(path)], check=True,
+                            capture_output=True, text=True, timeout=30)
+    rows = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+    if any(not isinstance(row, dict) for row in rows):
+        raise ValueError(f"Non-object run record in {path.name}")
+    return rows
 
 
 def load_index(root: Path = ROOT) -> dict:
@@ -77,16 +97,10 @@ def indexed_records(root: Path = ROOT, *, verify: bool = True) -> list[dict]:
                 raise ValueError(f"SHA-256 mismatch for {name}")
             if len(raw) > MAX_FILE_BYTES:
                 raise ValueError(f"Run-record file exceeds {MAX_FILE_BYTES} bytes: {name}")
-        lines = raw.splitlines(keepends=True)
-        if len(lines) != entry["record_count"]:
+        rows = safe_rows(path)
+        if len(rows) != entry["record_count"]:
             raise ValueError(f"Record count mismatch for {name}")
-        for number, line in enumerate(lines, 1):
-            if not line.strip():
-                raise ValueError(f"Blank JSONL record in {name}:{number}")
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(f"Malformed JSONL in {name}:{number}: {exc}") from exc
+        for number, row in enumerate(rows, 1):
             if row.get("schema_version") != entry["schema_version"]:
                 raise ValueError(f"Schema version mismatch in {name}:{number}")
             if entry["round_id"] == "unassigned":

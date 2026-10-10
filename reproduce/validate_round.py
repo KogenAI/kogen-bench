@@ -4,7 +4,7 @@ import argparse, json, re
 from collections import Counter, defaultdict
 from pathlib import Path
 from missing_reasons import load_legend, marker_code
-from run_records import indexed_records
+from run_records import indexed_records, safe_rows
 ROOT=Path(__file__).resolve().parents[1]
 MISSING_CODES=load_legend(ROOT/'results/missing-reasons.json')
 
@@ -65,12 +65,12 @@ def leaves(value,path=''):
 
 def records(path=None):
     if path is not None:
-        return [json.loads(s) for s in path.read_text().splitlines() if s.strip()]
+        return safe_rows(path)
     rows=indexed_records(ROOT)
     # Retain the validator's historical aggregate order after merging indexed partitions.
     rows.sort(key=lambda row: row.get('cell_id',''))
     paths=sorted((ROOT/'rounds').glob('*/records.jsonl'))
-    rows.extend(json.loads(s) for source in paths for s in source.read_text().splitlines() if s.strip())
+    rows.extend(row for source in paths for row in safe_rows(source))
     return rows
 
 def gaps(rows):

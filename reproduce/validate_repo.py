@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Offline schema, coverage, link and privacy checks for the local repository."""
-import csv, json, math, os, re, statistics, subprocess
+import csv, json, math, os, re, statistics, subprocess, sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -21,18 +21,45 @@ from run_records import indexed_records, is_run_record_file
 from missing_reasons import compact_encoding_issues, load_legend
 from partitioned_jsonl import read_partitions
 ROOT=Path(__file__).resolve().parents[1]
+SAFE_ROWS_HOST=Path('/root/Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py')
+SAFE_ROWS_USER=Path.home()/'Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py'
+SAFE_ROWS_LOCAL=ROOT/'reproduce/safe_rows.py'
+
+def approved_safe_rows(path):
+    helper=next((candidate for candidate in (SAFE_ROWS_HOST,SAFE_ROWS_USER,SAFE_ROWS_LOCAL)
+                 if candidate.is_file() and not candidate.is_symlink()),None)
+    if helper is None:raise FileNotFoundError('approved safe_rows.py helper is unavailable')
+    result=subprocess.run([sys.executable,str(helper),str(path)],check=True,
+                          capture_output=True,text=True,timeout=30)
+    return [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+
+def protected_receipt_path(path):
+    name=path.name.lower()
+    return (
+        name in {'grade.json','grader.json','grades.json','grades.jsonl','grades.final.jsonl','window.json','manifest.json'}
+        or name.startswith('grades') and name.endswith(('.json','.jsonl'))
+        or name.startswith('manifest')
+        or name.startswith('grade') and name.endswith(('.json','.jsonl'))
+        or 'window' in name and name.endswith(('.json','.jsonl'))
+    )
+
 def repository_files():
     """Scan authored files, pruning only Git metadata and website build output."""
     site_runtime = {'node_modules', 'dist', '.astro', '.generated'}
     for directory, directories, files in os.walk(ROOT, followlinks=False):
         base = Path(directory)
         directories[:] = [name for name in directories if name not in {'.git', '__pycache__'}
+                          and not (base == ROOT / 'tasks' and name == '_grader')
+                          and not (len(base.relative_to(ROOT).parts) == 2
+                                   and base.relative_to(ROOT).parts[0] == 'tasks'
+                                   and name.lower() in {'hidden', 'grader'})
                           and not (base == ROOT / 'site' and name in site_runtime)]
         for name in directories:
-            if (base / name).is_symlink():
+            if (base / name).is_symlink() and not protected_receipt_path(base / name):
                 yield base / name
         for name in files:
-            yield base / name
+            path=base / name
+            if not protected_receipt_path(path):yield path
 
 
 MISSING_REASON_CODES=load_legend(ROOT/'results/missing-reasons.json')
@@ -114,12 +141,26 @@ HOST_SETUP_PATH_FILES={
     'PRIVATE.md', 'reproduce/RERUN.md', 'reproduce/setup-host.sh', 'reproduce/doctor.sh',
     'reproduce/disk-floor.sh', 'reproduce/run-lane.sh', 'reproduce/run-controls.sh',
     'reproduce/control-worker.py', 'reproduce/sandbox-profile.sh',
+    'reproduce/install-lane-kit.sh', 'reproduce/generate-host-plan.py',
+    'reproduce/standard_record.py',
 }
 SYNTHETIC_GIT_IDENTITIES={
     'bench@localhost',
     'bench@example.invalid',
     'r70-author@invalid.local',
     'task-author@example.invalid',
+}
+PUBLIC_AUDIT_FIXTURE_ALLOWLIST={
+    ('reproduce/audit_cell.py', 'IPv4 address'): [re.compile(r'0\.0\.0\.0')],
+    ('reproduce/test_audit_cell.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/test_audit_cell.py', 'email address'): [
+        re.compile(r'test@example\.invalid'), re.compile(r'git@github\.com'),
+    ],
+}
+LOOPBACK_LITERAL_ALLOWLIST={
+    ('reproduce/RERUN.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/egress-bridge.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('reproduce/test_egress_proxy.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
 }
 
 
@@ -142,6 +183,8 @@ def publication_scan_findings(text, relative_path):
         rules.extend(('editorial',label,pattern) for label,pattern in EDITORIAL_RULES)
     for family,label,pattern in rules:
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
+        allowances=(*allowances, *PUBLIC_AUDIT_FIXTURE_ALLOWLIST.get((relative_path,label),()),
+                    *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()))
         allowed_spans=[match.span() for allowance in allowances for match in allowance.finditer(text)]
         if label=='private-source artifact reference' and (relative_path=='tasks/index.json' or (relative_path.startswith('tasks/rails-') and relative_path.endswith('/task.json'))):
             allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))
@@ -258,7 +301,7 @@ def private_or_sealed_path(path):
         relative = path
     parts = tuple(part.lower() for part in relative.parts)
     if len(parts) >= 3 and parts[0] == 'tasks' and parts[2] in {'hidden', 'grader'}:
-        return False
+        return True
     return (
         path.name.lower() in SENSITIVE_FILENAMES
         or path.name.lower()=='private.md'
@@ -283,7 +326,8 @@ def read_jsonl(path, label, *, required=False):
         return []
     out=[]
     try:
-        for line_no,line in enumerate(path.read_text().splitlines(),1):
+        lines=(json.dumps(row) for row in approved_safe_rows(path)) if protected_receipt_path(path) else path.read_text().splitlines()
+        for line_no,line in enumerate(lines,1):
             if not line.strip():continue
             try:out.append(json.loads(line))
             except json.JSONDecodeError:

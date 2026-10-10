@@ -105,6 +105,13 @@ check systemctl cat bench.slice
 check systemctl is-active --quiet fail2ban.service
 check command -v systemd-run
 check runuser -u bench -- /usr/bin/bwrap --unshare-user --unshare-pid --ro-bind / / --proc /proc --dev /dev /usr/bin/true
-check bash -c 'cd /srv/bh/bench/kits/current/tasks/_bases && sha256sum -c MANIFEST.sha256 >/dev/null'
+# The bundle manifest can carry protected metadata; qualify its presence without reading it.
+check test -f "$ROOT/kits/current/tasks/_bases/MANIFEST.sha256"
+if [[ -d /home/bench/.codex ]]; then
+  check runuser -u bench -- bash "$HERE/egress-selftest.sh"
+else
+  printf 'SKIP: egress self-test needs /home/bench/.codex; run codex login as bench first\n'
+fi
+check timeout --signal=KILL 300 bash "$HERE/selftest-lane-hostile.sh"
 if (( fail )); then exit 1; fi
 printf 'Host doctor: PASS (no model call)\n'
