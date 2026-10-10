@@ -823,9 +823,14 @@ def _page_text(round_id: str, data: dict[str, Any]) -> str:
             f"No complete published metadata/manifest token pairs are available for this round ({tokens.get('token_missing_usage', 0)} missing manifest usage; {tokens.get('token_missing_metadata', 0)} missing published metadata). Missing counters remain unknown, not zero."
         )
     if round_id != "harness-compare-1" and raw["cells"] != raw.get("published_export_cells", raw["cells"]):
-        section.append(
-            f"This round also has {raw['cells'] - raw['published_export_cells']} raw-only or non-public rows; they are kept separate from the published-export denominator."
-        )
+        if round_id == "r70":
+            section.append(
+                "These 108 outcomes are now public in rounds/r70/cells.jsonl but remain separate from the repository-wide outcome export."
+            )
+        else:
+            section.append(
+                f"This round also has {raw['cells'] - raw['published_export_cells']} raw-only or non-public rows; they are kept separate from the published-export denominator."
+            )
     headline = data.get("published_headline_comparison")
     if headline:
         if round_id == "hc-1":

@@ -1,33 +1,170 @@
 # r70
 
+Round 70 compared hidden-test outcomes for tasks 5–7 across Rust, Go, TypeScript/Bun, Elixir, and Gleam with Codex gpt-6-luna/max and gpt-6.1-sol/medium. The recovered observed cohort has 97 full passes among 107 scored cells; one additional cell is invalid. **Status: INCOMPLETE (study); all 108 observed cells now have per-cell outcomes, but the full planned task set was not admitted.** No stack-level conclusion was reached.
+
 Round date: HISTORICAL (before 2026-10-09)
 Publication badge: INCOMPLETE; KEPT FOR AUDIT
-Why not VALID: The historical inventory retains INCOMPLETE because of INCOMPLETE_EXECUTION, NO_PREREG, NO_SCORED_RESULTS. See the round evidence and limitations below.
+Why not VALID: The historical inventory retains INCOMPLETE because of INCOMPLETE_EXECUTION and NO_PREREG. See the round evidence and limitations below.
 Recomputation status: OBSERVED SOURCE ONLY
 
 
 
 **Recomputation update:** The mined raw records now provide per-cell outcome, manifest token-counter, and wall-time recomputation for the observed cohort. This does not reconstruct missing planned cells, a full intention-to-treat denominator, or model execution.
+<!-- R70-PER-CELL:BEGIN -->
+## Recovered per-cell results
+
+The table below keeps model/effort arms separate. `cells` includes the one invalid outcome; full passes count official complete passes. The detailed task, repetition, test-count, timeout, and gate-fail rows follow below; the machine-readable rows are in [cells.jsonl](cells.jsonl).
+
+| Stack | Codex gpt-6-luna / max | Codex gpt-6.1-sol / medium |
+| --- | ---: | ---: |
+| Rust | 11/11 passes (0 fail, 0 invalid) | 10/11 passes (0 fail, 1 invalid) |
+| Go | 10/11 passes (1 fail, 0 invalid) | 11/11 passes (0 fail, 0 invalid) |
+| TypeScript/Bun | 9/9 passes (0 fail, 0 invalid) | 9/9 passes (0 fail, 0 invalid) |
+| Elixir | 10/12 passes (2 fail, 0 invalid) | 8/12 passes (4 fail, 0 invalid) |
+| Gleam | 9/11 passes (2 fail, 0 invalid) | 10/11 passes (1 fail, 0 invalid) |
+
+The original decision rule required an equal-task pooled intention-to-treat result at least 10 percentage points above every other stack; a tie within 10 points would use median wall time and then tokens, with a declared top-up to seven repetitions for tied stacks. The observed results do not meet this condition. The prespecified tie procedure and seven-repetition top-up did not produce a qualifying stack-level conclusion. The full seven-task plan remains incomplete; this is an interim study with no cross-stack conclusion.
+
+The 138 grading records cover 108 run IDs; we kept the previously recorded outcome and test counts for each ID, choosing the latest matching timestamp; where records conflict, that is stated, so these totals describe the kept observations. Four IDs had conflicting grades: task 5 Rust/Luna rep 1 (23/24 FAIL or 24/24 PASS), task 6 Rust/Luna rep 2 (23/24 FAIL or 24/24 PASS), task 7 Rust/Luna rep 1 (0/24 FAIL, 23/24 FAIL, or 24/24 PASS), and task 7 Rust/Sol rep 1 (0/24 FAIL or 24/24 PASS). For all four, the kept record was 24/24 PASS; the latest matching timestamps were 2026-10-05 23:51:34Z, 2026-10-06 00:26:13Z, 2026-10-08 18:10:29Z, and 2026-10-05 23:53:47Z, respectively. This gives 97 PASS, 10 FAIL, and 1 INVALID kept observations.
+
+### Per-cell outcomes
+
+Each row is joined by its exact cell ID to the recomputed observed cohort.
+
+| Cell ID | Task | Stack | Model / effort | Rep | Outcome | Tests passed / total | Timeout | Gate fail |
+| --- | --- | --- | --- | ---: | --- | ---: | --- | --- |
+| codex__gpt-6-luna__max__default__r70-5-elixir__r1 | r70-5-elixir | Elixir | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-elixir__r2 | r70-5-elixir | Elixir | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-elixir__r3 | r70-5-elixir | Elixir | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-elixir__r1 | r70-5-elixir | Elixir | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-elixir__r2 | r70-5-elixir | Elixir | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-elixir__r3 | r70-5-elixir | Elixir | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-gleam__r1 | r70-5-gleam | Gleam | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-gleam__r2 | r70-5-gleam | Gleam | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-gleam__r3 | r70-5-gleam | Gleam | gpt-6-luna / max | 3 | FAIL | 23/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-gleam__r1 | r70-5-gleam | Gleam | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-gleam__r2 | r70-5-gleam | Gleam | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-gleam__r3 | r70-5-gleam | Gleam | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-go__r1 | r70-5-go | Go | gpt-6-luna / max | 1 | FAIL | 23/24 | no | yes |
+| codex__gpt-6-luna__max__default__r70-5-go__r2 | r70-5-go | Go | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-go__r3 | r70-5-go | Go | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-go__r4 | r70-5-go | Go | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-go__r1 | r70-5-go | Go | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-go__r2 | r70-5-go | Go | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-go__r3 | r70-5-go | Go | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-go__r4 | r70-5-go | Go | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-rust__r1 | r70-5-rust | Rust | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-rust__r2 | r70-5-rust | Rust | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-rust__r3 | r70-5-rust | Rust | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-rust__r4 | r70-5-rust | Rust | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-rust__r1 | r70-5-rust | Rust | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-rust__r2 | r70-5-rust | Rust | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-rust__r3 | r70-5-rust | Rust | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-rust__r4 | r70-5-rust | Rust | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-ts-bun__r1 | r70-5-ts-bun | TypeScript/Bun | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-ts-bun__r2 | r70-5-ts-bun | TypeScript/Bun | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-5-ts-bun__r3 | r70-5-ts-bun | TypeScript/Bun | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r1 | r70-5-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r2 | r70-5-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-5-ts-bun__r3 | r70-5-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-elixir__r1 | r70-6-elixir | Elixir | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-elixir__r2 | r70-6-elixir | Elixir | gpt-6-luna / max | 2 | FAIL | 23/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-elixir__r3 | r70-6-elixir | Elixir | gpt-6-luna / max | 3 | FAIL | 22/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-elixir__r5 | r70-6-elixir | Elixir | gpt-6-luna / max | 5 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-elixir__r1 | r70-6-elixir | Elixir | gpt-6.1-sol / medium | 1 | FAIL | 23/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-elixir__r2 | r70-6-elixir | Elixir | gpt-6.1-sol / medium | 2 | FAIL | 23/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-elixir__r3 | r70-6-elixir | Elixir | gpt-6.1-sol / medium | 3 | FAIL | 23/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-elixir__r5 | r70-6-elixir | Elixir | gpt-6.1-sol / medium | 5 | FAIL | 23/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-gleam__r1 | r70-6-gleam | Gleam | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-gleam__r2 | r70-6-gleam | Gleam | gpt-6-luna / max | 2 | FAIL | 23/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-gleam__r3 | r70-6-gleam | Gleam | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-gleam__r4 | r70-6-gleam | Gleam | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-gleam__r1 | r70-6-gleam | Gleam | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-gleam__r2 | r70-6-gleam | Gleam | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-gleam__r3 | r70-6-gleam | Gleam | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-gleam__r4 | r70-6-gleam | Gleam | gpt-6.1-sol / medium | 4 | FAIL | 23/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-go__r1 | r70-6-go | Go | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-go__r2 | r70-6-go | Go | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-go__r3 | r70-6-go | Go | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-go__r4 | r70-6-go | Go | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-go__r1 | r70-6-go | Go | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-go__r2 | r70-6-go | Go | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-go__r3 | r70-6-go | Go | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-go__r4 | r70-6-go | Go | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-rust__r1 | r70-6-rust | Rust | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-rust__r2 | r70-6-rust | Rust | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-rust__r3 | r70-6-rust | Rust | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-rust__r4 | r70-6-rust | Rust | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-rust__r1 | r70-6-rust | Rust | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-rust__r2 | r70-6-rust | Rust | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-rust__r3 | r70-6-rust | Rust | gpt-6.1-sol / medium | 3 | INVALID | 0/0 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-rust__r4 | r70-6-rust | Rust | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-ts-bun__r1 | r70-6-ts-bun | TypeScript/Bun | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-ts-bun__r2 | r70-6-ts-bun | TypeScript/Bun | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-6-ts-bun__r3 | r70-6-ts-bun | TypeScript/Bun | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-ts-bun__r1 | r70-6-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-ts-bun__r2 | r70-6-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-6-ts-bun__r3 | r70-6-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-elixir__r1 | r70-7-elixir | Elixir | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-elixir__r2 | r70-7-elixir | Elixir | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-elixir__r3 | r70-7-elixir | Elixir | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-elixir__r4 | r70-7-elixir | Elixir | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-elixir__r5 | r70-7-elixir | Elixir | gpt-6-luna / max | 5 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-elixir__r1 | r70-7-elixir | Elixir | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-elixir__r2 | r70-7-elixir | Elixir | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-elixir__r3 | r70-7-elixir | Elixir | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-elixir__r4 | r70-7-elixir | Elixir | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-elixir__r5 | r70-7-elixir | Elixir | gpt-6.1-sol / medium | 5 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-gleam__r1 | r70-7-gleam | Gleam | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-gleam__r2 | r70-7-gleam | Gleam | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-gleam__r3 | r70-7-gleam | Gleam | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-gleam__r4 | r70-7-gleam | Gleam | gpt-6-luna / max | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-gleam__r1 | r70-7-gleam | Gleam | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-gleam__r2 | r70-7-gleam | Gleam | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-gleam__r3 | r70-7-gleam | Gleam | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-gleam__r4 | r70-7-gleam | Gleam | gpt-6.1-sol / medium | 4 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-go__r1 | r70-7-go | Go | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-go__r2 | r70-7-go | Go | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-go__r3 | r70-7-go | Go | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-go__r1 | r70-7-go | Go | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-go__r2 | r70-7-go | Go | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-go__r3 | r70-7-go | Go | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-rust__r1 | r70-7-rust | Rust | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-rust__r2 | r70-7-rust | Rust | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-rust__r3 | r70-7-rust | Rust | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-rust__r1 | r70-7-rust | Rust | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-rust__r2 | r70-7-rust | Rust | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-rust__r3 | r70-7-rust | Rust | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-ts-bun__r1 | r70-7-ts-bun | TypeScript/Bun | gpt-6-luna / max | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-ts-bun__r2 | r70-7-ts-bun | TypeScript/Bun | gpt-6-luna / max | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6-luna__max__default__r70-7-ts-bun__r3 | r70-7-ts-bun | TypeScript/Bun | gpt-6-luna / max | 3 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-ts-bun__r1 | r70-7-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 1 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-ts-bun__r2 | r70-7-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 2 | PASS | 24/24 | no | no |
+| codex__gpt-6.1-sol__medium__default__r70-7-ts-bun__r3 | r70-7-ts-bun | TypeScript/Bun | gpt-6.1-sol / medium | 3 | PASS | 24/24 | no | no |
+
+Rust / Sol medium / task 6 / rep 3 is invalid, no tests ran; its cause isn't documented here; it's excluded from the 107 scored cells.
+
+<!-- R70-PER-CELL:END -->
+
 ## Status
 
 **INCOMPLETE**
 
 - NO_PREREG — The README records no pre-registration.
-- NO_SCORED_RESULTS — No scored core study rows are graded in the public export.
-- INCOMPLETE_EXECUTION — Only tasks 5 and 7 were admitted, so the planned task set was not completed.
+- INCOMPLETE_EXECUTION — The full seven-task plan was not admitted across stacks and repetitions; recovered outcomes cover only the observed task-5/6/7 cells.
 
 ## Required reproduction metadata
 
 - Kogen commit: not recorded in the cited round source.
 - Harness commit: not recorded in the cited round source as a Git commit; any adapter or runtime fingerprints are not Git commits.
-- Raw records: the cited sources do not provide a complete public round-specific request and grade bundle; public delivery and outcome exports are linked above where applicable.
+- Raw records: the full per-cell table appears above, and [machine-readable result rows](cells.jsonl) publish the 108 observed outcomes. A complete request and Standard run-record bundle remains unavailable; the original delivery records and every missing Standard field are documented separately.
 
 
 Terminology: [public round glossary](../GLOSSARY.md).
 
 STATUS: **INCOMPLETE**
 
-Data completeness: **37.8%** (6 deliveries; PASS WITH DECLARED GAPS). [Measurement contract](MEASURED.md); [declared gaps](MISSING.md).
+Standard capture completeness: **37.8%** (6 original delivery records; PASS WITH DECLARED GAPS). [Measurement contract](MEASURED.md); [declared gaps](MISSING.md).
 
 
 
@@ -48,13 +185,13 @@ Data completeness: **37.8%** (6 deliveries; PASS WITH DECLARED GAPS). [Measureme
 Pre-registered: no
 
 
-Lifecycle: Task-authoring record; no scored core study rows are graded in the public export.
+Lifecycle: Historical core study; the recovered outcome supplement now scores the observed 108 cells, while the original planned task set remains incomplete.
 
 Question: What hidden-suite pass outcomes were recorded across implementation stacks on the Round 70 tasks?
 
-Venue: Public worker assignments use kogen-bench-us and kogen-bench-eu.
+How and where it ran: Runs were assigned to Hetzner Linux hosts in the US and Europe; hardware details are not available in the records; the recovered grading records (dated 5–8 October 2026) were assembled on a MacBook. The surviving record does not identify a harness Git commit or kit version; the Standard capture gaps are declared in [MISSING.md](MISSING.md).
 
-Design: 7 tasks × 5 stacks × 2 models × 5 reps = 350 planned if all tasks admitted. Only tasks 5 and 7 admitted on all stacks.
+Design: 7 tasks × 5 stacks × 2 models × 5 reps = 350 planned if all tasks were admitted. The recovered supplement covers observed task-5/6/7 cells, not the full planned task, stack, and repetition set.
 
 Decision rule: A stack-level result required an equal-task pooled ITT difference of at least 10 pp over every other stack; ties within 10 pp used median wall then tokens, with one declared top-up to 7 reps for tied stacks.
 
@@ -100,8 +237,8 @@ Other task IDs listed in the note:
 - [r70-7-elixir](../../tasks/r70-7-elixir/task.json)
 - [r70-7-gleam](../../tasks/r70-7-gleam/task.json)
 
-Task reconciliation: The surviving plan lists 35 task-stack combinations. The public run-record export contains five task IDs, all for task 7 (one per stack); none of the 30 task 1–6 combinations appears in the tagged export. The public record does not establish the reason for missing rows; no run-record row was changed or reattributed.
-Verdict: The frozen core study is INTERIM and has no stack-level conclusion. Tasks 1–4/6 were not admitted across all stacks. Official outcomes use the documented grading pipeline.
+Task reconciliation: The surviving plan lists 35 task-stack combinations. The original Standard run-record export contains five task IDs, all for task 7 (one per stack); none of the 30 task 1–6 combinations appears in that tagged export. The recovered grade supplement adds observed outcomes for task 5, 6, and 7 cell IDs without changing or reattributing those delivery records.
+Verdict: The frozen core study remains INTERIM and has no stack-level conclusion. The seven-task plan was not completed; only the observed task-5/6/7 cells have recovered outcomes. The original rule was not met. Official outcomes use the documented grading pipeline.
 
 ## Round 70 implementation-stack extension
 
@@ -114,7 +251,7 @@ Post-hoc decision dated 2026-10-06. Task 1 is CONFOUNDED: the three original Eli
 
 ## Original 40-cell RvE language comparison
 
-These are the official as-graded observations from tasks 1, 3, 4, and 6. The measure is hidden-suite full pass; each stack's own checks are secondary. The comparison used one model, direct Codex with gpt-6-luna at max. The original n is 3 on tasks 1 and 4 and 2 on tasks 3 and 6 for each stack. Rust and Elixir ran on kogen-bench-eu; Go and TypeScript/Bun ran on kogen-bench-us. Wall time is comparable only within a host. Tasks 1 and 4 are confounded by skeleton front-end traps; repetition selection was partly strategic. This table is descriptive; no general language ranking follows. It does not change the frozen r70 core verdict.
+These are the official as-graded observations from tasks 1, 3, 4, and 6. The measure is hidden-suite full pass; each stack's own checks are secondary. The comparison used one model, direct Codex with gpt-6-luna at max. The original n is 3 on tasks 1 and 4 and 2 on tasks 3 and 6 for each stack. Rust and Elixir ran in Europe; Go and TypeScript/Bun ran in the US. Wall time is comparable only within a host. Tasks 1 and 4 are confounded by skeleton front-end traps; repetition selection was partly strategic. This table is descriptive; no general language ranking follows. It does not change the frozen r70 core verdict.
 
 The supplemental receipts record the requested model and effort for the 44 rerun and extension cells, but do not preserve per-cell effective model/effort receipts or a verified harness version. The original Rust and Elixir resource records do preserve effective values and the Codex CLI version; the original Go and TypeScript/Bun grades do not have matching resource records in this snapshot.
 
@@ -122,57 +259,57 @@ The summary and 40 per-cell rows below are recomputed from the public [official 
 
 <!-- R70-RVE-ORIGINAL:BEGIN -->
 
-| Stack | Official full passes | n | Per-task n (1 / 3 / 4 / 6) | Own checks passing | Host |
+| Stack | Official full passes | n | Per-task n (1 / 3 / 4 / 6) | Own checks passing | Region |
 | --- | ---: | ---: | --- | ---: | --- |
-| Rust | 8/10 | 10 | 3 / 2 / 3 / 2 | 10/10 | kogen-bench-eu |
-| Go | 7/10 | 10 | 3 / 2 / 3 / 2 | 9/10 | kogen-bench-us |
-| TypeScript/Bun | 7/10 | 10 | 3 / 2 / 3 / 2 | 10/10 | kogen-bench-us |
-| Elixir | 2/10 | 10 | 3 / 2 / 3 / 2 | 7/10 | kogen-bench-eu |
+| Rust | 8/10 | 10 | 3 / 2 / 3 / 2 | 10/10 | Europe |
+| Go | 7/10 | 10 | 3 / 2 / 3 / 2 | 9/10 | US |
+| TypeScript/Bun | 7/10 | 10 | 3 / 2 / 3 / 2 | 10/10 | US |
+| Elixir | 2/10 | 10 | 3 / 2 / 3 / 2 | 7/10 | Europe |
 
 Per-cell as-graded observations:
 
-| Task | Stack | Rep | Host | Hidden tests passed/total | Official result | Own check (secondary) |
+| Task | Stack | Rep | Region | Hidden tests passed/total | Official result | Own check (secondary) |
 | --- | --- | ---: | --- | ---: | --- | --- |
-| 1 | Rust | 6 | kogen-bench-eu | 25/25 | pass | pass |
-| 1 | Rust | 12 | kogen-bench-eu | 25/25 | pass | pass |
-| 1 | Rust | 15 | kogen-bench-eu | 25/25 | pass | pass |
-| 1 | Go | 16 | kogen-bench-us | 24/25 | fail | pass |
-| 1 | Go | 22 | kogen-bench-us | 25/25 | pass | pass |
-| 1 | Go | 25 | kogen-bench-us | 25/25 | pass | pass |
-| 1 | TypeScript/Bun | 16 | kogen-bench-us | 25/25 | pass | pass |
-| 1 | TypeScript/Bun | 22 | kogen-bench-us | 25/25 | pass | pass |
-| 1 | TypeScript/Bun | 25 | kogen-bench-us | 25/25 | pass | pass |
-| 1 | Elixir | 6 | kogen-bench-eu | 24/25 | fail | pass |
-| 1 | Elixir | 12 | kogen-bench-eu | 24/25 | fail | pass |
-| 1 | Elixir | 15 | kogen-bench-eu | 24/25 | fail | pass |
-| 3 | Rust | 7 | kogen-bench-eu | 28/28 | pass | pass |
-| 3 | Rust | 14 | kogen-bench-eu | 28/28 | pass | pass |
-| 3 | Go | 17 | kogen-bench-us | 28/28 | pass | pass |
-| 3 | Go | 24 | kogen-bench-us | 28/28 | pass | pass |
-| 3 | TypeScript/Bun | 17 | kogen-bench-us | 28/28 | pass | pass |
-| 3 | TypeScript/Bun | 24 | kogen-bench-us | 28/28 | pass | pass |
-| 3 | Elixir | 7 | kogen-bench-eu | 27/28 | fail | pass |
-| 3 | Elixir | 14 | kogen-bench-eu | 28/28 | pass | pass |
-| 4 | Rust | 9 | kogen-bench-eu | 18/18 | pass | pass |
-| 4 | Rust | 10 | kogen-bench-eu | 16/18 | fail | pass |
-| 4 | Rust | 13 | kogen-bench-eu | 16/18 | fail | pass |
-| 4 | Go | 19 | kogen-bench-us | 18/18 | pass | fail |
-| 4 | Go | 20 | kogen-bench-us | 17/18 | fail | pass |
-| 4 | Go | 23 | kogen-bench-us | 16/18 | fail | pass |
-| 4 | TypeScript/Bun | 19 | kogen-bench-us | 15/18 | fail | pass |
-| 4 | TypeScript/Bun | 20 | kogen-bench-us | 16/18 | fail | pass |
-| 4 | TypeScript/Bun | 23 | kogen-bench-us | 16/18 | fail | pass |
-| 4 | Elixir | 9 | kogen-bench-eu | 15/18 | fail | fail |
-| 4 | Elixir | 10 | kogen-bench-eu | 15/18 | fail | pass |
-| 4 | Elixir | 13 | kogen-bench-eu | 17/18 | fail | pass |
-| 6 | Rust | 8 | kogen-bench-eu | 24/24 | pass | pass |
-| 6 | Rust | 11 | kogen-bench-eu | 24/24 | pass | pass |
-| 6 | Go | 18 | kogen-bench-us | 24/24 | pass | pass |
-| 6 | Go | 21 | kogen-bench-us | 24/24 | pass | pass |
-| 6 | TypeScript/Bun | 18 | kogen-bench-us | 24/24 | pass | pass |
-| 6 | TypeScript/Bun | 21 | kogen-bench-us | 24/24 | pass | pass |
-| 6 | Elixir | 8 | kogen-bench-eu | 22/24 | fail | fail |
-| 6 | Elixir | 11 | kogen-bench-eu | 24/24 | pass | fail |
+| 1 | Rust | 6 | Europe | 25/25 | pass | pass |
+| 1 | Rust | 12 | Europe | 25/25 | pass | pass |
+| 1 | Rust | 15 | Europe | 25/25 | pass | pass |
+| 1 | Go | 16 | US | 24/25 | fail | pass |
+| 1 | Go | 22 | US | 25/25 | pass | pass |
+| 1 | Go | 25 | US | 25/25 | pass | pass |
+| 1 | TypeScript/Bun | 16 | US | 25/25 | pass | pass |
+| 1 | TypeScript/Bun | 22 | US | 25/25 | pass | pass |
+| 1 | TypeScript/Bun | 25 | US | 25/25 | pass | pass |
+| 1 | Elixir | 6 | Europe | 24/25 | fail | pass |
+| 1 | Elixir | 12 | Europe | 24/25 | fail | pass |
+| 1 | Elixir | 15 | Europe | 24/25 | fail | pass |
+| 3 | Rust | 7 | Europe | 28/28 | pass | pass |
+| 3 | Rust | 14 | Europe | 28/28 | pass | pass |
+| 3 | Go | 17 | US | 28/28 | pass | pass |
+| 3 | Go | 24 | US | 28/28 | pass | pass |
+| 3 | TypeScript/Bun | 17 | US | 28/28 | pass | pass |
+| 3 | TypeScript/Bun | 24 | US | 28/28 | pass | pass |
+| 3 | Elixir | 7 | Europe | 27/28 | fail | pass |
+| 3 | Elixir | 14 | Europe | 28/28 | pass | pass |
+| 4 | Rust | 9 | Europe | 18/18 | pass | pass |
+| 4 | Rust | 10 | Europe | 16/18 | fail | pass |
+| 4 | Rust | 13 | Europe | 16/18 | fail | pass |
+| 4 | Go | 19 | US | 18/18 | pass | fail |
+| 4 | Go | 20 | US | 17/18 | fail | pass |
+| 4 | Go | 23 | US | 16/18 | fail | pass |
+| 4 | TypeScript/Bun | 19 | US | 15/18 | fail | pass |
+| 4 | TypeScript/Bun | 20 | US | 16/18 | fail | pass |
+| 4 | TypeScript/Bun | 23 | US | 16/18 | fail | pass |
+| 4 | Elixir | 9 | Europe | 15/18 | fail | fail |
+| 4 | Elixir | 10 | Europe | 15/18 | fail | pass |
+| 4 | Elixir | 13 | Europe | 17/18 | fail | pass |
+| 6 | Rust | 8 | Europe | 24/24 | pass | pass |
+| 6 | Rust | 11 | Europe | 24/24 | pass | pass |
+| 6 | Go | 18 | US | 24/24 | pass | pass |
+| 6 | Go | 21 | US | 24/24 | pass | pass |
+| 6 | TypeScript/Bun | 18 | US | 24/24 | pass | pass |
+| 6 | TypeScript/Bun | 21 | US | 24/24 | pass | pass |
+| 6 | Elixir | 8 | Europe | 22/24 | fail | fail |
+| 6 | Elixir | 11 | Europe | 24/24 | pass | fail |
 
 <!-- R70-RVE-ORIGINAL:END -->
 
@@ -234,15 +371,15 @@ Separate compile-only timing from full native checks and hidden-wrapper timing. 
 
 ## Public delivery and outcome reconciliation
 
-This captured-delivery summary uses the public [run-record export](../../results/run-records/r70.jsonl), grouped by audit round, task ID, public host ID, and the exact exported arm label. Captured counts rows; graded counts rows marked `graded=true`; pass, fail, and other are the run-record outcome fields. Official outcome states are in [cells.jsonl](../../results/cells.jsonl), whose classifications can differ; see the [register source crosswalk](../README.md). Planned n is shown only when source-reported; unknown allocations are not inferred.
+This captured-delivery summary uses the public [run-record export](../../results/run-records/r70.jsonl), grouped by audit round, task ID, assigned region, and the exact exported arm label. Captured counts rows; graded counts rows marked `graded=true`; pass, fail, and other are the run-record outcome fields. Official outcome states are in [cells.jsonl](../../results/cells.jsonl), whose classifications can differ; see the [register source crosswalk](../README.md). Planned n is shown only when source-reported; unknown allocations are not inferred.
 
-| Task ID | Public host ID | Arm label in export | Planned n | Captured | Graded | Pass | Fail | Other graded outcome |
+| Task ID | Assigned region | Arm label in export | Planned n | Captured | Graded | Pass | Fail | Other graded outcome |
 |---|---|---|---:|---:|---:|---:|---:|---:|
-| r70-7-elixir | kogen-bench-eu | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
-| r70-7-gleam | kogen-bench-eu | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
-| r70-7-go | kogen-bench-eu | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
-| r70-7-rust | kogen-bench-eu | not recorded | 5 | 2 | 0 | 0 | 0 | 0 |
-| r70-7-ts-bun | kogen-bench-eu | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
+| r70-7-elixir | Europe | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
+| r70-7-gleam | Europe | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
+| r70-7-go | Europe | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
+| r70-7-rust | Europe | not recorded | 5 | 2 | 0 | 0 | 0 | 0 |
+| r70-7-ts-bun | Europe | not recorded | 5 | 1 | 0 | 0 | 0 | 0 |
 
 ## Reproduction record and source reconciliation
 
@@ -396,4 +533,4 @@ Recovered-source discrepancies: 128 field mismatches across 10 cell IDs (`experi
 - `codex__gpt-6.1-sol__medium__default__r70-7-rust__r1` field `wall_s`: kept `207.218`, recovered `111.25`.
 No shared public-export cell IDs are available for a paired outcome comparison.
 No complete published metadata/manifest token pairs are available for this round (0 missing manifest usage; 108 missing published metadata). Missing counters remain unknown, not zero.
-This round also has 108 raw-only or non-public rows; they are kept separate from the published-export denominator.
+These 108 outcomes are now public in rounds/r70/cells.jsonl but remain separate from the repository-wide outcome export.

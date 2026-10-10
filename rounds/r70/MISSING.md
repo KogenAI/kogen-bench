@@ -1,5 +1,7 @@
 # Declared historical data gaps
 
+The JSON declaration below covers the six Standard run records in [the public round record](../../results/run-records/r70.jsonl). The recovered result supplement ([cells.jsonl](cells.jsonl), with the full display table in [the per-cell table](README.md#per-cell-outcomes)) is an outcome-only overlay, not a new Standard run-record cohort. It reports the fields shown there and does not fill or imply values for the Standard fields that remain missing from the six-record snapshot. The gap declaration below continues to enumerate every missing Standard field and reason for that snapshot.
+
 This declaration applies only to the committed delivered-cell snapshot, not future cells. Counts are cell/field occurrences; reasons are exact. Rebuilding does not authorize a future release.
 
 ```json

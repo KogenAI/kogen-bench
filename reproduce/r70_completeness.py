@@ -10,7 +10,8 @@ TASK_ORDER = ("r70-1", "r70-3", "r70-4", "r70-6")
 STACK_ORDER = ("rust", "go", "ts-bun", "elixir", "gleam")
 LANGUAGE_ORDER = ("rust", "ts-bun", "go", "elixir")
 LABEL = {"rust": "Rust", "go": "Go", "ts-bun": "TypeScript/Bun", "elixir": "Elixir", "gleam": "Gleam"}
-HOST = {"rust": "kogen-bench-eu", "elixir": "kogen-bench-eu", "go": "kogen-bench-us", "ts-bun": "kogen-bench-us"}
+REGION = {"kogen-bench-eu": "Europe", "kogen-bench-us": "US"}
+HOST = {"rust": "Europe", "elixir": "Europe", "go": "US", "ts-bun": "US"}
 COST_FIELDS = (
     "cell_id", "cohort", "task", "stack", "rep", "host",
     "requested_model", "effective_model", "requested_effort", "effective_effort",
@@ -86,7 +87,7 @@ def original_rows(root):
 def render_original(rows):
     by_stack = {s: [r for r in rows if r["stack"] == s] for s in ("rust", "go", "ts-bun", "elixir")}
     summary = [
-        "| Stack | Official full passes | n | Per-task n (1 / 3 / 4 / 6) | Own checks passing | Host |",
+        "| Stack | Official full passes | n | Per-task n (1 / 3 / 4 / 6) | Own checks passing | Region |",
         "| --- | ---: | ---: | --- | ---: | --- |",
     ]
     for stack in ("rust", "go", "ts-bun", "elixir"):
@@ -98,13 +99,13 @@ def render_original(rows):
             f"{' / '.join(map(str, ns))} | {checks}/{len(selected)} | {HOST[stack]} |"
         )
     detail = [
-        "| Task | Stack | Rep | Host | Hidden tests passed/total | Official result | Own check (secondary) |",
+        "| Task | Stack | Rep | Region | Hidden tests passed/total | Official result | Own check (secondary) |",
         "| --- | --- | ---: | --- | ---: | --- | --- |",
     ]
     for row in rows:
         task_no = row["task"].split("-")[1]
         detail.append(
-            f"| {task_no} | {LABEL[row['stack']]} | {row['rep']} | {row['host']} | "
+            f"| {task_no} | {LABEL[row['stack']]} | {row['rep']} | {REGION[row['host']]} | "
             f"{frac_tests(row)} | {row['outcome']} | {row['make_check']} |"
         )
     return "\n".join(summary + ["", "Per-cell as-graded observations:", ""] + detail)
