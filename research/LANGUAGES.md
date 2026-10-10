@@ -18,3 +18,7 @@ AI coding agents (GPT-6 Luna at maximum effort) build the same tasks in Go, Rust
 The final round, on harder Kogen-like tasks, is running. Results will be added here.
 
 Limits: small samples, one model, and the runs differ in design (the original comparison wasn't registered in advance).
+
+## 9–10 October rounds
+
+These rounds report descriptive results only; shape1 used an earlier runner and grader configuration. Decision pending the 3-run race 2 mean. Published rounds: [race 1 and core4 pilots](../rounds/core4-pilots/), [race 2 and core4b/ksub maximum](../rounds/core4b-ksub-max/), [Sol medium](../rounds/sol-medium/), [Luna medium](../rounds/luna-medium/), [Gleam](../rounds/gleam/), and [shape1 wave 1](../rounds/shape1-wave1/).

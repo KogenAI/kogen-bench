@@ -121,6 +121,8 @@ The official [cells.jsonl](../results/cells.jsonl) export records public outcome
 
 - [Gleam](gleam/README.md) — **DESCRIPTIVE**
 
+- [Shape1 wave 1](shape1-wave1/README.md) — **DESCRIPTIVE**
+
 ## Additional round pages
 
 These pages are indexed alongside the numbered rounds. The status shown here is the round-level validity or lifecycle label; narrative labels such as “DESCRIPTIVE” remain on the linked page as analysis descriptions. Offline diagnostics and unscored timing pages do not imply a Build-success result.
