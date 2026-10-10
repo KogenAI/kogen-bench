@@ -76,6 +76,49 @@ def export(grades, metadata, output):
         }
         meta[cid] = {'experiment': 'r70-rve-rerun', 'harness': parts[0], 'model': parts[1], 'effort': parts[2]}
         supplemental_count += 1
+    supplemental_round_rows = []
+    for round_id in ('r70-rve2', 'r70-rve3', 'r70-spot1'):
+        records_path = ROOT/'rounds'/round_id/'records.jsonl'
+        if not records_path.exists():
+            continue
+        for line in records_path.read_text().splitlines():
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            if record.get('round_id') != round_id:
+                raise ValueError(f'Round record identity mismatch in {records_path}')
+            if (record.get('itt') or {}).get('cohort') != 'scored':
+                continue
+            task = record.get('task') or {}
+            model = record.get('model') or {}
+            effort = record.get('effort') or {}
+            timing = record.get('timing') or {}
+            cid = record.get('cell_id')
+            if not isinstance(cid, str) or not isinstance(task.get('id'), str):
+                raise ValueError(f'Round record lacks a public cell/task identity in {records_path}')
+            outcome = record.get('outcome')
+            if outcome not in ('pass', 'fail'):
+                raise ValueError(f'Round record has unresolved outcome {cid!r}')
+            if cid in chosen:
+                raise ValueError(f'Round record duplicates an exported grade identity: {cid}')
+            venue = 'eu' if '-eu-' in cid else ('us' if '-us-' in cid else 'unmapped')
+            cells_row = {
+                'round': round_id,
+                'arm': label(record.get('arm')),
+                'task': label(task.get('id')),
+                'rep': '',
+                'venue': venue,
+                'harness': 'codex',
+                'model': label(model.get('effective')),
+                'effort': label(effort.get('effective')),
+                'outcome': outcome,
+                'ITT outcome': outcome,
+                'exclusion reason': '',
+                'wall_s': number(timing.get('total_wall_s')),
+                'tokens': None,
+                'usd_est': None,
+            }
+            supplemental_round_rows.append(cells_row)
     output.mkdir(parents=True,exist_ok=True)
     cells=[];issues=[]
     for cid,g in sorted(chosen.items()):
@@ -117,16 +160,23 @@ def export(grades, metadata, output):
         cells.append(r)
         missing=[k for k in ['round','harness','model','effort','wall_s','tokens','usd_est'] if r[k] in [None,'','unmapped']]
         if missing or itt=='unresolved':issues.append({'round':rid,'arm':r['arm'],'task':r['task'],'rep':r['rep'],'missing_fields':missing,'itt_unresolved':itt=='unresolved'})
+    cells.extend(supplemental_round_rows)
+    for row in supplemental_round_rows:
+        issues.append({
+            'round': row['round'], 'arm': row['arm'], 'task': row['task'], 'rep': row['rep'],
+            'missing_fields': ['tokens', 'usd_est'], 'itt_unresolved': False,
+        })
     with (output/'cells.csv').open('w',newline='') as f:
         writer=csv.DictWriter(f,fieldnames=FIELDS);writer.writeheader();writer.writerows(cells)
     (output/'cells.jsonl').write_text(''.join(json.dumps(r,sort_keys=True)+'\n' for r in cells))
     (output/'unmapped.json').write_text(json.dumps(issues,indent=2,sort_keys=True)+'\n')
     report={'input_rows':len(rows),'exported_cell_rows':len(cells),'duplicate_identity_rows_reconciled':duplicates,'unmapped_or_incomplete_rows':len(issues),
             'supplemental_r70_rerun_rows':supplemental_count,
+            'supplemental_round_record_rows':len(supplemental_round_rows),
             'unmapped_round_rows':sum(c['round']=='unmapped' for c in cells),'unresolved_itt_rows':sum(c['ITT outcome']=='unresolved' for c in cells),
             'grades_input_sha256':hashlib.sha256(raw).hexdigest(),'test_counts_input_sha256':hashlib.sha256(supplemental_raw).hexdigest() if supplemental_raw else None,'wall_s_definition':'runner all-attempts wall; no queue or grading; blank if unavailable',
             'cost_note':'Cost estimates are source-reported API equivalents. The calculator and analysis inputs are absent from this snapshot, so the calculation is not re-derivable from the public record; missing usage is null, not zero.',
-            'coverage_note':'official grade snapshot plus supplemental scored FE2 rerun grades from test-counts.jsonl; ungraded deliveries remain absent, so this export alone is not a complete planned ITT cohort'}
+            'coverage_note':'official grade snapshot plus supplemental scored FE2 rerun grades from test-counts.jsonl and published per-round records for r70-rve2, r70-rve3 and r70-spot1; ungraded deliveries remain absent, so this export alone is not a complete planned ITT cohort'}
     (output/'export-report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     print(json.dumps(report,indent=2))
 

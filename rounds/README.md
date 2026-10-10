@@ -193,3 +193,4 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [x-surface](x-surface/README.md) — **INTERIM** See the round page for its cohort, evidence coverage, and limitations.
 
 - [hc01-small32](hc01-small32/README.md) — **INCOMPLETE** owner stop at 25/32 graded; descriptive label, ceiling not confirmed.
+- [r70-rve2](r70-rve2/README.md) — **INVALID** Prompt mismatches invalidate the registered comparison; all completed cell outcomes are retained as descriptive evidence.
