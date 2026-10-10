@@ -202,3 +202,5 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [rtg1](rtg1/README.md) — **DESCRIPTIVE** old-lane language results; see per-cell outcomes and declared gaps.
 
 - [core4b-ksub-max](core4b-ksub-max/README.md) — **DESCRIPTIVE** old-lane language results; see per-cell outcomes and declared gaps.
+
+- [sol-medium](sol-medium/README.md) — **DESCRIPTIVE** old-lane language results; see per-cell outcomes and declared gaps.
