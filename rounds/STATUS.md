@@ -4,6 +4,8 @@ Statuses use the evidence in each round’s own README and files. The status col
 
 ## Rounds
 
+core4b-ksub-max | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
+
 rtg1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
 
 core4-pilots | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
