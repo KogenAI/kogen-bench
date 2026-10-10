@@ -4,6 +4,8 @@ Statuses use the evidence in each round’s own README and files. The status col
 
 ## Rounds
 
+core4-pilots | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
+
 cache-key-api-v4 | VALID | NONE
 cache-key-backend-v4 | VALID | NONE
 cache-replay-mechanism | DESCRIPTIVE | CONDITIONS_MISMATCH, INCOMPLETE_EXECUTION, PRE_REGISTRATION_MISSING, RAW_EVIDENCE_PARTIAL
