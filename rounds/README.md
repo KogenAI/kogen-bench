@@ -117,6 +117,8 @@ The official [cells.jsonl](../results/cells.jsonl) export records public outcome
 - [rails-catalogue](rails-catalogue/README.md) — **INTERIM** pooled r60/r63/r64 view; published denominators and $/pass do not reproduce
 - [unmapped](unmapped/README.md) — **INTERIM** round ownership unresolved for 500 deliveries
 
+- [Luna medium](luna-medium/README.md) — **DESCRIPTIVE**
+
 ## Additional round pages
 
 These pages are indexed alongside the numbered rounds. The status shown here is the round-level validity or lifecycle label; narrative labels such as “DESCRIPTIVE” remain on the linked page as analysis descriptions. Offline diagnostics and unscored timing pages do not imply a Build-success result.
