@@ -1,0 +1,148 @@
+--- a/DIAGNOSIS.md
++++ b/DIAGNOSIS.md
+@@ -0,0 +1,72 @@
++# Diagnosis before repair
++
++The violated fixed property is `cleanup_gate`: `cleanup` and `retry` may clear
++`work` and `pending` only when both `pending` and `saved` are true. Otherwise
++all fields must remain unchanged, including pending cleanup after failure.
++
++The causal function is `Preservation.cleanup_ready/1` in
++`app/lib/preservation.ex:48-50`. It currently returns only `state.pending`.
++Both events reach it via `step/2`, `dispatch/2`, `cleanup_event/2`, and
++`cleanup/1`; a true result invokes `retire/1`, which clears work and pending.
++`failed/1` correctly sets pending to work without setting saved, so pending
++alone cannot establish that retiring the work copy is safe.
++
++Evidence collected before changing application source:
++
++- Baseline `./fv check` (cycle 1) regenerated the current application as
++  `a8d03d3989dba2adfecadd2513a4809b91e8e521ea2d7af6cae60ef0f514b677`.
++  Lean passed `success`, `failure`, and `retry_idempotent`, but failed
++  `cleanup_gate` with `Tactic decide proved that ... check_cleanup_gate = true
++  is false`. Its source trace includes `cleanup_ready/1` and `retire/1`.
++  The complete check exited 1; the sole starter test passed.
++- Source evaluation gives a reachable counterexample: init is
++  `%{work: true, saved: false, pending: false}`; `preserve_fail` produces
++  `%{work: true, saved: false, pending: true}`. Either `cleanup` or `retry`
++  then produces `%{work: false, saved: false, pending: false}`. The contract
++  instead requires the failed state to remain unchanged. This is a trace
++  derived directly from source, not a separately executed Elixir replay.
++- The generated `verification/Implementation.lean` likewise represents
++  `cleanup_ready/1` as the pending field alone. The starter test covers
++  successful preservation only, so it does not detect this loss after failure.
++
++This is an implementation defect, not an unresolved proof: Lean's decision
++procedure establishes that the existing cleanup law is false, and the source
++explains the violating transition. A standalone local Elixir replay was
++unavailable (`elixir` is not on PATH); the supplied broker successfully ran
++Lean and ExUnit.
++
++Planned repair: require `state.pending and state.saved` in `cleanup_ready/1`.
++Preserve all public function names and arities, accepted laws, domains,
++assumptions, and sequence bounds. Add a regression for failed preservation
++followed by both cleanup events and subsequent explicit preservation success.
++Regenerate formal representations from the repaired source with `./fv check`
++and require all four fixed laws and the tests to pass.
++
++# Repair and verification results
++
++The application repair changes only `cleanup_ready/1` to return
++`state.pending and state.saved`. All public function names and arities remain
++unchanged. The broker regenerated `verification/ir.json`,
++`verification/Implementation.lean`, and `verification/source-map.json` from
++that source; the generated guard now uses `v_pending && v_saved`.
++
++Check history (3 of the 10 allowed cycles):
++
++- Cycle 1: baseline implementation defect; 3/4 laws and 1 starter test passed,
++  exit 1.
++- Cycle 2: the broker rejected the attempted added regression file as a
++  frozen-input change, exit 2, before verification. This was a tooling/input
++  restriction, not a proof failure or evidence against the repaired code.
++  The added file was removed; supplied tests remain unchanged.
++- Cycle 3: complete `./fv check` passed, exit 0. Lean established all 4/4
++  laws (`success`, `failure`, `cleanup_gate`, `retry_idempotent`); the starter
++  test passed (1/1). The regenerated hash was
++  `27ddad132fbfa2073bb07446bde8836f72b780efba4d1fc2a04dde318c1b3569`.
++  Check wall time was approximately 2.92 seconds.
++
++`sha256sum -c fixed.sha256` also passed for all three fixed files. Accepted
++laws, domains, assumptions, and the six-event bound were not changed. The
++verification covers all eight boolean states and permitted event sequences
++through six events. There is no outstanding proof or tooling limitation in
++the final supplied check; real filesystem durability remains outside the
++contract.
+--- a/app/lib/preservation.ex
++++ b/app/lib/preservation.ex
+@@ -46,7 +46,7 @@
+   end
+ 
+   def cleanup_ready(state) do
+-    state.pending
++    state.pending and state.saved
+   end
+ 
+   def retire(state) do
+--- a/verification/Implementation.lean
++++ b/verification/Implementation.lean
+@@ -21,7 +21,7 @@
+ -- src: lib/preservation.ex:48
+ def v_Preservation_cleanup_ready_1 (p0 : R_pending_saved_work) : Bool :=
+   match p0 with
+-  | v_state => (/- src: lib/preservation.ex:49 -/ (/- src: lib/preservation.ex:49 -/ v_state).v_pending)
++  | v_state => (/- src: lib/preservation.ex:49 -/ ((/- src: lib/preservation.ex:49 -/ (/- src: lib/preservation.ex:49 -/ v_state).v_pending) && (/- src: lib/preservation.ex:49 -/ (/- src: lib/preservation.ex:49 -/ v_state).v_saved)))
+ 
+ -- src: lib/preservation.ex:52
+ def v_Preservation_retire_1 (p0 : R_pending_saved_work) : R_pending_saved_work :=
+--- a/verification/ir.json
++++ b/verification/ir.json
+@@ -1 +1 @@
+-{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/preservation.ex","line":5},"name":"work","value":{"kind":"bool","loc":{"column":13,"file":"lib/preservation.ex","line":5},"value":true}},{"kind":"field","loc":{"column":26,"file":"lib/preservation.ex","line":5},"name":"saved","value":{"kind":"bool","loc":{"column":26,"file":"lib/preservation.ex","line":5},"value":false}},{"kind":"field","loc":{"column":42,"file":"lib/preservation.ex","line":5},"name":"pending","value":{"kind":"bool","loc":{"column":42,"file":"lib/preservation.ex","line":5},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/preservation.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":9},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":9},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":9},"value":"preserve_ok"}},"else":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":12},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/preservation.ex","line":12},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":12},"module":null,"name":"dispatch"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":9},"then":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":10},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":10},"module":null,"name":"preserve"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":8},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/preservation.ex","line":8},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/preservation.ex","line":8},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":17},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":17},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":17},"value":"preserve_fail"}},"else":{"args":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":20},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/preservation.ex","line":20},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":20},"module":null,"name":"cleanup_event"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":17},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":18},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":18},"module":null,"name":"failed"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":16},"name":"dispatch","params":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":16},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/preservation.ex","line":16},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":25},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":25},"value":"cleanup"}},"loc":{"column":26,"file":"lib/preservation.ex","line":25},"op":"or","right":{"kind":"binary","left":{"kind":"var","loc":{"column":29,"file":"lib/preservation.ex","line":25},"name":"event"},"loc":{"column":35,"file":"lib/preservation.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":38,"file":"lib/preservation.ex","line":25},"value":"retry"}}},"else":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":28},"name":"state"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":25},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/preservation.ex","line":26},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":26},"module":null,"name":"cleanup"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":24},"name":"cleanup_event","params":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/preservation.ex","line":24},"name":"event"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":33},"name":"state"},"fields":[{"kind":"field","loc":{"column":34,"file":"lib/preservation.ex","line":33},"name":"saved","value":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":22,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"saved","kind":"get","loc":{"column":28,"file":"lib/preservation.ex","line":33}},"loc":{"column":34,"file":"lib/preservation.ex","line":33},"op":"or","right":{"base":{"kind":"var","loc":{"column":37,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"work","kind":"get","loc":{"column":43,"file":"lib/preservation.ex","line":33}}}},{"kind":"field","loc":{"column":64,"file":"lib/preservation.ex","line":33},"name":"pending","value":{"base":{"kind":"var","loc":{"column":58,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"work","kind":"get","loc":{"column":64,"file":"lib/preservation.ex","line":33}}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":33},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":32},"name":"preserve","params":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":32},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":37},"name":"state"},"fields":[{"kind":"field","loc":{"column":30,"file":"lib/preservation.ex","line":37},"name":"pending","value":{"base":{"kind":"var","loc":{"column":24,"file":"lib/preservation.ex","line":37},"name":"state"},"field":"work","kind":"get","loc":{"column":30,"file":"lib/preservation.ex","line":37}}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":37},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":36},"name":"failed","params":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":36},"name":"state"}],"visibility":"public"},{"body":{"condition":{"args":[{"kind":"var","loc":{"column":22,"file":"lib/preservation.ex","line":41},"name":"state"}],"kind":"call","loc":{"column":8,"file":"lib/preservation.ex","line":41},"module":null,"name":"cleanup_ready"},"else":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":44},"name":"state"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":41},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":42},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":42},"module":null,"name":"retire"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":40},"name":"cleanup","params":[{"kind":"var","loc":{"column":15,"file":"lib/preservation.ex","line":40},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":5,"file":"lib/preservation.ex","line":49},"name":"state"},"field":"pending","kind":"get","loc":{"column":11,"file":"lib/preservation.ex","line":49}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":48},"name":"cleanup_ready","params":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":48},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":53},"name":"state"},"fields":[{"kind":"field","loc":{"column":21,"file":"lib/preservation.ex","line":53},"name":"work","value":{"kind":"bool","loc":{"column":21,"file":"lib/preservation.ex","line":53},"value":false}},{"kind":"field","loc":{"column":37,"file":"lib/preservation.ex","line":53},"name":"pending","value":{"kind":"bool","loc":{"column":37,"file":"lib/preservation.ex","line":53},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":53},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":52},"name":"retire","params":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":52},"name":"state"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/preservation.ex","line":1},"name":"Preservation","struct_fields":null}],"version":1}
++{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/preservation.ex","line":5},"name":"work","value":{"kind":"bool","loc":{"column":13,"file":"lib/preservation.ex","line":5},"value":true}},{"kind":"field","loc":{"column":26,"file":"lib/preservation.ex","line":5},"name":"saved","value":{"kind":"bool","loc":{"column":26,"file":"lib/preservation.ex","line":5},"value":false}},{"kind":"field","loc":{"column":42,"file":"lib/preservation.ex","line":5},"name":"pending","value":{"kind":"bool","loc":{"column":42,"file":"lib/preservation.ex","line":5},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/preservation.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":9},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":9},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":9},"value":"preserve_ok"}},"else":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":12},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/preservation.ex","line":12},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":12},"module":null,"name":"dispatch"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":9},"then":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":10},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":10},"module":null,"name":"preserve"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":8},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/preservation.ex","line":8},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/preservation.ex","line":8},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":17},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":17},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":17},"value":"preserve_fail"}},"else":{"args":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":20},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/preservation.ex","line":20},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":20},"module":null,"name":"cleanup_event"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":17},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":18},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":18},"module":null,"name":"failed"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":16},"name":"dispatch","params":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":16},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/preservation.ex","line":16},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/preservation.ex","line":25},"name":"event"},"loc":{"column":14,"file":"lib/preservation.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/preservation.ex","line":25},"value":"cleanup"}},"loc":{"column":26,"file":"lib/preservation.ex","line":25},"op":"or","right":{"kind":"binary","left":{"kind":"var","loc":{"column":29,"file":"lib/preservation.ex","line":25},"name":"event"},"loc":{"column":35,"file":"lib/preservation.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":38,"file":"lib/preservation.ex","line":25},"value":"retry"}}},"else":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":28},"name":"state"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":25},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/preservation.ex","line":26},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":26},"module":null,"name":"cleanup"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":24},"name":"cleanup_event","params":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/preservation.ex","line":24},"name":"event"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":33},"name":"state"},"fields":[{"kind":"field","loc":{"column":34,"file":"lib/preservation.ex","line":33},"name":"saved","value":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":22,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"saved","kind":"get","loc":{"column":28,"file":"lib/preservation.ex","line":33}},"loc":{"column":34,"file":"lib/preservation.ex","line":33},"op":"or","right":{"base":{"kind":"var","loc":{"column":37,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"work","kind":"get","loc":{"column":43,"file":"lib/preservation.ex","line":33}}}},{"kind":"field","loc":{"column":64,"file":"lib/preservation.ex","line":33},"name":"pending","value":{"base":{"kind":"var","loc":{"column":58,"file":"lib/preservation.ex","line":33},"name":"state"},"field":"work","kind":"get","loc":{"column":64,"file":"lib/preservation.ex","line":33}}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":33},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":32},"name":"preserve","params":[{"kind":"var","loc":{"column":16,"file":"lib/preservation.ex","line":32},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":37},"name":"state"},"fields":[{"kind":"field","loc":{"column":30,"file":"lib/preservation.ex","line":37},"name":"pending","value":{"base":{"kind":"var","loc":{"column":24,"file":"lib/preservation.ex","line":37},"name":"state"},"field":"work","kind":"get","loc":{"column":30,"file":"lib/preservation.ex","line":37}}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":37},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":36},"name":"failed","params":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":36},"name":"state"}],"visibility":"public"},{"body":{"condition":{"args":[{"kind":"var","loc":{"column":22,"file":"lib/preservation.ex","line":41},"name":"state"}],"kind":"call","loc":{"column":8,"file":"lib/preservation.ex","line":41},"module":null,"name":"cleanup_ready"},"else":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":44},"name":"state"},"kind":"if","loc":{"column":5,"file":"lib/preservation.ex","line":41},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":42},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/preservation.ex","line":42},"module":null,"name":"retire"}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":40},"name":"cleanup","params":[{"kind":"var","loc":{"column":15,"file":"lib/preservation.ex","line":40},"name":"state"}],"visibility":"public"},{"body":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":5,"file":"lib/preservation.ex","line":49},"name":"state"},"field":"pending","kind":"get","loc":{"column":11,"file":"lib/preservation.ex","line":49}},"loc":{"column":19,"file":"lib/preservation.ex","line":49},"op":"and","right":{"base":{"kind":"var","loc":{"column":23,"file":"lib/preservation.ex","line":49},"name":"state"},"field":"saved","kind":"get","loc":{"column":29,"file":"lib/preservation.ex","line":49}}},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":48},"name":"cleanup_ready","params":[{"kind":"var","loc":{"column":21,"file":"lib/preservation.ex","line":48},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/preservation.ex","line":53},"name":"state"},"fields":[{"kind":"field","loc":{"column":21,"file":"lib/preservation.ex","line":53},"name":"work","value":{"kind":"bool","loc":{"column":21,"file":"lib/preservation.ex","line":53},"value":false}},{"kind":"field","loc":{"column":37,"file":"lib/preservation.ex","line":53},"name":"pending","value":{"kind":"bool","loc":{"column":37,"file":"lib/preservation.ex","line":53},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/preservation.ex","line":53},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/preservation.ex","line":52},"name":"retire","params":[{"kind":"var","loc":{"column":14,"file":"lib/preservation.ex","line":52},"name":"state"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/preservation.ex","line":1},"name":"Preservation","struct_fields":null}],"version":1}
+--- a/verification/source-map.json
++++ b/verification/source-map.json
+@@ -609,6 +609,14 @@
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body",
++    "kind": "binary",
++    "column": 19,
++    "file": "lib/preservation.ex",
++    "line": 49,
++    "generated_line": 24
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.left",
+     "kind": "get",
+     "column": 11,
+     "file": "lib/preservation.ex",
+@@ -616,9 +624,25 @@
+     "generated_line": 24
+   },
+   {
+-    "node_id": "ir.modules.0.functions.7.body.base",
+-    "kind": "var",
+-    "column": 5,
++    "node_id": "ir.modules.0.functions.7.body.left.base",
++    "kind": "var",
++    "column": 5,
++    "file": "lib/preservation.ex",
++    "line": 49,
++    "generated_line": 24
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.right",
++    "kind": "get",
++    "column": 29,
++    "file": "lib/preservation.ex",
++    "line": 49,
++    "generated_line": 24
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.right.base",
++    "kind": "var",
++    "column": 23,
+     "file": "lib/preservation.ex",
+     "line": 49,
+     "generated_line": 24

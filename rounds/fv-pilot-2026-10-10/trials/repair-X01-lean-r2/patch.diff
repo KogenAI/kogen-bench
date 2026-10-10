@@ -1,0 +1,1330 @@
+--- a/DIAGNOSIS.md
++++ b/DIAGNOSIS.md
+@@ -0,0 +1,63 @@
++# Cache identity diagnosis
++
++Written before the application repair.
++
++## Violated properties and evidence
++
++The fixed contract requires a request to reuse evidence exactly when both
++cached tokens equal the selected tree and context (`reuse_iff`). On a miss it
++must store both selected tokens and increment the count (`recompute`).
++
++The first unmodified `./fv check` regenerated the application representation
++(hash `131e5da247f41180c42860e0d64c96fc36d5087cb6dac0798b7b3149ae507468`)
++and completed with exit 1: `selection` passed, `reuse_iff` and `recompute`
++failed, and the starter test passed (1 test). Lean's `decide` established
++that the two failing check propositions were false. Source traces for both
++failures include `request/1`, `cache_key/2`, and `cache_matches/2`; the
++recompute trace also includes `compute/2`.
++
++Concrete consequences derived directly from the current source:
++
++- From `init/0`, `request` stores `cached_tree: :any`, `cached_context: :c1`,
++  and count 1. The contract requires `cached_tree: :t1` instead.
++- For `[request, request]`, the second request sets `reused: true` even
++  though the stored tree `:any` differs from the selected tree `:t1`.
++- For `[request, tree_t2, request]`, the last request incorrectly reuses the
++  old entry and leaves count 1. The contract requires a miss, count 2,
++  `cached_tree: :t2`, and `reused: false`.
++
++The supplied starter test checks repetition at the same selection and one
++context selection, but does not check the stored tree or a request after a
++tree change. Its passing result therefore does not resolve these failures.
++
++## Causal function and repair
++
++`Baseline.cache_key/2` at `app/lib/baseline.ex:50-51` ignores its `_tree`
++argument and constructs `%{tree: :any, context: context}`. `request/1`
++uses this key for both matching and computation. Thus `compute/2` persists
++`:any` and `cache_matches/2` compares future requests against the same
++constant, collapsing distinct trees into one cache identity.
++
++Repair `cache_key/2` to return `%{tree: tree, context: context}`. This keeps
++all public function names, arities, and map fields, and lets the existing
++matching and computation functions implement the required behavior. Keep
++fixed laws, domains, sequence bounds, assumptions, and API manifest unchanged.
++Regenerate IR, source map, and Lean implementation using `./fv check`.
++
++## Failure classification
++
++The baseline failures are implementation defects: the source behavior above
++violates the contract and Lean reports false law checks. They are not an
++unresolved proof or tooling limitation. The proof guarantee is bounded to
++all allowed event sequences of length zero through six.
++
++## Repair verification
++
++The second complete `./fv check` regenerated the formal representations from
++the repaired application, with hash
++`9b0c7c007598e5b58a74451992813f5786823b888912b1189be774485f52d9e3`.
++It completed with exit 0: `selection`, `reuse_iff`, and `recompute` all passed
++(3/3 fixed laws), and the starter test passed (1 test). The generated Lean
++`v_Baseline_cache_key_2` now retains the input tree variable. No proof or tooling
++limitations were reported. `sha256sum -c fixed.sha256` confirmed all fixed law
++files unchanged. Two complete check cycles were used, within the limit of ten.
+--- a/app/lib/baseline.ex
++++ b/app/lib/baseline.ex
+@@ -47,8 +47,8 @@
+     end
+   end
+ 
+-  def cache_key(_tree, context) do
+-    %{tree: :any, context: context}
++  def cache_key(tree, context) do
++    %{tree: tree, context: context}
+   end
+ 
+   def cache_matches(state, key) do
+--- a/verification/Implementation.lean
++++ b/verification/Implementation.lean
+@@ -1,7 +1,6 @@
+ -- Generated from current Elixir source; never edit this file.
+ namespace FV
+ inductive Atom where
+-  | a_any
+   | a_c1
+   | a_c2
+   | a_context_c1
+@@ -41,7 +40,7 @@
+ -- src: lib/baseline.ex:50
+ def v_Baseline_cache_key_2 (p0 : Atom) (p1 : Atom) : R_context_tree :=
+   match p0, p1 with
+-  | v__tree, v_context => (/- src: lib/baseline.ex:51 -/ ({ v_context := (/- src: lib/baseline.ex:51 -/ v_context), v_context_present := true, v_tree := (/- src: lib/baseline.ex:51 -/ Atom.a_any), v_tree_present := true } : R_context_tree))
++  | v_tree, v_context => (/- src: lib/baseline.ex:51 -/ ({ v_context := (/- src: lib/baseline.ex:51 -/ v_context), v_context_present := true, v_tree := (/- src: lib/baseline.ex:51 -/ v_tree), v_tree_present := true } : R_context_tree))
+ 
+ -- src: lib/baseline.ex:54
+ def v_Baseline_cache_matches_2 (p0 : R_cached_context_cached_tree_computations_context_reused_tree) (p1 : R_context_tree) : Bool :=
+--- a/verification/ir.json
++++ b/verification/ir.json
+@@ -1 +1 @@
+-{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/baseline.ex","line":5},"name":"tree","value":{"kind":"atom","loc":{"column":13,"file":"lib/baseline.ex","line":5},"value":"t1"}},{"kind":"field","loc":{"column":27,"file":"lib/baseline.ex","line":5},"name":"context","value":{"kind":"atom","loc":{"column":27,"file":"lib/baseline.ex","line":5},"value":"c1"}},{"kind":"field","loc":{"column":45,"file":"lib/baseline.ex","line":5},"name":"cached_tree","value":{"kind":"atom","loc":{"column":45,"file":"lib/baseline.ex","line":5},"value":"none"}},{"kind":"field","loc":{"column":23,"file":"lib/baseline.ex","line":6},"name":"cached_context","value":{"kind":"atom","loc":{"column":23,"file":"lib/baseline.ex","line":6},"value":"none"}},{"kind":"field","loc":{"column":44,"file":"lib/baseline.ex","line":6},"name":"computations","value":{"kind":"int","loc":{"column":44,"file":"lib/baseline.ex","line":6},"value":0}},{"kind":"field","loc":{"column":55,"file":"lib/baseline.ex","line":6},"name":"reused","value":{"kind":"bool","loc":{"column":55,"file":"lib/baseline.ex","line":6},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/baseline.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":10},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":10},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":10},"value":"request"}},"else":{"args":[{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":13},"name":"state"},{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":13},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":13},"module":null,"name":"select_tree"},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":10},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":11},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":11},"module":null,"name":"request"}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":9},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/baseline.ex","line":9},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":9},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":18},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":18},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":18},"value":"tree_t1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/baseline.ex","line":21},"name":"event"},"loc":{"column":16,"file":"lib/baseline.ex","line":21},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/baseline.ex","line":21},"value":"tree_t2"}},"else":{"args":[{"kind":"var","loc":{"column":24,"file":"lib/baseline.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":31,"file":"lib/baseline.ex","line":24},"name":"event"}],"kind":"call","loc":{"column":9,"file":"lib/baseline.ex","line":24},"module":null,"name":"select_context"},"kind":"if","loc":{"column":7,"file":"lib/baseline.ex","line":21},"then":{"base":{"kind":"var","loc":{"column":11,"file":"lib/baseline.ex","line":22},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/baseline.ex","line":22},"name":"tree","value":{"kind":"atom","loc":{"column":25,"file":"lib/baseline.ex","line":22},"value":"t2"}},{"kind":"field","loc":{"column":38,"file":"lib/baseline.ex","line":22},"name":"reused","value":{"kind":"bool","loc":{"column":38,"file":"lib/baseline.ex","line":22},"value":false}}],"kind":"update","loc":{"column":9,"file":"lib/baseline.ex","line":22},"struct":null}},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":18},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":19},"name":"state"},"fields":[{"kind":"field","loc":{"column":23,"file":"lib/baseline.ex","line":19},"name":"tree","value":{"kind":"atom","loc":{"column":23,"file":"lib/baseline.ex","line":19},"value":"t1"}},{"kind":"field","loc":{"column":36,"file":"lib/baseline.ex","line":19},"name":"reused","value":{"kind":"bool","loc":{"column":36,"file":"lib/baseline.ex","line":19},"value":false}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":19},"struct":null}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":17},"name":"select_tree","params":[{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":17},"name":"state"},{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":17},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":30},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":30},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":30},"value":"context_c1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/baseline.ex","line":33},"name":"event"},"loc":{"column":16,"file":"lib/baseline.ex","line":33},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/baseline.ex","line":33},"value":"context_c2"}},"else":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":36},"name":"state"},"kind":"if","loc":{"column":7,"file":"lib/baseline.ex","line":33},"then":{"base":{"kind":"var","loc":{"column":11,"file":"lib/baseline.ex","line":34},"name":"state"},"fields":[{"kind":"field","loc":{"column":28,"file":"lib/baseline.ex","line":34},"name":"context","value":{"kind":"atom","loc":{"column":28,"file":"lib/baseline.ex","line":34},"value":"c2"}},{"kind":"field","loc":{"column":41,"file":"lib/baseline.ex","line":34},"name":"reused","value":{"kind":"bool","loc":{"column":41,"file":"lib/baseline.ex","line":34},"value":false}}],"kind":"update","loc":{"column":9,"file":"lib/baseline.ex","line":34},"struct":null}},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":30},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":31},"name":"state"},"fields":[{"kind":"field","loc":{"column":26,"file":"lib/baseline.ex","line":31},"name":"context","value":{"kind":"atom","loc":{"column":26,"file":"lib/baseline.ex","line":31},"value":"c1"}},{"kind":"field","loc":{"column":39,"file":"lib/baseline.ex","line":31},"name":"reused","value":{"kind":"bool","loc":{"column":39,"file":"lib/baseline.ex","line":31},"value":false}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":31},"struct":null}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":29},"name":"select_context","params":[{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":29},"name":"state"},{"kind":"var","loc":{"column":29,"file":"lib/baseline.ex","line":29},"name":"event"}],"visibility":"public"},{"body":{"body":{"condition":{"args":[{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":43},"name":"state"},{"kind":"var","loc":{"column":29,"file":"lib/baseline.ex","line":43},"name":"key"}],"kind":"call","loc":{"column":8,"file":"lib/baseline.ex","line":43},"module":null,"name":"cache_matches"},"else":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":46},"name":"state"},{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":46},"name":"key"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":46},"module":null,"name":"compute"},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":43},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":44},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/baseline.ex","line":44},"name":"reused","value":{"kind":"bool","loc":{"column":25,"file":"lib/baseline.ex","line":44},"value":true}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":44},"struct":null}},"kind":"let","loc":{"column":9,"file":"lib/baseline.ex","line":42},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/baseline.ex","line":42},"name":"key"},"value":{"args":[{"base":{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":42},"name":"state"},"field":"tree","kind":"get","loc":{"column":27,"file":"lib/baseline.ex","line":42}},{"base":{"kind":"var","loc":{"column":33,"file":"lib/baseline.ex","line":42},"name":"state"},"field":"context","kind":"get","loc":{"column":39,"file":"lib/baseline.ex","line":42}}],"kind":"call","loc":{"column":11,"file":"lib/baseline.ex","line":42},"module":null,"name":"cache_key"}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":41},"name":"request","params":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":41},"name":"state"}],"visibility":"public"},{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/baseline.ex","line":51},"name":"tree","value":{"kind":"atom","loc":{"column":13,"file":"lib/baseline.ex","line":51},"value":"any"}},{"kind":"field","loc":{"column":28,"file":"lib/baseline.ex","line":51},"name":"context","value":{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":51},"name":"context"}}],"kind":"record","loc":{"column":5,"file":"lib/baseline.ex","line":51},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":50},"name":"cache_key","params":[{"kind":"var","loc":{"column":17,"file":"lib/baseline.ex","line":50},"name":"_tree"},{"kind":"var","loc":{"column":24,"file":"lib/baseline.ex","line":50},"name":"context"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":5,"file":"lib/baseline.ex","line":55},"name":"state"},"field":"cached_tree","kind":"get","loc":{"column":11,"file":"lib/baseline.ex","line":55}},"loc":{"column":23,"file":"lib/baseline.ex","line":55},"op":"==","right":{"base":{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":55},"name":"key"},"field":"tree","kind":"get","loc":{"column":30,"file":"lib/baseline.ex","line":55}}},"loc":{"column":35,"file":"lib/baseline.ex","line":55},"op":"and","right":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":39,"file":"lib/baseline.ex","line":55},"name":"state"},"field":"cached_context","kind":"get","loc":{"column":45,"file":"lib/baseline.ex","line":55}},"loc":{"column":60,"file":"lib/baseline.ex","line":55},"op":"==","right":{"base":{"kind":"var","loc":{"column":63,"file":"lib/baseline.ex","line":55},"name":"key"},"field":"context","kind":"get","loc":{"column":67,"file":"lib/baseline.ex","line":55}}}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":54},"name":"cache_matches","params":[{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":54},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":54},"name":"key"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/baseline.ex","line":59},"name":"state"},"fields":[{"kind":"field","loc":{"column":32,"file":"lib/baseline.ex","line":59},"name":"cached_tree","value":{"base":{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":59},"name":"key"},"field":"tree","kind":"get","loc":{"column":32,"file":"lib/baseline.ex","line":59}}},{"kind":"field","loc":{"column":58,"file":"lib/baseline.ex","line":59},"name":"cached_context","value":{"base":{"kind":"var","loc":{"column":54,"file":"lib/baseline.ex","line":59},"name":"key"},"field":"context","kind":"get","loc":{"column":58,"file":"lib/baseline.ex","line":59}}},{"kind":"field","loc":{"column":40,"file":"lib/baseline.ex","line":60},"name":"computations","value":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":60},"name":"state"},"field":"computations","kind":"get","loc":{"column":27,"file":"lib/baseline.ex","line":60}},"loc":{"column":40,"file":"lib/baseline.ex","line":60},"op":"+","right":{"kind":"int","loc":{"column":42,"file":"lib/baseline.ex","line":60},"value":1}}},{"kind":"field","loc":{"column":53,"file":"lib/baseline.ex","line":60},"name":"reused","value":{"kind":"bool","loc":{"column":53,"file":"lib/baseline.ex","line":60},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/baseline.ex","line":59},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":58},"name":"compute","params":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":58},"name":"state"},{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":58},"name":"key"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/baseline.ex","line":1},"name":"Baseline","struct_fields":null}],"version":1}
++{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/baseline.ex","line":5},"name":"tree","value":{"kind":"atom","loc":{"column":13,"file":"lib/baseline.ex","line":5},"value":"t1"}},{"kind":"field","loc":{"column":27,"file":"lib/baseline.ex","line":5},"name":"context","value":{"kind":"atom","loc":{"column":27,"file":"lib/baseline.ex","line":5},"value":"c1"}},{"kind":"field","loc":{"column":45,"file":"lib/baseline.ex","line":5},"name":"cached_tree","value":{"kind":"atom","loc":{"column":45,"file":"lib/baseline.ex","line":5},"value":"none"}},{"kind":"field","loc":{"column":23,"file":"lib/baseline.ex","line":6},"name":"cached_context","value":{"kind":"atom","loc":{"column":23,"file":"lib/baseline.ex","line":6},"value":"none"}},{"kind":"field","loc":{"column":44,"file":"lib/baseline.ex","line":6},"name":"computations","value":{"kind":"int","loc":{"column":44,"file":"lib/baseline.ex","line":6},"value":0}},{"kind":"field","loc":{"column":55,"file":"lib/baseline.ex","line":6},"name":"reused","value":{"kind":"bool","loc":{"column":55,"file":"lib/baseline.ex","line":6},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/baseline.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":10},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":10},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":10},"value":"request"}},"else":{"args":[{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":13},"name":"state"},{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":13},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":13},"module":null,"name":"select_tree"},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":10},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":11},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":11},"module":null,"name":"request"}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":9},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/baseline.ex","line":9},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":9},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":18},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":18},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":18},"value":"tree_t1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/baseline.ex","line":21},"name":"event"},"loc":{"column":16,"file":"lib/baseline.ex","line":21},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/baseline.ex","line":21},"value":"tree_t2"}},"else":{"args":[{"kind":"var","loc":{"column":24,"file":"lib/baseline.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":31,"file":"lib/baseline.ex","line":24},"name":"event"}],"kind":"call","loc":{"column":9,"file":"lib/baseline.ex","line":24},"module":null,"name":"select_context"},"kind":"if","loc":{"column":7,"file":"lib/baseline.ex","line":21},"then":{"base":{"kind":"var","loc":{"column":11,"file":"lib/baseline.ex","line":22},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/baseline.ex","line":22},"name":"tree","value":{"kind":"atom","loc":{"column":25,"file":"lib/baseline.ex","line":22},"value":"t2"}},{"kind":"field","loc":{"column":38,"file":"lib/baseline.ex","line":22},"name":"reused","value":{"kind":"bool","loc":{"column":38,"file":"lib/baseline.ex","line":22},"value":false}}],"kind":"update","loc":{"column":9,"file":"lib/baseline.ex","line":22},"struct":null}},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":18},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":19},"name":"state"},"fields":[{"kind":"field","loc":{"column":23,"file":"lib/baseline.ex","line":19},"name":"tree","value":{"kind":"atom","loc":{"column":23,"file":"lib/baseline.ex","line":19},"value":"t1"}},{"kind":"field","loc":{"column":36,"file":"lib/baseline.ex","line":19},"name":"reused","value":{"kind":"bool","loc":{"column":36,"file":"lib/baseline.ex","line":19},"value":false}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":19},"struct":null}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":17},"name":"select_tree","params":[{"kind":"var","loc":{"column":19,"file":"lib/baseline.ex","line":17},"name":"state"},{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":17},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/baseline.ex","line":30},"name":"event"},"loc":{"column":14,"file":"lib/baseline.ex","line":30},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/baseline.ex","line":30},"value":"context_c1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/baseline.ex","line":33},"name":"event"},"loc":{"column":16,"file":"lib/baseline.ex","line":33},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/baseline.ex","line":33},"value":"context_c2"}},"else":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":36},"name":"state"},"kind":"if","loc":{"column":7,"file":"lib/baseline.ex","line":33},"then":{"base":{"kind":"var","loc":{"column":11,"file":"lib/baseline.ex","line":34},"name":"state"},"fields":[{"kind":"field","loc":{"column":28,"file":"lib/baseline.ex","line":34},"name":"context","value":{"kind":"atom","loc":{"column":28,"file":"lib/baseline.ex","line":34},"value":"c2"}},{"kind":"field","loc":{"column":41,"file":"lib/baseline.ex","line":34},"name":"reused","value":{"kind":"bool","loc":{"column":41,"file":"lib/baseline.ex","line":34},"value":false}}],"kind":"update","loc":{"column":9,"file":"lib/baseline.ex","line":34},"struct":null}},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":30},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":31},"name":"state"},"fields":[{"kind":"field","loc":{"column":26,"file":"lib/baseline.ex","line":31},"name":"context","value":{"kind":"atom","loc":{"column":26,"file":"lib/baseline.ex","line":31},"value":"c1"}},{"kind":"field","loc":{"column":39,"file":"lib/baseline.ex","line":31},"name":"reused","value":{"kind":"bool","loc":{"column":39,"file":"lib/baseline.ex","line":31},"value":false}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":31},"struct":null}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":29},"name":"select_context","params":[{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":29},"name":"state"},{"kind":"var","loc":{"column":29,"file":"lib/baseline.ex","line":29},"name":"event"}],"visibility":"public"},{"body":{"body":{"condition":{"args":[{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":43},"name":"state"},{"kind":"var","loc":{"column":29,"file":"lib/baseline.ex","line":43},"name":"key"}],"kind":"call","loc":{"column":8,"file":"lib/baseline.ex","line":43},"module":null,"name":"cache_matches"},"else":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":46},"name":"state"},{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":46},"name":"key"}],"kind":"call","loc":{"column":7,"file":"lib/baseline.ex","line":46},"module":null,"name":"compute"},"kind":"if","loc":{"column":5,"file":"lib/baseline.ex","line":43},"then":{"base":{"kind":"var","loc":{"column":9,"file":"lib/baseline.ex","line":44},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/baseline.ex","line":44},"name":"reused","value":{"kind":"bool","loc":{"column":25,"file":"lib/baseline.ex","line":44},"value":true}}],"kind":"update","loc":{"column":7,"file":"lib/baseline.ex","line":44},"struct":null}},"kind":"let","loc":{"column":9,"file":"lib/baseline.ex","line":42},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/baseline.ex","line":42},"name":"key"},"value":{"args":[{"base":{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":42},"name":"state"},"field":"tree","kind":"get","loc":{"column":27,"file":"lib/baseline.ex","line":42}},{"base":{"kind":"var","loc":{"column":33,"file":"lib/baseline.ex","line":42},"name":"state"},"field":"context","kind":"get","loc":{"column":39,"file":"lib/baseline.ex","line":42}}],"kind":"call","loc":{"column":11,"file":"lib/baseline.ex","line":42},"module":null,"name":"cache_key"}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":41},"name":"request","params":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":41},"name":"state"}],"visibility":"public"},{"body":{"fields":[{"kind":"field","loc":{"column":13,"file":"lib/baseline.ex","line":51},"name":"tree","value":{"kind":"var","loc":{"column":13,"file":"lib/baseline.ex","line":51},"name":"tree"}},{"kind":"field","loc":{"column":28,"file":"lib/baseline.ex","line":51},"name":"context","value":{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":51},"name":"context"}}],"kind":"record","loc":{"column":5,"file":"lib/baseline.ex","line":51},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":50},"name":"cache_key","params":[{"kind":"var","loc":{"column":17,"file":"lib/baseline.ex","line":50},"name":"tree"},{"kind":"var","loc":{"column":23,"file":"lib/baseline.ex","line":50},"name":"context"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":5,"file":"lib/baseline.ex","line":55},"name":"state"},"field":"cached_tree","kind":"get","loc":{"column":11,"file":"lib/baseline.ex","line":55}},"loc":{"column":23,"file":"lib/baseline.ex","line":55},"op":"==","right":{"base":{"kind":"var","loc":{"column":26,"file":"lib/baseline.ex","line":55},"name":"key"},"field":"tree","kind":"get","loc":{"column":30,"file":"lib/baseline.ex","line":55}}},"loc":{"column":35,"file":"lib/baseline.ex","line":55},"op":"and","right":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":39,"file":"lib/baseline.ex","line":55},"name":"state"},"field":"cached_context","kind":"get","loc":{"column":45,"file":"lib/baseline.ex","line":55}},"loc":{"column":60,"file":"lib/baseline.ex","line":55},"op":"==","right":{"base":{"kind":"var","loc":{"column":63,"file":"lib/baseline.ex","line":55},"name":"key"},"field":"context","kind":"get","loc":{"column":67,"file":"lib/baseline.ex","line":55}}}},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":54},"name":"cache_matches","params":[{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":54},"name":"state"},{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":54},"name":"key"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/baseline.ex","line":59},"name":"state"},"fields":[{"kind":"field","loc":{"column":32,"file":"lib/baseline.ex","line":59},"name":"cached_tree","value":{"base":{"kind":"var","loc":{"column":28,"file":"lib/baseline.ex","line":59},"name":"key"},"field":"tree","kind":"get","loc":{"column":32,"file":"lib/baseline.ex","line":59}}},{"kind":"field","loc":{"column":58,"file":"lib/baseline.ex","line":59},"name":"cached_context","value":{"base":{"kind":"var","loc":{"column":54,"file":"lib/baseline.ex","line":59},"name":"key"},"field":"context","kind":"get","loc":{"column":58,"file":"lib/baseline.ex","line":59}}},{"kind":"field","loc":{"column":40,"file":"lib/baseline.ex","line":60},"name":"computations","value":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":21,"file":"lib/baseline.ex","line":60},"name":"state"},"field":"computations","kind":"get","loc":{"column":27,"file":"lib/baseline.ex","line":60}},"loc":{"column":40,"file":"lib/baseline.ex","line":60},"op":"+","right":{"kind":"int","loc":{"column":42,"file":"lib/baseline.ex","line":60},"value":1}}},{"kind":"field","loc":{"column":53,"file":"lib/baseline.ex","line":60},"name":"reused","value":{"kind":"bool","loc":{"column":53,"file":"lib/baseline.ex","line":60},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/baseline.ex","line":59},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/baseline.ex","line":58},"name":"compute","params":[{"kind":"var","loc":{"column":15,"file":"lib/baseline.ex","line":58},"name":"state"},{"kind":"var","loc":{"column":22,"file":"lib/baseline.ex","line":58},"name":"key"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/baseline.ex","line":1},"name":"Baseline","struct_fields":null}],"version":1}
+--- a/verification/source-map.json
++++ b/verification/source-map.json
+@@ -13,7 +13,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 4,
+-    "generated_line": 56
++    "generated_line": 55
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body",
+@@ -21,7 +21,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.0",
+@@ -29,7 +29,7 @@
+     "column": 13,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.0.value",
+@@ -37,7 +37,7 @@
+     "column": 13,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.1",
+@@ -45,7 +45,7 @@
+     "column": 27,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.1.value",
+@@ -53,7 +53,7 @@
+     "column": 27,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.2",
+@@ -61,7 +61,7 @@
+     "column": 45,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.2.value",
+@@ -69,7 +69,7 @@
+     "column": 45,
+     "file": "lib/baseline.ex",
+     "line": 5,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.3",
+@@ -77,7 +77,7 @@
+     "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.3.value",
+@@ -85,7 +85,7 @@
+     "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.4",
+@@ -93,7 +93,7 @@
+     "column": 44,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.4.value",
+@@ -101,7 +101,7 @@
+     "column": 44,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.5",
+@@ -109,7 +109,7 @@
+     "column": 55,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.0.body.fields.5.value",
+@@ -117,7 +117,7 @@
+     "column": 55,
+     "file": "lib/baseline.ex",
+     "line": 6,
+-    "generated_line": 58
++    "generated_line": 57
+   },
+   {
+     "node_id": "ir.modules.0.functions.1",
+@@ -125,7 +125,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 9,
+-    "generated_line": 75
++    "generated_line": 74
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body",
+@@ -133,7 +133,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 10,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.condition",
+@@ -141,7 +141,7 @@
+     "column": 14,
+     "file": "lib/baseline.ex",
+     "line": 10,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.condition.left",
+@@ -149,7 +149,7 @@
+     "column": 8,
+     "file": "lib/baseline.ex",
+     "line": 10,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.condition.right",
+@@ -157,7 +157,7 @@
+     "column": 17,
+     "file": "lib/baseline.ex",
+     "line": 10,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.else",
+@@ -165,7 +165,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 13,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.else.args.0",
+@@ -173,7 +173,7 @@
+     "column": 19,
+     "file": "lib/baseline.ex",
+     "line": 13,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.else.args.1",
+@@ -181,7 +181,7 @@
+     "column": 26,
+     "file": "lib/baseline.ex",
+     "line": 13,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.then",
+@@ -189,7 +189,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 11,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.body.then.args.0",
+@@ -197,7 +197,7 @@
+     "column": 15,
+     "file": "lib/baseline.ex",
+     "line": 11,
+-    "generated_line": 78
++    "generated_line": 77
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.params.0",
+@@ -205,7 +205,7 @@
+     "column": 12,
+     "file": "lib/baseline.ex",
+     "line": 9,
+-    "generated_line": 75
++    "generated_line": 74
+   },
+   {
+     "node_id": "ir.modules.0.functions.1.params.1",
+@@ -213,7 +213,7 @@
+     "column": 19,
+     "file": "lib/baseline.ex",
+     "line": 9,
+-    "generated_line": 75
++    "generated_line": 74
+   },
+   {
+     "node_id": "ir.modules.0.functions.2",
+@@ -221,7 +221,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 17,
+-    "generated_line": 70
++    "generated_line": 69
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body",
+@@ -229,7 +229,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 18,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.condition",
+@@ -237,7 +237,7 @@
+     "column": 14,
+     "file": "lib/baseline.ex",
+     "line": 18,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.condition.left",
+@@ -245,7 +245,7 @@
+     "column": 8,
+     "file": "lib/baseline.ex",
+     "line": 18,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.condition.right",
+@@ -253,7 +253,7 @@
+     "column": 17,
+     "file": "lib/baseline.ex",
+     "line": 18,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else",
+@@ -261,7 +261,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 21,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.condition",
+@@ -269,7 +269,7 @@
+     "column": 16,
+     "file": "lib/baseline.ex",
+     "line": 21,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.condition.left",
+@@ -277,7 +277,7 @@
+     "column": 10,
+     "file": "lib/baseline.ex",
+     "line": 21,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.condition.right",
+@@ -285,7 +285,7 @@
+     "column": 19,
+     "file": "lib/baseline.ex",
+     "line": 21,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.else",
+@@ -293,7 +293,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 24,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.else.args.0",
+@@ -301,7 +301,7 @@
+     "column": 24,
+     "file": "lib/baseline.ex",
+     "line": 24,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.else.args.1",
+@@ -309,7 +309,7 @@
+     "column": 31,
+     "file": "lib/baseline.ex",
+     "line": 24,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then",
+@@ -317,7 +317,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then.base",
+@@ -325,7 +325,7 @@
+     "column": 11,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then.fields.0",
+@@ -333,7 +333,7 @@
+     "column": 25,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then.fields.0.value",
+@@ -341,7 +341,7 @@
+     "column": 25,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then.fields.1",
+@@ -349,7 +349,7 @@
+     "column": 38,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.else.then.fields.1.value",
+@@ -357,7 +357,7 @@
+     "column": 38,
+     "file": "lib/baseline.ex",
+     "line": 22,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then",
+@@ -365,7 +365,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then.base",
+@@ -373,7 +373,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then.fields.0",
+@@ -381,7 +381,7 @@
+     "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then.fields.0.value",
+@@ -389,7 +389,7 @@
+     "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then.fields.1",
+@@ -397,7 +397,7 @@
+     "column": 36,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.body.then.fields.1.value",
+@@ -405,7 +405,7 @@
+     "column": 36,
+     "file": "lib/baseline.ex",
+     "line": 19,
+-    "generated_line": 73
++    "generated_line": 72
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.params.0",
+@@ -413,7 +413,7 @@
+     "column": 19,
+     "file": "lib/baseline.ex",
+     "line": 17,
+-    "generated_line": 70
++    "generated_line": 69
+   },
+   {
+     "node_id": "ir.modules.0.functions.2.params.1",
+@@ -421,7 +421,7 @@
+     "column": 26,
+     "file": "lib/baseline.ex",
+     "line": 17,
+-    "generated_line": 70
++    "generated_line": 69
+   },
+   {
+     "node_id": "ir.modules.0.functions.3",
+@@ -429,7 +429,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 29,
+-    "generated_line": 65
++    "generated_line": 64
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body",
+@@ -437,7 +437,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 30,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.condition",
+@@ -445,7 +445,7 @@
+     "column": 14,
+     "file": "lib/baseline.ex",
+     "line": 30,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.condition.left",
+@@ -453,7 +453,7 @@
+     "column": 8,
+     "file": "lib/baseline.ex",
+     "line": 30,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.condition.right",
+@@ -461,7 +461,7 @@
+     "column": 17,
+     "file": "lib/baseline.ex",
+     "line": 30,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else",
+@@ -469,7 +469,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 33,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.condition",
+@@ -477,7 +477,7 @@
+     "column": 16,
+     "file": "lib/baseline.ex",
+     "line": 33,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.condition.left",
+@@ -485,7 +485,7 @@
+     "column": 10,
+     "file": "lib/baseline.ex",
+     "line": 33,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.condition.right",
+@@ -493,7 +493,7 @@
+     "column": 19,
+     "file": "lib/baseline.ex",
+     "line": 33,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.else",
+@@ -501,7 +501,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 36,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then",
+@@ -509,7 +509,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then.base",
+@@ -517,7 +517,7 @@
+     "column": 11,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then.fields.0",
+@@ -525,7 +525,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then.fields.0.value",
+@@ -533,7 +533,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then.fields.1",
+@@ -541,7 +541,7 @@
+     "column": 41,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.else.then.fields.1.value",
+@@ -549,7 +549,7 @@
+     "column": 41,
+     "file": "lib/baseline.ex",
+     "line": 34,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then",
+@@ -557,7 +557,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then.base",
+@@ -565,7 +565,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then.fields.0",
+@@ -573,7 +573,7 @@
+     "column": 26,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then.fields.0.value",
+@@ -581,7 +581,7 @@
+     "column": 26,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then.fields.1",
+@@ -589,7 +589,7 @@
+     "column": 39,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.body.then.fields.1.value",
+@@ -597,7 +597,7 @@
+     "column": 39,
+     "file": "lib/baseline.ex",
+     "line": 31,
+-    "generated_line": 68
++    "generated_line": 67
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.params.0",
+@@ -605,7 +605,7 @@
+     "column": 22,
+     "file": "lib/baseline.ex",
+     "line": 29,
+-    "generated_line": 65
++    "generated_line": 64
+   },
+   {
+     "node_id": "ir.modules.0.functions.3.params.1",
+@@ -613,7 +613,7 @@
+     "column": 29,
+     "file": "lib/baseline.ex",
+     "line": 29,
+-    "generated_line": 65
++    "generated_line": 64
+   },
+   {
+     "node_id": "ir.modules.0.functions.4",
+@@ -621,7 +621,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 41,
+-    "generated_line": 60
++    "generated_line": 59
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body",
+@@ -629,7 +629,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body",
+@@ -637,7 +637,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 43,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.condition",
+@@ -645,7 +645,7 @@
+     "column": 8,
+     "file": "lib/baseline.ex",
+     "line": 43,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.condition.args.0",
+@@ -653,7 +653,7 @@
+     "column": 22,
+     "file": "lib/baseline.ex",
+     "line": 43,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.condition.args.1",
+@@ -661,7 +661,7 @@
+     "column": 29,
+     "file": "lib/baseline.ex",
+     "line": 43,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.else",
+@@ -669,7 +669,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 46,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.else.args.0",
+@@ -677,7 +677,7 @@
+     "column": 15,
+     "file": "lib/baseline.ex",
+     "line": 46,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.else.args.1",
+@@ -685,7 +685,7 @@
+     "column": 22,
+     "file": "lib/baseline.ex",
+     "line": 46,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.then",
+@@ -693,7 +693,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 44,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.then.base",
+@@ -701,7 +701,7 @@
+     "column": 9,
+     "file": "lib/baseline.ex",
+     "line": 44,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.then.fields.0",
+@@ -709,7 +709,7 @@
+     "column": 25,
+     "file": "lib/baseline.ex",
+     "line": 44,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.body.then.fields.0.value",
+@@ -717,7 +717,7 @@
+     "column": 25,
+     "file": "lib/baseline.ex",
+     "line": 44,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.pattern",
+@@ -725,7 +725,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.value",
+@@ -733,7 +733,7 @@
+     "column": 11,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.value.args.0",
+@@ -741,7 +741,7 @@
+     "column": 27,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.value.args.0.base",
+@@ -749,7 +749,7 @@
+     "column": 21,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.value.args.1",
+@@ -757,7 +757,7 @@
+     "column": 39,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.body.value.args.1.base",
+@@ -765,7 +765,7 @@
+     "column": 33,
+     "file": "lib/baseline.ex",
+     "line": 42,
+-    "generated_line": 63
++    "generated_line": 62
+   },
+   {
+     "node_id": "ir.modules.0.functions.4.params.0",
+@@ -773,7 +773,7 @@
+     "column": 15,
+     "file": "lib/baseline.ex",
+     "line": 41,
+-    "generated_line": 60
++    "generated_line": 59
+   },
+   {
+     "node_id": "ir.modules.0.functions.5",
+@@ -781,7 +781,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 50,
+-    "generated_line": 41
++    "generated_line": 40
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.body",
+@@ -789,7 +789,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 51,
+-    "generated_line": 44
++    "generated_line": 43
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.body.fields.0",
+@@ -797,15 +797,15 @@
+     "column": 13,
+     "file": "lib/baseline.ex",
+     "line": 51,
+-    "generated_line": 44
++    "generated_line": 43
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.body.fields.0.value",
+-    "kind": "atom",
++    "kind": "var",
+     "column": 13,
+     "file": "lib/baseline.ex",
+     "line": 51,
+-    "generated_line": 44
++    "generated_line": 43
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.body.fields.1",
+@@ -813,7 +813,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 51,
+-    "generated_line": 44
++    "generated_line": 43
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.body.fields.1.value",
+@@ -821,7 +821,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 51,
+-    "generated_line": 44
++    "generated_line": 43
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.params.0",
+@@ -829,15 +829,15 @@
+     "column": 17,
+     "file": "lib/baseline.ex",
+     "line": 50,
+-    "generated_line": 41
++    "generated_line": 40
+   },
+   {
+     "node_id": "ir.modules.0.functions.5.params.1",
+     "kind": "var",
+-    "column": 24,
++    "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 50,
+-    "generated_line": 41
++    "generated_line": 40
+   },
+   {
+     "node_id": "ir.modules.0.functions.6",
+@@ -845,7 +845,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 54,
+-    "generated_line": 46
++    "generated_line": 45
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body",
+@@ -853,7 +853,7 @@
+     "column": 35,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.left",
+@@ -861,7 +861,7 @@
+     "column": 23,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.left.left",
+@@ -869,7 +869,7 @@
+     "column": 11,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.left.left.base",
+@@ -877,7 +877,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.left.right",
+@@ -885,7 +885,7 @@
+     "column": 30,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.left.right.base",
+@@ -893,7 +893,7 @@
+     "column": 26,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.right",
+@@ -901,7 +901,7 @@
+     "column": 60,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.right.left",
+@@ -909,7 +909,7 @@
+     "column": 45,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.right.left.base",
+@@ -917,7 +917,7 @@
+     "column": 39,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.right.right",
+@@ -925,7 +925,7 @@
+     "column": 67,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.body.right.right.base",
+@@ -933,7 +933,7 @@
+     "column": 63,
+     "file": "lib/baseline.ex",
+     "line": 55,
+-    "generated_line": 49
++    "generated_line": 48
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.params.0",
+@@ -941,7 +941,7 @@
+     "column": 21,
+     "file": "lib/baseline.ex",
+     "line": 54,
+-    "generated_line": 46
++    "generated_line": 45
+   },
+   {
+     "node_id": "ir.modules.0.functions.6.params.1",
+@@ -949,7 +949,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 54,
+-    "generated_line": 46
++    "generated_line": 45
+   },
+   {
+     "node_id": "ir.modules.0.functions.7",
+@@ -957,7 +957,7 @@
+     "column": 3,
+     "file": "lib/baseline.ex",
+     "line": 58,
+-    "generated_line": 51
++    "generated_line": 50
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body",
+@@ -965,7 +965,7 @@
+     "column": 5,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.base",
+@@ -973,7 +973,7 @@
+     "column": 7,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.0",
+@@ -981,7 +981,7 @@
+     "column": 32,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.0.value",
+@@ -989,7 +989,7 @@
+     "column": 32,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.0.value.base",
+@@ -997,7 +997,7 @@
+     "column": 28,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.1",
+@@ -1005,7 +1005,7 @@
+     "column": 58,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.1.value",
+@@ -1013,7 +1013,7 @@
+     "column": 58,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.1.value.base",
+@@ -1021,7 +1021,7 @@
+     "column": 54,
+     "file": "lib/baseline.ex",
+     "line": 59,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.2",
+@@ -1029,7 +1029,7 @@
+     "column": 40,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.2.value",
+@@ -1037,7 +1037,7 @@
+     "column": 40,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.2.value.left",
+@@ -1045,7 +1045,7 @@
+     "column": 27,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.2.value.left.base",
+@@ -1053,7 +1053,7 @@
+     "column": 21,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.2.value.right",
+@@ -1061,7 +1061,7 @@
+     "column": 42,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.3",
+@@ -1069,7 +1069,7 @@
+     "column": 53,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.fields.3.value",
+@@ -1077,7 +1077,7 @@
+     "column": 53,
+     "file": "lib/baseline.ex",
+     "line": 60,
+-    "generated_line": 54
++    "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.params.0",
+@@ -1085,7 +1085,7 @@
+     "column": 15,
+     "file": "lib/baseline.ex",
+     "line": 58,
+-    "generated_line": 51
++    "generated_line": 50
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.params.1",
+@@ -1093,6 +1093,6 @@
+     "column": 22,
+     "file": "lib/baseline.ex",
+     "line": 58,
+-    "generated_line": 51
++    "generated_line": 50
+   }
+ ]

@@ -1,0 +1,273 @@
+#!/usr/bin/env python3
+"""One explicitly selected schedule row. Never generates a schedule or retries consumed cells."""
+import argparse, ctypes, csv, difflib, fcntl, importlib.machinery, json, os, pathlib, re, selectors, shutil, signal, socket, struct, subprocess, time
+from common import BASE, BUILD, CODEX, COMMON_PROMPT, TOKEN_POLICY, TOKEN_DEFINITION, account, append, isolated, manifest, own, sha, tree_version, utc
+from broker import Broker
+
+def version(): return tree_version()+'+'+subprocess.check_output([CODEX,'--version'],text=True).strip().replace(' ','-')
+def fingerprint(root):
+    return {str(p.relative_to(root)):(sha(p),p.stat().st_mtime_ns) for p in root.rglob('*') if p.is_file() and not p.is_symlink()}
+class Watch:
+    """inotify records first source write/delete/move, including restored edits."""
+    def __init__(self,trial):
+        self.trial=trial; self.first=None; self.diag_before=None; self.events=[]; self.diag_seen=False
+        self.libc=ctypes.CDLL(None,use_errno=True); self.fd=self.libc.inotify_init1(os.O_NONBLOCK|os.O_CLOEXEC); self.dirs={}
+        if self.fd<0: raise OSError('inotify unavailable')
+        for d in [trial,trial/'app'/'lib',*(trial/'app'/'lib').rglob('*')]:
+            if d.is_dir(): self.add(d)
+    def add(self,d):
+        n=self.libc.inotify_add_watch(self.fd,os.fsencode(d),0x2|0x4|0x40|0x80|0x100|0x200|0x400|0x800)
+        if n<0: raise OSError('inotify watch failed')
+        self.dirs[n]=d
+    def poll(self):
+        try: data=os.read(self.fd,1024*1024)
+        except BlockingIOError: return
+        offset=0
+        while offset<len(data):
+            wd,mask,cookie,size=struct.unpack_from('iIII',data,offset); name=data[offset+16:offset+16+size].split(b'\0')[0].decode(errors='replace'); offset+=16+size
+            path=self.dirs.get(wd,self.trial)/name
+            if path==self.trial/'DIAGNOSIS.md':
+                if mask & (0x2|0x80): self.diag_seen=True
+                if mask & (0x40|0x200): self.diag_seen=False
+                continue
+            if not path.is_relative_to(self.trial/'app'/'lib'): continue
+            if mask & 0x40000000 and path.is_dir() and mask & (0x80|0x100): self.add(path)
+            if self.first is None and not mask & 0x8000:
+                diag=self.trial/'DIAGNOSIS.md'
+                self.first=time.time_ns()
+                self.diag_before=self.diag_seen and diag.is_file() and diag.stat().st_size>0 and diag.stat().st_mtime_ns<self.first
+            self.events.append({'path':str(path),'mask':mask,'observed_ns':time.time_ns()})
+    def close(self): os.close(self.fd)
+
+class Usage:
+    def __init__(self): self.value={k:0 for k in ['input_tokens','cached_input_tokens','cache_write_input_tokens','output_tokens','reasoning_output_tokens']}; self.observed=False
+    def update(self,event):
+        usage=None
+        if event.get('type')=='turn.completed': usage=event.get('usage')
+        if event.get('type')=='event_msg' and event.get('payload',{}).get('type')=='token_count':
+            usage=(event['payload'].get('info') or {}).get('total_token_usage')
+        if event.get('type') in {'token.usage.updated','thread.token_usage.updated'}: usage=event.get('usage')
+        if usage:
+            # Full cumulative snapshots; stale duplicate streams cannot replace
+            # a newer report or subtract a newer cached count from older input.
+            if not all(k in usage for k in ['input_tokens','cached_input_tokens','output_tokens']):
+                raise ValueError('usage report lacks cap accounting fields')
+            if any(int(usage[k])<self.value[k] for k in ['input_tokens','cached_input_tokens','output_tokens']): return
+            if not 0<=int(usage['cached_input_tokens'])<=int(usage['input_tokens']): raise ValueError('invalid cached input count')
+            self.observed=True
+            for k in self.value: self.value[k]=max(self.value[k],int(usage.get(k,0)))
+    @property
+    def total(self): return self.value['input_tokens']-self.value['cached_input_tokens']+self.value['output_tokens']
+    @property
+    def raw_total(self): return self.value['input_tokens']+self.value['output_tokens']
+    def record(self):
+        return {'tokens':dict(self.value),'total_tokens':self.total,'capped_total_tokens':self.total,'raw_total_tokens':self.raw_total,'token_policy':TOKEN_POLICY,'token_definition':TOKEN_DEFINITION,'reasoning_in_output':True,'usage_observed':self.observed}
+
+def main():
+    p=argparse.ArgumentParser(); p.add_argument('--schedule',type=pathlib.Path); p.add_argument('--cell'); p.add_argument('--test-row',type=pathlib.Path); p.add_argument('--mode',choices=['trial','dry-run','smoke','stub-production-check','real-smoke-production-check'],default='trial'); p.add_argument('--stub',type=pathlib.Path); p.add_argument('--inspect',action='store_true'); p.add_argument('--preflight',action='store_true'); p.add_argument('--codex-home',required=True); p.add_argument('--expect-account',required=True); p.add_argument('--admission-host',choices=['eu','us'],default='eu'); p.add_argument('--admission-receipt',type=pathlib.Path,default=BASE/'admission.json'); a=p.parse_args()
+    if os.geteuid()!=0: raise SystemExit('root required')
+    host=a.admission_host
+    admission=json.loads(a.admission_receipt.read_text()) if a.admission_receipt.is_file() else {}
+    admission_field=(host or 'unknown')+'_admitted'
+    verification=admission.get((host or 'unknown')+'_deployment',{}).get('verification',{})
+    if admission.get(admission_field) is not True or verification.get('missing')!=0 or verification.get('mismatched')!=0 or verification.get('checked',0)<=0 or verification.get('missing_files') or verification.get('mismatched_files'):
+        raise SystemExit(f'launch blocked: {socket.gethostname()} requires {admission_field}=true and clean host verification in {a.admission_receipt}')
+    BASE.mkdir(exist_ok=True); BASE.chmod(0o700)
+    lock=(BASE/'harness.lock').open('a'); fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    if a.test_row:
+        if a.mode in {'trial','stub-production-check','real-smoke-production-check'}: raise SystemExit('production paths require schedule rows')
+        row=json.loads(a.test_row.read_text())
+    else:
+        if a.mode not in {'trial','stub-production-check','real-smoke-production-check'} or not a.schedule or not a.cell: raise SystemExit('--schedule and --cell required')
+        rows=[x for x in csv.DictReader(a.schedule.open()) if x['cell_id']==a.cell]
+        if len(rows)!=1: raise SystemExit('exactly one schedule row required')
+        row=rows[0]
+        if row['status'] not in {'admitted','ready'}: raise SystemExit('schedule row is not admitted')
+    cell=row['cell_id']; task=row['task']; arm=row['arm']
+    if not all(re.fullmatch(r'[A-Za-z0-9_.-]+',str(x)) for x in [cell,task,arm]): raise SystemExit('invalid identifiers')
+    if row['model']!='gpt-6.1-sol' or row['effort']!='high': raise SystemExit('model/effort mismatch')
+    wall=float(row['wall_cap_seconds']); token_cap=int(row['token_cap']); cycles=int(row['feedback_cycles'])
+    if a.mode in {'trial','stub-production-check'} and (wall,token_cap,cycles)!=(900,60000,10): raise SystemExit('trial caps must equal protocol caps')
+    if a.mode=='smoke' and (wall>120 or token_cap>5000): raise SystemExit('smoke caps too large')
+    if a.mode=='real-smoke-production-check' and (not task.startswith('TOY-') or wall>180 or token_cap>60000 or cycles>10): raise SystemExit('production smoke requires toy task and bounded caps')
+    if a.stub and a.mode not in {'dry-run','stub-production-check'}: raise SystemExit('stub only permitted for model-free modes')
+    if a.mode=='stub-production-check' and not a.stub: raise SystemExit('production check requires a model-free stub')
+    v=version()
+    if a.mode in {'trial','stub-production-check','real-smoke-production-check'} and row['harness']!=v: raise SystemExit('schedule harness version does not match installed harness')
+    package=BUILD/'packages'/f'{task}-{arm}'
+    expected={line.split('  ',1)[1]:line.split('  ',1)[0] for line in (package/'PACKAGE.sha256').read_text().splitlines()}
+    if manifest(package)!=expected: raise SystemExit('package hash manifest mismatch')
+    snapshot=sha(package/'PACKAGE.sha256'); key=[task,arm,str(row['repeat']),snapshot]
+    if a.mode in {'trial','stub-production-check','real-smoke-production-check'}:
+        if admission.get('harness_version')!=v or admission.get('packages',{}).get(f'{task}-{arm}',{}).get('PACKAGE_sha256')!=snapshot:
+            raise SystemExit('scored launch blocked: qualified operator admission receipt required')
+    ledger=BASE/('ledger.jsonl' if a.mode=='trial' else f'{a.mode}-ledger.jsonl')
+    previous=None
+    if ledger.exists():
+        for x in ledger.open():
+            recorded=json.loads(x)
+            if a.mode=='smoke' and recorded.get('token_policy')==TOKEN_POLICY and recorded.get('usage_observed'): raise SystemExit('authorized uncached-policy smoke already consumed; no further model smoke allowed')
+            if recorded.get('key')==key: previous=recorded
+        if previous and previous.get('status')!='infra_invalid': raise SystemExit('cell already consumed; never relaunch')
+    out=BASE/'raw'/'trials'/a.mode/cell; trial=pathlib.Path('/opt/fv-trials')/cell
+    if out.exists() or trial.exists():
+        # Never blindly clear outputs or a surviving process. Inspect only this job's run receipt/processes.
+        receipt=out/'active.json'
+        state=json.loads(receipt.read_text()) if receipt.exists() else {}
+        pid=state.get('pid'); running=False
+        if pid:
+            try: os.kill(pid,0); running=True
+            except ProcessLookupError: pass
+        if running: raise SystemExit(f'existing PID {pid}; inspect process before resuming')
+        if a.inspect:
+            print(json.dumps({'cell_id':cell,'existing_outputs':True,'process_running':running,'receipt':state})); return
+        raise SystemExit('interrupted outputs exist: use recover; never relaunch consumed cell')
+    login=subprocess.run(['runuser','-u','bench','--','env','-i','HOME=/opt/fv-home','CODEX_HOME='+a.codex_home,'PATH=/opt/bench/tools/bin:/usr/bin:/bin',CODEX,'login','status'],capture_output=True,text=True,timeout=15)
+    login_status=login.stdout+login.stderr
+    if login.returncode: raise SystemExit('Codex login status failed for selected home')
+    emails=re.findall(r'[A-Za-z0-9_.+%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}',login_status)
+    identity={'email':emails[0],'source':'codex login status'} if emails else account(a.codex_home)
+    if not emails: identity['source']='codex login status + codex app-server account/read (status omits email)'
+    if identity['email']!=a.expect_account: raise SystemExit('selected Codex account does not match --expect-account')
+    if a.preflight:
+        print(json.dumps({'cell_id':cell,'mode':a.mode,'preflight':'PASS','account':identity['email'],'snapshot':snapshot,'harness_version':v,'host_admission_field':admission_field,'codex_home':a.codex_home},sort_keys=True)); return
+    out.mkdir(parents=True); trial.parent.mkdir(parents=True,exist_ok=True); trial.mkdir(mode=0o700)
+    shutil.copytree(package,trial,dirs_exist_ok=True); own(trial)
+    runtime=out/'runtime'; (runtime/'sessions').mkdir(parents=True); own(runtime)
+    start=utc(); t0=time.monotonic(); usage=Usage(); cap=None; status='interrupted'; proc=None; watcher=None; broker=None; rc=None
+    baseline=fingerprint(trial/'app'/'lib')
+    meta=json.loads((package/'package.json').read_text())
+    prompt=f"Task: {meta['title']}\nContract: contract.md\nChecks: ./fv check (regenerates current application, checks fixed laws, runs starter tests).\nCaps: {wall:g} seconds; {token_cap} uncached input + output tokens (reasoning included in output); {cycles} complete check cycles.\nWrite DIAGNOSIS.md before your first patch.\n\n"+COMMON_PROMPT
+    if a.mode=='real-smoke-production-check':
+        prompt='Unscored production infrastructure smoke. Do not repair or edit anything. Execute these four separate shell commands, wait for each completion and report its exit code: (1) pwd; (2) cat docs/runtime.md contract.md; (3) ./fv check; (4) python3 backend/check.py. The first three must succeed; the fourth must fail because stages are hidden by the execution namespace. Do not work around the denial. Then finish with a concise report. This is a throwaway doubling toy, not a benchmark task.'
+    (out/'prompt.txt').write_text(prompt)
+    if a.stub:
+        shutil.copyfile(a.stub,runtime/'stub.py'); os.chown(runtime/'stub.py',1001,1001); cmd=['python3','/fv-runtime/stub.py']
+    else:
+        cmd=[CODEX,'exec','--skip-git-repo-check','--ignore-user-config','--ignore-rules','--json','--model','gpt-6.1-sol','-c','model_reasoning_effort=high','--sandbox','workspace-write','-c','approval_policy="never"','-c','sandbox_workspace_write.network_access=false','-c','sandbox_workspace_write.exclude_tmpdir_env_var=true','-c','sandbox_workspace_write.exclude_slash_tmp=true','-c','features.web_search=false','-c','web_search="disabled"','-c','features.multi_agent=false','-c','sqlite_home="/fv-runtime"','-c','log_dir="/fv-runtime/logs"','-C',str(trial),prompt]
+        if a.mode=='smoke':
+            # Operator-authorized uncached-cap transport probe; never a scored task.
+            # This override is forbidden by construction on scored trials.
+            (runtime/'smoke-instructions.md').write_text('You are a coding assistant. Follow the user request and report results accurately.\n')
+            os.chown(runtime/'smoke-instructions.md',1001,1001)
+            smoke_prompt='Unscored token-cap smoke in a throwaway toy package. The supervisor will terminate this process at 3,000 uncached input plus output tokens or 120 seconds. Read contract.md and app/lib/toy.py. Then issue separate Python commands printing 1,000 numbered probe words with a different probe number each time. Continue issuing these commands, one per model request, until the supervisor terminates the process. Do not run fv check, edit files, sleep, or finish with a final response. This tests cumulative cached/uncached usage and process-group termination only.'
+            (out/'prompt.txt').write_text(smoke_prompt)
+            cmd[-1]=smoke_prompt
+            cmd[2:2]=['-c','model_instructions_file="/fv-runtime/smoke-instructions.md"','-c','features.code_mode=false','-c','project_doc_max_bytes=0']
+    try:
+        broker=Broker(trial,runtime,package,out,cycles); watcher=Watch(trial)
+        with (out/'events.jsonl').open('wb') as events, (out/'stderr.log').open('wb') as stderr, (out/'usage-events.jsonl').open('w') as live:
+            proc=subprocess.Popen(isolated(trial,runtime,cmd,codex_home=not bool(a.stub),view='agent',selected_home=a.codex_home),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=stderr,start_new_session=True)
+            active={'cell_id':cell,'key':key,'pid':proc.pid,'start':start,'harness_version':v,'account':identity,'codex_home':a.codex_home,'expect_account':a.expect_account,'host_admission_field':admission_field,'host_admitted':admission[admission_field],'row':row,'snapshot':snapshot,'baseline':baseline,'token_policy':TOKEN_POLICY,'token_definition':TOKEN_DEFINITION}
+            (out/'active.json').write_text(json.dumps(active,sort_keys=True)+'\n')
+            running={'key':key,'cell_id':cell,'task':task,'arm':arm,'repeat':int(row['repeat']),'snapshot':snapshot,'host':socket.gethostname(),'account':identity['email'],'account_source':identity['source'],'model':row['model'],'effort':row['effort'],'harness_version':v,'codex_version':subprocess.check_output([CODEX,'--version'],text=True).strip(),'start':start,'end':None,'wall_seconds':0,'cycles':0,'cycles_started':0,'cycles_event_stream':0,'cycles_refused':0,'cap':None,'diagnosis_first':None,'status':'running','mode':a.mode,'exit_code':None,'grade':{'status':'pending'},'caps':{'wall_seconds':wall,'total_tokens':token_cap,'cycles':cycles},'token_overshoot':0,'paths':{k:str(out/n) for k,n in [('raw_events','events.jsonl'),('usage_events','usage-events.jsonl'),('diff','patch.diff'),('diagnosis','DIAGNOSIS.md'),('fv_logs','fv.jsonl'),('archive','final')]},'codex_home':a.codex_home,'expect_account':a.expect_account,'host_admission_field':admission_field,'host_admitted':admission[admission_field]}
+            running.update(usage.record()); append(ledger,running)
+            sel=selectors.DefaultSelector(); os.set_blocking(proc.stdout.fileno(),False); sel.register(proc.stdout,selectors.EVENT_READ); pending=b''; positions={}; event_cycle_ids=set(); event_cap_at=None
+            while True:
+                watcher.poll()
+                for _,_ in sel.select(.02):
+                    chunk=os.read(proc.stdout.fileno(),1048576)
+                    if not chunk: sel.unregister(proc.stdout); continue
+                    events.write(chunk); events.flush(); pending+=chunk
+                    while b'\n' in pending:
+                        line,pending=pending.split(b'\n',1)
+                        try: e=json.loads(line)
+                        except ValueError: continue
+                        usage.update(e)
+                        if e.get('type')=='turn.completed': live.write(json.dumps({'source':'exec','event':e})+'\n'); live.flush()
+                        item=e.get('item',{})
+                        if e.get('type')=='item.completed' and item.get('type')=='command_execution' and re.search(r'(?:\./|\b)fv\s+check\b',item.get('command','')):
+                            # Count complete FV_SUMMARY records rather than matching a shell loop once.
+                            for s in item.get('aggregated_output','').splitlines():
+                                if s.startswith('FV_SUMMARY '):
+                                    try:
+                                        z=json.loads(s[11:])
+                                        if z.get('complete'):
+                                            event_cycle_ids.add(z['cycle'])
+                                            if len(event_cycle_ids)>=cycles and event_cap_at is None: event_cap_at=time.monotonic()
+                                    except ValueError: pass
+                        if item.get('type')=='file_change':
+                            for change in item.get('changes',[]):
+                                if '/app/lib/' in change.get('path','') or change.get('path','').startswith('app/lib/'):
+                                    append(out/'patch-events.jsonl',{'time':utc(),'item':item})
+                # Only this fresh mount-scoped session directory; no existing lane session is read.
+                for path in (runtime/'sessions').rglob('*.jsonl'):
+                    pos=positions.get(str(path),0)
+                    with path.open() as f:
+                        f.seek(pos)
+                        while True:
+                            old=f.tell(); line=f.readline()
+                            if not line or not line.endswith('\n'): f.seek(old); break
+                            try: e=json.loads(line)
+                            except ValueError: continue
+                            if e.get('type')=='event_msg' and e.get('payload',{}).get('type')=='token_count':
+                                usage.update(e); live.write(json.dumps(e)+'\n'); live.flush()
+                        positions[str(path)]=f.tell()
+                append_state={'wall_seconds':time.monotonic()-t0,**usage.record(),'cycles':broker.count,'cycles_started':broker.started,'cycles_refused':broker.refused,'event_cycles':len(event_cycle_ids)}
+                (out/'budget.json').write_text(json.dumps(append_state,sort_keys=True)+'\n')
+                # Select earliest observed cap timestamp; polling resolution is ~20ms.
+                reached=[]
+                if time.monotonic()-t0>=wall: reached.append((t0+wall,'wall'))
+                if usage.total>=token_cap: reached.append((time.monotonic(),'tokens'))
+                if broker.cap_at: reached.append((broker.cap_at,'cycles'))
+                if event_cap_at: reached.append((event_cap_at,'cycles'))
+                if reached: cap=min(reached)[1]; status='capped'; break
+                if proc.poll() is not None and not sel.get_map(): status='completed' if proc.returncode==0 else 'failed'; break
+            rc=proc.poll()
+    except (KeyboardInterrupt,InterruptedError): status='interrupted'
+    except Exception as error:
+        status='interrupted'
+        (out/'monitor-error.log').write_text(type(error).__name__+': '+str(error)+'\n')
+    finally:
+        if proc:
+            # Kill process group even after the direct child exits; bwrap --die-with-parent + PID namespace kills descendants.
+            try: os.killpg(proc.pid,signal.SIGKILL)
+            except ProcessLookupError: pass
+            proc.wait(); rc=proc.returncode
+        if broker: broker.close()
+        if watcher: watcher.poll(); append(out/'source-events.jsonl',{'events':watcher.events}); watcher.close()
+    end=utc(); wall_used=time.monotonic()-t0
+    # Broker-owned IPC is runtime infrastructure, removed before candidate inspection.
+    shutil.rmtree(trial/'.fv-control',ignore_errors=True)
+    invalid_files=[]
+    for x in trial.rglob('*'):
+        if x.is_symlink() or (not x.is_file() and not x.is_dir() and not x.is_socket()):
+            invalid_files.append(str(x.relative_to(trial))); x.unlink()
+    final=fingerprint(trial/'app'/'lib'); diag=trial/'DIAGNOSIS.md'
+    first=watcher.diag_before if watcher else None
+    if first is None and final!=baseline: first=False
+    if diag.is_file() and not diag.is_symlink(): shutil.copyfile(diag,out/'DIAGNOSIS.md')
+    shutil.rmtree(trial/".fv-control",ignore_errors=True)
+
+    diffs=[]
+    for name in sorted(set(manifest(package))|set(manifest(trial))):
+        if name.startswith('.fv-control/'): continue
+        old=package/name; new=trial/name
+        if new.is_symlink(): continue
+        before=old.read_text(errors='replace').splitlines(True) if old.is_file() else []
+        after=new.read_text(errors='replace').splitlines(True) if new.is_file() else []
+        diffs.extend(difflib.unified_diff(before,after,fromfile='a/'+name,tofile='b/'+name))
+    (out/'patch.diff').write_text(''.join(diffs))
+    shutil.rmtree(trial/'.fv-control',ignore_errors=True)
+    # Root owns the archive; don't copy socket/special files or follow candidate symlinks.
+    for x in trial.rglob('*'):
+        if x.is_symlink(): x.unlink()
+        elif not x.is_dir() and not x.is_file(): x.unlink()
+    archive=out/'final'; shutil.copytree(trial,archive); own_archive=lambda x: os.chown(x,0,0)
+    for x in [archive,*archive.rglob('*')]: own_archive(x)
+    archive.chmod(0o700); shutil.rmtree(trial)
+    grade_mod=importlib.machinery.SourceFileLoader('fv_grade',str(pathlib.Path(__file__).parent/'grade')).load_module()
+    if a.mode=='real-smoke-production-check':
+        toy_grade=importlib.machinery.SourceFileLoader('fv_toy_grade',str(BASE/'sealed'/task/'grade.py')).load_module()
+        graded=toy_grade.grade(task,archive,package,out/'grade')
+    else:
+        graded=grade_mod.grade(task,archive,package,out/'grade') if a.mode in {'trial','stub-production-check'} else {'status':'not_scored','mode':a.mode}
+    if invalid_files: graded.update(passed=False,invalid_candidate_files=invalid_files)
+    result={'key':key,'cell_id':cell,'task':task,'arm':arm,'repeat':int(row['repeat']),'snapshot':snapshot,'host':socket.gethostname(),'account':identity['email'],'account_source':identity['source'],'model':row['model'],'effort':row['effort'],'harness_version':v,'codex_version':subprocess.check_output([CODEX,'--version'],text=True).strip(),'start':start,'end':end,'wall_seconds':wall_used,'tokens':usage.value,'total_tokens':usage.total,'usage_observed':usage.observed,'token_definition':'input_tokens + output_tokens; cached input included once in input; reasoning included in output','cycles':broker.count if broker else 0,'cycles_started':broker.started if broker else 0,'cycles_event_stream':len(event_cycle_ids) if proc else 0,'cycles_refused':broker.refused if broker else 0,'cap':cap,'diagnosis_first':first,'diagnosis_source':'inotify + DIAGNOSIS.md mtime; exec patch events archived','status':status,'mode':a.mode,'exit_code':rc,'grade':graded,'paths':{k:str(out/n) for k,n in [('raw_events','events.jsonl'),('usage_events','usage-events.jsonl'),('diff','patch.diff'),('diagnosis','DIAGNOSIS.md'),('fv_logs','fv.jsonl'),('archive','final')]}}
+    result.update(caps={'wall_seconds':wall,'total_tokens':token_cap,'cycles':cycles},token_overshoot=max(0,usage.total-token_cap))
+    result.update(usage.record())
+    result.update(codex_home=a.codex_home,expect_account=a.expect_account)
+    result.update(host_admission_field=admission_field,host_admitted=admission[admission_field])
+    append(ledger,result); (out/'result.json').write_text(json.dumps(result,sort_keys=True)+'\n'); (out/'active.json').unlink(missing_ok=True)
+    print(json.dumps(result,sort_keys=True))
+if __name__=='__main__': main()

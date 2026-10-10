@@ -1,0 +1,165 @@
+{
+  "schema": 3,
+  "admitted": false,
+  "execution_ready": false,
+  "eu_admitted": true,
+  "eu_execution_ready": true,
+  "created_utc": "2026-10-10T12:39:30.599664+00:00",
+  "updated_utc": "2026-10-10T13:57:04Z",
+  "caps": {
+    "complete_cycles": 10,
+    "tokens_uncached_plus_output": 60000,
+    "wall_seconds": 900
+  },
+  "checks": {
+    "eu_isolation": true,
+    "eu_tool_pins": true,
+    "input_manifest_parity_leakage": true,
+    "negative_and_adversarial": true,
+    "no_precomputed_and_shared_location_replay": true
+  },
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "harness_version": "e0454a97ba050c52cdc3f4567b6c7bd72f6b6aed+codex-cli-0.161.0",
+  "docs_bundles": {
+    "lean": {
+      "bytes": 146245,
+      "sha256": "e2878008ee3762b1d8b9edd52afc674a83300c0f6339b46e857cdcede7b9be3e"
+    },
+    "quint": {
+      "bytes": 93837,
+      "sha256": "831ab9db8b23efc56e67537157e86e7c51341518c730c80cdf7b091af6a769ca"
+    }
+  },
+  "eu_timing": {
+    "F01-lean": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 5.529136255994672,
+      "median_seconds": 4.579087066500506,
+      "ten_max_seconds": 55.29136255994672
+    },
+    "F01-quint": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 11.215488047004328,
+      "median_seconds": 9.222265964002872,
+      "ten_max_seconds": 112.15488047004328
+    },
+    "W01-lean": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 6.587974588997895,
+      "median_seconds": 5.530241611500969,
+      "ten_max_seconds": 65.87974588997895
+    },
+    "W01-quint": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 18.123083269994822,
+      "median_seconds": 15.145648450503359,
+      "ten_max_seconds": 181.23083269994822
+    },
+    "W04-lean": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 6.336748318004538,
+      "median_seconds": 5.606593837997934,
+      "ten_max_seconds": 63.36748318004538
+    },
+    "W04-quint": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 21.2904905960022,
+      "median_seconds": 19.529710119495576,
+      "ten_max_seconds": 212.904905960022
+    },
+    "X01-lean": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 13.372102142006042,
+      "median_seconds": 10.605960660504934,
+      "ten_max_seconds": 133.72102142006042
+    },
+    "X01-quint": {
+      "above_half_cap": false,
+      "cycles": 10,
+      "max_seconds": 22.441248408998945,
+      "median_seconds": 21.480188670000643,
+      "ten_max_seconds": 224.41248408998945
+    }
+  },
+  "verdicts": {
+    "eu": {
+      "F01-lean": "ADMITTED",
+      "F01-quint": "ADMITTED",
+      "W01-lean": "ADMITTED",
+      "W01-quint": "ADMITTED",
+      "W04-lean": "ADMITTED",
+      "W04-quint": "ADMITTED",
+      "X01-lean": "ADMITTED",
+      "X01-quint": "ADMITTED"
+    }
+  },
+  "host_results": {
+    "eu": {
+      "matrix_qualified": true,
+      "matrix_rows": 64,
+      "oracle_arm_disagreements": [],
+      "status": "DONE"
+    },
+    "us": {
+      "reason": "Not requalified; excluded from this EU reconciliation; no US execution.",
+      "status": "PENDING"
+    }
+  },
+  "canonical_deployment_verification": {
+    "eu": {
+      "differences": [],
+      "files_checked": 337,
+      "identical": true
+    }
+  },
+  "installed_harness": {
+    "eu": {
+      "differences_from_pinned_tree": [],
+      "verification_runtime_files_match": true,
+      "version": "e0454a97ba050c52cdc3f4567b6c7bd72f6b6aed+codex-cli-0.161.0"
+    }
+  },
+  "studio_record_verification": {
+    "differences": [],
+    "files": 477,
+    "identical": true
+  },
+  "publication_note": "Sanitized extract. Global admission remained false because the second host was pending; Europe alone was admitted. Private deployment inventories and evaluator inputs are omitted. Public edited files have separate hashes in PUBLIC-FILES.sha256.",
+  "packages": {
+    "F01-lean": {
+      "PACKAGE_sha256": "792bc6caf8130195819f872dbb7f506b37954d74a7ef61717bc3c263e1465a6a"
+    },
+    "F01-quint": {
+      "PACKAGE_sha256": "1f53104e709dba96d763736c70813f3e828e1d3d1ec22550075e7535b5cc8fa3"
+    },
+    "TOY-CODEMODE-PRODUCTION-lean": {
+      "PACKAGE_sha256": "555fb19da75365ffe11d8fbf3ff357fbf6042967431089b9bf384816aa71993c"
+    },
+    "W01-lean": {
+      "PACKAGE_sha256": "0ea3f58e972dfdd276a825df7ec4609aeb2584cb9ec8844a377f57124c3e1351"
+    },
+    "W01-quint": {
+      "PACKAGE_sha256": "fb7d3fce5fbc8df7562f8aca06c7ca3409ddc9b53ccdb0add0ba1e63f45a5862"
+    },
+    "W04-lean": {
+      "PACKAGE_sha256": "2cb5b637b6941b3d15f07b11d26cbabb7c66a9af04365550025312a1405d6a08"
+    },
+    "W04-quint": {
+      "PACKAGE_sha256": "319d08612ad875dcefcc894077af83788c398bc38464ce15c2ed94d45bc77315"
+    },
+    "X01-lean": {
+      "PACKAGE_sha256": "4b2350c85b28e622d2fb70da63bfba01807696ec1ab1bcdb4e824331579e6228"
+    },
+    "X01-quint": {
+      "PACKAGE_sha256": "e82eb8abe2f584aeb9915c39b27671b474df39d4e3a706625b9ab25d96c9045a"
+    }
+  }
+}

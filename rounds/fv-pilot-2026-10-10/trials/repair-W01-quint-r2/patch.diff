@@ -1,0 +1,114 @@
+--- a/DIAGNOSIS.md
++++ b/DIAGNOSIS.md
+@@ -0,0 +1,66 @@
++# Diagnosis before repair
++
++The violated property is `admission_iff`: `start` must set `admitted` to
++exactly `approved == revision`, while retaining both tokens. Historical
++approval for a different revision must not authorize the current revision.
++
++The first unmodified `./fv check` (cycle 1, exit 1) regenerated the application
++and established `approval_binding` and `edit` exhaustively through six events.
++It produced this concrete counterexample for `admission_iff`:
++
++| Event | revision | approved | admitted |
++| --- | --- | --- | --- |
++| initial | r1 | none | false |
++| approve | r1 | r1 | false |
++| edit_r2 | r2 | r1 | false |
++| start | r2 | r1 | true (expected false) |
++
++The causal function is `Workflow.admission/1` in `app/lib/workflow.ex:48-49`.
++It returns `state.approved != :none`, so every historical approval authorizes
++every revision. `step/2` dispatches `start` through `dispatch/2` to `start/1`,
++which assigns this incorrect result to `admitted`. The verifier's source trace
++includes these functions and the predicate at line 49; the regenerated Quint
++definition also contains `approved != "none"`. This is a witnessed application
++defect, not a proof or tooling limitation. The existing starter test passes
++because it never starts a different revision after approval.
++
++The repair will compare `state.approved` with `state.revision` in `admission/1`.
++It will retain historical approval during edits, allowing selection of the
++approved revision to restore eligibility on the next start. Public functions,
++state shape, fixed laws, domains, and the six-event bound will remain unchanged.
++A regression test will exercise stale approval rejection and restoration for
++both revision tokens. The supplied check will regenerate formal artifacts from
++the modified Elixir source and verify all accepted laws and tests.
++
++## Frozen-test constraint discovered during verification
++
++The checker rejects edits to the supplied starter test and additional Elixir
++test files, including files outside `app/test`. The attempted regression test
++was therefore removed, and the starter test was restored byte for byte to its
++original SHA-256 (`db5945d18583aeb4c08b34094997c83a17f04055ba4739cf1e26bda477a1b63e`).
++Cycles 2 through 5 stopped at the frozen-input gate (exit 2); none established
++an implementation or proof failure. The application repair remains the single
++predicate change. The accepted laws and assumptions have never been changed.
++
++## Final verification
++
++Cycle 6 of `./fv check` completed successfully (exit 0, 9.862 seconds):
++
++- `approval_binding`: PASS, exhaustive bound 6.
++- `edit`: PASS, exhaustive bound 6.
++- `admission_iff`: PASS, exhaustive bound 6.
++- Unmodified starter ExUnit suite: 1 passed.
++
++The checker regenerated `verification/ir.json`, `verification/app.qnt`, and
++`verification/source-map.json` from the changed application. Regeneration hash:
++`be7c2d03c210318ee72c9456ba2176481b8c42289ce76baf2413a16207649179`.
++The generated `Workflow_admission_1` now compares `approved == revision`.
++`sha256sum -c fixed.sha256` confirms both accepted-law files are unchanged.
++All eight public functions and their arities are preserved; no dispatch,
++approval, edit, initial-state, or unknown-event behavior was changed.
++
++The completed proof covers every sequence of zero through six events in the
++fixed domain, including rejection of stale approval and restored eligibility
++when the approved token is selected again. There is no outstanding proof or
++tooling limitation. Six check invocations were used: two completed verification
++cycles and four frozen-input rejections, within the supplied budget.
+--- a/app/lib/workflow.ex
++++ b/app/lib/workflow.ex
+@@ -46,6 +46,6 @@
+   end
+ 
+   def admission(state) do
+-    state.approved != :none
++    state.approved == state.revision
+   end
+ end
+--- a/verification/app.qnt
++++ b/verification/app.qnt
+@@ -9,7 +9,7 @@
+   // src: lib/workflow.ex:24
+   pure def Workflow_edit_event_2(arg0: { admitted: bool, approved: str, revision: str }, arg1: str): { admitted: bool, approved: str, revision: str } = (if ((arg1 == "edit_r1")) Workflow_edit_2(arg0, "r1") else (if ((arg1 == "edit_r2")) Workflow_edit_2(arg0, "r2") else arg0))
+   // src: lib/workflow.ex:48
+-  pure def Workflow_admission_1(arg0: { admitted: bool, approved: str, revision: str }): bool = ((arg0).approved != "none")
++  pure def Workflow_admission_1(arg0: { admitted: bool, approved: str, revision: str }): bool = ((arg0).approved == (arg0).revision)
+   // src: lib/workflow.ex:44
+   pure def Workflow_start_1(arg0: { admitted: bool, approved: str, revision: str }): { admitted: bool, approved: str, revision: str } = { admitted: Workflow_admission_1(arg0), approved: (arg0).approved, revision: (arg0).revision }
+   // src: lib/workflow.ex:16
+--- a/verification/ir.json
++++ b/verification/ir.json
+@@ -1 +1 @@
+-{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":17,"file":"lib/workflow.ex","line":5},"name":"revision","value":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":5},"value":"r1"}},{"kind":"field","loc":{"column":32,"file":"lib/workflow.ex","line":5},"name":"approved","value":{"kind":"atom","loc":{"column":32,"file":"lib/workflow.ex","line":5},"value":"none"}},{"kind":"field","loc":{"column":49,"file":"lib/workflow.ex","line":5},"name":"admitted","value":{"kind":"bool","loc":{"column":49,"file":"lib/workflow.ex","line":5},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/workflow.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":9},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":9},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":9},"value":"approve"}},"else":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/workflow.ex","line":12},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/workflow.ex","line":12},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":12},"module":null,"name":"dispatch"},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":9},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/workflow.ex","line":10},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":10},"module":null,"name":"approve"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":8},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":8},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/workflow.ex","line":8},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":17},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":17},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":17},"value":"start"}},"else":{"args":[{"kind":"var","loc":{"column":18,"file":"lib/workflow.ex","line":20},"name":"state"},{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":20},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":20},"module":null,"name":"edit_event"},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":17},"then":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/workflow.ex","line":18},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":18},"module":null,"name":"start"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":16},"name":"dispatch","params":[{"kind":"var","loc":{"column":16,"file":"lib/workflow.ex","line":16},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/workflow.ex","line":16},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":25},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":25},"value":"edit_r1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/workflow.ex","line":28},"name":"event"},"loc":{"column":16,"file":"lib/workflow.ex","line":28},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/workflow.ex","line":28},"value":"edit_r2"}},"else":{"kind":"var","loc":{"column":9,"file":"lib/workflow.ex","line":31},"name":"state"},"kind":"if","loc":{"column":7,"file":"lib/workflow.ex","line":28},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/workflow.ex","line":29},"name":"state"},{"kind":"atom","loc":{"column":21,"file":"lib/workflow.ex","line":29},"value":"r2"}],"kind":"call","loc":{"column":9,"file":"lib/workflow.ex","line":29},"module":null,"name":"edit"}},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":25},"then":{"args":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":26},"name":"state"},{"kind":"atom","loc":{"column":19,"file":"lib/workflow.ex","line":26},"value":"r1"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":26},"module":null,"name":"edit"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":24},"name":"edit_event","params":[{"kind":"var","loc":{"column":18,"file":"lib/workflow.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":24},"name":"event"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":37},"name":"state"},"fields":[{"kind":"field","loc":{"column":31,"file":"lib/workflow.ex","line":37},"name":"approved","value":{"base":{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":37},"name":"state"},"field":"revision","kind":"get","loc":{"column":31,"file":"lib/workflow.ex","line":37}}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":37},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":36},"name":"approve","params":[{"kind":"var","loc":{"column":15,"file":"lib/workflow.ex","line":36},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":41},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/workflow.ex","line":41},"name":"revision","value":{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":41},"name":"revision"}},{"kind":"field","loc":{"column":45,"file":"lib/workflow.ex","line":41},"name":"admitted","value":{"kind":"bool","loc":{"column":45,"file":"lib/workflow.ex","line":41},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":41},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":40},"name":"edit","params":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":40},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/workflow.ex","line":40},"name":"revision"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":45},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/workflow.ex","line":45},"name":"admitted","value":{"args":[{"kind":"var","loc":{"column":35,"file":"lib/workflow.ex","line":45},"name":"state"}],"kind":"call","loc":{"column":25,"file":"lib/workflow.ex","line":45},"module":null,"name":"admission"}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":45},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":44},"name":"start","params":[{"kind":"var","loc":{"column":13,"file":"lib/workflow.ex","line":44},"name":"state"}],"visibility":"public"},{"body":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":5,"file":"lib/workflow.ex","line":49},"name":"state"},"field":"approved","kind":"get","loc":{"column":11,"file":"lib/workflow.ex","line":49}},"loc":{"column":20,"file":"lib/workflow.ex","line":49},"op":"!=","right":{"kind":"atom","loc":{"column":23,"file":"lib/workflow.ex","line":49},"value":"none"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":48},"name":"admission","params":[{"kind":"var","loc":{"column":17,"file":"lib/workflow.ex","line":48},"name":"state"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/workflow.ex","line":1},"name":"Workflow","struct_fields":null}],"version":1}
++{"modules":[{"functions":[{"body":{"fields":[{"kind":"field","loc":{"column":17,"file":"lib/workflow.ex","line":5},"name":"revision","value":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":5},"value":"r1"}},{"kind":"field","loc":{"column":32,"file":"lib/workflow.ex","line":5},"name":"approved","value":{"kind":"atom","loc":{"column":32,"file":"lib/workflow.ex","line":5},"value":"none"}},{"kind":"field","loc":{"column":49,"file":"lib/workflow.ex","line":5},"name":"admitted","value":{"kind":"bool","loc":{"column":49,"file":"lib/workflow.ex","line":5},"value":false}}],"kind":"record","loc":{"column":5,"file":"lib/workflow.ex","line":5},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":4},"name":"init","params":[],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":9},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":9},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":9},"value":"approve"}},"else":{"args":[{"kind":"var","loc":{"column":16,"file":"lib/workflow.ex","line":12},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/workflow.ex","line":12},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":12},"module":null,"name":"dispatch"},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":9},"then":{"args":[{"kind":"var","loc":{"column":15,"file":"lib/workflow.ex","line":10},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":10},"module":null,"name":"approve"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":8},"name":"step","params":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":8},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/workflow.ex","line":8},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":17},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":17},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":17},"value":"start"}},"else":{"args":[{"kind":"var","loc":{"column":18,"file":"lib/workflow.ex","line":20},"name":"state"},{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":20},"name":"event"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":20},"module":null,"name":"edit_event"},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":17},"then":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/workflow.ex","line":18},"name":"state"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":18},"module":null,"name":"start"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":16},"name":"dispatch","params":[{"kind":"var","loc":{"column":16,"file":"lib/workflow.ex","line":16},"name":"state"},{"kind":"var","loc":{"column":23,"file":"lib/workflow.ex","line":16},"name":"event"}],"visibility":"public"},{"body":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":8,"file":"lib/workflow.ex","line":25},"name":"event"},"loc":{"column":14,"file":"lib/workflow.ex","line":25},"op":"==","right":{"kind":"atom","loc":{"column":17,"file":"lib/workflow.ex","line":25},"value":"edit_r1"}},"else":{"condition":{"kind":"binary","left":{"kind":"var","loc":{"column":10,"file":"lib/workflow.ex","line":28},"name":"event"},"loc":{"column":16,"file":"lib/workflow.ex","line":28},"op":"==","right":{"kind":"atom","loc":{"column":19,"file":"lib/workflow.ex","line":28},"value":"edit_r2"}},"else":{"kind":"var","loc":{"column":9,"file":"lib/workflow.ex","line":31},"name":"state"},"kind":"if","loc":{"column":7,"file":"lib/workflow.ex","line":28},"then":{"args":[{"kind":"var","loc":{"column":14,"file":"lib/workflow.ex","line":29},"name":"state"},{"kind":"atom","loc":{"column":21,"file":"lib/workflow.ex","line":29},"value":"r2"}],"kind":"call","loc":{"column":9,"file":"lib/workflow.ex","line":29},"module":null,"name":"edit"}},"kind":"if","loc":{"column":5,"file":"lib/workflow.ex","line":25},"then":{"args":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":26},"name":"state"},{"kind":"atom","loc":{"column":19,"file":"lib/workflow.ex","line":26},"value":"r1"}],"kind":"call","loc":{"column":7,"file":"lib/workflow.ex","line":26},"module":null,"name":"edit"}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":24},"name":"edit_event","params":[{"kind":"var","loc":{"column":18,"file":"lib/workflow.ex","line":24},"name":"state"},{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":24},"name":"event"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":37},"name":"state"},"fields":[{"kind":"field","loc":{"column":31,"file":"lib/workflow.ex","line":37},"name":"approved","value":{"base":{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":37},"name":"state"},"field":"revision","kind":"get","loc":{"column":31,"file":"lib/workflow.ex","line":37}}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":37},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":36},"name":"approve","params":[{"kind":"var","loc":{"column":15,"file":"lib/workflow.ex","line":36},"name":"state"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":41},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/workflow.ex","line":41},"name":"revision","value":{"kind":"var","loc":{"column":25,"file":"lib/workflow.ex","line":41},"name":"revision"}},{"kind":"field","loc":{"column":45,"file":"lib/workflow.ex","line":41},"name":"admitted","value":{"kind":"bool","loc":{"column":45,"file":"lib/workflow.ex","line":41},"value":false}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":41},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":40},"name":"edit","params":[{"kind":"var","loc":{"column":12,"file":"lib/workflow.ex","line":40},"name":"state"},{"kind":"var","loc":{"column":19,"file":"lib/workflow.ex","line":40},"name":"revision"}],"visibility":"public"},{"body":{"base":{"kind":"var","loc":{"column":7,"file":"lib/workflow.ex","line":45},"name":"state"},"fields":[{"kind":"field","loc":{"column":25,"file":"lib/workflow.ex","line":45},"name":"admitted","value":{"args":[{"kind":"var","loc":{"column":35,"file":"lib/workflow.ex","line":45},"name":"state"}],"kind":"call","loc":{"column":25,"file":"lib/workflow.ex","line":45},"module":null,"name":"admission"}}],"kind":"update","loc":{"column":5,"file":"lib/workflow.ex","line":45},"struct":null},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":44},"name":"start","params":[{"kind":"var","loc":{"column":13,"file":"lib/workflow.ex","line":44},"name":"state"}],"visibility":"public"},{"body":{"kind":"binary","left":{"base":{"kind":"var","loc":{"column":5,"file":"lib/workflow.ex","line":49},"name":"state"},"field":"approved","kind":"get","loc":{"column":11,"file":"lib/workflow.ex","line":49}},"loc":{"column":20,"file":"lib/workflow.ex","line":49},"op":"==","right":{"base":{"kind":"var","loc":{"column":23,"file":"lib/workflow.ex","line":49},"name":"state"},"field":"revision","kind":"get","loc":{"column":29,"file":"lib/workflow.ex","line":49}}},"kind":"function","loc":{"column":3,"file":"lib/workflow.ex","line":48},"name":"admission","params":[{"kind":"var","loc":{"column":17,"file":"lib/workflow.ex","line":48},"name":"state"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/workflow.ex","line":1},"name":"Workflow","struct_fields":null}],"version":1}
+--- a/verification/source-map.json
++++ b/verification/source-map.json
+@@ -421,7 +421,15 @@
+         }
+       },
+       {
+-        "kind": "atom",
++        "kind": "get",
++        "loc": {
++          "column": 29,
++          "file": "lib/workflow.ex",
++          "line": 49
++        }
++      },
++      {
++        "kind": "var",
+         "loc": {
+           "column": 23,
+           "file": "lib/workflow.ex",

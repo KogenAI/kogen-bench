@@ -1,0 +1,125 @@
+https://quint-lang.org/docs/checking-properties
+
+DocumentationChecking Properties
+Checking Properties
+🚧️
+This page is under construction.
+The main way to interact with a Quint model is by checking properties. The simulator can be used to increase the confidence on a property, and model checkers can be used to formally verify them. Properties can also be used to query the model and understand it better, finding interesting scenarios.
+Actual properties
+Thinking about a system’s properties is not an easy task, but can often be useful to increase understanding in many ways. Writing those properties in Quint enables using the tools (simulator or model checkers) to check that property, or to find out where it doesn’t hold and adjust the model or the expectations about it.
+A system might have safety and/or liveness properties.
+Safety: something bad never happens
+Examples: balances should never be negative, two different wallets may never hold the same NFT, honest consensus parties may never agree on different values.
+Liveness: something good eventually happens
+Examples: eventually all parties decide on a value, eventually termination is detected, eventually a system stabilizes.
+It is much easier to write and check safety properties, which can be written as invariants. Liveness properties require temporal formulas, which often rely on assumptions about fairness to be useful, and that may require some hours of study time if you are not familiar already. Also, there are other, more practical, ways to convince ourselves that good things are happening (see below). Safety properties go a long way, start with those. Writing a safety property is as simple as writing a boolean expression:
+val no_negatives = ADDRESSES.forall(addr => balances.get(addr) >= 0)
+balances in this expression (considering the model from the Getting Started guide) is a state variable. While checking no_negatives as an invariant, Quint’s tools will check this expression on every state, meaning it will evaluate it for different values of balances and expect it to always be true. It needs to be true in the initial state and in every possible state that comes from it - it cannot vary, as it is an invariant.
+Non-properties to find interesting scenarios
+While invariants are things that need to hold on every state, sometimes we want to check that something is true in some state - a sort of sanity check. For that, we define witness properties.
+🚧️
+Quint’s built-in support for witness properties is under design. Expect more features in the near future.
+There are currently two ways to define and check witness properties:
+Through the --witnesses flag of the simulator
+Through an invariant (--invariant) of the simulator (or the model checker, but you probably won’t need it)
+Counting interesting traces with --witnesses
+For (1), you define something that you want to be possible:
+val alice_more_than_bob = balances.get("alice") > balances.get("bob")
+The example above states that it should be possible for Alice to have more balance than Bob. This for sure won’t be true for every possible state, but it needs to hold for some of them.
+Let’s ask the simulator to check this witness:
+quint run gettingStarted.qnt --witnesses=alice_more_than_bob --max-steps=5
+Quint reports:
+[ok] No violation found (599ms).
+You may increase --max-samples and --max-steps.
+Use --verbosity to produce more (or less) output.
+Witnesses:
+alice_more_than_bob was witnessed in 7094 trace(s) out of 10000 explored (70.94%)
+Use --seed=0x1c8a2137939c73 to reproduce.
+And that informs us that, in most executions, there is a state where Alice has a larger balance than that of Bob.
+💡
+This is a way to find that “good things are happening” without a liveness property. It is not the same as a liveness property, but it’s a practical alternative that is enough in many scenarios.
+Inspecting interesting traces with --invariant
+If we concretely want to see the trace witnessing our property, we can negate that property (add a not in front of it) and ask the simulator to check that as an invariant. This is like asking the simulator “is the property false in all states?” to which it may reply “no! Here’s a scenario in where it is true”.
+quint run gettingStarted.qnt --invariant="not(alice_more_than_bob)" --max-steps=5
+Quint reports:
+An example execution:
+[State 0] { balances: Map("alice" -> 0, "bob" -> 0, "charlie" -> 0) }
+[State 1] { balances: Map("alice" -> 9, "bob" -> 0, "charlie" -> 0) }
+[violation] Found an issue (8ms).
+Use --verbosity=3 to show executions.
+Use --seed=0xa0bbf64f2c03 to reproduce.
+error: Invariant violated
+Although it says “Invariant violated”, this is exactly what we wanted: an example where Alice has more balance than Bob.
+Using multiple invariants with --invariants
+If you want to check multiple invariants at once and determine which ones are violated, you can use the --invariants option:
+quint run bank.qnt --invariants no_negatives accounts_match total_positive
+Quint will check all three invariants and report which specific ones are violated:
+An example execution:
+[State 0] { balances: Map("alice" -> 0, "bob" -> 0, "charlie" -> 0) }
+[State 1] { balances: Map("alice" -> -63, "bob" -> 0, "charlie" -> 0) }
+[violation] Found an issue (44ms).
+❌ no_negatives
+❌ total_positive
+Use --verbosity=3 to show executions.
+Use --seed=0x4e85b3a53f7ef to reproduce.
+error: Invariant violated
+This makes it easier to identify which specific properties are being violated when you have multiple invariants to check.
+The --invariants option also works with the verify command, allowing you to check multiple invariants with formal verification:
+quint verify bank.qnt --invariants no_negatives accounts_match total_positive
+Inductive Invariants
+An inductive invariant is a special, more powerful kind of invariant.
+They are a powerful design artifact as they capture the core of why a system is correct. Moreover, inductive invariants enable complete verification without exhaustive state exploration.
+How Ordinary Invariants Work
+Model checking of ordinary (non-inductive) invariants follows a straightforward but potentially expensive approach:
+Check the invariant holds in all initial states
+Use the step action and a search strategy (breadth-first, depth-first, etc.) to systematically explore all states reachable from the initial states
+Verify the invariant holds in every discovered state
+This process may require analyzing arbitrarily long execution sequences. As explained in our Model Checkers documentation, checking ordinary invariants forces you to choose between:
+Symbolic bounded model checking (Apalache) - Solves constraints representing executions up to a given length, providing incomplete verification results
+Explicit-state model checking (TLC) - Enumerates all possible states and transitions, which can become computationally intractable for large systems
+The Inductive Approach
+Inductive invariants use a fundamentally different verification strategy. Instead of verifying an invariant on all reachable states by exploring them explicitly, the approach relies on a stronger inductive invariant to prove the goal invariant. The verification process consists of three steps:
+Base case: Verify the inductive invariant holds in all initial states
+Inductive step: Prove that if the inductive invariant holds in some state A, then after applying any step transition, the resulting state A’ also satisfies the inductive invariant
+Implication: Show that the inductive invariant logically implies the goal invariant
+The key insight is that in step 2, state A is not constructed by applying transitions from initial states. Instead, A is any arbitrary state satisfying the inductive invariant’s constraints. Through mathematical induction on steps 1 and 2, we can conclude that the inductive invariant holds on all reachable states without explicitly constructing those states.
+Trade-offs and Challenges
+While inductive invariants may avoid the state explosion problem, they introduce their own complexities:
+Finding the right inductive invariant requires expertise and creative insight. Unlike model checking where you simply specify properties to verify, you must construct the strengthened invariant yourself, typically through an iterative process of trial and refinement.
+To prove your desired property, you typically need to prove something stronger (the inductive invariant), which can feel counterintuitive. The invariant that makes the proof work may require non-obvious insights about the system.
+When Inductive Invariants Excel
+Inductive invariants become particularly powerful when:
+Enumerating all reachable states would be computationally prohibitive
+The inductive invariant’s constraints are well-suited to Apalache’s symbolic reasoning capabilities
+The system has complex state spaces that resist explicit enumeration
+This approach can provide complete verification results even for systems where traditional model checking approaches fail due to state explosion or infinite behaviors.
+Checking Inductive Invariants
+An inductive invariant ind_inv can be checked with:
+quint verify file.qnt --inductive-invariant ind_inv
+To also check if ind_inv implies an ordinary invariant inv, run:
+quint verify file.qnt --inductive-invariant ind_inv --invariant inv
+Simulation (quint run) does not support inductive invariants.
+Requirement: “TypeOK”
+In order to check an inductive invariant, it has to be constrained enough, otherwise you might see errors like “x is used before it is assigned”. More specifically, for each state variable x, you need to have either:
+x == <value>
+x.in(<set of possible values>)
+We almost always use (2) for inductive invariants. AFTER this constraint, you can write other constraints like x * 2 < 10, but the first time x appears in the predicate, it must be something about its domain. We usually call the predicates that define the domains of variables TypeOK.
+How it works
+Quint will call Apalache 2-3 times (depending on whether an ordinary invariant was provided):
+To check if the inductive invariant holds in all possible initial states (base case). This is the equivalent of calling:
+quint verify file.qnt --invariant ind_inv --max-steps 0
+To check if, starting from any state where the inductive invariant holds, taking any step results in a state where the invariant still holds. This is the equivalent of calling:
+quint verify file.qnt --init ind_inv --invariant ind_inv --max-steps 1
+PS: you’d get an error here as ind_inv is not an action, and therefore can’t be used as --init. Using --inductive-invariant takes care of this for you.
+To check if, in any state where the inductive invariant holds, the ordinary invariant also holds. This is the equivalent of calling:
+quint verify file.qnt --init ind_inv --invariant inv --max-steps 0
+Examples
+Check out the blog post How to write Inductive Invariants to learn more, and the following examples which include inductive invariants.
+The algorithm from Lamport’s Teaching Concurrency paper: teaching.qnt
+Incrementing a shared counter with a mutex: mutex.qnt
+The folklore reliable broadcast protocol explained in the blog post: reliablebc.qnt
+The bakery algorithm, with a more complex inductive invariant: bakery.qnt
+Dijkstra’s termination detection in a ring: ewd840.qnt
+ChonkyBFT agreement (written by Igor Konnov before we added the feature to Quint, so it includes some workarounds): inductive.qnt
+Last updated on August 12, 2026
+Micro stepsInteracting with REPL

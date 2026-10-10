@@ -134,6 +134,16 @@
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
     },
     {
+      "round_id": "fv-pilot-2026-10-10",
+      "script": "python3 rounds/fv-pilot-2026-10-10/reproduce.py",
+      "inputs": [
+        "rounds/fv-pilot-2026-10-10/ledger.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes per-task and arm results from the sanitized lifecycle ledger; model calls and independent final evaluation are not replayable."
+    },
+    {
       "round_id": "gleam",
       "script": null,
       "inputs": [

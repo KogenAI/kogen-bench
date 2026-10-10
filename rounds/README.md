@@ -213,3 +213,5 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [core4b-ksub-max](core4b-ksub-max/README.md) — **DESCRIPTIVE** old-lane language results; see per-cell outcomes and declared gaps.
 
 - [sol-medium](sol-medium/README.md) — **DESCRIPTIVE** old-lane language results; see per-cell outcomes and declared gaps.
+
+- [Lean versus Quint verification pilot](fv-pilot-2026-10-10/README.md) — **DESCRIPTIVE** Both arms repaired 12/12; secondary effort observations, declared amendments and incomplete capture.

@@ -1,0 +1,149 @@
+--- a/DIAGNOSIS.md
++++ b/DIAGNOSIS.md
+@@ -0,0 +1,40 @@
++# Diagnosis before patching
++
++The violated fixed property is `read_iff`: `TenantGate.can_read/2` must return
++true exactly when all required fields are present, the tenant tokens match,
++and the actor has role `owner` or `viewer`. Viewer access currently violates
++tenant isolation.
++
++The causal function is `TenantGate.viewer_read/3` in `app/lib/access.ex:41-42`.
++It discards both tenant arguments and returns only `role == :viewer`.
++`role_admitted/3` combines this result with owner access using `or`, so a true
++viewer result bypasses the tenant equality enforced by `owner_read/3`.
++`fields_present/3` rejects absent fields but does not enforce tenant equality.
++
++A concrete counterexample derived directly from these expressions is actor
++`%{tenant: :t1, role: :viewer}` and resource `%{tenant: :t2}`. All fields are
++present, owner access is false, viewer access is true, and consequently
++`can_read/2` returns true although the contract requires false. The reverse
++tenant mismatch also has this defect.
++
++Evidence gathered before patching:
++
++- Baseline `./fv check`, cycle 1, regenerated the current application with hash
++  `0af3e31548af749a1f6c852c1ad6834acc9ae1a1b869f74194e7ea6e7f460a88`.
++- It reported `FV-LAW read_iff FAIL`, `FV-LAWS 0/1`, and Lean's `decide`
++  explicitly proved `check_read_iff = true` false. Source traces included
++  `viewer_read/3` and its role-only comparison on line 42.
++- The supplied starter test passed (1 test). It covers same-tenant viewer
++  access, guest rejection, and a missing actor tenant, but no cross-tenant
++  viewer access.
++- The check output did not include a printed counterexample; the example above
++  is derived from the actual source, rather than quoted from the checker.
++  A separate direct Elixir invocation was unavailable because `elixir` is not
++  on this shell's PATH. The supplied check did execute its starter ExUnit test.
++
++This is an implementation defect, not an unresolved proof or tooling
++limitation: the fixed finite law is decisively false and the source explains
++why. Repair `viewer_read/3` to require tenant equality as well as viewer role,
++keeping all public function names and arities. Preserve the fixed contract,
++laws, domains, and assumptions; regenerate implementation, IR, and source maps
++from the changed Elixir application through `./fv check`.
+--- a/app/lib/access.ex
++++ b/app/lib/access.ex
+@@ -38,7 +38,7 @@
+     role == :owner and actor_tenant == resource_tenant
+   end
+ 
+-  def viewer_read(role, _actor_tenant, _resource_tenant) do
+-    role == :viewer
++  def viewer_read(role, actor_tenant, resource_tenant) do
++    role == :viewer and actor_tenant == resource_tenant
+   end
+ end
+--- a/verification/Implementation.lean
++++ b/verification/Implementation.lean
+@@ -50,7 +50,7 @@
+ -- src: lib/access.ex:41
+ def v_TenantGate_viewer_read_3 (p0 : Atom) (p1 : Atom) (p2 : Atom) : Bool :=
+   match p0, p1, p2 with
+-  | v_role, v__actor_tenant, v__resource_tenant => (/- src: lib/access.ex:42 -/ ((/- src: lib/access.ex:42 -/ v_role) == (/- src: lib/access.ex:42 -/ Atom.a_viewer)))
++  | v_role, v_actor_tenant, v_resource_tenant => (/- src: lib/access.ex:42 -/ ((/- src: lib/access.ex:42 -/ ((/- src: lib/access.ex:42 -/ v_role) == (/- src: lib/access.ex:42 -/ Atom.a_viewer))) && (/- src: lib/access.ex:42 -/ ((/- src: lib/access.ex:42 -/ v_actor_tenant) == (/- src: lib/access.ex:42 -/ v_resource_tenant)))))
+ 
+ -- src: lib/access.ex:31
+ def v_TenantGate_role_admitted_3 (p0 : Atom) (p1 : Atom) (p2 : Atom) : Bool :=
+--- a/verification/ir.json
++++ b/verification/ir.json
+@@ -1 +1 @@
+-{"modules":[{"functions":[{"body":{"body":{"body":{"body":{"body":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":10},"name":"present"},"loc":{"column":13,"file":"lib/access.ex","line":10},"op":"and","right":{"args":[{"kind":"var","loc":{"column":31,"file":"lib/access.ex","line":10},"name":"role"},{"kind":"var","loc":{"column":37,"file":"lib/access.ex","line":10},"name":"actor_tenant"},{"kind":"var","loc":{"column":51,"file":"lib/access.ex","line":10},"name":"resource_tenant"}],"kind":"call","loc":{"column":17,"file":"lib/access.ex","line":10},"module":null,"name":"role_admitted"}},"kind":"let","loc":{"column":13,"file":"lib/access.ex","line":9},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":9},"name":"present"},"value":{"args":[{"kind":"var","loc":{"column":30,"file":"lib/access.ex","line":9},"name":"actor_tenant"},{"kind":"var","loc":{"column":44,"file":"lib/access.ex","line":9},"name":"resource_tenant"},{"kind":"var","loc":{"column":61,"file":"lib/access.ex","line":9},"name":"role"}],"kind":"call","loc":{"column":15,"file":"lib/access.ex","line":9},"module":null,"name":"fields_present"}},"kind":"let","loc":{"column":10,"file":"lib/access.ex","line":8},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":8},"name":"role"},"value":{"args":[{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":8},"name":"actor"}],"kind":"call","loc":{"column":12,"file":"lib/access.ex","line":8},"module":null,"name":"actor_role"}},"kind":"let","loc":{"column":21,"file":"lib/access.ex","line":7},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":7},"name":"resource_tenant"},"value":{"args":[{"kind":"var","loc":{"column":39,"file":"lib/access.ex","line":7},"name":"resource"}],"kind":"call","loc":{"column":23,"file":"lib/access.ex","line":7},"module":null,"name":"resource_tenant"}},"kind":"let","loc":{"column":18,"file":"lib/access.ex","line":6},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":6},"name":"actor_tenant"},"value":{"args":[{"kind":"var","loc":{"column":33,"file":"lib/access.ex","line":6},"name":"actor"}],"kind":"call","loc":{"column":20,"file":"lib/access.ex","line":6},"module":null,"name":"actor_tenant"}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":5},"name":"can_read","params":[{"kind":"var","loc":{"column":16,"file":"lib/access.ex","line":5},"name":"actor"},{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":5},"name":"resource"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":14},"name":"actor"},{"kind":"atom","loc":{"column":20,"file":"lib/access.ex","line":14},"value":"tenant"},{"kind":"atom","loc":{"column":29,"file":"lib/access.ex","line":14},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":14},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":13},"name":"actor_tenant","params":[{"kind":"var","loc":{"column":20,"file":"lib/access.ex","line":13},"name":"actor"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":18},"name":"resource"},{"kind":"atom","loc":{"column":23,"file":"lib/access.ex","line":18},"value":"tenant"},{"kind":"atom","loc":{"column":32,"file":"lib/access.ex","line":18},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":18},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":17},"name":"resource_tenant","params":[{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":17},"name":"resource"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":22},"name":"actor"},{"kind":"atom","loc":{"column":20,"file":"lib/access.ex","line":22},"value":"role"},{"kind":"atom","loc":{"column":27,"file":"lib/access.ex","line":22},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":22},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":21},"name":"actor_role","params":[{"kind":"var","loc":{"column":18,"file":"lib/access.ex","line":21},"name":"actor"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":26},"name":"actor_tenant"},"loc":{"column":18,"file":"lib/access.ex","line":26},"op":"!=","right":{"kind":"atom","loc":{"column":21,"file":"lib/access.ex","line":26},"value":"missing"}},"loc":{"column":30,"file":"lib/access.ex","line":26},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":7,"file":"lib/access.ex","line":27},"name":"resource_tenant"},"loc":{"column":23,"file":"lib/access.ex","line":27},"op":"!=","right":{"kind":"atom","loc":{"column":26,"file":"lib/access.ex","line":27},"value":"missing"}}},"loc":{"column":35,"file":"lib/access.ex","line":27},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":7,"file":"lib/access.ex","line":28},"name":"role"},"loc":{"column":12,"file":"lib/access.ex","line":28},"op":"!=","right":{"kind":"atom","loc":{"column":15,"file":"lib/access.ex","line":28},"value":"missing"}}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":25},"name":"fields_present","params":[{"kind":"var","loc":{"column":22,"file":"lib/access.ex","line":25},"name":"actor_tenant"},{"kind":"var","loc":{"column":36,"file":"lib/access.ex","line":25},"name":"resource_tenant"},{"kind":"var","loc":{"column":53,"file":"lib/access.ex","line":25},"name":"role"}],"visibility":"public"},{"body":{"body":{"body":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":34},"name":"owner"},"loc":{"column":11,"file":"lib/access.ex","line":34},"op":"or","right":{"kind":"var","loc":{"column":14,"file":"lib/access.ex","line":34},"name":"viewer"}},"kind":"let","loc":{"column":12,"file":"lib/access.ex","line":33},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":33},"name":"viewer"},"value":{"args":[{"kind":"var","loc":{"column":26,"file":"lib/access.ex","line":33},"name":"role"},{"kind":"var","loc":{"column":32,"file":"lib/access.ex","line":33},"name":"actor_tenant"},{"kind":"var","loc":{"column":46,"file":"lib/access.ex","line":33},"name":"resource_tenant"}],"kind":"call","loc":{"column":14,"file":"lib/access.ex","line":33},"module":null,"name":"viewer_read"}},"kind":"let","loc":{"column":11,"file":"lib/access.ex","line":32},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":32},"name":"owner"},"value":{"args":[{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":32},"name":"role"},{"kind":"var","loc":{"column":30,"file":"lib/access.ex","line":32},"name":"actor_tenant"},{"kind":"var","loc":{"column":44,"file":"lib/access.ex","line":32},"name":"resource_tenant"}],"kind":"call","loc":{"column":13,"file":"lib/access.ex","line":32},"module":null,"name":"owner_read"}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":31},"name":"role_admitted","params":[{"kind":"var","loc":{"column":21,"file":"lib/access.ex","line":31},"name":"role"},{"kind":"var","loc":{"column":27,"file":"lib/access.ex","line":31},"name":"actor_tenant"},{"kind":"var","loc":{"column":41,"file":"lib/access.ex","line":31},"name":"resource_tenant"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":38},"name":"role"},"loc":{"column":10,"file":"lib/access.ex","line":38},"op":"==","right":{"kind":"atom","loc":{"column":13,"file":"lib/access.ex","line":38},"value":"owner"}},"loc":{"column":20,"file":"lib/access.ex","line":38},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":38},"name":"actor_tenant"},"loc":{"column":37,"file":"lib/access.ex","line":38},"op":"==","right":{"kind":"var","loc":{"column":40,"file":"lib/access.ex","line":38},"name":"resource_tenant"}}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":37},"name":"owner_read","params":[{"kind":"var","loc":{"column":18,"file":"lib/access.ex","line":37},"name":"role"},{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":37},"name":"actor_tenant"},{"kind":"var","loc":{"column":38,"file":"lib/access.ex","line":37},"name":"resource_tenant"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":42},"name":"role"},"loc":{"column":10,"file":"lib/access.ex","line":42},"op":"==","right":{"kind":"atom","loc":{"column":13,"file":"lib/access.ex","line":42},"value":"viewer"}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":41},"name":"viewer_read","params":[{"kind":"var","loc":{"column":19,"file":"lib/access.ex","line":41},"name":"role"},{"kind":"var","loc":{"column":25,"file":"lib/access.ex","line":41},"name":"_actor_tenant"},{"kind":"var","loc":{"column":40,"file":"lib/access.ex","line":41},"name":"_resource_tenant"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/access.ex","line":1},"name":"TenantGate","struct_fields":null}],"version":1}
++{"modules":[{"functions":[{"body":{"body":{"body":{"body":{"body":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":10},"name":"present"},"loc":{"column":13,"file":"lib/access.ex","line":10},"op":"and","right":{"args":[{"kind":"var","loc":{"column":31,"file":"lib/access.ex","line":10},"name":"role"},{"kind":"var","loc":{"column":37,"file":"lib/access.ex","line":10},"name":"actor_tenant"},{"kind":"var","loc":{"column":51,"file":"lib/access.ex","line":10},"name":"resource_tenant"}],"kind":"call","loc":{"column":17,"file":"lib/access.ex","line":10},"module":null,"name":"role_admitted"}},"kind":"let","loc":{"column":13,"file":"lib/access.ex","line":9},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":9},"name":"present"},"value":{"args":[{"kind":"var","loc":{"column":30,"file":"lib/access.ex","line":9},"name":"actor_tenant"},{"kind":"var","loc":{"column":44,"file":"lib/access.ex","line":9},"name":"resource_tenant"},{"kind":"var","loc":{"column":61,"file":"lib/access.ex","line":9},"name":"role"}],"kind":"call","loc":{"column":15,"file":"lib/access.ex","line":9},"module":null,"name":"fields_present"}},"kind":"let","loc":{"column":10,"file":"lib/access.ex","line":8},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":8},"name":"role"},"value":{"args":[{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":8},"name":"actor"}],"kind":"call","loc":{"column":12,"file":"lib/access.ex","line":8},"module":null,"name":"actor_role"}},"kind":"let","loc":{"column":21,"file":"lib/access.ex","line":7},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":7},"name":"resource_tenant"},"value":{"args":[{"kind":"var","loc":{"column":39,"file":"lib/access.ex","line":7},"name":"resource"}],"kind":"call","loc":{"column":23,"file":"lib/access.ex","line":7},"module":null,"name":"resource_tenant"}},"kind":"let","loc":{"column":18,"file":"lib/access.ex","line":6},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":6},"name":"actor_tenant"},"value":{"args":[{"kind":"var","loc":{"column":33,"file":"lib/access.ex","line":6},"name":"actor"}],"kind":"call","loc":{"column":20,"file":"lib/access.ex","line":6},"module":null,"name":"actor_tenant"}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":5},"name":"can_read","params":[{"kind":"var","loc":{"column":16,"file":"lib/access.ex","line":5},"name":"actor"},{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":5},"name":"resource"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":14},"name":"actor"},{"kind":"atom","loc":{"column":20,"file":"lib/access.ex","line":14},"value":"tenant"},{"kind":"atom","loc":{"column":29,"file":"lib/access.ex","line":14},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":14},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":13},"name":"actor_tenant","params":[{"kind":"var","loc":{"column":20,"file":"lib/access.ex","line":13},"name":"actor"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":18},"name":"resource"},{"kind":"atom","loc":{"column":23,"file":"lib/access.ex","line":18},"value":"tenant"},{"kind":"atom","loc":{"column":32,"file":"lib/access.ex","line":18},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":18},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":17},"name":"resource_tenant","params":[{"kind":"var","loc":{"column":23,"file":"lib/access.ex","line":17},"name":"resource"}],"visibility":"public"},{"body":{"args":[{"kind":"var","loc":{"column":13,"file":"lib/access.ex","line":22},"name":"actor"},{"kind":"atom","loc":{"column":20,"file":"lib/access.ex","line":22},"value":"role"},{"kind":"atom","loc":{"column":27,"file":"lib/access.ex","line":22},"value":"missing"}],"kind":"call","loc":{"column":9,"file":"lib/access.ex","line":22},"module":"Map","name":"get"},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":21},"name":"actor_role","params":[{"kind":"var","loc":{"column":18,"file":"lib/access.ex","line":21},"name":"actor"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":26},"name":"actor_tenant"},"loc":{"column":18,"file":"lib/access.ex","line":26},"op":"!=","right":{"kind":"atom","loc":{"column":21,"file":"lib/access.ex","line":26},"value":"missing"}},"loc":{"column":30,"file":"lib/access.ex","line":26},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":7,"file":"lib/access.ex","line":27},"name":"resource_tenant"},"loc":{"column":23,"file":"lib/access.ex","line":27},"op":"!=","right":{"kind":"atom","loc":{"column":26,"file":"lib/access.ex","line":27},"value":"missing"}}},"loc":{"column":35,"file":"lib/access.ex","line":27},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":7,"file":"lib/access.ex","line":28},"name":"role"},"loc":{"column":12,"file":"lib/access.ex","line":28},"op":"!=","right":{"kind":"atom","loc":{"column":15,"file":"lib/access.ex","line":28},"value":"missing"}}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":25},"name":"fields_present","params":[{"kind":"var","loc":{"column":22,"file":"lib/access.ex","line":25},"name":"actor_tenant"},{"kind":"var","loc":{"column":36,"file":"lib/access.ex","line":25},"name":"resource_tenant"},{"kind":"var","loc":{"column":53,"file":"lib/access.ex","line":25},"name":"role"}],"visibility":"public"},{"body":{"body":{"body":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":34},"name":"owner"},"loc":{"column":11,"file":"lib/access.ex","line":34},"op":"or","right":{"kind":"var","loc":{"column":14,"file":"lib/access.ex","line":34},"name":"viewer"}},"kind":"let","loc":{"column":12,"file":"lib/access.ex","line":33},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":33},"name":"viewer"},"value":{"args":[{"kind":"var","loc":{"column":26,"file":"lib/access.ex","line":33},"name":"role"},{"kind":"var","loc":{"column":32,"file":"lib/access.ex","line":33},"name":"actor_tenant"},{"kind":"var","loc":{"column":46,"file":"lib/access.ex","line":33},"name":"resource_tenant"}],"kind":"call","loc":{"column":14,"file":"lib/access.ex","line":33},"module":null,"name":"viewer_read"}},"kind":"let","loc":{"column":11,"file":"lib/access.ex","line":32},"pattern":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":32},"name":"owner"},"value":{"args":[{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":32},"name":"role"},{"kind":"var","loc":{"column":30,"file":"lib/access.ex","line":32},"name":"actor_tenant"},{"kind":"var","loc":{"column":44,"file":"lib/access.ex","line":32},"name":"resource_tenant"}],"kind":"call","loc":{"column":13,"file":"lib/access.ex","line":32},"module":null,"name":"owner_read"}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":31},"name":"role_admitted","params":[{"kind":"var","loc":{"column":21,"file":"lib/access.ex","line":31},"name":"role"},{"kind":"var","loc":{"column":27,"file":"lib/access.ex","line":31},"name":"actor_tenant"},{"kind":"var","loc":{"column":41,"file":"lib/access.ex","line":31},"name":"resource_tenant"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":38},"name":"role"},"loc":{"column":10,"file":"lib/access.ex","line":38},"op":"==","right":{"kind":"atom","loc":{"column":13,"file":"lib/access.ex","line":38},"value":"owner"}},"loc":{"column":20,"file":"lib/access.ex","line":38},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":38},"name":"actor_tenant"},"loc":{"column":37,"file":"lib/access.ex","line":38},"op":"==","right":{"kind":"var","loc":{"column":40,"file":"lib/access.ex","line":38},"name":"resource_tenant"}}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":37},"name":"owner_read","params":[{"kind":"var","loc":{"column":18,"file":"lib/access.ex","line":37},"name":"role"},{"kind":"var","loc":{"column":24,"file":"lib/access.ex","line":37},"name":"actor_tenant"},{"kind":"var","loc":{"column":38,"file":"lib/access.ex","line":37},"name":"resource_tenant"}],"visibility":"public"},{"body":{"kind":"binary","left":{"kind":"binary","left":{"kind":"var","loc":{"column":5,"file":"lib/access.ex","line":42},"name":"role"},"loc":{"column":10,"file":"lib/access.ex","line":42},"op":"==","right":{"kind":"atom","loc":{"column":13,"file":"lib/access.ex","line":42},"value":"viewer"}},"loc":{"column":21,"file":"lib/access.ex","line":42},"op":"and","right":{"kind":"binary","left":{"kind":"var","loc":{"column":25,"file":"lib/access.ex","line":42},"name":"actor_tenant"},"loc":{"column":38,"file":"lib/access.ex","line":42},"op":"==","right":{"kind":"var","loc":{"column":41,"file":"lib/access.ex","line":42},"name":"resource_tenant"}}},"kind":"function","loc":{"column":3,"file":"lib/access.ex","line":41},"name":"viewer_read","params":[{"kind":"var","loc":{"column":19,"file":"lib/access.ex","line":41},"name":"role"},{"kind":"var","loc":{"column":25,"file":"lib/access.ex","line":41},"name":"actor_tenant"},{"kind":"var","loc":{"column":39,"file":"lib/access.ex","line":41},"name":"resource_tenant"}],"visibility":"public"}],"kind":"module","loc":{"column":1,"file":"lib/access.ex","line":1},"name":"TenantGate","struct_fields":null}],"version":1}
+--- a/verification/source-map.json
++++ b/verification/source-map.json
+@@ -738,28 +738,60 @@
+   {
+     "node_id": "ir.modules.0.functions.7.body",
+     "kind": "binary",
+-    "column": 10,
++    "column": 21,
+     "file": "lib/access.ex",
+     "line": 42,
+     "generated_line": 53
+   },
+   {
+     "node_id": "ir.modules.0.functions.7.body.left",
+-    "kind": "var",
+-    "column": 5,
++    "kind": "binary",
++    "column": 10,
+     "file": "lib/access.ex",
+     "line": 42,
+     "generated_line": 53
+   },
+   {
+-    "node_id": "ir.modules.0.functions.7.body.right",
+-    "kind": "atom",
+-    "column": 13,
++    "node_id": "ir.modules.0.functions.7.body.left.left",
++    "kind": "var",
++    "column": 5,
+     "file": "lib/access.ex",
+     "line": 42,
+     "generated_line": 53
+   },
+   {
++    "node_id": "ir.modules.0.functions.7.body.left.right",
++    "kind": "atom",
++    "column": 13,
++    "file": "lib/access.ex",
++    "line": 42,
++    "generated_line": 53
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.right",
++    "kind": "binary",
++    "column": 38,
++    "file": "lib/access.ex",
++    "line": 42,
++    "generated_line": 53
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.right.left",
++    "kind": "var",
++    "column": 25,
++    "file": "lib/access.ex",
++    "line": 42,
++    "generated_line": 53
++  },
++  {
++    "node_id": "ir.modules.0.functions.7.body.right.right",
++    "kind": "var",
++    "column": 41,
++    "file": "lib/access.ex",
++    "line": 42,
++    "generated_line": 53
++  },
++  {
+     "node_id": "ir.modules.0.functions.7.params.0",
+     "kind": "var",
+     "column": 19,
+@@ -778,7 +810,7 @@
+   {
+     "node_id": "ir.modules.0.functions.7.params.2",
+     "kind": "var",
+-    "column": 40,
++    "column": 39,
+     "file": "lib/access.ex",
+     "line": 41,
+     "generated_line": 50
