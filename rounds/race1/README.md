@@ -47,6 +47,7 @@ These counts describe planned or observed arm slots across this descriptive bund
 These tables report observed scores from single runs, not a language ranking.
 
 The specification used in this race described Kogen as a Rust program in several places and included Rust-specific details; this may have favoured the Rust arm. A language-neutral specification is being prepared for the next race.
+The specification given to the agents included prototype implementations in Rust, Go and Elixir (spec/quint/prototype/impls/), but none in TypeScript or Gleam; this may have favoured the Rust, Go and Elixir arms.
 
 The official-v2 score is the reported outcome; superseded and approximate records remain labelled in each preserved `scores.tsv`. Race 1 per-case results from the official run were not preserved: after recording each aggregate, the scorer deleted that run's workdir. [`rescore/`](rescore/README.md) contains per-case outcomes from a labelled re-score of the four concurrent arms' FINAL code using the official-v2 config. It is not the official run and may differ by ±1–5 cases. No re-score of the separate Gleam arm is preserved.
 

@@ -1,6 +1,7 @@
 # Race 1 FINAL re-score supplement
 
 The specification used in this race described Kogen as a Rust program in several places and included Rust-specific details; this may have favoured the Rust arm. A language-neutral specification is being prepared for the next race.
+The specification given to the agents included prototype implementations in Rust, Go and Elixir (spec/quint/prototype/impls/), but none in TypeScript or Gleam; this may have favoured the Rust, Go and Elixir arms.
 
 Race 1 ran on a MacBook. Official-run per-case results were not preserved: the scorer deleted each working directory after recording the aggregate. The published supplement re-scores the four concurrent arms’ final code with the official-v2 settings; it is not the official run and may differ by ±1–5 cases. No Gleam re-score is preserved. Implementation code remains private. For setup and scoring commands, see [reproduction](../README.md#reproduction).
 
