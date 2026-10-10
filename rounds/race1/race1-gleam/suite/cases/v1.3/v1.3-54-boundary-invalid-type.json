@@ -1,0 +1,27 @@
+{
+  "id": "v1.3-54-boundary-invalid-type",
+  "profile": "v1.3",
+  "title": "Shaping boundary coverage rejects non-boolean values",
+  "spec": [
+    "\u00a72.3"
+  ],
+  "fixture": "kt",
+  "project": {
+    "shaping": {
+      "boundary_coverage": "yes"
+    }
+  },
+  "steps": [
+    {
+      "run": [
+        "kogen",
+        "queue",
+        "start"
+      ],
+      "expect": {
+        "exit": 3,
+        "stdout_contains": "shaping.boundary_coverage must be true or false"
+      }
+    }
+  ]
+}

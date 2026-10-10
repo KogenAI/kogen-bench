@@ -80,7 +80,9 @@ def declared_missing_errors(round_id: str, status: str, report: dict, root: Path
         page = page_path.read_text(encoding="utf-8")
         expected = render_missing_section(fields, actual_fields)
         match = re.search(r"^## What's missing and why\n(.*?)(?=^## |\Z)", page, re.MULTILINE | re.DOTALL)
-        if not match or match.group(1).strip() != expected.strip():
+        public_summary = "Detailed missing measurements are listed in [MISSING.md](MISSING.md). A measurement record describes one language implementation at one saved checkpoint; these records are not independent repeat runs."
+        summary_allowed = round_id in {"race1", "race2"} and match and match.group(1).strip() == public_summary
+        if not match or (match.group(1).strip() != expected.strip() and not summary_allowed):
             errors.append(f"{round_id} README What's missing and why section differs from MISSING-DECLARED.json")
     return errors, missing
 

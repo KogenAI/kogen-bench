@@ -4,6 +4,8 @@ Every round directory and public variant is indexed and registered. Detailed pag
 
 Terminology: [public round glossary](GLOSSARY.md).
 
+- [Race 1](race1/README.md) — **DESCRIPTIVE** One run per language on a MacBook. Official aggregate scores and a separately labelled four-arm re-score are published; official per-case results were not preserved, and arm code remains private.
+
 ## Outcome source crosswalk
 
 The official [cells.jsonl](../results/cells.jsonl) export records public outcome states, including unresolved and not-scored rows; [cells.csv](../results/cells.csv) is its tabular export. The [run-record index](../results/run-records/index.json) lists captured deliveries, including deliveries without an official grade. The two exports have different purposes and can disagree on classification or denominator. Round tables name their source; where a cell-level crosswalk is unavailable, the page withholds a combined result and its register status records the limitation.

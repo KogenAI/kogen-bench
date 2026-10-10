@@ -91,6 +91,17 @@
       "availability_note": "The published source table and Standard records preserve available cell outcomes; raw execution receipts are incomplete and full model execution cannot be replayed."
     },
     {
+      "round_id": "core4b-ksub-max",
+      "script": null,
+      "inputs": [
+        "rounds/core4b-ksub-max/data/cells.csv",
+        "rounds/core4b-ksub-max/records.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "The published source table and Standard records preserve available cell outcomes; raw execution receipts are incomplete and full model execution cannot be replayed."
+    },
+    {
       "round_id": "ctx-store",
       "script": null,
       "inputs": [],
@@ -121,6 +132,18 @@
       "replay_type": "unavailable",
       "full_execution_replayable": false,
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
+    },
+    {
+      "round_id": "gleam",
+      "script": null,
+      "inputs": [
+        "rounds/gleam/records.jsonl",
+        "rounds/gleam/README.md",
+        "rounds/gleam/cells.csv"
+      ],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
     },
     {
       "round_id": "grok-frontier",
@@ -390,6 +413,18 @@
       "replay_type": "analysis-only",
       "full_execution_replayable": false,
       "availability_note": "Recomputes request counts and quantiles from text-free event logs; it does not repeat model calls."
+    },
+    {
+      "round_id": "luna-medium",
+      "script": null,
+      "inputs": [
+        "rounds/luna-medium/README.md",
+        "rounds/luna-medium/cells.csv",
+        "rounds/luna-medium/records.jsonl"
+      ],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
     },
     {
       "round_id": "night-2026-10-01",
@@ -1298,6 +1333,30 @@
       "availability_note": "Extracts the two v2 smoke rows and controls; it does not launch scored cells."
     },
     {
+      "round_id": "r70-rve2",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
+    },
+    {
+      "round_id": "r70-rve3",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
+    },
+    {
+      "round_id": "r70-spot1",
+      "script": null,
+      "inputs": [],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
+    },
+    {
       "round_id": "r70-task8",
       "script": null,
       "inputs": [],
@@ -1370,6 +1429,26 @@
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
     },
     {
+      "round_id": "race1",
+      "script": null,
+      "inputs": [
+        "rounds/race1/README.md",
+        "rounds/race1/HARNESS.md",
+        "rounds/race1/SCORING-CONFIG.md",
+        "rounds/race1/race1/scores.tsv",
+        "rounds/race1/race1-gleam/scores.tsv",
+        "rounds/race1/records.jsonl",
+        "rounds/race1/rescore/README.md",
+        "rounds/race1/rescore/FINAL-rust.tsv",
+        "rounds/race1/rescore/FINAL-go.tsv",
+        "rounds/race1/rescore/FINAL-ts.tsv",
+        "rounds/race1/rescore/FINAL-ex.tsv"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Published race scores and per-case outputs are available for inspection and summary checks. Original model execution is not replayed; arm code was not published."
+    },
+    {
       "round_id": "rails-catalogue",
       "script": null,
       "inputs": [],
@@ -1400,6 +1479,18 @@
       "replay_type": "analysis-only",
       "full_execution_replayable": false,
       "availability_note": "Recomputes the preregistered interim and final decision from the sanitized plan receipts and 42 mined records; model execution and hidden grading are not replayed."
+    },
+    {
+      "round_id": "shape1-wave1",
+      "script": null,
+      "inputs": [
+        "rounds/shape1-wave1/README.md",
+        "rounds/shape1-wave1/cells.csv",
+        "rounds/shape1-wave1/records.jsonl"
+      ],
+      "replay_type": "unavailable",
+      "full_execution_replayable": false,
+      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
     },
     {
       "round_id": "sol-medium",
@@ -1571,77 +1662,6 @@
       "replay_type": "unavailable",
       "full_execution_replayable": false,
       "availability_note": "No public per-round analysis script with a complete, identified input bundle is published. See the round README, MEASURED.md, and MISSING.md for recorded scope and gaps; historical execution inputs/toolchains/grading are not bundled."
-    },
-    {
-      "round_id": "r70-rve2",
-      "script": null,
-      "inputs": [],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
-    },
-    {
-      "round_id": "r70-rve3",
-      "script": null,
-      "inputs": [],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
-    },
-    {
-      "round_id": "r70-spot1",
-      "script": null,
-      "inputs": [],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "Only filtered grade and manifest fields, selected launcher lines, and corrected audit counts are available; no complete delivery bundle or execution replay is published."
-    },
-    {
-      "round_id": "core4b-ksub-max",
-      "script": null,
-      "inputs": [
-        "rounds/core4b-ksub-max/data/cells.csv",
-        "rounds/core4b-ksub-max/records.jsonl"
-      ],
-      "replay_type": "analysis-only",
-      "full_execution_replayable": false,
-      "availability_note": "The published source table and Standard records preserve available cell outcomes; raw execution receipts are incomplete and full model execution cannot be replayed."
-    },
-    {
-      "round_id": "luna-medium",
-      "script": null,
-      "inputs": [
-        "rounds/luna-medium/README.md",
-        "rounds/luna-medium/cells.csv",
-        "rounds/luna-medium/records.jsonl"
-      ],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
-    },
-    {
-      "round_id": "gleam",
-      "script": null,
-      "inputs": [
-        "rounds/gleam/records.jsonl",
-        "rounds/gleam/README.md",
-        "rounds/gleam/cells.csv"
-      ],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
-    },
-    {
-      "round_id": "shape1-wave1",
-      "script": null,
-      "inputs": [
-        "rounds/shape1-wave1/README.md",
-        "rounds/shape1-wave1/cells.csv",
-        "rounds/shape1-wave1/records.jsonl"
-      ],
-      "replay_type": "unavailable",
-      "full_execution_replayable": false,
-      "availability_note": "The public per-cell summaries and Standard-shaped records preserve the reported outcomes; original execution and complete phase receipts are not available for full replay."
     }
   ]
 }

@@ -126,6 +126,8 @@ SPEC_PROTOCOL_ALLOWLIST = {
 
 
 TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base|bases)/|[^/]+/MANIFEST\.sha256$)')
+RACE_SYNTHETIC_FIXTURE_TREE_RE=re.compile(r'^rounds/race1/race1/amend-1/.*\.patch$|^rounds/race[12]/(?:race1(?:-gleam)?|race2(?:b|s|s2)?)/(?:spec|suite|results|results-summary)/')
+RACE_SYNTHETIC_FIXTURE_RULES={'Bearer token','JWT','IPv4 address','email address','private hostname','UUID'}
 TASK_REFERENCE_PATCH_EVIDENCE=re.compile(r'(?i)("evidence"\s*:\s*)\[\s*"hidden/solution\.patch"')
 TASK_UPSTREAM_PATCH_PATH=re.compile(r'(?i)"upstream_path"\s*:\s*"tasks/[^"\n]+/solution\.patch"')
 TASK_SEALED_PATCH_EVIDENCE=re.compile(r'(?i)"hidden/sealed/solution\.patch"')
@@ -164,6 +166,7 @@ LOOPBACK_LITERAL_ALLOWLIST={
 def publication_scan_findings(text, relative_path):
     findings=[]
     task_source=bool(TASK_SOURCE_TREE_RE.match(relative_path))
+    race_fixture=bool(RACE_SYNTHETIC_FIXTURE_TREE_RE.match(relative_path))
     # These two fixed paths are the public, newly provisioned host interface.
     # The exception applies only to the host kit files, never to unrelated
     # paths, credentials, transcripts, or historical archive locations.
@@ -175,8 +178,8 @@ def publication_scan_findings(text, relative_path):
             path_scan_text=re.sub(r'/'+'srv'+r'(?:/bh)?(?=\s|$)', '<bench-mount>', path_scan_text)
     if not task_source and contains_private_path(path_scan_text):
         findings.append('private filesystem/archive path')
-    rules=[('privacy',label,pattern) for label,pattern in PRIVACY_RULES if not task_source or label in TASK_SOURCE_RULES]
-    if not task_source and Path(relative_path).suffix.lower() in {'.md','.json','.jsonl','.csv','.txt'}:
+    rules=[('privacy',label,pattern) for label,pattern in PRIVACY_RULES if (not task_source or label in TASK_SOURCE_RULES) and (not race_fixture or label not in RACE_SYNTHETIC_FIXTURE_RULES)]
+    if not task_source and not race_fixture and Path(relative_path).suffix.lower() in {'.md','.json','.jsonl','.csv','.txt'}:
         rules.extend(('editorial',label,pattern) for label,pattern in EDITORIAL_RULES)
     for family,label,pattern in rules:
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
@@ -524,7 +527,7 @@ def validate_round_crosswalk(round_ids, cells, claims, crosswalk):
         'started':re.compile(r'identified scored starts|started|start count',re.I),
         'finished':re.compile(r'finished|completed',re.I),
         'graded':re.compile(r'officially graded|graded cells|graded count',re.I),
-        'itt':re.compile(r'itt denominator|itt n|itt count',re.I),
+        'itt':re.compile(r'itt denominator|itt n|itt count|observed language implementations',re.I),
     }
     disposition_unknown=defaultdict(set)
     disposition_records=defaultdict(list)

@@ -1,0 +1,33 @@
+diff --git a/kogen_conformance/runner.py b/kogen_conformance/runner.py
+index 4856102..553faaf 100644
+--- a/kogen_conformance/runner.py
++++ b/kogen_conformance/runner.py
+@@ -1550,6 +1550,20 @@ STEP_KINDS = {
+ 
+ 
+ # ---------------------------------------------------------------------------- one case
++def _sweep_case(workdir):
++    """Kill every process whose cwd is under this case's workdir (escaped sessions/groups). Harness-side only."""
++    try:
++        out = subprocess.run(["lsof", "-t", "-a", "-d", "cwd", "+D", workdir], capture_output=True, text=True, timeout=30).stdout
++        me = os.getpid()
++        for pid in set(out.split()):
++            if pid.isdigit() and int(pid) != me:
++                try:
++                    os.kill(int(pid), 9)
++                except Exception:
++                    pass
++    except Exception:
++        pass
++
+ def run_case(case, opts):
+     started = time.time()
+     result = {"id": case["id"], "profile": case["profile"], "title": case.get("title", ""),
+@@ -1591,6 +1605,7 @@ def run_case(case, opts):
+             failures.append({"instance": label, "harness_error": "%s: %s" % (type(e).__name__, e),
+                              "trace": traceback.format_exc()[-1500:]})
+         hints += [h for h in cr.hints if h not in hints]
++        _sweep_case(workdir)
+         if ok and not opts.keep:
+             ctx.make_writable(workdir)
+             shutil.rmtree(workdir, ignore_errors=True)

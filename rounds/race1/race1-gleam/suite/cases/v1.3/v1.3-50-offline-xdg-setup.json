@@ -1,0 +1,70 @@
+{
+  "id": "v1.3-50-offline-xdg-setup",
+  "profile": "v1.3",
+  "title": "Offline setup and gate inherit pre-seeded XDG paths",
+  "spec": [
+    "\u00a75.2",
+    "\u00a75.3",
+    "\u00a72.9"
+  ],
+  "fixture": "kt",
+  "env": {},
+  "steps": [
+    {
+      "sh": "mkdir -p \"{case}/xdg-cache/pkg\" \"{case}/xdg-config\" \"{case}/xdg-data\" \"{case}/xdg-state\"; printf seeded > \"{case}/xdg-cache/pkg/artifact\""
+    },
+    {
+      "intent": "greet"
+    },
+    {
+      "run": [
+        "kogen",
+        "intent",
+        "approve",
+        "greet",
+        "{hash8:greet}"
+      ],
+      "env": {
+        "XDG_CACHE_HOME": "{case}/xdg-cache",
+        "XDG_CONFIG_HOME": "{case}/xdg-config",
+        "XDG_DATA_HOME": "{case}/xdg-data",
+        "XDG_STATE_HOME": "{case}/xdg-state",
+        "HTTPS_PROXY": "http://127.0.0.1:1",
+        "HTTP_PROXY": "http://127.0.0.1:1",
+        "ALL_PROXY": "http://127.0.0.1:1"
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ],
+  "project": {
+    "setup": [
+      {
+        "name": "offline",
+        "argv": [
+          "sh",
+          "checks/offline-setup.sh"
+        ],
+        "timeout_ms": 60000
+      }
+    ],
+    "setup_outputs": [
+      "build"
+    ],
+    "checks": [
+      {
+        "name": "xdg-gate",
+        "argv": [
+          "sh",
+          "checks/xdg-gate.sh"
+        ],
+        "timeout_ms": 60000
+      }
+    ]
+  },
+  "fixture_files": {
+    "checks/offline-setup.sh": "#!/bin/sh\nset -eu\n[ \"$XDG_CACHE_HOME\" = \"{case}/xdg-cache\" ]\n[ \"$XDG_CONFIG_HOME\" = \"{case}/xdg-config\" ]\n[ \"$XDG_DATA_HOME\" = \"{case}/xdg-data\" ]\n[ \"$XDG_STATE_HOME\" = \"{case}/xdg-state\" ]\n[ \"$(cat \"$XDG_CACHE_HOME/pkg/artifact\")\" = seeded ] || { HTTPS_PROXY=http://127.0.0.1:1 HTTP_PROXY=http://127.0.0.1:1 ALL_PROXY=http://127.0.0.1:1 curl --max-time 2 https://offline.invalid/; exit 9; }\nprintf touched > \"$XDG_CACHE_HOME/pkg/probe\"\nmkdir -p build\nprintf ready > build/ready\n",
+    "checks/xdg-gate.sh": "#!/bin/sh\nset -eu\n[ \"$XDG_CACHE_HOME\" = \"{case}/xdg-cache\" ]\n[ \"$XDG_CONFIG_HOME\" = \"{case}/xdg-config\" ]\n[ \"$XDG_DATA_HOME\" = \"{case}/xdg-data\" ]\n[ \"$XDG_STATE_HOME\" = \"{case}/xdg-state\" ]\n[ \"$(cat \"$XDG_CACHE_HOME/pkg/artifact\")\" = seeded ]\n[ -f build/ready ]\n[ \"$(cat \"$XDG_CACHE_HOME/pkg/probe\")\" = touched ]\n"
+  }
+}

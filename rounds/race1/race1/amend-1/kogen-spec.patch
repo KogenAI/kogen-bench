@@ -1,0 +1,1098 @@
+diff --git a/CHANGES-v1.3.md b/CHANGES-v1.3.md
+index f8ad772..0df44db 100644
+--- a/CHANGES-v1.3.md
++++ b/CHANGES-v1.3.md
+@@ -1,8 +1,8 @@
+-# Changes for v1.3-draft — 7 October 2026
++# Changes for v1.3.1-draft — 7–8 October 2026
+ 
+ This draft records the v1.3 decisions dated 7 October 2026, including the auditor, baseline, recovery, Shape, and cache changes. It supersedes the 5 October default that allowed automatic acceptance demotion. Evidence and limits are recorded with each decision; product defaults are not measured winners.
+ 
+-The version label is **v1.3-draft**. The separate conformance repository retains its frozen v1.1 corpus and has experimental v1.2/v1.3 overlays. It pins the spec revision tested by each current run; earlier reports retain their actual revision provenance. Cases below MUST be covered by a frozen suite before claiming v1.3 release conformance. Existing implementation parity results do not validate these changes. Earlier v1.2 comparisons are historical; current normative clauses and this change record take precedence.
++The version label is **v1.3.1-draft**. The frozen v1.1 suite remains unchanged; the amend-1 conformance overlay adds cases for the amendments. Cases below MUST be implemented and frozen in a new suite before claiming v1.3 release conformance. Existing implementation parity results do not validate these changes. Earlier v1.2 comparisons are historical; current normative clauses and this change record take precedence.
+ 
+ ## 1. Observational Build auditor
+ 
+@@ -66,7 +66,6 @@ The version label is **v1.3-draft**. The separate conformance repository retains
+ - Missing-file finish guards spend turns, not passes/repairs. Style repairs spend turns and their two-repair allowance, not counted passes; leftovers warn. Coverage/audit requests and combined repair feedback have separate accurate counters.
+ - Identical resend/partial-stream continuation consumes attempts under one logical turn; failed/unknown-usage attempts remain in accounting. Provider/environment failure does not invoke fallback; elapsed time includes setup, validation and waits.
+ - Probe caps apply only to an actual probe path. Publish the receipt on failure as well as success. Measure the operational cohort and smaller-budget challenger on completion, yield, cost and time before adopting tighter total limits.
+-- Shaping audit: an `over_strict` citation that exactly quotes the Request triggers one repair; a quote found only in the test source or Intent warns without repair. An `infeasible` citation must exactly quote that item's base output; a quote from another item's output warns without repair. Empty, missing, case-changed and whitespace-changed citations warn without repair.
+ 
+ ## 5. Provider-aware Shape fallback
+ 
+@@ -99,7 +98,7 @@ The version label is **v1.3-draft**. The separate conformance repository retains
+ 
+ ## 7. Cross-session static prefix
+ 
+-**Change:** [§4.9.1/§4.9.2](spec/04-provider.md) requires byte-identical generic instructions/tool schemas for matching adapter/prompt/tool versions across independent Shapes, Builds and Shape-to-Build. Variable task/run data follows them. Threads remain distinct. Persisted run affinity remains allowed; evidenced safe shared affinity is also allowed with separate provider/model and security boundaries. [P2](spec/CONFORMANCE-v1.2-CASES.md) no longer requires a different affinity key for every Build. This does not assert that shared routing always improves reuse. The HTTP body field order, nested-key ordering, compact encoding, input-last layout and retry byte identity are specified in §4.1; request fixtures still need to measure cross-invocation prefix reuse.
++**Change:** [§4.9.1/§4.9.2](spec/04-provider.md) requires byte-identical generic instructions/tool schemas for matching adapter/prompt/tool versions across independent Shapes, Builds and Shape-to-Build. Variable task/run data follows them. Threads remain distinct. Persisted run affinity remains allowed; evidenced safe shared affinity is also allowed with separate provider/model and security boundaries. [P2](spec/CONFORMANCE-v1.2-CASES.md) no longer requires a different affinity key for every Build. This does not assert that shared routing always improves reuse, and it does not specify HTTP request serialization, which remains a separate open question.
+ 
+ **Evidence:** Earlier tests scoped prefix stability to one Build and required different affinity for every Build; neither covers separate invocations. Run-specific timestamps/metadata in static content could previously pass. No evidence establishes an optimal shared-affinity scope.
+ 
+@@ -116,5 +115,12 @@ The version label is **v1.3-draft**. The separate conformance repository retains
+ 
+ - Implement observational gate/audit/report/config behavior, independent v3 baseline keys and exact-base checking, durable recovery publication and pending-cleanup retry, Shape counters/receipts/provider resolution, and cache replay/report/prefix contracts.
+ - Migrate affected Quint adapters/scenarios/goldens independently from prose; implement real-I/O crash cases and provider request inspection. Do not treat model-only passes as filesystem/provider or end-to-end implementation conformance.
+-- Freeze a new executable suite with the cases above; retain v1.1 unchanged as historical parity and report exact spec/suite/implementation revisions. The suite owns its spec revision pin.
++- Freeze a new executable suite with the cases above; retain v1.1 unchanged as historical parity and report exact spec/suite/implementation revisions. No conformance-repository edits were made here.
+ - Run exact-policy frozen/prospective auditor calibration before considering demotion; measure Shape challengers and same-session/separate-session cache policies; publish a feasible live cache replay with complete telemetry.
++
++## v1.3.1-draft amendments — 8 October 2026
++
++1. §5.2 passes XDG and named tool-cache locations to every project child. §5.3 confines only the effective cache paths and preserves credential read denials. §2.9 includes stable effective cache locations in setup identity while excluding run-local `TMPDIR`. This corrects the offline XDG setup failure.
++2. `shaping.boundary_coverage` is an explicitly writable boolean, default false. False or omitted preserves the exact existing Shape prompt; true appends the HC02 public-boundary instruction to primary and fallback Shape only. No deterministic coverage validator or approval refusal is admitted in this amendment; that criterion is reserved for a later policy change.
++
++The amend-1 conformance cases assert offline setup and gate access through nondefault XDG locations, reject an XDG-dropping fake, and pin the OFF and ON prompt hashes. These are draft checks, not a v1.3 release freeze.
+diff --git a/README.md b/README.md
+index 1515ac5..89ec57e 100644
+--- a/README.md
++++ b/README.md
+@@ -1,14 +1,10 @@
+ # Kogen specification
+ 
+-> **Archived.** This specification, at v1.3-draft, was used to build Kogen in Rust, Go and TypeScript in October 2026 and compare the stacks. Rust was chosen, and the specification now lives with the Rust implementation. More at [kogen.dev](https://kogen.dev).
+->
+-> The comparison: [kogen-spec](https://github.com/KogenAI/kogen-spec) · [kogen-conformance](https://github.com/KogenAI/kogen-conformance) · [kogen-rs](https://github.com/KogenAI/kogen-rs) · [kogen-go](https://github.com/KogenAI/kogen-go) · [kogen-ts](https://github.com/KogenAI/kogen-ts)
+-
+ Kogen is a CLI for shaping coding requests into reviewable Intents and acceptance tests, then building, checking, and landing approved changes.
+ 
+ This repository contains the language-neutral specification, Quint models, fixtures, and model prototypes. It does not contain the distributable Kogen CLI.
+ 
+-The current specification is v1.3-draft. The separate conformance repository retains frozen historical v1.1 cases and offers experimental newer overlays; this repository does not claim v1.3 release conformance.
++The current specification is v1.3.1-draft. The frozen black-box conformance suite remains v1.1, so this repository does not claim v1.3 release conformance.
+ 
+ ## Start here
+ 
+diff --git a/quint/ADAPTER.md b/quint/ADAPTER.md
+index f3216ac..131f92e 100644
+--- a/quint/ADAPTER.md
++++ b/quint/ADAPTER.md
+@@ -14,7 +14,7 @@ The rewrite ships the fixed `kogen` CLI and a **separate private** JSON-lines re
+ | Prompt cache wire and usage | Fake-provider request bodies/headers and journal `cached_input` check deterministic rules. A frozen feasible live replay separately checks the ≥0.95 threshold on each designated warm request. | `session`: affinity and thread identity, turn/repair stability and checkpoint boundaries. |
+ | Grok provider wire/account detail, setup cache, witness, edge probes | CLI-RULE admits `grok` on the existing provider verbs; §4.10 and P10 specify its behavior, but the frozen v1.1 suite lacks Grok coverage. | `accounts` remains diagnostic while its L-level precedence details are being validated; other experimental slices are diagnostic until promoted. |
+ 
+-The separate `kogen-conformance` repository retains a frozen historical v1.1 corpus of 244 cases. Its current default is an experimental v1.3 draft composition with v1.2 and v1.3 overlays, including prompt-cache and Grok cases. The suite pins the specification revision it tests and reports that revision with its own version; this repository does not pin a suite commit. A pass of the historical corpus alone does not establish v1.3 conformance, and a pass of the experimental composition is not a frozen v1.3 release certification. The additional wire cases in [CONFORMANCE-v1.2-CASES.md](../spec/CONFORMANCE-v1.2-CASES.md) remain useful for checking gaps.
++The separate `kogen-conformance` suite is **read-only** and tagged v1.1. It contains 244 cases/600 instances across the `cli`, `state`, `approval`, `shape`, `build`, `ladder`, `provider`, `custody`, `format`, and `exunit` profiles. A pass proves those frozen assertions, not v1.2-only prompt-cache or Grok behavior. Do not report a v1.2 release pass from frozen cases alone. A future suite version should be reviewed separately; until then, use the explicit wire cases in [CONFORMANCE-v1.2-CASES.md](../spec/CONFORMANCE-v1.2-CASES.md) as requirements, and mark unimplemented tests as gaps.
+ 
+ ## Minimal JSON-lines adapter, xspec/1
+ 
+diff --git a/quint/CLASSIFICATION.md b/quint/CLASSIFICATION.md
+index 243153d..2ebca9a 100644
+--- a/quint/CLASSIFICATION.md
++++ b/quint/CLASSIFICATION.md
+@@ -1,6 +1,6 @@
+ # Commitment classification for the language-neutral rewrite
+ 
+-**Source of authority:** [CLI-RULE.txt](../CLI-RULE.txt), the v1.3 changes in [CHANGES-v1.3.md](../CHANGES-v1.3.md), and `spec/`. G = GUARANTEED, L = LIKELY, E = EXPERIMENTAL. A row classifies the **whole numbered section**; a mixed row names its guaranteed kernel. Later evidence may promote L/E only through a spec and test change. The fixed CLI and the hash/queue/landing safety contract take priority over historical Elixir behavior. The current specification is **v1.3-draft**. The 7 Oct corrections supersede the 5 Oct automatic-demotion default and universal warm-request cache interpretation. The frozen v1.1 suite cannot validate these changes; classification G states a required contract, not an implementation or empirical validation claim.
++**Source of authority:** [CLI-RULE.txt](../CLI-RULE.txt), the v1.3 changes in [CHANGES-v1.3.md](../CHANGES-v1.3.md), and `spec/`. G = GUARANTEED, L = LIKELY, E = EXPERIMENTAL. A row classifies the **whole numbered section**; a mixed row names its guaranteed kernel. Later evidence may promote L/E only through a spec and test change. The fixed CLI and the hash/queue/landing safety contract take priority over historical Elixir behavior. The current specification is **v1.3.1-draft**. The 7 Oct corrections supersede the 5 Oct automatic-demotion default and universal warm-request cache interpretation. The frozen v1.1 suite cannot validate these changes; classification G states a required contract, not an implementation or empirical validation claim.
+ 
+ ## Prose sections
+ 
+@@ -133,7 +133,7 @@
+ - **Setup cache and strict YAML:** validate cross-language canonical bytes and representative invalid input classes before freezing exact diagnostics.
+ - **Historical `resilience` and prototype landing:** retain as research artifacts, never count their trace passes as rewrite conformance.
+ 
+-## v1.3-draft model boundaries and evidence
++## v1.3.1-draft model boundaries and evidence
+ 
+ - `gate`: current profile forbids demotion; its retained `Demote` event records an observation only and preserves item state, verdict, landability, offers and winner. The embedded regression uses A1 passing/A2 failing. Future experimental gate semantics are deliberately unmodeled until admission.
+ - `approve`: cache identity is `(checked baseTree, contextKey)` (the committed slice retains a map indexed by that pair); SHA-256, full environment/toolchain identities and check execution remain adapter inputs. `setup-cache` is unchanged: declared inputs may narrow setup products only.
+diff --git a/quint/slices/accounts/golden/hand/05-provider-and-environment-precedence.json b/quint/slices/accounts/golden/hand/05-provider-and-environment-precedence.json
+index 3a005cb..67b8ec9 100644
+--- a/quint/slices/accounts/golden/hand/05-provider-and-environment-precedence.json
++++ b/quint/slices/accounts/golden/hand/05-provider-and-environment-precedence.json
+@@ -1 +1 @@
+-{"name": "05-provider-and-environment-precedence", "source": "hand", "sets": [], "events": [{"tag": "Seed", "value": {"provider": "grok", "label": "team-x", "present": true, "saved": true, "signedIn": true, "email": "g@example.test", "expires": 0, "hasExpiry": false, "notice": false, "remoteRevoked": false}}, {"tag": "Seed", "value": {"provider": "chatgpt", "label": "work", "present": true, "saved": true, "signedIn": true, "email": "w@example.test", "expires": 0, "hasExpiry": false, "notice": false, "remoteRevoked": false}}, {"tag": "Use", "value": {"provider": "grok", "label": "team-x", "project": "alpha", "projectExists": true}}, {"tag": "Project", "value": {"name": "alpha", "exists": true, "provider": "grok", "account": "default"}}, {"tag": "SelectionDefault", "value": {"provider": "chatgpt"}}, {"tag": "Resolve", "value": {"project": "alpha"}}, {"tag": "Environment", "value": {"provider": "chatgpt", "account": "work"}}, {"tag": "Resolve", "value": {"project": "alpha"}}], "obs": [{"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "none", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "chatgpt", "signedIn": false}, {"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "grok", "signedIn": false}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "seed", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "seed", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_project", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "project", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "selection", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "team-x", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "environment", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "team-x", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "work", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}]}
+\ No newline at end of file
++{"name": "05-provider-and-environment-precedence", "source": "hand", "sets": [], "events": [{"tag": "Seed", "value": {"provider": "grok", "label": "team-x", "present": true, "saved": true, "signedIn": true, "email": "g@example.test", "expires": 0, "hasExpiry": false, "notice": false, "remoteRevoked": false}}, {"tag": "Seed", "value": {"provider": "chatgpt", "label": "work", "present": true, "saved": true, "signedIn": true, "email": "w@example.test", "expires": 0, "hasExpiry": false, "notice": false, "remoteRevoked": false}}, {"tag": "Use", "value": {"provider": "grok", "label": "team-x", "project": "alpha", "projectExists": true}}, {"tag": "Project", "value": {"name": "alpha", "exists": true, "provider": "grok", "account": "default"}}, {"tag": "SelectionDefault", "value": {"provider": "chatgpt"}}, {"tag": "Resolve", "value": {"project": "alpha"}}, {"tag": "Environment", "value": {"provider": "chatgpt", "account": "work"}}, {"tag": "Resolve", "value": {"project": "alpha"}}], "obs": [{"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "none", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "chatgpt", "signedIn": false}, {"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "grok", "signedIn": false}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "seed", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "seed", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_project", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "project", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "selection", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "team-x", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "environment", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "team-x", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "team-x", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "work", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "w@example.test", "expires": 0, "isDefault": false, "label": "work", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "team-x", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}]}
+\ No newline at end of file
+diff --git a/quint/slices/accounts/golden/hand/10-use-selects-provider-and-account.json b/quint/slices/accounts/golden/hand/10-use-selects-provider-and-account.json
+deleted file mode 100644
+index 2273fee..0000000
+--- a/quint/slices/accounts/golden/hand/10-use-selects-provider-and-account.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "10-use-selects-provider-and-account", "source": "hand", "sets": [], "events": [{"tag": "Login", "value": {"provider": "grok", "success": true, "email": "g@example.test", "expires": 0, "hasExpiry": false, "notice": false}}, {"tag": "Login", "value": {"provider": "chatgpt", "success": true, "email": "c@example.test", "expires": 0, "hasExpiry": false, "notice": false}}, {"tag": "Use", "value": {"provider": "grok", "label": "default", "project": "", "projectExists": false}}, {"tag": "Resolve", "value": {"project": ""}}, {"tag": "Use", "value": {"provider": "chatgpt", "label": "default", "project": "", "projectExists": false}}, {"tag": "Resolve", "value": {"project": ""}}, {"tag": "Project", "value": {"name": "alpha", "exists": true, "provider": "chatgpt", "account": ""}}, {"tag": "Use", "value": {"provider": "grok", "label": "default", "project": "alpha", "projectExists": true}}, {"tag": "Resolve", "value": {"project": "alpha"}}, {"tag": "Use", "value": {"provider": "chatgpt", "label": "default", "project": "alpha", "projectExists": true}}, {"tag": "Resolve", "value": {"project": "alpha"}}], "obs": [{"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "none", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "chatgpt", "signedIn": false}, {"email": "", "expires": 0, "isDefault": false, "label": "", "provider": "grok", "signedIn": false}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "login", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "login", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_default", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "", "resolvedProvider": "", "resolvedSaved": false, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "grok"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "grok"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_default", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "project", "providerAlpha": "chatgpt", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "default", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_project", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "default", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "grok", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "default", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "default", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "use_project", "providerAlpha": "chatgpt", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "grok", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}, {"broken": false, "chatAlpha": "default", "chatBravo": "", "chatDefault": "default", "exit": 0, "grokAlpha": "default", "grokBravo": "", "grokDefault": "default", "last": "ok", "operation": "resolve", "providerAlpha": "chatgpt", "providerBravo": "", "resolvedLabel": "default", "resolvedProvider": "chatgpt", "resolvedSaved": true, "rows": [{"email": "c@example.test", "expires": 0, "isDefault": true, "label": "default", "provider": "chatgpt", "signedIn": true}, {"email": "g@example.test", "expires": 0, "isDefault": false, "label": "default", "provider": "grok", "signedIn": true}], "selectedDefault": "chatgpt"}]}
+\ No newline at end of file
+diff --git a/quint/slices/accounts/scenarios/10-use-selects-provider-and-account.json b/quint/slices/accounts/scenarios/10-use-selects-provider-and-account.json
+deleted file mode 100644
+index 9b763cb..0000000
+--- a/quint/slices/accounts/scenarios/10-use-selects-provider-and-account.json
++++ /dev/null
+@@ -1,17 +0,0 @@
+-{
+-  "name": "10-use-selects-provider-and-account",
+-  "about": "Provider use selects both provider and saved account globally and for a project.",
+-  "steps": [
+-    {"do": ["Login", {"provider": "grok", "success": true, "email": "g@example.test", "expires": 0, "hasExpiry": false, "notice": false}]},
+-    {"do": ["Login", {"provider": "chatgpt", "success": true, "email": "c@example.test", "expires": 0, "hasExpiry": false, "notice": false}]},
+-    {"do": ["Use", {"provider": "grok", "label": "default", "project": "", "projectExists": false}], "expect": {"selectedDefault": "grok"}},
+-    {"do": ["Resolve", {"project": ""}], "expect": {"resolvedProvider": "grok", "resolvedLabel": "default"}},
+-    {"do": ["Use", {"provider": "chatgpt", "label": "default", "project": "", "projectExists": false}], "expect": {"selectedDefault": "chatgpt"}},
+-    {"do": ["Resolve", {"project": ""}], "expect": {"resolvedProvider": "chatgpt", "resolvedLabel": "default"}},
+-    {"do": ["Project", {"name": "alpha", "exists": true, "provider": "chatgpt", "account": ""}]},
+-    {"do": ["Use", {"provider": "grok", "label": "default", "project": "alpha", "projectExists": true}], "expect": {"providerAlpha": "grok", "grokAlpha": "default"}},
+-    {"do": ["Resolve", {"project": "alpha"}], "expect": {"resolvedProvider": "grok", "resolvedLabel": "default"}},
+-    {"do": ["Use", {"provider": "chatgpt", "label": "default", "project": "alpha", "projectExists": true}], "expect": {"providerAlpha": "chatgpt", "chatAlpha": "default"}},
+-    {"do": ["Resolve", {"project": "alpha"}], "expect": {"resolvedProvider": "chatgpt", "resolvedLabel": "default"}}
+-  ]
+-}
+diff --git a/quint/slices/accounts/spec/accounts.qnt b/quint/slices/accounts/spec/accounts.qnt
+index ce979be..5e7fd79 100644
+--- a/quint/slices/accounts/spec/accounts.qnt
++++ b/quint/slices/accounts/spec/accounts.qnt
+@@ -126,13 +126,13 @@ module accounts {
+     else if (s.broken) { ...s, last: "invalid_accounts_file", exit: 3, operation: "use" }
+     else if (e.project != "" and not(e.projectExists)) { ...s, last: "project_unavailable", exit: 3, operation: "use" }
+     else if (e.project == "")
+-      if (e.provider == "chatgpt") { ...s, chatDefault: e.label, selectedDefault: e.provider, last: "ok", exit: 0, operation: "use_default" }
+-      else { ...s, grokDefault: e.label, selectedDefault: e.provider, last: "ok", exit: 0, operation: "use_default" }
++      if (e.provider == "chatgpt") { ...s, chatDefault: e.label, last: "ok", exit: 0, operation: "use_default" }
++      else { ...s, grokDefault: e.label, last: "ok", exit: 0, operation: "use_default" }
+     else if (e.project == "alpha")
+-      if (e.provider == "chatgpt") { ...s, chatAlpha: e.label, providerAlpha: e.provider, last: "ok", exit: 0, operation: "use_project" }
+-      else { ...s, grokAlpha: e.label, providerAlpha: e.provider, last: "ok", exit: 0, operation: "use_project" }
+-    else if (e.provider == "chatgpt") { ...s, chatBravo: e.label, providerBravo: e.provider, last: "ok", exit: 0, operation: "use_project" }
+-    else { ...s, grokBravo: e.label, providerBravo: e.provider, last: "ok", exit: 0, operation: "use_project" }
++      if (e.provider == "chatgpt") { ...s, chatAlpha: e.label, last: "ok", exit: 0, operation: "use_project" }
++      else { ...s, grokAlpha: e.label, last: "ok", exit: 0, operation: "use_project" }
++    else if (e.provider == "chatgpt") { ...s, chatBravo: e.label, last: "ok", exit: 0, operation: "use_project" }
++    else { ...s, grokBravo: e.label, last: "ok", exit: 0, operation: "use_project" }
+ 
+   pure def resolve(s: State, project: str): State =
+     if (project != "" and not(projectKnown(project))) { ...s, last: "unknown_project", exit: 2, operation: "resolve" }
+diff --git a/quint/slices/gate/golden/hand/04-advisory.json b/quint/slices/gate/golden/hand/04-advisory.json
+index d292dbc..b83ca0c 100644
+--- a/quint/slices/gate/golden/hand/04-advisory.json
++++ b/quint/slices/gate/golden/hand/04-advisory.json
+@@ -1 +1 @@
+-{"name": "04-advisory", "source": "hand", "sets": [], "events": [{"tag": "Score", "value": {"policy": "green"}}, {"tag": "Baseline", "value": {"name": "c1", "status": "green"}}, {"tag": "Now", "value": {"name": "c1", "status": "green", "hasIds": true, "subset": true, "sameExit": true}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 1, "rows": 1}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "valid"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "garbled"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Offer", "value": {"rung": "1", "passed": 1, "blocking": 1, "diff": 3}}, {"tag": "Offer", "value": {"rung": "2", "passed": 1, "blocking": 2, "diff": 1}}, {"tag": "Pick"}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "contradicts"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "garbled"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "unknown", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "invalid"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Score", "value": {"policy": "green"}}, {"tag": "Offer", "value": {"rung": "3", "passed": 2, "blocking": 0, "diff": 5}}, {"tag": "Pick"}, {"tag": "Demote", "value": {"id": "A2", "verdict": "contradicts"}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Score", "value": {"policy": "green"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}], "obs": [{"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "none", "winner": ""}, {"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "unknown_item", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "bad_verdict", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green-or-advisory", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green-or-advisory", "verdict": "green", "winner": "3"}]}
+\ No newline at end of file
++{"name": "04-advisory", "source": "hand", "sets": [], "events": [{"tag": "Score", "value": {"policy": "green"}}, {"tag": "Baseline", "value": {"name": "c1", "status": "green"}}, {"tag": "Now", "value": {"name": "c1", "status": "green", "hasIds": true, "subset": true, "sameExit": true}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 1, "rows": 1}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "valid"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "garbled"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Offer", "value": {"rung": "1", "passed": 1, "blocking": 1, "diff": 3}}, {"tag": "Offer", "value": {"rung": "2", "passed": 1, "blocking": 2, "diff": 1}}, {"tag": "Pick"}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "contradicts"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "garbled"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "unknown", "verdict": "over_strict"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "invalid"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Score", "value": {"policy": "green"}}, {"tag": "Offer", "value": {"rung": "3", "passed": 2, "blocking": 0, "diff": 5}}, {"tag": "Pick"}, {"tag": "Demote", "value": {"id": "A2", "verdict": "contradicts"}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Score", "value": {"policy": "green"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}, {"tag": "Score", "value": {"policy": "green-or-advisory"}}, {"tag": "Demote", "value": {"id": "A2", "verdict": "over_strict"}}], "obs": [{"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "none", "winner": ""}, {"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": ""}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "unknown_item", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "bad_verdict", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green-or-advisory", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}}, "policy": "green", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "1"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "fail", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "unverified", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green-or-advisory", "verdict": "green", "winner": "3"}, {"excused": {"c1": false}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 1, "diff": 3, "passed": 1}, "2": {"blocking": 2, "diff": 1, "passed": 1}, "3": {"blocking": 0, "diff": 5, "passed": 2}}, "policy": "green-or-advisory", "verdict": "green", "winner": "3"}]}
+\ No newline at end of file
+diff --git a/quint/slices/gate/golden/hand/06-nonzero-runner-exit.json b/quint/slices/gate/golden/hand/06-nonzero-runner-exit.json
+deleted file mode 100644
+index 99912c2..0000000
+--- a/quint/slices/gate/golden/hand/06-nonzero-runner-exit.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "06-nonzero-runner-exit", "source": "hand", "sets": [], "events": [{"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": false, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Score", "value": {"policy": "green"}}], "obs": [{"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "suite", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "suite", "offers": {}, "policy": "green", "verdict": "unverified", "winner": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/gate/golden/hand/07-rerun-clears-suite.json b/quint/slices/gate/golden/hand/07-rerun-clears-suite.json
+deleted file mode 100644
+index 6bdb2b4..0000000
+--- a/quint/slices/gate/golden/hand/07-rerun-clears-suite.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "07-rerun-clears-suite", "source": "hand", "sets": [], "events": [{"tag": "Baseline", "value": {"name": "c1", "status": "red"}}, {"tag": "Now", "value": {"name": "c1", "status": "red", "hasIds": true, "subset": true, "sameExit": true}}, {"tag": "Offer", "value": {"rung": "1", "passed": 1, "blocking": 0, "diff": 2}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": false, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Score", "value": {"policy": "green"}}, {"tag": "Now", "value": {"name": "c1", "status": "red", "hasIds": true, "subset": true, "sameExit": true}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}}, {"tag": "Score", "value": {"policy": "green"}}], "obs": [{"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "suite", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "unverified", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": false, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {"c1": true}, "items": {"A1": {"demoted": false, "kind": "change", "passed": true}, "A2": {"demoted": false, "kind": "keep", "passed": true}}, "landable": true, "last": "ok", "ledger": "pass", "offers": {"1": {"blocking": 0, "diff": 2, "passed": 1}}, "policy": "green", "verdict": "green", "winner": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/gate/golden/hand/08-unavailable-reports.json b/quint/slices/gate/golden/hand/08-unavailable-reports.json
+deleted file mode 100644
+index c147430..0000000
+--- a/quint/slices/gate/golden/hand/08-unavailable-reports.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "08-unavailable-reports", "source": "hand", "sets": [], "events": [{"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "empty", "runnerDown": true, "exit0": false, "mutated": false, "failed": 0, "rows": 0}}, {"tag": "Rows", "value": {"id": "A2", "kind": "keep", "report": "malformed", "runnerDown": true, "exit0": false, "mutated": false, "failed": 0, "rows": 0}}, {"tag": "Rows", "value": {"id": "A1", "kind": "change", "report": "malformed", "runnerDown": true, "exit0": false, "mutated": true, "failed": 0, "rows": 0}}], "obs": [{"excused": {}, "items": {}, "landable": false, "last": "ok", "ledger": "", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {"A1": {"demoted": false, "kind": "change", "passed": false}}, "landable": false, "last": "ok", "ledger": "tool_missing", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {"A1": {"demoted": false, "kind": "change", "passed": false}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "tool_missing", "offers": {}, "policy": "green", "verdict": "", "winner": ""}, {"excused": {}, "items": {"A1": {"demoted": false, "kind": "change", "passed": false}, "A2": {"demoted": false, "kind": "keep", "passed": false}}, "landable": false, "last": "ok", "ledger": "tree_mutated", "offers": {}, "policy": "green", "verdict": "", "winner": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/gate/scenarios/04-advisory.json b/quint/slices/gate/scenarios/04-advisory.json
+index 4db7c35..fc2fe81 100644
+--- a/quint/slices/gate/scenarios/04-advisory.json
++++ b/quint/slices/gate/scenarios/04-advisory.json
+@@ -24,7 +24,6 @@
+     {"do": ["Offer", {"rung": "3", "passed": 2, "blocking": 0, "diff": 5}]},
+     {"do": ["Pick"], "expect": {"winner": "3"}},
+     {"do": ["Demote", {"id": "A2", "verdict": "contradicts"}], "expect": {"verdict": "unverified", "landable": false, "winner": "3", "offers": {"3": {"passed": 2, "blocking": 0, "diff": 5}}}},
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}], "expect": {"items": {"A1": {"passed": true, "demoted": false}}}},
+     {"do": ["Rows", {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}], "expect": {"items": {"A2": {"passed": true, "demoted": false}}}},
+     {"do": ["Score", {"policy": "green"}], "expect": {"verdict": "green", "landable": true}},
+     {"do": ["Demote", {"id": "A2", "verdict": "over_strict"}], "expect": {"verdict": "green", "landable": true, "winner": "3", "items": {"A2": {"passed": true, "demoted": false}}}},
+diff --git a/quint/slices/gate/scenarios/06-nonzero-runner-exit.json b/quint/slices/gate/scenarios/06-nonzero-runner-exit.json
+deleted file mode 100644
+index 3f39ef9..0000000
+--- a/quint/slices/gate/scenarios/06-nonzero-runner-exit.json
++++ /dev/null
+@@ -1,8 +0,0 @@
+-{
+-  "name": "06-nonzero-runner-exit",
+-  "about": "Passing item rows with a failing runner exit create a suite failure and cannot land.",
+-  "steps": [
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": false, "mutated": false, "failed": 0, "rows": 1}], "expect": {"ledger": "suite", "items": {"A1": {"passed": true}}}},
+-    {"do": ["Score", {"policy": "green"}], "expect": {"verdict": "unverified", "landable": false}}
+-  ]
+-}
+diff --git a/quint/slices/gate/scenarios/07-rerun-clears-suite.json b/quint/slices/gate/scenarios/07-rerun-clears-suite.json
+deleted file mode 100644
+index fe8c7b6..0000000
+--- a/quint/slices/gate/scenarios/07-rerun-clears-suite.json
++++ /dev/null
+@@ -1,16 +0,0 @@
+-{
+-  "name": "07-rerun-clears-suite",
+-  "about": "A failed runner exit blocks the whole scored run; a complete successful reverification can land while preserving baselines and offers.",
+-  "steps": [
+-    {"do": ["Baseline", {"name": "c1", "status": "red"}]},
+-    {"do": ["Now", {"name": "c1", "status": "red", "hasIds": true, "subset": true, "sameExit": true}]},
+-    {"do": ["Offer", {"rung": "1", "passed": 1, "blocking": 0, "diff": 2}]},
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": false, "mutated": false, "failed": 0, "rows": 1}], "expect": {"ledger": "suite"}},
+-    {"do": ["Rows", {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}]},
+-    {"do": ["Score", {"policy": "green"}], "expect": {"verdict": "unverified", "landable": false}},
+-    {"do": ["Now", {"name": "c1", "status": "red", "hasIds": true, "subset": true, "sameExit": true}], "expect": {"excused": {"c1": true}}},
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}], "expect": {"ledger": "pass", "items": {"A1": {"passed": true}}, "offers": {"1": {"passed": 1, "blocking": 0, "diff": 2}}}},
+-    {"do": ["Rows", {"id": "A2", "kind": "keep", "report": "ok", "runnerDown": false, "exit0": true, "mutated": false, "failed": 0, "rows": 1}]},
+-    {"do": ["Score", {"policy": "green"}], "expect": {"verdict": "green", "landable": true, "excused": {"c1": true}}}
+-  ]
+-}
+diff --git a/quint/slices/gate/scenarios/08-unavailable-reports.json b/quint/slices/gate/scenarios/08-unavailable-reports.json
+deleted file mode 100644
+index df8606c..0000000
+--- a/quint/slices/gate/scenarios/08-unavailable-reports.json
++++ /dev/null
+@@ -1,9 +0,0 @@
+-{
+-  "name": "08-unavailable-reports",
+-  "about": "An unavailable runner takes precedence over empty and malformed reports, except when the runner mutates the tree.",
+-  "steps": [
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "empty", "runnerDown": true, "exit0": false, "mutated": false, "failed": 0, "rows": 0}], "expect": {"ledger": "tool_missing"}},
+-    {"do": ["Rows", {"id": "A2", "kind": "keep", "report": "malformed", "runnerDown": true, "exit0": false, "mutated": false, "failed": 0, "rows": 0}], "expect": {"ledger": "tool_missing"}},
+-    {"do": ["Rows", {"id": "A1", "kind": "change", "report": "malformed", "runnerDown": true, "exit0": false, "mutated": true, "failed": 0, "rows": 0}], "expect": {"ledger": "tree_mutated"}}
+-  ]
+-}
+diff --git a/quint/slices/gate/spec/gate.qnt b/quint/slices/gate/spec/gate.qnt
+index ecf03e7..c0eae82 100644
+--- a/quint/slices/gate/spec/gate.qnt
++++ b/quint/slices/gate/spec/gate.qnt
+@@ -12,8 +12,6 @@ module gate {
+     items: str -> Item,
+     offers: str -> Cand,
+     ledger: str,
+-    suiteFailed: bool,
+-    scored: bool,
+     verdict: str,
+     landable: bool,
+     winner: str,
+@@ -39,7 +37,7 @@ module gate {
+ 
+   pure val INITIAL: State = {
+     base: Map(), excused: Map(), nowStatus: Map(), nowSnap: Map(), items: Map(), offers: Map(),
+-    ledger: "", suiteFailed: false, scored: false, verdict: "", landable: false, winner: "", policy: "green", last: "ok",
++    ledger: "", verdict: "", landable: false, winner: "", policy: "green", last: "ok",
+     priorObs: { last: "ok", ledger: "", verdict: "", landable: false, winner: "",
+       policy: "green", excused: Map(), items: Map(), offers: Map() }, priorOffers: Map(),
+   }
+@@ -78,17 +76,12 @@ module gate {
+       { ...updated, excused: updated.excused.put(name, excuse(updated, name, status, hasIds, subset, sameExit)) }
+ 
+   pure def rows(s: State, a: { id: str, kind: str, report: str, runnerDown: bool, exit0: bool, mutated: bool, failed: int, rows: int }): State =
+-    // A scored result closes one verification run. Checks may be refreshed
+-    // before the next row, so retain this boundary even if they invalidate
+-    // the verdict. Rows before the next Score share the suite-exit result.
+-    val s0 = if (s.scored)
+-               invalidate({ ...s, items: Map(), ledger: "", suiteFailed: false, scored: false })
+-             else invalidate(s)
++    val s0 = invalidate(s)
+     if (not(knownItem(a.id)) or (a.kind != "change" and a.kind != "keep")) err(s, "bad_item")
+     else if (a.mutated)
+       { ...s0, ledger: "tree_mutated", last: "ok",
+         items: s0.items.put(a.id, { kind: a.kind, passed: false, demoted: false }) }
+-    else if (Set("missing", "empty", "malformed").contains(a.report) and a.runnerDown)
++    else if (a.report == "missing" and a.runnerDown)
+       { ...s0, ledger: "tool_missing", last: "ok",
+         items: s0.items.put(a.id, { kind: a.kind, passed: false, demoted: false }) }
+     else if (a.report == "empty" and not(a.exit0))
+@@ -103,9 +96,7 @@ module gate {
+     else if (a.report != "ok") err(s, "bad_report")
+     else
+       val pass = a.rows >= 1 and a.failed == 0
+-      val suiteFailed = s0.suiteFailed or (pass and not(a.exit0))
+-      { ...s0, suiteFailed: suiteFailed,
+-        ledger: if (pass and not(a.exit0)) "suite" else if (pass) "pass" else "fail", last: "ok",
++      { ...s0, ledger: if (pass) "pass" else "fail", last: "ok",
+         items: s0.items.put(a.id, { kind: a.kind, passed: pass, demoted: false }) }
+ 
+   pure def demote(s: State, id: str, verdict: str): State =
+@@ -133,12 +124,11 @@ module gate {
+       val empty = s.nowStatus.keys().size() == 0 and s.items.keys().size() == 0
+       val verdict =
+         if (empty) "none"
+-        else if (checksGreen(s) and acceptancePass(s) and not(s.suiteFailed) and s.items.keys().size() > 0)
++        else if (checksGreen(s) and acceptancePass(s) and s.items.keys().size() > 0)
+           "green"
+         else "unverified"
+       val allowed = verdict == "green"
+-      { ...s, policy: policy, verdict: verdict, landable: allowed and changePass(s),
+-        scored: true, last: "ok" }
++      { ...s, policy: policy, verdict: verdict, landable: allowed and changePass(s), last: "ok" }
+ 
+   pure def offer(s: State, rung: str, passed: int, blocking: int, diff: int): State =
+     if (not(knownRung(rung)) or passed < 0 or blocking < 0 or diff < 0) err(s, "bad_offer")
+@@ -185,7 +175,7 @@ module gate {
+         s.nowStatus.keys().contains(k),
+         s.base.get(k) == s.nowStatus.get(k),
+       }),
+-    s.verdict == "green" implies (checksGreen(s) and acceptancePass(s) and not(s.suiteFailed)),
++    s.verdict == "green" implies (checksGreen(s) and acceptancePass(s)),
+     s.verdict != "green-with-advisory-tests",
+     s.landable implies (s.verdict == "green" and acceptancePass(s)),
+     s.landable implies changePass(s),
+@@ -220,10 +210,7 @@ module gate {
+       nondet kind = Set("change", "keep").oneOf()
+       nondet report = Set("ok", "empty", "malformed", "missing").oneOf()
+       nondet failed = Set(0, 1).oneOf()
+-      nondet runnerDown = Set(true, false).oneOf()
+-      nondet exit0 = Set(true, false).oneOf()
+-      fire(Rows({ id: id, kind: kind, report: report, runnerDown: runnerDown,
+-        exit0: exit0, mutated: false, failed: failed, rows: 1 }))
++      fire(Rows({ id: id, kind: kind, report: report, runnerDown: false, exit0: true, mutated: false, failed: failed, rows: 1 }))
+     },
+     all {
+       nondet id = Set("A1", "A2").oneOf()
+diff --git a/quint/slices/intent/golden/hand/08-unrelated-approved-remove.json b/quint/slices/intent/golden/hand/08-unrelated-approved-remove.json
+deleted file mode 100644
+index a7982ab..0000000
+--- a/quint/slices/intent/golden/hand/08-unrelated-approved-remove.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "08-unrelated-approved-remove", "source": "hand", "sets": [], "events": [{"tag": "Shape", "value": {"slug": "alpha", "result": "valid"}}, {"tag": "Approve", "value": {"slug": "alpha", "mode": "commit", "hash": "aaaa1111", "prefixOk": true, "race": "none"}}, {"tag": "Shape", "value": {"slug": "bravo", "result": "valid"}}, {"tag": "Approve", "value": {"slug": "bravo", "mode": "commit", "hash": "bbbb2222", "prefixOk": true, "race": "none"}}, {"tag": "Adopt", "value": {"slug": "bravo", "status": "building"}}, {"tag": "Adopt", "value": {"slug": "bravo", "status": "landed"}}, {"tag": "Remove", "value": {"slug": "alpha", "force": false}}, {"tag": "Remove", "value": {"slug": "alpha", "force": true}}], "obs": [{"casTries": 0, "did": "", "exit": 0, "last": "ok", "life": {}, "refs": {}, "shown": ""}, {"casTries": 0, "did": "shaped", "exit": 0, "last": "ok", "life": {"alpha": "shaped"}, "refs": {}, "shown": ""}, {"casTries": 1, "did": "approved", "exit": 0, "last": "ok", "life": {"alpha": "approved"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}}, "shown": "aaaa1111"}, {"casTries": 1, "did": "shaped", "exit": 0, "last": "ok", "life": {"alpha": "approved", "bravo": "shaped"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}}, "shown": ""}, {"casTries": 1, "did": "approved", "exit": 0, "last": "ok", "life": {"alpha": "approved", "bravo": "approved"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}, "bravo": {"hash": "bbbb2222", "n": 1}}, "shown": "bbbb2222"}, {"casTries": 1, "did": "adopted", "exit": 0, "last": "ok", "life": {"alpha": "approved", "bravo": "building"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}, "bravo": {"hash": "bbbb2222", "n": 1}}, "shown": ""}, {"casTries": 1, "did": "adopted", "exit": 0, "last": "ok", "life": {"alpha": "approved", "bravo": "landed"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}, "bravo": {"hash": "bbbb2222", "n": 1}}, "shown": ""}, {"casTries": 1, "did": "", "exit": 2, "last": "intent/remove_requires_force", "life": {"alpha": "approved", "bravo": "landed"}, "refs": {"alpha": {"hash": "aaaa1111", "n": 1}, "bravo": {"hash": "bbbb2222", "n": 1}}, "shown": ""}, {"casTries": 0, "did": "removed", "exit": 0, "last": "ok", "life": {"bravo": "landed"}, "refs": {"bravo": {"hash": "bbbb2222", "n": 1}}, "shown": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/intent/scenarios/08-unrelated-approved-remove.json b/quint/slices/intent/scenarios/08-unrelated-approved-remove.json
+deleted file mode 100644
+index 3d9e8b6..0000000
+--- a/quint/slices/intent/scenarios/08-unrelated-approved-remove.json
++++ /dev/null
+@@ -1,14 +0,0 @@
+-{
+-  "name": "08-unrelated-approved-remove",
+-  "about": "Landing bravo includes alpha's tracked files but does not remove alpha's approval or allow its removal without force.",
+-  "steps": [
+-    {"do": ["Shape", {"slug": "alpha", "result": "valid"}]},
+-    {"do": ["Approve", {"slug": "alpha", "mode": "commit", "hash": "aaaa1111", "prefixOk": true, "race": "none"}]},
+-    {"do": ["Shape", {"slug": "bravo", "result": "valid"}]},
+-    {"do": ["Approve", {"slug": "bravo", "mode": "commit", "hash": "bbbb2222", "prefixOk": true, "race": "none"}]},
+-    {"do": ["Adopt", {"slug": "bravo", "status": "building"}]},
+-    {"do": ["Adopt", {"slug": "bravo", "status": "landed"}]},
+-    {"do": ["Remove", {"slug": "alpha", "force": false}], "expect": {"last": "intent/remove_requires_force", "exit": 2, "life": {"alpha": "approved", "bravo": "landed"}, "refs": {"alpha": {"n": 1, "hash": "aaaa1111"}, "bravo": {"n": 1, "hash": "bbbb2222"}}}},
+-    {"do": ["Remove", {"slug": "alpha", "force": true}], "expect": {"last": "ok", "did": "removed", "life": {"bravo": "landed"}, "refs": {"bravo": {"n": 1, "hash": "bbbb2222"}}}}
+-  ]
+-}
+diff --git a/quint/slices/intent/spec/intent.qnt b/quint/slices/intent/spec/intent.qnt
+index 0677e09..a79f0d3 100644
+--- a/quint/slices/intent/spec/intent.qnt
++++ b/quint/slices/intent/spec/intent.qnt
+@@ -121,7 +121,7 @@ module intent {
+     if (rank(slug) < 0) stop(s, "unknown_slug")
+     else if (not(has(s, slug))) stop(s, "intent/not_found")
+     else if (s.activeBuilds.contains(slug)) stop(s, "intent/remove_blocked")
+-    else if (not(force) and lifeOf(s, slug) != "landed" and
++    else if (not(force) and not(s.landedSources.contains(slug)) and lifeOf(s, slug) != "landed" and
+              (needsForce(lifeOf(s, slug)) or s.forceRequired.contains(slug) or s.danglingRefs.contains(slug)))
+       stop(s, "intent/remove_requires_force")
+     else
+diff --git a/quint/slices/orchestration/golden/hand/07-red-audit-cannot-land.json b/quint/slices/orchestration/golden/hand/07-red-audit-cannot-land.json
+deleted file mode 100644
+index 6305855..0000000
+--- a/quint/slices/orchestration/golden/hand/07-red-audit-cannot-land.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "07-red-audit-cannot-land", "source": "hand", "sets": [], "events": [{"tag": "Begin", "value": {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 1}}, {"tag": "Probe", "value": {"confined": true}}, {"tag": "Plan"}, {"tag": "Setup", "value": {"ok": true}}, {"tag": "BaseAccept", "value": {"runner": true}}, {"tag": "Verify", "value": {"red": true, "landable": false, "counted": true, "count": 2}}, {"tag": "Repair", "value": {"lower": true}}, {"tag": "Verify", "value": {"red": true, "landable": false, "counted": true, "count": 2}}, {"tag": "Audit", "value": {"nowLandable": true}}, {"tag": "Land", "value": {"how": "landed"}}], "obs": [{"claim": false, "entry": 1, "exit": 0, "granted": 0, "journal": [], "landable": false, "last": "ok", "parkedRef": false, "phase": "idle", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": ""}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b1", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b2", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "setup", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "base", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance"], "landable": false, "last": "ok", "parkedRef": false, "phase": "dev", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification"], "landable": false, "last": "ok", "parkedRef": false, "phase": "repair", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "repair"], "landable": false, "last": "ok", "parkedRef": false, "phase": "dev", "planned": true, "reason": "", "repairs": 5, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "repair", "verification", "rung_finished"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b6", "planned": true, "reason": "no_progress", "repairs": 5, "rung": 1, "snapshots": 1, "status": "running"}, {"claim": false, "entry": 1, "exit": 1, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "repair", "verification", "rung_finished", "audit", "selection", "finished"], "landable": false, "last": "ok", "parkedRef": true, "phase": "done", "planned": true, "reason": "best_candidate", "repairs": 5, "rung": 1, "snapshots": 1, "status": "failed"}, {"claim": false, "entry": 1, "exit": 1, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "repair", "verification", "rung_finished", "audit", "selection", "finished"], "landable": false, "last": "not_landing", "parkedRef": true, "phase": "done", "planned": true, "reason": "best_candidate", "repairs": 5, "rung": 1, "snapshots": 1, "status": "failed"}]}
+\ No newline at end of file
+diff --git a/quint/slices/orchestration/golden/hand/08-budget-green-candidate.json b/quint/slices/orchestration/golden/hand/08-budget-green-candidate.json
+deleted file mode 100644
+index dd12e95..0000000
+--- a/quint/slices/orchestration/golden/hand/08-budget-green-candidate.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "08-budget-green-candidate", "source": "hand", "sets": [], "events": [{"tag": "Begin", "value": {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 3}}, {"tag": "Probe", "value": {"confined": true}}, {"tag": "Plan"}, {"tag": "Setup", "value": {"ok": true}}, {"tag": "BaseAccept", "value": {"runner": true}}, {"tag": "Budget"}, {"tag": "Verify", "value": {"red": false, "landable": true, "counted": true, "count": 0}}, {"tag": "Land", "value": {"how": "landed"}}], "obs": [{"claim": false, "entry": 1, "exit": 0, "granted": 0, "journal": [], "landable": false, "last": "ok", "parkedRef": false, "phase": "idle", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": ""}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b1", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b2", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "setup", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "base", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance"], "landable": false, "last": "ok", "parkedRef": false, "phase": "dev", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance"], "landable": false, "last": "ok", "parkedRef": false, "phase": "budget_verify", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "rung_finished"], "landable": true, "last": "ok", "parkedRef": false, "phase": "b9", "planned": true, "reason": "budget", "repairs": 6, "rung": 1, "snapshots": 1, "status": "running"}, {"claim": false, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "rung_finished", "commit_result", "landing_prepared", "finished"], "landable": true, "last": "ok", "parkedRef": false, "phase": "done", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 1, "status": "landed"}]}
+\ No newline at end of file
+diff --git a/quint/slices/orchestration/golden/hand/09-budget-red-during-repair.json b/quint/slices/orchestration/golden/hand/09-budget-red-during-repair.json
+deleted file mode 100644
+index 7499e50..0000000
+--- a/quint/slices/orchestration/golden/hand/09-budget-red-during-repair.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "09-budget-red-during-repair", "source": "hand", "sets": [], "events": [{"tag": "Begin", "value": {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 3}}, {"tag": "Probe", "value": {"confined": true}}, {"tag": "Plan"}, {"tag": "Setup", "value": {"ok": true}}, {"tag": "BaseAccept", "value": {"runner": true}}, {"tag": "Verify", "value": {"red": true, "landable": false, "counted": true, "count": 2}}, {"tag": "Budget"}, {"tag": "Verify", "value": {"red": true, "landable": false, "counted": true, "count": 2}}], "obs": [{"claim": false, "entry": 1, "exit": 0, "granted": 0, "journal": [], "landable": false, "last": "ok", "parkedRef": false, "phase": "idle", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": ""}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b1", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 0, "journal": ["started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "b2", "planned": false, "reason": "", "repairs": 0, "rung": 0, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "setup", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started"], "landable": false, "last": "ok", "parkedRef": false, "phase": "base", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance"], "landable": false, "last": "ok", "parkedRef": false, "phase": "dev", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification"], "landable": false, "last": "ok", "parkedRef": false, "phase": "repair", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": true, "entry": 1, "exit": 0, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification"], "landable": false, "last": "ok", "parkedRef": false, "phase": "budget_verify", "planned": true, "reason": "", "repairs": 6, "rung": 1, "snapshots": 0, "status": "running"}, {"claim": false, "entry": 1, "exit": 1, "granted": 6, "journal": ["started", "plan", "rung_started", "base_acceptance", "verification", "verification", "rung_finished", "selection", "finished"], "landable": false, "last": "ok", "parkedRef": true, "phase": "done", "planned": true, "reason": "best_candidate", "repairs": 6, "rung": 1, "snapshots": 1, "status": "failed"}]}
+\ No newline at end of file
+diff --git a/quint/slices/orchestration/scenarios/07-red-audit-cannot-land.json b/quint/slices/orchestration/scenarios/07-red-audit-cannot-land.json
+deleted file mode 100644
+index edbfc38..0000000
+--- a/quint/slices/orchestration/scenarios/07-red-audit-cannot-land.json
++++ /dev/null
+@@ -1,16 +0,0 @@
+-{
+-  "name": "07-red-audit-cannot-land",
+-  "about": "An auditor cannot turn a red verified candidate into a landing permission.",
+-  "steps": [
+-    {"do": ["Begin", {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 1}]},
+-    {"do": ["Probe", {"confined": true}]},
+-    {"do": ["Plan"]},
+-    {"do": ["Setup", {"ok": true}]},
+-    {"do": ["BaseAccept", {"runner": true}]},
+-    {"do": ["Verify", {"red": true, "landable": false, "counted": true, "count": 2}]},
+-    {"do": ["Repair", {"lower": true}]},
+-    {"do": ["Verify", {"red": true, "landable": false, "counted": true, "count": 2}], "expect": {"phase": "b6", "landable": false}},
+-    {"do": ["Audit", {"nowLandable": true}], "expect": {"phase": "done", "status": "failed", "landable": false}},
+-    {"do": ["Land", {"how": "landed"}], "expect": {"last": "not_landing", "status": "failed"}}
+-  ]
+-}
+diff --git a/quint/slices/orchestration/scenarios/08-budget-green-candidate.json b/quint/slices/orchestration/scenarios/08-budget-green-candidate.json
+deleted file mode 100644
+index 9edd088..0000000
+--- a/quint/slices/orchestration/scenarios/08-budget-green-candidate.json
++++ /dev/null
+@@ -1,14 +0,0 @@
+-{
+-  "name": "08-budget-green-candidate",
+-  "about": "Budget expiry during development triggers final verification and snapshots the green candidate, which may land without another rung.",
+-  "steps": [
+-    {"do": ["Begin", {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 3}]},
+-    {"do": ["Probe", {"confined": true}]},
+-    {"do": ["Plan"]},
+-    {"do": ["Setup", {"ok": true}]},
+-    {"do": ["BaseAccept", {"runner": true}]},
+-    {"do": ["Budget"], "expect": {"phase": "budget_verify", "snapshots": 0, "status": "running", "claim": true}},
+-    {"do": ["Verify", {"red": false, "landable": true, "counted": true, "count": 0}], "expect": {"phase": "b9", "landable": true, "snapshots": 1, "reason": "budget", "rung": 1, "status": "running", "claim": true}},
+-    {"do": ["Land", {"how": "landed"}], "expect": {"status": "landed", "claim": false, "parkedRef": false, "exit": 0}}
+-  ]
+-}
+diff --git a/quint/slices/orchestration/scenarios/09-budget-red-during-repair.json b/quint/slices/orchestration/scenarios/09-budget-red-during-repair.json
+deleted file mode 100644
+index 72ae3a3..0000000
+--- a/quint/slices/orchestration/scenarios/09-budget-red-during-repair.json
++++ /dev/null
+@@ -1,14 +0,0 @@
+-{
+-  "name": "09-budget-red-during-repair",
+-  "about": "Budget expiry during the repair stage still verifies and snapshots the red current tree, selects it, and parks a reference without another repair or rung.",
+-  "steps": [
+-    {"do": ["Begin", {"valid": true, "branchOk": true, "claimFree": true, "witness": false, "hard": false, "maxR": 3}]},
+-    {"do": ["Probe", {"confined": true}]},
+-    {"do": ["Plan"]},
+-    {"do": ["Setup", {"ok": true}]},
+-    {"do": ["BaseAccept", {"runner": true}]},
+-    {"do": ["Verify", {"red": true, "landable": false, "counted": true, "count": 2}], "expect": {"phase": "repair", "repairs": 6, "snapshots": 0}},
+-    {"do": ["Budget"], "expect": {"phase": "budget_verify", "snapshots": 0, "status": "running", "claim": true}},
+-    {"do": ["Verify", {"red": true, "landable": false, "counted": true, "count": 2}], "expect": {"phase": "done", "status": "failed", "reason": "best_candidate", "parkedRef": true, "snapshots": 1, "repairs": 6, "rung": 1, "claim": false, "exit": 1}}
+-  ]
+-}
+diff --git a/quint/slices/orchestration/spec/orchestration.qnt b/quint/slices/orchestration/spec/orchestration.qnt
+index 097cf1c..7f9581e 100644
+--- a/quint/slices/orchestration/spec/orchestration.qnt
++++ b/quint/slices/orchestration/spec/orchestration.qnt
+@@ -83,14 +83,6 @@ module orchestration {
+                journal: s.journal.append("verification").append("rung_finished"), last: "ok" }
+     if (landable) { ...s1, phase: "b9" } else { ...s1, phase: "b6" }
+ 
+-  pure def budgetVerify(s: State, red: bool, landable: bool, count: int): State =
+-    if (s.phase != "budget_verify") err(s, "not_budget_verify")
+-    else if (count < 0) err(s, "bad_count")
+-    else
+-      val canLand = not(red) and landable
+-      val verified = finishRung(s, canLand, "budget")
+-      if (canLand) verified else chooseBest(verified)
+-
+   pure def begin(s: State, a: BeginA): State =
+     if (s.phase != "idle" and s.phase != "done") err(s, "busy")
+     else if (a.maxR < 1 or a.maxR > 3) err(s, "bad_max_rungs")
+@@ -143,8 +135,7 @@ module orchestration {
+     else { ...s, phase: "dev", last: "ok", journal: s.journal.append("base_acceptance") }
+ 
+   pure def verify(s: State, red: bool, landable: bool, counted: bool, count: int): State =
+-    if (s.phase == "budget_verify") budgetVerify(s, red, landable, count)
+-    else if (s.phase != "dev") err(s, "not_dev")
++    if (s.phase != "dev") err(s, "not_dev")
+     else if (count < 0) err(s, "bad_count")
+     else if (not(red)) finishRung(s, landable, if (landable) "green" else "unverified")
+     else if (not(counted) and s.bare >= 1) finishRung(s, false, "no_progress")
+@@ -178,14 +169,12 @@ module orchestration {
+   pure def audit(s: State, nowLandable: bool): State =
+     if (s.phase != "b6") err(s, "not_audit")
+     else
+-      val s1 = { ...s, last: "ok", journal: s.journal.append("audit") }
+-      advance(s1)
++      val s1 = { ...s, landable: nowLandable, last: "ok", journal: s.journal.append("audit") }
++      if (nowLandable) { ...s1, phase: "b9" } else advance(s1)
+ 
+   pure def budget(s: State): State =
+-    if (s.phase == "b6") advance({ ...s, budget: false })
+-    else if (Set("setup", "base", "dev", "repair", "b4", "pair").contains(s.phase))
+-      { ...s, budget: false, phase: "budget_verify", last: "ok" }
+-    else err(s, "not_budget")
++    if (not(Set("setup", "base", "dev", "repair", "b6", "b4", "b2", "pair").contains(s.phase))) err(s, "not_budget")
++    else advance({ ...s, budget: false })
+ 
+   pure def land(s: State, how: str): State =
+     if (s.phase != "b9") err(s, "not_landing")
+@@ -299,7 +288,6 @@ module orchestration {
+     all { st.phase == "setup", fire(Setup({ ok: true })) },
+     all { st.phase == "base", fire(BaseAccept({ runner: true })) },
+     all { st.phase == "dev", fire(Verify({ red: false, landable: true, counted: true, count: 0 })) },
+-    all { st.phase == "budget_verify", fire(Verify({ red: false, landable: true, counted: true, count: 0 })) },
+     all { st.phase == "pair", fire(Pair({ first: "red", second: "red" })) },
+     all { st.phase == "b9", fire(Land({ how: "landed" })) },
+   }
+diff --git a/quint/slices/qt b/quint/slices/qt
+index 8734651..5a151f7 100755
+--- a/quint/slices/qt
++++ b/quint/slices/qt
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ # Logged quint wrapper: every invocation is appended to $QT_LOG with exit code and output.
+ R="$(cd "$(dirname "$0")" && pwd)"
+-out=$("$R/../prototype/node_modules/.bin/quint" "$@" 2>&1); rc=$?
++out=$("$R/node_modules/.bin/quint" "$@" 2>&1); rc=$?
+ printf '%s\t%s\texit=%s\n%s\n---\n' "$(date +%H:%M:%S)" "quint $*" "$rc" "$out" >> "${QT_LOG:-/dev/null}"
+ printf '%s\n' "$out"; exit $rc
+diff --git a/quint/slices/queue/golden/hand/10-stop-after-failed-or-parked.json b/quint/slices/queue/golden/hand/10-stop-after-failed-or-parked.json
+deleted file mode 100644
+index 16f19ed..0000000
+--- a/quint/slices/queue/golden/hand/10-stop-after-failed-or-parked.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "10-stop-after-failed-or-parked", "source": "hand", "sets": [], "events": [{"tag": "Enqueue", "value": {"slug": "alpha", "time": 1, "priority": 0}}, {"tag": "Start"}, {"tag": "Halt"}, {"tag": "Outcome", "value": {"kind": "failed"}}, {"tag": "Enqueue", "value": {"slug": "bravo", "time": 2, "priority": 0}}, {"tag": "Start"}, {"tag": "Halt"}, {"tag": "Outcome", "value": {"kind": "parked"}}], "obs": [{"alive": false, "built": 0, "current": "", "exit": 0, "held": false, "landed": 0, "last": "ok", "line": "", "phase": "idle", "queue": [], "stop": false}, {"alive": false, "built": 0, "current": "", "exit": 0, "held": false, "landed": 0, "last": "ok", "line": "enqueued", "phase": "idle", "queue": ["alpha"], "stop": false}, {"alive": true, "built": 0, "current": "alpha", "exit": 0, "held": true, "landed": 0, "last": "ok", "line": "building", "phase": "building", "queue": [], "stop": false}, {"alive": true, "built": 0, "current": "alpha", "exit": 0, "held": true, "landed": 0, "last": "ok", "line": "stopping", "phase": "building", "queue": [], "stop": true}, {"alive": false, "built": 1, "current": "", "exit": 1, "held": false, "landed": 0, "last": "ok", "line": "stopped_on_request", "phase": "idle", "queue": [], "stop": false}, {"alive": false, "built": 1, "current": "", "exit": 1, "held": false, "landed": 0, "last": "ok", "line": "enqueued", "phase": "idle", "queue": ["bravo"], "stop": false}, {"alive": true, "built": 0, "current": "bravo", "exit": 0, "held": true, "landed": 0, "last": "ok", "line": "building", "phase": "building", "queue": [], "stop": false}, {"alive": true, "built": 0, "current": "bravo", "exit": 0, "held": true, "landed": 0, "last": "ok", "line": "stopping", "phase": "building", "queue": [], "stop": true}, {"alive": false, "built": 1, "current": "", "exit": 1, "held": false, "landed": 0, "last": "ok", "line": "stopped_on_request", "phase": "idle", "queue": [], "stop": false}]}
+\ No newline at end of file
+diff --git a/quint/slices/queue/scenarios/02-serial-two.json b/quint/slices/queue/scenarios/02-serial-two.json
+index f2b7c0e..a1f6e1f 100644
+--- a/quint/slices/queue/scenarios/02-serial-two.json
++++ b/quint/slices/queue/scenarios/02-serial-two.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "02-serial-two",
+-  "about": "Builds run one at a time; equal-priority approvals use approval time. Both landing exits 0.",
++  "about": "Builds run one at a time, oldest approval first. Both landing exits 0.",
+   "steps": [
+     {"do": ["Enqueue", {"slug": "bravo", "time": 1, "priority": 0}]},
+     {"do": ["Enqueue", {"slug": "alpha", "time": 2, "priority": 0}]},
+diff --git a/quint/slices/queue/scenarios/10-stop-after-failed-or-parked.json b/quint/slices/queue/scenarios/10-stop-after-failed-or-parked.json
+deleted file mode 100644
+index 78d9c94..0000000
+--- a/quint/slices/queue/scenarios/10-stop-after-failed-or-parked.json
++++ /dev/null
+@@ -1,14 +0,0 @@
+-{
+-  "name": "10-stop-after-failed-or-parked",
+-  "about": "A requested stop preserves the running drain's failed or parked Build exit.",
+-  "steps": [
+-    {"do": ["Enqueue", {"slug": "alpha", "time": 1, "priority": 0}]},
+-    {"do": ["Start"]},
+-    {"do": ["Halt"]},
+-    {"do": ["Outcome", {"kind": "failed"}], "expect": {"line": "stopped_on_request", "exit": 1, "built": 1, "landed": 0}},
+-    {"do": ["Enqueue", {"slug": "bravo", "time": 2, "priority": 0}]},
+-    {"do": ["Start"]},
+-    {"do": ["Halt"]},
+-    {"do": ["Outcome", {"kind": "parked"}], "expect": {"line": "stopped_on_request", "exit": 1, "built": 1, "landed": 0}}
+-  ]
+-}
+diff --git a/quint/slices/queue/spec/queue.qnt b/quint/slices/queue/spec/queue.qnt
+index 2dfc0bf..b106c3f 100644
+--- a/quint/slices/queue/spec/queue.qnt
++++ b/quint/slices/queue/spec/queue.qnt
+@@ -55,7 +55,7 @@ module queue {
+     ka.priority > kb.priority or (ka.priority == kb.priority and
+       (ka.time < kb.time or (ka.time == kb.time and rank(a) < rank(b))))
+ 
+-  // highest priority queued approval not yet attempted in this drain
++  // oldest queued approval not yet attempted in this drain, and not the one in flight
+   pure def nextSlug(s: State): str =
+     s.waiting.keys().filter(k => not(s.attempted.contains(k))).fold("", (m, k) =>
+       if (m == "" or before(s, k, m)) k else m)
+@@ -78,7 +78,7 @@ module queue {
+     if (s.built == 0 or s.landed == s.built) 0 else 1
+ 
+   pure def launch(s: State): State =
+-    if (s.stop) finishDrain(s, "stopped_on_request", countsExit(s))
++    if (s.stop) finishDrain(s, "stopped_on_request", 0)
+     else
+       val n = nextSlug(s)
+       if (n == "") finishDrain(s, counts(s), countsExit(s))
+diff --git a/quint/slices/resilience/PROSE.md b/quint/slices/resilience/PROSE.md
+index d7700f0..a9e9daa 100644
+--- a/quint/slices/resilience/PROSE.md
++++ b/quint/slices/resilience/PROSE.md
+@@ -2,7 +2,6 @@
+ 
+ **Historical v1.1 policy:** this slice retains older deadlines, retries, and Shape limits for research. The current provider request policy is [§4.5](../../../spec/04-provider.md) and is modeled by the `stream` slice.
+ 
+-```
+ ModelRequest  = { model, effort, instructions, input: [Item], tools: [ToolSchema], prompt_cache_key }
+ ModelResponse = { id, text, tool_calls: [{id, name, arguments: object}], usage, raw_items: [Item] }
+ usage         = { input (excluding cached), cached_input, cache_write, output, reasoning }
+diff --git a/quint/slices/resilience/spec/resilience.qnt b/quint/slices/resilience/spec/resilience.qnt
+index 6678d46..bb6b72b 100644
+--- a/quint/slices/resilience/spec/resilience.qnt
++++ b/quint/slices/resilience/spec/resilience.qnt
+@@ -3,7 +3,7 @@
+ // Pure apply(State, Event) -> State and observe(State) -> Obs. Time and the network are
+ // events: each attempt arrives as an Attempt with its classified result and measured
+ // timings; delays are *decisions* the caller sleeps for, not time the core measures.
+-// Historical assumptions are documented in PROSE.md; current request policy is in the stream slice.
++// Many rules are guesses where the prose is silent; see AMBIGUITIES.md.
+ module resilience {
+   // ---------- constants (provider group of data/constants.json, unscaled) ----------
+   pure val FIRST_BYTE_MS = 120000
+diff --git a/quint/slices/status/adapter/adapter.exs b/quint/slices/status/adapter/adapter.exs
+index 4e0d76b..0bda60b 100644
+--- a/quint/slices/status/adapter/adapter.exs
++++ b/quint/slices/status/adapter/adapter.exs
+@@ -138,15 +138,10 @@ defmodule Adapter do
+   end
+ 
+   defp watch_exit(slug, state) do
+-    statuses = prepared(state)
+-    case Enum.find(statuses, &(&1.slug == slug)) do
++    case Enum.find(prepared(state), &(&1.slug == slug)) do
+       nil -> 2
+-      card ->
+-        cond do
+-          state.running or state.busy > 0 or Enum.any?(statuses, &(&1.status == :building)) -> -1
+-          card.status == :landed -> 0
+-          true -> 1
+-        end
++      %{status: :landed} -> 0
++      _ -> 1
+     end
+   end
+ 
+diff --git a/quint/slices/status/golden/hand/02-priority-queue-and-next.json b/quint/slices/status/golden/hand/02-priority-queue-and-next.json
+index 25a3ff0..a2fcf46 100644
+--- a/quint/slices/status/golden/hand/02-priority-queue-and-next.json
++++ b/quint/slices/status/golden/hand/02-priority-queue-and-next.json
+@@ -1 +1 @@
+-{"name": "02-priority-queue-and-next", "source": "hand", "sets": [], "events": [{"tag": "Row", "value": {"slug": "alpha", "status": "approved", "priority": 5, "at": 2, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Row", "value": {"slug": "bravo", "status": "approved", "priority": 5, "at": 1, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Row", "value": {"slug": "charlie", "status": "approved", "priority": 10, "at": 3, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Queue", "value": {"running": true}}, {"tag": "Watch", "value": {"slug": "alpha"}}], "obs": [{"alpha": "", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": [], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "alpha", "nextDependencies": "no_dependencies", "nextPriority": 5, "queue": ["alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 1, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "bravo", "nextDependencies": "no_dependencies", "nextPriority": 5, "queue": ["bravo", "alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 2, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 3, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "running", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 3, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "running", "sections": ["Queued"], "watchPosition": 2, "watchQueueSize": 3, "watchSlug": "alpha", "watchStatus": "queued", "whyA": "", "whyB": "", "whyC": ""}]}
+\ No newline at end of file
++{"name": "02-priority-queue-and-next", "source": "hand", "sets": [], "events": [{"tag": "Row", "value": {"slug": "alpha", "status": "approved", "priority": 5, "at": 2, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Row", "value": {"slug": "bravo", "status": "approved", "priority": 5, "at": 1, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Row", "value": {"slug": "charlie", "status": "approved", "priority": 10, "at": 3, "blocks": "", "sched": "", "started": 0, "index": 0}}, {"tag": "Queue", "value": {"running": true}}, {"tag": "Watch", "value": {"slug": "alpha"}}], "obs": [{"alpha": "", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": [], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "alpha", "nextDependencies": "no_dependencies", "nextPriority": 5, "queue": ["alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 1, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "bravo", "nextDependencies": "no_dependencies", "nextPriority": 5, "queue": ["bravo", "alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 2, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "waiting", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 3, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "running", "sections": ["Queued"], "watchPosition": -1, "watchQueueSize": 3, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "approved", "bravo": "approved", "charlie": "approved", "earlier": 0, "elapsed": "", "exit": 1, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "charlie", "nextDependencies": "no_dependencies", "nextPriority": 10, "queue": ["charlie", "bravo", "alpha"], "queueLine": "running", "sections": ["Queued"], "watchPosition": 2, "watchQueueSize": 3, "watchSlug": "alpha", "watchStatus": "queued", "whyA": "", "whyB": "", "whyC": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/status/golden/hand/09-slug-watch-waits-for-idle.json b/quint/slices/status/golden/hand/09-slug-watch-waits-for-idle.json
+deleted file mode 100644
+index 12183c2..0000000
+--- a/quint/slices/status/golden/hand/09-slug-watch-waits-for-idle.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "09-slug-watch-waits-for-idle", "source": "hand", "sets": [], "events": [{"tag": "Row", "value": {"slug": "alpha", "status": "building", "priority": 0, "at": 1, "blocks": "", "sched": "", "started": 1, "index": 0}}, {"tag": "Queue", "value": {"running": true}}, {"tag": "Watch", "value": {"slug": "alpha"}}, {"tag": "Row", "value": {"slug": "alpha", "status": "landed", "priority": 0, "at": 1, "blocks": "", "sched": "", "started": 1, "index": 0}}, {"tag": "Watch", "value": {"slug": "alpha"}}, {"tag": "Queue", "value": {"running": false}}, {"tag": "Agents", "value": {"busy": 1}}, {"tag": "Watch", "value": {"slug": "alpha"}}, {"tag": "Agents", "value": {"busy": 0}}, {"tag": "Watch", "value": {"slug": "alpha"}}], "obs": [{"alpha": "", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": [], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "building", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "s", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Building"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "building", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "s", "exit": 0, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "running", "sections": ["Building"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "", "watchStatus": "", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "building", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "s", "exit": -1, "jsonDetail": false, "landedShown": 0, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "running", "sections": ["Building"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "building", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "running", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "running", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": -1, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}, {"alpha": "landed", "bravo": "", "charlie": "", "earlier": 0, "elapsed": "", "exit": 0, "jsonDetail": false, "landedShown": 1, "last": "ok", "next": "", "nextDependencies": "", "nextPriority": 0, "queue": [], "queueLine": "stopped", "sections": ["Landed"], "watchPosition": -1, "watchQueueSize": 0, "watchSlug": "alpha", "watchStatus": "landed", "whyA": "", "whyB": "", "whyC": ""}]}
+\ No newline at end of file
+diff --git a/quint/slices/status/scenarios/02-priority-queue-and-next.json b/quint/slices/status/scenarios/02-priority-queue-and-next.json
+index 05719d9..b0cb24a 100644
+--- a/quint/slices/status/scenarios/02-priority-queue-and-next.json
++++ b/quint/slices/status/scenarios/02-priority-queue-and-next.json
+@@ -6,6 +6,6 @@
+     {"do":["Row",{"slug":"bravo","status":"approved","priority":5,"at":1,"blocks":"","sched":"","started":0,"index":0}]},
+     {"do":["Row",{"slug":"charlie","status":"approved","priority":10,"at":3,"blocks":"","sched":"","started":0,"index":0}],"expect":{"queue":["charlie","bravo","alpha"],"queueLine":"waiting","next":"charlie","nextPriority":10,"nextDependencies":"no_dependencies","sections":["Queued"]}},
+     {"do":["Queue",{"running":true}],"expect":{"queueLine":"running"}},
+-    {"do":["Watch",{"slug":"alpha"}],"expect":{"exit":-1,"watchSlug":"alpha","watchStatus":"queued","watchPosition":2,"watchQueueSize":3}}
++    {"do":["Watch",{"slug":"alpha"}],"expect":{"exit":1,"watchSlug":"alpha","watchStatus":"queued","watchPosition":2,"watchQueueSize":3}}
+   ]
+ }
+diff --git a/quint/slices/status/scenarios/09-slug-watch-waits-for-idle.json b/quint/slices/status/scenarios/09-slug-watch-waits-for-idle.json
+deleted file mode 100644
+index 26e8102..0000000
+--- a/quint/slices/status/scenarios/09-slug-watch-waits-for-idle.json
++++ /dev/null
+@@ -1,16 +0,0 @@
+-{
+-  "name": "09-slug-watch-waits-for-idle",
+-  "about": "Known slug watch waits for queue and agents to become idle, then reports the slug's result.",
+-  "steps": [
+-    {"do": ["Row", {"slug": "alpha", "status": "building", "priority": 0, "at": 1, "blocks": "", "sched": "", "started": 1, "index": 0}]},
+-    {"do": ["Queue", {"running": true}]},
+-    {"do": ["Watch", {"slug": "alpha"}], "expect": {"exit": -1}},
+-    {"do": ["Row", {"slug": "alpha", "status": "landed", "priority": 0, "at": 1, "blocks": "", "sched": "", "started": 1, "index": 0}]},
+-    {"do": ["Watch", {"slug": "alpha"}], "expect": {"exit": -1}},
+-    {"do": ["Queue", {"running": false}]},
+-    {"do": ["Agents", {"busy": 1}]},
+-    {"do": ["Watch", {"slug": "alpha"}], "expect": {"exit": -1}},
+-    {"do": ["Agents", {"busy": 0}]},
+-    {"do": ["Watch", {"slug": "alpha"}], "expect": {"exit": 0}}
+-  ]
+-}
+diff --git a/quint/slices/status/spec/status.qnt b/quint/slices/status/spec/status.qnt
+index 1b2376b..0d26368 100644
+--- a/quint/slices/status/spec/status.qnt
++++ b/quint/slices/status/spec/status.qnt
+@@ -240,8 +240,7 @@ module status {
+ 
+   pure def watch(s: State, slug: str): int =
+     if (slug != "" and (not(known(slug)) or card(s, slug).status == "")) 2
+-    else if (s.running or buildingN(s) > 0 or s.agentsBusy > 0) -1
+-    else if (slug == "") 0
++    else if (slug == "") if (not(s.running) and buildingN(s) == 0 and s.agentsBusy == 0) 0 else -1
+     else if (card(s, slug).status == "landed") 0
+     else 1
+ 
+@@ -310,8 +309,11 @@ module status {
+       exit: s.exit, jsonDetail: s.jsonDetail,
+     }
+ 
+-  // view is idempotent for approved/blocked statuses. Reasons use stored cards;
+-  // sections and queue order use the prepared view.
++  // observe() prepares again. why() must see the pre-prepare statuses, which are s, not shown.
++  // Shown statuses are post-prepare. Sections use shown. Good.
++  // BUG: observe calls view(s) but s may already be post-view from apply. view is idempotent
++  // on approved/blocked. why(s) uses s's stored statuses. After apply, stored statuses are
++  // already finished, so why() still computes from blocks. Good.
+ 
+   pure def idx(title: str): int =
+     if (title == "Building") 0 else if (title == "Queued") 1 else if (title == "Blocked") 2
+diff --git a/quint/slices/stream/golden/hand/12-login-resets-overload-streak.json b/quint/slices/stream/golden/hand/12-login-resets-overload-streak.json
+deleted file mode 100644
+index b2b85b9..0000000
+--- a/quint/slices/stream/golden/hand/12-login-resets-overload-streak.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"name": "12-login-resets-overload-streak", "source": "hand", "sets": [], "events": [{"tag": "Open", "value": {"role": "builder", "model": "luna", "fallbackOn": true, "refreshable": true, "bounded": true, "wall": 100000, "mode": "build"}}, {"tag": "Result", "value": {"kind": "overload", "items": false}}, {"tag": "Result", "value": {"kind": "login", "items": false}}, {"tag": "Result", "value": {"kind": "overload", "items": false}}, {"tag": "Result", "value": {"kind": "overload", "items": false}}], "obs": [{"attempt": 0, "bounded": false, "checkpoint": "", "continuations": 0, "continued": false, "decision": "", "delay": 0, "exit": 0, "failed": false, "fallbackOn": false, "last": "ok", "mode": "", "model": "", "overloads": 0, "phase": "idle", "queued": false, "reason": "", "refreshable": true, "refreshed": false, "role": "", "waited": 0, "wall": 0}, {"attempt": 1, "bounded": true, "checkpoint": "", "continuations": 0, "continued": false, "decision": "", "delay": 0, "exit": 0, "failed": false, "fallbackOn": true, "last": "ok", "mode": "build", "model": "luna", "overloads": 0, "phase": "open", "queued": true, "reason": "", "refreshable": true, "refreshed": false, "role": "builder", "waited": 0, "wall": 100000}, {"attempt": 2, "bounded": true, "checkpoint": "", "continuations": 0, "continued": false, "decision": "retry", "delay": 2000, "exit": 0, "failed": false, "fallbackOn": true, "last": "ok", "mode": "build", "model": "luna", "overloads": 1, "phase": "open", "queued": true, "reason": "provider/overload", "refreshable": true, "refreshed": false, "role": "builder", "waited": 0, "wall": 100000}, {"attempt": 2, "bounded": true, "checkpoint": "", "continuations": 0, "continued": false, "decision": "refresh", "delay": 0, "exit": 0, "failed": false, "fallbackOn": true, "last": "ok", "mode": "build", "model": "luna", "overloads": 0, "phase": "open", "queued": true, "reason": "provider/login", "refreshable": true, "refreshed": true, "role": "builder", "waited": 0, "wall": 100000}, {"attempt": 3, "bounded": true, "checkpoint": "", "continuations": 0, "continued": false, "decision": "retry", "delay": 4000, "exit": 0, "failed": false, "fallbackOn": true, "last": "ok", "mode": "build", "model": "luna", "overloads": 1, "phase": "open", "queued": true, "reason": "provider/overload", "refreshable": true, "refreshed": true, "role": "builder", "waited": 0, "wall": 100000}, {"attempt": 4, "bounded": true, "checkpoint": "", "continuations": 0, "continued": false, "decision": "switch", "delay": 0, "exit": 0, "failed": false, "fallbackOn": true, "last": "ok", "mode": "build", "model": "sol", "overloads": 0, "phase": "open", "queued": true, "reason": "provider/overload", "refreshable": true, "refreshed": true, "role": "builder", "waited": 0, "wall": 100000}]}
+\ No newline at end of file
+diff --git a/quint/slices/stream/scenarios/12-login-resets-overload-streak.json b/quint/slices/stream/scenarios/12-login-resets-overload-streak.json
+deleted file mode 100644
+index 3317f54..0000000
+--- a/quint/slices/stream/scenarios/12-login-resets-overload-streak.json
++++ /dev/null
+@@ -1,11 +0,0 @@
+-{
+-  "name": "12-login-resets-overload-streak",
+-  "about": "A login error between overloads resets the consecutive-overload streak; fallback needs two new consecutive overloads.",
+-  "steps": [
+-    {"do": ["Open", {"role": "builder", "model": "luna", "fallbackOn": true, "refreshable": true, "bounded": true, "wall": 100000, "mode": "build"}], "expect": {"phase": "open", "overloads": 0}},
+-    {"do": ["Result", {"kind": "overload", "items": false}], "expect": {"decision": "retry", "model": "luna", "overloads": 1, "attempt": 2}},
+-    {"do": ["Result", {"kind": "login", "items": false}], "expect": {"decision": "refresh", "model": "luna", "overloads": 0, "refreshed": true}},
+-    {"do": ["Result", {"kind": "overload", "items": false}], "expect": {"decision": "retry", "model": "luna", "overloads": 1, "attempt": 3}},
+-    {"do": ["Result", {"kind": "overload", "items": false}], "expect": {"decision": "switch", "model": "sol", "overloads": 0, "attempt": 4}}
+-  ]
+-}
+diff --git a/quint/slices/stream/spec/stream.qnt b/quint/slices/stream/spec/stream.qnt
+index 64c5a05..4b69254 100644
+--- a/quint/slices/stream/spec/stream.qnt
++++ b/quint/slices/stream/spec/stream.qnt
+@@ -119,7 +119,7 @@ module stream {
+   pure def credential(s: State, k: str): State =
+     if (k == "login" and not(s.refreshable)) halt(s, reasonOf(k), 4)
+     else if (k == "login" and not(s.refreshed)) {
+-      ...s, refreshed: true, overloads: 0, decision: "refresh", delay: 0, reason: reasonOf(k), continued: false,
++      ...s, refreshed: true, decision: "refresh", delay: 0, reason: reasonOf(k), continued: false,
+       phase: "open", exit: 0, last: "ok",
+     } else if (s.mode == "shape" or s.waited + PAUSE_MS > PAUSE_CAP_MS) halt(s, reasonOf(k), 4)
+     else {
+diff --git a/spec/01-cli.md b/spec/01-cli.md
+index 1eefa8b..fd28e1c 100644
+--- a/spec/01-cli.md
++++ b/spec/01-cli.md
+@@ -98,7 +98,7 @@ There is no separate `help` topic page. `kogen <command> --help` is a usage erro
+ 1. Project = `--project` or the working directory: a directory in a git work tree.
+ 2. Origin = `--origin`; else the checkout's `remote.origin.url` when it names a local repository (no scheme other than `file://` with an empty or `localhost` host; not `user@host:`; `~/` means `HOME`; relative to the checkout; a directory with `HEAD` or `.git`); else the checkout. `status` never fetches.
+ 3. Base = `--base`; else the project `base`; else `refs/remotes/origin/HEAD` of the checkout when the origin is the checkout, or the origin's `HEAD` when the origin is separate; else the current branch; else `environment/base_unavailable`.
+-4. State root = `~/.kogen/workspaces/<key>` (§2.7). Crash recovery (§3.10) runs before reading or draining.
++4. State root = `~/.kogen/workspaces/<key>` (§2.7). Crash recovery (§3.10.5) runs before reading or draining.
+ 5. Provider for the run = `KOGEN_BENCH_PROVIDER` when it is `chatgpt` or `grok`; else the checkout's row in `accounts.yaml` `selection.projects`; else `selection.default`; else `chatgpt` (§2.7, §4.10).
+ 
+ ## 1.7 Commands
+diff --git a/spec/02-formats.md b/spec/02-formats.md
+index 1bfd80f..35825a8 100644
+--- a/spec/02-formats.md
++++ b/spec/02-formats.md
+@@ -56,7 +56,7 @@ Committed in the project; strict YAML (§2.6); all issues reported together.
+ | `sandbox` | `true\|false` | `true` | §5.3 |
+ | `base` | branch | — | |
+ | `acceptance` | {adapter, timeout_ms, …} | `{adapter: exunit, timeout_ms: 600000}` | §2.4 |
+-| `shaping` | {proof} | `{proof: none}` | `witness` = pending-measurement path (§3.2.7) |
++| `shaping` | {proof, boundary_coverage} | `{proof: none, boundary_coverage: false}` | `witness` = pending-measurement path (§3.2.7); `boundary_coverage` is an explicitly writable boolean controlling only the Shape system instruction (§3.2.1) |
+ | `build` | see below | | |
+ | `account` | label | — | deprecated (§1.8) |
+ 
+@@ -167,7 +167,7 @@ selection:
+ | `scope_warning` | path, declared_domains |
+ | `rung_finished` | rung, reason, verdict, diff_lines, candidate_ref |
+ | `audit` | mode (`observational`), rung, items [{id, verdict, reason}]. Verdicts are `valid`, `over_strict`, `contradicts` (§3.8.2). |
+-| `acceptance_demoted` | reserved for a future calibrated experiment; MUST NOT be emitted in v1.3-draft |
++| `acceptance_demoted` | reserved for a future calibrated experiment; MUST NOT be emitted in v1.3.1-draft |
+ | `recovery_preserved` | workspace, base, tree, ref or archive, verification (`unverified`) |
+ | `parallel_started` | attempts |
+ | `shaping_rechecked` | base, predicates, dependency commits |
+@@ -190,7 +190,7 @@ Used when `setup` and `setup_outputs` are non-empty. Optional `setup_inputs` is
+ {"v":2,"base_tree":s,"setup":[…],"setup_outputs":[…],"child_env":{…},"os":s,"arch":s,"elixir":s,"otp":s,"inputs":[{path,mode,sha256}]|null}
+ ```
+ 
+-`child_env` is the environment constructed for setup (§5.2) without `MISE_STATE_DIR`, `MISE_CACHE_DIR`, and `MISE_TRUSTED_CONFIG_PATHS`. `inputs` is null when `setup_inputs` is empty. A declared input that escapes the checkout is rejected at project load. Entry = the outputs plus `complete` = `{"v":2,"key","setup_wall_ms","outputs","last_used_ms"}`, published by rename. Hits restore outputs copy-on-write and record `setup_reused`; keep 3 entries; failed setups are never cached. The approval baseline cache `approval-cache/<hex>.json` uses a **separate**, versioned SHA-256 key over canonical JSON: `{"v":3,"checked_base_tree":s,"setup_key":s,"checks":[…],"child_env":{…},"toolchain":{…},"os":s,"arch":s,"adapter_version":s}`. `checked_base_tree` is always the exact tree actually checked, never empty or replaced by `setup_inputs`; setup key reuse cannot imply baseline reuse. `checks` are the full effective definitions (argv, order and deadlines); environment/toolchain identities include relevant check-affecting values and versions. If those identities cannot be established, do not reuse the baseline. Old baseline keys are misses. `setup_inputs` narrows only setup-product reuse. These keys do not change the approval hash, which still binds exact reviewed bytes.
++`child_env` is the resulting effective environment constructed for setup (§5.2), including inherited or project-selected XDG and tool-cache locations, without `MISE_STATE_DIR`, `MISE_CACHE_DIR`, and `MISE_TRUSTED_CONFIG_PATHS`. Exclude run-local `TMPDIR` from cache identity; stable cache locations remain in the key. `inputs` is null when `setup_inputs` is empty. A declared input that escapes the checkout is rejected at project load. Entry = the outputs plus `complete` = `{"v":2,"key","setup_wall_ms","outputs","last_used_ms"}`, published by rename. Hits restore outputs copy-on-write and record `setup_reused`; keep 3 entries; failed setups are never cached. The approval baseline cache `approval-cache/<hex>.json` uses a **separate**, versioned SHA-256 key over canonical JSON: `{"v":3,"checked_base_tree":s,"setup_key":s,"checks":[…],"child_env":{…},"toolchain":{…},"os":s,"arch":s,"adapter_version":s}`. `checked_base_tree` is always the exact tree actually checked, never empty or replaced by `setup_inputs`; setup key reuse cannot imply baseline reuse. `checks` are the full effective definitions (argv, order and deadlines); environment/toolchain identities include relevant check-affecting values and versions. If those identities cannot be established, do not reuse the baseline. Old baseline keys are misses. `setup_inputs` narrows only setup-product reuse. These keys do not change the approval hash, which still binds exact reviewed bytes.
+ 
+ ## 2.10 Build report (`status <slug> --json`)
+ `{"slug","status","build_id","journal","verdict","land_policy","advisory_items","approval","approved_by","base","candidate","landed_sha","priority","blocks_on","cache_hit_rate","agents","credential":{"source","label"},"rungs":[{"rung","model","effort","reason","verdict","diff_lines","candidate_ref","wall_ms","tokens"}],"best_candidate":{"rung","ref","diff_path","verdict"}|null,"audit":[{"rung","id","verdict","reason"}],"acceptance":[{"id","status","demoted"}],"checks":[{"name","status","excused"}],"model_stages":[…],"findings":[{"type","path","message"}],"failures":[{"stage","class","reason","detail"}],"sandbox","budget":{"budget_ms","used_ms","paused_ms"}}`. `budget_ms` is the configured value, unscaled; `used_ms` and `paused_ms` are measured wall time. `cache_hit_rate` is §4.9.5. `agents` is present when any agent record exists.
+diff --git a/spec/03-build.md b/spec/03-build.md
+index 707491e..7909375 100644
+--- a/spec/03-build.md
++++ b/spec/03-build.md
+@@ -22,7 +22,7 @@ Constants live in [data/constants.json](data/constants.json); model ids are conf
+ | `landed` | a landable candidate landed | landed |
+ | `failed` | no landable candidate; best candidate on `refs/kogen/parked/<run_id>` | failed (re-approve to retry) |
+ | `parked` | a landable candidate could not be landed (moved-base repairs or landing retries exhausted) | parked |
+-| `stopped` | stopped **without judging the Intent**: exhausted provider request or pause policy, setup failing twice, acceptance runner unavailable on the base, Kogen bug | stays queued; the drain stops |
++| `stopped` | stopped **without judging the Intent**: login, provider outage, setup failing twice, acceptance runner unavailable on the base, Kogen bug | stays queued; the drain stops |
+ 
+ ## 3.1 The recipe: `ladder`
+ The default `build.recipe` is `ladder`. These names are accepted. Any ladder name may end in `+edge`.
+@@ -65,7 +65,9 @@ Shaping is a small ladder of its own.
+ - **Passes 4–6:** role `fallback_shaper`, resolved from the effective `shaper` model and effort (§2.3), in a fresh conversation that also gets the last failure. The default ChatGPT profile is a fresh Sol-high retry on the same model; a Grok selection stays on Grok.
+ - **Limits:** the versioned provisional profile `shape-v1.3` retains 3 validation passes and 60 shaper logical turns per conversation, two conversations maximum, and 2 free style repairs per conversation. There is no total Shape wall limit; finite turn/attempt allowances are not a latency guarantee. Provider retries follow §4.5 with no Shape wall budget (at most 4 attempts per logical request). No smaller cap is justified by current evidence; the shaper/probe method and any complementary-model advantage remain unmeasured.
+ - **Tools:** `read`, `search`, and `write`, with `write` restricted to the Intent and the acceptance source (≤ 200,000 bytes).
+-- **System prompt:** contains `You are Kogen Intent shaper.`
++- **System prompt:** contains `You are Kogen Intent shaper.` With `shaping.boundary_coverage` absent or false, the system prompt bytes are exactly the existing base prompt. When true, append this paragraph, including its final newline, to that base for both primary and fallback shaper, without changing the first user message, Request bytes, tools, models, passes, auditors, builder, or gate:
++
++  > For every distinct input boundary that the Task statement specifies or directly implies for a named input source, write an executable assertion in an acceptance test tagged for its Intent item. Distinguish zero-byte input, whitespace-only input, malformed input, missing required fields, and failed reads when each is applicable. For every distinct response status or process-exit class the Task statement specifies, assert that class and any specified body, stdout, or stderr behavior. Use actual public interfaces and inputs; do not infer hidden cases or invent precedence between errors. Several assertions may share one tagged test and Intent item. Keep the specified Intent item limits, red-on-base rule, and existing test-gate contract.
+ - **First message (exact):**
+ ```
+ Slug: <slug>
+@@ -115,8 +117,7 @@ Validate the slug, load the project, delete stale shape artefacts, and run `setu
+ 8. **Shaping test audit (core).**
+    - One request to role `auditor` (`You are Kogen's acceptance test auditor.`). Input: the Request, the Intent, the test source, and each item's base output.
+    - Output: `{"items":[{"id","verdict":"valid|over_strict|infeasible","citation","reason"}]}`.
+-   - A citation is a non-empty, exact, contiguous substring of the text supplied to this audit, with no trimming or case folding. For `over_strict`, it must occur in the verbatim Request; for `infeasible`, it must occur in that item's base output. A quote from the Intent, test source, another item's output, or the auditor's own reason is insufficient. Missing, empty, or unmatched citations are invalid.
+-   - Non-valid items with a valid citation → one repair asking for a test that follows the Request. Verdicts still non-valid after it become `audit_<verdict>` warnings. A non-valid verdict without a valid citation gets no repair but still becomes an `audit_<verdict>` warning (concerns are warnings, resolved call 3; settled v1.1).
++   - Non-valid items with a valid citation (§3.8.2) → one repair asking for a test that follows the Request. Verdicts still non-valid after it become `audit_<verdict>` warnings. A non-valid verdict without a valid citation gets no repair but still becomes an `audit_<verdict>` warning (concerns are warnings, resolved call 3; settled v1.1).
+ 9. **Restore** the staged path.
+ 
+ The ledger and the shaping audit run once the earlier steps pass. Their repairs count against the pass budget.
+@@ -193,7 +194,7 @@ A pure step function `step(state, event) → (state, effects)` is recommended. O
+ | verify | result `red` | progress check, then `repair` |
+ | develop | after a repair, the tree equals the pre-repair tree | rung ends `unchanged` |
+ | any | budget out | verify; rung ends `budget` |
+-| any | provider request or pause policy exhausted (§4.5) | stop the Build as `stopped provider/<class>`; keep the Intent queued and stop the drain with exit 4 |
++| any | provider failure after §4.5 | rung ends `provider/<class>`, or stopped for login and outage |
+ 
+ **Repairs.** The ladder allows **6** repairs in a rung. The **count** of a red verification = distinct identities in non-excused red checks + non-excused red checks without identities + failing approved items. A count that is not strictly lower than the previous red count ends the rung as `no_progress`. When the red result has no count, the second such repair ends the rung the same way. `repair_cap` is the name when the 6 are spent. On `plan-shell`, an environment failure fails the stage. On the ladder, `check_unavailable` is fed back as a repair, and `protected_restore_limit` escalates.
+ 
+@@ -285,7 +286,7 @@ A candidate is **landable** only if ≥ 1 approved **change** item passes as wel
+ - **Request.** Role `auditor` (test-auditor marker, §4.8.2), one request with no tools. Input: the failing ids, the verbatim Request, the test source, the failure output, and the candidate diff. The diff clip is **60,000** characters.
+ - **Output.** `{"items":[{"id","verdict":"valid|over_strict|contradicts","reason"}]}`. There is no citation field for this Build reply.
+ - **Observation only.** Every verdict is advice, including `over_strict` and `contradicts`. Save it in `audit`; explain it or append a suggested repair to builder feedback. Missing, unknown, duplicate or garbled items yield warnings. No reply changes approved items, verified results, selector scores, or landing permission; actual repaired bytes must pass verification. `demoted` stays false, `advisory_items` stays empty, and no `acceptance_demoted` event is emitted. The auditor remains disabled in witness mode.
+-- **Experimental demotion.** `build.auditor_demotion` defaults to false. Explicit true MUST be refused at project load with `build.auditor_demotion has no admitted calibration` until a versioned spec/test change admits a frozen policy. No calibration is admitted in v1.3-draft. Admission requires the exact effective model/effort, prompt, test/failure inputs and demotion action, frozen task population/scoring/uncertainty rule, ≥ 90% precision and ≤ 5% false demotion, followed by prospective confirmation. The future experiment must define parallel-rung ordering and its landing policy before enabling demotion.
++- **Experimental demotion.** `build.auditor_demotion` defaults to false. Explicit true MUST be refused at project load with `build.auditor_demotion has no admitted calibration` until a versioned spec/test change admits a frozen policy. No calibration is admitted in v1.3.1-draft. Admission requires the exact effective model/effort, prompt, test/failure inputs and demotion action, frozen task population/scoring/uncertainty rule, ≥ 90% precision and ≤ 5% false demotion, followed by prospective confirmation. The future experiment must define parallel-rung ordering and its landing policy before enabling demotion.
+ 
+ **Evidence:** An offline policy evaluation reported Luna-max 56.25% precision/35% false demotion and Sol-low 66.67%/25%; neither passes the stated point targets. These were offline patch vetoes using Luna and `gpt-6-sol/low`, without test source or failure output; they do not measure the exact `gpt-6.1-sol/high` test-demotion policy. They reject assuming safety; the exact policy has no qualifying evidence.
+ ### 3.8.3 Selector
+@@ -333,7 +334,7 @@ Before any workspace or candidate-ref cleanup in either case, stop remaining run
+ 
+ Recovery MUST survive a crash between preservation and record publication: find and validate the deterministic ref/archive on repeat, adopt it only if it covers the frozen current workspace state, then finish recording. If a previously published snapshot differs from later work, retain it and create a separately identified snapshot; never overwrite the earlier candidate. Cleanup is allowed only after durability and completeness are confirmed. Never delete the only candidate; retain all published candidate/recovery refs even when destroying workspaces. Preserve post-snapshot progress separately from the existing best candidate. If preservation fails, keep the workspace and any existing candidate refs, persist `cleanup_pending: true`, emit `cleanup_failure` naming the workspace and failure, and retry preservation before cleanup on later recovery (including terminal runs with cleanup pending). The failed or reconciled-landed outcome remains recorded; cleanup failure does not grant permission to land or erase crashed work.
+ 
+-Release the claim if owned after recording the outcome and preservation result; destroy only workspaces whose preservation succeeded. Crashed and interrupted Builds leave the queue until re-approved; recovery does not automatically retry them. Repeated recovery is idempotent: no extra candidate, lost ref, or changed terminal outcome. Automatic Build retry remains out of scope.
++Release the claim if owned after recording the outcome and preservation result; destroy only workspaces whose preservation succeeded. Crashed and interrupted Builds leave the queue until re-approved (features/24). Repeated recovery is idempotent: no extra candidate, lost ref, or changed terminal outcome. Automatic Build retry remains out of scope.
+ 
+ ## 3.11 Queue and drain
+ - **Queue.** It is computed from statuses (§2.11).
+diff --git a/spec/04-provider.md b/spec/04-provider.md
+index 49027a5..ddba117 100644
+--- a/spec/04-provider.md
++++ b/spec/04-provider.md
+@@ -29,8 +29,8 @@ ProviderError = { class: login|usage_limit|overload|timeout|stall|malformed|tran
+ - **Responses mode** (the default, `build.luna_provider_mode: responses`):
+   - Injected: `model`, `instructions`, `tools`, `reasoning`, `store: false`, `stream: true`, `include: ["reasoning.encrypted_content"]`, `prompt_cache_key` when set, the controls below, then `input`.
+   - Owned: the same order, without top-level `tools` and without `include`. The harness sends its complete canonical tool schema list as a leading input item `{"type":"additional_tools","role":"developer","tools":[…]}`.
+-  - The harness keeps those schemas identical across roles. A role with callable tools sends `tool_choice: {"type":"allowed_tools","mode":"auto","tools":[…]}`, listing only that role's callable tools. A stage that requires a call uses `"mode":"required"` in the same object. A role with no callable tools sends `tool_choice: "none"` while retaining the shared schemas. The top-level `tools` array is never narrowed by role.
+-- **Controls on every ChatGPT request:** `tool_choice` follows the role rule above. `parallel_tool_calls` is `false`. Luna (`gpt-6-luna`) sets `text.verbosity` to `"low"` and omits `reasoning.summary`. Other models set `reasoning.summary` to `"auto"`. `max_output_tokens` is sent only for a develop request when `build.model_generation_tokens` is set (§4.9).
++  - The harness keeps those schemas identical across roles and limits callable tools with `tool_choice: {"type":"allowed_tools","mode":"auto","tools":[…]}`. A role with no callable tools sends `tool_choice: "none"` while retaining the shared schemas.
++- **Controls on every ChatGPT request:** `tool_choice` is `"auto"` (or `"none"` or `"required"` when the stage says so). `parallel_tool_calls` is `false`. Luna (`gpt-6-luna`) sets `text.verbosity` to `"low"` and omits `reasoning.summary`. Other models set `reasoning.summary` to `"auto"`. `max_output_tokens` is sent only for a develop request when `build.model_generation_tokens` is set (§4.9).
+ - **Lite mode** (`build.luna_provider_mode: lite`) is an opt-in for injected Luna only. The model must be `gpt-6-luna`. `model_generation_tokens` must be unset. `previous_response_id` must be unset. `reasoning.context` is `"all_turns"`. `instructions` is `""`. There is no top-level `tools`. Input starts with an `additional_tools` developer item, then the shared developer instructions, the role-specific developer instructions, and history. The leading items have deterministic ids (§4.9). `include` is `["reasoning.encrypted_content"]`. The request adds headers `x-openai-internal-codex-responses-lite: true` and `session_id` set to a stable run-level protocol id. An owned login cannot select Lite. That attempt fails as `unsupported` with `Unsupported adapter or model-generation cap for this backend.` The same message is used when Lite is combined with a generation cap. A generation cap on an endpoint other than `https://api.openai.com/v1/responses` fails earlier, before credentials are loaded, with `Model-generation cap is unsupported on this endpoint/adapter.` There is no fallback to another shape.
+ - **Never sent:** `previous_response_id`, `temperature`, a body `session_id` (except the Lite header above), `conversation_id`.
+ - **Items:**
+@@ -47,14 +47,13 @@ ProviderError = { class: login|usage_limit|overload|timeout|stall|malformed|tran
+ - **Events:**
+   - `response.output_item.done` → collect its `item`.
+   - `response.completed` → keep its `response`. A second one is malformed.
+-  - `response.incomplete` → `incomplete`, with its `response.incomplete_details.reason` (or a missing reason) retained for the message. It is a failed response, not a completed response; collected items are not executed, and reported usage is retained. An `error`, `response.failed`, or non-null top-level `error` on any event takes precedence if present.
+-  - `error`, `response.failed`, or any non-null top-level `error` → a failure, classified by substring of the lowercased event:
++  - `error`, `response.failed`, `response.incomplete`, or any non-null top-level `error` → a failure, classified by substring of the lowercased event:
+     - `usage_limit`, `usage limit`, `rate_limit` or `rate limit` → `usage_limit`;
+     - otherwise `overload` → `overload`;
+     - otherwise `transport`.
+   - Other objects are ignored. Invalid JSON is malformed.
+ - **Assembly.** The first matching rule decides:
+-  - An explicit error or failed event wins; otherwise an incomplete event wins. Neither is a success, even if a `response.completed` event also arrived.
++  - A failure wins.
+   - Then malformed.
+   - No `completed` event → malformed.
+   - Otherwise assemble the response:
+@@ -98,7 +97,7 @@ v1.2 follows the deadlines and retry decisions the Build tests assert. The v1.1
+ - **Budget clock.** Backoff waits and login or usage-limit pauses do not count against the Build budget. Request time does.
+ - **`usage_limit` and `login` are not transient retries.** They do not spend the attempt cap.
+   - **Inside the provider call, for `login` only.** Owned ChatGPT and Grok do one forced token refresh and resend once, only when the stored access token is still the rejected one. `usage_limit` does not refresh; it goes directly to the Build pause or Shape exit rule below.
+-  - **On a Build.** A continuing `login` with non-refreshable injected credentials stops immediately (`stopped provider/login`), leaving the Intent queued; the drain exits 4 without a pause. Other continuing `login` errors and `usage_limit` pause the ladder and rerun that stage. Each pause is **5 min** (`300_000` ms). Pauses sit outside the Build budget. They stop after **24 h** (`86_400_000` ms) in total. Record `provider_wait` with `budget_paused: true`. The Build then stops (`stopped provider/<class>`) and the drain exits 4.
++  - **On a Build.** If the error is still `usage_limit` or `login`, the ladder pauses and reruns that stage. Each pause is **5 min** (`300_000` ms). Pauses sit outside the Build budget. They stop after **24 h** (`86_400_000` ms) in total. Record `provider_wait` with `budget_paused: true`. The Build then stops (`stopped provider/<class>`) and the drain exits 4.
+   - **Shaping** has no ladder pause. The same per-request rule applies, then shaping exits 4.
+ - **`incomplete`.** No tool call from that response runs. Reported token counts are kept. A missing count stays null. The class is not retried as a success.
+ - **One retry layer.** The request policy above is the only place that retries provider errors.
+@@ -194,7 +193,7 @@ Settled in v1.1: the **build auditor** (§3.8.2) and the **witness adjudication*
+   - `{"sse":[data…]}`
+   - `{"http":{"status","body","headers"}}`
+ - **Modifiers:** `first_byte_ms`, `chunk_gap_ms`, `drop_after_events`, `repeat`, `side_effect_sh` (a command the server runs before replying, for example a commit that moves the origin's base).
+-- **Delays** are given unscaled; the server multiplies them by `KOGEN_TIME_SCALE`.
++- **Delays** are given unscaled; the server divides them by `KOGEN_TIME_SCALE`.
+ - **Successful replies** stream one `response.output_item.done` per item, then `response.completed` with `id` `resp_<n>`, `status` `completed`, empty `output` and usage. Frames are written `event: <type>\ndata: <json>\n\n`.
+ - **Pass condition.** A test passes only with no unmatched requests and, unless it says otherwise, no remaining steps.
+ 
+diff --git a/spec/05-sandbox-custody.md b/spec/05-sandbox-custody.md
+index e276e39..a37ca3f 100644
+--- a/spec/05-sandbox-custody.md
++++ b/spec/05-sandbox-custody.md
+@@ -14,7 +14,7 @@ Every process Kogen starts has these guarantees:
+ 8. Default timeout is 120 s. Project commands use their `timeout_ms`; the acceptance runner uses `acceptance.timeout_ms`.
+ 
+ ## 5.2 Environment
+-1. **Base.** Kogen's own environment, filtered by an allowlist: `PATH HOME LANG LC_ALL TERM USER SHELL`, the proxy variables, `GIT_*`, `MISE_*`, and stack homes the adapter names (`MIX_HOME HEX_HOME` for exunit).
++1. **Base.** Kogen's own environment, filtered by an allowlist: `PATH HOME LANG LC_ALL TERM USER SHELL`, the proxy variables, `GIT_*`, `MISE_*`, and stack homes the adapter names (`MIX_HOME HEX_HOME` for exunit). Every child running project or candidate code, including setup and gate children, also inherits `XDG_CACHE_HOME`, `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `GOCACHE`, `GOMODCACHE`, `CARGO_HOME`, `RUSTUP_HOME`, `BUNDLE_USER_HOME`, `GEM_HOME`, `GEM_PATH`, `NPM_CONFIG_CACHE`, `PNPM_HOME`, and `PIP_CACHE_DIR` when set. The order remains inherited base, run-local `TMPDIR`, mise output, then project `env`; explicit project values win. Do not copy `KOGEN_*` secrets into children. Canonicalize inherited path values used for writable caches; if a cache path is outside the default sandbox write set, grant only that cache path or report a precise unavailable-cache diagnostic before setup. Inheriting config or data paths does not weaken credential-read denials or make the whole config tree writable.
+ 2. `TMPDIR` is set to `<run dir>/tmp`.
+ 3. **mise.** If `mise` is on `PATH`, Kogen merges the output of `mise env -C <dir> --json --quiet` (run unconfined, 30 s limit). It sets `MISE_STATE_DIR` and `MISE_CACHE_DIR` under the run dir and adds the project root and workspace to `MISE_TRUSTED_CONFIG_PATHS`. The mise binary's directory is prepended to `PATH`.
+ 4. **Project.** The project's `env` is merged last and wins. A project `PATH` is used verbatim.
+@@ -28,7 +28,7 @@ Every process Kogen starts has these guarantees:
+ **SHOULD.** Writes are limited to these locations:
+ - the workspace and the run dir;
+ - `/tmp`;
+-- tool caches (`~/.cache/mise`, `~/.hex`, `~/.cache/rebar3`, `~/.npm`, `~/.cargo/registry`, `~/.cargo/git`, `~/.cache/go-build`, `$GOMODCACHE`).
++- the effective, declared tool-cache paths from §5.2 and adapter configuration, including the default cache paths when no override is set. Config and data roots are not writable merely because their locations are inherited.
+ 
+ Reads of `~/.kogen/credentials*`, `~/.ssh`, `~/.gnupg`, `~/.codex`, the OS keychain and the `KOGEN_AUTH_PATH` file are denied. The network is allowed. Shaping and approval run in the checkout, so there the checkout is writable.
+ 
+diff --git a/spec/06-non-goals.md b/spec/06-non-goals.md
+index cfff1a9..7e2b30a 100644
+--- a/spec/06-non-goals.md
++++ b/spec/06-non-goals.md
+@@ -5,14 +5,14 @@ Core v1 is the unit of comparison. Every implementation builds exactly this, not
+ ## 6.1 Out of core v1
+ | Item | Why |
+ |---|---|
+-| `init`, `update`, `provider test`, `guide`, `doctor`, `completion`, `mcp` | Deferred commands outside the fixed core CLI (§1). |
++| `init`, `update`, `provider test`, `guide`, `doctor`, `completion`, `mcp` | Decided commands, but not part of this CLI generation (features/24). |
+ | Daemon, TUI, interactive sessions | Decided never. |
+ | Parallel Builds; per-domain claims | Later: same UX, plus config. |
+ | Splitting one Intent into sub-Builds | Decided as Kogen's job; not yet built. |
+ | Providers other than ChatGPT and Grok, API keys | ChatGPT and Grok are §4. Others plug into §4.1 and §4.6. |
+ | A model judge | Selection is deterministic (§3.8.3). |
+ | A second witness | Shaping-guarantee lever, pending measurement. It plugs into §3.2.7. |
+-| Automatic retry of crashed Builds | Deferred; recovery preserves unfinished work and requires re-approval before another Build (§3.10). |
++| Automatic retry of crashed Builds | Open (decisions `build.crash`). |
+ | `limits` semantics; Intent sync between machines | No consumer yet. `blocks_on` is §2.11. |
+ | Stack adapters beyond `exunit`, `rails`, and `command` | Further adapters plug into §2.4.2. |
+ | Spend ceilings, USD ledger | Subscriptions only. Usage is recorded in `model_stage`. |
+diff --git a/spec/CONFORMANCE-v1.2-CASES.md b/spec/CONFORMANCE-v1.2-CASES.md
+index 0fc0ba2..7d1df30 100644
+--- a/spec/CONFORMANCE-v1.2-CASES.md
++++ b/spec/CONFORMANCE-v1.2-CASES.md
+@@ -1,10 +1,10 @@
+ # Conformance cases for v1.2
+ 
+-Grok cases exercise the provider name admitted by CLI-RULE.txt and the provider behavior in §4.10. This document records wire requirements beyond the frozen historical v1.1 corpus; the separate suite may exercise them through experimental overlays. The ChatGPT cache cases remain a rewrite requirement.
++Grok cases exercise the provider name admitted by CLI-RULE.txt and the provider behavior in §4.10. This document proposes a future suite version and does not change the read-only frozen v1.1 suite. The ChatGPT cache cases remain a rewrite requirement.
+ 
+ v1.3-draft supersedes the distinct-run affinity assertion in P2; use the cross-session cases in [CHANGES-v1.3.md](../CHANGES-v1.3.md). Other unresolved v1.2 cases remain proposals.
+ 
+-These cases are not in the frozen historical `conformance-v1.1` corpus of 244 cases. This file does not change that corpus.
++These cases are not in the frozen suite (`conformance-v1.1`, 244 cases). A later suite adds them. This file does not change that suite.
+ 
+ The fake provider is §4.8. Inspection is `GET /_fake/requests`. Each case names the observations that must hold. A missing observation fails the case. Quoted text is byte-exact.
+ 
+@@ -63,7 +63,7 @@ Responses mode, injected ChatGPT:
+ 
+ - Body includes `tools` and `include: ["reasoning.encrypted_content"]`.
+ - Luna sets `text.verbosity` to `low` and omits `reasoning.summary`. Another model sets `reasoning.summary` to `auto`.
+-- A role with callable tools sends `tool_choice: {"type":"allowed_tools","mode":"auto","tools":[…]}` with only that role's callable tools, or `"mode":"required"` when the stage requires a call. A role with no callable tools sends `tool_choice: "none"`. Every role keeps the complete shared schemas. `parallel_tool_calls` is false.
++- `tool_choice` is `auto` and `parallel_tool_calls` is false, unless the stage sets `none` or `required`.
+ 
+ Lite mode, injected, model `gpt-6-luna`, no generation cap:
+ 
+@@ -74,17 +74,6 @@ Lite mode, injected, model `gpt-6-luna`, no generation cap:
+ - An owned login that asks for Lite sends no request. The class is `unsupported`. The message is `Unsupported adapter or model-generation cap for this backend.` Lite plus `model_generation_tokens` uses that same message.
+ - `model_generation_tokens` on an endpoint other than `https://api.openai.com/v1/responses` fails before credentials are loaded. The message is `Model-generation cap is unsupported on this endpoint/adapter.`
+ 
+-Current v1.3-draft stream classification fixture (the frozen v1.1 corpus is unchanged):
+-
+-```text
+-event: response.incomplete
+-data: {"type":"response.incomplete","response":{"id":"resp-incomplete","status":"incomplete","incomplete_details":{"reason":"max_output_tokens"},"output":[{"type":"function_call","call_id":"c1","name":"shell","arguments":"{}"}],"usage":{"input_tokens":12,"output_tokens":7}}}
+-
+-```
+-
+-- Classify this as `incomplete`, even if the reason lacks an error substring; do not retry it as `transport`, run proposed tool calls, or turn it into success. Keep the reported input and output token counts. Missing usage fields remain unknown.
+-- If a separate `error` or `response.failed` event also arrives, that explicit failure takes precedence and uses the generic error classification.
+-
+ ## P7. Upstream cut continues the turn
+ 
+ Script a stream that delivers at least one output item and then stalls or drops.
+@@ -104,7 +93,7 @@ Times below are unscaled (`KOGEN_TIME_SCALE` is 1).
+ - One attempt is killed at 20 min.
+ - `timeout`, `stall`, and `transport` retry while the wall can pay the backoff. `overload` and `malformed` stop at 4 attempts.
+ - The second consecutive `overload` on ChatGPT resends at once on `gpt-6.1-sol/medium`. `provider_switch.delay_ms` is 0. The planner does not switch. A Grok run does not switch.
+-- A continuing `login` after the owned credential's one in-call forced refresh pauses and reruns the stage. A `usage_limit` goes directly to the same pause without token refresh. `provider_wait.budget_paused` is true, and the pause is outside the 60 min wall. A `login` with non-refreshable injected credentials stops the Build immediately with a queued Intent and exit 4, without forced refresh or pause.
++- The first `login` or `usage_limit` after the in-call refresh does not stop the Build. The stage is paused and rerun. `provider_wait.budget_paused` is true. The pause is outside the 60 min wall.
+ 
+ ## P9. Usage
+ 
+diff --git a/spec/CONFORMANCE.md b/spec/CONFORMANCE.md
+index 7a75861..ff68ece 100644
+--- a/spec/CONFORMANCE.md
++++ b/spec/CONFORMANCE.md
+@@ -1,6 +1,6 @@
+ # Conformance: the black-box oracle
+ 
+-**v1.3-draft status:** this inventory describes historical frozen v1.1 cases. The 7 Oct 2026 changes and replacement/additional cases are in [CHANGES-v1.3.md](../CHANGES-v1.3.md). In particular, the old ladder demotion cases 5–11 do not define the current observational gate. The separate conformance repository retains that frozen corpus and also has experimental v1.2/v1.3 overlays. It pins the spec revision used for each current run; historical reports retain their actual tested revisions. A v1.3 release requires a frozen executable suite and named spec/suite revisions in its results.
++**v1.3.1-draft status:** this inventory describes historical frozen v1.1 cases. The 7 Oct 2026 changes and replacement/additional cases are in [CHANGES-v1.3.md](../CHANGES-v1.3.md). In particular, the old ladder demotion cases 5–11 do not define the current observational gate. The amend-1 conformance overlay adds draft cases; a v1.3 release requires a new frozen executable suite and named spec/suite revisions in its results.
+ 
+ ## C.1 Definition
+ - An implementation is **conformant on a host** when it passes every case in the behaviour profiles `cli`, `state`, `approval`, `shape`, `build`, `ladder`, `provider` and `custody`, plus the `format` profile, with no unmatched fake-provider request. **Full conformance** means conformant on both macOS and Linux. The `exunit` profile is also required for the Elixir tier.
+@@ -62,7 +62,7 @@ The runner computes the placeholders (`{hash8}`, `{state_root}`, `{run_id}`) fro
+ ## C.5 Cases
+ ### `cli` (§1)
+ 1. Top page via `kogen`, `help` and `--help`.
+-2. All 15 pages by every route.
++2. All 16 pages by every route.
+ 3. Unknown command.
+ 4. Unknown subcommand, also with `--help`.
+ 5. Unknown option.
+diff --git a/spec/README.md b/spec/README.md
+index 30f7f71..713dee3 100644
+--- a/spec/README.md
++++ b/spec/README.md
+@@ -1,6 +1,6 @@
+-# Kogen core v1.3-draft: language-neutral specification
++# Kogen core v1.3.1-draft: language-neutral specification
+ 
+-Written on 5 Oct 2026 and updated on 7 Oct 2026. The v1.3 changes are recorded in [CHANGES-v1.3.md](../CHANGES-v1.3.md); this is an unfrozen draft, not an executable conformance release. The core commitments and deferred designs are classified in [quint/CLASSIFICATION.md](../quint/CLASSIFICATION.md). [CLI-RULE.txt](../CLI-RULE.txt) controls the command tree and permits the provider names `chatgpt` and `grok` on the existing provider commands. §4.10 specifies the Grok provider. The separate suite retains frozen historical v1.1 cases and has experimental newer overlays; [CONFORMANCE-v1.2-CASES.md](CONFORMANCE-v1.2-CASES.md) lists additional wire cases.
++Written on 5 Oct 2026 and updated on 7 Oct 2026. The v1.3 changes are recorded in [CHANGES-v1.3.md](../CHANGES-v1.3.md); this is an unfrozen draft, not an executable conformance release. The core commitments and deferred designs are classified in [quint/CLASSIFICATION.md](../quint/CLASSIFICATION.md). [CLI-RULE.txt](../CLI-RULE.txt) controls the command tree and permits the provider names `chatgpt` and `grok` on the existing provider commands. §4.10 specifies the Grok provider. The frozen black-box suite is v1.1; [CONFORMANCE-v1.2-CASES.md](CONFORMANCE-v1.2-CASES.md) lists additional cases for a future suite.
+ 
+ ## Summary (10 lines)
+ 1. One `kogen` CLI: the fixed tree in CLI-RULE.txt, plus the provider name `grok` on the existing login, logout, and use verbs. Byte-exact help is in `data/help/`. There is no `--help` flag. Exits are 0/1/2/3/4/5/70/130/143 ([01](01-cli.md)).
+@@ -12,7 +12,7 @@ Written on 5 Oct 2026 and updated on 7 Oct 2026. The v1.3 changes are recorded i
+ 7. The default recipe is `ladder`: Luna, Sol medium, and Sol high, each with the plan, then an experimental request-only rung. `hard` runs the first two together. Repeats continue until a 60-minute wall. The builder finishes by calling `finish` with `{}` ([03 §3.1](03-build.md)).
+ 8. Landing: green trees satisfying all approved acceptance items land. The default auditor is observational and cannot change acceptance, rank or eligibility; automated demotion is opt-in experimental and disabled pending frozen calibration. Recovery preserves crashed work before cleanup ([03 §3.8](03-build.md)).
+ 9. Providers are ChatGPT and Grok. Adapter-selected cache affinity is persisted, while thread identity is distinct per invocation/stage/attempt/rung/epoch. The static prefix is stable across Shapes and Builds; the ≥95% cache gate uses a frozen feasible replay ([04](04-provider.md)).
+-10. Custody and the sandbox are specified as behaviour. A host that cannot confine builds unconfined with a warning ([05](05-sandbox-custody.md)). The historical v1.1 corpus remains frozen; newer experimental overlays and the additional wire cases in [CONFORMANCE-v1.2-CASES](CONFORMANCE-v1.2-CASES.md) do not certify a v1.3 release.
++10. Custody and the sandbox are specified as behaviour. A host that cannot confine builds unconfined with a warning ([05](05-sandbox-custody.md)). The frozen suite is still conformance-v1.1. New cases are listed and not yet in that suite ([CONFORMANCE-v1.2-CASES](CONFORMANCE-v1.2-CASES.md)).
+ 
+ ## Files
+ | File | Contents | Pages |
+@@ -25,7 +25,7 @@ Written on 5 Oct 2026 and updated on 7 Oct 2026. The v1.3 changes are recorded i
+ | [06-non-goals.md](06-non-goals.md) | Out of core v1, implementer freedom, never | 1 |
+ | [CONFORMANCE.md](CONFORMANCE.md) | Definition, freeze rule, harness, 244 cases, comparison | 6 |
+ | [CONFORMANCE-v1.2-CASES.md](CONFORMANCE-v1.2-CASES.md) | Fake-provider cases not yet in the frozen suite | 3 |
+-| [data/](data/) | `help/*.txt` (15 pages), `lint.json`, `yaml-errors.json`, `moved.json`, `constants.json` | data |
++| [data/](data/) | `help/*.txt` (16 pages), `lint.json`, `yaml-errors.json`, `moved.json`, `constants.json` | data |
+ 
+ ## Conventions
+ - **MUST/SHOULD/MAY** follow RFC 2119.
+diff --git a/spec/data/help/kogen-queue-start.txt b/spec/data/help/kogen-queue-start.txt
+index a738de7..d014e83 100644
+--- a/spec/data/help/kogen-queue-start.txt
++++ b/spec/data/help/kogen-queue-start.txt
+@@ -1,7 +1,6 @@
+ Usage: kogen queue start [options]
+ 
+-Builds approved Intents one at a time by priority (highest first), then approval time
+-and slug, until none are left, and
++Builds approved Intents one at a time, oldest approval first, until none are left, and
+ prints a line as each Build starts and finishes. If the queue is already running, says so.
+ Exit: 0 all landed; 1 a Build failed (the queue goes on); 3, 4 or 70 stopped on an
+ environment, provider or Kogen error.
+diff --git a/spec/data/help/kogen-queue.txt b/spec/data/help/kogen-queue.txt
+index 958f1a1..34b2339 100644
+--- a/spec/data/help/kogen-queue.txt
++++ b/spec/data/help/kogen-queue.txt
+@@ -1,5 +1,5 @@
+ Usage: kogen queue <command> [options]
+ 
+ Commands:
+-  start     Build approved Intents one at a time by priority, approval time, then slug
++  start     Build approved Intents one at a time, oldest approval first
+   stop      Stop the running queue after its current Build

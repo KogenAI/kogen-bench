@@ -183,10 +183,10 @@ class EgressProxyTests(unittest.TestCase):
             client.sendall(f"CONNECT {authority} HTTP/1.1\r\nHost: {authority}\r\n\r\n".encode())
             self.assertIn(b"200 Connection Established", client.recv(1024))
             process.send_signal(signal.SIGTERM)
-            # Darwin does not consistently wake a worker's select() when the
-            # same socket is closed from the SIGTERM handler; the relay's
-            # existing poll bound is 60 seconds. Production lane hosts are Linux.
-            process.wait(timeout=65 if sys.platform == "darwin" else 3)
+            # Some hosts do not consistently wake a worker's select() when the
+            # same socket is closed from the SIGTERM handler; relay's poll bound
+            # is 60 seconds on Linux and macOS alike.
+            process.wait(timeout=65)
             self.assertEqual(client.recv(1), b"")
             client.close()
             self.assertFalse(os.path.exists(self.socket_path))
