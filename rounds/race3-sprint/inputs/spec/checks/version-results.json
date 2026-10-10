@@ -1,0 +1,55 @@
+[
+  {
+    "file": "quint/version.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/version.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.38
+  },
+  {
+    "file": "quint/version.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/version.qnt",
+      "--main",
+      "version",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.38
+  },
+  {
+    "file": "quint/version.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/version.qnt",
+      "--main",
+      "version",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.45
+  }
+]

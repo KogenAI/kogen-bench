@@ -1,0 +1,1396 @@
+{
+  "backend": "typescript",
+  "binary_digest": "f78e118d9f65a8df69b3bdafdda135d14964e586e4479e61311effa22bd65acf",
+  "binary_version": "kogen 0.1.0 (92eef803 2026-10-09)",
+  "clause_ids": [
+    "unassigned"
+  ],
+  "command_line": [
+    "~/Scratch.noindex/build-research/conf2/quint-cli/quint.sh",
+    "run",
+    "~/Scratch.noindex/build-research/conf2/final/spec/quint/git.qnt",
+    "--main",
+    "git",
+    "--backend",
+    "typescript",
+    "--seed",
+    "20262014",
+    "--max-samples",
+    "1",
+    "--n-traces",
+    "1",
+    "--max-steps",
+    "30",
+    "--invariant",
+    "invariant",
+    "--mbt",
+    "--out-itf",
+    "~/Scratch.noindex/build-research/conf2/final/suite/cases/quint/git/trace-20262014.itf.json"
+  ],
+  "fixture_sources": [
+    {
+      "path": "quint/git-fixtures.json",
+      "sha256": "ac1e5e73287f3a9ed38d4f3ace1ca8cc2851468b9b60ad1cb825e28ae58b02e7"
+    }
+  ],
+  "fixtures": {},
+  "io_schema": 1,
+  "itf_file": "trace-20262014.itf.json",
+  "last_step_var": "lastStep",
+  "max_steps": 30,
+  "model": "~/Scratch.noindex/build-research/conf2/final/spec/quint/git.qnt",
+  "model_path": "~/Scratch.noindex/build-research/conf2/final/spec/quint/git.qnt",
+  "module": "git",
+  "profile": "fast",
+  "quint_version": "0.33.0",
+  "requires": {
+    "platform": [],
+    "seams": [
+      "scripted_provider"
+    ],
+    "tools": [
+      "git"
+    ]
+  },
+  "scripts": {
+    "git-builder": {
+      "digest": "9a4b0a11f77d1d66d78c51618744188b08146c29b33e3826dd6ef4d5ee9ef5ab",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-dir": {
+      "digest": "024dccc3262c8c7b90d940b4cca83456302a78550a39acf02e6aa6fc4e0c24b0",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md; printf 'candidate\\\\\\\\n' > dir\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-legacy": {
+      "digest": "6ae5af56a8de752d88d7898f912714ffceedd50e0ffbfde2f51696add9aa3d9c",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md; mkdir -p tests; printf 'acceptance\\\\\\\\n' > tests/git-spec.rs\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-legacy-name": {
+      "digest": "2ee30322b9d14d509a1ff468e4acf42d6b8c2856d99a981cfba821b800513ba6",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md; mkdir -p tests; printf 'acceptance\\\\\\\\n' > tests/other.rs\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-message": {
+      "digest": "9a4b0a11f77d1d66d78c51618744188b08146c29b33e3826dd6ef4d5ee9ef5ab",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-untrusted": {
+      "digest": "71b1300f0b661571fc32c40f9606be95e313150fd660078d98d9de167f441390",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md; pwd > '${control}/builder-cwd'; git config --local user.name Attacker; git config --local user.email attacker@example.invalid; git config --local author.name Attacker; git config --local author.email attacker@example.invalid; git config --local committer.name Attacker; git config --local committer.email attacker@example.invalid; git config --local core.hooksPath '${tmp}/evil-hooks'; git config --local gpg.program '${bin}/evil-signer'; git config --local fixture.trusted workspace; git config --local commit.gpgsign FALSE\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "git-builder-untrusted-signing-FALSE": {
+      "digest": "a8543a3fa7efccfb267a37bf2c8133c3b384ed90d3de74ac332497d86bf15972",
+      "max_requests": 4,
+      "min_requests": 2,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md; pwd > '${control}/builder-cwd'; git config --local user.name Attacker; git config --local user.email attacker@example.invalid; git config --local author.name Attacker; git config --local author.email attacker@example.invalid; git config --local committer.name Attacker; git config --local committer.email attacker@example.invalid; git config --local core.hooksPath '${tmp}/evil-hooks'; git config --local gpg.program '${bin}/evil-signer'; git config --local fixture.trusted workspace; git config --local commit.gpgsign TRUE\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "land-hook-repair": {
+      "digest": "f486a0aae30073b1b03e617b43a340029d9e617bd451cbebebd354f0047a821e",
+      "max_requests": 6,
+      "min_requests": 4,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-3\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-3\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > repair.txt\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": "hook-repair"
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "land-hook-stderr-repair": {
+      "digest": "f486a0aae30073b1b03e617b43a340029d9e617bd451cbebebd354f0047a821e",
+      "max_requests": 6,
+      "min_requests": 4,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-3\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-3\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > repair.txt\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": "hook-repair"
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    },
+    "land-hook-stdout-repair": {
+      "digest": "f486a0aae30073b1b03e617b43a340029d9e617bd451cbebebd354f0047a821e",
+      "max_requests": 6,
+      "min_requests": 4,
+      "schema": 1,
+      "turns": [
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > README.md\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-2\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-3\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-3\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'candidate\\\\\\\\n' > repair.txt\\\"}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": "hook-repair"
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        },
+        {
+          "request": {
+            "equals": {
+              "/model": "gpt-6-luna",
+              "/reasoning/effort": "max"
+            },
+            "headers": {},
+            "method": "POST",
+            "present": []
+          },
+          "response": {
+            "chunks": [
+              {
+                "bytes": {
+                  "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp-git-4\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-git-4\",\"name\":\"finish\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":2,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+                },
+                "delay_ms": 0,
+                "gate": null
+              }
+            ],
+            "disconnect": false,
+            "headers": {
+              "content-type": "text/event-stream"
+            },
+            "status": 200
+          }
+        }
+      ]
+    }
+  },
+  "seam_var": "ioSeam",
+  "seed": "20262014",
+  "source_digest": "2df49a562357e1478b9846ba7f11f9c719f71ddd649b63158d0bfb7a6faf41ee",
+  "source_root": "spec/quint",
+  "sources": [
+    {
+      "path": "git.qnt",
+      "sha256": "faa55d3dad5d7a78c250ab177bc53342f0470136928b8ca6b1b1fa6672afdde1"
+    },
+    {
+      "path": "kogen_io.qnt",
+      "sha256": "1ae329914b6f52255f9468cd587f0a8cbc1fa873904fe928babefb635c442160"
+    }
+  ],
+  "witnesses": [
+    "seed-20262014-unassigned"
+  ]
+}

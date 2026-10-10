@@ -1,0 +1,811 @@
+{
+  "io_schema": 1,
+  "module": "cli",
+  "source_digest": "03eed9f61cd4df1caca2b0a05d76e97dfacd9722afa2ab880b6f5df6a01def6a",
+  "source_digest_format": "sorted UTF-8 path, NUL, raw contents, NUL",
+  "sources": [
+    {
+      "path": "spec/quint/approve.qnt",
+      "sha256": "44300a68028571beedff16012109b83c902aec3c7624fffe2c5e7193b6001791"
+    },
+    {
+      "path": "spec/quint/build.qnt",
+      "sha256": "ed05c87e3786c899319a4946cf40092b53b97b1d3faa55459c47e078863c55cb"
+    },
+    {
+      "path": "spec/quint/check.qnt",
+      "sha256": "6aacd0ed0f8ad24bea91c177f403b15068a2d28dcf0e851180ee1828787e5826"
+    },
+    {
+      "path": "spec/quint/cli.qnt",
+      "sha256": "d842631fe22a441de6f653f18352c6825a8995ea921d01511e055a6d95368c8d"
+    },
+    {
+      "path": "spec/quint/init.qnt",
+      "sha256": "9093f3526a0a9b8d97cc11f823d0cc957a6734c0561583df5237bbf804cab53b"
+    },
+    {
+      "path": "spec/quint/intent.qnt",
+      "sha256": "178bf7fe40ef9add67aa6321abd6c4440c6da3a05fe9aa39f2cbc1d878bb8350"
+    },
+    {
+      "path": "spec/quint/kogen_io.qnt",
+      "sha256": "1ae329914b6f52255f9468cd587f0a8cbc1fa873904fe928babefb635c442160"
+    },
+    {
+      "path": "spec/quint/landing.qnt",
+      "sha256": "14d916584d39268dd79fbbacb612eb8be0760bda03f2bc9415a8632e7a1ceb32"
+    },
+    {
+      "path": "spec/quint/queue.qnt",
+      "sha256": "4e0c727c9f0f9fa071c1018a71109e17314b2a6d6b53fe4cf23839a5fc20e65d"
+    },
+    {
+      "path": "spec/quint/recovery.qnt",
+      "sha256": "4ec23572753ec06d7a6f42db09c1e9f7af03dedf95436018eedb9cce907687d6"
+    },
+    {
+      "path": "spec/quint/shape.qnt",
+      "sha256": "b59f2f4ee520e8d588416fa0c26830107280e8851cf82eadd73deeb27e29714c"
+    },
+    {
+      "path": "spec/quint/status.qnt",
+      "sha256": "7be414fc69acf790706fed662999965cc4084ac71505f360b6ef655ed171c819"
+    }
+  ],
+  "quint_version": "0.33.0",
+  "backend": "typescript",
+  "seed": "1000000",
+  "max_steps": 20,
+  "last_step_var": "lastStep",
+  "seam_var": "ioSeam",
+  "binary_digest": "347aa113054247d7bbbbebb282cc9bd0a635a6e7a98b80003e4ec183e1badfb9",
+  "binary_version": "kogen 00000000 (1970-01-01)",
+  "binary_path": "core/target/release/kogen",
+  "binary_conformance_executed": false,
+  "scripts": [
+    {
+      "id": "cli-shape-intent",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-shape-intent",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-shape-intent",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-shape-questions",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-shape-questions",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-shape-questions",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-builder-green",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-builder-green",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-builder-green",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-builder-gated",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-builder-gated",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-builder-gated",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {
+        "builder-response": {
+          "arrival": "${scriptControl}/builder-response.arrived",
+          "release": "${scriptControl}/builder-response.release"
+        }
+      }
+    },
+    {
+      "id": "cli-builder-red",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-builder-red",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-builder-red",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-builder-parked",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-builder-parked",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-builder-parked",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-openid",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-openid",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-openid",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-history-two",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-history-two",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-history-two",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    },
+    {
+      "id": "cli-history-six",
+      "version": 1,
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "entry": "cli-history-six",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "executable": "spec/quint/cli-fixtures/server.py",
+      "executable_sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "arguments": [
+        "serve",
+        "--script",
+        "cli-history-six",
+        "--port",
+        "${scriptPort}",
+        "--control",
+        "${scriptControl}",
+        "--label",
+        "${scriptLabel}"
+      ],
+      "gates": {}
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "blocked.md",
+      "path": "spec/quint/cli-fixtures/blocked.md",
+      "sha256": "891771c87c840c9540c2347eae37e3d2228016b44b61741d6ec6b74b26c85fe9",
+      "install_path": "${fixtures}/cli-fixtures/blocked.md",
+      "mode": 420
+    },
+    {
+      "id": "browser.sh",
+      "path": "spec/quint/cli-fixtures/browser.sh",
+      "sha256": "2b635b7aaf3568730bdb434c3c29abdbcd95ef282cf3d2324abf0015bab647a6",
+      "install_path": "${fixtures}/cli-fixtures/browser.sh",
+      "mode": 420
+    },
+    {
+      "id": "history/five.md",
+      "path": "spec/quint/cli-fixtures/history/five.md",
+      "sha256": "d9861baa64620409cf19543b549a613d45acc302b79be0420efbfc0f2ad3ce0f",
+      "install_path": "${fixtures}/cli-fixtures/history/five.md",
+      "mode": 420
+    },
+    {
+      "id": "history/four.md",
+      "path": "spec/quint/cli-fixtures/history/four.md",
+      "sha256": "e63b6ae949f0b1d7d6823e8c3674706c0d1cc4cab7e0a1e3d5ec888d435b7e0f",
+      "install_path": "${fixtures}/cli-fixtures/history/four.md",
+      "mode": 420
+    },
+    {
+      "id": "history/old.md",
+      "path": "spec/quint/cli-fixtures/history/old.md",
+      "sha256": "e040b066a7eff067484d2b6cd0264885919d09905e7b9dd02d6aa89c223a7505",
+      "install_path": "${fixtures}/cli-fixtures/history/old.md",
+      "mode": 420
+    },
+    {
+      "id": "history/one.md",
+      "path": "spec/quint/cli-fixtures/history/one.md",
+      "sha256": "daad5987e18e06ab1062720d0ec4bfb493911a451e88f54992eb7f67250f04f3",
+      "install_path": "${fixtures}/cli-fixtures/history/one.md",
+      "mode": 420
+    },
+    {
+      "id": "history/three.md",
+      "path": "spec/quint/cli-fixtures/history/three.md",
+      "sha256": "ee43f4a7aa70135198498d8583fcbfe4fc88e0a06a0c0e2c55fc14911330699c",
+      "install_path": "${fixtures}/cli-fixtures/history/three.md",
+      "mode": 420
+    },
+    {
+      "id": "history/two.md",
+      "path": "spec/quint/cli-fixtures/history/two.md",
+      "sha256": "af794665f210f2c38772da4ec88150346f8ce47a401c7790c9e69e12d42c9566",
+      "install_path": "${fixtures}/cli-fixtures/history/two.md",
+      "mode": 420
+    },
+    {
+      "id": "intent.md",
+      "path": "spec/quint/cli-fixtures/intent.md",
+      "sha256": "bf45322807c948d9c2c7c049717a7a18dfc9d9421c8aa4522902b5e0f2a71bfb",
+      "install_path": "${fixtures}/cli-fixtures/intent.md",
+      "mode": 420
+    },
+    {
+      "id": "observe.py",
+      "path": "spec/quint/cli-fixtures/observe.py",
+      "sha256": "c2d92b24b727784ceaa46c6a270f00e6f9013664d7bb0941526e1a7f6a3792a3",
+      "install_path": "${fixtures}/cli-fixtures/observe.py",
+      "mode": 420
+    },
+    {
+      "id": "request.txt",
+      "path": "spec/quint/cli-fixtures/request.txt",
+      "sha256": "aa23724e36c3c55833fd4daf969ee16be91557e37c0fa3516911d2bc4fb37555",
+      "install_path": "${fixtures}/cli-fixtures/request.txt",
+      "mode": 420
+    },
+    {
+      "id": "scripts.json",
+      "path": "spec/quint/cli-fixtures/scripts.json",
+      "sha256": "51132efe00fff5a4c2a907e3a1ac96746f2a15de8c17e30218ee97859cfcde53",
+      "install_path": "${fixtures}/cli-fixtures/scripts.json",
+      "mode": 420
+    },
+    {
+      "id": "server.py",
+      "path": "spec/quint/cli-fixtures/server.py",
+      "sha256": "e03700cf89bf5143c787cbc059c94ee55065c315ffc5e06ad7ddc3fe2563fee3",
+      "install_path": "${fixtures}/cli-fixtures/server.py",
+      "mode": 420
+    },
+    {
+      "id": "synthetic-key.pem",
+      "path": "spec/quint/cli-fixtures/synthetic-key.pem",
+      "sha256": "984b39cb3311ff9e3906748305e9e752c6ec253be05655151b6ac67b9d7786d3",
+      "install_path": "${fixtures}/cli-fixtures/synthetic-key.pem",
+      "mode": 384
+    }
+  ],
+  "requires": [
+    "git",
+    "python3",
+    "openssl-rs256",
+    "fresh-canonical-trace-roots",
+    "script-adapter-v1",
+    "loopback-Responses-and-OpenID",
+    "serialized-OAuth-port-1455",
+    "file-credential-store",
+    "KOGEN_AUTH_PATH",
+    "KOGEN_AUTH_URL",
+    "KOGEN_PROVIDER_URL",
+    "KOGEN_TEST_CLOCK_PATH",
+    "before-publication-barrier-for-parked-witness",
+    "monotonic-first-byte-and-match-arrival-timestamps"
+  ],
+  "clause_ids": [
+    "1.command-status",
+    "2.reserved",
+    "3.tree",
+    "3.init",
+    "3.update",
+    "3.status.args",
+    "3.status.board",
+    "3.status.row",
+    "3.status.recovery",
+    "3.status.queue-json",
+    "3.status.intent-json",
+    "3.status.agent-json",
+    "3.status.nulls",
+    "3.status.stage",
+    "3.status.detail-json",
+    "3.status.watch",
+    "3.status.exit",
+    "3.shape",
+    "3.shape.json",
+    "3.approve.review",
+    "3.approve.prefix",
+    "3.remove",
+    "3.queue.foreground",
+    "3.queue.detach",
+    "3.queue.stop",
+    "3.provider.list",
+    "3.provider.login",
+    "3.provider.logout",
+    "3.provider.use",
+    "3.version",
+    "3.help",
+    "3.forms",
+    "3.exits",
+    "5.accounts",
+    "8.reserved"
+  ],
+  "witnesses": [
+    {
+      "name": "existingHistoryInitTraceTest",
+      "model_steps": 2,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.init"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "inspectionFailureExitTraceTest",
+      "model_steps": 2,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.args",
+        "3.status.exit",
+        "3.exits"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "initNoOpAndCliReplayTest",
+      "model_steps": 2,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.init"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "reviewApproveAndSuccessfulRemoveTraceTest",
+      "model_steps": 5,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.approve.review",
+        "3.approve.prefix",
+        "3.remove"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "draftDetailUsesNormativeExitTest",
+      "model_steps": 3,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.detail-json",
+        "3.status.exit"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "immediateIdleWatchTraceTest",
+      "model_steps": 3,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.watch",
+        "3.status.exit"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "unknownWatchTraceTest",
+      "model_steps": 3,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.watch",
+        "3.status.args",
+        "3.exits"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "shapeAuthAndStdinTraceTest",
+      "model_steps": 4,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.shape",
+        "3.shape.json",
+        "3.exits"
+      ],
+      "script_ids": [
+        "cli-shape-questions"
+      ]
+    },
+    {
+      "name": "detachedStopKeepsCurrentBuildTraceTest",
+      "model_steps": 7,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.detach",
+        "3.queue.stop",
+        "3.status.queue-json"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "foregroundPidCaptureTraceTest",
+      "model_steps": 9,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.foreground",
+        "3.queue.stop",
+        "3.status.stage"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "foregroundTermDoesNotPublishTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.foreground",
+        "3.exits"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "genuinelyShapedReviewApprovalTraceTest",
+      "model_steps": 6,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.shape",
+        "3.shape.json",
+        "3.approve.review",
+        "3.approve.prefix"
+      ],
+      "script_ids": [
+        "cli-shape-intent"
+      ]
+    },
+    {
+      "name": "failedRemovalRefusalAndForceTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.remove",
+        "3.queue.foreground",
+        "3.status.board"
+      ],
+      "script_ids": [
+        "cli-builder-red"
+      ]
+    },
+    {
+      "name": "parkedRemovalRefusalAndForceTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.remove",
+        "3.queue.foreground",
+        "3.status.board"
+      ],
+      "script_ids": [
+        "cli-builder-parked"
+      ]
+    },
+    {
+      "name": "publicationFailureLeavesWholeIntentTraceTest",
+      "model_steps": 5,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.remove",
+        "3.exits"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "approvalCasRaceDoesNotPartiallyRemoveTraceTest",
+      "model_steps": 5,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.remove",
+        "3.exits"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "twoAccountsSelectionAndIsolationTraceTest",
+      "model_steps": 9,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.provider.login",
+        "3.provider.logout",
+        "3.provider.use",
+        "3.provider.list",
+        "5.accounts"
+      ],
+      "script_ids": [
+        "cli-openid"
+      ]
+    },
+    {
+      "name": "greenQueuePublishesAndChecksTraceTest",
+      "model_steps": 6,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.foreground",
+        "3.status.board"
+      ],
+      "script_ids": [
+        "cli-builder-green"
+      ]
+    },
+    {
+      "name": "activeWatchUnchangedChangedStoppedTraceTest",
+      "model_steps": 14,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.watch",
+        "3.queue.stop",
+        "3.status.stage"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "reapprovalDoesNotShowOldBuildingStageTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.approve.prefix",
+        "3.status.stage",
+        "3.status.detail-json"
+      ],
+      "script_ids": [
+        "cli-builder-red"
+      ]
+    },
+    {
+      "name": "detachedStopFinishesCurrentBuildTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.detach",
+        "3.queue.stop"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "liveAgentJsonReplayTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.agent-json",
+        "3.status.board",
+        "3.status.watch"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "termShowsUnverifiedRecoveryTraceTest",
+      "model_steps": 9,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.recovery",
+        "3.status.detail-json",
+        "3.exits"
+      ],
+      "script_ids": [
+        "cli-builder-gated"
+      ]
+    },
+    {
+      "name": "twoQueuedIntentsDrainSeriallyTraceTest",
+      "model_steps": 5,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.foreground",
+        "3.status.queue-json",
+        "3.status.nulls"
+      ],
+      "script_ids": [
+        "cli-history-two"
+      ]
+    },
+    {
+      "name": "sixLandedRetainsFiveReplayTraceTest",
+      "model_steps": 6,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.queue.foreground",
+        "3.status.board",
+        "3.status.row",
+        "3.status.intent-json"
+      ],
+      "script_ids": [
+        "cli-history-six"
+      ]
+    },
+    {
+      "name": "blockedDependencyStatusReplayTraceTest",
+      "model_steps": 4,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.status.board",
+        "3.status.row",
+        "3.status.detail-json"
+      ],
+      "script_ids": []
+    },
+    {
+      "name": "projectAccountDoesNotFallBackAfterLogoutTraceTest",
+      "model_steps": 8,
+      "generator": "Quint run declaration",
+      "clause_ids": [
+        "3.provider.login",
+        "3.provider.use",
+        "3.provider.logout",
+        "5.accounts",
+        "3.exits"
+      ],
+      "script_ids": [
+        "cli-openid"
+      ]
+    }
+  ],
+  "profile": "cli-fix-round-finite-v1",
+  "installation": {
+    "copy_assets": "Install and verify every listed raw asset before the first lastStep; fixtures are templates before substitution.",
+    "browser_shims": [
+      "${bin}/open",
+      "${bin}/xdg-open"
+    ],
+    "browser_template": "spec/quint/cli-fixtures/browser.sh",
+    "browser_mode": 493,
+    "script_adapter": "Keep trace-local endpoint ports/baseline bindings stable. Select/reset the named script per invocation; retain the transcript. Resolve scriptLabel from CLI_LOGIN_LABEL in Cmd.env, defaulting to default. Unknown scripts/gates or missing seams fail.",
+    "provider_binding": "${provider} is the full /responses URL; ${auth} is the OpenID discovery base.",
+    "unbound_operands": "scriptPort, scriptControl and scriptLabel are script-adapter metadata parameters, not Cmd/Step operands."
+  },
+  "model_guard_checks": [
+    "fabricatedReportAndScriptRejectedTest"
+  ],
+  "findings": {
+    "1": {
+      "status": "partial-historical-replays",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "2": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "3": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "4": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "5": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "6": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "7": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "8": {
+      "status": "partial-historical-replays",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "9": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "10": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    },
+    "11": {
+      "status": "addressed",
+      "notes": "NOTES-cli.md#fix-round"
+    }
+  },
+  "validation": {
+    "network_used": false,
+    "model_only": true,
+    "witness_transition_bound_checked": true
+  },
+  "integration_notes": "NEW-1 fixed; H1/H2 two historical replays remain PARTIAL; see ../../INTEGRATION.md"
+}

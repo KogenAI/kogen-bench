@@ -1,0 +1,26 @@
+{
+  "id": "smoke.status-empty",
+  "title": "JSON status reports an empty initialized project",
+  "initial_commit": true,
+  "files": {
+    ".kogen/project.yaml": "name: empty\nchecks: []\n"
+  },
+  "steps": [
+    {
+      "argv": ["status", "--json"],
+      "expect": {
+        "exit": 0,
+        "status_rows": [
+          {"schema": 1, "type": "queue", "state": "stopped", "queued": 0, "next": null}
+        ]
+      },
+      "observe": {
+        "status_json": true,
+        "status_rows": [
+          {"type": "queue", "state": "stopped", "queued": 0}
+        ],
+        "git": {"branch_heads": {"main": "{{capture:hash:base_sha}}"}}
+      }
+    }
+  ]
+}

@@ -1,0 +1,283 @@
+[
+  {
+    "file": "01-purpose.feature",
+    "name": "The ordinary executable returns an unapproved Intent from the Shaper",
+    "tags": [
+      "kogen.provider",
+      "kogen_io.Cmd",
+      "kogen_io.ProviderEndpoint",
+      "kogen_io.validInjected",
+      "build.shaperRole",
+      "shape.shape",
+      "shape.safe",
+      "cli.shapeResult"
+    ]
+  },
+  {
+    "file": "06-provider.feature",
+    "name": "Login, project account use, and logout affect only the selected machine account",
+    "tags": [
+      "cli.providerLogin",
+      "cli.providerUse",
+      "cli.providerLogout",
+      "cli.providerList",
+      "kogen.provider",
+      "kogen_io.seamEnvironment",
+      "kogen_io.validSeam"
+    ]
+  },
+  {
+    "file": "06-provider.feature",
+    "name": "Injected auth calls the fake endpoint without becoming a saved login",
+    "tags": [
+      "kogen_io.validInjected",
+      "kogen_io.ProviderEndpoint"
+    ]
+  },
+  {
+    "file": "06-provider.feature",
+    "name": "Expired injected auth is rejected before any fake provider request",
+    "tags": [
+      "kogen.provider",
+      "kogen_io.validInjected",
+      "kogen_io.ProviderEndpoint"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Init preserves existing ignore rules and commits exactly its two paths",
+    "tags": [
+      "cli.initCommand",
+      "init.runInit",
+      "init.initializeFiles",
+      "init.initGitExpectation",
+      "git.initialize"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Init creates the exact bare config and initial history commit",
+    "tags": [
+      "cli.initCommand",
+      "init.runInit",
+      "init.safe",
+      "config.required",
+      "git.initialize"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Init is a no-op for an existing valid config",
+    "tags": [
+      "cli.initCommand",
+      "init.runInit",
+      "config.schemaIssues"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Config validation rejects duplicate YAML keys",
+    "tags": [
+      "cli.initCommand",
+      "config.schemaIssues",
+      "init.runInit"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Config validation rejects unknown keys at the top level",
+    "tags": [
+      "cli.initCommand",
+      "config.schemaIssues",
+      "init.runInit"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Check config rejects shell strings, zero timeouts, and unknown check keys",
+    "tags": [
+      "cli.initCommand",
+      "config.checkRow",
+      "config.projectKeys"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Shape reads the request from a file and returns an unapproved Intent",
+    "tags": [
+      "cli.shapeResult",
+      "shape.shape",
+      "intent.shape"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Shape accepts the same exact request bytes from stdin",
+    "tags": [
+      "cli.shapeResult",
+      "shape.shape",
+      "shape.safe",
+      "intent.shape"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Shape may return branching questions without manufacturing an Intent",
+    "tags": [
+      "cli.shapeResult",
+      "shape.shape",
+      "shape.shapePass"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "The review card shows an exact hash and approval waits for a caller action",
+    "tags": [
+      "cli.reviewCommand",
+      "approve.approve",
+      "approve.exactApproval"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Changing one approved Intent byte invalidates the saved approval hash",
+    "tags": [
+      "cli.approveCommand",
+      "approve.exactApproval",
+      "approve.changedBytesInvalidateTest"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Changing the accepted Rust source bytes invalidates their approval",
+    "tags": [
+      "cli.shapeResult",
+      "cli.approveCommand",
+      "shape.shapePass",
+      "shape.cargoBaseValidation",
+      "approve.authorize",
+      "approve.editBinding",
+      "approve.exactApproval"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "Foreground queue start checks and lands the exact candidate into the checkout",
+    "tags": [
+      "cli.queueResult",
+      "queue.start",
+      "build.complete",
+      "check.exactCandidatePassesTest",
+      "landing.invariant",
+      "git.safeCheckouts"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "A known red project check prevents landing",
+    "tags": [
+      "check.redCheckFailsTest",
+      "check.safe",
+      "landing.invariant"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "A timed-out check is could-not-check and cannot land",
+    "tags": [
+      "check.couldNotCheckNeverVerifiesTest",
+      "check.safe",
+      "landing.invariant"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "The absolute Build budget covers the Builder response and blocks landing on expiry",
+    "tags": [
+      "process.deadlineSafe",
+      "build.timeoutPreventsCandidateTest",
+      "landing.invariant",
+      "kogen_io.validSeam"
+    ]
+  },
+  {
+    "file": "04-lifecycle.feature",
+    "name": "A lost publication CAS rebases on the new tip and rechecks before landing",
+    "tags": [
+      "landing.integrateTurn",
+      "landing.movedTip",
+      "landing.invariant",
+      "git.safeCheckouts",
+      "git.exactCandidate",
+      "kogen_io.SetupOp"
+    ]
+  },
+  {
+    "file": "07-commits.feature",
+    "name": "A landed Build is one ordinary commit with the sole Kogen Intent trailer",
+    "tags": [
+      "git.createLanding",
+      "git.trustedSettings",
+      "landing.invariant"
+    ]
+  },
+  {
+    "file": "07-commits.feature",
+    "name": "A failing user pre-commit hook prevents branch publication",
+    "tags": [
+      "git.safeObjects",
+      "landing.invariant"
+    ]
+  },
+  {
+    "file": "05-state.feature",
+    "name": "A crashed Build remains unverified and its preserved recovery expires on the test clock",
+    "tags": [
+      "recovery.terminalize",
+      "recovery.preserveAll",
+      "recovery.lifecycleValid",
+      "recovery.configuredRetention",
+      "recovery.expireAll",
+      "recovery.safe",
+      "cli.recoverySummary",
+      "kogen_io.Seam"
+    ]
+  },
+  {
+    "file": "03-cli.feature",
+    "name": "Top-level help lists implemented commands and the reserved update command",
+    "tags": [
+      "cli.topCommands",
+      "cli.validateInvocation"
+    ]
+  },
+  {
+    "file": "03-cli.feature",
+    "name": "Content and undeclared model options are rejected by argv parsing",
+    "tags": [
+      "cli.validateInvocation",
+      "cli.queueExit"
+    ]
+  },
+  {
+    "file": "03-cli.feature",
+    "name": "Text and JSONL status expose a shaped draft",
+    "tags": [
+      "cli.boardOrder",
+      "cli.intentRow",
+      "status.observe"
+    ]
+  },
+  {
+    "file": "03-cli.feature",
+    "name": "A detached queue completes its current Build after stop while watch observes changed state",
+    "tags": [
+      "cli.watchStart",
+      "cli.queueBackground",
+      "cli.stopActiveQueue",
+      "status.watchDone",
+      "queue.start",
+      "queue.serial"
+    ]
+  }
+]

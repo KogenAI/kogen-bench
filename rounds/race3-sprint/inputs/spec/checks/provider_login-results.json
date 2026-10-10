@@ -1,0 +1,55 @@
+[
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/provider_login.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/provider_login.qnt",
+      "--main",
+      "provider_login",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/provider_login.qnt",
+      "--main",
+      "provider_login",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.53
+  }
+]

@@ -126,7 +126,7 @@ SPEC_PROTOCOL_ALLOWLIST = {
 
 
 TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base|bases)/|[^/]+/MANIFEST\.sha256$)')
-RACE_SYNTHETIC_FIXTURE_TREE_RE=re.compile(r'^rounds/race1/race1/amend-1/.*\.patch$|^rounds/race[12]/(?:race1(?:-gleam)?|race2(?:b|s|s2)?)/(?:spec|suite|results|results-summary)/')
+RACE_SYNTHETIC_FIXTURE_TREE_RE=re.compile(r'^rounds/race1/race1/amend-1/.*\.patch$|^rounds/race[12]/(?:race1(?:-gleam)?|race2(?:b|s|s2)?)/(?:spec|suite|results|results-summary)/|^rounds/race3-sprint/inputs/(?:spec|conformance)/')
 RACE_SYNTHETIC_FIXTURE_RULES={'Bearer token','JWT','IPv4 address','email address','private hostname','UUID'}
 TASK_REFERENCE_PATCH_EVIDENCE=re.compile(r'(?i)("evidence"\s*:\s*)\[\s*"hidden/solution\.patch"')
 TASK_UPSTREAM_PATCH_PATH=re.compile(r'(?i)"upstream_path"\s*:\s*"tasks/[^"\n]+/solution\.patch"')

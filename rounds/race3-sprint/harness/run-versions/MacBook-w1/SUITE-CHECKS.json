@@ -1,0 +1,7 @@
+{
+  "scored_cases": 56,
+  "exit_assertions": 273,
+  "lint_and_conflict_cases": {},
+  "conflicts": [],
+  "coarse_key": "Offline scored-suite lint and conservative command/outcome contradiction audit.\n\nKey: command family + semantic outcome for questions, deadline, tamper, timeout\nand rejected hooks. Otherwise use normalized exact argv + non-exit expectation\n+ prior stimulus (setup operations and earlier commands, excluding all exits).\nNormalization removes capture names, slugs and sandbox roots, never fixture\nbytes. The conservative fallback avoids equating commands in different states.\nThis checks encoded expectations; it does not prove runtime satisfiability.\n"
+}

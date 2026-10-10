@@ -1,0 +1,847 @@
+{
+  "schema": 1,
+  "io_schema": 1,
+  "module": "process",
+  "module_index": 3,
+  "quint_version": "0.33.0",
+  "backend": "typescript",
+  "last_step_var": "lastStep",
+  "seam_var": "ioSeam",
+  "scripts_file": "process-fixtures.json",
+  "profiles": {
+    "fast": {
+      "seeds": [
+        "3000000",
+        "3000001",
+        "3000002",
+        "3000003",
+        "3000004",
+        "3000005",
+        "3000006",
+        "3000007"
+      ],
+      "max_steps": 40
+    },
+    "full": {
+      "seed_first": "3000000",
+      "seed_count": 128,
+      "max_steps": 200
+    },
+    "supplemental": {
+      "seeds": [
+        "3000008",
+        "3000009",
+        "3000010",
+        "3000012",
+        "3000017",
+        "3000025",
+        "3000033",
+        "3000037",
+        "3000047"
+      ],
+      "retain_in": [
+        "fast",
+        "full"
+      ]
+    }
+  },
+  "seed_witnesses": [
+    {
+      "seed": "3000008",
+      "witness": "deadline-barrier",
+      "clause_ids": [
+        "4.4.deadline",
+        "4.4.clip",
+        "5.process"
+      ],
+      "provider_script": "deadline-barrier",
+      "script_digest": "260bb08de3f27bbe5ba619db5a1ac9df547fd9b0c86d5b892e1d14c1a39d824d",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000025",
+      "witness": "cancel",
+      "clause_ids": [
+        "4.4.kill",
+        "4.4.deadline",
+        "5.process"
+      ],
+      "provider_script": "cancel",
+      "script_digest": "260bb08de3f27bbe5ba619db5a1ac9df547fd9b0c86d5b892e1d14c1a39d824d",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000047",
+      "witness": "rolling-log",
+      "clause_ids": [
+        "4.4.logs"
+      ],
+      "provider_script": "rolling-log",
+      "script_digest": "21997f149d06206cb4eae4a3459fc11f15a663bca298af9a7b9b24bcf967a638",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000037",
+      "witness": "memory-linux",
+      "clause_ids": [
+        "4.4.memory"
+      ],
+      "provider_script": "memory-linux",
+      "script_digest": "2f2162087456978364ee9ac3c3e25e2e7901230b422308e663188620b2df0a1b",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "linux",
+        "rlimit-as-at-least-512MiB",
+        "python3"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000017",
+      "witness": "memory-macos",
+      "clause_ids": [
+        "4.4.memory"
+      ],
+      "provider_script": "memory-macos",
+      "script_digest": "2f2162087456978364ee9ac3c3e25e2e7901230b422308e663188620b2df0a1b",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "macos",
+        "unlimited-host-address-space",
+        "python3"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000033",
+      "witness": "term-kill-expiry",
+      "clause_ids": [
+        "4.4.kill",
+        "4.4.deadline",
+        "4.4.reap"
+      ],
+      "provider_script": "term-kill-expiry",
+      "script_digest": "fc2a9161ec0900deb966bab4addb40e9dc2f88ac54c0484f95b614af9a477802",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000002",
+      "witness": "cargo-linux",
+      "clause_ids": [
+        "4.2.private-target"
+      ],
+      "provider_script": "cargo-linux",
+      "script_digest": "11ceec6e5cafd561ccf3f0aa6d4e4e872b012d8bbcc1fb8afad2375aaf8fcc3e",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "linux"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000009",
+      "witness": "argv-linux",
+      "clause_ids": [
+        "4.4.transport"
+      ],
+      "provider_script": "argv-linux",
+      "script_digest": "6421ff560520efa9edf198ed1e92ad629e503fcf5d1a0b7cfdc93d1cc13604ae",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "linux",
+        "ps-command-observer"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000001",
+      "witness": "cargo-macos",
+      "clause_ids": [
+        "4.2.private-target"
+      ],
+      "provider_script": "cargo-macos",
+      "script_digest": "11ceec6e5cafd561ccf3f0aa6d4e4e872b012d8bbcc1fb8afad2375aaf8fcc3e",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "macos"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000010",
+      "witness": "argv-macos",
+      "clause_ids": [
+        "4.4.transport"
+      ],
+      "provider_script": "argv-macos",
+      "script_digest": "6421ff560520efa9edf198ed1e92ad629e503fcf5d1a0b7cfdc93d1cc13604ae",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "macos",
+        "ps-command-observer"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000000",
+      "witness": "returned-tail",
+      "clause_ids": [
+        "4.4.logs",
+        "4.4.reap"
+      ],
+      "provider_script": "returned-tail",
+      "script_digest": "c5bdf3f1394441904bb0c1a54cee7fd7b81d38acc010eb6df3b95fe2bb3f111c",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "python3"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000005",
+      "witness": "parent-death",
+      "clause_ids": [
+        "4.4.parent",
+        "4.4.kill",
+        "4.4.groups"
+      ],
+      "provider_script": "parent-death",
+      "script_digest": "fc2a9161ec0900deb966bab4addb40e9dc2f88ac54c0484f95b614af9a477802",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "orphan-leader-reaping"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000012",
+      "witness": "parent-death-escaped",
+      "clause_ids": [
+        "4.4.parent",
+        "4.4.reap",
+        "4.4.groups"
+      ],
+      "provider_script": "parent-death-escaped",
+      "script_digest": "610598945413c917085437fd3845a1317af8041d69faee33a6e25b245d68833f",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "python3",
+        "orphan-leader-reaping"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    },
+    {
+      "seed": "3000003",
+      "witness": "escaped-pipe",
+      "clause_ids": [
+        "4.4.reap",
+        "4.4.groups",
+        "4.4.logs"
+      ],
+      "provider_script": "escaped-pipe",
+      "script_digest": "364286a15556ba6a48af0cd0e8610dbdbc6b221c4e0664e7e36970ffa289d89d",
+      "requires": [
+        "unix-process-groups",
+        "Responses-script-server",
+        "build-sandbox",
+        "test-barriers",
+        "python3"
+      ],
+      "replay_status": "not-run(no-network-task)",
+      "model_trace_status": "generated-complete(phase=5; final source; executable replay not run)"
+    }
+  ],
+  "clause_witnesses": {
+    "4.2.private-target": {
+      "model_witnesses": [
+        "bothUnixHostsUseSameWritablePrivateCargoTargetTest",
+        "cargoAndContentOperandsRejectUnsafeExecutionTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "cargo-linux",
+        "cargo-macos"
+      ]
+    },
+    "4.4.transport": {
+      "model_witnesses": [
+        "missingCheckTimeoutAndArgvContentCannotSpawnTest",
+        "childrenAndRequestsClipToOriginalDeadlineTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "argv-linux",
+        "argv-macos"
+      ]
+    },
+    "4.4.deadline": {
+      "model_witnesses": [
+        "defaultsAndPrecedenceTest",
+        "monotonicBudgetIgnoresWallClockTest",
+        "expiryAndUnconfirmedCleanupCannotPublishTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "deadline-barrier",
+        "cancel",
+        "term-kill-expiry"
+      ]
+    },
+    "4.4.caps": {
+      "model_witnesses": [
+        "defaultsAndPrecedenceTest",
+        "missingCheckTimeoutAndArgvContentCannotSpawnTest",
+        "stageCapDoesNotResetOnRepairTest",
+        "expiredBuilderReachableTest",
+        "controllerLandingSurvivesExpiredBuilderTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": []
+    },
+    "4.4.clip": {
+      "model_witnesses": [
+        "childrenAndRequestsClipToOriginalDeadlineTest",
+        "stageCapDoesNotResetOnRepairTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "deadline-barrier"
+      ]
+    },
+    "4.4.kill": {
+      "model_witnesses": [
+        "termThenKillAndConfirmedReturnTest",
+        "permissionAndUnexpectedProbesNeverConfirmTest",
+        "expiryAutomaticallyKillsAndReturnsWithinCleanupBoundTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "cancel",
+        "term-kill-expiry",
+        "parent-death"
+      ]
+    },
+    "4.4.reap": {
+      "model_witnesses": [
+        "escapedPipeAndUnreapedLeaderReturnWithinBoundTest",
+        "ordinaryExitWithEscapedPipeDoesNotWaitForChildTimeoutTest",
+        "expiryAutomaticallyKillsAndReturnsWithinCleanupBoundTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "term-kill-expiry",
+        "parent-death-escaped",
+        "escaped-pipe",
+        "returned-tail"
+      ]
+    },
+    "4.4.parent": {
+      "model_witnesses": [
+        "confirmedParentDeathWritesCustodyTest",
+        "parentDeathRetainsUnconfirmedRegistrationTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "parent-death",
+        "parent-death-escaped"
+      ]
+    },
+    "4.4.groups": {
+      "model_witnesses": [
+        "permissionAndUnexpectedProbesNeverConfirmTest",
+        "parentDeathRetainsUnconfirmedRegistrationTest",
+        "escapedPipeAndUnreapedLeaderReturnWithinBoundTest",
+        "missingCheckTimeoutAndArgvContentCannotSpawnTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "parent-death",
+        "parent-death-escaped",
+        "escaped-pipe"
+      ]
+    },
+    "4.4.logs": {
+      "model_witnesses": [
+        "rollingLogUsesDrainOrderAndDoesNotStopChildTest",
+        "returnedOutputIsSixteenKiBByteTailTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "rolling-log",
+        "escaped-pipe",
+        "returned-tail"
+      ]
+    },
+    "4.4.memory": {
+      "model_witnesses": [
+        "memoryLimitsNeverRaiseHostSoftOrHardTest",
+        "linuxLimitReachableTest",
+        "lowerSoftReachableTest",
+        "lowerHardReachableTest",
+        "pipeFailureReachableTest",
+        "setupFailureReachableTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "memory-linux",
+        "memory-macos"
+      ]
+    },
+    "5.process": {
+      "model_witnesses": [],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": [
+        "deadline-barrier",
+        "cancel"
+      ]
+    },
+    "9.process": {
+      "model_witnesses": [
+        "expiryAutomaticallyKillsAndReturnsWithinCleanupBoundTest"
+      ],
+      "model_invariants": [
+        "invariant"
+      ],
+      "executable_coverage": "not-run(no-network-task); blocked observer/fault obligations are separate below",
+      "replay_witnesses": []
+    }
+  },
+  "composition_consumers": {
+    "4.6.turns": {
+      "owner": "landing",
+      "model_witnesses": [
+        "fourIntegrationTurnsParkWithoutFreshBudgetTest",
+        "fourthGreenTurnCanLandButFifthCannotTest"
+      ]
+    }
+  },
+  "not_a_replay_manifest": "Executable replay must add source closure digest, binary digest/version, fixture digests, resolved capabilities and transcripts as required by QUINT-SUITE.md.",
+  "model_reachability": {
+    "step_action": "witnessStep (branch of step)",
+    "transitions": 4,
+    "max_steps": 20,
+    "cases": [
+      "escaped-pipe",
+      "unreaped-leader",
+      "linux-limit",
+      "lower-soft",
+      "lower-hard",
+      "pipe-failure",
+      "setup-failure",
+      "unsupported",
+      "retry-wait",
+      "parent-death",
+      "denied-probe",
+      "unknown-probe",
+      "expired-builder"
+    ],
+    "test_status": "49 run declarations; required final-source validation recorded in NOTES-process.md",
+    "validation": {
+      "backend": "typescript",
+      "seed": "0x144b95b8262aa8",
+      "max_samples": 500,
+      "max_steps": 20,
+      "witness_counts": {
+        "escaped-pipe": 39,
+        "unreaped-leader": 34,
+        "linux-limit": 36,
+        "lower-soft": 44,
+        "lower-hard": 42,
+        "pipe-failure": 41,
+        "setup-failure": 40,
+        "unsupported": 48,
+        "retry-wait": 40,
+        "parent-death": 34,
+        "denied-probe": 30,
+        "unknown-probe": 40,
+        "expired-builder": 32
+      }
+    }
+  },
+  "blocked_executable_obligations": [
+    {
+      "id": "original-group-signal-probe-observer",
+      "status": "blocked(seam-or-capability)",
+      "clause_ids": [
+        "4.4.kill",
+        "4.4.parent",
+        "4.4.groups"
+      ],
+      "fixtures": [
+        "term-kill-expiry",
+        "parent-death",
+        "parent-death-escaped"
+      ],
+      "requires": [
+        "trace-owned-original-group-start-identity",
+        "signal-attempt-order-observer",
+        "errno-valued-group-probe"
+      ],
+      "ordered_protocol": [
+        "capture actual child readiness and immutable writer registration",
+        "observe registered-group TERM before KILL",
+        "await bounded completion",
+        "read persisted log and custody/registration",
+        "independently probe original group with captured start identity"
+      ],
+      "assertions": [
+        "only ESRCH confirms absence",
+        "EPERM and other errors retain uncertainty",
+        "escaped descendants are not claimed signalled"
+      ],
+      "reason": "Shared SetupOp has no syscall/probe/process observer; files alone cannot prove OS group absence."
+    },
+    {
+      "id": "denied-and-unknown-watcher-probes",
+      "status": "blocked(seam-or-capability)",
+      "clause_ids": [
+        "4.4.parent",
+        "4.4.groups"
+      ],
+      "fixtures": [
+        "parent-death"
+      ],
+      "model_witnesses": [
+        "deniedProbeReachableTest",
+        "unknownProbeReachableTest"
+      ],
+      "requires": [
+        "trace-scoped-fault-injection-into-supervisor-or-watcher-group-probe"
+      ],
+      "ordered_protocol": [
+        "start concrete parent-death child",
+        "establish registered original-group identity",
+        "make tested supervisor/watcher probe return EPERM or specified other errno",
+        "KILL trace-owned parent",
+        "await durable bounded custody",
+        "inspect retained registration/log and unchanged target"
+      ],
+      "assertions": [
+        "confirmed=false",
+        "registration exact bytes retained",
+        "no publication"
+      ],
+      "reason": "An arbitrary model Probe or an error in only the suite probe cannot induce this binary condition; no CORE seam provides it."
+    },
+    {
+      "id": "memory-setup-failures-and-existing-limits",
+      "status": "blocked(seam-or-capability)",
+      "clause_ids": [
+        "4.4.memory"
+      ],
+      "fixtures": [
+        "memory-linux"
+      ],
+      "model_witnesses": [
+        "lowerSoftReachableTest",
+        "lowerHardReachableTest",
+        "pipeFailureReachableTest",
+        "setupFailureReachableTest"
+      ],
+      "requires": [
+        "launch-with-existing-soft-hard-address-space-bounds",
+        "trace-scoped-pipe2-or-setrlimit-fault",
+        "identity-selected-private-diagnostic-discovery"
+      ],
+      "ordered_protocol": [
+        "install real inherited host bounds or setup syscall fault",
+        "start public approved queue fixture",
+        "establish actual child or failed-launch identity",
+        "await bounded return",
+        "read actual close-on-exec setup report and persisted enforcement diagnostic"
+      ],
+      "assertions": [
+        "limits never raise existing soft/hard bounds",
+        "pipe failure cannot claim setup report",
+        "failed setup cannot report enforced=true"
+      ],
+      "reason": "Cmd cannot alter inherited rlimits or fail setup syscalls; SetupOp cannot discover randomized failure diagnostics."
+    },
+    {
+      "id": "unreaped-leader-and-private-failure-tail",
+      "status": "blocked(seam-or-capability)",
+      "clause_ids": [
+        "4.4.reap",
+        "4.4.logs"
+      ],
+      "fixtures": [
+        "escaped-pipe",
+        "returned-tail"
+      ],
+      "model_witnesses": [
+        "unreapedLeaderReachableTest",
+        "escapedPipeReachableTest"
+      ],
+      "requires": [
+        "trace-owned-unreapable-leader-fixture",
+        "process-reader-reaping-observer",
+        "identity-selected-private-diagnostic-discovery"
+      ],
+      "ordered_protocol": [
+        "start child and capture registration/start identity",
+        "keep original leader or reader open beyond cleanup bound",
+        "await bounded supervisor return",
+        "read exact returned-tail octets and saved log",
+        "observe unconfirmed custody/retained ownership and no publication"
+      ],
+      "assertions": [
+        "returned tail is exact suffix capped at 16384 bytes",
+        "partial log persists",
+        "unconfirmed cleanup blocks landing"
+      ],
+      "reason": "Shared files require literal paths and cannot select randomized failed-process diagnostics or observe kernel reaping."
+    }
+  ],
+  "owner_api_requests": {
+    "approval": "Existing approve.State/shape/approve/exactApproval is imported; immutable approval blobs/ref/caller/hash are independently observed.",
+    "cli": "No cli.qnt exists: request complete approval/queue Expect exports; local strict rendering fixtures replace the prior unsupported delegation claim.",
+    "git": "No git.qnt exists: request approval/publication Git Expect exports; local fixtures observe parent/tree/index/refs/changed paths without duplicating policy counters."
+  },
+  "model_generation": {
+    "main_source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72",
+    "backend": "typescript",
+    "max_steps": 40,
+    "retained_trace_count": 17,
+    "replay_scenario_count": 14,
+    "completed_phase": 5,
+    "traces": [
+      {
+        "seed": "3000000",
+        "witness": "returned-tail",
+        "model_witness": "lower-hard",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000001",
+        "witness": "cargo-macos",
+        "model_witness": "linux-limit",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000002",
+        "witness": "cargo-linux",
+        "model_witness": "unsupported",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000003",
+        "witness": "escaped-pipe",
+        "model_witness": "denied-probe",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000004",
+        "witness": "escaped-pipe",
+        "model_witness": "pipe-failure",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000005",
+        "witness": "parent-death",
+        "model_witness": "retry-wait",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000006",
+        "witness": "cargo-macos",
+        "model_witness": "unsupported",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000007",
+        "witness": "cargo-linux",
+        "model_witness": "retry-wait",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000008",
+        "witness": "deadline-barrier",
+        "model_witness": "lower-soft",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000009",
+        "witness": "argv-linux",
+        "model_witness": "escaped-pipe",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000010",
+        "witness": "argv-macos",
+        "model_witness": "denied-probe",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000012",
+        "witness": "parent-death-escaped",
+        "model_witness": "linux-limit",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000017",
+        "witness": "memory-macos",
+        "model_witness": "retry-wait",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000025",
+        "witness": "cancel",
+        "model_witness": "pipe-failure",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000033",
+        "witness": "term-kill-expiry",
+        "model_witness": "denied-probe",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000037",
+        "witness": "memory-linux",
+        "model_witness": "denied-probe",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      },
+      {
+        "seed": "3000047",
+        "witness": "rolling-log",
+        "model_witness": "retry-wait",
+        "max_steps": 40,
+        "replay_phase": 5,
+        "source_sha256": "a0042f78f387eefcdaafa3cd26ca07e728b2634147060389047f7e627b278d72"
+      }
+    ],
+    "artifacts": "/tmp/process-final-itf (temporary model traces; not executable replay artifacts)"
+  }
+}

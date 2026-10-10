@@ -1,0 +1,34 @@
+#!/bin/bash
+# arm.sh R LANG DEADLINE_EPOCH — one continuing Codex session (gpt-6.1-sol high) in $R/LANG, auto-continued until deadline, STOP or STOP-LANG; each turn wrapped in /usr/bin/time -l (CPU incl. waited children)
+R=$1; L=$2; DL=$3; W=$R/$L; O=$R/out/$L; mkdir -p $O
+source $R/env.sh; [ -f $W/.kit-env.sh ] && source $W/.kit-env.sh
+[ -s $R/CODEX_HOME ] && export CODEX_HOME=$(cat $R/CODEX_HOME)   # e.g. ~/.codex-almir on the Studio (the shared Codex account on both hosts)
+FLAGS=(-m gpt-6.1-sol -c 'model_reasoning_effort="high"' -c features.unified_exec=false -s workspace-write -c sandbox_workspace_write.network_access=true --skip-git-repo-check --json)
+RFLAGS=(-m gpt-6.1-sol -c 'model_reasoning_effort="high"' -c features.unified_exec=false -c 'sandbox_mode="workspace-write"' -c sandbox_workspace_write.network_access=true --skip-git-repo-check --json)
+stopped() { [ $(date +%s) -ge $DL ] || [ -f $R/STOP ] || [ -f $R/STOP-$L ]; }
+kill_arm() { for p in $(pgrep -f "codex exec"); do c=$(/usr/sbin/lsof -a -p $p -d cwd -Fn 2>/dev/null | sed -n 's/^n//p'); a=$(ps -o args= -p $p); case "$c $a" in "$W"*|*"-C $W "*) kill -TERM $p;; esac; done; }
+n=0
+(cd $W && /usr/bin/time -l codex exec "${FLAGS[@]}" -C $W - < $R/BRIEF-$L.md 2> $O/turn-$n.err | /usr/bin/python3 $R/stamp.py $O/turn-$n.jsonl $O/turn-$n.ts) &
+pid=$!; echo $pid > $O/pid; while kill -0 $pid 2>/dev/null; do stopped && kill_arm; sleep 5; done
+TID=$(grep -m1 -o '"thread_id":"[^"]*"' $O/turn-0.jsonl | cut -d'"' -f4); echo "$TID" > $O/thread
+QP='(^|[^0-9])429([^0-9]|$)|\brate.?limit\b|\bquota\b|\busage limit\b|\btoo many requests\b'
+fastfail=0
+while ! stopped && [ -n "$TID" ]; do
+  # stall handling: if the last turn ended on a quota/rate-limit error, log it and wait 60 s before resuming (no tight retry loop)
+  if [ "$fastfail" -eq 0 ] && { grep -vE '^[[:space:]]+[0-9]+[[:space:]]|^[[:space:]]*[0-9]+([.][0-9]+)?[[:space:]]+real[[:space:]]' $O/turn-$n.err 2>/dev/null | grep -qiE "$QP" || tail -3 $O/turn-$n.jsonl 2>/dev/null | grep -qiE "$QP"; }; then
+    echo "$(date -u +%T) $(date +%s) stall after turn $n" >> $O/stalls.log; touch $O/QUOTA-REFUSAL; sleep 60; continue_stall=1
+  fi
+  echo "$(date -u +%T) $(date +%s) turn $n ended" >> $O/turns.log
+  n=$((n+1))
+  started_at=$(date +%s)
+  (cd $W && /usr/bin/time -l codex exec resume "${RFLAGS[@]}" "$TID" "Done means reaching the scored-case target in TARGET.md. Snapshot scores are not visible to you. Keep running the conformance suite and making scored cases pass toward that target until the 3-hour cap; fix the failures and repeat." 2> $O/turn-$n.err | /usr/bin/python3 $R/stamp.py $O/turn-$n.jsonl $O/turn-$n.ts) &
+  pid=$!; echo $pid > $O/pid; while kill -0 $pid 2>/dev/null; do stopped && kill_arm; sleep 5; done
+  elapsed=$(( $(date +%s) - started_at ))
+  fastfail=0
+  if [ "$elapsed" -lt 15 ] && ! grep -qE '"type"[[:space:]]*:[[:space:]]*"turn[.]completed"' $O/turn-$n.jsonl 2>/dev/null; then
+    echo "$(date -u +%T) $(date +%s) fast-fail after turn $n" >> $O/fastfail.log
+    fastfail=1
+    sleep 30
+  fi
+done
+echo "arm $L ended turns=$n $(date -u +%T)" >> $R/out/arms.log

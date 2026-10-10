@@ -4,8 +4,11 @@ Statuses use the evidence in each round’s own README and files. The status col
 
 ## Rounds
 
+| Round | Status | Reason |
+| --- | --- | --- |
 race1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from one run per language on one MacBook; no pre-registered decision rule.
 race2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from individual runs on one MacBook; no pre-registered decision rule.
+race3-sprint | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — wave 1 harness changed during the race; waves 2/3 used 30-minute caps; FINAL repeats and clean-copy regrade are absent.
 
 sol-medium | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
 

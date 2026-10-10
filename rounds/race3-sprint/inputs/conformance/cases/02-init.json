@@ -1,0 +1,26 @@
+{
+  "id": "smoke.init",
+  "title": "Init creates the project files and initial commit",
+  "steps": [
+    {
+      "argv": ["init"],
+      "expect": {
+        "exit": 0,
+        "stderr": {"equals": ""}
+      },
+      "observe": {
+        "git": {"branch_heads": {"main": "{{capture:hash:init_sha}}"}},
+        "head": {
+          "sha": "{{init_sha}}",
+          "branch": "main",
+          "subject": "Initial commit",
+          "changed_paths": [".gitignore", ".kogen/project.yaml"]
+        },
+        "files": {
+          ".kogen/project.yaml": {"contains": "name: project"},
+          ".gitignore": {"contains": ".kogen/local/"}
+        }
+      }
+    }
+  ]
+}

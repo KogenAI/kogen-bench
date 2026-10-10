@@ -1,0 +1,1752 @@
+[
+  {
+    "id": "1.platform",
+    "clause": "1.platform \u201cRust, single-binary \u2026 macOS and Linux\u201d",
+    "elements": [
+      "kogen.supportedHosts",
+      "kogen.artifactObligations"
+    ],
+    "witness": "documented gap (R1 artifact/source review)",
+    "gherkin": []
+  },
+  {
+    "id": "1.pipeline",
+    "clause": "1.pipeline \u201cshapes \u2026 waits \u2026 bounded Build \u2026 exact candidate \u2026 only verified\u201d",
+    "elements": [
+      "kogen.nothingUnverifiedLands",
+      "kogen.safe"
+    ],
+    "witness": "documented gap (composed kogen is a correlated model; standalone CLI/lifecycle replay covers only finite cases)",
+    "gherkin": []
+  },
+  {
+    "id": "1.chatgpt",
+    "clause": "1.chatgpt \u201cfirst core uses ChatGPT only\u201d",
+    "elements": [
+      "kogen.provider"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Login, project account use, and logout affect only the selected machine account",
+      "Expired injected auth is rejected before any fake provider request"
+    ]
+  },
+  {
+    "id": "1.command-status",
+    "clause": "1.command-status \u201cstatuses \u2026 \u00a73\u201d",
+    "elements": [
+      "cli.implemented"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "1.recipe",
+    "clause": "1.recipe \u201creuse \u2026 lifecycle mechanisms \u2026 plain-data recipe\u201d",
+    "elements": [
+      "kogen.recipe"
+    ],
+    "witness": "documented gap (R1 reuse provenance review)",
+    "gherkin": []
+  },
+  {
+    "id": "1.goal",
+    "clause": "1.goal \u201ccheap models \u2026 quality \u2026 not a performance guarantee\u201d",
+    "elements": [
+      "kogen.guarantees"
+    ],
+    "witness": "documented gap (R2 qualitative goal/non-guarantee)",
+    "gherkin": []
+  },
+  {
+    "id": "2.intent",
+    "clause": "2.intent \u201cverbatim request \u2026 requirements and acceptance \u2026 one Build\u201d",
+    "elements": [
+      "intent.recordSound"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "2.shaper",
+    "clause": "2.shaper \u201cown ChatGPT-backed role \u2026 cannot approve\u201d",
+    "elements": [
+      "shape.safe"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Shape accepts the same exact request bytes from stdin"
+    ]
+  },
+  {
+    "id": "2.approval",
+    "clause": "2.approval \u201cexact \u2026 bytes \u2026 invalidates\u201d",
+    "elements": [
+      "approve.exactApproval"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The review card shows an exact hash and approval waits for a caller action",
+      "Changing one approved Intent byte invalidates the saved approval hash",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "2.build",
+    "clause": "2.build \u201cbounded, isolated \u2026 one \u2026 at a time\u201d",
+    "elements": [
+      "build.attemptSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "2.candidate",
+    "clause": "2.candidate \u201cexact workspace tree \u2026 unverified\u201d",
+    "elements": [
+      "check.safe"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A known red project check prevents landing",
+      "A timed-out check is could-not-check and cannot land"
+    ]
+  },
+  {
+    "id": "2.gate",
+    "clause": "2.gate \u201cdeterministic command or approved acceptance \u2026 recorded\u201d",
+    "elements": [
+      "check.CheckRecord"
+    ],
+    "witness": "documented gap (L6 complete persisted check evidence observations)",
+    "gherkin": []
+  },
+  {
+    "id": "2.landing",
+    "clause": "2.landing \u201cone ordinary Git commit\u201d",
+    "elements": [
+      "git.createLanding"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A landed Build is one ordinary commit with the sole Kogen Intent trailer"
+    ]
+  },
+  {
+    "id": "2.reserved",
+    "clause": "2.reserved \u201cname and behavior do not change\u201d",
+    "elements": [
+      "cli.reserved"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.tree",
+    "clause": "3.tree \u201ccommand tree \u2026 contract\u201d",
+    "elements": [
+      "cli.topCommands"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Top-level help lists implemented commands and the reserved update command"
+    ]
+  },
+  {
+    "id": "3.init",
+    "clause": "3.init \u201ccreate \u2026 ignore \u2026 one commit \u2026 valid \u2026 no-op\u201d",
+    "elements": [
+      "cli.initCommand"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths",
+      "Init creates the exact bare config and initial history commit",
+      "Init is a no-op for an existing valid config",
+      "Config validation rejects duplicate YAML keys",
+      "Config validation rejects unknown keys at the top level",
+      "Check config rejects shell strings, zero timeouts, and unknown check keys"
+    ]
+  },
+  {
+    "id": "3.update",
+    "clause": "3.update \u201creserved\u201d",
+    "elements": [
+      "cli.reservedCommand"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.args",
+    "clause": "3.status.args \u201cstatus [slug] [--watch] [--json]\u201d",
+    "elements": [
+      "cli.validateInvocation"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Top-level help lists implemented commands and the reserved update command",
+      "Content and undeclared model options are rejected by argv parsing"
+    ]
+  },
+  {
+    "id": "3.status.board",
+    "clause": "3.status.board \u201cevery non-Landed \u2026 at most five \u2026 groups\u201d",
+    "elements": [
+      "cli.boardOrder"
+    ],
+    "witness": "documented gap (H1/H2 two-Intent and six-Landed historical replays)",
+    "gherkin": [
+      "Text and JSONL status expose a shaped draft"
+    ]
+  },
+  {
+    "id": "3.status.row",
+    "clause": "3.status.row \u201creason and latest Build \u2026 Landed \u2026 SHA\u201d",
+    "elements": [
+      "cli.rowDetails"
+    ],
+    "witness": "documented gap (H1/H2 historical durable completion observations)",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.recovery",
+    "clause": "3.status.recovery \u201clocations and expiry \u2026 detail \u2026 stage times \u2026 diff \u2026 journal\u201d",
+    "elements": [
+      "cli.recoverySummary"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "3.status.queue-json",
+    "clause": "3.status.queue-json \u201cschema:1,type:queue \u2026 state,pid,queued,next\u201d",
+    "elements": [
+      "cli.overviewRows"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.intent-json",
+    "clause": "3.status.intent-json \u201cboard order \u2026 slug,status,queue_position \u2026 recovery\u201d",
+    "elements": [
+      "cli.intentRow"
+    ],
+    "witness": "documented gap (H1/H2 historical completion observations)",
+    "gherkin": [
+      "Text and JSONL status expose a shaped draft"
+    ]
+  },
+  {
+    "id": "3.status.agent-json",
+    "clause": "3.status.agent-json \u201cthen \u2026 type:agent \u2026 id,role,build \u2026 events\u201d",
+    "elements": [
+      "cli.agentRow"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.nulls",
+    "clause": "3.status.nulls \u201cMissing \u2026 null \u2026 1-based \u2026 recovery array\u201d",
+    "elements": [
+      "cli.overviewRows"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.stage",
+    "clause": "3.status.stage \u201clatest nonempty \u2026 model_stage \u2026 rung_started \u2026 only Building\u201d",
+    "elements": [
+      "cli.activeStage"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.detail-json",
+    "clause": "3.status.detail-json \u201cone detailed object \u2026 intent_detail\u201d",
+    "elements": [
+      "cli.detailRow"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.status.watch",
+    "clause": "3.status.watch \u201cimmediately \u2026 2 seconds \u2026 changed frames \u2026 return\u201d",
+    "elements": [
+      "cli.watchStart"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A detached queue completes its current Build after stop while watch observes changed state"
+    ]
+  },
+  {
+    "id": "3.status.exit",
+    "clause": "3.status.exit \u201coverview 0 \u2026 Landed 0 \u2026 otherwise 1 \u2026 unknown 2\u201d",
+    "elements": [
+      "cli.statusCommand"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.shape",
+    "clause": "3.shape \u201cstdin, readable file, otherwise inline \u2026 no child-argv exposure \u2026 block \u2026 questions\u201d",
+    "elements": [
+      "cli.shapeResult",
+      "shape.requestSource"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Shape reads the request from a file and returns an unapproved Intent",
+      "Shape accepts the same exact request bytes from stdin",
+      "Shape may return branching questions without manufacturing an Intent",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "3.shape.json",
+    "clause": "3.shape.json \u201cone v:1 success/failure result envelope \u2026 no progress\u201d",
+    "elements": [
+      "cli.shapeJson",
+      "shape.jsonOutputIsPure"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.approve.review",
+    "clause": "3.approve.review \u201cWithout a hash \u2026 review card \u2026 status 5\u201d",
+    "elements": [
+      "cli.reviewCommand"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The review card shows an exact hash and approval waits for a caller action"
+    ]
+  },
+  {
+    "id": "3.approve.prefix",
+    "clause": "3.approve.prefix \u201c\u22656 hex \u2026 matching \u2026 --by \u2026 no queue\u201d",
+    "elements": [
+      "cli.approveCommand"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing one approved Intent byte invalidates the saved approval hash",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "3.remove",
+    "clause": "3.remove \u201cfiles and approval \u2026 one commit \u2026 running \u2026 --force\u201d",
+    "elements": [
+      "cli.removeCommand"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.queue.foreground",
+    "clause": "3.queue.foreground \u201cexplicit \u2026 serially \u2026 empty or stopped\u201d",
+    "elements": [
+      "cli.queueResult"
+    ],
+    "witness": "documented gap (H1/H2 historical serial completion observations)",
+    "gherkin": [
+      "Foreground queue start checks and lands the exact candidate into the checkout"
+    ]
+  },
+  {
+    "id": "3.queue.detach",
+    "clause": "3.queue.detach \u201cbackground\u201d",
+    "elements": [
+      "cli.queueBackground"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A detached queue completes its current Build after stop while watch observes changed state"
+    ]
+  },
+  {
+    "id": "3.queue.stop",
+    "clause": "3.queue.stop \u201cafter its current Build\u201d",
+    "elements": [
+      "cli.stopActiveQueue"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A detached queue completes its current Build after stop while watch observes changed state"
+    ]
+  },
+  {
+    "id": "3.provider.list",
+    "clause": "3.provider.list \u201csaved \u2026 signed in \u2026 default\u201d",
+    "elements": [
+      "cli.providerList"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account"
+    ]
+  },
+  {
+    "id": "3.provider.login",
+    "clause": "3.provider.login \u201cchatgpt \u2026 --as \u2026 default\u201d",
+    "elements": [
+      "cli.providerLogin",
+      "provider_login.safe"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account"
+    ]
+  },
+  {
+    "id": "3.provider.logout",
+    "clause": "3.provider.logout \u201conly \u2026 selected \u2026 default\u201d",
+    "elements": [
+      "cli.providerLogout"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account"
+    ]
+  },
+  {
+    "id": "3.provider.use",
+    "clause": "3.provider.use \u201cdefault \u2026 project \u2026 accounts.yaml \u2026 never repo\u201d",
+    "elements": [
+      "cli.providerUse"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account"
+    ]
+  },
+  {
+    "id": "3.version",
+    "clause": "3.version \u201ccommit \u2026 date\u201d",
+    "elements": [
+      "cli.versionCommand",
+      "version.safe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.help",
+    "clause": "3.help \u201chelp [command [subcommand]] \u2026 commands \u2026 options\u201d",
+    "elements": [
+      "cli.helpLines"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "3.forms",
+    "clause": "3.forms \u201cfixed \u2026 no model/effort flags \u2026 Build\u201d",
+    "elements": [
+      "cli.validateInvocation"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Top-level help lists implemented commands and the reserved update command",
+      "Content and undeclared model options are rejected by argv parsing"
+    ]
+  },
+  {
+    "id": "3.exits",
+    "clause": "3.exits \u201c0,1,2,3,4,5,70,143 \u2026 extra 130\u201d",
+    "elements": [
+      "cli.queueExit"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Content and undeclared model options are rejected by argv parsing"
+    ]
+  },
+  {
+    "id": "4.1.schema",
+    "clause": "4.1.schema \u201cstrict-subset YAML \u2026 preflight\u201d",
+    "elements": [
+      "config.validation"
+    ],
+    "witness": "documented gap (C1 quoted diagnostic stdout not representable in schema 1)",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.required",
+    "clause": "4.1.required \u201cname \u2026 string \u2026 checks \u2026 list \u2026 empty\u201d",
+    "elements": [
+      "config.required"
+    ],
+    "witness": "documented gap (C1 exact quoted validation diagnostics)",
+    "gherkin": [
+      "Init creates the exact bare config and initial history commit"
+    ]
+  },
+  {
+    "id": "4.1.check-schema",
+    "clause": "4.1.check-schema \u201cunique \u2026 non-empty argv \u2026 positive \u2026 timeout_ms\u201d",
+    "elements": [
+      "config.checkRow"
+    ],
+    "witness": "documented gap (C1 exact quoted validation diagnostics)",
+    "gherkin": [
+      "Check config rejects shell strings, zero timeouts, and unknown check keys"
+    ]
+  },
+  {
+    "id": "4.1.optional",
+    "clause": "4.1.optional \u201caccepted only when core code reads them\u201d",
+    "elements": [
+      "config.projectKeys"
+    ],
+    "witness": "documented gap (C1 exact quoted validation diagnostics)",
+    "gherkin": [
+      "Check config rejects shell strings, zero timeouts, and unknown check keys"
+    ]
+  },
+  {
+    "id": "4.1.bare",
+    "clause": "4.1.bare \u201cname: project \u2026 detected checks or [] \u2026 valid no-op \u2026 invalid error\u201d",
+    "elements": [
+      "init.runInit"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths",
+      "Init creates the exact bare config and initial history commit",
+      "Init is a no-op for an existing valid config",
+      "Config validation rejects duplicate YAML keys",
+      "Config validation rejects unknown keys at the top level"
+    ]
+  },
+  {
+    "id": "4.1.ignore",
+    "clause": "4.1.ignore \u201cpreserves \u2026 final effective rules \u2026 never ignores .kogen/\u201d",
+    "elements": [
+      "init.initializeFiles"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths"
+    ]
+  },
+  {
+    "id": "4.1.home",
+    "clause": "4.1.home \u201cCredentials and workspaces \u2026 home\u201d",
+    "elements": [
+      "build.workspaceRoot"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.stage",
+    "clause": "4.1.stage \u201cstages exactly two paths \u2026 one commit \u2026 detects checks without running commands\u201d",
+    "elements": [
+      "init.initGitExpectation",
+      "init.detectedChecks"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths"
+    ]
+  },
+  {
+    "id": "4.1.warning",
+    "clause": "4.1.warning \u201cAGENTS.md \u2026 CLAUDE.md \u2026 not banned\u201d",
+    "elements": [
+      "init.agentWarning"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.subject",
+    "clause": "4.1.subject \u201cInitial commit \u2026 Initialize Kogen project\u201d",
+    "elements": [
+      "init.initGitExpectation"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths"
+    ]
+  },
+  {
+    "id": "4.2.role",
+    "clause": "4.2.role \u201cown Shaper \u2026 ChatGPT \u2026 file/stdin\u201d",
+    "elements": [
+      "shape.shapeSessionSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.branches",
+    "clause": "4.2.branches \u201cresolves UX/DX \u2026 technical choices \u2026 result or questions\u201d",
+    "elements": [
+      "shape.shapePass"
+    ],
+    "witness": "documented gap (R2 UX/DX semantic review)",
+    "gherkin": [
+      "Shape may return branching questions without manufacturing an Intent",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.experiments",
+    "clause": "4.2.experiments \u201cshaping \u2026 core \u2026 audits \u2026 effort \u2026 later \u2026 no success guarantee\u201d",
+    "elements": [
+      "shape.shapeSessionSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.criteria",
+    "clause": "4.2.criteria \u201csufficient \u2026 check \u2026 never approves \u2026 not instructions\u201d",
+    "elements": [
+      "shape.shapeSessionSafe",
+      "intent.fixtureTurn"
+    ],
+    "witness": "documented gap (L9 whole request /input instruction-role observations)",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.detect",
+    "clause": "4.2.detect \u201cCargo.toml \u2026 mix.exs \u2026 criteria-only\u201d",
+    "elements": [
+      "shape.selectedAdapter"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.override",
+    "clause": "4.2.override \u201cexplicit exunit \u2026 only \u2026 mix.exs \u2026 other explicit\u201d",
+    "elements": [
+      "shape.selectedAdapter"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.cargo-source",
+    "clause": "4.2.cargo-source \u201cone Rust integration test \u2026 local/acceptance/slug.rs \u2026 acceptance_a<n>\u201d",
+    "elements": [
+      "shape.shapePass"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Shape may return branching questions without manufacturing an Intent",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.cargo-base",
+    "clause": "4.2.cargo-base \u201ctemporarily \u2026 tests/slug.rs \u2026 cargo test --offline \u2026 json \u2026 --locked\u201d",
+    "elements": [
+      "shape.cargoBaseValidation"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.public-api",
+    "clause": "4.2.public-api \u201cordinary \u2026 public API \u2026 no runtime probes/rlibs/build tricks\u201d",
+    "elements": [
+      "shape.cargoBaseValidation"
+    ],
+    "witness": "documented gap (R2 arbitrary-source semantic review)",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.base-red",
+    "clause": "4.2.base-red \u201cevery primary \u2026 E0425/E0432/E0433 \u2026 staged test \u2026 other errors\u201d",
+    "elements": [
+      "shape.cargoBaseValidation"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.private-target",
+    "clause": "4.2.private-target \u201crun/reports/cargo-target \u2026 same \u2026 sandbox \u2026 outside tree\u201d",
+    "elements": [
+      "process.cargoOperands"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.cargo-cleanup",
+    "clause": "4.2.cargo-cleanup \u201cgenerated lockfile \u2026 removed \u2026 Cargo.toml never edited\u201d",
+    "elements": [
+      "shape.shapeSessionSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.package",
+    "clause": "4.2.package \u201capproval copies \u2026 immutable \u2026 matching ledger \u2026 warnings local\u201d",
+    "elements": [
+      "approve.authorize"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.install",
+    "clause": "4.2.install \u201cBuild installs only \u2026 candidate copy\u201d",
+    "elements": [
+      "build.beginAttempt"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.scratch",
+    "clause": "4.2.scratch \u201clocal/intents/slug \u2026 ledgers/warnings \u2026 ignored\u201d",
+    "elements": [
+      "shape.scratchPaths"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.criteria-only",
+    "clause": "4.2.criteria-only \u201cAcceptance/Verify \u2026 no source \u2026 reports once\u201d",
+    "elements": [
+      "shape.shapePass"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Shape may return branching questions without manufacturing an Intent",
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.2.criteria-checks",
+    "clause": "4.2.criteria-checks \u201cApproval and gate \u2026 at least one \u2026 check\u201d",
+    "elements": [
+      "approve.authorized"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.3.separate",
+    "clause": "4.3.separate \u201cseparate caller \u2026 before queue \u2026 identity \u2026 Shaper cannot\u201d",
+    "elements": [
+      "approve.authorize"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.3.bytes",
+    "clause": "4.3.bytes \u201cexact Intent \u2026 acceptance \u2026 criteria-only \u2026 change \u2026 again\u201d",
+    "elements": [
+      "approve.editBinding"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Changing the accepted Rust source bytes invalidates their approval"
+    ]
+  },
+  {
+    "id": "4.4.workspace",
+    "clause": "4.4.workspace \u201cqueue start \u2026 isolated \u2026 home \u2026 checkout \u2026 any project\u201d",
+    "elements": [
+      "build.beginAttempt"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.transport",
+    "clause": "4.4.transport \u201cContent \u2026 not \u2026 command-line\u201d",
+    "elements": [
+      "process.transportSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.controls",
+    "clause": "4.4.controls \u201cone Builder \u2026 no parallel/ladder/escalation/plan/auditor \u2026 cache\u201d",
+    "elements": [
+      "build.builderRole"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.overload",
+    "clause": "4.4.overload \u201csame \u2026 model \u2026 bounded request budget\u201d",
+    "elements": [
+      "build.requestAttempt"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.fix",
+    "clause": "4.4.fix \u201cfix its own \u2026 within \u2026 single bounded Build\u201d",
+    "elements": [
+      "build.candidateEdit"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.conflict",
+    "clause": "4.4.conflict \u201cresolve its own rebase conflict \u2026 bounded parts\u201d",
+    "elements": [
+      "landing.integrateTurn"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "4.4.protected",
+    "clause": "4.4.protected \u201ccandidate \u2026 not approved Intent or acceptance\u201d",
+    "elements": [
+      "build.candidateEdit"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.deadline",
+    "clause": "4.4.deadline \u201cone monotonic \u2026 60 \u2026 budget_ms/wall_minutes \u2026 through landing\u201d",
+    "elements": [
+      "process.deadlineSafe"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "The absolute Build budget covers the Builder response and blocks landing on expiry"
+    ]
+  },
+  {
+    "id": "4.4.caps",
+    "clause": "4.4.caps \u201cBuilder 30 \u2026 generic 120 \u2026 acceptance 600 \u2026 checks explicit\u201d",
+    "elements": [
+      "process.capMs"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.clip",
+    "clause": "4.4.clip \u201crequests/retry waits/children \u2026 remaining \u2026 no fresh allowance\u201d",
+    "elements": [
+      "process.effectiveTimeoutMs"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.kill",
+    "clause": "4.4.kill \u201cTERM \u2026 group \u2026 KILL \u2026 bounded grace \u2026 only ESRCH\u201d",
+    "elements": [
+      "process.killAfterGrace"
+    ],
+    "witness": "blocked witness (needs a fault-injection seam): P4 TERM\u2192KILL ordering with errno probes",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.reap",
+    "clause": "4.4.reap \u201cbounded reaping/readers \u2026 open pipe/leader \u2026 log so far\u201d",
+    "elements": [
+      "process.advanceChild"
+    ],
+    "witness": "blocked witness (needs a fault-injection seam): P3 unreaped leader/private failure tail",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.parent",
+    "clause": "4.4.parent \u201cdurable \u2026 custody \u2026 registration \u2026 retained\u201d",
+    "elements": [
+      "process.cancel"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.groups",
+    "clause": "4.4.groups \u201cboundary \u2026 escaped \u2026 unsupported/denied \u2026 blocked\u201d",
+    "elements": [
+      "process.observeCleanup"
+    ],
+    "witness": "blocked witness (needs a fault-injection seam): P1 watcher-probe denial",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.logs",
+    "clause": "4.4.logs \u201c16 KiB tail \u2026 10 MiB \u2026 log_limit_bytes \u2026 rolling \u2026 drain order\u201d",
+    "elements": [
+      "process.drain"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.4.memory",
+    "clause": "4.4.memory \u201cLinux \u2026 non-raisable \u2026 existing \u2026 close-on-exec \u2026 other \u2026 unenforced\u201d",
+    "elements": [
+      "process.memorySetup"
+    ],
+    "witness": "blocked witness (needs a fault-injection seam): P2 setup-pipe/limit failure and inherited lower limits",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.exact",
+    "clause": "4.5.exact \u201cconfigured checks and acceptance \u2026 exact candidate \u2026 retain\u201d",
+    "elements": [
+      "check.gate",
+      "check.completeObservationMatches"
+    ],
+    "witness": "documented gap (L6 complete persisted check evidence observations)",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.unavailable",
+    "clause": "4.5.unavailable \u201cmissing/malformed/incomplete/zero \u2026 distinct \u2026 not failure\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.exit101",
+    "clause": "4.5.exit101 \u201cwithout \u2026 primary-span \u2026 or \u2026 summary \u2026 both base/candidate\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.red",
+    "clause": "4.5.red \u201cknown failing test \u2026 valid primary span\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.criteria",
+    "clause": "4.5.criteria \u201cconfigured \u2026 non-blocking \u2026 no acceptance source \u2026 nothing unverified\u201d",
+    "elements": [
+      "check.gate"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.no-discovery",
+    "clause": "4.5.no-discovery \u201cconfigured checks remain project input after init one-time defaults\u201d",
+    "elements": [
+      "init.checksForInit"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.dispatch",
+    "clause": "4.5.dispatch \u201ctest/clippy/build/check/rustc \u2026 command-specific\u201d",
+    "elements": [
+      "check.parseInvocation"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.argv",
+    "clause": "4.5.argv \u201cone Cargo parser \u2026 globals/+toolchain \u2026 formats \u2026 -- \u2026 malformed blocks\u201d",
+    "elements": [
+      "check.parseInvocation"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.json",
+    "clause": "4.5.json \u201cjson before -- \u2026 preserving \u2026 build-finished \u2026 no text-only\u201d",
+    "elements": [
+      "check.parseInvocation"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.tests",
+    "clause": "4.5.tests \u201cevery summary/target \u2026 one collected \u2026 ignored/measured \u2026 exclude filtered\u201d",
+    "elements": [
+      "check.targetComplete"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.map",
+    "clause": "4.5.map \u201cacceptance_a<n> \u2026 Acceptance ids\u201d",
+    "elements": [
+      "check.acceptanceCase"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.identity",
+    "clause": "4.5.identity \u201ctarget and libtest \u2026 absent/ambiguous \u2026 log \u2026 completely\u201d",
+    "elements": [
+      "check.testIdentities"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.clippy",
+    "clause": "4.5.clippy \u201cWarnings \u2026 not \u2026 red\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.baseline",
+    "clause": "4.5.baseline \u201cunidentified \u2026 red \u2026 cannot \u2026 excused \u2026 unavailable never\u201d",
+    "elements": [
+      "check.baselineExcuses"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.pass",
+    "clause": "4.5.pass \u201cexit 0 and complete evidence\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.rustc",
+    "clause": "4.5.rustc \u201cno completion \u2026 JSON \u2026 text compatibility \u2026 source \u2026 compilation\u201d",
+    "elements": [
+      "check.parseInvocation"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.finding",
+    "clause": "4.5.finding \u201cfile/code/normalized message \u2026 source \u2026 omits line/column\u201d",
+    "elements": [
+      "check.findingIdentity"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.generic",
+    "clause": "4.5.generic \u201cOther commands \u2026 generic exit-based\u201d",
+    "elements": [
+      "check.classify"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.5.project-suite",
+    "clause": "4.5.project-suite \u201ctiming thresholds/static suites \u2026 may \u2026 configured\u201d",
+    "elements": [
+      "check.gate"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.integrate",
+    "clause": "4.6.integrate \u201cmoved base \u2026 before \u2026 lost CAS \u2026 rebase \u2026 rerun \u2026 exact tree\u201d",
+    "elements": [
+      "landing.integrateTurn"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "4.6.turns",
+    "clause": "4.6.turns \u201cone repair \u2026 gate \u2026 four \u2026 all movements \u2026 park \u2026 stop\u201d",
+    "elements": [
+      "landing.integrationSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.stale",
+    "clause": "4.6.stale \u201clost CAS removes \u2026 incoming \u2026 only after rebasing \u2026 same deadline\u201d",
+    "elements": [
+      "landing.movedTip"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "4.6.recheck",
+    "clause": "4.6.recheck \u201cimmediately \u2026 tree \u2026 ordinary commit \u2026 identity/config\u201d",
+    "elements": [
+      "git.exactCandidate"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "4.6.checkout",
+    "clause": "4.6.checkout \u201cmerge --ff-only \u2026 branch/index/worktree \u2026 edits/untracked\u201d",
+    "elements": [
+      "git.safeCheckouts"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Foreground queue start checks and lands the exact candidate into the checkout",
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "4.6.drafts",
+    "clause": "4.6.drafts \u201cuntracked Intent \u2026 legacy acceptance \u2026 identical bytes only\u201d",
+    "elements": [
+      "git.matchingDrafts"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.detach",
+    "clause": "4.6.detach \u201clocal changes \u2026 detach previous \u2026 CAS \u2026 tested recovery command\u201d",
+    "elements": [
+      "git.prepareCheckout"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.no-checkout",
+    "clause": "4.6.no-checkout \u201cnot checked out \u2026 CAS expected base\u201d",
+    "elements": [
+      "git.casTarget"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.hooks",
+    "clause": "4.6.hooks \u201ccore.hooksPath/.git/hooks \u2026 fails \u2026 output \u2026 unchanged ref\u201d",
+    "elements": [
+      "git.safeObjects"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A failing user pre-commit hook prevents branch publication"
+    ]
+  },
+  {
+    "id": "4.6.safety",
+    "clause": "4.6.safety \u201cfailed/missing/changed/lost \u2026 must not \u2026 landing\u201d",
+    "elements": [
+      "landing.integrationSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "4.6.nonpromise",
+    "clause": "4.6.nonpromise \u201cno parallel or crash-resume promise\u201d",
+    "elements": [
+      "landing.integrationSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.layout",
+    "clause": "5.layout \u201c.kogen \u2026 config/Intent \u2026 local scratch \u2026 tree OPEN\u201d",
+    "elements": [
+      "init.initFilesSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.init-files",
+    "clause": "5.init-files \u201cinit commits \u2026 credentials never \u2026 config\u201d",
+    "elements": [
+      "config.schemaIssues"
+    ],
+    "witness": "documented gap (C1 exact quoted validation diagnostics)",
+    "gherkin": [
+      "Init is a no-op for an existing valid config",
+      "Config validation rejects duplicate YAML keys",
+      "Config validation rejects unknown keys at the top level"
+    ]
+  },
+  {
+    "id": "5.intent",
+    "clause": "5.intent \u201cwith project \u2026 verbatim \u2026 serialization OPEN\u201d",
+    "elements": [
+      "intent.recordSound"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.status",
+    "clause": "5.status \u201cenough \u2026 Intent/approval/Build/check/landing \u2026 status\u201d",
+    "elements": [
+      "status.boardViews"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.dead",
+    "clause": "5.dead \u201cdead Build \u2026 crashed/interrupted \u2026 unless \u2026 reachable\u201d",
+    "elements": [
+      "recovery.terminalize"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "5.preserve",
+    "clause": "5.preserve \u201cchanged unverified \u2026 hook-free \u2026 refs/kogen/candidates \u2026 archive fallback\u201d",
+    "elements": [
+      "recovery.preserveAll"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "5.retention",
+    "clause": "5.retention \u201cretention_days \u2026 default 14 \u2026 read first \u2026 persist expiry\u201d",
+    "elements": [
+      "recovery.configuredRetention"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "5.expire",
+    "clause": "5.expire \u201creconciliation/status \u2026 removes \u2026 journal \u2026 locations/expiry\u201d",
+    "elements": [
+      "recovery.expireAll"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "5.unverified",
+    "clause": "5.unverified \u201ccannot \u2026 approved/queued/landed/resumed \u2026 fresh \u2026 checks\u201d",
+    "elements": [
+      "recovery.lifecycleValid"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "5.events",
+    "clause": "5.events \u201cbeyond required \u2026 OPEN\u201d",
+    "elements": [
+      "status.latestStage"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.accounts",
+    "clause": "5.accounts \u201caccounts.yaml \u2026 project precedence \u2026 never repo\u201d",
+    "elements": [
+      "cli.selectedAccount"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.workspaces",
+    "clause": "5.workspaces \u201chome/workspaces\u201d",
+    "elements": [
+      "build.attemptSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.process",
+    "clause": "5.process \u201cno resident daemon/VM \u2026 content \u2026 without argv\u201d",
+    "elements": [
+      "process.custodySafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "5.git-config",
+    "clause": "5.git-config \u201cuser's git configuration\u201d",
+    "elements": [
+      "git.trustedSettings"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A landed Build is one ordinary commit with the sole Kogen Intent trailer"
+    ]
+  },
+  {
+    "id": "6.provider",
+    "clause": "6.provider \u201cChatGPT only \u2026 own role \u2026 no fallback\u201d",
+    "elements": [
+      "kogen.provider"
+    ],
+    "witness": "documented gap (provider selection properties; missing full new login scenario replay)",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Login, project account use, and logout affect only the selected machine account",
+      "Expired injected auth is rejected before any fake provider request"
+    ]
+  },
+  {
+    "id": "6.route",
+    "clause": "6.route \u201cbackend Responses \u2026 account ID \u2026 ID token \u2026 injected same\u201d",
+    "elements": [
+      "kogen.provider",
+      "build.builderRole",
+      "cli.selectedAccount"
+    ],
+    "witness": "documented gap (role/account policy properties; no complete standalone trace)",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Login, project account use, and logout affect only the selected machine account",
+      "Expired injected auth is rejected before any fake provider request"
+    ]
+  },
+  {
+    "id": "6.search",
+    "clause": "6.search \u201copt-in Shaper prototype \u2026 default off \u2026 first roadmap \u2026 Initial commit\u201d",
+    "elements": [
+      "shape.shapeSessionSafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "6.models",
+    "clause": "6.models \u201cBuilder luna maximum \u2026 Shaper sol high \u2026 one \u2026 no plan/ladder\u201d",
+    "elements": [
+      "build.builderRole"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "6.overload",
+    "clause": "6.overload \u201cretry \u2026 bounded \u2026 without changing model\u201d",
+    "elements": [
+      "build.requestAttempt"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "6.seam.execution",
+    "clause": "6.seam.execution \u201cordinary executable \u2026 temporary HOME \u2026 no bypass\u201d",
+    "elements": [
+      "kogen_io.Cmd"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper"
+    ]
+  },
+  {
+    "id": "6.seam.endpoint",
+    "clause": "6.seam.endpoint \u201cKOGEN_PROVIDER_URL \u2026 complete \u2026 HTTP(S)\u201d",
+    "elements": [
+      "kogen_io.ProviderEndpoint"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Injected auth calls the fake endpoint without becoming a saved login",
+      "Expired injected auth is rejected before any fake provider request"
+    ]
+  },
+  {
+    "id": "6.seam.auth",
+    "clause": "6.seam.auth \u201cAUTH_PATH \u2026 JSON \u2026 exp \u2026 reread \u2026 no login \u2026 no 401 refresh\u201d",
+    "elements": [
+      "kogen_io.validInjected"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "The ordinary executable returns an unapproved Intent from the Shaper",
+      "Injected auth calls the fake endpoint without becoming a saved login",
+      "Expired injected auth is rejected before any fake provider request"
+    ]
+  },
+  {
+    "id": "6.seam.store",
+    "clause": "6.seam.store \u201cCREDENTIAL_STORE=file \u2026 choices \u2026 home\u201d",
+    "elements": [
+      "kogen_io.validSeam"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account",
+      "The absolute Build budget covers the Builder response and blocks landing on expiry"
+    ]
+  },
+  {
+    "id": "6.seam.oidc",
+    "clause": "6.seam.oidc \u201cAUTH_URL \u2026 discovery \u2026 issuer \u2026 PATH shim \u2026 validation\u201d",
+    "elements": [
+      "kogen_io.seamEnvironment"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account"
+    ]
+  },
+  {
+    "id": "6.seam.scale",
+    "clause": "6.seam.scale \u201cTIME_SCALE \u2026 positive finite \u2026 specific windows \u2026 not clock\u201d",
+    "elements": [
+      "kogen_io.validSeam"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "Login, project account use, and logout affect only the selected machine account",
+      "The absolute Build budget covers the Builder response and blocks landing on expiry"
+    ]
+  },
+  {
+    "id": "6.seam.clock",
+    "clause": "6.seam.clock \u201cTEST_CLOCK_PATH \u2026 now_ms \u2026 reread \u2026 monotonic unchanged\u201d",
+    "elements": [
+      "kogen_io.Seam"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "6.seam.barriers",
+    "clause": "6.seam.barriers \u201cTEST_BARRIER_DIR \u2026 three points \u2026 bound \u2026 no receipt/CAS forcing\u201d",
+    "elements": [
+      "kogen_io.SetupOp"
+    ],
+    "witness": "feature replay available (seam specification; requires declared capability)",
+    "gherkin": [
+      "A lost publication CAS rebases on the new tip and rechecks before landing"
+    ]
+  },
+  {
+    "id": "7.trusted",
+    "clause": "7.trusted \u201corigin \u2026 workspace cannot override \u2026 own identity/config\u201d",
+    "elements": [
+      "git.trustedSettings"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A landed Build is one ordinary commit with the sole Kogen Intent trailer"
+    ]
+  },
+  {
+    "id": "7.init",
+    "clause": "7.init \u201cseparate ordinary commit \u2026 subject \u2026 history\u201d",
+    "elements": [
+      "git.initialize"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "Init preserves existing ignore rules and commits exactly its two paths",
+      "Init creates the exact bare config and initial history commit"
+    ]
+  },
+  {
+    "id": "7.signing",
+    "clause": "7.signing \u201cnot required \u2026 configured signer only when \u2026 enables\u201d",
+    "elements": [
+      "git.trustedSettings"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A landed Build is one ordinary commit with the sole Kogen Intent trailer"
+    ]
+  },
+  {
+    "id": "7.hooks",
+    "clause": "7.hooks \u201cuser-visible \u2026 MUST \u2026 failure \u2026 nothing bypasses\u201d",
+    "elements": [
+      "git.safeObjects"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A failing user pre-commit hook prevents branch publication"
+    ]
+  },
+  {
+    "id": "7.internal",
+    "clause": "7.internal \u201crefs/kogen \u2026 MAY skip \u2026 never pushed \u2026 temporary \u2026 disable\u201d",
+    "elements": [
+      "git.createRecord"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "7.message",
+    "clause": "7.message \u201cone commit \u2026 normal subject \u2026 only Kogen-Intent \u2026 no AI\u201d",
+    "elements": [
+      "git.createLanding"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A landed Build is one ordinary commit with the sole Kogen Intent trailer"
+    ]
+  },
+  {
+    "id": "7.init-trailer",
+    "clause": "7.init-trailer \u201cwhether \u2026 init \u2026 OPEN\u201d",
+    "elements": [
+      "git.initTrailerPolicy"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "8.controls",
+    "clause": "8.controls \u201cnot first-core \u2026 alternatives/discovery/update/parallel/domains/resume/cache/harness/parity\u201d",
+    "elements": [
+      "kogen.excludedControls"
+    ],
+    "witness": "documented gap (excluded scope policy; external scope review)",
+    "gherkin": []
+  },
+  {
+    "id": "8.prototypes",
+    "clause": "8.prototypes \u201cladders/auditor/repair/cache/context/edge tests/audits/escalation/plan/retries/ranking \u2026 not \u2026 eligibility\u201d",
+    "elements": [
+      "kogen.scopeSafe"
+    ],
+    "witness": "documented gap (no excluded eligibility controls; external scope review)",
+    "gherkin": []
+  },
+  {
+    "id": "8.reserved",
+    "clause": "8.reserved \u201conly update \u2026 detach implemented\u201d",
+    "elements": [
+      "cli.reserved"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "8.later",
+    "clause": "8.later \u201cdiscovery/release/distribution/crash-resume \u2026 no promises\u201d",
+    "elements": [
+      "kogen.openDecisions"
+    ],
+    "witness": "documented gap (OPEN/non-guarantees; external scope review)",
+    "gherkin": []
+  },
+  {
+    "id": "9.scope",
+    "clause": "9.scope \u201cOPEN \u2026 do not widen cut\u201d",
+    "elements": [
+      "kogen.scopeSafe"
+    ],
+    "witness": "documented gap (OPEN scope policy; external scope review)",
+    "gherkin": []
+  },
+  {
+    "id": "9.process",
+    "clause": "9.process \u201cOPEN \u2014 Process wrapper \u2026 guarantees/bounds\u201d",
+    "elements": [
+      "process.custodySafe"
+    ],
+    "witness": "generated-trace available",
+    "gherkin": []
+  },
+  {
+    "id": "9.crash",
+    "clause": "9.crash \u201cOPEN \u2014 Build crash \u2026 beyond preservation \u2026 no resume\u201d",
+    "elements": [
+      "recovery.lifecycleValid"
+    ],
+    "witness": "generated-trace or feature replay available",
+    "gherkin": [
+      "A crashed Build remains unverified and its preserved recovery expires on the test clock"
+    ]
+  },
+  {
+    "id": "9.mapping",
+    "clause": "9.mapping \u201cOPEN \u2014 Provider mapping \u2026 beyond specified \u2026 route\u201d",
+    "elements": [
+      "kogen.scopeSafe"
+    ],
+    "witness": "documented gap (OPEN refinement; external scope review)",
+    "gherkin": []
+  },
+  {
+    "id": "1.artifacts",
+    "clause": "\u00a71 Rust/single-binary and reuse provenance",
+    "elements": [
+      "kogen.artifactObligations"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "3.shape.transport-current",
+    "clause": "\u00a73 stdin/readable file/inline precedence; preserve inline argv value",
+    "elements": [
+      "shape.requestSource"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "3.shape.progress-current",
+    "clause": "\u00a73 TTY stderr progress, phase/time/calls/repairs and NO_COLOR",
+    "elements": [
+      "shape.progressStream"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "3.shape.json-current",
+    "clause": "\u00a73 one final v:1 success/failure result envelope",
+    "elements": [
+      "shape.jsonOutputIsPure"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "3.login.changed-subject",
+    "clause": "\u00a73 changed-subject non-TTY decision, save under new label, separately confirmed replacement",
+    "elements": [
+      "provider_login.safe"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "3.version.metadata-current",
+    "clause": "\u00a73 Git metadata or UTC build date; SOURCE_DATE_EPOCH validation",
+    "elements": [
+      "version.safe"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.detect-current",
+    "clause": "\u00a74.1 Makefile preference; Elixir/Rust/Credo checks, order and 600000 ms",
+    "elements": [
+      "init.detectedChecks"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.invoke-current",
+    "clause": "\u00a74.1 invocation worktree, linked/detached HEAD; inherited Git routing ignored",
+    "elements": [
+      "init.invocationTarget"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "4.1.output-current",
+    "clause": "\u00a74.1 selected checks, completed commit SHA/subject/context; failure is nonzero",
+    "elements": [
+      "init.detectedChecks",
+      "init.invocationTarget"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.format-current",
+    "clause": "\u00a74.2 format only this-run generated acceptance; one parse repair, environment report",
+    "elements": [
+      "shape.formatterAction"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  },
+  {
+    "id": "4.2.repair-current",
+    "clause": "\u00a74.2 shaping.repair_limit default 2, integer 0..5; journal/progress repair reasons",
+    "elements": [
+      "config.shapingRepairLimit",
+      "shape.repairReason",
+      "shape.repairAllowed"
+    ],
+    "witness": "documented gap (current CORE: finite property tests; complete replay observations still needed)",
+    "gherkin": []
+  }
+]

@@ -1,0 +1,55 @@
+[
+  {
+    "file": "quint/recovery.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/recovery.qnt"
+    ],
+    "exit": 0,
+    "seconds": 34.12
+  },
+  {
+    "file": "quint/recovery.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/recovery.qnt",
+      "--main",
+      "recovery",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 79.45
+  },
+  {
+    "file": "quint/recovery.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/recovery.qnt",
+      "--main",
+      "recovery",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 36.57
+  }
+]

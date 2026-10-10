@@ -1,0 +1,675 @@
+{
+  "schema": 1,
+  "scripts": {
+    "cli-shape-intent": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "write",
+              "arguments": "{\"path\": \".kogen/intents/greet/intent.md\", \"content\": \"---\\ntitle: Add greeting\\nsize: small\\ndomains: [app]\\n---\\nChange the greeting to Hello.\\n\\n## Acceptance\\n- A1: The file greet.txt contains Hello.\\n\\n## Verify\\n- A1: test domain=app\\n\\n## Notes\\nApproach: Update greet.txt greeting text to Hello while retaining one line.\\n\\n## Request\\nChange the greeting to Hello.\\n\"}",
+              "call_id": "cli-call-1",
+              "id": "cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "message",
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "output_text",
+                  "text": "Intent ready."
+                }
+              ]
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "message",
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "output_text",
+                  "text": "{\"rows\": [{\"constraint\": \"Change the greeting to Hello.\", \"maps_to\": \"A1\"}]}"
+                }
+              ]
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    },
+    "cli-shape-questions": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "message",
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "output_text",
+                  "text": "{\"questions\": [\"Which protocol should the internal adapter use?\"]}"
+                }
+              ]
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    },
+    "cli-builder-green": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > greet.txt\"}",
+              "call_id": "cli-call-1",
+              "id": "cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "cli-call-2",
+              "id": "cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    },
+    "cli-builder-gated": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > greet.txt\"}",
+              "call_id": "cli-call-1",
+              "id": "cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "cli-call-2",
+              "id": "cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "gate": "builder-response"
+        }
+      ]
+    },
+    "cli-builder-red": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"touch .cli-red\"}",
+              "call_id": "cli-call-1",
+              "id": "cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "cli-call-2",
+              "id": "cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ],
+      "repeat_last": true
+    },
+    "cli-builder-parked": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > greet.txt\"}",
+              "call_id": "cli-call-1",
+              "id": "cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "cli-call-2",
+              "id": "cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    },
+    "cli-openid": {
+      "openid": {
+        "labels": [
+          "default",
+          "work"
+        ],
+        "expires_at": 4102444800,
+        "clock_seconds": 2000000000,
+        "scope": "openid profile email offline_access resource.invoke chatgpt.tokens.use.direct"
+      }
+    },
+    "cli-history-two": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > one.txt\"}",
+              "call_id": "history-0-cli-call-1",
+              "id": "history-0-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-0-cli-call-2",
+              "id": "history-0-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > two.txt\"}",
+              "call_id": "history-1-cli-call-1",
+              "id": "history-1-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-1-cli-call-2",
+              "id": "history-1-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    },
+    "cli-history-six": {
+      "turns": [
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > five.txt\"}",
+              "call_id": "history-0-cli-call-1",
+              "id": "history-0-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-0-cli-call-2",
+              "id": "history-0-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > four.txt\"}",
+              "call_id": "history-1-cli-call-1",
+              "id": "history-1-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-1-cli-call-2",
+              "id": "history-1-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > old.txt\"}",
+              "call_id": "history-2-cli-call-1",
+              "id": "history-2-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-2-cli-call-2",
+              "id": "history-2-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > one.txt\"}",
+              "call_id": "history-3-cli-call-1",
+              "id": "history-3-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-3-cli-call-2",
+              "id": "history-3-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > three.txt\"}",
+              "call_id": "history-4-cli-call-1",
+              "id": "history-4-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-4-cli-call-2",
+              "id": "history-4-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "shell",
+              "arguments": "{\"cmd\": \"printf 'Hello.\\\\n' > two.txt\"}",
+              "call_id": "history-5-cli-call-1",
+              "id": "history-5-cli-item-1"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        },
+        {
+          "status": 200,
+          "output": [
+            {
+              "type": "function_call",
+              "name": "finish",
+              "arguments": "{}",
+              "call_id": "history-5-cli-call-2",
+              "id": "history-5-cli-item-2"
+            }
+          ],
+          "usage": {
+            "input_tokens": 12,
+            "output_tokens": 8,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,61 @@
+[
+  {
+    "file": "quint/intent.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/intent.qnt"
+    ],
+    "exit": 0,
+    "seconds": 17.57
+  },
+  {
+    "file": "quint/intent.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/intent.qnt",
+      "--main",
+      "intent",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.07
+  },
+  {
+    "file": "quint/intent.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/intent.qnt",
+      "--main",
+      "intent",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/intent-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 17.13
+  }
+]

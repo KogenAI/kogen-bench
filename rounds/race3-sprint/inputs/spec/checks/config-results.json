@@ -1,0 +1,155 @@
+[
+  {
+    "file": "quint/config.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/config.qnt"
+    ],
+    "exit": 0,
+    "seconds": 29.71
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 43.59
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-schemaInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "schemaInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 37.59
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-defaultsInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "defaultsInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.45
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-adapterInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "adapterInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.36
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-replayInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "replayInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.57
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 35.29
+  }
+]

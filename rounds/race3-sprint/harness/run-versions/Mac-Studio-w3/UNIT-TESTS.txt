@@ -1,0 +1,38 @@
+test_toolchain_path_and_homes_reach_each_runner (test_environment_passthrough.EnvironmentPassthroughTest) ... FAIL
+test_case_cleanup_kills_detached_process_with_case_cwd (test_process_cleanup.ProcessCleanupTest) ... ok
+test_invocation_timeout_returns_within_a_bounded_cleanup_window (test_process_cleanup.ProcessCleanupTest) ... ok
+test_quint_case_descriptors_return_to_baseline_under_low_limit (test_process_cleanup.ProcessCleanupTest) ... FAIL
+test_run_cleanup_catches_delayed_detached_child (test_process_cleanup.ProcessCleanupTest) ... PASS cleanup.delayed-detached-child
+ok
+test_same_group_cwd_child_is_killed_without_signaling_runner_group (test_process_cleanup.ProcessCleanupTest) ... ok
+test_binary_version_probe_uses_utf8_locale (test_race3_contract.Race3ContractTest) ... ok
+test_case_and_trace_overrides_cannot_change_or_unset_locale (test_race3_contract.Race3ContractTest) ... ok
+test_gherkin_effective_fixtures_only_pin_model_and_effort (test_race3_contract.Race3ContractTest) ... ok
+test_json_and_gherkin_fake_ignore_other_request_fields (test_race3_contract.Race3ContractTest) ... ok
+test_json_transcript_cannot_add_legacy_request_assertions (test_race3_contract.Race3ContractTest) ... ok
+test_quint_request_needs_no_input_and_ignores_headers (test_race3_contract.Race3ContractTest) ... ok
+test_sync_and_background_launches_force_utf8_locale (test_race3_contract.Race3ContractTest) ... ok
+
+======================================================================
+FAIL: test_toolchain_path_and_homes_reach_each_runner (test_environment_passthrough.EnvironmentPassthroughTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "~/Scratch.noindex/race3-v2/final/conformance/tests/test_environment_passthrough.py", line 70, in test_toolchain_path_and_homes_reach_each_runner
+    self.assertEqual(gherkin["status"], "pass", gherkin.get("failures"))
+AssertionError: 'fail' != 'pass'
+- fail
++ pass
+ : ['step executor error: PermissionError: [Errno 1] Operation not permitted']
+
+======================================================================
+FAIL: test_quint_case_descriptors_return_to_baseline_under_low_limit (test_process_cleanup.ProcessCleanupTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "~/Scratch.noindex/race3-v2/final/conformance/tests/test_process_cleanup.py", line 45, in test_quint_case_descriptors_return_to_baseline_under_low_limit
+    self.assertNotEqual(result["status"], "error", result.get("failures"))
+AssertionError: 'error' == 'error' : ["harness error: FileNotFoundError: [Errno 2] No such file or directory: '~/Scratch.noindex/race3-v2/final/core'"]
+
+----------------------------------------------------------------------
+Ran 13 tests in 13.705s
+
+FAILED (failures=2)

@@ -1,0 +1,985 @@
+{
+  "deadline-barrier": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'process witness\\\\\\\\n' > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "260bb08de3f27bbe5ba619db5a1ac9df547fd9b0c86d5b892e1d14c1a39d824d"
+  },
+  "cancel": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'process witness\\\\\\\\n' > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "260bb08de3f27bbe5ba619db5a1ac9df547fd9b0c86d5b892e1d14c1a39d824d"
+  },
+  "rolling-log": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 0123456789abcdefghijklmnopqrstuvwxyzABCDEF\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\nfor log in \\\\\\\"$run\\\\\\\"/logs/shell-*.log; do\\\\n  if [ -s \\\\\\\"$log\\\\\\\" ]; then cp \\\\\\\"$log\\\\\\\" process-result.txt; break; fi\\\\ndone\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 3,
+    "max_requests": 3,
+    "digest": "21997f149d06206cb4eae4a3459fc11f15a663bca298af9a7b9b24bcf967a638"
+  },
+  "memory-linux": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"{ ulimit -S -v; ulimit -H -v; } > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\npython3 - \\\\\\\"$run\\\\\\\" <<'PYPROJECTION'\\\\nimport json,pathlib,sys\\\\nroot=pathlib.Path(sys.argv[1])\\\\nrows=[json.loads(p.read_text()) for p in root.glob('logs/runner-diagnostic-*.json')]\\\\nrows=[r for r in rows if r.get('stage')=='shell' and r.get('exit_status')==0]\\\\nassert len(rows)==1, rows\\\\nr=rows[0]\\\\npathlib.Path('process-report.txt').write_text(json.dumps({k:r[k] for k in ('cleanup_confirmed','log_truncated','memory_limit_enforced')},sort_keys=True,separators=(',',':'))+'\\\\\\\\n')\\\\nif len(r['stderr_tail'])==16384:\\\\n    pathlib.Path('process-result.txt').write_bytes(r['stderr_tail'].encode())\\\\nPYPROJECTION\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 3,
+    "max_requests": 3,
+    "digest": "2f2162087456978364ee9ac3c3e25e2e7901230b422308e663188620b2df0a1b"
+  },
+  "memory-macos": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"{ ulimit -S -v; ulimit -H -v; } > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\npython3 - \\\\\\\"$run\\\\\\\" <<'PYPROJECTION'\\\\nimport json,pathlib,sys\\\\nroot=pathlib.Path(sys.argv[1])\\\\nrows=[json.loads(p.read_text()) for p in root.glob('logs/runner-diagnostic-*.json')]\\\\nrows=[r for r in rows if r.get('stage')=='shell' and r.get('exit_status')==0]\\\\nassert len(rows)==1, rows\\\\nr=rows[0]\\\\npathlib.Path('process-report.txt').write_text(json.dumps({k:r[k] for k in ('cleanup_confirmed','log_truncated','memory_limit_enforced')},sort_keys=True,separators=(',',':'))+'\\\\\\\\n')\\\\nif len(r['stderr_tail'])==16384:\\\\n    pathlib.Path('process-result.txt').write_bytes(r['stderr_tail'].encode())\\\\nPYPROJECTION\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 3,
+    "max_requests": 3,
+    "digest": "2f2162087456978364ee9ac3c3e25e2e7901230b422308e663188620b2df0a1b"
+  },
+  "term-kill-expiry": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\nfor log in \\\\\\\"$run\\\\\\\"/logs/shell-*.log; do [ -f \\\\\\\"$log\\\\\\\" ] && break; done\\\\nwhile :; do\\\\n  for writer in \\\\\\\"$run\\\\\\\"/tmp/writer-*.json; do [ -f \\\\\\\"$writer\\\\\\\" ] && break; done\\\\n  [ ! -f \\\\\\\"$writer\\\\\\\" ] || break\\\\n  sleep 0.01\\\\ndone\\\\nresult=$(sed -n 's/.*\\\\\\\"result\\\\\\\":\\\\\\\"\\\\\\\\([^\\\\\\\"]*\\\\\\\\)\\\\\\\".*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\ngroup=$(sed -n 's/.*\\\\\\\"group\\\\\\\":\\\\\\\\([0-9]*\\\\\\\\).*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\nprintf 'cleanup witness\\\\\\\\n'\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" \\\\\\\"$log\\\\\\\" \\\\\\\"$writer\\\\\\\" \\\\\\\"$run/tmp/$result\\\\\\\" \\\\\\\"$group\\\\\\\" > process-ready.txt\\\\ntrap 'printf \\\\\\\"TERM observed\\\\\\\\n\\\\\\\"' TERM\\\\nwhile :; do :; done\\\\n\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 1,
+    "max_requests": 1,
+    "digest": "fc2a9161ec0900deb966bab4addb40e9dc2f88ac54c0484f95b614af9a477802"
+  },
+  "cargo-linux": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\": \\\"run=$${0%/tmp/*}\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "11ceec6e5cafd561ccf3f0aa6d4e4e872b012d8bbcc1fb8afad2375aaf8fcc3e"
+  },
+  "argv-linux": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"ps -o command= -p \\\\\\\"$$\\\\\\\" > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "6421ff560520efa9edf198ed1e92ad629e503fcf5d1a0b7cfdc93d1cc13604ae"
+  },
+  "cargo-macos": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\": \\\"run=$${0%/tmp/*}\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "11ceec6e5cafd561ccf3f0aa6d4e4e872b012d8bbcc1fb8afad2375aaf8fcc3e"
+  },
+  "argv-macos": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"ps -o command= -p \\\\\\\"$$\\\\\\\" > process-result.txt\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "6421ff560520efa9edf198ed1e92ad629e503fcf5d1a0b7cfdc93d1cc13604ae"
+  },
+  "returned-tail": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"python3 -c 'import sys; sys.stdout.write(\\\\\\\"A\\\\\\\"*17001)'\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\npython3 - \\\\\\\"$run\\\\\\\" <<'PYPROJECTION'\\\\nimport json,pathlib,sys\\\\nroot=pathlib.Path(sys.argv[1])\\\\nrows=[json.loads(p.read_text()) for p in root.glob('logs/runner-diagnostic-*.json')]\\\\nrows=[r for r in rows if r.get('stage')=='shell' and r.get('exit_status')==0]\\\\nassert len(rows)==1, rows\\\\nr=rows[0]\\\\npathlib.Path('process-report.txt').write_text(json.dumps({k:r[k] for k in ('cleanup_confirmed','log_truncated','memory_limit_enforced')},sort_keys=True,separators=(',',':'))+'\\\\\\\\n')\\\\nif len(r['stderr_tail'])==16384:\\\\n    pathlib.Path('process-result.txt').write_bytes(r['stderr_tail'].encode())\\\\nPYPROJECTION\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 3,
+    "max_requests": 3,
+    "digest": "c5bdf3f1394441904bb0c1a54cee7fd7b81d38acc010eb6df3b95fe2bb3f111c"
+  },
+  "parent-death": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"run=$${0%/tmp/*}\\\\nfor log in \\\\\\\"$run\\\\\\\"/logs/shell-*.log; do [ -f \\\\\\\"$log\\\\\\\" ] && break; done\\\\nwhile :; do\\\\n  for writer in \\\\\\\"$run\\\\\\\"/tmp/writer-*.json; do [ -f \\\\\\\"$writer\\\\\\\" ] && break; done\\\\n  [ ! -f \\\\\\\"$writer\\\\\\\" ] || break\\\\n  sleep 0.01\\\\ndone\\\\nresult=$(sed -n 's/.*\\\\\\\"result\\\\\\\":\\\\\\\"\\\\\\\\([^\\\\\\\"]*\\\\\\\\)\\\\\\\".*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\ngroup=$(sed -n 's/.*\\\\\\\"group\\\\\\\":\\\\\\\\([0-9]*\\\\\\\\).*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\nprintf 'cleanup witness\\\\\\\\n'\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" \\\\\\\"$log\\\\\\\" \\\\\\\"$writer\\\\\\\" \\\\\\\"$run/tmp/$result\\\\\\\" \\\\\\\"$group\\\\\\\" > process-ready.txt\\\\ntrap 'printf \\\\\\\"TERM observed\\\\\\\\n\\\\\\\"' TERM\\\\nwhile :; do :; done\\\\n\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 1,
+    "max_requests": 1,
+    "digest": "fc2a9161ec0900deb966bab4addb40e9dc2f88ac54c0484f95b614af9a477802"
+  },
+  "parent-death-escaped": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"python3 process-holder.py &\\\\nwhile [ ! -f process-holder-ready.txt ]; do sleep 0.01; done\\\\nrun=$${0%/tmp/*}\\\\nfor log in \\\\\\\"$run\\\\\\\"/logs/shell-*.log; do [ -f \\\\\\\"$log\\\\\\\" ] && break; done\\\\nwhile :; do\\\\n  for writer in \\\\\\\"$run\\\\\\\"/tmp/writer-*.json; do [ -f \\\\\\\"$writer\\\\\\\" ] && break; done\\\\n  [ ! -f \\\\\\\"$writer\\\\\\\" ] || break\\\\n  sleep 0.01\\\\ndone\\\\nresult=$(sed -n 's/.*\\\\\\\"result\\\\\\\":\\\\\\\"\\\\\\\\([^\\\\\\\"]*\\\\\\\\)\\\\\\\".*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\ngroup=$(sed -n 's/.*\\\\\\\"group\\\\\\\":\\\\\\\\([0-9]*\\\\\\\\).*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\nprintf 'cleanup witness\\\\\\\\n'\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" \\\\\\\"$log\\\\\\\" \\\\\\\"$writer\\\\\\\" \\\\\\\"$run/tmp/$result\\\\\\\" \\\\\\\"$group\\\\\\\" > process-ready.txt\\\\ntrap 'printf \\\\\\\"TERM observed\\\\\\\\n\\\\\\\"' TERM\\\\nwhile :; do :; done\\\\n\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 1,
+    "max_requests": 1,
+    "digest": "610598945413c917085437fd3845a1317af8041d69faee33a6e25b245d68833f"
+  },
+  "escaped-pipe": {
+    "schema": 1,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"python3 process-holder.py &\\\\nwhile [ ! -f process-holder-ready.txt ]; do sleep 0.01; done\\\\nrun=$${0%/tmp/*}\\\\nfor log in \\\\\\\"$run\\\\\\\"/logs/shell-*.log; do [ -f \\\\\\\"$log\\\\\\\" ] && break; done\\\\nwhile :; do\\\\n  for writer in \\\\\\\"$run\\\\\\\"/tmp/writer-*.json; do [ -f \\\\\\\"$writer\\\\\\\" ] && break; done\\\\n  [ ! -f \\\\\\\"$writer\\\\\\\" ] || break\\\\n  sleep 0.01\\\\ndone\\\\nresult=$(sed -n 's/.*\\\\\\\"result\\\\\\\":\\\\\\\"\\\\\\\\([^\\\\\\\"]*\\\\\\\\)\\\\\\\".*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\ngroup=$(sed -n 's/.*\\\\\\\"group\\\\\\\":\\\\\\\\([0-9]*\\\\\\\\).*/\\\\\\\\1/p' \\\\\\\"$writer\\\\\\\")\\\\nprintf 'cleanup witness\\\\\\\\n'\\\\nprintf '%s\\\\\\\\n' \\\\\\\"$run\\\\\\\" \\\\\\\"$log\\\\\\\" \\\\\\\"$writer\\\\\\\" \\\\\\\"$run/tmp/$result\\\\\\\" \\\\\\\"$group\\\\\\\" > process-ready.txt\\\\nexit 0\\\\n\\\"}\"}]}}\n\n"
+              },
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max"
+          },
+          "present": [
+            "/input"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"process-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"process-call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}]}}\n\n"
+              },
+              "delay_ms": 0,
+              "gate": "cleanup-result"
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "min_requests": 2,
+    "max_requests": 2,
+    "digest": "364286a15556ba6a48af0cd0e8610dbdbc6b221c4e0664e7e36970ffa289d89d"
+  }
+}

@@ -1,0 +1,55 @@
+[
+  {
+    "file": "quint/approve.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/approve.qnt"
+    ],
+    "exit": 0,
+    "seconds": 17.88
+  },
+  {
+    "file": "quint/approve.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/approve.qnt",
+      "--main",
+      "approve",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 21.66
+  },
+  {
+    "file": "quint/approve.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/approve.qnt",
+      "--main",
+      "approve",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 15.7
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "id": "smoke.version",
+  "title": "Version runs from a fresh project sandbox",
+  "steps": [
+    {
+      "argv": ["version"],
+      "expect": {
+        "exit": 0,
+        "stdout": {"regex": "(?i)kogen|commit|version"},
+        "stderr": {"equals": ""}
+      },
+      "observe": {
+        "git": {"branch_heads": {}, "refs": {}},
+        "head": {"sha": null}
+      }
+    }
+  ]
+}

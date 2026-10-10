@@ -1,0 +1,1497 @@
+[
+  {
+    "file": "quint/approve.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/approve.qnt",
+      "--main",
+      "approve",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 15.7
+  },
+  {
+    "file": "quint/approve.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/approve.qnt",
+      "--main",
+      "approve",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 21.66
+  },
+  {
+    "file": "quint/approve.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/approve.qnt"
+    ],
+    "exit": 0,
+    "seconds": 17.88
+  },
+  {
+    "file": "quint/build.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/build.qnt",
+      "--main",
+      "build",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 27.97
+  },
+  {
+    "file": "quint/build.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/build.qnt",
+      "--main",
+      "build",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 43.38
+  },
+  {
+    "file": "quint/build.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/build.qnt"
+    ],
+    "exit": 0,
+    "seconds": 32.43
+  },
+  {
+    "file": "quint/check.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/check.qnt",
+      "--main",
+      "check",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/check-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 27.4
+  },
+  {
+    "file": "quint/check.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/check.qnt",
+      "--main",
+      "check",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 26.93
+  },
+  {
+    "file": "quint/check.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/check.qnt"
+    ],
+    "exit": 0,
+    "seconds": 26.26
+  },
+  {
+    "file": "quint/cli.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/cli.qnt",
+      "--main",
+      "cli",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/cli-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 50.48
+  },
+  {
+    "file": "quint/cli.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/cli.qnt",
+      "--main",
+      "cli",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 50.48
+  },
+  {
+    "file": "quint/cli.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/cli.qnt"
+    ],
+    "exit": 0,
+    "seconds": 49.75
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-adapterInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "adapterInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.36
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-defaultsInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "defaultsInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.45
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 35.29
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-replayInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "replayInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 33.57
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "run-schemaInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "schemaInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 37.59
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/config.qnt",
+      "--main",
+      "config",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 43.59
+  },
+  {
+    "file": "quint/config.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/config.qnt"
+    ],
+    "exit": 0,
+    "seconds": 29.71
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-checkoutInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "checkoutInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.26
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 29.39
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-objectsInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "objectsInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.55
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-publicationInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "publicationInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 9.1
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 11.53
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/git.qnt"
+    ],
+    "exit": 0,
+    "seconds": 5.02
+  },
+  {
+    "file": "quint/init.qnt",
+    "check": "run-detectionInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/init.qnt",
+      "--main",
+      "init",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "detectionInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 17.35
+  },
+  {
+    "file": "quint/init.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/init.qnt",
+      "--main",
+      "init",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 15.47
+  },
+  {
+    "file": "quint/init.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/init.qnt",
+      "--main",
+      "init",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 17.4
+  },
+  {
+    "file": "quint/init.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/init.qnt"
+    ],
+    "exit": 0,
+    "seconds": 14.75
+  },
+  {
+    "file": "quint/intent.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/intent.qnt",
+      "--main",
+      "intent",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/intent-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 17.13
+  },
+  {
+    "file": "quint/intent.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/intent.qnt",
+      "--main",
+      "intent",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.07
+  },
+  {
+    "file": "quint/intent.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/intent.qnt"
+    ],
+    "exit": 0,
+    "seconds": 17.57
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-checkoutInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "checkoutInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 79.24
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-deadlineCustodyInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "deadlineCustodyInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 78.89
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-exactApprovalInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "exactApprovalInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 79.65
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/kogen-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 93.03
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-scopeInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "scopeInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 81.95
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-serialBuildInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "serialBuildInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 82.14
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "run-verifiedLandingInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "verifiedLandingInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 78.61
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/kogen.qnt",
+      "--main",
+      "kogen",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 79.7
+  },
+  {
+    "file": "quint/kogen.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/kogen.qnt"
+    ],
+    "exit": 0,
+    "seconds": 78.72
+  },
+  {
+    "file": "quint/kogen_io.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/kogen_io.qnt",
+      "--main",
+      "kogen_io",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.65
+  },
+  {
+    "file": "quint/kogen_io.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/kogen_io.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.66
+  },
+  {
+    "file": "quint/landing.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/landing.qnt",
+      "--main",
+      "landing",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 29.85
+  },
+  {
+    "file": "quint/landing.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/landing.qnt",
+      "--main",
+      "landing",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 49.46
+  },
+  {
+    "file": "quint/landing.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/landing.qnt"
+    ],
+    "exit": 0,
+    "seconds": 28.27
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-builderInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "builderInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 43.3
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-custodyInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "custodyInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 39.24
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-executionInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "executionInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 40.29
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 38.2
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-memoryInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "memoryInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 39.93
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 62.96
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/process.qnt"
+    ],
+    "exit": 0,
+    "seconds": 36.54
+  },
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/provider_login.qnt",
+      "--main",
+      "provider_login",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.53
+  },
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/provider_login.qnt",
+      "--main",
+      "provider_login",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "file": "quint/provider_login.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/provider_login.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "file": "quint/queue.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/queue.qnt",
+      "--main",
+      "queue",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.85
+  },
+  {
+    "file": "quint/queue.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/queue.qnt",
+      "--main",
+      "queue",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 21.05
+  },
+  {
+    "file": "quint/queue.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/queue.qnt"
+    ],
+    "exit": 0,
+    "seconds": 15.41
+  },
+  {
+    "file": "quint/recovery.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/recovery.qnt",
+      "--main",
+      "recovery",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 36.57
+  },
+  {
+    "file": "quint/recovery.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/recovery.qnt",
+      "--main",
+      "recovery",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 79.45
+  },
+  {
+    "file": "quint/recovery.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/recovery.qnt"
+    ],
+    "exit": 0,
+    "seconds": 34.12
+  },
+  {
+    "file": "quint/shape.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/shape.qnt",
+      "--main",
+      "shape",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 29.58
+  },
+  {
+    "file": "quint/shape.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/shape.qnt",
+      "--main",
+      "shape",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 54.66
+  },
+  {
+    "file": "quint/shape.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/shape.qnt"
+    ],
+    "exit": 0,
+    "seconds": 29.14
+  },
+  {
+    "file": "quint/status.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/status.qnt",
+      "--main",
+      "status",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 7.86
+  },
+  {
+    "file": "quint/status.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/status.qnt",
+      "--main",
+      "status",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 4.79
+  },
+  {
+    "file": "quint/status.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/status.qnt"
+    ],
+    "exit": 0,
+    "seconds": 3.48
+  },
+  {
+    "file": "quint/version.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/version.qnt",
+      "--main",
+      "version",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.45
+  },
+  {
+    "file": "quint/version.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/version.qnt",
+      "--main",
+      "version",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.38
+  },
+  {
+    "file": "quint/version.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/version.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.38
+  },
+  {
+    "file": "quint/intent.qnt",
+    "model": "lifeArtifacts",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/intent.qnt",
+      "--main",
+      "lifeArtifacts",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.29
+  },
+  {
+    "file": "quint/intent.qnt",
+    "model": "lifeArtifacts",
+    "check": "run",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/intent.qnt",
+      "--main",
+      "lifeArtifacts",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--invariant",
+      "invariant",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 19.71
+  },
+  {
+    "file": "quint/check.qnt",
+    "model": "checkArtifacts",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/check.qnt",
+      "--main",
+      "checkArtifacts",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 31.92
+  },
+  {
+    "file": "quint/check.qnt",
+    "model": "checkArtifacts",
+    "check": "run",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/check.qnt",
+      "--main",
+      "checkArtifacts",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--invariant",
+      "invariant",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 38.93
+  }
+]
