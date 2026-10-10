@@ -1,0 +1,9 @@
+# rve3 status: INVALID at the interim (registered rule)
+
+- **When:** the interim analysis ran at 2026-10-09 ~10:41Z, after all 18 cells of pairs 1–9 had ended (last END 10:38:34Z, EU p09-rust). The analysis was maintainer-verified.
+- **Verdict:** `python3 analyze.py interim` returned `"verdict": "INVALID"`. The output is saved as INTERIM-RESULT.json (sha256 302a8529e4b1386f8a97781244987e89c744781cce7c9c7a408a65a7457229e2).
+- **Why:** DECISION-RULE.md's audit counts `github.com`, `githubusercontent` and `kogen-bench` strings and `web_search` calls anywhere in each cell's codex.jsonl, and more than 2 flagged cells makes the round INVALID. 7 cells were flagged: rve3-eu-p03-elixir, -eu-p05-elixir, -eu-p08-elixir, -eu-p09-elixir, -us-p01-elixir, -us-p07-elixir and -us-p07-rust. There were no missing or ungraded cells and no timeouts.
+- **Characterization (maintainer-verified, counts only, post hoc; not part of the registered analysis):** every match was the text `github.com` inside `command_execution` OUTPUT. Most came from mix/elixir runs in the repo, and 4 from reading toolchain files. No match was in command text. There were no web_search calls, no `githubusercontent` or `kogen-bench` matches, and no curl/wget/git-fetch commands. The provider-only egress firewall was in force for the bench uid. The audit had never been run on a dry cell before launch, and that is the process gap.
+- **Stop:** ROUND-STOP was set on both hosts at 10:41:49Z (EU) and 10:41:53Z (US). Cells already running finished; no new cells started. The cells beyond pair 9 are kept and not analysed.
+- **Decision by maintainers:** rve3 stays INVALID as registered, with no post-hoc rule change. It is replaced by the fresh 4-arm round rounds/rlang1, with a re-registered audit validated on these 18 cells and on dry cells before launch.
+- **Descriptive peeks** given to the owner are in PEEKS.log; none of them is the registered analysis.
