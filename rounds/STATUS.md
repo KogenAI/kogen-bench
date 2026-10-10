@@ -5,6 +5,7 @@ Statuses use the evidence in each round’s own README and files. The status col
 ## Rounds
 
 race1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from one run per language on one MacBook; no pre-registered decision rule.
+race2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from individual runs on one MacBook; no pre-registered decision rule.
 
 sol-medium | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
 

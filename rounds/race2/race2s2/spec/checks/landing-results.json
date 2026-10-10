@@ -1,0 +1,55 @@
+[
+  {
+    "file": "quint/landing.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/landing.qnt"
+    ],
+    "exit": 0,
+    "seconds": 28.27
+  },
+  {
+    "file": "quint/landing.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/landing.qnt",
+      "--main",
+      "landing",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 49.46
+  },
+  {
+    "file": "quint/landing.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/landing.qnt",
+      "--main",
+      "landing",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 29.85
+  }
+]

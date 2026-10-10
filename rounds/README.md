@@ -5,6 +5,7 @@ Every round directory and public variant is indexed and registered. Detailed pag
 Terminology: [public round glossary](GLOSSARY.md).
 
 - [Race 1](race1/README.md) — **DESCRIPTIVE** One run per language on a MacBook. Official aggregate scores and a separately labelled four-arm re-score are published; official per-case results were not preserved, and arm code remains private.
+- [Race 2](race2/README.md) — **DESCRIPTIVE** Individual runs on a MacBook, including a stopped follow-up and two separate Sol runs; arm code remains private.
 
 ## Outcome source crosswalk
 

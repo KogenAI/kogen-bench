@@ -1,0 +1,30 @@
+[
+  {
+    "file": "quint/kogen_io.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/kogen_io.qnt"
+    ],
+    "exit": 0,
+    "seconds": 0.66
+  },
+  {
+    "file": "quint/kogen_io.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/kogen_io.qnt",
+      "--main",
+      "kogen_io",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.65
+  }
+]

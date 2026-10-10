@@ -1,0 +1,6 @@
+race2s2 load notes (10 Oct 2026; race 06:31:17–07:31:17Z)
+Load samples available (point readings; no continuous sampler ran in this harness version):
+- 07:07Z (during T+30 checkpoint scoring): load averages 159.3 / 106.2 / 71.8 (1/5/15 min) on 12 cores; swap 2.35 of 3 GB used; memory 64% free. Top CPU users: two unrelated publishing jobs (reproduce/recompute_mined.py, ~96% CPU each, running from before the race until paused at ~07:08Z), lsof cwd sweeps from the race's own checkpoint scoring (5 arms x 4 jobs), opendirectoryd, compilers of the race arms.
+- 07:37Z (after the race and FINAL scoring): 4.6 / 24.8 / 51.8.
+Load sources: (1) the race's own checkpoint scoring (every 10 min, 5 arms x 4 parallel cases with per-case lsof sweeps); (2) unrelated publishing jobs on the same MacBook until ~07:08Z.
+Score effect: not measurable from these data. Checkpoint scores are taken from instant snapshots, so the load could slow the agents (fewer edits per minute) but not change how a given snapshot scores, except via the 60 s per-invocation timeout; the FINAL snapshot was scored after the stop, when the machine was quiet. Non-monotonic checkpoint scores (e.g. Go 75 at T+20 -> 70 at T+30) occur in every race and cannot be attributed to load.

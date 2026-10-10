@@ -1,0 +1,155 @@
+[
+  {
+    "file": "quint/process.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/process.qnt"
+    ],
+    "exit": 0,
+    "seconds": 36.54
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 62.96
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 38.2
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-builderInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "builderInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 43.3
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-executionInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "executionInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 40.29
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-custodyInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "custodyInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 39.24
+  },
+  {
+    "file": "quint/process.qnt",
+    "check": "run-memoryInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/process.qnt",
+      "--main",
+      "process",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "memoryInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 39.93
+  }
+]

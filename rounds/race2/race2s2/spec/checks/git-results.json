@@ -1,0 +1,130 @@
+[
+  {
+    "file": "quint/git.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/git.qnt"
+    ],
+    "exit": 0,
+    "seconds": 5.02
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 11.53
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 29.39
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-objectsInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "objectsInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.55
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-publicationInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "publicationInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 9.1
+  },
+  {
+    "file": "quint/git.qnt",
+    "check": "run-checkoutInvariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/git.qnt",
+      "--main",
+      "git",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "checkoutInvariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 18.26
+  }
+]

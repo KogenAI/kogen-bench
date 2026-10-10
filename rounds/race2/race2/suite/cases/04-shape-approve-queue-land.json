@@ -1,0 +1,127 @@
+{
+  "id": "smoke.shape-approve-queue-land",
+  "title": "Shape, approve, build and land through the fake Responses provider",
+  "initial_commit": true,
+  "time_scale": 0.01,
+  "auth": "owned",
+  "files": {
+    "README.md": "Conformance fixture.\n",
+    ".gitignore": ".kogen/local/\n",
+    ".kogen/project.yaml": "name: smoke\nchecks:\n  - name: generated-file\n    argv: [sh, -c, 'test -f generated.txt']\n    timeout_ms: 5000\ndomains:\n  app: [generated.txt]\nbuild:\n  budget_ms: 600000\n  roles:\n    builder:\n      model: gpt-6-luna\n      effort: max\nsandbox: false\n"
+  },
+  "provider": {
+    "script": [
+      {"expect": {"role": "shaper"}, "error": "401"},
+      {
+        "expect": {"role": "shaper"},
+        "tool_calls": [
+          {
+            "name": "write",
+            "call_id": "shape-write-intent",
+            "arguments": {
+              "path": ".kogen/intents/greet/intent.md",
+              "content": "---\ntitle: Create generated file\nsize: small\ndomains: [app]\n---\nCreate generated.txt containing exactly hello.\n\n## Acceptance\n- A1: generated.txt contains exactly hello.\n\n## Verify\n- A1: test domain=app\n\n## Notes\nApproach: Use the project root and a shell redirection to create generated.txt with exact requested contents while preserving unrelated files.\n"
+            }
+          }
+        ]
+      },
+      {"expect": {"role": "shaper"}, "assistant_text": "The Intent is ready."},
+      {
+        "expect": {"role": "auditor"},
+        "assistant_text": "{\"rows\":[{\"constraint\":\"Create generated.txt containing exactly hello.\",\"maps_to\":\"A1\"}]}"
+      },
+      {
+        "expect": {"role": "auditor"},
+        "assistant_text": "{\"items\":[{\"id\":\"A1\",\"verdict\":\"valid\",\"citation\":\"Create generated.txt containing exactly hello.\",\"reason\":\"The criterion checks the requested file content.\"}]}"
+      },
+      {
+        "expect": {"role": "builder"},
+        "tool_calls": [
+          {
+            "name": "shell",
+            "call_id": "build-write-file",
+            "arguments": {"cmd": "printf hello > generated.txt"}
+          }
+        ]
+      },
+      {
+        "expect": {"role": "builder"},
+        "tool_calls": [
+          {"name": "finish", "call_id": "build-finish", "arguments": {}}
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "argv": ["intent", "shape", "greet", "-"],
+      "stdin": "Create generated.txt containing exactly hello.",
+      "timeout_s": 60,
+      "expect": {"exit": 0, "stdout": {"contains": ".kogen/intents/greet/intent.md"}},
+      "observe": {
+        "files": {".kogen/intents/greet/intent.md": {"contains": "## Acceptance"}},
+        "provider_requests": [
+          {"role": "shaper", "path": "/v1/responses", "body": {"stream": true}},
+          {"role": "shaper", "path": "/v1/responses", "body": {"stream": true}},
+          {"role": "shaper", "path": "/v1/responses", "body": {"stream": true}},
+          {"role": "auditor", "path": "/v1/responses", "body": {"stream": true}},
+          {"role": "auditor", "path": "/v1/responses", "body": {"stream": true}}
+        ]
+      }
+    },
+    {
+      "argv": ["intent", "approve", "greet"],
+      "expect": {
+        "exit": 5,
+        "stdout": {"contains": "Approve with:\n  kogen intent approve greet {{capture:hash:approval_prefix}}"}
+      }
+    },
+    {
+      "argv": ["intent", "approve", "greet", "{{approval_prefix}}"],
+      "expect": {"exit": 0},
+      "observe": {
+        "git": {
+          "refs": {"refs/kogen/intents/greet": "{{capture:hash:approval_sha}}"}
+        }
+      }
+    },
+    {
+      "argv": ["queue", "start"],
+      "timeout_s": 70,
+      "expect": {"exit": 0},
+      "observe": {
+        "head": {
+          "subject": "Create generated file",
+          "changed_paths": ["generated.txt"],
+          "trailers": {"Kogen-Intent": ["greet"]}
+        },
+        "files": {"generated.txt": {"equals": "hello"}},
+        "status_json": true,
+        "status_rows": [
+          {"type": "queue", "state": "stopped"},
+          {"type": "intent", "slug": "greet", "status": "landed", "landed_sha": "{{capture:hash:landed_sha}}"}
+        ],
+        "provider_requests": [
+          {"role": "shaper"}, {"role": "shaper"}, {"role": "shaper"},
+          {"role": "auditor"}, {"role": "auditor"},
+          {"role": "builder", "body": {"stream": true}},
+          {"role": "builder", "body": {"stream": true}}
+        ]
+      }
+    }
+  ],
+  "provider_expect": [
+    {"role": "shaper", "headers": {"authorization": "Bearer kogen-fake-access-old"}},
+    {"role": "shaper", "headers": {"authorization": "Bearer kogen-fake-access"}}
+  ],
+  "provider_oauth_expect": [
+    {
+      "path": "/token",
+      "form": {
+        "grant_type": ["refresh_token"],
+        "client_id": ["kogen-conformance-owned"],
+        "refresh_token": ["kogen-fake-refresh"]
+      }
+    }
+  ]
+}

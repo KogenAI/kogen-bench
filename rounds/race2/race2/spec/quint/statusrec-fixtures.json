@@ -1,0 +1,736 @@
+{
+  "statusrec-changed": {
+    "schema": 1,
+    "min_requests": 2,
+    "max_requests": 2,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-changed-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'hello\\\\\\\\n' > greeting.txt; git config user.name Candidate; git config user.email candidate@example.invalid\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-changed-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "75ac9ea62dff44893e6240d4d96224c7880b73e1b6fc9ec86d21b22d6b2522ad"
+  },
+  "statusrec-unchanged": {
+    "schema": 1,
+    "min_requests": 2,
+    "max_requests": 2,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-unchanged-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"true\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-unchanged-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "a8174f9c7623c02f412e8c1fad1743c21cc448f8451e0597c8b7909644f9cfb2"
+  },
+  "statusrec-rich": {
+    "schema": 1,
+    "min_requests": 2,
+    "max_requests": 2,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-rich-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"printf 'hello\\\\\\\\n' > greeting.txt\\\\nrun=$(basename \\\\\\\"$PWD\\\\\\\" -R1)\\\\nagent=\\\\\\\"../runs/$run/agents/0123456789abcdef0123456789abcdef\\\\\\\"\\\\nmkdir -p \\\\\\\"$agent\\\\\\\"\\\\nprintf '%s\\\\\\\\n' '{\\\\\\\"event\\\\\\\":\\\\\\\"agent_started\\\\\\\",\\\\\\\"role\\\\\\\":\\\\\\\"builder\\\\\\\",\\\\\\\"ts\\\\\\\":1000}' '{\\\\\\\"event\\\\\\\":\\\\\\\"agent_waiting\\\\\\\",\\\\\\\"role\\\\\\\":\\\\\\\"builder\\\\\\\",\\\\\\\"status\\\\\\\":\\\\\\\"waiting\\\\\\\",\\\\\\\"activity\\\\\\\":\\\\\\\"provider reply\\\\\\\",\\\\\\\"ts\\\\\\\":1000}' > \\\\\\\"$agent/events.jsonl\\\\\\\"\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-rich-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "83aa01f41b77f3b03a900d677db0c14300c01fde31a3f0da2071fc94e5be9e16"
+  },
+  "statusrec-fresh-green": {
+    "schema": 1,
+    "min_requests": 2,
+    "max_requests": 2,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-green-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"origin=$(git remote get-url origin)\\\\nfound=0\\\\nfor ref in $(git -C \\\\\\\"$origin\\\\\\\" for-each-ref --format='%(refname)' refs/kogen/candidates); do\\\\n  case \\\\\\\"$ref\\\\\\\" in */recovery-*)\\\\n    git -C \\\\\\\"$origin\\\\\\\" show \\\\\\\"$ref:greeting.txt\\\\\\\" > greeting.txt || exit 1\\\\n    found=$((found + 1));;\\\\n  esac\\\\ndone\\\\ntest \\\\\\\"$found\\\\\\\" = 1\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-green-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "2e2a3e94a32feb186f3ad1c7e888e2bb7d13b9a5bcf05300b111879c3ad7b3a5"
+  },
+  "statusrec-fresh-red": {
+    "schema": 1,
+    "min_requests": 3,
+    "max_requests": 3,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-red-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"origin=$(git remote get-url origin)\\\\nfound=0\\\\nfor ref in $(git -C \\\\\\\"$origin\\\\\\\" for-each-ref --format='%(refname)' refs/kogen/candidates); do\\\\n  case \\\\\\\"$ref\\\\\\\" in */recovery-*)\\\\n    git -C \\\\\\\"$origin\\\\\\\" show \\\\\\\"$ref:greeting.txt\\\\\\\" > greeting.txt || exit 1\\\\n    found=$((found + 1));;\\\\n  esac\\\\ndone\\\\ntest \\\\\\\"$found\\\\\\\" = 1\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-red-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-red-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "e8a59184ad8af0033ad50127d4ad0ed897dec47ab2b809cd6b57d5d11044b6c7"
+  },
+  "statusrec-fresh-missing": {
+    "schema": 1,
+    "min_requests": 3,
+    "max_requests": 3,
+    "turns": [
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-missing-0\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-0\",\"name\":\"shell\",\"arguments\":\"{\\\"cmd\\\":\\\"origin=$(git remote get-url origin)\\\\nfound=0\\\\nfor ref in $(git -C \\\\\\\"$origin\\\\\\\" for-each-ref --format='%(refname)' refs/kogen/candidates); do\\\\n  case \\\\\\\"$ref\\\\\\\" in */recovery-*)\\\\n    git -C \\\\\\\"$origin\\\\\\\" show \\\\\\\"$ref:greeting.txt\\\\\\\" > greeting.txt || exit 1\\\\n    found=$((found + 1));;\\\\n  esac\\\\ndone\\\\ntest \\\\\\\"$found\\\\\\\" = 1\\\"}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-missing-1\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-1\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": "hold",
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "equals": {
+            "/model": "gpt-6-luna",
+            "/reasoning/effort": "max",
+            "/tool_choice/type": "allowed_tools",
+            "/tool_choice/mode": "auto",
+            "/tool_choice/tools": [
+              {
+                "type": "function",
+                "name": "finish"
+              },
+              {
+                "type": "function",
+                "name": "shell"
+              },
+              {
+                "type": "function",
+                "name": "tool_output"
+              }
+            ]
+          },
+          "present": [
+            "/input",
+            "/instructions",
+            "/tools"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/event-stream"
+          },
+          "chunks": [
+            {
+              "bytes": {
+                "utf8": "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"statusrec-fresh-missing-2\",\"model\":\"gpt-6-luna\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call-2\",\"name\":\"finish\",\"arguments\":\"{}\"}],\"usage\":{\"input_tokens\":10,\"output_tokens\":1}}}\n\n"
+              },
+              "gate": null,
+              "delay_ms": 0
+            }
+          ],
+          "disconnect": false
+        }
+      }
+    ],
+    "digest": "ddabd22c9cd8b7f31b7d22c381d21285ffdc99c76547643b61669c5115358e31"
+  }
+}

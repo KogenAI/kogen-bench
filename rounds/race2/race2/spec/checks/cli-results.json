@@ -1,0 +1,61 @@
+[
+  {
+    "file": "quint/cli.qnt",
+    "check": "typecheck",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "typecheck",
+      "quint/cli.qnt"
+    ],
+    "exit": 0,
+    "seconds": 49.75
+  },
+  {
+    "file": "quint/cli.qnt",
+    "check": "test",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "test",
+      "quint/cli.qnt",
+      "--main",
+      "cli",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--max-samples",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 50.48
+  },
+  {
+    "file": "quint/cli.qnt",
+    "check": "run-invariant",
+    "command": [
+      "../../../quint-cli/quint.sh",
+      "run",
+      "quint/cli.qnt",
+      "--main",
+      "cli",
+      "--backend",
+      "typescript",
+      "--seed",
+      "20261009",
+      "--invariant",
+      "invariant",
+      "--max-samples",
+      "300",
+      "--max-steps",
+      "20",
+      "--verbosity",
+      "1",
+      "--out-itf",
+      "quint/traces/cli-{seq}.itf.json",
+      "--n-traces",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 50.48
+  }
+]
