@@ -3,6 +3,8 @@
 import json
 import contextlib
 import io
+import os
+import subprocess
 import sys
 import unittest
 from datetime import date
@@ -22,6 +24,34 @@ from validate_release import (
 
 
 class ReleasePolicyTest(unittest.TestCase):
+    def test_release_passes_with_unreadable_home(self):
+        from tempfile import TemporaryDirectory
+
+        root = Path(__file__).resolve().parents[1]
+        with TemporaryDirectory() as directory:
+            temp = Path(directory)
+            blocked_parent = temp / "locked"
+            blocked_parent.mkdir()
+            home = blocked_parent / "home"
+            blocked_parent.chmod(0)
+            env = os.environ.copy()
+            env["HOME"] = str(home)
+            try:
+                result = subprocess.run(
+                    [sys.executable, str(root / "reproduce/validate_release.py")],
+                    cwd=root,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                    check=False,
+                )
+            finally:
+                blocked_parent.chmod(0o700)
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("RELEASE GATE: PASS", result.stdout)
+
     def test_every_historical_round_has_publication_metadata(self):
         errors, historical = validate_historical_inventory()
         self.assertEqual(errors, [])

@@ -27,6 +27,7 @@ import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
+from safe_rows_path import resolve_safe_rows_path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,10 +39,6 @@ DEFAULT_PUBLIC_GRADES = ROOT / "reproduce/inputs/grades.final.jsonl"
 DEFAULT_ROUND_INDEX = ROOT / "rounds/index.json"
 DEFAULT_FINDINGS = ROOT / "FINDINGS.md"
 DEFAULT_OUTPUT = ROOT / "data/mined"
-SAFE_ROWS_HOST = Path("/root/Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py")
-SAFE_ROWS_USER = Path.home() / "Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py"
-SAFE_ROWS_LOCAL = ROOT / "reproduce/safe_rows.py"
-
 HIDDEN_KEY = re.compile(
     r"(test_names|failing|^tail$|_tail$|failure_summary|stdout|stderr|"
     r"hidden_output|test_output|failed_tests|passed_tests)",
@@ -129,8 +126,7 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def read_safe_rows(path: Path) -> list[Any]:
     """Read protected receipts only through the approved sanitizer CLI."""
-    helper = next((candidate for candidate in (SAFE_ROWS_HOST, SAFE_ROWS_USER, SAFE_ROWS_LOCAL)
-                   if candidate.is_file() and not candidate.is_symlink()), None)
+    helper = resolve_safe_rows_path()
     if helper is None:
         raise FileNotFoundError("the approved safe_rows.py helper is unavailable")
     result = subprocess.run(

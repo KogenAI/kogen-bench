@@ -7,13 +7,10 @@ from decimal import Decimal
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from cost_calc import VERSION as CALCULATOR_VERSION, calculate as calculate_cost, table_sha256
+from safe_rows_path import resolve_safe_rows_path
 
 ROOT = Path(__file__).resolve().parents[1]
-SAFE_ROWS = (
-    Path('/root/Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py')
-    if str(Path(__file__).resolve()).startswith('/srv/bh/bench/kits/')
-    else Path(__file__).resolve().with_name('safe_rows.py')
-)
+SAFE_ROWS = resolve_safe_rows_path()
 SCHEMA = json.loads((ROOT / 'schema/run-record.schema.json').read_text())
 CURRENT = SCHEMA['$defs']['current']
 MISSING = {'missing': 'm39'}

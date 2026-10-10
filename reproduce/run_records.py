@@ -11,6 +11,7 @@ from pathlib import Path
 
 from missing_reasons import load_legend
 from partitioned_jsonl import MAX_PARTITION_BYTES
+from safe_rows_path import resolve_safe_rows_path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,12 +22,7 @@ INDEX_SCHEMA_VERSION = "1.0"
 
 def safe_rows(path: Path) -> list[dict]:
     """Load a record through the approved sanitizer before using its fields."""
-    helper_candidates = (
-        Path.home() / "Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py",
-        Path(__file__).resolve().with_name("safe_rows.py"),
-    )
-    helper = next((candidate for candidate in helper_candidates
-                   if candidate.is_file() and not candidate.is_symlink()), None)
+    helper = resolve_safe_rows_path()
     if helper is None:
         raise FileNotFoundError("approved safe_rows.py helper is unavailable")
     result = subprocess.run([sys.executable, str(helper), str(path)], check=True,

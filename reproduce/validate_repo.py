@@ -20,14 +20,11 @@ from validation_policy import (
 from run_records import indexed_records, is_run_record_file
 from missing_reasons import compact_encoding_issues, load_legend
 from partitioned_jsonl import read_partitions
+from safe_rows_path import resolve_safe_rows_path
 ROOT=Path(__file__).resolve().parents[1]
-SAFE_ROWS_HOST=Path('/root/Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py')
-SAFE_ROWS_USER=Path.home()/'Areas/Kogen/bench-manager/rz1-pack/rz1-export/levers/lib/safe_rows.py'
-SAFE_ROWS_LOCAL=ROOT/'reproduce/safe_rows.py'
 
 def approved_safe_rows(path):
-    helper=next((candidate for candidate in (SAFE_ROWS_HOST,SAFE_ROWS_USER,SAFE_ROWS_LOCAL)
-                 if candidate.is_file() and not candidate.is_symlink()),None)
+    helper=resolve_safe_rows_path()
     if helper is None:raise FileNotFoundError('approved safe_rows.py helper is unavailable')
     result=subprocess.run([sys.executable,str(helper),str(path)],check=True,
                           capture_output=True,text=True,timeout=30)
