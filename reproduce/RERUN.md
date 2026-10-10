@@ -129,3 +129,22 @@ Historical records remain historical records. Rerunning a task creates a new obs
 The Rails base snapshots use Ruby 3.4.8. Their lockfiles record Bundler 2.5.18 for Writebook and Bundler 2.7.2 for Fizzy, Fizzy SaaS, and the hard2 Fizzy snapshot. None of the four snapshots contains `vendor/cache`. A rerun needs `bundle install --local` with a host cache that already contains every locked gem and any Git-sourced dependencies; this repository does not include those dependencies.
 
 On the MacBook checked for this recovery, Ruby 3.4.8 and Bundler 2.7.2 are available. `bundle check` reports dependencies satisfied for Fizzy, Fizzy SaaS, and hard2 Fizzy. Writebook's check cannot satisfy its dependencies and attempts to fetch the Rails Git source, so the current warm cache is not sufficient for an offline Writebook rerun. The Rails task kits and deterministic base snapshot bundles are packaged in this snapshot. `task.json` records each bundle hash and its source proof; six hard2 Fizzy tasks have no independent as-run comparison. The Writebook dependency cache remains insufficient for an offline rerun. See [the Rails kit recovery report](../tasks/RAILS-KIT-GAPS.md).
+
+## Publishing the site
+
+1. Commit the completed change.
+2. When you push, the pre-push hook runs
+   `reproduce/check-like-cloudflare.sh <commit>` for the exact commit being
+   pushed. Locally, it makes a fresh clone and runs the Pages release with an
+   empty HOME and with HOME below a locked parent.
+3. The hook runs that same script for the same commit on a Linux host as a
+   non-root user, using the pinned Node and Python versions and a prepared npm
+   cache.
+4. The push proceeds only if both checks pass.
+5. Confirm the Cloudflare Pages build is green.
+
+The site pins Node in `site/.node-version` and Python in
+`site/.python-version`. The check uses those same versions through mise. The
+Node pin is 24.21.0 and the Python pin is 3.13.3. For historical commits
+without the Python pin, it uses the Cloudflare Pages v3 default, 3.13.3. See
+Cloudflare's [Pages build image version table](https://developers.cloudflare.com/pages/configuration/build-image/).
