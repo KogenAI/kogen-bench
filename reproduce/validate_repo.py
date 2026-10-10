@@ -125,7 +125,7 @@ SPEC_PROTOCOL_ALLOWLIST = {
 }
 
 
-TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base)/)')
+TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base|bases)/|[^/]+/MANIFEST\.sha256$)')
 TASK_REFERENCE_PATCH_EVIDENCE=re.compile(r'(?i)("evidence"\s*:\s*)\[\s*"hidden/solution\.patch"')
 TASK_UPSTREAM_PATCH_PATH=re.compile(r'(?i)"upstream_path"\s*:\s*"tasks/[^"\n]+/solution\.patch"')
 TASK_SEALED_PATCH_EVIDENCE=re.compile(r'(?i)"hidden/sealed/solution\.patch"')

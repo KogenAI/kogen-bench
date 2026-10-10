@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec erl \
+  +S 1:1 +SDcpu 1 +SDio 1 +A 1 \
+  -noinput -noshell \
+  -pa "$root"/build/dev/erlang/*/ebin \
+  -eval 'app:main().' \
+  -extra "$@"

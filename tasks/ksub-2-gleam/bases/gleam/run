@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+case "$SCRIPT_DIR" in
+  */bin) ROOT=${SCRIPT_DIR%/bin} ;;
+  *) ROOT=$SCRIPT_DIR ;;
+esac
+. "$ROOT/toolchain-env.sh"
+export ERL_INETRC="$ROOT/inetrc"
+exec erl -noshell -pa "$ROOT"/build/dev/erlang/*/ebin -eval 'approval:main(), halt().' -extra "$@"
