@@ -1,24 +1,24 @@
 # Rust vs Elixir: what our runs showed
 
-Rust passed more often than Elixir in every comparison we ran, except two extra pairs from the last re-run, which were tied. No single round proves the difference statistically: the samples are small and two recent rounds were invalidated. We chose Rust for the Kogen core.
+Rust passed more often than Elixir in these small recorded samples. The two 9 October registered comparisons are INVALID, and the spot check is DESCRIPTIVE, so these results do not establish a causal language effect. We chose Rust for the Kogen core.
 
 | Run | What was compared | Rust passed | Elixir passed | Status | Round page |
 |---|---|---:|---:|---|---|
 | Original comparison | Tasks 1, 3, 4 and 6, run separately for each language | 8 of 10 | 2 of 10 | Limited evidence: incomplete list of attempts, no test plan recorded in advance | [Round page](https://bench.kogen.dev/rounds/r70/) |
 | Extension | Tasks 2, 5 and 7, run separately for each language | 5 of 6 | 4 of 6 | Valid, but the sample is small | [Round page](https://bench.kogen.dev/rounds/r70-rve-ext/) |
 | Re-run with corrected task setup | Task 4 only, run separately for each language | 3 of 3 | 0 of 3 | Limited evidence: the corrected setup's own control checks did not pass | [Round page](https://bench.kogen.dev/rounds/r70-rve-rerun/) |
-| First paired run, 9 Oct | Tasks 1, 5 and 7; each pair tested both languages on the same machine; 6 pairs counted before the run stopped | 1 of 6 | 0 of 6 | Invalid: two task prompts differed from their originals |  |
-| Paired re-run, 9 Oct | Tasks 1, 5 and 7; each pair tested both languages on the same machine; first 9 pairs | 8 of 9 | 3 of 9 | Invalid under the advance test plan: a rule for checking the run flagged harmless text in tool output. These counts are the official test results. |  |
-| Paired re-run, extra pairs | 2 more pairs finished after that run stopped | 1 of 2 | 1 of 2 | Additional results outside the planned comparison |  |
-| Spot check, 9 Oct | Tasks 5 and 7, one attempt per language | 2 of 2 | 1 of 2 | Limited evidence from a small follow-up check |  |
+| First paired run, 9 Oct | Tasks 1, 5 and 7; descriptive peek after six complete pairs | 1 of 6 | 0 of 6 | INVALID: prompts for tasks 5 and 7 differed from their recorded originals; all 17 completed cells are listed on the round page | [Round page](https://bench.kogen.dev/rounds/r70-rve2/) |
+| Paired re-run, 9 Oct | Tasks 1, 5 and 7; registered interim after 9 pairs | 8 of 9 | 3 of 9 | INVALID under the registered audit rule; these are official grades, while the registered interim score was Rust 7/9 and Elixir 0/9 | [Round page](https://bench.kogen.dev/rounds/r70-rve3/) |
+| Paired re-run, after-stop cells | 2 more pairs finished after the interim stop | 1 of 2 | 1 of 2 | Descriptive cells outside the registered interim | [Round page](https://bench.kogen.dev/rounds/r70-rve3/) |
+| Spot check, 9 Oct | Tasks 5 and 7, one attempt per language | 2 of 2 | 1 of 2 | DESCRIPTIVE: small, unregistered follow-up | [Round page](https://bench.kogen.dev/rounds/r70-spot1/) |
 
 The original comparison and its later audit page describe the same 20 attempts and are counted once.
 
-Raw records for the three 9 October runs are not yet published.
+Per-cell records and result tables are available from the three round pages above.
 
-## Why Elixir failed
+## Limits on diagnosing Elixir failures
 
-In the paired re-run, Elixir failed four times at the project's own checks for formatting, code quality and type errors (including Credo and Dialyzer), and in each case the coding agent had not run those checks itself. When the agent did run them, Elixir got past them every time. Rust's agent also skipped its checks twice, and Rust's formatting and code-quality checks (rustfmt and Clippy) let the code through. The comparison therefore includes differences in the languages’ checking tools. Four other Elixir failures across the paired re-run and the spot check each missed exactly one hidden test—a test the agent could not see.
+The rve3 interim and spot1 round pages retain official outcomes and explain the limits of stage-probe evidence. The Elixir stage labels from spot1 were withdrawn because the probe did not reproduce the grading environment. The invalid rve2 prompt mismatch and rve3 audit rule prevent treating the paired results as a clean language comparison.
 
 ## Limits
 
