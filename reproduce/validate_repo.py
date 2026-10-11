@@ -126,7 +126,7 @@ SPEC_PROTOCOL_ALLOWLIST = {
 
 
 TASK_SOURCE_TREE_RE=re.compile(r'^tasks/(?:_grader/|_bases/rails-[^/]+\.bundle$|[^/]+/(?:hidden|grader|base|bases)/|[^/]+/MANIFEST\.sha256$)')
-RACE_SYNTHETIC_FIXTURE_TREE_RE=re.compile(r'^rounds/race1/race1/amend-1/.*\.patch$|^rounds/race[12]/(?:race1(?:-gleam)?|race2(?:b|s|s2)?)/(?:spec|suite|results|results-summary)/|^rounds/race3-sprint/inputs/(?:spec|conformance)/|^rounds/race4/(?:inputs/spec/(?:CORE(?:-WIRE)?\.md)|harness/DECISION-RULE-v3(?:-INTERNET)?\.md)$')
+RACE_SYNTHETIC_FIXTURE_TREE_RE=re.compile(r'^rounds/race1/race1/amend-1/.*\.patch$|^rounds/race[12]/(?:race1(?:-gleam)?|race2(?:b|s|s2)?)/(?:spec|suite|results|results-summary)/|^rounds/race3-sprint/inputs/(?:spec|conformance)/|^rounds/race4/(?:inputs/spec/(?:CORE(?:-WIRE)?\.md)|harness/DECISION-RULE-v3(?:-INTERNET)?\.md)$|^rounds/race5/inputs/spec/')
 RACE_SYNTHETIC_FIXTURE_RULES={'Bearer token','JWT','IPv4 address','email address','private hostname','UUID'}
 TASK_REFERENCE_PATCH_EVIDENCE=re.compile(r'(?i)("evidence"\s*:\s*)\[\s*"hidden/solution\.patch"')
 TASK_UPSTREAM_PATCH_PATH=re.compile(r'(?i)"upstream_path"\s*:\s*"tasks/[^"\n]+/solution\.patch"')
@@ -156,6 +156,12 @@ PUBLIC_AUDIT_FIXTURE_ALLOWLIST={
         re.compile(r'test@example\.invalid'), re.compile(r'git@github\.com'),
     ],
 }
+RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST={
+    ('rounds/race5/harness/DECISION-RULE-v5.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('rounds/race5/harness/DECISION-RULE-v5.md','email address'): [re.compile(r'git@github\.com')],
+    ('rounds/race5/harness/checks.py','email address'): [re.compile(r'git@github\.com')],
+    ('rounds/race5/harness/setup-arms.sh','email address'): [re.compile(r'git@github\.com')],
+}
 LOOPBACK_LITERAL_ALLOWLIST={
     ('reproduce/RERUN.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
     ('reproduce/egress-bridge.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
@@ -184,7 +190,8 @@ def publication_scan_findings(text, relative_path):
     for family,label,pattern in rules:
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
         allowances=(*allowances, *PUBLIC_AUDIT_FIXTURE_ALLOWLIST.get((relative_path,label),()),
-                    *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()))
+                    *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()),
+                    *RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST.get((relative_path,label),()))
         allowed_spans=[match.span() for allowance in allowances for match in allowance.finditer(text)]
         if label=='private-source artifact reference' and (relative_path=='tasks/index.json' or (relative_path.startswith('tasks/rails-') and relative_path.endswith('/task.json'))):
             allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))

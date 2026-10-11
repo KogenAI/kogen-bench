@@ -10,6 +10,8 @@ race1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations 
 race2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from individual runs on one MacBook; no pre-registered decision rule.
 race3-sprint | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — wave 1 harness changed during the race; waves 2/3 used 30-minute caps; FINAL repeats and clean-copy regrade are absent.
 race4 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Descriptive results only: interruptions and a restart changed the planned schedule, and some execution evidence is unavailable. The published scores describe the completed runs; they do not establish an overall language winner. Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time.
+race5 | DESCRIPTIVE | DESCRIPTIVE_ONLY, INVALID_CELL, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Race 5 is descriptive. Go wins the coordinator-interpreted registered PRIMARY comparison, which retains scores from invalid runs. Alternative readings and timing methods are reported as sensitivities; incomplete audits and historical searches limit the conclusion.
+race6 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — disclosed different-harness-version deviation under RULES 2; descriptive spec-format pilot with T+030m snapshots unavailable.
 
 sol-medium | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
 

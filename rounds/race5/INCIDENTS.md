@@ -1,0 +1,26 @@
+# Race 5 incidents (descriptive log; the frozen rule is unchanged)
+
+- **Studio power loss #3 (~19:08Z):** Studio wave A died at ~T+11 min (arms last active ~19:05:40Z). It's kept as `race5-st-a-interrupted`, descriptive only. The 35 mode-000 dirs were restored at 19:10Z from recorded modes; 0 remained. A fresh Studio A' ran 19:14–22:14Z, and B' starts 22:49Z (power clause).
+- **Linux runners survived** the Studio loss: they were detached on the hosts (parent PID 1). EU/US wave A ran 19:35–22:35Z.
+- **EU disk:** each Rust snapshot (with target/) is ~2.3–3.1 GB, so free space dips by about a snapshot before the rolling last-3 prune. One stray periodic snapshot (T+010m, 0.78 GB, empty STOPPED_ARMS marker) was removed by the supervisor at 21:33Z and logged in `snapshot-pruning.jsonl`. Wave A's live arm dir is removed after DONE.
+- **Studio A' Go self-inflicted sandbox loss (~19:36Z):**
+  - The Go agent replaced its arm's `.kitcache` directory with a symlink to `/tmp/kc-go-cache`. The Codex sandbox then rejected every command ("symlinked writable roots are not supported").
+  - Effect: the Go arm ran 62 commands, then none for the rest of the 3-h wave (~378 short error turns). Compare ~400–430 commands for the other Studio arms.
+  - The fast-fail guard didn't fire, because each turn completed with a tool error.
+  - The FINAL is scored as frozen. The treatment (keep as scored vs treat as a missing run) is main's/Almir's call; disclosed either way.
+  - **Ruling (main, ~22:20Z):** Studio A' Go stands AS SCORED (primary result). RESULTS.md adds a disclosed SENSITIVITY line: Go's median over its other 3 Mac runs, and whether the named winner would change. If it would, the first paragraph says so plainly.
+- **B waves blocked by A's synchronous scoring (harness):**
+  - waves.sh scores wave A (including the rule's earlier-snapshot search) before starting B. The search re-scored T+ snapshots although no arm reached 106. On the MacBook it overran B's 22:32Z epoch, so B never started.
+  - The supervisor stopped A's search-phase scoring on both Macs (the A FINALs were already official) and started MacBook B via start.sh at 22:41:00Z, 9 min late. Studio B' was pre-empted the same way and started on its planned 22:49:00Z epoch.
+  - B scoring runs from supervisor runners. Earlier-snapshot verification was deferred and remains incomplete. It cannot alter the recorded final scores, but an eligible, officially verified earlier perfect score could supersede the final-score winner comparison.
+  - Future fix: make scoring asynchronous (never blocking the next wave), and skip the search when FINAL < target.
+- **Linux disk, 00:35Z:** after wave A was fully scored, its T+ snapshots were removed on EU and US (FINAL and out/ kept). US wave B's T+050m (outside the last-3 window) was removed. All logged in snapshot-pruning.jsonl. Free space: US 16 GB, EU 28 GB.
+- **Studio B' Go repeated the self-inflicted sandbox loss (~23:21Z, T+32):** `.kitcache` was replaced by a symlink to /tmp/kc-go-build-cache, the same error, after 135 commands. Two of Go's four Mac runs are affected (both Studio); The MacBook Go runs avoided this sandbox failure; MacBook B Go is separately invalid under the published audit gate. Scored as frozen; a sensitivity line is required.
+- **Ruling (main) on the repeated Go breakage:**
+  - PRIMARY stays per the frozen rule.
+  - Two Go MAKE-UP cells run on the MacBook after its wave B (r5mk-1 LOCK, r5mk-2 NOLOCK; same frozen harness, inputs, rule and kit; 180 min; disclosed as make-ups). MacBook B is scored FINAL-only first, with the search deferred.
+  - The report adds a REPAIRED line: Go's median over its 2 MacBook runs that avoided the sandbox failure + 2 make-ups, replacing the 2 broken Studio runs. If the winner differs between PRIMARY and REPAIRED, the first paragraph says so and names both; PRIMARY is the registered reading (ruled by main under RULES 2); the others are sensitivities.
+  - Root cause, likely: Go's module cache is read-only by design, so the agent relocated the cache to /tmp via a .kitcache symlink. Future fix: GOFLAGS=-modcacherw, a writable GOCACHE inside the arm, and a turn-start check for symlinked writable roots.
+- **US wave B reduced retention (main's order, 01:22Z):** keep the last 2 periodic snapshots (last 1 if free < 6 GB) via the supervisor keeper keep2-us.sh until DONE. Free went 9.7 → 18 GB. FINAL/TARGET are never touched; removals are logged in snapshot-pruning.jsonl.
+- **Linux egress restored to SEALED** by kogen-benchmarks after the Linux waves finished (~02:20Z): bench is provider-only again, and the /etc/hosts sinkhole is removed.
+- **Results data access:** the Go make-up r5mk-1 LOCK covers race5-*, so the MacBook race dirs are mode 000 until the make-ups end (~04:54Z). The PRIMARY tiebreak (MacBook command timing) waits for that unlock; the MacBook FINALs were read by the supervisor before the lock. Astra review (02:34Z) also found Studio A' Go missing model/effort receipts. Per the frozen rule that invalidates the arm in that run (counts as not reached); the as-scored 58 is also shown.

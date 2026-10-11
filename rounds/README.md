@@ -8,6 +8,8 @@ Terminology: [public round glossary](GLOSSARY.md).
 - [Race 2](race2/README.md) — **DESCRIPTIVE** Individual runs on a MacBook, including a stopped follow-up and two separate Sol runs; arm code remains private.
 - [Race 3 sprint](race3-sprint/README.md) — **DESCRIPTIVE** Three timed waves on a MacBook and a Mac Studio using a language-neutral specification patch; arm code remains private.
 - [Race 4](race4/README.md) — **DESCRIPTIVE** Suite-v3 CLI race on a MacBook and Mac Studio. The revised specification was intended for implementation in any of the tested languages, but the published supporting documents still contain Rust-specific implementation references. Language neutrality has not been established. Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time. Arm code remains private.
+- [Race 5](race5/README.md) — **DESCRIPTIVE** Race 5 is descriptive. Go wins the coordinator-interpreted registered PRIMARY comparison, which retains scores from invalid runs. Alternative readings and timing methods are reported as sensitivities; incomplete audits and historical searches limit the conclusion.
+- [Race 6](race6/README.md) — **DESCRIPTIVE** Spec-format pilot comparing prose, + Quint, + Gherkin, and both for Elixir and Go; suite-v3 details remain withheld through L1–L3.
 
 ## Outcome source crosswalk
 

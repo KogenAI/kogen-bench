@@ -1,0 +1,11 @@
+Frozen input trees, original unsanitized bytes
+
+frozen_inputs: SHA-256 1e01ae32828e9ecadaba4fb8e25be59cad79a2ac219e9d2df84d9252e495ebfe; files 433
+conformance: SHA-256 45bf416f8bb384140630e7b4a8c072f6a0d93294a45619b2d3f6ffe255f8538b; files 185
+withheld_inputs: SHA-256 c773f5d564fa11cc20b219d28ced20b161becb63a6c683bab6eff92fadc496b1; files 422
+
+Recipe (run from the root of each named tree):
+LC_ALL=C find . -type f -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256 | shasum -a 256
+
+frozen_inputs is the complete original harness inputs/ tree. conformance is its conformance/ subtree.
+withheld_inputs is the original inputs/ relative tree after removing the eleven exported prose files listed in inputs/INPUTS-PROVENANCE.md. The recipe includes every remaining regular file, with ./ relative paths. There were no symlinks or bytecode files. The original per-file manifest and filenames are private while L1–L3 use suite-v3.

@@ -1,0 +1,5 @@
+# Sanitized harness archive
+
+The governing rule is DECISION-RULE-v5.md, original SHA-256 a822d353be7bea912373880d536ef3f37b8437804387b1dce80755c2f2115a3b. Its public bytes are unchanged. MODE is real-workflow. Five Mac briefs and their template are included. Linux-specific harness copies are omitted from this public bundle. Their execution policy and results are documented in [LINUX-EGRESS.md](../LINUX-EGRESS.md) and the public result rows.
+
+These files are evidence archives. Personal home paths and hostnames are normalized, so archived scripts are not a runnable checkout. Conformance, case inventories/exclusion lists, suite checks, selftests, smoke fixture code, models and executable kits are withheld; referenced modules and inputs may therefore be absent. No harness script, scorer, install, test fixture or network action was executed for publication. PROVENANCE.tsv records original and exported hashes; SHA256SUMS governs public bytes. Run python3 -B results/recompute.py from publish/ for public arithmetic only.

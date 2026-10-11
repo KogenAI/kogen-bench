@@ -1,0 +1,108 @@
+{
+  "measured_at": "2026-10-10T18:06:26.053294+00:00",
+  "accounting": "physical-growth-estimate",
+  "margin_percent": 30,
+  "method": "No historical df series in race4-st-a/b out/checks, setup, arms or CPU logs. Estimate APFS physical growth by charging distinct relative-path/size/mtime file versions once using st_blocks*512; cp -c shares repeated versions. Budget seven retained periodic build versions plus TARGET/FINAL headroom and extrapolate source changes from 60 to 180 minutes. Amortize retained physical growth over 37 snapshots. Include current live peak once; seed-cache APFS clones are shared. Metadata, allocator, compression and rewritten-identical-file uncertainty covered by 30% margin. Python uses the largest observed language estimate. Diagnostic df clone probe recorded separately.",
+  "arms": [
+    "rust",
+    "go",
+    "ts",
+    "ex",
+    "py"
+  ],
+  "per_arm_working_bytes": 1935024128,
+  "snapshot_bytes_per_arm": 134639616,
+  "linux_per_arm_working_bytes": 3611975680,
+  "linux_snapshot_bytes_per_arm": 1935024128,
+  "linux_method": "Non-clone Linux copies reserve allocated working and snapshot bytes, only 3 periodic + TARGET + FINAL (5 copies).",
+  "clone_probe": {
+    "source": "$HOME/retained-run/race4-st-a/snapshots/T+055m/rust",
+    "free_before": 233494753280,
+    "free_after": 233380065280,
+    "observed_df_delta_bytes": 114688000,
+    "apparent_bytes": 1753101312,
+    "note": "Concurrent host jobs can affect df delta; do not use this delta alone as wave growth."
+  },
+  "measurements": [
+    {
+      "wave": "race4-st-a",
+      "arm": "rust",
+      "peak_working_bytes": 1935024128,
+      "peak_build_bytes": 1905147904,
+      "retained_build_version_bytes": 2405679104,
+      "source_growth_60m_bytes": 223612928,
+      "estimated_snapshot_growth_bytes": 4981665792,
+      "snapshot_bytes_per_arm": 134639616
+    },
+    {
+      "wave": "race4-st-a",
+      "arm": "go",
+      "peak_working_bytes": 536363008,
+      "peak_build_bytes": 0,
+      "retained_build_version_bytes": 0,
+      "source_growth_60m_bytes": 269512704,
+      "estimated_snapshot_growth_bytes": 808538112,
+      "snapshot_bytes_per_arm": 21852382
+    },
+    {
+      "wave": "race4-st-a",
+      "arm": "ts",
+      "peak_working_bytes": 276832256,
+      "peak_build_bytes": 149676032,
+      "retained_build_version_bytes": 149676032,
+      "source_growth_60m_bytes": 815935488,
+      "estimated_snapshot_growth_bytes": 2747158528,
+      "snapshot_bytes_per_arm": 74247528
+    },
+    {
+      "wave": "race4-st-a",
+      "arm": "ex",
+      "peak_working_bytes": 95047680,
+      "peak_build_bytes": 76881920,
+      "retained_build_version_bytes": 135221248,
+      "source_growth_60m_bytes": 9863168,
+      "estimated_snapshot_growth_bytes": 241692672,
+      "snapshot_bytes_per_arm": 6532235
+    },
+    {
+      "wave": "race4-st-b",
+      "arm": "rust",
+      "peak_working_bytes": 1661440000,
+      "peak_build_bytes": 1652563968,
+      "retained_build_version_bytes": 2396385280,
+      "source_growth_60m_bytes": 111792128,
+      "estimated_snapshot_growth_bytes": 4384325632,
+      "snapshot_bytes_per_arm": 118495288
+    },
+    {
+      "wave": "race4-st-b",
+      "arm": "go",
+      "peak_working_bytes": 544600064,
+      "peak_build_bytes": 0,
+      "retained_build_version_bytes": 0,
+      "source_growth_60m_bytes": 249638912,
+      "estimated_snapshot_growth_bytes": 748916736,
+      "snapshot_bytes_per_arm": 20240993
+    },
+    {
+      "wave": "race4-st-b",
+      "arm": "ts",
+      "peak_working_bytes": 212467712,
+      "peak_build_bytes": 149676032,
+      "retained_build_version_bytes": 149676032,
+      "source_growth_60m_bytes": 563236864,
+      "estimated_snapshot_growth_bytes": 1989062656,
+      "snapshot_bytes_per_arm": 53758451
+    },
+    {
+      "wave": "race4-st-b",
+      "arm": "ex",
+      "peak_working_bytes": 90427392,
+      "peak_build_bytes": 76775424,
+      "retained_build_version_bytes": 218103808,
+      "source_growth_60m_bytes": 12959744,
+      "estimated_snapshot_growth_bytes": 333758464,
+      "snapshot_bytes_per_arm": 9020500
+    }
+  ]
+}

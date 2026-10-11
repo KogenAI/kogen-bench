@@ -1518,6 +1518,24 @@
       "availability_note": "Per-cell aggregate results are available for review; the 88-case suite and per-case results remain withheld until after Race 6, and arm code remains private."
     },
     {
+      "round_id": "race5",
+      "script": "rounds/race5/results/recompute.py",
+      "inputs": [
+        "rounds/race5/README.md",
+        "rounds/race5/MISSING.md",
+        "rounds/race5/MISSING-DECLARED.json",
+        "rounds/race5/results/results.json",
+        "rounds/race5/RESULTS.md",
+        "rounds/race5/results/cells.tsv",
+        "rounds/race5/results/run-clocks.tsv",
+        "rounds/race5/harness/DECISION-RULE-v5.md",
+        "rounds/race5/records.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "PRIMARY medians, spreads, and published timing arithmetic can be recomputed from the aggregate per-cell records; suite-v3 cases, case IDs, per-case results, and arm code remain withheld/private."
+    },
+    {
       "round_id": "rails-catalogue",
       "script": null,
       "inputs": [],
