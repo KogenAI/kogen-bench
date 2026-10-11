@@ -9,6 +9,7 @@ Statuses use the evidence in each round’s own README and files. The status col
 race1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from one run per language on one MacBook; no pre-registered decision rule.
 race2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from individual runs on one MacBook; no pre-registered decision rule.
 race3-sprint | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — wave 1 harness changed during the race; waves 2/3 used 30-minute caps; FINAL repeats and clean-copy regrade are absent.
+race4 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Descriptive results only: interruptions and a restart changed the planned schedule, and some execution evidence is unavailable. The published scores describe the completed runs; they do not establish an overall language winner. Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time.
 
 sol-medium | DESCRIPTIVE | DESCRIPTIVE_ONLY, RAW_EVIDENCE_PARTIAL
 

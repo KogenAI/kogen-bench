@@ -1,0 +1,11 @@
+# Race 4 publication validation
+
+The source bundle reports the original governing decision rule SHA-256 as `45b6969f78f0397f7976b14525eb13609e4a3f73a9cb2a3452fda6568ea8707c` and the separate non-governing Internet variant as `60bc3db1b6f20cdd3d859dd928061e77d9f5e0d74700b7dbd4105a8e065060ab`. The published governing rule copy has SHA-256 `8d521d6078e2b82daa33faa7d194d26f68b47079947ed9f28e528100b0283134`; the source bundle marks this difference as path/host/account/secret sanitation.
+
+The source bundle records that the full original 509-file inputs hash `1a04b9dbd7337a6fb1aac550da599b8e62bb0423669a5ef936c10b9f5ea2d4e6` was computed before suite stripping. `INPUTS-SHA256.txt` agrees. The published `inputs/` contains 15 normative prose/schema files; links to withheld suite documents in four prose files route to `MISSING.md` so local documentation checks remain usable. These four link-only edits are recorded in `PROVENANCE.tsv`; restore the frozen source versions of those four prose files when the held inputs are added to reproduce the original full-tree digest. No conformance directory, fixtures, `.feature`, `.itf.json`, `.qnt`, or per-case result exports are included.
+
+The four-run means were independently recomputed from all 20 `results/cells.tsv` rows: Rust 65.5, Elixir 64.75, TypeScript/Bun 64.0, Go 63.5, and Gleam/BEAM 62.5. The 88-case target is 71; no cell reached it. `records.jsonl` contains 20 Standard records sourced from the cell rows.
+
+The public package excludes per-case files, per-case score JSON, case ID/status/timing projections, host logs, case ID inventories and run-version copies. Per-case detail is withheld while the experiments using the same cases (L1–L3) run; Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time. Arm source, executable snapshots and transcripts are not copied. `PROVENANCE.tsv` records the transformed public files and the original withheld input digest.
+
+`python3 reproduce/validate_repo.py` passed, including repository link and privacy checks. The release build is checked with `cd site && npm ci && npm run release`.

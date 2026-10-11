@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kogen schema 1 Intent status detail",
+  "$defs": {
+    "recovery": {
+      "type": "object",
+      "required": [
+        "workspace",
+        "base",
+        "tree",
+        "ref",
+        "commit",
+        "archive",
+        "verification",
+        "preserved_at_ms",
+        "expires_at_ms",
+        "expired",
+        "expired_at_ms"
+      ],
+      "properties": {
+        "workspace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "base": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "archive": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "path",
+            "manifest",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "manifest": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "verification": {
+          "const": "unverified"
+        },
+        "preserved_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expires_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expired": {
+          "type": "boolean"
+        },
+        "expired_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true,
+      "oneOf": [
+        {
+          "properties": {
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "archive": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "ref": {
+              "type": "null"
+            },
+            "commit": {
+              "type": "null"
+            },
+            "archive": {
+              "type": "object"
+            }
+          }
+        }
+      ],
+      "if": {
+        "properties": {
+          "expired": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "expired_at_ms": {
+            "type": "integer"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "expired_at_ms": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema",
+    "type",
+    "slug",
+    "status",
+    "queue_position",
+    "reason",
+    "build_id",
+    "build_status",
+    "stage",
+    "elapsed_ms",
+    "landed_sha",
+    "priority",
+    "blocks_on",
+    "journal",
+    "candidate_diff",
+    "recovery",
+    "approval",
+    "candidate",
+    "verdict",
+    "checks",
+    "stage_times"
+  ],
+  "properties": {
+    "schema": {
+      "type": "integer",
+      "const": 1
+    },
+    "type": {
+      "const": "intent_detail"
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "building",
+        "queued",
+        "blocked",
+        "failed",
+        "parked",
+        "interrupted",
+        "draft",
+        "landed"
+      ]
+    },
+    "queue_position": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "build_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "build_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "stage": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "elapsed_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "landed_sha": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "blocks_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "journal": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "candidate_diff": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "recovery": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recovery"
+      }
+    },
+    "approval": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "approval_sha256",
+            "by"
+          ],
+          "properties": {
+            "approval_sha256": {
+              "type": "string",
+              "minLength": 1
+            },
+            "by": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "candidate": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "tree",
+            "commit"
+          ],
+          "properties": {
+            "tree": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "verdict": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "tree",
+          "evidence_complete"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "green",
+              "red",
+              "could-not-check"
+            ]
+          },
+          "tree": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_complete": {
+            "type": "boolean"
+          },
+          "journal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "green"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "evidence_complete": {
+                  "const": true
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "stage_times": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stage",
+          "wall_ms"
+        ],
+        "properties": {
+          "stage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rung": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "wall_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "building"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "stage": {
+            "type": "null"
+          },
+          "elapsed_ms": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "queued"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "queue_position": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "queue_position": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "landed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "landed_sha": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

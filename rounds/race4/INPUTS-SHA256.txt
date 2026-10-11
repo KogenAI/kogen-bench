@@ -1,0 +1,12 @@
+Full frozen inputs SHA-256: 1a04b9dbd7337a6fb1aac550da599b8e62bb0423669a5ef936c10b9f5ea2d4e6
+Registered 16-hex prefix: 1a04b9dbd7337a6f
+Original frozen file count: 509
+Verified against race4-harness/inputs before stripping the public suite.
+
+Method: inside inputs/ run bash with pipefail and LC_ALL=C for byte-order sorting.
+The intermediate manifest uses the "./" path prefix.
+
+find . -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256
+
+This hash identifies all original frozen spec and conformance files.
+The public copy withholds conformance cases, traces, features and runner code.

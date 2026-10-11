@@ -7,6 +7,7 @@ Terminology: [public round glossary](GLOSSARY.md).
 - [Race 1](race1/README.md) — **DESCRIPTIVE** One run per language on a MacBook. Official aggregate scores and a separately labelled four-arm re-score are published; official per-case results were not preserved, and arm code remains private.
 - [Race 2](race2/README.md) — **DESCRIPTIVE** Individual runs on a MacBook, including a stopped follow-up and two separate Sol runs; arm code remains private.
 - [Race 3 sprint](race3-sprint/README.md) — **DESCRIPTIVE** Three timed waves on a MacBook and a Mac Studio using a language-neutral specification patch; arm code remains private.
+- [Race 4](race4/README.md) — **DESCRIPTIVE** Suite-v3 CLI race on a MacBook and Mac Studio. The revised specification was intended for implementation in any of the tested languages, but the published supporting documents still contain Rust-specific implementation references. Language neutrality has not been established. Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time. Arm code remains private.
 
 ## Outcome source crosswalk
 
