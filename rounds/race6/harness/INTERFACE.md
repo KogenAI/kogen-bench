@@ -1,0 +1,7 @@
+# Harness interface — for supervisor review
+
+Provide a prebuilt `./kogen` at the repository root. The harness resolves that executable and invokes it directly, passing each CLI argument as a separate argv element without shell expansion; argv may be empty. It sets cwd to an isolated working repository or another requested directory, supplies stdin bytes, closes stdin, and captures stdout and stderr separately. Each invocation has a 60-second real-time limit; its process group and remaining sandbox children are cleaned up on completion or timeout.
+
+Execution is offline. A local loopback fake provider supplies Responses and OpenID endpoints. The harness supplies `KOGEN_PROVIDER_URL` and `KOGEN_AUTH_URL` when needed. The supported test-seam variables are `KOGEN_TIME_SCALE`, `KOGEN_AUTH_PATH`, `KOGEN_CREDENTIAL_STORE`, `KOGEN_TEST_CLOCK_PATH`, and `KOGEN_TEST_BARRIER_DIR`; their behavior is defined in `spec/CORE.md` and `spec/CORE-WIRE.md`.
+
+The harness gives each sandbox a temporary `HOME`, `TMPDIR`, and `XDG_CONFIG_HOME`, with isolated Git configuration. Locale may be `C`, with `TZ=UTC`, `NO_COLOR=1`, and `TERM=dumb`. PATH contains host runtime tools and may prepend local fixture shims; an invocation may override environment variables. Host credentials and host `KOGEN_*` settings are not inherited. Do not require build-cache or toolchain environment variables at runtime. Locate bundled output and dependencies relative to the executable so relocated snapshots work.

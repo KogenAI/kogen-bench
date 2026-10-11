@@ -1,0 +1,13 @@
+# Bundle provenance
+
+The governing rule's original SHA-256 is `b4e10a643a138d3402698bd8d326fba4bffd9e2e633d4c7f43fe3a56580b8033`, verified directly against race6-st-1/DECISION-RULE-R6.md. The public rule removes a billing-account label; public exported hashes therefore differ where sanitization changes bytes. PROVENANCE.tsv records original source and exported file hashes separately; generated files are identified as projections in the validation record.
+
+Mac Studio's frozen harness is `57ccbf19f5d39d3ccf51e1c9999cffba88ab9ee580fae6e3a87fdda38d1b9ca3`; MacBook's is `67499abb66726790415686dd52e2bfec7ad4996f83a34fb44c7c285098db317e`. Only probe_hidden.py and its corresponding test-race6.py differ, as the audit's full hashes show. The literal frozen rule would treat this as an invalid round. Main ruled under RULES 2 that Race 6 is a descriptive pilot with a disclosed deviation (RULES 5 and 31); the 06:16Z speed call accepted the harness deviation.
+
+Sources: local race6-st-1 frozen artifacts, r6-results results JSON/report and staged MacBook out/, r6-audit's MacBook frozen copy and current audit summary, and race6-plan/INCIDENTS.md. No network was needed for assembly. No commits, remote writes, arm execution, suite execution or historical rebuild occurred.
+
+The source split inventory recorded 15 PROSE, 161 QUINT, 8 GHERKIN and 63 D-ONLY files. Only PROSE contents are exported across the four condition directories; each directory is shared by Elixir and Go, matching the source treatment. The withheld 401 subset copies and 232-file unique union were byte-verified and hashed with the exact C-locale recipe in inputs/WITHHELD-TREE.md. The per-file split/path manifest, suite inventory and 106-case ID list remain withheld.
+
+The first prose paragraph in README.md is copied verbatim from current RESULTS-R6.md, preserving main’s descriptive-pilot ruling under RULES 2, the literal-rule invalidity disclosure and the descriptive medians/directions. Remaining body links point to public documents; public-only restrictions and recovered cumulative session tokens are disclosed. The audit summary is sanitized and its three arm-source excerpt lines are withheld; conclusions, flag counts, fix/guard limitations and frozen-version evidence are retained. Source supporting-artifact references remain pointers to withheld/private material, not promises of public availability.
+
+Private rollout copies: 16 files, eight per host, byte-verified with SHA-256. Private paths/files are owner-only. private/ also holds the exporter, source verification receipts and exact withheld-spec staging roots. Publish only publish/.

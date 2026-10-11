@@ -1536,6 +1536,26 @@
       "availability_note": "PRIMARY medians, spreads, and published timing arithmetic can be recomputed from the aggregate per-cell records; suite-v3 cases, case IDs, per-case results, and arm code remain withheld/private."
     },
     {
+      "round_id": "race6",
+      "script": "rounds/race6/results/recompute.py",
+      "inputs": [
+        "rounds/race6/README.md",
+        "rounds/race6/MISSING.md",
+        "rounds/race6/MISSING-DECLARED.json",
+        "rounds/race6/results/summary.json",
+        "rounds/race6/results/cells.tsv",
+        "rounds/race6/results/tokens.tsv",
+        "rounds/race6/results/METHOD-TOKENS.md",
+        "rounds/race6/harness/DECISION-RULE-R6.md",
+        "rounds/race6/SPEC-SPLIT.md",
+        "rounds/race6/inputs/WITHHELD-TREE.md",
+        "rounds/race6/records.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Per-cell scores, medians and kill-point token summaries are available for review; the suite-v3 cases, case inventories and per-case results remain withheld while L1–L3 use the same cases; full execution replay is unavailable."
+    },
+    {
       "round_id": "rails-catalogue",
       "script": null,
       "inputs": [],

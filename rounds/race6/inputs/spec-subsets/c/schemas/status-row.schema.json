@@ -1,0 +1,500 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kogen schema 1 status overview row",
+  "description": "Validate each JSON Lines row; stream ordering and scenario values are checked separately. Object extensions are allowed.",
+  "$defs": {
+    "recovery": {
+      "type": "object",
+      "required": [
+        "workspace",
+        "base",
+        "tree",
+        "ref",
+        "commit",
+        "archive",
+        "verification",
+        "preserved_at_ms",
+        "expires_at_ms",
+        "expired",
+        "expired_at_ms"
+      ],
+      "properties": {
+        "workspace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "base": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tree": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "archive": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "path",
+            "manifest",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "manifest": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "verification": {
+          "const": "unverified"
+        },
+        "preserved_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expires_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expired": {
+          "type": "boolean"
+        },
+        "expired_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true,
+      "oneOf": [
+        {
+          "properties": {
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "archive": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "ref": {
+              "type": "null"
+            },
+            "commit": {
+              "type": "null"
+            },
+            "archive": {
+              "type": "object"
+            }
+          }
+        }
+      ],
+      "if": {
+        "properties": {
+          "expired": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "expired_at_ms": {
+            "type": "integer"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "expired_at_ms": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "intent": {
+      "type": "object",
+      "required": [
+        "schema",
+        "type",
+        "slug",
+        "status",
+        "queue_position",
+        "reason",
+        "build_id",
+        "build_status",
+        "stage",
+        "elapsed_ms",
+        "landed_sha",
+        "priority",
+        "blocks_on",
+        "journal",
+        "candidate_diff",
+        "recovery"
+      ],
+      "properties": {
+        "schema": {
+          "type": "integer",
+          "const": 1
+        },
+        "type": {
+          "const": "intent"
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "building",
+            "queued",
+            "blocked",
+            "failed",
+            "parked",
+            "interrupted",
+            "draft",
+            "landed"
+          ]
+        },
+        "queue_position": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "elapsed_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "landed_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "blocks_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "journal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidate_diff": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recovery": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/recovery"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "building"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "stage": {
+                "type": "null"
+              },
+              "elapsed_ms": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "queued"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "queue_position": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "queue_position": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "landed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "landed_sha": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "queue": {
+      "type": "object",
+      "required": [
+        "schema",
+        "type",
+        "state",
+        "pid",
+        "queued",
+        "next"
+      ],
+      "properties": {
+        "schema": {
+          "type": "integer",
+          "const": 1
+        },
+        "type": {
+          "const": "queue"
+        },
+        "state": {
+          "enum": [
+            "running",
+            "stopped"
+          ]
+        },
+        "pid": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "queued": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "stopped"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "pid": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "pid": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "queued": {
+                "const": 0
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "next": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "next": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "agent": {
+      "type": "object",
+      "required": [
+        "schema",
+        "type",
+        "id",
+        "role",
+        "build",
+        "status",
+        "elapsed_ms",
+        "activity",
+        "events"
+      ],
+      "properties": {
+        "schema": {
+          "type": "integer",
+          "const": 1
+        },
+        "type": {
+          "const": "agent"
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "role": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "elapsed_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "activity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "events": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/queue"
+    },
+    {
+      "$ref": "#/$defs/intent"
+    },
+    {
+      "$ref": "#/$defs/agent"
+    }
+  ]
+}

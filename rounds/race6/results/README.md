@@ -1,0 +1,9 @@
+# Per-arm aggregate results
+
+cells.tsv contains all 16 retained FINAL /106 counts, accepted-deviation validity, literal round status, audit classifications and token availability. pass/fail/error are aggregate counts only. No per-case rows, IDs or step data are published while L1–L3 run.
+
+summary.json records the descriptive pilot with a disclosed deviation (ruled by main under RULES 2), retains the literal-rule invalidity disclosure and separately computed Elixir/Go medians, spreads, paired differences, strict-separation directions and ambiguity labels. run-clocks.tsv records original epochs and FINAL copy lag; audit-counts.tsv contains raw flag counts, including paired command-event duplicates. AUDIT-SUMMARY.md preserves the post-hoc adjudication with three arm-source excerpt lines withheld.
+
+T+030m snapshots are unavailable on every arm because the scheduler crashed. FINAL tokens are recovered for all 16 arms from the last cumulative session usage at or before the kill point; tokens.tsv and METHOD-TOKENS.md record the counts and extraction method. Cached input is included in input and reasoning in output; total = input + output. The final 2.132–38.214 seconds after the selected event have no later eligible record and are not estimated. Build/test timing sums matched started/completed command intervals, includes whole compound commands and formatting/lint, can match inert source text, and omits five unfinished intervals. Raw/stall-adjusted wall time is 3,600 seconds; recorded quota-error stalls are zero, which does not establish absence of hidden waits.
+
+Run python3 results/recompute.py from publish/ to verify the public aggregate arithmetic. This cannot independently recount withheld case rows, rebuild arms, regrade executables, or reconstruct missing checkpoints/tokens.

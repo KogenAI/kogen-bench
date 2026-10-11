@@ -162,6 +162,11 @@ RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST={
     ('rounds/race5/harness/checks.py','email address'): [re.compile(r'git@github\.com')],
     ('rounds/race5/harness/setup-arms.sh','email address'): [re.compile(r'git@github\.com')],
 }
+# Race 6 uses only local loopback proxy/fake-provider endpoints in these public harness disclosures.
+RACE6_SYNTHETIC_ENDPOINT_ALLOWLIST={
+    (f'rounds/race6/{path}', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')]
+    for path in ('harness/checks.py','harness/kg-wrap.py','harness/mode-env.sh','harness/score-arm.sh','results/AUDIT-SUMMARY.md')
+}
 LOOPBACK_LITERAL_ALLOWLIST={
     ('reproduce/RERUN.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
     ('reproduce/egress-bridge.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
@@ -191,7 +196,8 @@ def publication_scan_findings(text, relative_path):
         allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
         allowances=(*allowances, *PUBLIC_AUDIT_FIXTURE_ALLOWLIST.get((relative_path,label),()),
                     *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()),
-                    *RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST.get((relative_path,label),()))
+                    *RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST.get((relative_path,label),()),
+                    *RACE6_SYNTHETIC_ENDPOINT_ALLOWLIST.get((relative_path,label),()))
         allowed_spans=[match.span() for allowance in allowances for match in allowance.finditer(text)]
         if label=='private-source artifact reference' and (relative_path=='tasks/index.json' or (relative_path.startswith('tasks/rails-') and relative_path.endswith('/task.json'))):
             allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))

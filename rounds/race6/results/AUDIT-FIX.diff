@@ -1,0 +1,12 @@
+--- race6-st-1/command_policy.py
++++ code/command_policy.py
+@@ -137,7 +137,8 @@
+         program = words[0].rsplit('/', 1)[-1]
+         # Command substitution executes even inside an echo/file-write command.
+         for substitution in re.findall(r'\$\((.*?)\)|`(.*?)`', joined, re.S):
+-            found.extend(executed_requests(next(part for part in substitution if part)))
++            part = next((p for p in substitution if p), None)
++            if part: found.extend(executed_requests(part))
+         shell_flag = next((word for word in words[1:] if re.fullmatch(r'-[a-z]*c[a-z]*', word)), None)
+         if program in ('sh', 'bash', 'zsh') and shell_flag:
+             index = words.index(shell_flag) + 1
