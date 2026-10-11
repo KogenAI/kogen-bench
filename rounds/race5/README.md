@@ -1,22 +1,18 @@
+# Race 5 — language decision round (descriptive)
+
 Round date: 2026-10-11
 Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
 Recomputation status: OBSERVED SOURCE ONLY
 Why not VALID: DESCRIPTIVE_ONLY, INVALID_CELL, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — four PRIMARY cells are INVALID; full audits and earlier perfect-score searches are incomplete; Go sandbox self-breaks, scheduling/retention/network limitations and timing-method sensitivity remain disclosed. This is the requested as-scored comparison.
 STATUS: **DESCRIPTIVE**
 
-# Race 5 public bundle
-
 A run is one agent attempt under a specified condition. FINAL means the retained end-of-run snapshot and its score. T+ denotes elapsed time since that host’s run began. A snapshot is a saved checkpoint.
 
-Go wins under the coordinator-interpreted registered PRIMARY comparison using recorded FINAL scores, including scores from invalid runs. The literal “still within the tie zone” reading gives no clear winner. Historical perfect-score searches remain incomplete, so this is not an unconditional historical winner claim. Sensitivity analyses vary the cohort and timing method; outcomes are described below. PRIMARY is the registered reading, as interpreted by the benchmark coordinator; it retains the recorded scores of invalid runs. The other interpretations and measurement choices are sensitivity analyses.
+Go wins under the registered PRIMARY as scored: Go’s median is 68.5/106 and TypeScript (Bun)’s is 69, so the 0.5-case gap puts them in the tie zone; Go’s J1 timing of 15.804 seconds beats TypeScript’s 18.052, with spread unused and no timing closeness margin specified. Recorded FINAL scores from invalid runs are retained. Sensitivities: Go also wins across all five languages within three cases of the leader, using only its two MacBook runs, and with its Studio runs replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally gives “no clear winner” because score medians never change. Excluding zero intervals gives TypeScript for PRIMARY and the two-MacBook comparison, Rust for the all-language comparison, and Go for REPAIRED; using the middle of each run’s timing medians gives Rust for the all-language comparison and Go for the other timing comparisons. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit this verdict; an earlier officially verified perfect score from an eligible run could supersede it.
 
 A and B label successive run batches; the primed Mac Studio labels identify its replacement schedule after interruption. PRIMARY is the registered comparison. REPAIRED substitutes the Go make-up runs. J1 is the historical build/test timing proxy defined below.
 
-Go is the PRIMARY winner in the requested comparison using the recorded FINAL scores, including scores from runs marked INVALID. TypeScript (Bun) and Go have the two highest middle scores across four runs, 69 and 68.5 passed tests out of 106. Their gap is within three tests, so the requested timing method decides: Go takes 15.804 seconds versus TypeScript's 18.052. Sensitivities: Go also wins when all five languages within three tests of the leader are compared, when only Go's two MacBook runs are used, or when its Studio runs are replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally gives “no clear winner,” because the score gap never changes. Excluding intervals with no build/test work gives TypeScript for the main comparison and the two-MacBook Go comparison, Rust for the all-language comparison, and Go for REPAIRED. Taking the middle of each run's timing medians instead also gives Rust for the all-language comparison; the other timing-based comparisons still give Go. PRIMARY is the registered reading, as interpreted by the benchmark coordinator; it retains the recorded scores of invalid runs. The other interpretations and measurement choices are sensitivity analyses. Go wins the PRIMARY reading. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit this verdict; an earlier officially verified perfect score from an eligible run could supersede it.
-
-Four runs on two Macs decide; Linux and interrupted Studio A are nondeciding. Archived EU/US harness copies are omitted; the decision harness is published under `harness/`, and Linux policy/results remain documented. All ten MacBook FINAL counts match the earlier supervisor readings: **changed numbers: none**. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68; their scoring was reported at 07:53Z.
-
-
+Four runs on two Macs decide; Linux and interrupted Studio A are nondeciding. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68.
 ## Primary cohort accounting
 
 These separate counts apply to the 20 planned PRIMARY Mac arm-wave cells only; make-ups and Linux robustness rows are outside this denominator.
@@ -36,8 +32,6 @@ These separate counts apply to the 20 planned PRIMARY Mac arm-wave cells only; m
 | TypeScript (Bun) | 69 | 67 | 69 | 2 | 18.052 (791) |
 | Elixir | 66.5 | 65 | 69 | 4 | 18.964 (664) |
 | Python | 68 | 66 | 69 | 3 | 27.064 (595) |
-
-The top two are TypeScript (69) and Go (68.5). Go’s 15.804 seconds beats TypeScript’s 18.052; spread is not used. The text defines no timing closeness margin.
 
 Frozen rule, lines 55–73, verbatim:
 
@@ -62,8 +56,6 @@ and disclose missing observations. If both tie breakers leave the leaders
 indistinguishable, report "no clear winner".
 
 ```
-
-Under the coordinator’s interpretation of the registered PRIMARY reading, Go wins the as-scored comparison. The literal “still within the tie zone” reading gives no clear winner. Historical perfect-score searches remain incomplete, so this is not an unconditional historical winner claim.
 
 
 ## Reproduction record

@@ -1,8 +1,11 @@
+# Race 6 — spec-format pilot (descriptive)
+
 Round date: 2026-10-11
 Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
 Recomputation status: OBSERVED SOURCE ONLY
 Why not VALID: DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — literal frozen-rule invalidity is disclosed below.
 STATUS: **DESCRIPTIVE**
+
 The literal frozen rule invalidates this round because the Macs used different frozen harness versions. The benchmark coordinator accepted that deviation for a descriptive pilot: the versions differed only in checks for directories blocked by macOS privacy controls and the corresponding tests. The descriptive results below do not constitute a valid result under the unchanged frozen rule.
 
 
@@ -21,7 +24,7 @@ A run is one agent attempt under a specified condition. FINAL means the retained
 
 Conditions compare specification-and-tool bundles within each language: A supplies prose, schemas and design documents; B adds Quint executable models, checks and tooling; C adds Gherkin behavior examples and supporting code; D adds both plus earlier coverage, results and generation artifacts. These comparisons do not isolate document format.
 
-Race 6 is a descriptive spec-format pilot with a disclosed deviation: the two Macs ran different frozen harness versions. In both Elixir and Go, B, C and D are above A by strict separation of the two Mac FINAL scores. Elixir medians (A/B/C/D) are **23/32.5/35/40 out of 106**; Go medians are **24/34.5/32/40 out of 106**.
+In both Elixir and Go, B, C and D are above A by strict separation of the two Mac FINAL scores. Elixir medians (A/B/C/D) are **23/32.5/35/40 out of 106**; Go medians are **24/34.5/32/40 out of 106**.
 
 Elixir — descriptive under the accepted deviation. Counts and differences are cases; ST = Studio, MB = MacBook.
 
