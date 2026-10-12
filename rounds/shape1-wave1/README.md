@@ -142,3 +142,9 @@ See [core4 pilots and Luna maximum](../core4-pilots/), [core4b and ksub Luna max
 - Command: the exact launch command is not included in the public packet.
 - Task IDs: see the cell table above.
 - Raw records: see the linked public records and cell table above.
+
+## Setup and inputs
+
+The [harness/](harness/) folder contains scripts and notes used to prepare, run, and check the round. The [inputs/](inputs/) folder contains prompts, task specifications, and other materials supplied for the runs. Files used for hidden checks or grading are recorded by hash only in [INPUTS-SHA256.txt](INPUTS-SHA256.txt); the names in that record are kept general.
+
+**What the setup record cannot show:** The historical per-cell launch commands, the harness and runner revisions, and the complete toolchain inventory were not captured, so the exact setup for each run cannot be reconstructed.
