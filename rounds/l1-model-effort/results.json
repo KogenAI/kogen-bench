@@ -1,0 +1,122 @@
+{
+  "experiment": "L1 model and effort descriptive pilot",
+  "date": "2026-10-12",
+  "score_denominator": 106,
+  "conditions": [
+    {
+      "id": "C1",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "EU_Elixir": {
+        "FINAL": 37,
+        "T+30": 33,
+        "denominator": 106,
+        "total_tokens": 17490390,
+        "status": "scored",
+        "input_tokens": 17365951,
+        "cached_input_tokens": 16952064,
+        "output_tokens": 124439,
+        "reasoning_output_tokens": 34955
+      },
+      "US_Go": {
+        "FINAL": 0,
+        "T+30": null,
+        "denominator": 106,
+        "total_tokens": null,
+        "input_tokens": null,
+        "cached_input_tokens": null,
+        "output_tokens": null,
+        "status": "interrupted_descriptive_only",
+        "reasoning_output_tokens": null
+      }
+    },
+    {
+      "id": "C2",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "EU_Elixir": {
+        "FINAL": 32,
+        "T+30": 25,
+        "denominator": 106,
+        "total_tokens": 18778196,
+        "status": "scored",
+        "input_tokens": 18662328,
+        "cached_input_tokens": 18224000,
+        "output_tokens": 115868,
+        "reasoning_output_tokens": 28638
+      },
+      "US_Go": {
+        "FINAL": 47,
+        "T+30": 35,
+        "denominator": 106,
+        "total_tokens": 16214058,
+        "input_tokens": 16100608,
+        "cached_input_tokens": 15780608,
+        "output_tokens": 113450,
+        "status": "scored",
+        "reasoning_output_tokens": 50111
+      }
+    },
+    {
+      "id": "C3",
+      "model": "gpt-6-luna",
+      "effort": "max",
+      "EU_Elixir": {
+        "FINAL": 36,
+        "T+30": 32,
+        "denominator": 106,
+        "total_tokens": 35961229,
+        "status": "scored",
+        "input_tokens": 35783161,
+        "cached_input_tokens": 34970112,
+        "output_tokens": 178068,
+        "reasoning_output_tokens": 90998
+      },
+      "US_Go": {
+        "FINAL": 41,
+        "T+30": 37,
+        "denominator": 106,
+        "total_tokens": 58289272,
+        "input_tokens": 58011627,
+        "cached_input_tokens": 56827392,
+        "output_tokens": 277645,
+        "status": "scored",
+        "reasoning_output_tokens": 144834
+      }
+    },
+    {
+      "id": "C4",
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "EU_Elixir": {
+        "FINAL": 21,
+        "T+30": 20,
+        "denominator": 106,
+        "total_tokens": 18014919,
+        "status": "scored",
+        "input_tokens": 17968148,
+        "cached_input_tokens": 17700608,
+        "output_tokens": 46771,
+        "reasoning_output_tokens": 22384
+      },
+      "US_Go": {
+        "FINAL": null,
+        "T+30": null,
+        "denominator": null,
+        "total_tokens": null,
+        "input_tokens": null,
+        "cached_input_tokens": null,
+        "output_tokens": null,
+        "status": "not_run",
+        "reasoning_output_tokens": null
+      }
+    }
+  ],
+  "disclosures": [
+    "One planned run per condition per language; descriptive only; no winner claimed.",
+    "US Go snapshots were scored offline on the EU host with the unchanged frozen scorer after the US host was retired.",
+    "The initial US scoring attempt used a rejected root and is excluded from reported scores.",
+    "US gpt-6.1-sol high was interrupted after 98 seconds; captured FINAL 0/106 is descriptive-only.",
+    "US gpt-6-luna medium was not run."
+  ]
+}

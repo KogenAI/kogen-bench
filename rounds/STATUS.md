@@ -296,3 +296,4 @@ UNMATCHED_ROW: 1
 WITHDRAWN: 1
 
 fv-pilot-2026-10-10 | DESCRIPTIVE | CEILING, SMALL_SAMPLE, DECLARED_AMENDMENTS, INCOMPLETE_CAPTURE — four tasks, three repeats per arm; both arms 12/12.
+l1-model-effort | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — One planned run per condition and language; the US host retired mid-experiment, one arm was interrupted, and one was not run. No winner is claimed.
