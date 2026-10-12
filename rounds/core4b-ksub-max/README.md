@@ -225,3 +225,9 @@ These 54 selected runs exclude three replaced attempts (two infrastructure failu
 - Task IDs: c4b-1, c4b-2, c4b-3, c4b-4, c4b-5, c4b-6, ksub-1, ksub-2.
 - Historical execution command: not retained per cell.
 - Raw records: [data/cells.csv](data/cells.csv) and [records.jsonl](records.jsonl) where exact source IDs are available.
+
+## Setup and inputs
+
+The [harness/](harness/) folder contains scripts and notes used to prepare, run, and check the round. The [inputs/](inputs/) folder contains prompts, task specifications, and other materials supplied for the runs. Files used for hidden checks or grading are recorded by hash only in [INPUTS-SHA256.txt](INPUTS-SHA256.txt); the names in that record are kept general.
+
+**What the setup record cannot show:** The historical per-cell launch commands, the harness and runner revisions, and the complete toolchain inventory were not captured, so the exact setup for each run cannot be reconstructed.
