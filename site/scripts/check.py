@@ -167,6 +167,8 @@ def check_intent_phone_width(errors: list[str]) -> str:
                         "--headless=new",
                         "--disable-gpu",
                         "--no-sandbox",
+                        "--use-mock-keychain",
+                        "--password-store=basic",
                         "--disable-dev-shm-usage",
                         "--disable-background-networking",
                         "--disable-extensions",
