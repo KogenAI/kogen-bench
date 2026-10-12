@@ -220,3 +220,4 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 
 - [Lean versus Quint verification pilot](fv-pilot-2026-10-10/README.md) — **DESCRIPTIVE** Both arms repaired 12/12; secondary effort observations, declared amendments and incomplete capture.
 - [L1 model and effort pilot](l1-model-effort/README.md) — **DESCRIPTIVE PILOT** One planned run per condition per language; EU Elixir and retired-US Go observations are reported with the interruption, offline scoring and wrong-root attempt disclosed. No winner is claimed.
+- [arch-elixir-vs-go](arch-elixir-vs-go/README.md) — **DESCRIPTIVE** — ARCH architecture comparison; INCONCLUSIVE under both audit readings.

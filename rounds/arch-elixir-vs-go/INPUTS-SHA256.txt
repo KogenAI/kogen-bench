@@ -1,0 +1,12 @@
+Withheld ARCH fault suite, original source tree
+
+withheld_fault_suite: SHA-256 2892dc3a63808ab60341fb5f78644cf83e4b6b90b1a38bdb32283613c3c1e6a3; files 2
+
+Per-file SHA-256 manifest (relative to source tree):
+81fcb0c6fd09b332bf74b5fe8f6c283a945bafcfeca742b6a2687f23511d71e0  ./tests/cases.py
+b0c73853d396a7f29d0346ae95f934e0d00e61b7791ed385817eef4968710dd0  ./tests/run_hidden.py
+
+Recipe (run from the root of the source tree):
+LC_ALL=C printf '%s\0' ./tests/cases.py ./tests/run_hidden.py | LC_ALL=C sort -z | xargs -0 shasum -a 256 | shasum -a 256
+
+The withheld file list is limited to tests/cases.py and tests/run_hidden.py; both contain or execute hidden fault cases and expected outcomes. Their contents remain withheld because a later ARCH rerun would reuse the suite. These hashes are commitments only and do not disclose case content.

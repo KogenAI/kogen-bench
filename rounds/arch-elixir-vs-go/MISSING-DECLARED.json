@@ -1,0 +1,1490 @@
+{
+  "round": "arch-elixir-vs-go",
+  "cells": 8,
+  "fields": {
+    "circumstances.cap_end": {
+      "count": 8,
+      "reasons": {
+        "Boundary telemetry not retained": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m08",
+      "note": "Boundary telemetry not retained"
+    },
+    "circumstances.cap_start": {
+      "count": 8,
+      "reasons": {
+        "Boundary telemetry not retained": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m08",
+      "note": "Boundary telemetry not retained"
+    },
+    "circumstances.concurrent_cells_end": {
+      "count": 8,
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m66",
+      "note": "Host-wide concurrent cell count was not captured"
+    },
+    "circumstances.concurrent_cells_start": {
+      "count": 8,
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m66",
+      "note": "Host-wide concurrent cell count was not captured"
+    },
+    "circumstances.dispatcher_id": {
+      "count": 8,
+      "reasons": {
+        "Exact dispatcher revision is not present in the public receipt extract": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m63",
+      "note": "Exact dispatcher revision is not present in the public receipt extract"
+    },
+    "circumstances.incidents": {
+      "count": 8,
+      "reasons": {
+        "Per-cell incident receipt was not captured": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m78",
+      "note": "Per-cell incident receipt was not captured"
+    },
+    "circumstances.load1_end": {
+      "count": 8,
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m65",
+      "note": "Host boundary load was not captured in the public round data"
+    },
+    "circumstances.load1_start": {
+      "count": 8,
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m65",
+      "note": "Host boundary load was not captured in the public round data"
+    },
+    "circumstances.load_samples": {
+      "count": 8,
+      "reasons": {
+        "Timestamped host-wide load samples were not captured": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m93",
+      "note": "Timestamped host-wide load samples were not captured"
+    },
+    "circumstances.queue": {
+      "count": 8,
+      "reasons": {
+        "Queue receipt was not captured": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m91",
+      "note": "Queue receipt was not captured"
+    },
+    "cost.accounting": {
+      "count": 8,
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m70",
+      "note": "Per-cell cost and pricing inputs are not present in the public round data"
+    },
+    "cost.calculator_version": {
+      "count": 8,
+      "reasons": {
+        "Cost calculator version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m61",
+      "note": "Cost calculator version not recorded"
+    },
+    "cost.long_context_reconciled": {
+      "count": 8,
+      "reasons": {
+        "Boolean receipt not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m07",
+      "note": "Boolean receipt not recorded"
+    },
+    "cost.price_table_version": {
+      "count": 8,
+      "reasons": {
+        "Price table version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m89",
+      "note": "Price table version not recorded"
+    },
+    "cost.usd": {
+      "count": 8,
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m70",
+      "note": "Per-cell cost and pricing inputs are not present in the public round data"
+    },
+    "environment.account_class": {
+      "count": 8,
+      "reasons": {
+        "Dated account-class receipt is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m62",
+      "note": "Dated account-class receipt is not present in the public round data"
+    },
+    "environment.cores": {
+      "count": 8,
+      "reasons": {
+        "No per-cell CPU allocation receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m33",
+      "note": "No per-cell CPU allocation receipt"
+    },
+    "environment.cpu_model": {
+      "count": 8,
+      "reasons": {
+        "No per-cell CPU receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m34",
+      "note": "No per-cell CPU receipt"
+    },
+    "environment.kernel": {
+      "count": 8,
+      "reasons": {
+        "No per-cell kernel receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m36",
+      "note": "No per-cell kernel receipt"
+    },
+    "environment.network.allowlist_hosts": {
+      "count": 8,
+      "reasons": {
+        "Per-cell network allowlist not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m79",
+      "note": "Per-cell network allowlist not present in the public round data"
+    },
+    "environment.network.profile": {
+      "count": 8,
+      "reasons": {
+        "Per-cell network profile not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m80",
+      "note": "Per-cell network profile not present in the public round data"
+    },
+    "environment.os": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "environment.ram_gib": {
+      "count": 8,
+      "reasons": {
+        "No per-cell RAM receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m35",
+      "note": "No per-cell RAM receipt"
+    },
+    "environment.toolchains.elixir": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "environment.toolchains.erlang": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "environment.toolchains.node": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "environment.toolchains.other_inventory": {
+      "count": 8,
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m64",
+      "note": "Full per-cell toolchain inventory not recorded"
+    },
+    "environment.toolchains.python": {
+      "count": 8,
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m90",
+      "note": "Python toolchain version not recorded for the public round data"
+    },
+    "environment.toolchains.ruby": {
+      "count": 8,
+      "reasons": {
+        "Toolchain inventory not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m94",
+      "note": "Toolchain inventory not recorded"
+    },
+    "environment.toolchains.rust": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "grade.grader": {
+      "count": 8,
+      "reasons": {
+        "Per-cell grader software version is not in the public data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m77",
+      "note": "Per-cell grader software version is not in the public data"
+    },
+    "grade.timestamp": {
+      "count": 8,
+      "reasons": {
+        "The per-arm scoring timestamp is unavailable in the public record.": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "The per-arm scoring timestamp is unavailable in the public record."
+    },
+    "host.cpu": {
+      "count": 8,
+      "reasons": {
+        "No per-cell CPU allocation receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m33",
+      "note": "No per-cell CPU allocation receipt"
+    },
+    "host.kernel": {
+      "count": 8,
+      "reasons": {
+        "No per-cell kernel receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m36",
+      "note": "No per-cell kernel receipt"
+    },
+    "host.os": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "host.ram_gib": {
+      "count": 8,
+      "reasons": {
+        "No per-cell RAM receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m35",
+      "note": "No per-cell RAM receipt"
+    },
+    "host.spec_ref": {
+      "count": 8,
+      "reasons": {
+        "No measured host-spec reference": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m30",
+      "note": "No measured host-spec reference"
+    },
+    "host.vcpu": {
+      "count": 8,
+      "reasons": {
+        "No per-cell CPU allocation receipt": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m33",
+      "note": "No per-cell CPU allocation receipt"
+    },
+    "kogen.best_candidate": {
+      "count": 8,
+      "reasons": {
+        "Kogen report status absent": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m20",
+      "note": "Kogen report status absent"
+    },
+    "kogen.landed": {
+      "count": 8,
+      "reasons": {
+        "Kogen report status absent": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m20",
+      "note": "Kogen report status absent"
+    },
+    "provenance.ledger_sha256": {
+      "count": 8,
+      "reasons": {
+        "Manifest unavailable": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m24",
+      "note": "Manifest unavailable"
+    },
+    "provenance.manifest_sha256": {
+      "count": 8,
+      "reasons": {
+        "Per-cell run manifest fingerprint not in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m82",
+      "note": "Per-cell run manifest fingerprint not in the public round data"
+    },
+    "sandbox.egress_allow": {
+      "count": 8,
+      "reasons": {
+        "Per-cell egress allowlist is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m75",
+      "note": "Per-cell egress allowlist is not present in the public round data"
+    },
+    "sandbox.egress_profile": {
+      "count": 8,
+      "reasons": {
+        "Per-cell egress profile is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m76",
+      "note": "Per-cell egress profile is not present in the public round data"
+    },
+    "sandbox.profile": {
+      "count": 8,
+      "reasons": {
+        "Per-cell sandbox profile is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m87",
+      "note": "Per-cell sandbox profile is not present in the public round data"
+    },
+    "sandbox.profile_sha256": {
+      "count": 8,
+      "reasons": {
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m86",
+      "note": "Per-cell sandbox profile fingerprint is not present in the public round data"
+    },
+    "setup.adapter_harness_sha": {
+      "count": 8,
+      "reasons": {
+        "Per-cell Codex adapter fingerprint not recorded in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m67",
+      "note": "Per-cell Codex adapter fingerprint not recorded in the public round data"
+    },
+    "setup.deps_source": {
+      "count": 8,
+      "reasons": {
+        "Dependency source not pinned per cell": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m11",
+      "note": "Dependency source not pinned per cell"
+    },
+    "setup.kogen_sha": {
+      "count": 8,
+      "reasons": {
+        "Exact pulled manifest unavailable": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m16",
+      "note": "Exact pulled manifest unavailable"
+    },
+    "setup.sandbox_mode": {
+      "count": 8,
+      "reasons": {
+        "Per-cell sandbox mode is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m85",
+      "note": "Per-cell sandbox mode is not present in the public round data"
+    },
+    "setup.sandbox_profile_sha256": {
+      "count": 8,
+      "reasons": {
+        "Per-cell sandbox fingerprint is not present in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m84",
+      "note": "Per-cell sandbox fingerprint is not present in the public round data"
+    },
+    "setup.task_base.hash": {
+      "count": 8,
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m42",
+      "note": "Original base commit/tree hash absent; fresh_base_commit is not a base hash"
+    },
+    "setup.task_base.kind": {
+      "count": 8,
+      "reasons": {
+        "Original base revision type not recorded per cell": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m43",
+      "note": "Original base revision type not recorded per cell"
+    },
+    "stop_reason": {
+      "count": 8,
+      "reasons": {
+        "A scored outcome does not establish the runner stop cause": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m59",
+      "note": "A scored outcome does not establish the runner stop cause"
+    },
+    "task.base_repo": {
+      "count": 8,
+      "reasons": {
+        "Task identity not retained": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m52",
+      "note": "Task identity not retained"
+    },
+    "task.base_revision.hash": {
+      "count": 8,
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m42",
+      "note": "Original base commit/tree hash absent; fresh_base_commit is not a base hash"
+    },
+    "task.base_revision.kind": {
+      "count": 8,
+      "reasons": {
+        "Original base revision type not recorded per cell": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m43",
+      "note": "Original base revision type not recorded per cell"
+    },
+    "timestamps.attempts": {
+      "count": 8,
+      "reasons": {
+        "Attempt-boundary receipts are not in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m60",
+      "note": "Attempt-boundary receipts are not in the public round data"
+    },
+    "timestamps.cell.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Per-cell contestant end timestamp not recorded in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m68",
+      "note": "Per-cell contestant end timestamp not recorded in the public round data"
+    },
+    "timestamps.cell.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Per-cell contestant start timestamp not recorded in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m69",
+      "note": "Per-cell contestant start timestamp not recorded in the public round data"
+    },
+    "timestamps.phases.develop.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.develop.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.gate.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.gate.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.grade.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.grade.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.plan.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.plan.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.review.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.review.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.setup.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.setup.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.shape.end_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timestamps.phases.shape.start_utc": {
+      "count": 8,
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m88",
+      "note": "Phase timestamp not present in the public per-cell data"
+    },
+    "timing.phases_s.develop": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.gate": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.grade": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.plan": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.review": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.setup": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "timing.phases_s.shape": {
+      "count": 8,
+      "reasons": {
+        "Not recorded in available public metadata": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m39",
+      "note": "Not recorded in available public metadata"
+    },
+    "tokens.phases.develop.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.develop.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.develop.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.develop.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.gate.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.gate.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.gate.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.gate.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.grade.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.grade.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.grade.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.grade.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.plan.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.plan.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.plan.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.plan.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.review.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.review.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.review.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.review.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.setup.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.setup.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.setup.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.setup.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.shape.cached_input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.shape.input": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.shape.output": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tokens.phases.shape.reasoning": {
+      "count": 8,
+      "reasons": {
+        "develop phase token counter was not recorded separately": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m97",
+      "note": "develop phase token counter was not recorded separately"
+    },
+    "tools.codex_cli": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version/inventory not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m54",
+      "note": "Toolchain version/inventory not recorded"
+    },
+    "tools.grader": {
+      "count": 8,
+      "reasons": {
+        "Per-cell grader software version is not in the public data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m77",
+      "note": "Per-cell grader software version is not in the public data"
+    },
+    "tools.kogen": {
+      "count": 8,
+      "reasons": {
+        "Historical tool version not pinned in cell artifacts": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m18",
+      "note": "Historical tool version not pinned in cell artifacts"
+    },
+    "tools.runner": {
+      "count": 8,
+      "reasons": {
+        "Per-cell runner version not recorded in the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m83",
+      "note": "Per-cell runner version not recorded in the public round data"
+    },
+    "tools.toolchains.elixir": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "tools.toolchains.erlang": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "tools.toolchains.node": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "tools.toolchains.other_inventory": {
+      "count": 8,
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m64",
+      "note": "Full per-cell toolchain inventory not recorded"
+    },
+    "tools.toolchains.python": {
+      "count": 8,
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m90",
+      "note": "Python toolchain version not recorded for the public round data"
+    },
+    "tools.toolchains.ruby": {
+      "count": 8,
+      "reasons": {
+        "Toolchain inventory not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m94",
+      "note": "Toolchain inventory not recorded"
+    },
+    "tools.toolchains.rust": {
+      "count": 8,
+      "reasons": {
+        "Toolchain version not recorded": 8
+      },
+      "affects_verdict": "Missing per-cell capture limits auditability; no unavailable value is inferred.",
+      "reason_code": "m95",
+      "note": "Toolchain version not recorded"
+    },
+    "tokens.total.cached_input": {
+      "count": 8,
+      "reasons": {
+        "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable.": 8
+      },
+      "affects_verdict": "Combined totals remain published; component breakdowns are unavailable.",
+      "reason_code": "m39",
+      "note": "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable."
+    },
+    "tokens.total.input": {
+      "count": 8,
+      "reasons": {
+        "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable.": 8
+      },
+      "affects_verdict": "Combined totals remain published; component breakdowns are unavailable.",
+      "reason_code": "m39",
+      "note": "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable."
+    },
+    "tokens.total.output": {
+      "count": 8,
+      "reasons": {
+        "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable.": 8
+      },
+      "affects_verdict": "Combined totals remain published; component breakdowns are unavailable.",
+      "reason_code": "m39",
+      "note": "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable."
+    },
+    "tokens.total.reasoning": {
+      "count": 8,
+      "reasons": {
+        "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable.": 8
+      },
+      "affects_verdict": "Combined totals remain published; component breakdowns are unavailable.",
+      "reason_code": "m39",
+      "note": "Only combined builder and maintenance token totals are published; input, cached-input, output and reasoning components are unavailable. G3's combined total is also unavailable."
+    }
+  },
+  "gap_sources": {
+    "reconstructable": {},
+    "lost": {
+      "circumstances.cap_end": {
+        "none": 8
+      },
+      "circumstances.cap_start": {
+        "none": 8
+      },
+      "circumstances.concurrent_cells_end": {
+        "none": 8
+      },
+      "circumstances.concurrent_cells_start": {
+        "none": 8
+      },
+      "circumstances.dispatcher_id": {
+        "none": 8
+      },
+      "circumstances.incidents": {
+        "none": 8
+      },
+      "circumstances.load1_end": {
+        "none": 8
+      },
+      "circumstances.load1_start": {
+        "none": 8
+      },
+      "circumstances.load_samples": {
+        "none": 8
+      },
+      "circumstances.queue": {
+        "none": 8
+      },
+      "cost.accounting": {
+        "none": 8
+      },
+      "cost.calculator_version": {
+        "none": 8
+      },
+      "cost.long_context_reconciled": {
+        "none": 8
+      },
+      "cost.price_table_version": {
+        "none": 8
+      },
+      "cost.usd": {
+        "none": 8
+      },
+      "environment.account_class": {
+        "none": 8
+      },
+      "environment.cores": {
+        "none": 8
+      },
+      "environment.cpu_model": {
+        "none": 8
+      },
+      "environment.kernel": {
+        "none": 8
+      },
+      "environment.network.allowlist_hosts": {
+        "none": 8
+      },
+      "environment.network.profile": {
+        "none": 8
+      },
+      "environment.os": {
+        "none": 8
+      },
+      "environment.ram_gib": {
+        "none": 8
+      },
+      "environment.toolchains.elixir": {
+        "none": 8
+      },
+      "environment.toolchains.erlang": {
+        "none": 8
+      },
+      "environment.toolchains.node": {
+        "none": 8
+      },
+      "environment.toolchains.other_inventory": {
+        "none": 8
+      },
+      "environment.toolchains.python": {
+        "none": 8
+      },
+      "environment.toolchains.ruby": {
+        "none": 8
+      },
+      "environment.toolchains.rust": {
+        "none": 8
+      },
+      "grade.grader": {
+        "none": 8
+      },
+      "grade.timestamp": {
+        "none": 8
+      },
+      "host.cpu": {
+        "none": 8
+      },
+      "host.kernel": {
+        "none": 8
+      },
+      "host.os": {
+        "none": 8
+      },
+      "host.ram_gib": {
+        "none": 8
+      },
+      "host.spec_ref": {
+        "none": 8
+      },
+      "host.vcpu": {
+        "none": 8
+      },
+      "kogen.best_candidate": {
+        "none": 8
+      },
+      "kogen.landed": {
+        "none": 8
+      },
+      "provenance.ledger_sha256": {
+        "none": 8
+      },
+      "provenance.manifest_sha256": {
+        "none": 8
+      },
+      "sandbox.egress_allow": {
+        "none": 8
+      },
+      "sandbox.egress_profile": {
+        "none": 8
+      },
+      "sandbox.profile": {
+        "none": 8
+      },
+      "sandbox.profile_sha256": {
+        "none": 8
+      },
+      "setup.adapter_harness_sha": {
+        "none": 8
+      },
+      "setup.deps_source": {
+        "none": 8
+      },
+      "setup.kogen_sha": {
+        "none": 8
+      },
+      "setup.sandbox_mode": {
+        "none": 8
+      },
+      "setup.sandbox_profile_sha256": {
+        "none": 8
+      },
+      "setup.task_base.hash": {
+        "none": 8
+      },
+      "setup.task_base.kind": {
+        "none": 8
+      },
+      "stop_reason": {
+        "none": 8
+      },
+      "task.base_repo": {
+        "none": 8
+      },
+      "task.base_revision.hash": {
+        "none": 8
+      },
+      "task.base_revision.kind": {
+        "none": 8
+      },
+      "timestamps.attempts": {
+        "none": 8
+      },
+      "timestamps.cell.end_utc": {
+        "none": 8
+      },
+      "timestamps.cell.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.develop.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.develop.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.gate.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.gate.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.grade.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.grade.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.plan.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.plan.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.review.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.review.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.setup.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.setup.start_utc": {
+        "none": 8
+      },
+      "timestamps.phases.shape.end_utc": {
+        "none": 8
+      },
+      "timestamps.phases.shape.start_utc": {
+        "none": 8
+      },
+      "timing.phases_s.develop": {
+        "none": 8
+      },
+      "timing.phases_s.gate": {
+        "none": 8
+      },
+      "timing.phases_s.grade": {
+        "none": 8
+      },
+      "timing.phases_s.plan": {
+        "none": 8
+      },
+      "timing.phases_s.review": {
+        "none": 8
+      },
+      "timing.phases_s.setup": {
+        "none": 8
+      },
+      "timing.phases_s.shape": {
+        "none": 8
+      },
+      "tokens.phases.develop.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.develop.input": {
+        "none": 8
+      },
+      "tokens.phases.develop.output": {
+        "none": 8
+      },
+      "tokens.phases.develop.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.gate.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.gate.input": {
+        "none": 8
+      },
+      "tokens.phases.gate.output": {
+        "none": 8
+      },
+      "tokens.phases.gate.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.grade.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.grade.input": {
+        "none": 8
+      },
+      "tokens.phases.grade.output": {
+        "none": 8
+      },
+      "tokens.phases.grade.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.plan.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.plan.input": {
+        "none": 8
+      },
+      "tokens.phases.plan.output": {
+        "none": 8
+      },
+      "tokens.phases.plan.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.review.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.review.input": {
+        "none": 8
+      },
+      "tokens.phases.review.output": {
+        "none": 8
+      },
+      "tokens.phases.review.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.setup.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.setup.input": {
+        "none": 8
+      },
+      "tokens.phases.setup.output": {
+        "none": 8
+      },
+      "tokens.phases.setup.reasoning": {
+        "none": 8
+      },
+      "tokens.phases.shape.cached_input": {
+        "none": 8
+      },
+      "tokens.phases.shape.input": {
+        "none": 8
+      },
+      "tokens.phases.shape.output": {
+        "none": 8
+      },
+      "tokens.phases.shape.reasoning": {
+        "none": 8
+      },
+      "tools.codex_cli": {
+        "none": 8
+      },
+      "tools.grader": {
+        "none": 8
+      },
+      "tools.kogen": {
+        "none": 8
+      },
+      "tools.runner": {
+        "none": 8
+      },
+      "tools.toolchains.elixir": {
+        "none": 8
+      },
+      "tools.toolchains.erlang": {
+        "none": 8
+      },
+      "tools.toolchains.node": {
+        "none": 8
+      },
+      "tools.toolchains.other_inventory": {
+        "none": 8
+      },
+      "tools.toolchains.python": {
+        "none": 8
+      },
+      "tools.toolchains.ruby": {
+        "none": 8
+      },
+      "tools.toolchains.rust": {
+        "none": 8
+      }
+    }
+  },
+  "protocol_deviations": [
+    "D-1 interrupted by Studio reboot; D-2 harness-invalid; relaunch 2 completed after harness fixes, and a dry cell with reference scoring passed first; D-4 infrastructure failure and D-5 post-run audit correction."
+  ]
+}

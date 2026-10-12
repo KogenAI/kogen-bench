@@ -2,6 +2,8 @@
 
 Statuses use the evidence in each round’s own README and files. The status column is the analysis classification and is retained for historical records. Every round README also carries a publication badge, recomputation status, and limits. `KEPT FOR AUDIT` identifies the page as a retained historical record; it does not change the analysis status. New rounds dated 2026-10-09 or later must meet the complete Standard capture gate with no protocol deviations.
 
+LAB-01 is parked; no results or conclusion are published.
+
 ## Rounds
 
 | Round | Status | Reason |
@@ -297,3 +299,4 @@ WITHDRAWN: 1
 
 fv-pilot-2026-10-10 | DESCRIPTIVE | CEILING, SMALL_SAMPLE, DECLARED_AMENDMENTS, INCOMPLETE_CAPTURE — four tasks, three repeats per arm; both arms 12/12.
 l1-model-effort | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — One planned run per condition and language; the US host retired mid-experiment, one arm was interrupted, and one was not run. No winner is claimed.
+arch-elixir-vs-go | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — inconclusive under both readings; zero complete pairs.
