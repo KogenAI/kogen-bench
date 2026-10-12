@@ -3,18 +3,17 @@
 - Writer: benchmarks (Opus). Reviewer: Astra medium (ARCH-D5-REVIEW, `AUDIT-CORRECTION-D5-REVIEW.md`: 6 blockers and 2 should-fix). Every proposed fix is adopted verbatim below. v1 is kept as `AUDIT-CORRECTION-D5-CRITERION-v1.md`.
 - **Score-blind:** the audit stage uses only the agents' event logs and the preserved filesystem evidence. It never reads score files, ARCH-SUMMARY scores or any grade data.
 
-## Main's ruling, verbatim (kogen-main, cross-session message 2026-10-11T22:08:22Z)
+## Operational criterion
 
-> Ruling: (A), under these conditions.
-> 1. **The fix is narrow and objective.** A flag requires a command that actually read an existing path outside the allowed roots (from file-access evidence: an open or read), not string literals or heredoc bodies. Write the criterion down BEFORE re-running it, and make it blind to scores.
-> 2. **RULES 8 controls:** planted positives that must still flag: a real `cat ../outside-file` that exists, a symlink-escape read, and a read of an absolute protected path; planted negatives that must not flag: the agents' traversal-test literals and heredoc contents.
-> 3. **Astra review** of the fix before it's applied, then apply it identically to all 8 arms.
-> 4. **Report both readings:** the original audit (all void except E2) and the corrected one, with the verdict computed under the corrected audit, labelled "post-run audit correction D-5". G3 stays infra-invalid. If the corrected audit still leaves fewer than 3 valid arms per treatment, the rule's inconclusive outcome applies, and the recorded direction (Elixir + Go) stands.
-> 5. Fix arch_audit in the harness for future rounds.
+The correction adopts option A. Apply the executed-read criteria, planted positive/negative controls, corrected audit reporting, and future harness fix specified below.
 
-Reconciliation with condition 4: main points to "the rule's inconclusive outcome". The frozen rule (DECISION-RULE-ARCH.md lines 28–33) states that outcome in terms of complete preassigned pairs, so the frozen pair gate below governs.
+1. A flag requires file-access evidence that a command actually read an existing path outside the allowed roots. String literals and heredoc bodies alone do not qualify. Record the criterion before rerunning the audit and keep it blind to scores.
+2. RULES 8 controls include planted positive reads that must flag: an existing outside file, a symlink escape, and an absolute protected path. Planted negatives that must not flag include traversal-test literals and heredoc contents.
+3. Obtain an independent review of the fix before applying it, then apply it identically to all eight arms.
+4. Report the original audit reading and the corrected reading, with the verdict computed under the corrected audit and labelled “post-run audit correction D-5.” G3 remains infra-invalid. If fewer than three valid arms per treatment remain, use the rule's inconclusive outcome and retain the recorded Elixir and Go direction. The frozen pair gate below governs the inconclusive threshold.
+5. Fix arch_audit in the harness for future rounds.
 
-Compliance check: the criterion, the control results and the application must each be checked against conditions 1–5 above. The checks are recorded in the D-5 report.
+Compliance checks cover the criterion, control results, and application against all five conditions. Record the checks in the D-5 report.
 
 ## Defect being corrected
 

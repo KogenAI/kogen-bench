@@ -38,7 +38,7 @@ Before scored runs, check both emitted representations against an independent fi
 
 Starting location: `<record>`. Keep code, dependencies and raw output there. Create a root README when implementation begins and link this protocol.
 
-Accepted model setting for all work in this benchmark: **GPT-6.1 Sol (`gpt-6.1-sol`), High (`high`)**. This covers building and validating fixtures and bridges, and every repair trial in both arms. Keep the trial setting fixed; individual failures do not trigger escalation. Almir, 10 October 2026, in this chat: “Let's use Sol 6.1 high instead for everything.” This replaces the assistant's proposed Astra Medium construction and Sol Medium trial settings; it does not change unrelated projects or this chat's active model.
+Accepted model setting for all work in this benchmark: **GPT-6.1 Sol (`gpt-6.1-sol`), High (`high`)**. This covers building and validating fixtures and bridges, and every repair trial in both arms. Keep the trial setting fixed; individual failures do not trigger escalation. This replaces the earlier proposed Astra Medium construction and Sol Medium trial settings.
 
 1. Implement the four fixtures, independent grader and limited frontend with Lean and Quint emitters. Include correct variants in qualification to detect unnecessary repairs.
 2. Pin the fixtures, contracts, mappings, tools and docs by hash. Admit both arms using the checks above. If either cannot qualify, record that limitation rather than silently changing the task.
