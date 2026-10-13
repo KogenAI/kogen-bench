@@ -187,3 +187,7 @@ The full independent historical evaluation cannot be repeated from this bundle.
 - `tools.toolchains.python` (28 missing): This field was not captured in the public trial evidence; no value is inferred. Reason: Toolchain version/inventory not recorded (`m54`).
 - `tools.toolchains.ruby` (28 missing): This field was not captured in the public trial evidence; no value is inferred. Reason: Toolchain version/inventory not recorded (`m54`).
 - `tools.toolchains.rust` (28 missing): This field was not captured in the public trial evidence; no value is inferred. Reason: Toolchain version/inventory not recorded (`m54`).
+
+## Update 13 October 2026
+
+Sinkhole for kogen.dev unverified for this run (the host's hosts file was not readable by the agent user); the agents' own transcripts, where preserved, show no access; transcripts for this round are no longer available.

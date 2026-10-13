@@ -178,3 +178,7 @@ The outcome table below covers selected runs only; it does not count every start
 The [harness/](harness/) folder contains scripts and notes used to prepare, run, and check the round. The [inputs/](inputs/) folder contains prompts, task specifications, and other materials supplied for the runs. Files used for hidden checks or grading are recorded by hash only in [INPUTS-SHA256.txt](INPUTS-SHA256.txt); the names in that record are kept general.
 
 **What the setup record cannot show:** The historical per-cell launch commands, the harness and runner revisions, and the complete toolchain inventory were not captured, so the exact setup for each run cannot be reconstructed.
+
+## Update 13 October 2026
+
+Sinkhole for kogen.dev unverified for this run (the host's hosts file was not readable by the agent user); the agents' own transcripts, where preserved, show no access; transcripts for this round are no longer available.

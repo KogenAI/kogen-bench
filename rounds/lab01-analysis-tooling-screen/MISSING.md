@@ -1,0 +1,1449 @@
+# Declared gaps and protocol deviations — lab01-analysis-tooling-screen
+
+The six public records now include UTC boundaries for their measured authoring attempts, normal process completion, and the Standard uncached-input values. Published times and token totals cover those six valid authoring attempts only; the invalid initial set 1 launch, immediate clean reruns, and dry qualification runs are accounted for separately. No official outcomes were obtained, and offline artifact checks remain in `results.json`.
+
+Known set 2 authoring tool versions are mapped where the schema has a field. Retained set 1 version receipts that are not mapped are identified as retained privately in the field notes; the complete environment inventory remains incomplete. Effective model and effort, detailed Standard phase splits, host-wide load, and sandbox fingerprints remain unknown where the evidence does not establish them. Set 2 plot artifacts were not retained. The initial set 1 launch remains a separate environment exclusion.
+
+## Exact declaration
+
+The JSON below is the machine-checked gap inventory. Each missing field has a repository reason code and a plain-language note. This embedded declaration is synchronized with `MISSING-DECLARED.json`. Protected expected/reference content and private event streams are withheld.
+
+```json
+{
+  "cells": 6,
+  "fields": {
+    "circumstances.cap_end": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Per-attempt start and end receipts are published under timestamps.attempts; separate cap-boundary telemetry is not established.",
+      "reason_code": "m08",
+      "reasons": {
+        "Boundary telemetry not retained": 6
+      }
+    },
+    "circumstances.cap_start": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Per-attempt start and end receipts are published under timestamps.attempts; separate cap-boundary telemetry is not established.",
+      "reason_code": "m08",
+      "reasons": {
+        "Boundary telemetry not retained": 6
+      }
+    },
+    "circumstances.concurrent_cells_end": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained process records do not establish a host-wide concurrent-cell count.",
+      "reason_code": "m66",
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 6
+      }
+    },
+    "circumstances.concurrent_cells_start": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained process records do not establish a host-wide concurrent-cell count.",
+      "reason_code": "m66",
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 6
+      }
+    },
+    "circumstances.dispatcher_id": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The exact dispatcher revision is not established by the public receipt extract.",
+      "reason_code": "m63",
+      "reasons": {
+        "Exact dispatcher revision is not present in the public receipt extract": 6
+      }
+    },
+    "circumstances.incidents": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A per-cell incident receipt is not present in the public records.",
+      "reason_code": "m78",
+      "reasons": {
+        "Per-cell incident receipt was not captured": 6
+      }
+    },
+    "circumstances.load1_end": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Host-boundary load measurements are not present in the public round data.",
+      "reason_code": "m65",
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 6
+      }
+    },
+    "circumstances.load1_start": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Host-boundary load measurements are not present in the public round data.",
+      "reason_code": "m65",
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 6
+      }
+    },
+    "circumstances.load_samples": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The public round data contain no timestamped host-wide load samples.",
+      "reason_code": "m93",
+      "reasons": {
+        "Timestamped host-wide load samples were not captured": 6
+      }
+    },
+    "circumstances.queue": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A public per-cell queue receipt was not captured.",
+      "reason_code": "m91",
+      "reasons": {
+        "Queue receipt was not captured": 6
+      }
+    },
+    "cost.accounting": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Per-cell cost and pricing inputs are not included in the public round data.",
+      "reason_code": "m70",
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 6
+      }
+    },
+    "cost.calculator_version": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The cost-calculator version is not established by a retained public receipt.",
+      "reason_code": "m61",
+      "reasons": {
+        "Cost calculator version not recorded": 6
+      }
+    },
+    "cost.long_context_reconciled": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell boolean receipt is not recorded in the public round data.",
+      "reason_code": "m07",
+      "reasons": {
+        "Boolean receipt not recorded": 6
+      }
+    },
+    "cost.price_table_version": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A price-table version is not established by a retained public receipt.",
+      "reason_code": "m89",
+      "reasons": {
+        "Price table version not recorded": 6
+      }
+    },
+    "cost.usd": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Per-cell cost and pricing inputs are not included in the public round data.",
+      "reason_code": "m70",
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 6
+      }
+    },
+    "effort.effective": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The requested effort is recorded, but the effective effort used at runtime is not established.",
+      "reason_code": "m73",
+      "reasons": {
+        "Per-cell effective-effort receipt not published": 6
+      }
+    },
+    "environment.account_class": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No dated public account-class receipt establishes this value.",
+      "reason_code": "m62",
+      "reasons": {
+        "Dated account-class receipt is not present in the public round data": 6
+      }
+    },
+    "environment.cores": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell CPU allocation receipt is included in the public round data.",
+      "reason_code": "m33",
+      "reasons": {
+        "No per-cell CPU allocation receipt": 6
+      }
+    },
+    "environment.cpu_model": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell CPU model receipt is included in the public round data.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 6
+      }
+    },
+    "environment.kernel": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell kernel receipt is included in the public round data.",
+      "reason_code": "m36",
+      "reasons": {
+        "No per-cell kernel receipt": 6
+      }
+    },
+    "environment.network.allowlist_hosts": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell egress allowlist is not present in the public round data.",
+      "reason_code": "m79",
+      "reasons": {
+        "Per-cell network allowlist not present in the public round data": 6
+      }
+    },
+    "environment.network.profile": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell network profile is not present in the public round data.",
+      "reason_code": "m80",
+      "reasons": {
+        "Per-cell network profile not present in the public round data": 6
+      }
+    },
+    "environment.os": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell operating-system value is not recorded in the available public metadata.",
+      "reason_code": "m39",
+      "reasons": {
+        "Not recorded in available public metadata": 6
+      }
+    },
+    "environment.ram_gib": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell RAM receipt is included in the public round data.",
+      "reason_code": "m35",
+      "reasons": {
+        "No per-cell RAM receipt": 6
+      }
+    },
+    "environment.toolchains.elixir": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 5
+      }
+    },
+    "environment.toolchains.erlang": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 5
+      }
+    },
+    "environment.toolchains.node": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    },
+    "environment.toolchains.other_inventory": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 3,
+      "note": "The set 1 authoring dependency-version receipts are retained privately but are not mapped into this public field; known set 2 non-dedicated tool versions are mapped.",
+      "reason_code": "m64",
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 3
+      }
+    },
+    "environment.toolchains.python": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this Python version. The known set 2 Python value is mapped.",
+      "reason_code": "m90",
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 5
+      }
+    },
+    "environment.toolchains.ruby": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    },
+    "environment.toolchains.rust": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    },
+    "grade.grader": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No official grading occurred, so no per-cell official grader version is available.",
+      "reason_code": "m77",
+      "reasons": {
+        "Per-cell grader software version is not in the public data": 6
+      }
+    },
+    "grade.timestamp": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No official outcome was issued, so there is no official grade timestamp for these cells.",
+      "reason_code": "m81",
+      "reasons": {
+        "Per-cell official repair-grade timestamp is not present in the public data/cells.csv or sanitized lane release-state receipt": 6
+      }
+    },
+    "host.cpu": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell CPU model receipt is included in the public round data.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 6
+      }
+    },
+    "host.kernel": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell kernel receipt is included in the public round data.",
+      "reason_code": "m36",
+      "reasons": {
+        "No per-cell kernel receipt": 6
+      }
+    },
+    "host.os": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell operating-system value is not recorded in the available public metadata.",
+      "reason_code": "m39",
+      "reasons": {
+        "Not recorded in available public metadata": 6
+      }
+    },
+    "host.ram_gib": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell RAM receipt is included in the public round data.",
+      "reason_code": "m35",
+      "reasons": {
+        "No per-cell RAM receipt": 6
+      }
+    },
+    "host.spec_ref": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No measured host-spec reference is published for these records.",
+      "reason_code": "m30",
+      "reasons": {
+        "No measured host-spec reference": 6
+      }
+    },
+    "host.vcpu": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No per-cell CPU allocation receipt is included in the public round data.",
+      "reason_code": "m33",
+      "reasons": {
+        "No per-cell CPU allocation receipt": 6
+      }
+    },
+    "model.effective": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The requested model is stated; the per-cell effective-model receipt is not established.",
+      "reason_code": "m74",
+      "reasons": {
+        "Per-cell effective-model receipt not published": 6
+      }
+    },
+    "outcome": {
+      "affects_verdict": "Official outcomes remain unknown; this declaration does not change the separate offline artifact results.",
+      "count": 6,
+      "note": "Official outcomes are unknown because no official hidden-suite grade was obtained; the separate offline artifact checks remain reported in results.json.",
+      "reason_code": "m32",
+      "reasons": {
+        "No official grade in the public snapshot": 6
+      }
+    },
+    "provenance.ledger_sha256": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The source ledger is retained privately; its per-cell fingerprint is not mapped into this public record.",
+      "reason_code": "m24",
+      "reasons": {
+        "Manifest unavailable": 6
+      }
+    },
+    "provenance.manifest_sha256": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A per-cell run-manifest fingerprint is not published in this bundle.",
+      "reason_code": "m82",
+      "reasons": {
+        "Per-cell run manifest fingerprint not in the public round data": 6
+      }
+    },
+    "sandbox.egress_allow": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell sandbox egress allowlist is not present in the public round data.",
+      "reason_code": "m75",
+      "reasons": {
+        "Per-cell egress allowlist is not present in the public round data": 6
+      }
+    },
+    "sandbox.egress_profile": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell egress profile is not present in the public round data.",
+      "reason_code": "m76",
+      "reasons": {
+        "Per-cell egress profile is not present in the public round data": 6
+      }
+    },
+    "sandbox.profile": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The sandbox profile is not established by the retained per-cell receipt.",
+      "reason_code": "m87",
+      "reasons": {
+        "Per-cell sandbox profile is not present in the public round data": 6
+      }
+    },
+    "sandbox.profile_sha256": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A per-cell sandbox-profile fingerprint is not established by the retained receipt.",
+      "reason_code": "m86",
+      "reasons": {
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 6
+      }
+    },
+    "setup.deps_source": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell dependency source is not pinned in the public record.",
+      "reason_code": "m11",
+      "reasons": {
+        "Dependency source not pinned per cell": 6
+      }
+    },
+    "setup.kogen_sha": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The exact pulled harness manifest is not included in the public record.",
+      "reason_code": "m16",
+      "reasons": {
+        "Exact pulled manifest unavailable": 6
+      }
+    },
+    "setup.sandbox_mode": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The per-cell sandbox mode is not established by the retained receipt.",
+      "reason_code": "m85",
+      "reasons": {
+        "Per-cell sandbox mode is not present in the public round data": 6
+      }
+    },
+    "setup.sandbox_profile_sha256": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "A per-cell sandbox-profile fingerprint is not established by the retained receipt.",
+      "reason_code": "m86",
+      "reasons": {
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 6
+      }
+    },
+    "setup.task_base.hash": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The original base commit or tree hash is not present in the public record.",
+      "reason_code": "m42",
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 6
+      }
+    },
+    "setup.task_base.kind": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The original base revision type is not recorded per cell.",
+      "reason_code": "m43",
+      "reasons": {
+        "Original base revision type not recorded per cell": 6
+      }
+    },
+    "task.base_repo": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The public base-repository identifier is not present in the retained per-cell record.",
+      "reason_code": "m52",
+      "reasons": {
+        "Task identity not retained": 6
+      }
+    },
+    "task.base_revision.hash": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The original base commit or tree hash is not present in the public record.",
+      "reason_code": "m42",
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 6
+      }
+    },
+    "task.base_revision.kind": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The original base revision type is not recorded per cell.",
+      "reason_code": "m43",
+      "reasons": {
+        "Original base revision type not recorded per cell": 6
+      }
+    },
+    "timestamps.cell.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The full cell-end timestamp is not mapped; the author-attempt end receipt is published under timestamps.attempts.",
+      "reason_code": "m68",
+      "reasons": {
+        "Per-cell contestant end timestamp not recorded in the public round data": 6
+      }
+    },
+    "timestamps.cell.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The full cell-start timestamp is not mapped; the author-attempt start receipt is published under timestamps.attempts.",
+      "reason_code": "m69",
+      "reasons": {
+        "Per-cell contestant start timestamp not recorded in the public round data": 6
+      }
+    },
+    "timestamps.phases.develop.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.develop.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.gate.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.gate.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.grade.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.grade.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.plan.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.plan.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.review.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.review.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.setup.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.setup.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.shape.end_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timestamps.phases.shape.start_utc": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The author-attempt boundaries do not establish this separate Standard phase timestamp.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 6
+      }
+    },
+    "timing.phases_s.develop": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.gate": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.grade": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.plan": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.review": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.setup": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "timing.phases_s.shape": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained author-attempt boundaries establish total authoring time, not this detailed Standard phase duration.",
+      "reason_code": "m02",
+      "reasons": {
+        "Absolute phase boundary not retained": 6
+      }
+    },
+    "tokens.phases.develop.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.develop.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.develop.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.develop.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.gate.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.gate.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.gate.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.gate.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.grade.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.grade.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.grade.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.grade.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.plan.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.plan.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.plan.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.plan.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.review.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.review.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.review.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.review.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.setup.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.setup.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.setup.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.setup.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.shape.cached_input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.shape.input": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.shape.output": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tokens.phases.shape.reasoning": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "Token totals are retained for authoring, but this Standard phase-level token counter is not established.",
+      "reason_code": "m97",
+      "reasons": {
+        "develop phase token counter was not recorded separately": 6
+      }
+    },
+    "tools.codex_cli": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The relevant client or integration version is not established by the retained public per-cell evidence.",
+      "reason_code": "m54",
+      "reasons": {
+        "Toolchain version/inventory not recorded": 6
+      }
+    },
+    "tools.grader": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "No official grading occurred, so no per-cell official grader version is available.",
+      "reason_code": "m77",
+      "reasons": {
+        "Per-cell grader software version is not in the public data": 6
+      }
+    },
+    "tools.kogen": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The version of the Kogen integration is not established by the retained public receipt.",
+      "reason_code": "m18",
+      "reasons": {
+        "Historical tool version not pinned in cell artifacts": 6
+      }
+    },
+    "tools.runner": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The runner version is not pinned in the retained public per-cell evidence.",
+      "reason_code": "m83",
+      "reasons": {
+        "Per-cell runner version not recorded in the public round data": 6
+      }
+    },
+    "tools.toolchains.elixir": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 5
+      }
+    },
+    "tools.toolchains.erlang": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 5
+      }
+    },
+    "tools.toolchains.node": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    },
+    "tools.toolchains.other_inventory": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 3,
+      "note": "The set 1 authoring dependency-version receipts are retained privately but are not mapped into this public field; known set 2 non-dedicated tool versions are mapped.",
+      "reason_code": "m64",
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 3
+      }
+    },
+    "tools.toolchains.python": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 5,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this Python version. The known set 2 Python value is mapped.",
+      "reason_code": "m90",
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 5
+      }
+    },
+    "tools.toolchains.ruby": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    },
+    "tools.toolchains.rust": {
+      "affects_verdict": "Missing capture limits metadata completeness and release-protocol assessment; it does not change the recorded offline artifact scores.",
+      "count": 6,
+      "note": "The retained set 1 authoring-version receipt is private and not mapped into this public field; other missing cells do not establish this tool version. The known set 2 value is mapped where applicable.",
+      "reason_code": "m95",
+      "reasons": {
+        "Toolchain version not recorded": 6
+      }
+    }
+  },
+  "gap_sources": {
+    "lost": {
+      "circumstances.cap_end": {
+        "none": 6
+      },
+      "circumstances.cap_start": {
+        "none": 6
+      },
+      "circumstances.concurrent_cells_end": {
+        "none": 6
+      },
+      "circumstances.concurrent_cells_start": {
+        "none": 6
+      },
+      "circumstances.dispatcher_id": {
+        "none": 6
+      },
+      "circumstances.incidents": {
+        "none": 6
+      },
+      "circumstances.load1_end": {
+        "none": 6
+      },
+      "circumstances.load1_start": {
+        "none": 6
+      },
+      "circumstances.load_samples": {
+        "none": 6
+      },
+      "circumstances.queue": {
+        "none": 6
+      },
+      "cost.accounting": {
+        "none": 6
+      },
+      "cost.calculator_version": {
+        "none": 6
+      },
+      "cost.long_context_reconciled": {
+        "none": 6
+      },
+      "cost.price_table_version": {
+        "none": 6
+      },
+      "cost.usd": {
+        "none": 6
+      },
+      "effort.effective": {
+        "none": 6
+      },
+      "environment.account_class": {
+        "none": 6
+      },
+      "environment.cores": {
+        "none": 6
+      },
+      "environment.cpu_model": {
+        "none": 6
+      },
+      "environment.kernel": {
+        "none": 6
+      },
+      "environment.network.allowlist_hosts": {
+        "none": 6
+      },
+      "environment.network.profile": {
+        "none": 6
+      },
+      "environment.os": {
+        "none": 6
+      },
+      "environment.ram_gib": {
+        "none": 6
+      },
+      "environment.toolchains.elixir": {
+        "none": 5
+      },
+      "environment.toolchains.erlang": {
+        "none": 5
+      },
+      "environment.toolchains.node": {
+        "none": 6
+      },
+      "environment.toolchains.other_inventory": {
+        "none": 3
+      },
+      "environment.toolchains.python": {
+        "none": 5
+      },
+      "environment.toolchains.ruby": {
+        "none": 6
+      },
+      "environment.toolchains.rust": {
+        "none": 6
+      },
+      "grade.grader": {
+        "none": 6
+      },
+      "grade.timestamp": {
+        "none": 6
+      },
+      "host.cpu": {
+        "none": 6
+      },
+      "host.kernel": {
+        "none": 6
+      },
+      "host.os": {
+        "none": 6
+      },
+      "host.ram_gib": {
+        "none": 6
+      },
+      "host.spec_ref": {
+        "none": 6
+      },
+      "host.vcpu": {
+        "none": 6
+      },
+      "model.effective": {
+        "none": 6
+      },
+      "outcome": {
+        "not re-derivable from the public record": 6
+      },
+      "provenance.ledger_sha256": {
+        "none": 6
+      },
+      "provenance.manifest_sha256": {
+        "none": 6
+      },
+      "sandbox.egress_allow": {
+        "none": 6
+      },
+      "sandbox.egress_profile": {
+        "none": 6
+      },
+      "sandbox.profile": {
+        "none": 6
+      },
+      "sandbox.profile_sha256": {
+        "none": 6
+      },
+      "setup.deps_source": {
+        "none": 6
+      },
+      "setup.kogen_sha": {
+        "none": 6
+      },
+      "setup.sandbox_mode": {
+        "none": 6
+      },
+      "setup.sandbox_profile_sha256": {
+        "none": 6
+      },
+      "setup.task_base.hash": {
+        "none": 6
+      },
+      "setup.task_base.kind": {
+        "none": 6
+      },
+      "task.base_repo": {
+        "none": 6
+      },
+      "task.base_revision.hash": {
+        "none": 6
+      },
+      "task.base_revision.kind": {
+        "none": 6
+      },
+      "timestamps.cell.end_utc": {
+        "none": 6
+      },
+      "timestamps.cell.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.develop.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.develop.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.gate.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.gate.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.grade.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.grade.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.plan.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.plan.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.review.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.review.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.setup.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.setup.start_utc": {
+        "none": 6
+      },
+      "timestamps.phases.shape.end_utc": {
+        "none": 6
+      },
+      "timestamps.phases.shape.start_utc": {
+        "none": 6
+      },
+      "timing.phases_s.develop": {
+        "none": 6
+      },
+      "timing.phases_s.gate": {
+        "none": 6
+      },
+      "timing.phases_s.grade": {
+        "none": 6
+      },
+      "timing.phases_s.plan": {
+        "none": 6
+      },
+      "timing.phases_s.review": {
+        "none": 6
+      },
+      "timing.phases_s.setup": {
+        "none": 6
+      },
+      "timing.phases_s.shape": {
+        "none": 6
+      },
+      "tokens.phases.develop.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.develop.input": {
+        "none": 6
+      },
+      "tokens.phases.develop.output": {
+        "none": 6
+      },
+      "tokens.phases.develop.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.gate.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.gate.input": {
+        "none": 6
+      },
+      "tokens.phases.gate.output": {
+        "none": 6
+      },
+      "tokens.phases.gate.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.grade.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.grade.input": {
+        "none": 6
+      },
+      "tokens.phases.grade.output": {
+        "none": 6
+      },
+      "tokens.phases.grade.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.plan.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.plan.input": {
+        "none": 6
+      },
+      "tokens.phases.plan.output": {
+        "none": 6
+      },
+      "tokens.phases.plan.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.review.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.review.input": {
+        "none": 6
+      },
+      "tokens.phases.review.output": {
+        "none": 6
+      },
+      "tokens.phases.review.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.setup.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.setup.input": {
+        "none": 6
+      },
+      "tokens.phases.setup.output": {
+        "none": 6
+      },
+      "tokens.phases.setup.reasoning": {
+        "none": 6
+      },
+      "tokens.phases.shape.cached_input": {
+        "none": 6
+      },
+      "tokens.phases.shape.input": {
+        "none": 6
+      },
+      "tokens.phases.shape.output": {
+        "none": 6
+      },
+      "tokens.phases.shape.reasoning": {
+        "none": 6
+      },
+      "tools.codex_cli": {
+        "none": 6
+      },
+      "tools.grader": {
+        "none": 6
+      },
+      "tools.kogen": {
+        "none": 6
+      },
+      "tools.runner": {
+        "none": 6
+      },
+      "tools.toolchains.elixir": {
+        "none": 5
+      },
+      "tools.toolchains.erlang": {
+        "none": 5
+      },
+      "tools.toolchains.node": {
+        "none": 6
+      },
+      "tools.toolchains.other_inventory": {
+        "none": 3
+      },
+      "tools.toolchains.python": {
+        "none": 5
+      },
+      "tools.toolchains.ruby": {
+        "none": 6
+      },
+      "tools.toolchains.rust": {
+        "none": 6
+      }
+    },
+    "reconstructable": {}
+  },
+  "protocol_deviations": [
+    "No official hidden-suite grade was obtained; scoring is offline and artifact-based.",
+    "Set 2 plot artifacts were not retained, so semantic plot scoring is unavailable.",
+    "The initial set 1 run was excluded for host isolation overlap; the valid rerun supplies the set 1 observation."
+  ],
+  "round": "lab01-analysis-tooling-screen",
+  "withheld_inputs": [
+    "protected expected tree contents",
+    "protected reference tree contents",
+    "private transcripts and event streams"
+  ]
+}
+```

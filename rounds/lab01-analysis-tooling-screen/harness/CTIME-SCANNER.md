@@ -1,0 +1,5 @@
+# Change-time scan method and summary
+
+The set 1 classification used a broad initial scan and a recheck under the established scan policy. The broad scan recorded 3,321 additions, 17 changes and no removals; every change was classified. The later policy recheck covered 327,578 entries, reported no errors, additions or removals, and found only the expected hosts-file restore.
+
+Set 2 used a scoped scanner with complete, untruncated pre- and post-snapshots (2,085 and 2,087 entries, zero errors). Its comparator rejected the pair because the declared scopes differed, so the final classification used the preserved rows and the final review ruling. Final counts were 2 additions, 9 changes and no removals: 7 HARNESS-CACHE, 4 HOST-BACKGROUND and 0 UNEXPLAINED. The standing helper's five-minute refresh explained the lock metadata; the pinned watcher restore explained the log row. The scoped scanner observed approved evidence-root metadata but did not recurse into individual attempt directories. Scanner data and raw rows remain private.

@@ -308,3 +308,7 @@ The standardized per-run export lacks several detailed environment, phase, cost 
 - `tools.toolchains.python` (26 missing): Python toolchain version not recorded for the public round data Reason: Python toolchain version not recorded for the public round data (`m90`).
 - `tools.toolchains.ruby` (26 missing): Toolchain inventory not recorded Reason: Toolchain inventory not recorded (`m94`).
 - `tools.toolchains.rust` (26 missing): Toolchain version not recorded Reason: Toolchain version not recorded (`m95`).
+
+## Update 13 October 2026
+
+Web search was an enabled feature in this round; agents searched documentation sites (go.dev, doc.rust-lang.org); no access to kogen.dev was found.

@@ -1,0 +1,313 @@
+{
+  "round_id": "lab01-analysis-tooling-screen",
+  "date": "2026-10-13",
+  "status": "DESCRIPTIVE; SCREENING ONLY",
+  "question": "For one fixed small analysis task, what correctness, elapsed time, token use, repair activity and clean-rerun outcomes were observed for each stack under this protocol?",
+  "model_requested": "gpt-6-luna",
+  "effort_requested": "max",
+  "author_cap_s": 2700,
+  "rerun_cap_s": 900,
+  "host": "EU host; both sets ran sequentially on this host",
+  "accounting": {
+    "planned_cells": 6,
+    "started_cells": 6,
+    "finished_cells": 6,
+    "officially_graded_cells": 0,
+    "offline_artifact_scored_cells": 6,
+    "itt_denominator": 6
+  },
+  "run_orders": [
+    {
+      "set": 1,
+      "sequence": [
+        "PY",
+        "EX",
+        "GO"
+      ],
+      "source_harness_sha256": "9872860fb6df2a28e2407be621afe560f8c4877fe31afcbe33c5cae3f9eff31c"
+    },
+    {
+      "set": 2,
+      "sequence": [
+        "GO",
+        "EX",
+        "PY"
+      ],
+      "source_harness_sha256": "9842756eb59e54509f83fcded53781703f396ae2263d6b4ded9d102a830da297"
+    }
+  ],
+  "set_level_summary": {
+    "set1": {
+      "numeric_outputs_correct": 3,
+      "numeric_outputs_total": 3,
+      "task_satisfied": 0,
+      "task_total": 3,
+      "semantic_plot_rubric": "3/3 arms scored 5/5",
+      "rerun_ok": "1/3"
+    },
+    "set2": {
+      "numeric_outputs_correct": 3,
+      "numeric_outputs_total": 3,
+      "task_satisfied": 0,
+      "task_total": 3,
+      "semantic_plot_rubric": "not scored; per-arm plots not retained",
+      "rerun_ok": "1/3"
+    }
+  },
+  "arms": [
+    {
+      "set": 1,
+      "arm": "PY",
+      "language": "Python",
+      "order_position": 1,
+      "phase": "authoring",
+      "elapsed_s": 110.019,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 0,
+      "run_sh_attempts": 3,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 3.605,
+        "rerun_ok": false
+      },
+      "tokens": {
+        "input": 470241,
+        "cached_input": 415744,
+        "output": 10833,
+        "reasoning": 5648,
+        "total": 481074
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": true,
+      "plot_semantic": {
+        "status": "scored",
+        "criteria_pass": 5,
+        "criteria_total": 5
+      },
+      "stack_conformance": false,
+      "task_satisfied": false
+    },
+    {
+      "set": 1,
+      "arm": "EX",
+      "language": "Elixir",
+      "order_position": 2,
+      "phase": "authoring",
+      "elapsed_s": 156.293,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 6,
+      "run_sh_attempts": 5,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 6.013,
+        "rerun_ok": true
+      },
+      "tokens": {
+        "input": 478567,
+        "cached_input": 436992,
+        "output": 14906,
+        "reasoning": 8667,
+        "total": 493473
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": false,
+      "plot_semantic": {
+        "status": "scored",
+        "criteria_pass": 5,
+        "criteria_total": 5
+      },
+      "stack_conformance": true,
+      "task_satisfied": false
+    },
+    {
+      "set": 1,
+      "arm": "GO",
+      "language": "Go",
+      "order_position": 3,
+      "phase": "authoring",
+      "elapsed_s": 366.488,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 2,
+      "run_sh_attempts": 2,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 1.002,
+        "rerun_ok": false
+      },
+      "tokens": {
+        "input": 471565,
+        "cached_input": 411648,
+        "output": 18669,
+        "reasoning": 9170,
+        "total": 490234
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": false,
+      "plot_semantic": {
+        "status": "scored",
+        "criteria_pass": 5,
+        "criteria_total": 5
+      },
+      "stack_conformance": false,
+      "task_satisfied": false
+    },
+    {
+      "set": 2,
+      "arm": "GO",
+      "language": "Go",
+      "order_position": 1,
+      "phase": "authoring",
+      "elapsed_s": 136.282,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 0,
+      "run_sh_attempts": 1,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 12.031,
+        "rerun_ok": false
+      },
+      "tokens": {
+        "input": 508810,
+        "cached_input": 469248,
+        "output": 15538,
+        "reasoning": 6953,
+        "total": 524348
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": false,
+      "plot_semantic": {
+        "status": "not_scored",
+        "reason": "per-arm plot artifact not retained"
+      },
+      "stack_conformance": false,
+      "task_satisfied": false
+    },
+    {
+      "set": 2,
+      "arm": "EX",
+      "language": "Elixir",
+      "order_position": 2,
+      "phase": "authoring",
+      "elapsed_s": 520.404,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 7,
+      "run_sh_attempts": 7,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 1.504,
+        "rerun_ok": true
+      },
+      "tokens": {
+        "input": 1300076,
+        "cached_input": 1235712,
+        "output": 26085,
+        "reasoning": 15618,
+        "total": 1326161
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": false,
+      "plot_semantic": {
+        "status": "not_scored",
+        "reason": "per-arm plot artifact not retained"
+      },
+      "stack_conformance": true,
+      "task_satisfied": false
+    },
+    {
+      "set": 2,
+      "arm": "PY",
+      "language": "Python",
+      "order_position": 3,
+      "phase": "authoring",
+      "elapsed_s": 127.039,
+      "author_cap_s": 2700,
+      "cap_hit": false,
+      "infra_invalid": false,
+      "nonzero_shell_events": 1,
+      "run_sh_attempts": 1,
+      "rerun": {
+        "exit_code": 0,
+        "elapsed_s": 0.601,
+        "rerun_ok": false
+      },
+      "tokens": {
+        "input": 511569,
+        "cached_input": 476928,
+        "output": 15862,
+        "reasoning": 8779,
+        "total": 527431
+      },
+      "repair_turns": 0,
+      "numeric_checker": {
+        "tables.csv": "40/40",
+        "bootstrap.csv": "28/28",
+        "token_cost.csv": "48/48",
+        "plot_data.csv": "32/32",
+        "numbers_correct": true
+      },
+      "plot_file_ok": false,
+      "plot_semantic": {
+        "status": "not_scored",
+        "reason": "per-arm plot artifact not retained"
+      },
+      "stack_conformance": false,
+      "task_satisfied": false
+    }
+  ],
+  "score_definitions": {
+    "numbers_correct": "All four CSVs have correct structure and every numeric field matches the frozen expected files.",
+    "task_satisfied": "numbers_correct AND plot_file_ok AND plot_semantic_ok AND stack_conformance; no arm met all components."
+  },
+  "disclosures": {
+    "invalid_first_set1": "Excluded from scores and ITT evidence; documented in appendix/invalid-first-set1.md.",
+    "transcripts": "Private; only transcript-audit counts are published.",
+    "protected_trees": "Expected and reference trees omitted; only their SHA-256 tree digests are published."
+  },
+  "publication_badge": "DESCRIPTIVE; KEPT FOR AUDIT",
+  "recomputation_status": "Offline artifact scoring replayed; set 2 plot semantics unavailable"
+}

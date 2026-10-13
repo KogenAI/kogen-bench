@@ -1,0 +1,24 @@
+{
+  "root": ["hosts", "denominators", "runs"],
+  "hosts": {
+    "keys": ["studio", "macbook"],
+    "fields": ["epoch_utc", "hardware", "harness_sha256", "run", "soft_cores_per_arm"],
+    "hardware_fields": ["hardware", "platform"],
+    "hardware_details": ["hw.memsize", "hw.model", "hw.ncpu", "hw.perflevel0.physicalcpu", "hw.perflevel1.physicalcpu", "machdep.cpu.brand_string"],
+    "platform_details": ["machine", "macos", "system"]
+  },
+  "denominators": ["N_scored", "N_total", "excluded"],
+  "run": [
+    "arm", "host", "wave", "model", "effort", "arm_validity",
+    "official_scorer_final", "accepted_deviation_final", "raw_first",
+    "combined", "flips_observed", "case_status_counts", "resources"
+  ],
+  "case_status_counts": ["error", "fail", "pass"],
+  "resources": ["raw_wall_s", "stall_adjusted_wall_s"],
+  "joins": {
+    "run_key": "runs.<host>.<arm>",
+    "token_key": ["host", "arm"],
+    "required_matches": 16,
+    "require_nonzero_final": true
+  }
+}

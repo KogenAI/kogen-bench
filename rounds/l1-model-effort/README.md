@@ -223,3 +223,7 @@ transcripts and account or server identifiers are not included.
 ## Setup and inputs
 
 The L1 setup and orchestration are archived in [harness/](harness/); input scope is documented in [inputs/](inputs/) and the withheld suite commitment is in [INPUTS-SHA256.txt](INPUTS-SHA256.txt).
+
+## Update 13 October 2026
+
+Sinkhole for kogen.dev unverified for this run (the host's hosts file was not readable by the agent user); the agents' own transcripts, where preserved, show no access; transcripts for this round are no longer available. Three US Go transcripts survive and show none.
