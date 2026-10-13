@@ -1,5 +1,10 @@
 # Small containment comparison
 
+Round ID: containment-small-eu
+Round date: 2026-10-13
+Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
+Recomputation status: OBSERVED SOURCE ONLY
+Why not VALID: DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — The public files include per-cell hashes and frozen source, but not raw per-cell data; nine b cells are invalid, all 33 c2 cells were not run, and the observations cover one EU host.
 STATUS: **DESCRIPTIVE**
 
 Evidence tier: OBSERVATION ONLY
