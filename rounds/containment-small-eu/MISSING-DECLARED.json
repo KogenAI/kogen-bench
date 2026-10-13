@@ -1,0 +1,58 @@
+{
+  "round_id": "containment-small-eu",
+  "tier": "OBSERVATION",
+  "matrix": {
+    "planned_rows": 99,
+    "selected_rows": 66,
+    "valid_selected_rows": 57,
+    "invalid_selected_rows": 9,
+    "not_run_rows": 33
+  },
+  "declarations": [
+    {
+      "id": "b-read-and-network",
+      "arm": "b",
+      "fixtures": ["file_read_outside", "secret_file_read", "net_loopback"],
+      "rows": 9,
+      "status": "INVALID(launch ok)",
+      "reason": "The launcher completed, but the apparatus did not prove those fixture outcomes.",
+      "verdict_effect": "No containment pass is claimed for these cells."
+    },
+    {
+      "id": "c2-positive-control",
+      "arm": "c2",
+      "fixtures": "all 11 fixtures",
+      "rows": 33,
+      "status": "NOT-RUN",
+      "reason": "The live allowed_rw positive control did not produce the expected fixture marker. A manual nono run in the same scope did produce it; the cause remains unresolved.",
+      "verdict_effect": "No measured c2 result or inference is reported."
+    },
+    {
+      "id": "z-resource-caps",
+      "arm": "z",
+      "fixtures": ["mem_cap", "pids_cap"],
+      "rows": 6,
+      "status": "UNSUPPORTED(no mechanism)",
+      "reason": "The z control has no memory or process-count cap mechanism.",
+      "verdict_effect": "These are not containment successes."
+    }
+  ],
+  "scope_limits": [
+    {
+      "id": "single-host",
+      "description": "One EU host, one kernel, three repetitions and a small fixed fixture set.",
+      "effect": "No general ranking or production qualification."
+    },
+    {
+      "id": "core-04-separate",
+      "description": "Kogen's containment helper was not tested; CORE-04 is separate and remains under qualification.",
+      "effect": "This round does not qualify the helper."
+    }
+  ],
+  "not_published": [
+    "Raw per-cell JSON contents",
+    "Transcripts and event streams",
+    "Machine-local execution details",
+    "Compiled fixture and vendor executable"
+  ]
+}

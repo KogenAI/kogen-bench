@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 89
+DESCRIPTIVE: 90
 PILOT: 11
 INVALID: 35
 INCOMPLETE: 36
@@ -305,3 +305,4 @@ fv-pilot-2026-10-10 | DESCRIPTIVE | CEILING, SMALL_SAMPLE, DECLARED_AMENDMENTS, 
 l1-model-effort | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — One planned run per condition and language; the US host retired mid-experiment, one arm was interrupted, and one was not run. No winner is claimed.
 arch-elixir-vs-go | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — inconclusive under both readings; zero complete pairs.
 lab01-analysis-tooling-screen | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — one observation per language per set; no official grades; incomplete execution metadata; set 2 plots were not retained.
+containment-small-eu | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — 57 of 66 selected observations valid; 9 b cells invalid; all 33 c2 cells NOT-RUN; one EU host and three repetitions.
