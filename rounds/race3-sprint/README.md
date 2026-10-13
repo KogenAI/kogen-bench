@@ -21,6 +21,14 @@ The v2 patch was a targeted wording, suite and harness patch, not a complete rew
 
 The patch did not resolve every review finding. The frozen inventory retains 144 cases, with 88 excluded and 56 scored. The final exclusion summary is: 30 carried from v1; 23 duplicate cases; 12 formatter-sensitive cases; 10 config cases; four missing-Cargo-fixture cases; four Rust-status-schema cases; two questions/exit-code contradictions; and one each for deadline disagreement, an unbounded failing hook, and executable/process identity. Intermediate patch-job counts differ from this assembled inventory. [TARGET.md](harness/TARGET.md), [the exclusion list](harness/EXCLUDED-V2.txt) and [follow-up verification](harness/REVIEW-FOLLOWUP.md) describe the final state. The patch had static checks and harness smoke checks, but no agent implementation dry cell or reference witness.
 
+## Interrupted first attempt
+
+The first attempt is marked around 09:58 UTC on 10 October 2026; its exact start and stop times are not recorded.
+Setup folders exist for Go, Gleam, Elixir, Rust and TypeScript on the Mac Studio, but the files do not show which began running.
+The available records do not state why the attempt was stopped.
+Before the clean relaunch at 10:10 UTC, the wording, tests and run scripts were revised after review.
+No result from the interrupted attempt is part of this round.
+
 ## What actually ran
 
 All dates and times below are 2026-10-10 UTC; `Z` means UTC.
