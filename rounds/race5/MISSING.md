@@ -2,10 +2,10 @@ Suite test files, case identifiers, per-case results and associated model, featu
 
 ## Protocol deviations
 
-- The registered PRIMARY retains all four officially scored but INVALID cells; invalid status is disclosed and no score is silently removed. Go wins the PRIMARY reading under RULES 2; alternative readings are sensitivities.
+- The registered PRIMARY retains all four officially scored but INVALID cells; invalid status is disclosed and no score is silently removed. Under the registered PRIMARY reading in RULES 2, Go had the highest observed result after tie-zone timing; alternative readings are sensitivities. This is an observation-tier result, not decision-grade evidence or production qualification.
 - Two Go make-up cells are included only in the REPAIRED sensitivity, not the PRIMARY four-run sample; LOCK and NOLOCK differ in treatment and concurrency.
 - The Go sandbox self-breaks caused two lost-work events; source reports identify the affected windows and do not fast-fail after the first loss.
-- Linux EU/US cells are nondeciding robustness observations. Their REAL-WORKFLOW egress window and approximate provider-only restoration are disclosed separately.
+- Linux EU/US cells are robustness observations outside PRIMARY. Their REAL-WORKFLOW egress window and approximate provider-only restoration are disclosed separately.
 - Full audits and searches for earlier eligible perfect scores are incomplete; the listed cells and results retain the source bundle’s declared limits.
 
 ## Standard record declaration
@@ -1242,10 +1242,10 @@ Suite test files, case identifiers, per-case results and associated model, featu
     }
   },
   "protocol_deviations": [
-    "The registered PRIMARY retains all four officially scored but INVALID cells; invalid status is disclosed and no score is silently removed. Go wins the PRIMARY reading under RULES 2; alternative readings are sensitivities.",
+    "The registered PRIMARY retains all four officially scored but INVALID cells; invalid status is disclosed and no score is silently removed. Under the registered PRIMARY reading in RULES 2, Go had the highest observed result after tie-zone timing; alternative readings are sensitivities. This is an observation-tier result, not decision-grade evidence or production qualification.",
     "Two Go make-up cells are included only in the REPAIRED sensitivity, not the PRIMARY four-run sample; LOCK and NOLOCK differ in treatment and concurrency.",
     "The Go sandbox self-breaks caused two lost-work events; source reports identify the affected windows and do not fast-fail after the first loss.",
-    "Linux EU/US cells are nondeciding robustness observations. Their REAL-WORKFLOW egress window and approximate provider-only restoration are disclosed separately.",
+    "Linux EU/US cells are robustness observations outside PRIMARY. Their REAL-WORKFLOW egress window and approximate provider-only restoration are disclosed separately.",
     "Full audits and searches for earlier eligible perfect scores are incomplete; the listed cells and results retain the source bundle’s declared limits."
   ]
 }

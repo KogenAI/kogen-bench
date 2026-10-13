@@ -1,6 +1,6 @@
-Go is the PRIMARY winner in the requested comparison using the recorded FINAL scores, including scores from runs marked INVALID. TypeScript (Bun) and Go have the two highest middle scores across four runs, 69 and 68.5 passed tests out of 106. Their gap is within three tests, so the requested timing method decides: Go takes 15.804 seconds versus TypeScript's 18.052. Sensitivities: Go also wins when all five languages within three tests of the leader are compared, when only Go's two MacBook runs are used, or when its Studio runs are replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally gives “no clear winner,” because the score gap never changes. Excluding intervals with no build/test work gives TypeScript for the main comparison and the two-MacBook Go comparison, Rust for the all-language comparison, and Go for REPAIRED. Taking the middle of each run's timing medians instead also gives Rust for the all-language comparison; the other timing-based comparisons still give Go. The registered PRIMARY retains recorded scores from invalid runs; alternate readings and measurement choices are sensitivities. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit this verdict; an earlier officially verified perfect score from an eligible run could supersede it.
+The registered PRIMARY reading places Go highest after the specified tie-zone comparison. TypeScript (Bun) and Go had the two highest score medians across four runs, 69 and 68.5 out of 106; their 0.5-case gap is within the three-case zone. Go's J1 timing was 15.804 seconds versus TypeScript's 18.052; spread was unused, and the rule specifies no timing closeness margin. Recorded FINAL scores from runs marked INVALID are included. Sensitivities: Go is also highest under the J1 reading when all five languages within three tests of the leader are compared, when only Go's two MacBook runs are used, and when its Studio runs are replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally leaves score medians unchanged and no language separated. Excluding intervals with no build/test work gives TypeScript for the main comparison and the two-MacBook Go comparison, Rust for the all-language comparison, and Go for REPAIRED. Taking the middle of each run's timing medians instead gives Rust for the all-language comparison; the other timing-based comparisons give Go. The registered PRIMARY includes recorded scores from invalid runs; alternate readings and measurement choices are sensitivities. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit these observations; an earlier officially verified perfect score from an eligible run could supersede the FINAL-score comparison. This is an observation-tier result, not decision-grade evidence or a production-qualification claim.
 
-Four runs on two Macs decide; Linux and interrupted Studio A are nondeciding. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68.
+Four runs on two Macs per language make up the PRIMARY comparison; Linux and interrupted Studio A are outside it. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68.
 
 | PRIMARY language | Median /106 | Min | Max | Spread | J1 seconds (intervals) |
 |---|---|---|---|---|---|
@@ -10,7 +10,7 @@ Four runs on two Macs decide; Linux and interrupted Studio A are nondeciding. FI
 | Elixir | 66.5 | 65 | 69 | 4 | 18.964 (664) |
 | Python | 68 | 66 | 69 | 3 | 27.064 (595) |
 
-The top two are TypeScript (69) and Go (68.5). Go’s 15.804 seconds beats TypeScript’s 18.052; spread is not used. The text defines no timing closeness margin.
+The top two score medians are TypeScript (69) and Go (68.5). Go’s J1 timing was 15.804 seconds compared with TypeScript’s 18.052; spread was not used. The rule defines no timing closeness margin.
 
 Frozen rule, lines 55–73, verbatim:
 
@@ -38,15 +38,15 @@ indistinguishable, report "no clear winner".
 
 ## Sensitivities
 
-| Reading | Winner/outcome | Go median | Go J1 seconds / basis |
+| Reading | Observed outcome | Go median | Go J1 seconds / basis |
 |---|---|---|---|
 | PRIMARY: top two | Go | 68.5 | 15.804 |
 | (a) All within 3 of leader | Go | 68.5 | 15.804 |
 | (b) Go’s two MacBook runs | Go | 69.5 | 15.681 |
 | (c) Replace Studio Go with make-ups | Go | 68.5 | 15.681 |
-| (d) Literal “still within” sentence | no clear winner | 68.5 | score medians never change |
+| (d) Literal “still within” sentence | no separation | 68.5 | score medians never change |
 
-Reading (a) includes all five languages. In (b)/(c), only Go's observations change; other languages retain four runs. Timing compares unrounded medians first; spread applies only for exactly equal or unavailable timing. “Counts as not reached” does not specify deleting the numerical FINAL score or replacing it with zero; the as-scored PRIMARY therefore retains Studio A′ Go's 58 while marking the run INVALID. Removing only that run and its timing observations gives Go scores 70/69/68, median 69, spread 2 and J1 timing 15.825 seconds over 395 intervals. Go still beats TypeScript's 18.052 seconds, so this sensitivity does not change the PRIMARY winner. MacBook B Go's separate INVALID audit finding remains in that three-run sample.
+Reading (a) includes all five languages. In (b)/(c), only Go's observations change; other languages retain four runs. Timing compares unrounded medians first; spread applies only for exactly equal or unavailable timing. “Counts as not reached” does not specify deleting the numerical FINAL score or replacing it with zero; the as-scored PRIMARY therefore retains Studio A′ Go's 58 while marking the run INVALID. Removing only that run and its timing observations gives Go scores 70/69/68, median 69, spread 2 and J1 timing 15.825 seconds over 395 intervals. In this three-run sample, Go's J1 timing is 15.825 seconds versus TypeScript's 18.052 seconds, leaving the PRIMARY ordering unchanged. MacBook B Go's separate INVALID audit finding remains in that three-run sample.
 
 | Host | Wave | Language | FINAL /106 | Valid y/n† | Tokens (M) | J1 s/write interval |
 |---|---|---|---|---|---|---|
@@ -96,7 +96,7 @@ The legacy classifier misses `python -m pytest` and `python -m unittest`; adding
 | Median of run medians | 16.550 / 17.982 | Go | Rust | Go | Go |
 | Expand Python test recognition | 15.804 / 18.052 | Go | Go | Go | Go |
 
-The requested J1 result is sensitive to measurement choices: positive-only timing changes PRIMARY to TypeScript; positive-only and median-of-run-medians change the group winner to Rust. Expanded Python recognition does not change these J1 winners.
+The J1 reading is sensitive to measurement choices. Excluding zero intervals gives TypeScript for PRIMARY and the two-run comparison, Rust for the all-language comparison, and Go for REPAIRED. Using the middle of each run’s timing medians gives Go for PRIMARY, the two-run comparison and REPAIRED, and Rust for the all-language comparison. Expanded Python recognition does not change these J1 outcomes.
 
 | Linux robustness (nondeciding) | Arm | FINAL /106 | FINAL tokens (M) |
 |---|---|---|---|

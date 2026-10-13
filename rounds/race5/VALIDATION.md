@@ -4,7 +4,7 @@ PASS: all five exported governing-rule copies retain SHA-256 `a822d353be7bea9123
 
 PASS: the exact requested manifest pipeline recomputed the complete frozen input tree as `1e01ae32828e9ecadaba4fb8e25be59cad79a2ac219e9d2df84d9252e495ebfe` (433 files), matching the frozen prefix. The conformance tree is `45bf416f8bb384140630e7b4a8c072f6a0d93294a45619b2d3f6ffe255f8538b` (185 files). The withheld inputs tree, retaining original relative paths and removing only the eleven exported prose files, is `c773f5d564fa11cc20b219d28ced20b161becb63a6c683bab6eff92fadc496b1` (422 files). INPUTS-SHA256.txt defines each scope and recipe; no symlinks or bytecode were present.
 
-README.md and RESULTS.md describe the same qualified PRIMARY outcome, but their opening paragraphs are not byte-for-byte identical. Public arithmetic validation does not establish textual identity with private source reports.
+README.md and RESULTS.md report the same observation-tier PRIMARY reading, but their opening paragraphs are not byte-for-byte identical. Public arithmetic validation does not establish textual identity with private source reports.
 
 PASS: 26 completed cells are supplied: 20 PRIMARY as-scored Mac cells, two REPAIRED-only Go make-ups and four nondeciding Linux robustness cells. The four INVALID primary cells retain their recorded numerical scores. y explicitly means no invalidating gate found in inspected evidence; every cell has full_compliance_certified=false. Interrupted Studio A has no completed FINAL and is incident evidence.
 

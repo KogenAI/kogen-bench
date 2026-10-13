@@ -1,4 +1,4 @@
-# Race 5 — language decision round (descriptive)
+# Race 5 — language comparison (descriptive)
 
 Round date: 2026-10-11
 Publication badge: DESCRIPTIVE; KEPT FOR AUDIT
@@ -8,11 +8,11 @@ STATUS: **DESCRIPTIVE**
 
 A run is one agent attempt under a specified condition. FINAL means the retained end-of-run snapshot and its score. T+ denotes elapsed time since that host’s run began. A snapshot is a saved checkpoint.
 
-Go wins under the registered PRIMARY as scored: Go’s median is 68.5/106 and TypeScript (Bun)’s is 69, so the 0.5-case gap puts them in the tie zone; Go’s J1 timing of 15.804 seconds beats TypeScript’s 18.052, with spread unused and no timing closeness margin specified. Recorded FINAL scores from invalid runs are retained. Sensitivities: Go also wins across all five languages within three cases of the leader, using only its two MacBook runs, and with its Studio runs replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally gives “no clear winner” because score medians never change. Excluding zero intervals gives TypeScript for PRIMARY and the two-MacBook comparison, Rust for the all-language comparison, and Go for REPAIRED; using the middle of each run’s timing medians gives Rust for the all-language comparison and Go for the other timing comparisons. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit this verdict; an earlier officially verified perfect score from an eligible run could supersede it.
+The registered PRIMARY reading places Go highest after the specified tie-zone comparison: its median was 68.5/106 and TypeScript (Bun)’s was 69, a 0.5-case gap within the three-case zone; Go’s J1 timing was 15.804 seconds versus TypeScript’s 18.052. Spread was unused, and the rule specified no timing closeness margin. Recorded FINAL scores from invalid runs are retained. Sensitivity readings: Go is also highest when all five languages within three cases of the leader are compared, when only its two MacBook runs are used, and when its Studio runs are replaced by the two make-ups (REPAIRED). Reading “still within the tie zone” literally leaves no language separated because score medians never change. Excluding zero intervals gives TypeScript for PRIMARY and the two-MacBook comparison, Rust for the all-language comparison, and Go for REPAIRED; using the middle of each run’s timing medians gives Rust for the all-language comparison and Go for the other timing comparisons. Invalid runs, incomplete audits and unfinished searches for earlier perfect scores limit these observations; an earlier officially verified perfect score from an eligible run could supersede the FINAL-score comparison. This is an observation-tier result only, not decision-grade evidence or a production-qualification claim.
 
 A and B label successive run batches; the primed Mac Studio labels identify its replacement schedule after interruption. PRIMARY is the registered comparison. REPAIRED substitutes the Go make-up runs. J1 is the historical build/test timing proxy defined below.
 
-Four runs on two Macs decide; Linux and interrupted Studio A are nondeciding. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68.
+Four runs on two Macs per language make up the PRIMARY comparison; Linux and interrupted Studio A are outside it. FINAL text, score.json, official/combined per-case JSONL and integrity receipts agree. Both Go make-ups are DONE and verify as 68.
 ## Primary cohort accounting
 
 These separate counts apply to the 20 planned PRIMARY Mac arm-wave cells only; make-ups and Linux robustness rows are outside this denominator.
@@ -69,15 +69,15 @@ indistinguishable, report "no clear winner".
 
 ## Sensitivities
 
-| Reading | Winner/outcome | Go median | Go J1 seconds / basis |
+| Reading | Observed outcome | Go median | Go J1 seconds / basis |
 |---|---|---|---|
 | PRIMARY: top two | Go | 68.5 | 15.804 |
 | (a) All within 3 of leader | Go | 68.5 | 15.804 |
 | (b) Go’s two MacBook runs | Go | 69.5 | 15.681 |
 | (c) Replace Studio Go with make-ups | Go | 68.5 | 15.681 |
-| (d) Literal “still within” sentence | no clear winner | 68.5 | score medians never change |
+| (d) Literal “still within” sentence | no separation | 68.5 | score medians never change |
 
-Reading (a) includes all five languages. In (b)/(c), only Go's observations change; other languages retain four runs. Timing compares unrounded medians first; spread applies only for exactly equal or unavailable timing. “Counts as not reached” does not specify deleting the numerical FINAL score or replacing it with zero; the as-scored PRIMARY therefore retains Studio A′ Go's 58 while marking the run INVALID. Removing only that run and its timing observations gives Go scores 70/69/68, median 69, spread 2 and J1 timing 15.825 seconds over 395 intervals. Go still beats TypeScript's 18.052 seconds, so this sensitivity does not change the PRIMARY winner. MacBook B Go's separate INVALID audit finding remains in that three-run sample.
+Reading (a) includes all five languages. In (b)/(c), only Go's observations change; other languages retain four runs. Timing compares unrounded medians first; spread applies only for exactly equal or unavailable timing. “Counts as not reached” does not specify deleting the numerical FINAL score or replacing it with zero; the as-scored PRIMARY therefore retains Studio A′ Go's 58 while marking the run INVALID. Removing only that run and its timing observations gives Go scores 70/69/68, median 69, spread 2 and J1 timing 15.825 seconds over 395 intervals. In this three-run sample, Go's J1 timing is 15.825 seconds versus TypeScript's 18.052 seconds, leaving the PRIMARY ordering unchanged. MacBook B Go's separate INVALID audit finding remains in that three-run sample.
 
 | Host | Wave | Language | FINAL /106 | Valid y/n† | Tokens (M) | J1 s/write interval |
 |---|---|---|---|---|---|---|
@@ -127,9 +127,9 @@ The legacy classifier misses `python -m pytest` and `python -m unittest`; adding
 | Median of run medians | 16.550 / 17.982 | Go | Rust | Go | Go |
 | Expand Python test recognition | 15.804 / 18.052 | Go | Go | Go | Go |
 
-The requested J1 result is sensitive to measurement choices: positive-only timing changes PRIMARY to TypeScript; positive-only and median-of-run-medians change the group winner to Rust. Expanded Python recognition does not change these J1 winners.
+The J1 reading is sensitive to measurement choices. Excluding zero intervals gives TypeScript for PRIMARY and the two-run comparison, Rust for the all-language comparison, and Go for REPAIRED. Using the middle of each run’s timing medians gives Go for PRIMARY, the two-run comparison and REPAIRED, and Rust for the all-language comparison. Expanded Python recognition does not change these J1 outcomes.
 
-| Linux robustness (nondeciding) | Arm | FINAL /106 | FINAL tokens (M) |
+| Linux robustness (outside PRIMARY) | Arm | FINAL /106 | FINAL tokens (M) |
 |---|---|---|---|
 | EU A | Rust | 70 | 60.489 |
 | EU B | Go | 66 | 57.221 |
@@ -164,7 +164,7 @@ Disclosures:
 - MODE was real-workflow: restrictions relied on instructions, git URL rewrites and event-log audits; Macs had no DNS-level block. macOS lacked sudo access and HOSTALIASES support. No Astra pre-review; no Python dry cells beyond its probe.
 - MacBook A, both Studio runs, both make-ups and Linux A audits crashed in provider parsing. Model receipts and current integrity checks pass except Studio A′ Go’s missing receipt. Two provider-parser matches are source-text replacements, not HTTP calls. Outside-read candidates remain partly unresolved and do not prove actual protected reads; the published MacBook B flags nevertheless invalidate its Rust/Go/TypeScript cells under the frozen gate. Its incomplete T+010m/T+075m/T+105m snapshots produced missing-receipt flags; FINAL integrity passes. These limits prevent full compliance certification.
 
-- The configured Mac build/test caps are soft two-core limits, with five languages running concurrently. Studio efficiency cores are a hardware caveat; actual core placement and CPU bursts are not characterized in this report. The nondeciding Linux hosts have 2 vCPU and 7 GB RAM. The timing comparison is not normalized for these host differences.
+- The configured Mac build/test caps are soft two-core limits, with five languages running concurrently. Studio efficiency cores are a hardware caveat; actual core placement and CPU bursts are not characterized in this report. The Linux hosts outside PRIMARY have 2 vCPU and 7 GB RAM. The timing comparison is not normalized for these host differences.
 - Model-wait includes stalls but does not separately identify quota/rate-limit stall time. No stall-adjusted comparison is supplied here. Absence of a separate stall count should not be read as evidence that no stalls occurred.
 - Logged whole-second FINAL version warm-ups range from 0 to 5 seconds across the original Mac cells; both Go make-ups log 1 second, and all four Linux FINALs log 0 seconds. Every original Mac and make-up FINAL is below the 103-case lower edge of the mandatory double-scoring band, so each uses its first raw scoring. Agreement between first and combined results is not an independent repeatability check. Flakiness and clean-copy regrade differences are not characterized in this report.
 
@@ -174,7 +174,7 @@ Disclosures:
 Publication note: references above to source `results.json`, `source-verification.json`, collectors, rollouts and adjudication files describe the private analysis. The public `results/results.json` contains aggregate projections only; `results/recompute.py` checks public arithmetic. Case rows, case IDs, commands, transcripts and arm source are withheld. See MISSING.md.
 
 
-[METHOD.md](METHOD.md) contains the complete source method and limitations. [results/cells.tsv](results/cells.tsv) supplies all 26 completed cells, exact tokens, J1 seconds and validity reasons. The two Go make-ups are labelled REPAIRED-only; Linux is nondeciding. [results/README.md](results/README.md) explains public projections and recomputation limits.
+[METHOD.md](METHOD.md) contains the complete source method and limitations. [results/cells.tsv](results/cells.tsv) supplies all 26 completed cells, exact tokens, J1 seconds and validity reasons. The two Go make-ups are labelled REPAIRED-only; Linux is outside PRIMARY. [results/README.md](results/README.md) explains public projections and recomputation limits.
 
 [INCIDENTS.md](INCIDENTS.md) records both Go cache-symlink sandbox failures, make-ups, power/scheduling failures and retention. [LINUX-EGRESS.md](LINUX-EGRESS.md) discloses the REAL-WORKFLOW allow-all egress window and provider-only restoration. [harness/](harness/) archives the rule, MODE, briefs and sanitized orchestration. [inputs/spec/](inputs/spec/) contains only normative prose; [INPUTS-SHA256.txt](INPUTS-SHA256.txt) commits the withheld trees with the exact hash recipe and counts.
 
