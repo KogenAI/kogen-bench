@@ -2,6 +2,8 @@
 
 Every round directory and public variant is indexed and registered. Detailed pages state their evidence coverage and limits; retrospective references are not silently promoted to closed results.
 
+Evidence has three levels: observation (what happened in these runs); decision-grade (a pre-registered rule, adequate repeats, and complete capture support a decision); and production qualification (a separate, later check that the system is fit for real Kogen Builds). Nothing published in this register is production qualification.
+
 Terminology: [public round glossary](GLOSSARY.md).
 
 - [Race 1](race1/README.md) — **DESCRIPTIVE** One run per language on a MacBook. Official aggregate scores and a separately labelled four-arm re-score are published; official per-case results were not preserved, and arm code remains private.

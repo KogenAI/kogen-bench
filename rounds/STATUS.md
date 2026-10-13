@@ -2,7 +2,11 @@
 
 Statuses use the evidence in each round’s own README and files. The status column is the analysis classification and is retained for historical records. Every round README also carries a publication badge, recomputation status, and limits. `KEPT FOR AUDIT` identifies the page as a retained historical record; it does not change the analysis status. New rounds dated 2026-10-09 or later must meet the complete Standard capture gate with no protocol deviations.
 
-LAB-01 is parked; no results or conclusion are published.
+Observation records what happened in these runs. Decision-grade evidence requires a pre-registered rule, adequate repeats, and complete capture that together support a decision. Production qualification is a separate, later check that the system is fit for real Kogen Builds. Nothing published here is production qualification.
+
+DESCRIPTIVE, PILOT, INVALID, and INCOMPLETE mean observation only. VALID means the reported outcomes fit the round’s stated rule and scope; it does not by itself establish decision-grade evidence. A VALID round is decision-grade only when its own records meet all three requirements above; otherwise, its evidence remains observation only.
+
+The LAB-01 analysis-tooling screen is published as DESCRIPTIVE (observations only, kept for audit; see its README); nothing beyond that screen is published for LAB-01.
 
 ## Rounds
 
