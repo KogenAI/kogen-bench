@@ -15,7 +15,7 @@ The LAB-01 analysis-tooling screen is published as DESCRIPTIVE (observations onl
 race1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from one run per language on one MacBook; no pre-registered decision rule.
 race2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, NO_PREREG, ENVIRONMENT — observations from individual runs on one MacBook; no pre-registered decision rule.
 race3-sprint | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — wave 1 harness changed during the race; waves 2/3 used 30-minute caps; FINAL repeats and clean-copy regrade are absent.
-race4 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Descriptive results only: interruptions and a restart changed the planned schedule, and some execution evidence is unavailable. The published scores describe the completed runs; they do not establish an overall language winner. Release is planned after the experiments using these cases (L1–L3) finish; the announced estimate was about 15:00 East Africa Time on 11 October 2026, not a confirmed time.
+race4 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Descriptive results only: interruptions and a restart changed the planned schedule, and some execution evidence is unavailable. The published scores describe the completed runs; they do not establish an overall language winner. The 88-case suite remains withheld because planned follow-up experiments (labelled L2 and L3 in our plans) that reuse these same test cases have not run yet; no release date is set.
 race5 | DESCRIPTIVE | DESCRIPTIVE_ONLY, INVALID_CELL, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Observation-tier result: under the registered PRIMARY reading, Go had the highest observed result after the tie-zone timing comparison, with invalid-run scores retained. Alternative readings and timing methods differ; incomplete audits and historical searches limit these observations. This is not decision-grade evidence or production qualification.
 race6 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Race 6 compares specification-and-tool bundles separately within Elixir and Go. Different frozen harness versions invalidate the round under the literal rule; the coordinator accepted a disclosed deviation for descriptive reporting. No overall winner is claimed.
 
@@ -219,16 +219,17 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 90
-PILOT: 11
+DESCRIPTIVE: 108
+PILOT: 10
 INVALID: 35
-INCOMPLETE: 36
+INCOMPLETE: 37
 
 ## Counts per reason code
 
 ARITHMETIC_UNRECOMPUTABLE: 1
 ARM_MAPPING: 4
 ARM_RECIPE: 24
+CEILING: 1
 COHORT: 1
 COHORTS_NOT_POOLABLE: 1
 COHORT_MISMATCH: 1
@@ -241,29 +242,31 @@ CROSSWALK: 12
 DECISION_RULE: 24
 DECISION_RULE_NOT_APPLIED: 1
 DECISION_RULE_UNDEFINED: 1
+DECLARED_AMENDMENTS: 1
 DENOMINATOR: 3
 DENOMINATOR_MISMATCH: 2
 DENOMINATOR_UNRESOLVED: 9
 DENOMINATOR_UNVERIFIED: 1
-DESCRIPTIVE_ONLY: 2
+DESCRIPTIVE_ONLY: 16
 DESCRIPTIVE_ONLY_RULE: 1
 DESIGN: 21
 DESIGN_CHANGE: 1
-ENVIRONMENT: 39
+ENVIRONMENT: 41
 EVIDENCE: 2
 EVIDENCE_PARTIAL: 1
 EVIDENCE_SCOPE: 1
 FILTER: 1
 HISTORICAL_DATA_PRECEDES_REGISTRATION: 1
-INCOMPLETE_CAPTURE: 1
+INCOMPLETE_CAPTURE: 10
 INCOMPLETE_EVIDENCE: 1
-INCOMPLETE_EXECUTION: 9
+INCOMPLETE_EXECUTION: 11
+INVALID_CELL: 1
 NOT_EXECUTED: 5
 NOT_RUN: 1
 NOT_SCORED: 3
 NO_CANDIDATE: 1
 NO_OUTCOME: 5
-NO_PREREG: 44
+NO_PREREG: 46
 NO_PREREG_EVIDENCE: 4
 NO_PUBLIC_CELLS: 2
 NO_SCORED_CELLS: 1
@@ -276,7 +279,7 @@ OUTCOME_CROSSWALK_MISSING: 7
 OUTCOME_GRADES_MISSING: 1
 OUTCOME_MISMATCH: 3
 PARTIAL_CAPTURE: 1
-PILOT: 3
+PILOT: 2
 PILOT_N1: 1
 POST_HOC_AMENDMENT: 1
 POST_HOC_ANALYSIS: 4
@@ -285,13 +288,14 @@ POST_HOC_DIAGNOSTIC: 1
 PRE_REGISTRATION: 24
 PRE_REGISTRATION_MISSING: 32
 PRE_REGISTRATION_UNPROVEN: 5
+PROTOCOL_DEVIATION: 9
 RAW_EVIDENCE_MISSING: 40
-RAW_EVIDENCE_PARTIAL: 8
+RAW_EVIDENCE_PARTIAL: 16
 RECIPE: 3
 REGISTERED_THRESHOLD_NOT_MET: 1
 SENSITIVITY_ONLY: 1
 SEPARATE_COHORTS: 1
-SMALL_SAMPLE: 2
+SMALL_SAMPLE: 4
 SMOKE_GATE: 1
 SMOKE_ONLY: 3
 TASK_MISMATCH: 2
