@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 108
+DESCRIPTIVE: 109
 PILOT: 10
 INVALID: 35
 INCOMPLETE: 37
@@ -310,3 +310,4 @@ l1-model-effort | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE
 arch-elixir-vs-go | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — inconclusive under both readings; zero complete pairs.
 lab01-analysis-tooling-screen | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — one observation per language per set; no official grades; incomplete execution metadata; set 2 plots were not retained.
 containment-small-eu | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — 57 of 66 selected observations valid; 9 b cells invalid; all 33 c2 cells NOT-RUN; one EU host and three repetitions.
+containment-small-eu-v2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — 92 supported valid observations, 6 unsupported z resource limits, 1 invalid c2 environment-secret repetition; one test server and one kernel.

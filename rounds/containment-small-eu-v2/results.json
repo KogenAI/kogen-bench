@@ -1,0 +1,1229 @@
+{
+  "accounting": {
+    "planned_cells": 99,
+    "started_cells": 99,
+    "finished_cells": 99,
+    "officially_graded_cells": 0,
+    "itt_denominator": 99
+  },
+  "arms": [
+    {
+      "arm": "z",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "status": "UNSUPPORTED(no mechanism)"
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "status": "UNSUPPORTED(no mechanism)"
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        }
+      ],
+      "invalid_rows": 0,
+      "not_run_rows": 0,
+      "valid_rows": 33
+    },
+    {
+      "arm": "b",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "status": "ENFORCED"
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "status": "ENFORCED"
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        }
+      ],
+      "invalid_rows": 0,
+      "not_run_rows": 0,
+      "valid_rows": 33
+    },
+    {
+      "arm": "c2",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "status": "2 BLOCKED, 1 INVALID(launch ok)"
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "status": "BLOCKED"
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "status": "ENFORCED"
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "status": "ENFORCED"
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "status": "NOT-BLOCKED"
+        }
+      ],
+      "invalid_rows": 1,
+      "not_run_rows": 0,
+      "valid_rows": 32
+    }
+  ],
+  "format": "cmp-small-observation-results-v1",
+  "interpretation_limits": [
+    "Eleven small fixtures, no model, one test server and one kernel; not a qualification of any mechanism.",
+    "The loopback test checks denial of one IPv4 TCP connection only.",
+    "Memory and process-count results belong to the configured composite arms because both candidates include systemd limits.",
+    "The environment-secret test checks the launch allowlist.",
+    "The survivor scan starts 200 ms after runner kill and before scope cleanup.",
+    "Timing includes launch and waiter scheduling and uses fixed arm blocks.",
+    "The full raw archive and measurement transcript are not part of the publishing machine copy."
+  ],
+  "measurement": {
+    "apparatus_sha256": "3fbc90aa13077a8587ad94b4790d55b3bc42395a3076750542fe910abc81694d",
+    "classification": "MEASURED",
+    "consistency": false,
+    "disposition": "retain",
+    "frozen_manifest_sha256": "e6b30f3eb502561f9bcd184259b476f36d5b120a68895cf798380dcab9a12d0a",
+    "invalid_selected_rows": 1,
+    "matrix_sha256": "01f6598827c73e4a6151c3cf72ed9218bfc110597f59680187f6e8d4408a81c6",
+    "not_run_rows": 0,
+    "plan_sha256": "0c1a86dd1071bf31ebf9ff60d60a673dd9c7baa0365c76348a8aae7e90537b74",
+    "planned_rows": 99,
+    "repetitions": 3,
+    "selected_arms": [
+      "z",
+      "b",
+      "c2"
+    ],
+    "selected_rows": 99,
+    "supported_valid_selected_rows": 92,
+    "unsupported_selected_rows": 6,
+    "validity_note": "valid_selected_rows and per-arm valid_rows include UNSUPPORTED observations; they are not counts of containment successes.",
+    "valid_selected_rows": 98
+  },
+  "round_id": "containment-small-eu-v2",
+  "rows": [
+    {
+      "arm": "z",
+      "evidence_sha256": "491ba53223345501c89a1978649a9b94fd9ead1c571b6668bf9ef94248e66edd",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "8a21b5a24e3c1b7a70001405537ca58f6fb020fee1853e546ca92f8745a106b3",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "b14f6f2d2fad2193d7fca91234f37d64fadffe82216651b7058132017c798a98",
+      "fixture": "file_read_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "7288d76e2622f0a313ce7c068d75eea4740d1682f1cfaca90a4d9a0ec9f2b9f6",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "90ce9a43aa844f599da4500fcfe8eea1eb126c128e8e34754ef7a79820c205ad",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "47c4bb4078011dbe414a67b748b52559e3b417631e9a297928c99b32df5c98d9",
+      "fixture": "file_write_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "c1d92395ea0f25389b3bd93e5a04cd455216acaade6f901ae07dbfdd0d8f3c2e",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "2d9400688ea1ba50407666c6deb0253927328e1681619414cb3d95b46185dd32",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "89d5b8f69d896a81a49df392bce1e430ee3f4c972c4adc41966838c9220638fd",
+      "fixture": "secret_file_read",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "1ea5ea9931805f2d7b5ef31e5585e727959139a8631948eaaf7bc9a2e56822d1",
+      "fixture": "env_secret",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "8c77620e1755eeae34ae0508710fe256f59d1ad62d082d5f5978e8c14ef2a6c5",
+      "fixture": "env_secret",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "3eae757bbd346a4e37fda3b1226c54433493b83eab64969fa80d95dd979af0a9",
+      "fixture": "env_secret",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "19fda79862a87f835277d0f6e6af17b89e033f9f7c8323703a31d1b57ae97dc6",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "ff3a38dd47533736e9205042b2bbc516f2953cd50dea3dbd87b5233165b64032",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "c32e4a095f7c8873050734bf7a50750317977ca458c94ca643f4343a67fbee20",
+      "fixture": "net_loopback",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "db5dafb5339b8fde02d85802623694fece1f8ecdbfb88be82d4c7790a044b38e",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "5789a34d18b89d87c29cdc5271213af2b42d94f5349ac0dd14b6eaf7844c5edb",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "302ed38ec0190fe38afc5e7ed9b750c740b55a2a8fc316e2c8bab0c6656c2471",
+      "fixture": "survivor_double_fork",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "ee82ad3377b90b3728362b16256384369cca4dd7c2e21300bd1389581b174f9e",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "1ff546fab32e8bd467501c6141a4fd486fcf8f7e5a06e4514aca8dd20a015149",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "9fd39472d50365b83401a212688b9f154628ca85f4949f49b13edb53b61dd48e",
+      "fixture": "survivor_setsid",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "3755fe25faa00f1c959b42518a5a69fd695bc8792140f39dd34426cbedfb6b7c",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "b3cc3125e0b885e324742248cedbc9afbccbd98d6c1e7a7f86c8b8e999e10356",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "5a691d121fdb4cf2b6838fcff325f883381794f8f9cdc8442d40ea4b95bf093b",
+      "fixture": "survivor_term_ignore",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "4e5709f6f01049e390882d40e01219506a2e89c2a3179a8132a44006cf570db9",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "8181f047887ba826a50b8ed4153013264c2ef2fadc931c2fbadba31d9110829d",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "a0ce4c67147211558267ec507c3dd5204dde266e0df5780d891ea4a2abd3e8ab",
+      "fixture": "mem_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "cc96cc0fd7975e009db8bad3ffcd8e57f04d8d78852e7e7d8ad05a2e19e41200",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "86a63855e76ce95363c19ad2c52e6dc91a71ecd5342d71be45f762b157fb2cd1",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "6fc90852f54a950a8268870d06b0e8549d625be5c2232c07843a407679313220",
+      "fixture": "pids_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "UNSUPPORTED(no mechanism)"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "5f4086b98f38245fa8461103617d87079803052a98029959588839e8e4a0422b",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "8117c20b706a453e33318abd23707abc7832f219882416b874a7b0a419f6a623",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "evidence_sha256": "25b5efa67e74edb3c35dc1d4772c766449c82f8c7cb4043b59ae8ac7d07af713",
+      "fixture": "allowed_rw",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "a9cd4eb0364dc6c989777e1cbddf51dec3ae9933f5356e6e9e9c498c5e35ec59",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "d632f1b8f37f4efb89d0f2603319cc3aa9ebbde431351be1d58d137e7ee1e2ef",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "3ebcab1511e16bcca25e9bfbe15111bc8a8feb447ca05e48c486f4af17bcdd31",
+      "fixture": "file_read_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "1a07935bc572c79fc2e4be7200b4712fec6ec5f698267fa34d9b432d5c230284",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "aa6774f8d82f0bf9d87a74742e6c2498ee25ae638657c3b308d0089f7ab5e861",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "1a73ce88dc8fea25cf0c7baee9359e64951b1e6b53c53a0b14fbc576bf3c1ef1",
+      "fixture": "file_write_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "a874ce0f24f2736a74e637e5db2b83d1facc19039051eb84b994bc17cf33bdd2",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "c3ebba565526acfa4d9347bc00a0c034f963543350f91db3d802d8267a075466",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "044f9a810bc06dd434fce93bf2bb7079ff169baecf0eec1c99e7306c7b5d8b4c",
+      "fixture": "secret_file_read",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "c03057ede4856f1645bf05d3495f5e69866da4e0cefbccec13fb54cce3c58bab",
+      "fixture": "env_secret",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "3f672e634d4c059e36b7010331d67ec38324ce0c1a49ffe4d9f6d69f1d00c83f",
+      "fixture": "env_secret",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "b2413ccfc3d3a11b5270662c516493295c15ba2246e3879fe26a79392121f091",
+      "fixture": "env_secret",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "675cec008945a682b8403b8d685a7f6d4a2a04b4001c7b18fb2642e137fd6318",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "83a6cd5fbbdc990d48aae5cc435b49d74f1874d17393f46f691c1e782d6adda1",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "4fa4a5a8e04fb99744b3cfbea7d91e2f6c77f1ed5cd79c7777fa85651bcf6693",
+      "fixture": "net_loopback",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "ba411ef3ea4a21d7b48c8f2a2fb3f881c3aa1c832217f1a08b6918666e90e228",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "fb53155dd1e59a92e477cc22fd748a9f07ff08102bc91b49668ce8c672acc18a",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "06af4108d2811b242703a5325188de7de52f82db063228e53792ab79f9e34584",
+      "fixture": "survivor_double_fork",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "214e9e6dbc2e3e36d81fbac62eab2ee8919f7c7120ca49bcfc3b3c51c1375249",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "fca9cbde98ad694e2fc2b48873ca3713f1905292e76cf27695ff16ee79b6f1d9",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "12e6008312ecc38a23c3bf88f80a7e98b26d386a1194c07e81117a89d6476f44",
+      "fixture": "survivor_setsid",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "a07ce132b0ef9fc37d6979adaecb7b861b4aaebc65ef86a8041fc53012e4b754",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "e48c1e580fcfc7e5cca7ffcc7944df91fcf1b1dec45bf381b7ce453f18da9226",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "13b47a30a25528bfa12a24ebaf355c180869ab0544fbc062f250f3a72c7a686e",
+      "fixture": "survivor_term_ignore",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "c779cd189b44667e6e963eb870e7baca5f24a68c20e39571561bcb428236cde7",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "dffd50b5541d8dd7fd45fb4320a14f0094f02b29846d6d93dd14b6b0c6eb0dee",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "fb33e7ba62dd4e95a95faf959b8230024ad6a4095d3694ea10a3b54aa451e068",
+      "fixture": "mem_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "42e2cd288855cc2812890bb14766bbcf44d28b77580c489bb1471e4299b1ef2b",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "dbd951466dede131221d0885cad9c50214377a96622ec1b8d718fa7a44cacf38",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "060d38c489198a46deeae55b09ce58db0a0cdba157f41dbf4d7cd250a41c8a74",
+      "fixture": "pids_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "482269077c7b89001d2e922f0a3639eaa6ee077f6cba1918cfb0b6bfd2f467bc",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "cad0a4881914576ce32eb520dd0c9f0ea43fb85579b03f88f003d9052f266293",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "evidence_sha256": "f486b02636166a9cf172722c4aa74e2ee3b095f4532ec3d58388d1bcdcbdc641",
+      "fixture": "allowed_rw",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "9a600dea1cf283c9eb8090ef4deb59e77a554e20627ac7b700dbd4d2122bd2e8",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "6db5cba1bc21bc69ecb28ecb9e1f817851b883f92fd4a8fe8b03c0017eedb946",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "1d7b46af2e9958194922762a0c62a86c24fa90dcf05469373ee3a1708575b6d5",
+      "fixture": "file_read_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "bd11de4ef6be9fcc23b9f2f911f4bc2e32ee1a7b8a4ad1250bc48111ac48580f",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "a3bb0a9fcc8255629f0a3fc219dd1ea1d24c03de3d0819284508faf4acf08cc1",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "d1abde58856ae7cd443ffef8228c2b3ad5e0d7de4623fba186db868360ef3472",
+      "fixture": "file_write_outside",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "1fabf453fe5bf1aca5c6aa599c8597dd380bba015fce86e720d986b90cf2afef",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "4d42a11f2fd35c277ea3112cfe3b3be82845328d188018c27affbf189b85e8da",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "dc60e77e103dd492e38baff719fbf67f3c3363d5950f1b147b90c386ddfb7b01",
+      "fixture": "secret_file_read",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "4d5ca5f24d20e3e81140692abea357db963e43dd69c31dd37346bfb3657d633b",
+      "fixture": "env_secret",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "82186016cc9743913b4356a0ff09a7da685e5bed7b9d796d53dea563f8de1f66",
+      "fixture": "env_secret",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "08ab2574f6f2c65fab230ae751ac4341717c7f8d282ee0b9c3c12ab35a9e2ba5",
+      "fixture": "env_secret",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "INVALID(launch ok)"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "10dd148d2682b0c6d9e40612f8c298a0508a6a212d974c73c159c4a98898428d",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "57f6f11368b63d420f4e7a00234551b2086473507d244a93b0a00f3e3369ace1",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "89ff384e366fb33d53ec0966b4a440729ccf263dda7fbcb8138fd7e3da237d2f",
+      "fixture": "net_loopback",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "efb0c9a9b98d750b0e0fc92e06f78ba05b5ae3b855cb1ed647ed17f8259fa904",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "1a18d77920d7b83ed64f5fd6d65e1957903b6b616d61307f485af80817cb2633",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "6012ce0d0ca23a8ba24226dd8a0efd79ccee14d5f9da0a8dbd274ce807d52dd6",
+      "fixture": "survivor_double_fork",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "a08342589840b0fc751bd7bafa277fb4bb2817b4e44434004e0debfa4a4abdb3",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "e3b9ec159708469ba0a6ee6d85217ea6c99cc7ec206d842e7a0b0f34b26f3071",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "b9f34ec14b34e2499934e83aaf8db322cb0e7520b069f936e7fcc9079fa370f2",
+      "fixture": "survivor_setsid",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "a0fbba4a2366863ea1ead692f19eaf51c7815a952bd4a11a4b6407273e734a9f",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "cf1d4477791720776cc5682b462ef2c8bf01ad7ec610c92b2631790f12fe7345",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "c29169770af58c2d594e72b6f267a0b0dfe6caeb221c86fa37842c75f5a5a00c",
+      "fixture": "survivor_term_ignore",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "fb01657759dfcd2a06e623f85d72ede28a3e0dd9e7dff920e62322c0142c1325",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "0aed89b4aa79e4d9a7f622b7187d04274f82bfb67812f4653a48844b5523a211",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "07a4c5f5180766c928e2e677130fb3d5f9393cbe67c9a40000e1ac15ecf21472",
+      "fixture": "mem_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "7755eede6ae36e3899bcaa5c6012736b87c84aec5988bf23d720efd7872e8a26",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "500578b607db0ce86af9cae3de9b06d65d14c5e9dbb5ad145478c67aacc5ce41",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "ee128ef5bb809fe1afd1c450ddb38255bd825ed77a833297aefb0afb7adf5bdd",
+      "fixture": "pids_cap",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "d5f3ad00a0a50892540ddfcc713539e4364789820962144ec4fe452678a96e89",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "bf754ef26eda6450475a75183713fbc51c9c9c715093065b5156bf3bb26a1e1b",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "c2",
+      "evidence_sha256": "c77da77b940d713be38ad39ffa77fa62be7d7f7475e72508430ac508daa8b810",
+      "fixture": "allowed_rw",
+      "rep": 3,
+      "round": "containment-small-eu-v2",
+      "run_id": "containment-small-eu-v2",
+      "source": "inputs/cell-evidence-sha256.tsv",
+      "status": "NOT-BLOCKED"
+    }
+  ],
+  "run_id": "containment-small-eu-v2",
+  "status": "DESCRIPTIVE",
+  "tier": "OBSERVATION"
+}
