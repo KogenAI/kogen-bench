@@ -226,3 +226,4 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [LAB-01 analysis-tooling screen](lab01-analysis-tooling-screen/README.md) — **DESCRIPTIVE** One observation per language in each of two sequential sets; no official grades; incomplete execution metadata; set 2 plots were not retained.
 - [Small containment comparison](containment-small-eu/README.md) — **DESCRIPTIVE** 57 valid of 66 selected; 9 b read/network cells invalid; all 33 c2 cells NOT-RUN.
 - [Small containment comparison: repaired rerun](containment-small-eu-v2/README.md) — **DESCRIPTIVE** 92 supported valid outcomes, 6 unsupported resource observations, 1 invalid repetition; no model and 11 fixtures.
+- [Small containment comparison: Kogen's helper](containment-small-eu-helper/README.md) — **DESCRIPTIVE** 11 fixtures, three repetitions, no model; 92 of 102 selected rows started and finished; helper bash launch failed; observation only, no ranking.

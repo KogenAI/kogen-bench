@@ -1,0 +1,660 @@
+{
+  "cells": 102,
+  "declarations": [
+    {
+      "arm": "z",
+      "fixtures": [
+        "mem_cap",
+        "pids_cap"
+      ],
+      "reason": "No sandbox has no memory or process-count resource-control mechanism.",
+      "rows": 6,
+      "status": "UNSUPPORTED(no mechanism)",
+      "verdict_effect": "Unsupported observations are not containment successes."
+    },
+    {
+      "arm": "a",
+      "fixtures": [
+        "allowed_rw"
+      ],
+      "reason": "The observer received ESRCH while reading a live process environment file; exit 0 and both positive tokens did not override the fail-closed rule.",
+      "rows": 1,
+      "status": "INVALID(observer ok)",
+      "verdict_effect": "The positive control and all dependent repetition-2 cells are invalid."
+    },
+    {
+      "arm": "a",
+      "fixtures": [
+        "file_read_outside",
+        "file_write_outside",
+        "secret_file_read",
+        "env_secret",
+        "net_loopback",
+        "survivor_double_fork",
+        "survivor_setsid",
+        "survivor_term_ignore",
+        "mem_cap",
+        "pids_cap"
+      ],
+      "reason": "The repetition-2 positive control was invalid; dependent cells were invalidated without execution by design.",
+      "rows": 10,
+      "status": "INVALID(arm-broken)",
+      "verdict_effect": "These are invalidated selected rows, not executed containment outcomes."
+    },
+    {
+      "arm": "a",
+      "fixtures": [
+        "mem_cap"
+      ],
+      "reason": "The helper removed the candidate cgroup before the harness could take its required final sample.",
+      "rows": 1,
+      "status": "INVALID(cgroup unreadable or no final sample)",
+      "verdict_effect": "Earlier cap-level counters and kills do not replace the required final sample."
+    }
+  ],
+  "fields": {
+    "circumstances.cap_end": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Boundary telemetry not retained.",
+      "reason_code": "m08",
+      "reasons": {
+        "Boundary telemetry not retained": 102
+      }
+    },
+    "circumstances.cap_start": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Boundary telemetry not retained.",
+      "reason_code": "m08",
+      "reasons": {
+        "Boundary telemetry not retained": 102
+      }
+    },
+    "circumstances.concurrent_cells_end": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Host-wide concurrent cell count was not captured.",
+      "reason_code": "m66",
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 102
+      }
+    },
+    "circumstances.concurrent_cells_start": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Host-wide concurrent cell count was not captured.",
+      "reason_code": "m66",
+      "reasons": {
+        "Host-wide concurrent cell count was not captured": 102
+      }
+    },
+    "circumstances.dispatcher_id": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Exact dispatcher revision is not present in the public receipt extract.",
+      "reason_code": "m63",
+      "reasons": {
+        "Exact dispatcher revision is not present in the public receipt extract": 102
+      }
+    },
+    "circumstances.incidents": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell incident receipt was not captured.",
+      "reason_code": "m78",
+      "reasons": {
+        "Per-cell incident receipt was not captured": 102
+      }
+    },
+    "circumstances.load1_end": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Host boundary load was not captured in the public round data.",
+      "reason_code": "m65",
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 102
+      }
+    },
+    "circumstances.load1_start": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Host boundary load was not captured in the public round data.",
+      "reason_code": "m65",
+      "reasons": {
+        "Host boundary load was not captured in the public round data": 102
+      }
+    },
+    "circumstances.load_samples": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Timestamped host-wide load samples were not captured.",
+      "reason_code": "m93",
+      "reasons": {
+        "Timestamped host-wide load samples were not captured": 102
+      }
+    },
+    "circumstances.queue": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Queue receipt was not captured.",
+      "reason_code": "m91",
+      "reasons": {
+        "Queue receipt was not captured": 102
+      }
+    },
+    "cost.accounting": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so per-cell model-token cost/accounting is not applicable; no source-reported per-cell accounting receipt is published. Per-cell cost and pricing inputs are not present in the public round data.",
+      "reason_code": "m70",
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 102
+      }
+    },
+    "cost.calculator_version": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so per-cell model-token cost/accounting is not applicable; no source-reported per-cell accounting receipt is published. Cost calculator version not recorded.",
+      "reason_code": "m61",
+      "reasons": {
+        "Cost calculator version not recorded": 102
+      }
+    },
+    "cost.long_context_reconciled": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so per-cell model-token cost/accounting is not applicable; no source-reported per-cell accounting receipt is published. Boolean receipt not recorded.",
+      "reason_code": "m07",
+      "reasons": {
+        "Boolean receipt not recorded": 102
+      }
+    },
+    "cost.price_table_version": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so per-cell model-token cost/accounting is not applicable; no source-reported per-cell accounting receipt is published. Price table version not recorded.",
+      "reason_code": "m89",
+      "reasons": {
+        "Price table version not recorded": 102
+      }
+    },
+    "cost.usd": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so per-cell model-token cost/accounting is not applicable; no source-reported per-cell accounting receipt is published. Per-cell cost and pricing inputs are not present in the public round data.",
+      "reason_code": "m70",
+      "reasons": {
+        "Per-cell cost and pricing inputs are not present in the public round data": 102
+      }
+    },
+    "environment.account_class": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Dated account-class receipt is not present in the public round data.",
+      "reason_code": "m62",
+      "reasons": {
+        "Dated account-class receipt is not present in the public round data": 102
+      }
+    },
+    "environment.cores": {
+      "affects_verdict": "This unavailable Standard receipt limits capture completeness and strict release eligibility; it does not change the observed fixture classification.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell CPU count was not recorded.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 102
+      }
+    },
+    "environment.cpu_model": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. No per-cell CPU receipt.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 102
+      }
+    },
+    "environment.network.allowlist_hosts": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell network allowlist not present in the public round data.",
+      "reason_code": "m79",
+      "reasons": {
+        "Per-cell network allowlist not present in the public round data": 102
+      }
+    },
+    "environment.network.profile": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell network profile not present in the public round data.",
+      "reason_code": "m80",
+      "reasons": {
+        "Per-cell network profile not present in the public round data": 102
+      }
+    },
+    "environment.ram_gib": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. No per-cell RAM receipt.",
+      "reason_code": "m35",
+      "reasons": {
+        "No per-cell RAM receipt": 102
+      }
+    },
+    "environment.toolchains.other_inventory": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Full per-cell toolchain inventory not recorded.",
+      "reason_code": "m64",
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 102
+      }
+    },
+    "environment.toolchains.python": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Python toolchain version not recorded for the public round data.",
+      "reason_code": "m90",
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 102
+      }
+    },
+    "grade.grader": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No language model or official model grade was run; the Standard official outcome/grade receipt is not applicable and is not inferred from offline fixture statuses. Per-cell grader software version is not in the public data.",
+      "reason_code": "m77",
+      "reasons": {
+        "Per-cell grader software version is not in the public data": 102
+      }
+    },
+    "grade.timestamp": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No language model or official model grade was run; the Standard official outcome/grade receipt is not applicable and is not inferred from offline fixture statuses. Per-cell official repair-grade timestamp is not present in the public data/cells.csv or sanitized lane release-state receipt.",
+      "reason_code": "m81",
+      "reasons": {
+        "Per-cell official repair-grade timestamp is not present in the public data/cells.csv or sanitized lane release-state receipt": 102
+      }
+    },
+    "host.cpu": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. No per-cell CPU receipt.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 102
+      }
+    },
+    "host.ram_gib": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. No per-cell RAM receipt.",
+      "reason_code": "m35",
+      "reasons": {
+        "No per-cell RAM receipt": 102
+      }
+    },
+    "host.vcpu": {
+      "affects_verdict": "This unavailable Standard receipt limits capture completeness and strict release eligibility; it does not change the observed fixture classification.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell CPU count was not recorded.",
+      "reason_code": "m34",
+      "reasons": {
+        "No per-cell CPU receipt": 102
+      }
+    },
+    "outcome": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No language model or official model grade was run; the Standard official outcome/grade receipt is not applicable and is not inferred from offline fixture statuses. No official grade in the public snapshot.",
+      "reason_code": "m32",
+      "reasons": {
+        "No official grade in the public snapshot": 102
+      }
+    },
+    "sandbox.egress_allow": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell egress allowlist is not present in the public round data.",
+      "reason_code": "m75",
+      "reasons": {
+        "Per-cell egress allowlist is not present in the public round data": 102
+      }
+    },
+    "sandbox.egress_profile": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell egress profile is not present in the public round data.",
+      "reason_code": "m76",
+      "reasons": {
+        "Per-cell egress profile is not present in the public round data": 102
+      }
+    },
+    "sandbox.profile_sha256": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell sandbox profile fingerprint is not present in the public round data.",
+      "reason_code": "m86",
+      "reasons": {
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 102
+      }
+    },
+    "setup.adapter_harness_sha": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell Codex adapter fingerprint not recorded in the public round data.",
+      "reason_code": "m67",
+      "reasons": {
+        "Per-cell Codex adapter fingerprint not recorded in the public round data": 102
+      }
+    },
+    "setup.deps_source": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Dependency source not pinned per cell.",
+      "reason_code": "m11",
+      "reasons": {
+        "Dependency source not pinned per cell": 102
+      }
+    },
+    "setup.sandbox_profile_sha256": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell sandbox profile fingerprint is not present in the public round data.",
+      "reason_code": "m86",
+      "reasons": {
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 102
+      }
+    },
+    "setup.task_base.hash": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Original base commit/tree hash absent; fresh_base_commit is not a base hash.",
+      "reason_code": "m42",
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 102
+      }
+    },
+    "setup.task_base.kind": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Original base revision type not recorded per cell.",
+      "reason_code": "m43",
+      "reasons": {
+        "Original base revision type not recorded per cell": 102
+      }
+    },
+    "task.base_repo": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Task identity not retained.",
+      "reason_code": "m52",
+      "reasons": {
+        "Task identity not retained": 102
+      }
+    },
+    "task.base_revision.hash": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Original base commit/tree hash absent; fresh_base_commit is not a base hash.",
+      "reason_code": "m42",
+      "reasons": {
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 102
+      }
+    },
+    "task.base_revision.kind": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Original base revision type not recorded per cell.",
+      "reason_code": "m43",
+      "reasons": {
+        "Original base revision type not recorded per cell": 102
+      }
+    },
+    "task.id": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "This round ran standalone containment fixtures, not model-task cells; task identity and task base revision are not applicable. Task identity not retained.",
+      "reason_code": "m52",
+      "reasons": {
+        "Task identity not retained": 102
+      }
+    },
+    "timestamps.attempts": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Attempt-boundary receipts are not in the public round data.",
+      "reason_code": "m60",
+      "reasons": {
+        "Attempt-boundary receipts are not in the public round data": 102
+      }
+    },
+    "timestamps.cell.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Per-cell contestant end timestamp not recorded in the public round data.",
+      "reason_code": "m68",
+      "reasons": {
+        "Per-cell contestant end timestamp not recorded in the public round data": 102
+      }
+    },
+    "timestamps.cell.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Per-cell contestant start timestamp not recorded in the public round data.",
+      "reason_code": "m69",
+      "reasons": {
+        "Per-cell contestant start timestamp not recorded in the public round data": 102
+      }
+    },
+    "timestamps.phases.develop.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.develop.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.gate.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.gate.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.grade.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.grade.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.plan.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.plan.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.review.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.review.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.setup.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.setup.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.shape.end_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timestamps.phases.shape.start_utc": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The standalone fixtures had no model sessions, and no per-cell session, phase, or attempt UTC receipt is published. Phase timestamp not present in the public per-cell data.",
+      "reason_code": "m88",
+      "reasons": {
+        "Phase timestamp not present in the public per-cell data": 102
+      }
+    },
+    "timing.timeout_cap_s": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No per-cell timing receipt is present in the public Standard record. Timeout receipt unavailable.",
+      "reason_code": "m53",
+      "reasons": {
+        "Timeout receipt unavailable": 102
+      }
+    },
+    "timing.total_wall_s": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No per-cell timing receipt is present in the public Standard record. Wall counter unavailable.",
+      "reason_code": "m58",
+      "reasons": {
+        "Wall counter unavailable": 102
+      }
+    },
+    "tokens.total.cached_input": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so no model-token usage was generated. This total usage counter is missing, not zero; the underlying receipt reason is: Usage counter unavailable.",
+      "reason_code": "m56",
+      "reasons": {
+        "Usage counter unavailable": 102
+      }
+    },
+    "tokens.total.input": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so no model-token usage was generated. This total usage counter is missing, not zero; the underlying receipt reason is: Usage counter unavailable.",
+      "reason_code": "m56",
+      "reasons": {
+        "Usage counter unavailable": 102
+      }
+    },
+    "tokens.total.output": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so no model-token usage was generated. This total usage counter is missing, not zero; the underlying receipt reason is: Usage counter unavailable.",
+      "reason_code": "m56",
+      "reasons": {
+        "Usage counter unavailable": 102
+      }
+    },
+    "tokens.total.reasoning": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "No model ran, so no model-token usage was generated. This total usage counter is missing, not zero; the underlying receipt reason is: Usage counter unavailable.",
+      "reason_code": "m56",
+      "reasons": {
+        "Usage counter unavailable": 102
+      }
+    },
+    "tools.runner": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Per-cell runner version not recorded in the public round data.",
+      "reason_code": "m83",
+      "reasons": {
+        "Per-cell runner version not recorded in the public round data": 102
+      }
+    },
+    "tools.toolchains.other_inventory": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Full per-cell toolchain inventory not recorded.",
+      "reason_code": "m64",
+      "reasons": {
+        "Full per-cell toolchain inventory not recorded": 102
+      }
+    },
+    "tools.toolchains.python": {
+      "affects_verdict": "These unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the observed fixture classifications.",
+      "count": 102,
+      "note": "The public per-cell Standard record does not contain this receipt. Python toolchain version not recorded for the public round data.",
+      "reason_code": "m90",
+      "reasons": {
+        "Python toolchain version not recorded for the public round data": 102
+      }
+    }
+  }
+}

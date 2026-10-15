@@ -1,0 +1,1386 @@
+{
+  "accounting": {
+    "counted_result_rows": 102,
+    "dependent_unexecuted_invalid_rows": 10,
+    "finished": 92,
+    "graded": 0,
+    "itt": 102,
+    "note": "The denominator includes the 10 helper repetition-2 dependent rows invalidated without execution after the positive control failed closed.",
+    "planned": 102,
+    "started": 92
+  },
+  "arms": [
+    {
+      "arm": "z",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "UNSUPPORTED",
+            "UNSUPPORTED",
+            "UNSUPPORTED"
+          ]
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "UNSUPPORTED",
+            "UNSUPPORTED",
+            "UNSUPPORTED"
+          ]
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        }
+      ],
+      "invalid": 0,
+      "launch_failed": 0,
+      "repetitions": 3,
+      "selected_rows": 33,
+      "started_cells": 33,
+      "unsupported": 6,
+      "valid": 27
+    },
+    {
+      "arm": "b",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "ENFORCED",
+            "ENFORCED",
+            "ENFORCED"
+          ]
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "ENFORCED",
+            "ENFORCED",
+            "ENFORCED"
+          ]
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "NOT-BLOCKED"
+          ]
+        }
+      ],
+      "invalid": 0,
+      "launch_failed": 0,
+      "repetitions": 3,
+      "selected_rows": 33,
+      "started_cells": 33,
+      "unsupported": 0,
+      "valid": 33
+    },
+    {
+      "arm": "a",
+      "fixtures": [
+        {
+          "fixture": "file_read_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "file_write_outside",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "secret_file_read",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "env_secret",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "net_loopback",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "survivor_double_fork",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "survivor_setsid",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "survivor_term_ignore",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "BLOCKED",
+            "BLOCKED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "mem_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "ENFORCED",
+            "INVALID",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "pids_cap",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            false
+          ],
+          "statuses": [
+            "ENFORCED",
+            "ENFORCED",
+            "INVALID"
+          ]
+        },
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "NOT-BLOCKED",
+            "NOT-BLOCKED",
+            "INVALID"
+          ]
+        }
+      ],
+      "invalid": 12,
+      "launch_failed": 0,
+      "repetitions": 3,
+      "selected_rows": 33,
+      "started_cells": 23,
+      "unsupported": 0,
+      "valid": 21
+    },
+    {
+      "arm": "a-bash",
+      "fixtures": [
+        {
+          "fixture": "allowed_rw",
+          "repetitions": 3,
+          "started": [
+            true,
+            true,
+            true
+          ],
+          "statuses": [
+            "LAUNCH-FAILED",
+            "LAUNCH-FAILED",
+            "LAUNCH-FAILED"
+          ]
+        }
+      ],
+      "invalid": 0,
+      "launch_failed": 3,
+      "repetitions": 3,
+      "selected_rows": 3,
+      "started_cells": 3,
+      "unsupported": 0,
+      "valid": 0
+    }
+  ],
+  "format": "containment-observation-results-v1",
+  "measurement": {
+    "classification": "MEASURED",
+    "consistency": false,
+    "consistency_note": "The helper repetition-2 positive control is INVALID and its dependent cells were not executed; a separate helper memory-cap cell lacks the required final sample.",
+    "counted_result_rows": 102,
+    "disposition": "retain",
+    "finished_rows": 92,
+    "graded_rows": 0,
+    "invalid_rows": 12,
+    "launch_failed_rows": 3,
+    "nono_run": false,
+    "not_executed_dependent_rows": 10,
+    "planned_rows": 102,
+    "repetitions": 3,
+    "selected_arms": [
+      "z",
+      "b",
+      "a",
+      "a-bash"
+    ],
+    "started_rows": 92,
+    "supported_valid_rows": 81,
+    "unsupported_rows": 6,
+    "valid_rows": 81,
+    "validity_note": "Valid is an observed, scored status and does not mean containment succeeded. UNSUPPORTED, INVALID, and LAUNCH-FAILED are reported separately."
+  },
+  "round_id": "containment-small-eu-helper",
+  "rows": [
+    {
+      "arm": "z",
+      "fixture": "file_read_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "file_write_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "secret_file_read",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "env_secret",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "env_secret",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "env_secret",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "net_loopback",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_double_fork",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_setsid",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_term_ignore",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "mem_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "pids_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "UNSUPPORTED"
+    },
+    {
+      "arm": "z",
+      "fixture": "allowed_rw",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "z",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_read_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_write_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "secret_file_read",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "env_secret",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "env_secret",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "env_secret",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "net_loopback",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_double_fork",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_setsid",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_term_ignore",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "mem_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "pids_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "b",
+      "fixture": "allowed_rw",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "b",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_read_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_read_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_read_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_write_outside",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_write_outside",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "file_write_outside",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "secret_file_read",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "secret_file_read",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "secret_file_read",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "env_secret",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "env_secret",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "env_secret",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "net_loopback",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "net_loopback",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "net_loopback",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_double_fork",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_double_fork",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_double_fork",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_setsid",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_setsid",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_setsid",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_term_ignore",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_term_ignore",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "survivor_term_ignore",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "mem_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "a",
+      "fixture": "mem_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "mem_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "pids_cap",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "a",
+      "fixture": "pids_cap",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "ENFORCED"
+    },
+    {
+      "arm": "a",
+      "fixture": "pids_cap",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": false,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a",
+      "fixture": "allowed_rw",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "NOT-BLOCKED"
+    },
+    {
+      "arm": "a",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "INVALID"
+    },
+    {
+      "arm": "a-bash",
+      "fixture": "allowed_rw",
+      "rep": 0,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "LAUNCH-FAILED"
+    },
+    {
+      "arm": "a-bash",
+      "fixture": "allowed_rw",
+      "rep": 1,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "LAUNCH-FAILED"
+    },
+    {
+      "arm": "a-bash",
+      "fixture": "allowed_rw",
+      "rep": 2,
+      "source": "evidence/compact-records.jsonl",
+      "started": true,
+      "status": "LAUNCH-FAILED"
+    }
+  ],
+  "status": "DESCRIPTIVE",
+  "tier": "OBSERVATION ONLY"
+}
