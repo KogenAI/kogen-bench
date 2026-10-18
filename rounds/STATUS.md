@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 112
+DESCRIPTIVE: 113
 PILOT: 10
 INVALID: 35
 INCOMPLETE: 37
@@ -314,3 +314,4 @@ containment-small-eu-v2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, IN
 containment-small-eu-helper | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — observation-only 11-fixture comparison; 92 of 102 selected rows started and finished; unequal configurations and incomplete source capture.
 review-convergence-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab screening, two tasks, one attempt per reviewer setting; no official grades.
 screen-kogen-1-stage-d | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab one-lever screen stopped at a ceiling; 24 attempts, one per cell; no official grades.
+screen-kogen-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab one-lever screen on four tasks, one attempt per cell; baseline 2 of 4; no official grades.
