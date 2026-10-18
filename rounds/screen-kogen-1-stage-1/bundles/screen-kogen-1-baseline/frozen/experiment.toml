@@ -1,0 +1,25 @@
+# screen-kogen-1, stage 1: the Kogen-equivalent profile alone, to rule out ceiling or floor tasks.
+version = 1
+question = "Does the Kogen-equivalent profile on gpt-6-luna low land between floor and ceiling on these four development tasks?"
+hypothesis = "at least one task is neither all correct nor all failed across the baseline cells"
+purpose = "screening"
+changes = ["execution"]
+objective = "correctness"
+baseline = "kogen"
+tasks = ["../../tasks/ledger-ex", "../../tasks/rate-go", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 1
+hosts = ["local", "eu2", "laptop"]  # eu excluded: npm ci cannot reach the registry under its sealed egress (qualification setup-1 failed on all four tasks)
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+
+[variant.kogen]
