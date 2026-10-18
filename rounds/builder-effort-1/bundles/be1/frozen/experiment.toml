@@ -1,0 +1,32 @@
+# builder-effort-1: planner and builder gpt-6-luna low against medium, cost at quality.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "builder-effort-1: with planner and builder on gpt-6-luna medium instead of low, are attempts as often correct with fewer repairs and fewer tokens?"
+hypothesis = "medium is correct as often as low with at most 80% of its input"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "cost_at_quality"
+baseline = "low"
+tasks = ["../../tasks/r70-5-elixir", "../../tasks/r70-7-elixir", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.low]
+
+[variant.medium]
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
