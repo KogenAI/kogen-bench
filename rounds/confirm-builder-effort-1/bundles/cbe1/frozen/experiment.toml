@@ -1,0 +1,32 @@
+# confirm-builder-effort-1: fresh-task confirmation of planner and builder gpt-6-luna medium vs low.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "confirm-builder-effort-1: on fresh tasks, is gpt-6-luna medium at least as often correct as low with at most 85% of its input?"
+hypothesis = "medium is correct in at least as many paired blocks as low with at most 85% of its total input"
+purpose = "confirmation"
+changes = ["execution", "information"]
+objective = "cost_at_quality"
+baseline = "low"
+tasks = ["../../../confirmation-tasks-private/tasks/env-go", "../../../confirmation-tasks-private/tasks/env-ex", "../../../confirmation-tasks-private/tasks/sched-go"]
+repetitions = 3
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.low]
+
+[variant.medium]
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "medium" }

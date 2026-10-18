@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 117
+DESCRIPTIVE: 118
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -321,3 +321,4 @@ baseline-variance-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMP
 review-timing-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab development run, eight triples; reviewing once let wrong code through; no official grades.
 shaping-model-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab development run; specifications written in the attempt never led to a correct build; stopped by a Lab crash with the decision reached; no official grades.
 builder-effort-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab development run, eight pairs; medium builder effort used fewer repairs and less input; no official grades.
+confirm-builder-effort-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab confirmation on three new tasks, nine pairs; medium builder effort used 74% of the input at equal correctness; no official grades.
