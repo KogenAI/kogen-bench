@@ -16,7 +16,9 @@ round and audit IDs, exact cell ID, task, requested model/effort, arm, harness,
 recipe, ITT class/cohort/evidence, repetition, original base revision, launcher
 SHA-256, source-ledger SHA-256, sanitized public input reference, and public
 setup receipts. Use only venue aliases (`eu` or `us`) and account class
-(`owner` or `billing`) in the launch environment.
+(`owner` or `billing`) in the launch environment. The `us` host is retired: its
+alias remains only so historical records validate, and new lane-kit runs use
+`eu`.
 
 RC2 freezes API-equivalent standard short-context rates in
 [`price-table-v1.json`](price-table-v1.json), dated 2026-10-09; its SHA-256 is
@@ -61,7 +63,7 @@ the same release. `check_standard_cell.py RESULT_DIR` runs strict validation
 against the single captured record; any absent usage counters remain missing
 and make the API-equivalent cost incomplete.
 
-Task directories contain task metadata and, where available, the public prompt. Of 125 catalogued tasks, 90 include a prompt, 103 include a hidden suite, and 100 include a per-task grader. Sixty-nine deterministic base bundles and their `MANIFEST.sha256` are included in `tasks/_bases/`; `tasks/index.json` and each task's `task.json` link available bundles and SHA-256 values; recovered Rails snapshot commits are recorded separately from upstream commit claims. `base_missing: true` marks records without a bundled base. Dependency caches are not bundled. Not every task can be regraded from this snapshot alone. The layout is:
+Task directories contain task metadata and, where available, the public prompt. Of 176 task records, 134 include a prompt, 111 include a hidden suite, and 108 include a per-task grader. 84 Git base bundles, 36 base archives and their `MANIFEST.sha256` are included in `tasks/_bases/`; `tasks/index.json` and each task's `task.json` link available bundles and SHA-256 values; recovered Rails snapshot commits are recorded separately from upstream commit claims. `base_missing: true` marks records without a bundled base. Dependency caches are not bundled. Not every task can be regraded from this snapshot alone. The layout is:
 
 ```text
 tasks/<id>/
