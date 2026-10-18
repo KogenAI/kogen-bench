@@ -3,7 +3,7 @@
 Descriptive screening run in Kogen Lab. Ten mechanisms of Kogen's build loop were each changed alone and compared with the unchanged configuration on four tasks, one attempt per cell (a cell is one task under one configuration).
 The unchanged configuration solved two of the four tasks.
 Removing the blocking code review, either entirely or by making it advisory, let wrong solutions through on three of four tasks. Turning verification off stopped every attempt at the repair limit, and a specification written in the attempt by the low-effort model never led to a correct result.
-Four other changes each solved all four tasks: full tool output, no testing rules for the builder, no planning step, and a fresh conversation for repairs. With one attempt per cell, and an unchanged configuration that failed twice (once by editing a protected file), this cannot separate these changes from the variability of single attempts. They are candidates for a repeated test, not results.
+Four other changes each solved all four tasks: full tool output, no testing rules for the builder, no planning step, and a fresh conversation for repairs. With one attempt per cell, and an unchanged configuration that failed twice (once by editing a protected file), this cannot separate these changes from the variability of single attempts. They are candidates for a repeated test, not results. [A repeated test](../baseline-variance-1/README.md) then found the unchanged configuration correct in 11 of 12 attempts, so these candidates were dropped.
 
 ## Question and scope
 
