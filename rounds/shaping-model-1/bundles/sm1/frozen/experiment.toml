@@ -1,0 +1,35 @@
+# shaping-model-1: supplied Intent against shaping in the attempt by Luna low and by Sol low.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "shaping-model-1: does shaping in the attempt by gpt-6.1-sol low reach the correctness of a supplied specification where gpt-6-luna low does not?"
+hypothesis = "shape-sol is within one block of supplied; shape-luna is at least three blocks lower"
+purpose = "development"
+changes = ["execution", "information", "interaction"]
+objective = "correctness"
+baseline = "supplied"
+tasks = ["../../tasks/r70-5-elixir", "../../tasks/r70-7-elixir", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.supplied]
+
+[variant.shape-luna]
+shape.source = "generate"
+
+[variant.shape-sol]
+shape.source = "generate"
+roles.shaper = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
