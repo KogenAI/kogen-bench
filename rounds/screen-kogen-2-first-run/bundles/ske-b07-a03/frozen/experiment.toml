@@ -1,0 +1,34 @@
+# screen-kogen-2: b07-output-full, a03-gherkin-off; compared with ske-baseline per task.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "screen-kogen-2: how do single Kogen levers change correctness and cost on harder tasks with the stage-d configuration?"
+hypothesis = "exploratory screening; removing verification (V01) lowers correctness"
+purpose = "screening"
+changes = ["execution", "information", "representation"]
+objective = "correctness"
+baseline = "b07-output-full"
+tasks = ["../../tasks/r70-5-elixir", "../../tasks/r70-7-elixir", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 1
+hosts = ["laptop"]
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.b07-output-full]
+build.output = "full"
+
+[variant.a03-gherkin-off]
+# A03 off needs an Intent with `Acceptance: none`: the prose set carries the same Intent text without Gherkin.
+artifacts.gherkin = "off"
+shape.supplied = "prose"

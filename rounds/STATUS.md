@@ -221,7 +221,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 VALID: 10
 DESCRIPTIVE: 113
 PILOT: 10
-INVALID: 36
+INVALID: 37
 INCOMPLETE: 37
 
 ## Counts per reason code
@@ -316,3 +316,4 @@ review-convergence-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOM
 screen-kogen-1-stage-d | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab one-lever screen stopped at a ceiling; 24 attempts, one per cell; no official grades.
 screen-kogen-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab one-lever screen on four tasks, one attempt per cell; baseline 2 of 4; no official grades.
 screen-kogen-1-stage-1 | INVALID | PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab baseline runs invalidated by a mid-run Lab rebuild and an external kill; interrupted; no official grades.
+screen-kogen-2-first-run | INVALID | PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab screen stopped after nine attempts; a task-conversion error leaked installed packages into the model inputs; no official grades.

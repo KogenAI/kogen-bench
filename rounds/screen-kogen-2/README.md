@@ -36,7 +36,7 @@ Each task cell gives the outcome and, in parentheses, the repairs used. "Stopped
 
 The whole run recorded 48 attempts (44 table cells plus 4 that failed before any model request), and used about 18.8M input and 358k output tokens. The "specification without Gherkin" cells ran after a Lab defect was fixed, on a newer Lab development build than the others. Four earlier attempts of that variant on the older build failed before any model request; they are kept in the records.
 
-An earlier run of the same design was stopped as invalid after nine attempts: the converted Elixir tasks did not ignore the acceptance runner's installed packages, so a review request grew past the provider's size limit and was refused. Its attempts are not used here.
+An earlier run of the same design was stopped as invalid after nine attempts: the converted Elixir tasks did not ignore the acceptance runner's installed packages, so a review request grew past the provider's size limit and was refused. Its attempts are not used here; they are published as [Kogen mechanisms on four tasks: invalid first run](../screen-kogen-2-first-run/README.md).
 
 ## Limits
 
