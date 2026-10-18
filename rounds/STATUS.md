@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 114
+DESCRIPTIVE: 115
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -318,3 +318,4 @@ screen-kogen-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_
 screen-kogen-1-stage-1 | INVALID | PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab baseline runs invalidated by a mid-run Lab rebuild and an external kill; interrupted; no official grades.
 screen-kogen-2-first-run | INVALID | PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab screen stopped after nine attempts; a task-conversion error leaked installed packages into the model inputs; no official grades.
 baseline-variance-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab development run, twelve pairs; the screen's gains did not repeat; no official grades.
+review-timing-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab development run, eight triples; reviewing once let wrong code through; no official grades.

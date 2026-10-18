@@ -1,0 +1,35 @@
+# review-timing-1: single review pass (C06 first_green) with a Sol-low and a Luna-low reviewer, against Sol-low every_green.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "review-timing-1: with review only after the first green pass, does a Luna-low reviewer match the Sol-low every-green reviewer, and at what cost?"
+hypothesis = "luna-first is within one block of sol-every at no more than 80% of its input"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "correctness"
+baseline = "sol-every"
+tasks = ["../../tasks/r70-5-elixir", "../../tasks/r70-7-elixir", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.sol-every]
+
+[variant.sol-first]
+review.timing = "first_green"
+
+[variant.luna-first]
+review.timing = "first_green"
+roles.reviewer = { provider = "openai", model = "gpt-6-luna", effort = "low" }
