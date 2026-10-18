@@ -1,0 +1,236 @@
+{
+ "description": "Counterfactual review limits: for each attempt and limit N, the passing-verification code a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved.",
+ "attempts": [
+  {
+   "task": "env-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 1007316
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "e62b9b4d9f0b8809fe3100b70fdfdd2656b366e1",
+     "hidden_passed": 23,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 346389
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "10c6267fa3dc763f0d4291d336a423619c06ae6a",
+     "hidden_passed": 24,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 776213
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 279924
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "3b27c960bfcb7ba233b90d81b89967cf9087011c",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 146852
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 1050037
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "22b074982342f1bb8f49a95d27c4f3bfb2675e20",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 838377
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 404013
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 181036
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 259978
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 134258
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 225300
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  }
+ ]
+}

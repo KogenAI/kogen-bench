@@ -1,0 +1,32 @@
+# review-bound-1 pilot: every-review attempts with retained snapshots, graded afterwards for review bounds 1-3.
+# Reviewer gpt-6.1-sol low; planner and builder gpt-6-luna low or medium; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "review-bound-1: would stopping review after N rounds (N = 1, 2, 3) submit code that fails hidden tests?"
+hypothesis = "exploratory: the snapshot a bound would submit is graded afterwards without model calls"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "low"
+tasks = ["../../../confirmation-tasks-private/tasks/env-go", "../../../confirmation-tasks-private/tasks/sched-go", "../../tasks/r70-5-go", "../../tasks/r70-5-elixir"]
+repetitions = 1
+hosts = ["eu2", "eu2-2", "laptop"]  # Linux slots only, keeping the Studio idle for publication gates
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.low]
+
+[variant.medium]
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
