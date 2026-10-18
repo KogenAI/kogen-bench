@@ -1,0 +1,36 @@
+# review-convergence-1: the reviewer's model/effort against Kogen's unbounded review loop (KOGEN-012).
+# Every variant carries an experimental [stop] max_repairs = 12, so none is the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "With planner and builder on gpt-6-luna low, does the reviewer's model and effort decide whether review approves within 12 repairs on r70-5-go and r70-7-go?"
+hypothesis = "Luna low does not converge; at least one stronger reviewer setting converges on both tasks"
+purpose = "screening"
+changes = ["execution"]
+objective = "correctness"
+baseline = "rev-luna-low"
+tasks = ["../../../screen-kogen-1/tasks/r70-5-go", "../../../screen-kogen-1/tasks/r70-7-go"]
+repetitions = 1
+hosts = ["local", "eu2"]  # laptop lent to the Lab readiness suite; eu excluded (npm ci blocked by sealed egress)
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 12
+
+[variant.rev-luna-low]
+
+[variant.rev-luna-high]
+roles.reviewer = { provider = "openai", model = "gpt-6-luna", effort = "high" }
+
+[variant.rev-sol-low]
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+
+[variant.rev-sol-high]
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "high" }

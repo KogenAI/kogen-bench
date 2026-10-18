@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 110
+DESCRIPTIVE: 111
 PILOT: 10
 INVALID: 35
 INCOMPLETE: 37
@@ -312,3 +312,4 @@ lab01-analysis-tooling-screen | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATI
 containment-small-eu | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — 57 of 66 selected observations valid; 9 b cells invalid; all 33 c2 cells NOT-RUN; one EU host and three repetitions.
 containment-small-eu-v2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — 92 supported valid observations, 6 unsupported z resource limits, 1 invalid c2 environment-secret repetition; one test server and one kernel.
 containment-small-eu-helper | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — observation-only 11-fixture comparison; 92 of 102 selected rows started and finished; unequal configurations and incomplete source capture.
+review-convergence-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — Kogen Lab screening, two tasks, one attempt per reviewer setting; no official grades.

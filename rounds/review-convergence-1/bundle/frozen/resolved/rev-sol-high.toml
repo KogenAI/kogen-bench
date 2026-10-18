@@ -1,0 +1,115 @@
+[roles.builder]
+effort = "low"
+model = "gpt-6-luna"
+provider = "openai"
+
+[roles.planner]
+effort = "low"
+model = "gpt-6-luna"
+provider = "openai"
+
+[roles.reviewer]
+effort = "high"
+model = "gpt-6.1-sol"
+provider = "openai"
+
+[roles.shaper]
+effort = "low"
+model = "gpt-6-luna"
+provider = "openai"
+
+[shape]
+probes = true
+refine_prompt = "lab:refine"
+critique_rounds = 1
+supplied = "gherkin"
+iterations = 2
+prompt = "kogen"
+clarification = "on_question"
+execution = "once"
+critique_prompt = "lab:critique"
+role = "shaper"
+critique = "off"
+prepared = ""
+source = "supplied"
+context = "kogen_shaper"
+submissions = 3
+
+[artifacts]
+formal_scope = "kogen"
+readiness = ["lint", "formal", "dry_run"]
+scenarios = "kogen"
+order = "together"
+gherkin = "executed"
+prose = "kogen"
+template = "kogen"
+formalism = "quint_when_warranted"
+
+[plan]
+enabled = true
+prompt = "kogen"
+role = "planner"
+context = "kogen_planner"
+
+[build]
+context = "kogen_builder"
+role = "builder"
+prompt = "kogen"
+edit = "write_file"
+inputs = ["intent", "feature", "formal", "plan"]
+round_end = "finish_or_text"
+output_total = 16384
+tools = ["shell", "read_file", "finish"]
+retention_keep = 20
+retention = "full"
+output = "kogen_16k"
+output_head = 4096
+
+[testing_rules]
+roles = ["shaper", "planner", "builder", "reviewer"]
+
+[tests]
+policy = "kogen"
+
+[fix]
+enabled = true
+
+[verify]
+feedback = "kogen"
+checks = "kogen"
+continue = "run_all"
+cadence = "round_end"
+enabled = true
+order = "kogen"
+formal_feedback = "full"
+
+[repair]
+conversation = "continue"
+context = ["packet", "diff", "check_results", "review_findings"]
+roles = ["builder"]
+prompt = "lab:repair-fresh"
+enabled = true
+
+[review]
+prompt = "kogen"
+effect = "blocking"
+timing = "every_green"
+enabled = true
+independence = "fresh"
+context = "kogen_reviewer"
+role = "reviewer"
+invalid_retries = 1
+
+[guard]
+start_checks = "kogen"
+cleanup = "kogen"
+snapshot = "kogen"
+protection = "kogen"
+
+[commit]
+enabled = true
+
+[stop]
+# max_wall_seconds = <absent>
+# max_tokens = <absent>
+max_repairs = 12
