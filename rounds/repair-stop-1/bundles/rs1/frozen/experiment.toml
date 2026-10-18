@@ -1,0 +1,31 @@
+# repair-stop-1: env-ex with the confirmed configuration, 6 vs 12 allowed repairs.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "repair-stop-1: on env-ex, does allowing 12 repairs instead of 6 turn stopped attempts into correct submissions?"
+hypothesis = "exploratory: the review keeps rejecting green code, so more repairs do not help"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "correctness"
+baseline = "stop6"
+tasks = ["../../../confirmation-tasks-private/tasks/env-ex"]
+repetitions = 3
+hosts = ["eu2", "eu2-2", "laptop"]  # Linux slots only, keeping the Studio idle for publication gates
+seed = 20261018
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.stop6]
+
+[variant.stop12]
+stop.max_repairs = 12
