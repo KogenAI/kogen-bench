@@ -1,0 +1,278 @@
+{
+ "description": "Counterfactual review limits: for each attempt and limit N, the green verification snapshot a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved, or the attempt never reached that point.",
+ "attempts": [
+  {
+   "task": "r70-1-go",
+   "variant": "direct",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 722095
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "8c46a5a7c5c8b8032cdae12e308ec025e0df10d6",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 324716
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "05a36345eba602befc21d0eb0d95c227442ef2af",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 489088
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-1-go",
+   "variant": "planned",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 679824
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "dcb3ac7ef367a1ae42ee2349c478ae508bc3786a",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 309865
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "3f507fd935659730ba68d6ab2262460a246584ba",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 477683
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-4-elixir",
+   "variant": "direct",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 18,
+    "hidden_total": 18,
+    "input_tokens": 684321
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "514942d7ce6abf20cf6446c8362a4be176e4ad91",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 256727
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "0d3dcf8ec64c724ecf157e2e741390d49b0a4295",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 371426
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-4-elixir",
+   "variant": "planned",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 18,
+    "hidden_total": 18,
+    "input_tokens": 916986
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "c6708b1051fb31813f4431815e021dcca0f1fa28",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 215891
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "1708dafb107d12f62f3d236b5393491d2a27d871",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 367921
+    },
+    "3": {
+     "changed": true,
+     "snapshot_tree": "3bcd594dc162ddc2e079f309ac44831f469bdf0b",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 494882
+    }
+   }
+  },
+  {
+   "task": "r70-4-go",
+   "variant": "direct",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 18,
+    "hidden_total": 18,
+    "input_tokens": 335921
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "b1fce0d5b9aad37c65b1229535fe9455075ad5d5",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 198771
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-4-go",
+   "variant": "planned",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 18,
+    "hidden_total": 18,
+    "input_tokens": 359090
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "c3a2dd78709f2b623a153df281107a53eb99f238",
+     "hidden_passed": 18,
+     "hidden_total": 18,
+     "correct": true,
+     "input_tokens_to_submission": 183535
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-6-elixir",
+   "variant": "direct",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 198499
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-6-elixir",
+   "variant": "planned",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 205398
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  }
+ ]
+}
