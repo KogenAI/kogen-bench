@@ -1,0 +1,25 @@
+version = 1
+question = "planner-direct-1: with Kogen b2c9876b's default roles, does building directly without a planner change correctness, repairs or tokens?"
+hypothesis = "exploratory: the direct build matches the planned build at lower token cost"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "planned"
+tasks = ["../../tasks/r70-5-go", "../../tasks/r70-7-go", "../../tasks/r70-5-elixir", "../../tasks/r70-7-elixir", "../../../confirmation-tasks-private/tasks/env-go", "../../../confirmation-tasks-private/tasks/env-ex", "../../../confirmation-tasks-private/tasks/sched-go"]
+repetitions = 1
+hosts = ["local", "local-2", "local-3"]
+seed = 20261021
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.planned]
+
+[variant.direct]
+plan.enabled = false
