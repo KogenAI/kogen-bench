@@ -1,0 +1,37 @@
+version = 1
+question = "builder-subagents-1: with Kogen b2c9876b defaults, does an explore helper or a delegate helper (Luna low) change the builder's correctness, wrong submissions, tokens or time?"
+hypothesis = "exploratory: helpers cut the builder's own input without changing correctness"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "off"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["eu2", "eu2-2", "laptop"]
+seed = 20261025
+
+[rule]
+policy = "descriptive"
+
+[shared]
+review.effect = "builder_repair"
+review.tools = "read_only"
+plan.enabled = false
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[shared.roles.build_helper]
+provider = "openai"
+model = "gpt-6-luna"
+effort = "low"
+
+[variant.off]
+
+[variant.explore]
+build.subagents = "explore"
+
+[variant.delegate]
+build.subagents = "delegate"
+build.subagents_paths = ["test/**"]

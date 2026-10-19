@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 129
+DESCRIPTIVE: 130
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -333,3 +333,4 @@ claude-roles-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_
 fixer-model-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen stopped at its input budget, 19 of 24 attempts scored, one attempt per setting; on the four tasks the baseline finished, a Sol medium fixer was correct in 4 of 4 at 70% of the input and a Luna medium fixer in 2 of 4; review-limit counterfactuals not graded; no official grades.
 planner-direct-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four harder tasks, one attempt per setting, at a Kogen commit where Lab's equivalence is not measured; planner on and off in Lab both 4 of 4, planner off at 90% of the input, nearly all of the difference from one task; the run's budget guard failed soon after the start; no official grades.
 claude-builder-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four harder tasks, one attempt per setting; the GPT-6.1 Sol builder 3 of 4, Claude Haiku builder 2 of 3 scored (one attempt without an outcome), Claude Sonnet builder 1 of 4; hung commands killed by hand and two untrusted evaluations disclosed; no official grades.
+builder-subagents-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, in which the builder was offered a helper tool and called it 0 times, so no helper ran; no official grades.
