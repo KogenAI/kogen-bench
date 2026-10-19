@@ -1,0 +1,1054 @@
+{
+ "description": "Counterfactual review limits: for each attempt and limit N, the green verification snapshot a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved, or the attempt never reached that point.",
+ "attempts": [
+  {
+   "task": "env-ex",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 180588
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-ex",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 791929
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "edff8c0bf549c35efa6c378c1a03d8134f31983c",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 574290
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-ex",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 445131
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "1ad4f5954f5a7659ea6cf29df90b0dcd27781274",
+     "hidden_passed": 24,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 223512
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-ex",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes"
+   ],
+   "actual": {
+    "outcome": "workflow_failure",
+    "hidden_passed": 20,
+    "hidden_total": 26,
+    "input_tokens": 1731090
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-ex",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "incorrect",
+    "hidden_passed": 25,
+    "hidden_total": 26,
+    "input_tokens": 915738
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "e21b34a531ad984330781306d7e972592e9df512",
+     "hidden_passed": 22,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 647379
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "aa56081447717005cf032b5981050efa3d5af2f8",
+     "hidden_passed": 23,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 752752
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 124553
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 829886
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "66603596dd3b02ee0d8839192d926137fe0a86bc",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 612902
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 352689
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "683820d8a6f7bb3d216547529520e170be5ff534",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 235343
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 374972
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "31998d62bcc4139b5aebcc2ef675bacf8a0cf446",
+     "hidden_passed": 25,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 155689
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 259604
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "c5916f795cca1d016fc3acdc6bb3bde39775c25e",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 129807
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 132384
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 634805
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes"
+   ],
+   "actual": {
+    "outcome": "workflow_failure",
+    "hidden_passed": 10,
+    "hidden_total": 24,
+    "input_tokens": 902507
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "a5068fea84db9d4beaf08c27f39a5aa8ab4fe858",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 208250
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "80d096cef19a859be4d9108dd81f27f9a20acda9",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 388746
+    },
+    "3": {
+     "changed": true,
+     "snapshot_tree": "80d096cef19a859be4d9108dd81f27f9a20acda9",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 475825
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 987376
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "1bd8903fa57963f657fbc4b193dee538d56544b5",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 756782
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "incorrect",
+    "hidden_passed": 23,
+    "hidden_total": 24,
+    "input_tokens": 194818
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 66957
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 220493
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 447743
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "d35981f87ce4700bd84fc09270472410f861a3c8",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 245247
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 412089
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "9210094b6db2bbcffb9cb42736945dcc6396972e",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 155515
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "41b7ec0e669e90de59e40cf992ce482723b1fcd2",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 248626
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 242696
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "7e74da27b03b6ef05fca5dbe002b80949ee69831",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 152525
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-elixir",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 64560
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-elixir",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 217199
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-elixir",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 454611
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "326322f71221e5dd8fb63fbe3939b1b8970ca9aa",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 188576
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "66b5bc6230197c5f690aa2506d3111d95f5f28b0",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 303971
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-elixir",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 370331
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-elixir",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 191379
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-go",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 148625
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-go",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 439752
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-go",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 212326
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-go",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 451887
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "927019e7abb726fe3d0ebf876b3e98863a27811e",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 161806
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "e7e63b35caa6c33ab2af7a7929a3ad173a054ce2",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 305291
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-7-go",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 174945
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "7e66f325f22865dae1d31e4ee7a9f560bafa163d",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 101250
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "all-sonnet",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 97135
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "haiku-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 228899
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "luna-medium-build",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 217747
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "sol-low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 554690
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "3dc94232bfaf8259ee7191eb3097cfcafb4024bd",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 319922
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "f22c32857d4132f40fc5fae498cbfe7106f3b53d",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 410428
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "sonnet-review",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 378205
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "36f0220c06885a5b13614efdbeafb4740882480e",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 216025
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "732bf10c05afbb1fcc1256d558e1d1b15a727d40",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 284109
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  }
+ ]
+}

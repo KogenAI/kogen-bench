@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 125
+DESCRIPTIVE: 126
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -329,3 +329,4 @@ retention-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAP
 review-independence-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab run on four tasks, twelve pairs; a reviewer shown the builder's conversation was correct in 8 of 12 against 11 of 12 and used 131% of the input; invalid first run kept; no official grades.
 repair-cost-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on seven tasks, one attempt per setting; low-effort builder 5 of 7 with a median of 3 repairs; a fixer in the reviewer's model, a high-effort builder and a Sol builder 7 of 7 with medians of 2, 1 and 0; no official grades.
 planner-direct-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on seven tasks, one attempt per setting, at a Kogen commit where Lab's equivalence is not measured; planner on and off in Lab both 7 of 7 with no repairs, planner off at 87% of the input; no official grades.
+claude-roles-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on seven tasks, one attempt per setting, with one comparison reused from another round; a Claude Sonnet reviewer approved wrong code in 2 of 7, Claude Haiku as builder and an all-Sonnet setting 7 of 7 against 6 of 7 for the baseline; no official grades.
