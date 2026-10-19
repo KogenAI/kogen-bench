@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 121
+DESCRIPTIVE: 122
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -325,3 +325,4 @@ confirm-builder-effort-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, I
 repair-stop-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab run on one task, three pairs; no correct attempt needed more than six repairs; no official grades.
 review-bound-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab run on four tasks, eight attempts; review limits of one and two rounds would have submitted wrong code; no official grades.
 review-bound-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab run on four tasks, 24 attempts; with the first round, a one-round review limit would have submitted wrong code in 8 of 32 attempts; no official grades.
+retention-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab run on four tasks, twelve pairs; trimming old builder tool output saved 3% of input at equal correctness; no official grades.

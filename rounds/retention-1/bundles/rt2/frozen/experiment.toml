@@ -1,0 +1,32 @@
+# retention-1: builder conversation full (Kogen) vs trimmed to the newest 6 tool results, B06.
+# Reviewer gpt-6.1-sol low, other roles gpt-6-luna low; experimental stops on every cell, so not the Kogen-equivalent profile (CFG-7).
+version = 1
+question = "retention-1: does trimming old tool results from the builder conversation cut input without losing correctness?"
+hypothesis = "exploratory: trim6 uses at most 80% of full input at equal correctness"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "full"
+tasks = ["../../../confirmation-tasks-private/tasks/env-go", "../../../confirmation-tasks-private/tasks/sched-go", "../../tasks/r70-5-go", "../../tasks/r70-5-elixir"]
+repetitions = 3
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261019
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.shaper = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.planner = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.full]
+
+[variant.trim6]
+build.retention = "trim_tool_results"
+build.retention_keep = 6
