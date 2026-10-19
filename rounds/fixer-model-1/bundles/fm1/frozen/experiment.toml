@@ -1,0 +1,38 @@
+version = 1
+question = "fixer-model-1: with a weak builder and a Sol-high reviewer, does a cheaper fixer (Sol medium, Sol low, Luna medium) keep the Sol-high fixer's correctness at lower cost?"
+hypothesis = "exploratory: Sol medium matches Sol high; Sol low and Luna medium need more repairs"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "fix-sol-high"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-4-elixir", "../../tasks/r70-1-go", "../../tasks/r70-6-elixir", "../../tasks/r70-5-elixir", "../../../confirmation-tasks-private/tasks/env-ex"]
+repetitions = 1
+hosts = ["local", "local-2", "local-3"]
+seed = 20261022
+
+[rule]
+policy = "descriptive"
+
+[shared]
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "high" }
+roles.fixer = { provider = "openai", model = "gpt-6.1-sol", effort = "high" }
+plan.enabled = false
+shape.source = "supplied"
+shape.supplied = "gherkin"
+repair.roles = ["fixer"]
+repair.conversation = "fresh"
+repair.context = ["packet", "diff", "changed_files", "check_results", "review_findings"]
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.fix-sol-high]
+
+[variant.fix-sol-medium]
+roles.fixer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
+
+[variant.fix-sol-low]
+roles.fixer = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+
+[variant.fix-luna-medium]
+roles.fixer = { provider = "openai", model = "gpt-6-luna", effort = "medium" }
