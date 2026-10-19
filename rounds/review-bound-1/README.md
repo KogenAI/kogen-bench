@@ -22,7 +22,7 @@ Reviews are listed in order: "c" asks for changes, "a" approves. "Same" means th
 
 | Task, configuration | Reviews | Actual outcome | Limit 1 | Limit 2 | Limit 3 |
 | --- | --- | --- | --- | --- | --- |
-| `env-go`, low | c c c a | correct, 26 of 26; 1.01M input | **wrong**, 23 of 26; 0.35M | **wrong**, 24 of 26; 0.78M | same |
+| `env-go`, low | c c c a | correct, 26 of 26; 1.01M input | **wrong**, 24 of 26; 0.46M | **wrong**, 24 of 26; 0.78M | same |
 | `env-go`, medium | c c a | correct, 26 of 26; 0.28M | correct, 26 of 26; 0.15M | same | same |
 | `r70-5-elixir`, low | c c a | correct, 24 of 24; 1.05M | **wrong**, 23 of 24; 0.84M | same | same |
 | `r70-5-elixir`, medium | c a | correct, 24 of 24; 0.40M | same | same | same |
@@ -33,6 +33,8 @@ Reviews are listed in order: "c" asks for changes, "a" approves. "Same" means th
 | Changed by the limit | | | 3, of which 2 wrong | 1, wrong | 0 |
 
 The run recorded 8 attempts, all with Lab outcomes, and used about 3.54M input tokens. Per-attempt values are in [`COUNTERFACTUAL.json`](COUNTERFACTUAL.json).
+
+**Correction, 19 October 2026.** The first version of this page graded the wrong code for `env-go`, low, with limit 1: it took a verification pass whose own checks had failed, which a limit would never submit. The code a limit of one round would actually submit, the next passing verification, also fails hidden tests (24 of 26, at 0.46M input instead of 23 of 26 at 0.35M). Every other cell used passing verifications and is unchanged, and so are the counts and conclusions.
 
 In the recorded findings, the defects behind the failing tests were ones the skipped review had raised: wrong error positions after a closing quote, for escapes and for a trailing backslash, and a comment accepted directly after a quote. One failing test in `env-go` with limit 2, on reporting the first problem from left to right, was not named by any finding.
 

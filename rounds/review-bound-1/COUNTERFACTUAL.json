@@ -1,5 +1,5 @@
 {
- "description": "Counterfactual review limits: for each attempt and limit N, the passing-verification code a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved.",
+ "description": "Counterfactual review limits: for each attempt and limit N, the green verification snapshot a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved, or the attempt never reached that point.",
  "attempts": [
   {
    "task": "env-go",
@@ -20,11 +20,11 @@
    "bounds": {
     "1": {
      "changed": true,
-     "snapshot_tree": "e62b9b4d9f0b8809fe3100b70fdfdd2656b366e1",
-     "hidden_passed": 23,
+     "snapshot_tree": "ad0f193020705ebcc663f9cd533e82ddfb2911a0",
+     "hidden_passed": 24,
      "hidden_total": 26,
      "correct": false,
-     "input_tokens_to_submission": 346389
+     "input_tokens_to_submission": 458043
     },
     "2": {
      "changed": true,
