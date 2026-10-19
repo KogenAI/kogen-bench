@@ -1,0 +1,29 @@
+version = 1
+question = "claude-builder-2: on harder tasks, do Claude Haiku 5.5 and Claude Sonnet 5.5 builders match Kogen's default gpt-6.1-sol medium builder, and at what cost?"
+hypothesis = "exploratory: cr1's 7/7 for both Claude builders was at the ceiling; harder tasks may separate them"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "sol-medium"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-4-elixir", "../../tasks/r70-1-go", "../../tasks/r70-6-elixir"]
+repetitions = 1
+hosts = ["local", "local-2", "local-3"]
+seed = 20261024
+
+[rule]
+policy = "descriptive"
+
+[shared]
+plan.enabled = false
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.sol-medium]
+
+[variant.haiku-build]
+roles.builder = { provider = "anthropic", model = "claude-haiku-5-5", effort = "medium" }
+
+[variant.sonnet-build]
+roles.builder = { provider = "anthropic", model = "claude-sonnet-5-5", effort = "medium" }
