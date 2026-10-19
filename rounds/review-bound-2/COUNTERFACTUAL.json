@@ -1,0 +1,717 @@
+{
+ "description": "Counterfactual review limits: for each attempt and limit N, the green verification snapshot a limit of N reviews would have submitted, graded afterwards by the same hidden evaluation without model calls. Keys under 'bounds' are N. Unchanged means the limit submits the code the review approved, or the attempt never reached that point.",
+ "attempts": [
+  {
+   "task": "env-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 291655
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "906b1124e68699352bb73417616516bcaaccdc1a",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 143684
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 241887
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "low",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 235516
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "a6f9b0ae61e4b2834c445f2857a07bea310216b8",
+     "hidden_passed": 25,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 112032
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "medium",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 463981
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "f6a77117ab087be50dd5395da90d00af01af1f8b",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 195030
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "1664dd8c355db0741510eae891531a7cba6e84b9",
+     "hidden_passed": 26,
+     "hidden_total": 26,
+     "correct": true,
+     "input_tokens_to_submission": 321547
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "low",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 281603
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "0c6d40d365213967f5b6987530180cf2c41a7deb",
+     "hidden_passed": 24,
+     "hidden_total": 26,
+     "correct": false,
+     "input_tokens_to_submission": 119370
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "env-go",
+   "variant": "medium",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 26,
+    "hidden_total": 26,
+    "input_tokens": 267351
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [],
+   "actual": {
+    "outcome": "workflow_failure",
+    "hidden_passed": 0,
+    "hidden_total": 24,
+    "input_tokens": 672451
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 502659
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "low",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes"
+   ],
+   "actual": {
+    "outcome": "workflow_failure",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 878552
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "3ac5442c09eccae49ac864cd815dff8bebe7aaff",
+     "hidden_passed": 22,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 598853
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "6ed0e030fb40ff081d3ce7abb6d9bf7235e0a9ad",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 863292
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "medium",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 810859
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "13991eb7048ad82d1f574660de2dd869923ed950",
+     "hidden_passed": 23,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 388899
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "low",
+   "repetition": 3,
+   "review_verdicts": [],
+   "actual": {
+    "outcome": "workflow_failure",
+    "hidden_passed": 0,
+    "hidden_total": 24,
+    "input_tokens": 462598
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-elixir",
+   "variant": "medium",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 1127210
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "a4144d3385d4c350ba904bcb95ff2ab7e64d22eb",
+     "hidden_passed": 20,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 533649
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "4c6b1e78194d713d6b8993c3bd2f16fa7962ace2",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 867892
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 182832
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 223896
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "low",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 272606
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "8b00f4a3f69682db41deea1c6254d24b00a256b4",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 137140
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "medium",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 191015
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "low",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 340568
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "dbc6a42e64980c4c7d223c7d4d1d43fe13ef4422",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 233035
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "r70-5-go",
+   "variant": "medium",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 212060
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "low",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 257288
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "medium",
+   "repetition": 1,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 296847
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "dc3bcc68e229bc01ff4049d1db2d89fafe8d80f0",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 175477
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "low",
+   "repetition": 2,
+   "review_verdicts": [
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 106386
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "medium",
+   "repetition": 2,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 311669
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "659dbc6b1e3437ae029da7b86af7603e3729a04d",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 178466
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "low",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "changes",
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 366096
+   },
+   "bounds": {
+    "1": {
+     "changed": true,
+     "snapshot_tree": "43acc6ce0e8773b310612b5c54f1a8a974e759e6",
+     "hidden_passed": 0,
+     "hidden_total": 24,
+     "correct": false,
+     "input_tokens_to_submission": 149506
+    },
+    "2": {
+     "changed": true,
+     "snapshot_tree": "3df65199702973a19dc8ce5fa5701845e20f7a5e",
+     "hidden_passed": 24,
+     "hidden_total": 24,
+     "correct": true,
+     "input_tokens_to_submission": 245801
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  },
+  {
+   "task": "sched-go",
+   "variant": "medium",
+   "repetition": 3,
+   "review_verdicts": [
+    "changes",
+    "approve"
+   ],
+   "actual": {
+    "outcome": "correct",
+    "hidden_passed": 24,
+    "hidden_total": 24,
+    "input_tokens": 266433
+   },
+   "bounds": {
+    "1": {
+     "changed": false
+    },
+    "2": {
+     "changed": false
+    },
+    "3": {
+     "changed": false
+    }
+   }
+  }
+ ]
+}
