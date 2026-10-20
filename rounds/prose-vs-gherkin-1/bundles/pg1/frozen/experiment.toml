@@ -1,0 +1,27 @@
+version = 1
+question = "prose-vs-gherkin-1: with Kogen b45ba32b's default roles and flow, how often does wrong code reach review or ship when the supplied specification is prose only instead of prose plus Gherkin scenarios?"
+hypothesis = "exploratory: prose-only specifications let some green-but-wrong code reach review (claude-review-fix-1); Kogen's reviewer-fixer catches part of it"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "gherkin"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2", "../../tasks/artifact-go"]
+repetitions = 2
+hosts = ["eu2", "eu2-2"]
+seed = 20261038
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.gherkin]
+shape.supplied = "gherkin"
+
+[variant.prose]
+shape.supplied = "prose"
+artifacts.gherkin = "off"
