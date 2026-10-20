@@ -1,0 +1,36 @@
+version = 1
+question = "builder-subagents-2: with Kogen b45ba32b defaults, does an explore helper the builder is told about (hint) or must call once (required) change correctness, wrong submissions, tokens or time?"
+hypothesis = "exploratory: with guidance the builder uses the helper; whether that helps is open"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "off"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["local"]
+seed = 20261031
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[shared.roles.build_helper]
+provider = "openai"
+model = "gpt-6-luna"
+effort = "low"
+
+[variant.off]
+
+[variant.hint]
+build.subagents = "explore"
+build.subagents_guidance = "hint"
+
+[variant.required]
+build.subagents = "explore"
+build.subagents_guidance = "hint"
+build.subagents_required = true

@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 134
+DESCRIPTIVE: 135
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -338,3 +338,4 @@ review-fix-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CA
 shape-default-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, on a build whose shaping differs from Kogen's; supplied specification 4 of 4, generated shaping 3 of 4; no official grades.
 blocker-stop-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on six tasks, one attempt per setting, inconclusive because neither stop was used; two attempts interrupted by a mistaken stop and run again; no official grades.
 claude-review-fix-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen with two repetitions per task and small counts, on an approximate build, using one weak builder and two reviewers; with prose specifications the Sonnet reviewer fixed 2 of 4 wrong builds and the Haiku reviewer none, and run 1 with supplied scenarios was inconclusive; no official grades.
+builder-subagents-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, on an approximate build; the hint setting never called the helper and one attempt ended on a Lab commit failure; no official grades.
