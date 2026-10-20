@@ -8,7 +8,7 @@ In Kogen's current version (commit b2c9876b) there is no loop between builder an
 - **The review-and-fix flow ran.** Nine attempts reached review. In 8 of those 9 the reviewer edited the code before approving it: it changed an existing source file in all 8 and added a test file in 7 of them (the eighth changed an existing test file). The verification that followed was green in all 8, the edited code was submitted, and it was correct. The ninth reviewer (`r70-6-elixir-2`, baseline) approved the code unchanged. All nine verdicts were "approve" and listed no findings; no review returned "changes", so no attempt ended as blocked by review, and no verification after a reviewer's edit failed.
 - **Every failure stopped before review.** The three stopped attempts all have a Luna low builder whose own checks failed on each of its 7 tries (the first run and six repairs); they reached the six-repair cap, so the reviewer never saw them. Their last code, evaluated anyway, had 16 of 18, 23 of 24 and 22 of 24 hidden tests green. With a weak builder the outcome here depended on the builder's own loop, not on the reviewer.
 - The Sol-medium reviewer was correct wherever it was reached (3 of 3), as was the Sol-high reviewer with the weak builder (2 of 2). On the two tasks where both weak-builder settings reached review (`r70-4-go`, `r70-1-go`), the Sol-medium reviewer used 0.28M of input against 0.96M for Sol-high. The stop difference (1 against 2) happened before any reviewer call; with one attempt per cell it is most likely builder variation. A candidate only.
-- The baseline used 1.08M of input in all, with no builder repairs in any of the four attempts, and the reviewer still edited the code in 3 of the 4. What those edits changed was not analysed.
+- The baseline used 1.08M of input in all, with no builder repairs in any of the four attempts, and the reviewer still edited the code in 3 of the 4. What those edits changed was not analysed; they were not needed to pass the hidden tests (see "Were the reviewer's edits needed?").
 - With one attempt per task and setting these are candidates, not results.
 
 ## Question and scope
@@ -47,14 +47,22 @@ Each cell gives the outcome, the builder repairs used, how the review ended, and
 
 ### Review limits
 
-Not computed: each reviewed attempt was approved at its first review, so a review limit would give the same outcome. The other three attempts never reached review. Nothing needed grading, and there is no `COUNTERFACTUAL.json` for this round.
+Not computed: each reviewed attempt was approved at its first review, so a review limit would give the same outcome. The other three attempts never reached review. Nothing needed grading, and there is no `COUNTERFACTUAL.json` for this round. The reviewer's edits were checked another way, below.
+
+### Were the reviewer's edits needed?
+
+Each of the 8 attempts where the reviewer edited the code was graded on the hidden tests at the builder's last green code before the review. This used Lab's snapshot grading on the attempt's own host with the experiment's own Lab build, and made no model calls. The rows are in [`PRE-REVIEW-GRADES.json`](PRE-REVIEW-GRADES.json).
+
+**8 of 8 were already correct before review.** The three `r70-1-go` attempts passed 25 of 25 hidden checks (the task's 24 hidden tests and one regression check), and the five `r70-4-go` and `r70-4-elixir-2` attempts passed 18 of 18. Every reviewer edit was therefore polish, and none rescued a failing attempt. The grading reproduced the attempts' own passing counts.
+
+This check has limits. It covers one attempt per task on four tasks, and every builder that reached review had already solved the task, so a rescue could not show up here. The three attempts that stopped never reached review.
 
 ## Limits
 
 - The earlier builder-and-reviewer loop was not run, so this round cannot say whether review-and-fix keeps, gains or loses correctness against it, or what it costs against it.
 - Four tasks, one attempt each per setting: a screen. The three stopped attempts come from one run of a weak builder. In the blocker stop round of the same evening, with the same builder and reviewer but different stop settings, that builder was correct on all four of these tasks in both of its settings, so a single attempt is a noisy measure of it.
 - Reviewer input differs between settings, but each setting reached review in a different set of attempts, so those figures compare different attempts except on the two shared tasks.
-- What the reviewer's edits fixed (a defect, a missing test, style) was not analysed; the page reports only that code changed and verification stayed green.
+- What the reviewer's edits changed (a defect, a missing test, style) was not analysed. The page reports that code changed, verification stayed green, and the code before the edits was already correct.
 - Lab's equivalence to Kogen at commit b2c9876b is not measured.
 - Lab's evaluation is not an official kogen-bench grade, so the Standard records declare the official outcome as missing (see "What's missing and why").
 
@@ -64,8 +72,8 @@ Not computed: each reviewed attempt was approved at its first review, so a revie
 - Harness commit: not recorded as a public Git commit. Kogen Lab's source is not published yet; its build fingerprint is in the bundle's `manifest.json`.
 - Model and effort: builder `gpt-6.1-sol` at `medium` (setting `new`) or `gpt-6-luna` at `low` (the other two); reviewer `gpt-6.1-sol` at `high` (`new`, `weak-new`) or `medium` (`weak-new-medium`).
 - Task IDs: `r70-4-go`, `r70-1-go`, `r70-4-elixir-2`, `r70-6-elixir-2`.
-- Command: `kogen-lab freeze`, then `kogen-lab run` on the frozen experiment, then `kogen-lab export` and Lab's `export_bench_round.py` to write these records.
-- Raw records: [`records.jsonl`](records.jsonl) and the Lab export in [`bundles/`](bundles/). The kept code is not exported.
+- Command: `kogen-lab freeze`, then `kogen-lab run` on the frozen experiment, then `kogen-lab grade-snapshot` on each edited attempt's last green code before review, then `kogen-lab export` and Lab's `export_bench_round.py` to write these records.
+- Raw records: [`records.jsonl`](records.jsonl), [`PRE-REVIEW-GRADES.json`](PRE-REVIEW-GRADES.json) and the Lab export in [`bundles/`](bundles/). The kept code and its grades are not exported.
 
 ## Metadata
 
