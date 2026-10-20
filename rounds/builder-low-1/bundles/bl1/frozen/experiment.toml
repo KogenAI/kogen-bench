@@ -1,0 +1,26 @@
+version = 1
+question = "builder-low-1: with Kogen b45ba32b defaults and prose plus Gherkin specifications, does a Sol-low builder keep the default Sol-medium builder's correctness on the harder tasks at less input?"
+hypothesis = "exploratory: Sol low matches Sol medium on these tasks (repair-cost-1: Sol low was the cheapest builder at 7/7) at lower cost"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "sol-medium"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 2
+hosts = ["eu2", "eu2-2"]
+seed = 20261041
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.sol-medium]
+
+[variant.sol-low]
+roles.builder = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
