@@ -1,0 +1,27 @@
+version = 1
+question = "blocker-stop-1: with a weak builder and Kogen b2c9876b's review-and-fix, does the builder's blocker stop end hopeless attempts earlier and cheaper than a six-repair limit, without giving up on attempts that would have succeeded?"
+hypothesis = "exploratory: the blocker stop ends failing attempts sooner; it may also give up on some solvable ones"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "blocker"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2", "../../tasks/r70-5-elixir", "../../../confirmation-tasks-private/tasks/env-ex"]
+repetitions = 1
+hosts = ["eu2-2", "laptop"]
+seed = 20261028
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+stop.max_wall_seconds = 3600
+stop.max_command_seconds = 900
+
+[variant.blocker]
+
+[variant.cap6]
+build.tools = ["shell", "read_file", "finish"]
+stop.max_repairs = 6
