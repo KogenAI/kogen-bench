@@ -1,0 +1,140 @@
+[roles.builder]
+effort = "low"
+model = "claude-haiku-5-5"
+provider = "anthropic"
+
+[roles.planner]
+effort = "medium"
+model = "gpt-6.1-sol"
+provider = "openai"
+
+[roles.reviewer]
+effort = "medium"
+model = "claude-sonnet-5-5"
+provider = "anthropic"
+
+[roles.shaper]
+effort = "high"
+model = "gpt-6.1-sol"
+provider = "openai"
+
+[shape]
+helper_context = "lab_helper"
+probes = true
+refine_prompt = "lab:refine"
+critique_rounds = 1
+helper_prompt = "lab:helper"
+subagents_required = false
+subagents = "off"
+blocked = "report"
+helper_role = "shape_helper"
+supplied = "gherkin"
+iterations = 2
+prompt = "kogen"
+clarification = "on_question"
+subagents_output = 4096
+subagents_guidance = "none"
+execution = "once"
+critique_prompt = "lab:critique"
+proposals = "accumulate"
+role = "shaper"
+critique = "off"
+observations = "acknowledge"
+subagents_turns = 10
+prepared = ""
+source = "supplied"
+context = "kogen_shaper"
+submissions = 3
+
+[artifacts]
+formal_scope = "kogen"
+readiness = ["lint", "formal", "dry_run"]
+scenarios = "kogen"
+order = "together"
+gherkin = "executed"
+prose = "kogen"
+template = "kogen"
+formalism = "quint_when_warranted"
+
+[plan]
+enabled = false
+prompt = "lab:plan"
+role = "planner"
+context = "kogen_planner"
+
+[build]
+helper_role = "build_helper"
+context = "kogen_builder"
+role = "builder"
+prompt = "kogen"
+edit = "write_file"
+inputs = ["intent", "feature", "formal"]
+round_end = "finish_or_text"
+output_total = 16384
+helper_context = "lab_helper"
+tools = ["shell", "read_file", "finish", "report_blocker"]
+retention_keep = 20
+subagents_turns = 10
+subagents_paths = []
+subagents_output = 4096
+subagents_guidance = "none"
+retention = "full"
+output = "kogen_16k"
+helper_prompt = "lab:helper"
+subagents = "off"
+subagents_required = false
+output_head = 4096
+
+[testing_rules]
+roles = ["shaper", "planner", "builder", "reviewer"]
+
+[tests]
+policy = "kogen"
+
+[fix]
+enabled = true
+
+[verify]
+environment = "workspace"
+feedback = "kogen"
+checks = "kogen"
+continue = "stop_at_first"
+cadence = "round_end"
+enabled = true
+order = "kogen"
+formal_feedback = "full"
+
+[repair]
+conversation = "continue"
+context = ["packet", "diff", "check_results", "review_findings"]
+roles = ["builder"]
+prompt = "lab:repair-fresh"
+enabled = true
+
+[review]
+prompt = "kogen"
+effect = "stop"
+timing = "every_green"
+enabled = true
+independence = "fresh"
+parallel = "off"
+tools = "fix"
+context = "kogen_reviewer"
+role = "reviewer"
+invalid_retries = 1
+
+[guard]
+start_checks = "kogen"
+cleanup = "kogen"
+snapshot = "kogen"
+protection = "kogen"
+
+[commit]
+enabled = true
+
+[stop]
+# max_protected_restores = <absent>
+# max_tokens = <absent>
+max_repairs = 6
+max_wall_seconds = 3600
+max_command_seconds = 900

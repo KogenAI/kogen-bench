@@ -1,0 +1,132 @@
+{
+ "description": "Hidden-test grades of the code at the last green verification before the reviewer's edits, for the 9 attempts in which the reviewer edited the code and approved it (3 in run 1, 6 in run 2). Each was graded afterwards with the same hidden tests, using Lab's snapshot grading, without model calls. 'tree' names the graded code, which is not exported. 'hidden_passed' counts the requested hidden tests plus any regression check. 'class' is polish (edited, already correct), rescued (wrong, then correct after the edit) or edited still wrong.",
+ "attempts": [
+  {
+   "attempt": "crf1-r70-4-elixir-2-r1-rev-haiku-a1",
+   "run": "run 1",
+   "task": "r70-4-elixir-2",
+   "setting": "rev-haiku",
+   "tree": "8722351531f7a13cad518deede3c28a7d9806848",
+   "hidden_passed": 18,
+   "hidden_total": 18,
+   "correct": true,
+   "submitted_hidden_passed": 18,
+   "submitted_correct": true,
+   "class": "polish"
+  },
+  {
+   "attempt": "crf1-r70-4-go-r1-rev-haiku-a1",
+   "run": "run 1",
+   "task": "r70-4-go",
+   "setting": "rev-haiku",
+   "tree": "37a413123494a29013fe1fea7e7e3a0d21d406df",
+   "hidden_passed": 18,
+   "hidden_total": 18,
+   "correct": true,
+   "submitted_hidden_passed": 18,
+   "submitted_correct": true,
+   "class": "polish"
+  },
+  {
+   "attempt": "crf1-r70-6-elixir-2-r1-rev-haiku-a1",
+   "run": "run 1",
+   "task": "r70-6-elixir-2",
+   "setting": "rev-haiku",
+   "tree": "00966493a2ce996e6392b82dedf18ac8d86c47a8",
+   "hidden_passed": 24,
+   "hidden_total": 24,
+   "correct": true,
+   "submitted_hidden_passed": 24,
+   "submitted_correct": true,
+   "class": "polish"
+  },
+  {
+   "attempt": "crf2-artifact-go-r1-rev-haiku-a1",
+   "run": "run 2",
+   "task": "artifact-go",
+   "setting": "rev-haiku",
+   "tree": "67219dbb29276afb4261a93ed5814674568a57cc",
+   "hidden_passed": 29,
+   "hidden_total": 29,
+   "correct": true,
+   "submitted_hidden_passed": 29,
+   "submitted_correct": true,
+   "class": "polish"
+  },
+  {
+   "attempt": "crf2-r70-1-go-r0-rev-haiku-a1",
+   "run": "run 2",
+   "task": "r70-1-go",
+   "setting": "rev-haiku",
+   "tree": "781524c6d928a574a8d9160fdfce0cc382baf24c",
+   "hidden_passed": 11,
+   "hidden_total": 25,
+   "correct": false,
+   "submitted_hidden_passed": 24,
+   "submitted_correct": false,
+   "class": "edited still wrong"
+  },
+  {
+   "attempt": "crf2-r70-1-go-r0-rev-sonnet-a1",
+   "run": "run 2",
+   "task": "r70-1-go",
+   "setting": "rev-sonnet",
+   "tree": "270b3485061b648118dc170d834dd80ea112e8cb",
+   "hidden_passed": 11,
+   "hidden_total": 25,
+   "correct": false,
+   "submitted_hidden_passed": 25,
+   "submitted_correct": true,
+   "class": "rescued"
+  },
+  {
+   "attempt": "crf2-r70-1-go-r1-rev-sonnet-a1",
+   "run": "run 2",
+   "task": "r70-1-go",
+   "setting": "rev-sonnet",
+   "tree": "32a13cb7f339fb6d4269e70e12cbaa4a0ed5f404",
+   "hidden_passed": 11,
+   "hidden_total": 25,
+   "correct": false,
+   "submitted_hidden_passed": 25,
+   "submitted_correct": true,
+   "class": "rescued"
+  },
+  {
+   "attempt": "crf2-r70-4-elixir-2-r1-rev-haiku-a1",
+   "run": "run 2",
+   "task": "r70-4-elixir-2",
+   "setting": "rev-haiku",
+   "tree": "9dd73c6e8715fb9527918716e592f52a5a712006",
+   "hidden_passed": 18,
+   "hidden_total": 18,
+   "correct": true,
+   "submitted_hidden_passed": 18,
+   "submitted_correct": true,
+   "class": "polish"
+  },
+  {
+   "attempt": "crf2-r70-4-go-r0-rev-haiku-a1",
+   "run": "run 2",
+   "task": "r70-4-go",
+   "setting": "rev-haiku",
+   "tree": "0283d39e45d1782f81f95525db371cbe7f7f2a42",
+   "hidden_passed": 17,
+   "hidden_total": 18,
+   "correct": false,
+   "submitted_hidden_passed": 17,
+   "submitted_correct": false,
+   "class": "edited still wrong"
+  }
+ ],
+ "not_graded": [
+  {
+   "attempt": "crf2-r70-1-go-r1-rev-haiku-a1",
+   "run": "run 2",
+   "task": "r70-1-go",
+   "setting": "rev-haiku",
+   "tree": "30bcfcee8f298fd3eb629389c0ca597f83094e23",
+   "reason": "The reviewer edited the code and then blocked it, so nothing was submitted; the code before review was not graded. The evaluated code after the edit had 24 of 25 checks."
+  }
+ ]
+}

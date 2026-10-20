@@ -1,0 +1,29 @@
+version = 1
+question = "claude-review-fix-1 run 2 (prose specification, no scenarios): when a weak builder reaches review with code that passes its checks but is wrong, does the reviewer-fixer catch and fix it, and does reviewer strength matter?"
+hypothesis = "exploratory: some green-but-wrong submissions reach review; a stronger reviewer-fixer rescues more"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "rev-sonnet"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2", "../../tasks/artifact-go"]
+repetitions = 2
+hosts = ["local", "eu2", "eu2-2", "laptop"]
+seed = 20261035
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "prose"
+artifacts.gherkin = "off"
+roles.builder = { provider = "anthropic", model = "claude-haiku-5-5", effort = "low" }
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.rev-sonnet]
+roles.reviewer = { provider = "anthropic", model = "claude-sonnet-5-5", effort = "medium" }
+
+[variant.rev-haiku]
+roles.reviewer = { provider = "anthropic", model = "claude-haiku-5-5", effort = "medium" }
