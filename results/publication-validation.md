@@ -30,7 +30,7 @@ The repository exact-join check verifies unique IDs on both sides and every capt
 - `python3 reproduce/validate_spec_snapshot.py`: PASS — 134 linked v1.2 fragments resolve; provenance, local navigation, and published-byte hashes verify.
 - `python3 reproduce/test_validate_release.py`: PASS — six policy cases cover acceptance and rejection conditions for release-included-with-label.
 - `python3 reproduce/validate_repo.py`: PASS — all five r67b task mappings reconcile to official grade rows and exact source-crosswalk identities; the pinned specification checks pass.
-- `python3 reproduce/validate_release.py`: PASS — 231 round pages: 179 historical rounds are labelled, and 52 rounds dated from the strict cutoff of 2026-10-09 are checked under the new-round rule. None of those 52 has complete Standard capture (133,803 missing fields are declared), so each carries a DESCRIPTIVE or INVALID label rather than VALID; the registered publication gates and repository checks pass. This result does not mean scrutiny or independent review receipts were checked.
+- `python3 reproduce/validate_release.py`: PASS — 231 round pages: 179 historical rounds are labelled, and 52 rounds dated from the strict cutoff of 2026-10-09 are checked under the new-round rule. None of those 52 has complete Standard capture (135,795 missing fields are declared), so each carries a DESCRIPTIVE or INVALID label rather than VALID; the registered publication gates and repository checks pass. This result does not mean scrutiny or independent review receipts were checked.
 
 ## Specification and decision sources
 
