@@ -141,3 +141,14 @@ The list below names what the records cannot carry; reason codes are explained i
 - `tools.toolchains.other_inventory` (22 missing): The Lab export does not carry this Standard field. Full per-cell toolchain inventory not recorded. Reason: Full per-cell toolchain inventory not recorded (`m64`).
 - `tools.toolchains.ruby` (22 missing): The Lab export does not carry this Standard field. Toolchain version not recorded. Reason: Toolchain version not recorded (`m95`).
 - `tools.toolchains.rust` (22 missing): The Lab export does not carry this Standard field. Toolchain version not recorded. Reason: Toolchain version not recorded (`m95`).
+
+## Correction (2026-10-20)
+
+| Evidence | Finding |
+| --- | --- |
+| Wrong prose submissions | 2 |
+| Hidden checks failed per submission | 1, the same key-order check |
+| Prose requirement | Output key order is not stated |
+| Gherkin example | Shows `id`, `type`, `job`, `ts` |
+
+The two wrong prose submissions failed only the hidden check requiring `append` to write keys in the order `id`, `type`, `job`, `ts`. The prose never states that order; the Gherkin example does. The two settings therefore did not carry the same requirements on that task, so this screen does not show that scenarios prevent wrong code in general. It shows that the scenario example carried a requirement the prose left out and review did not infer it.
