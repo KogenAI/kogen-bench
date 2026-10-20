@@ -1,0 +1,41 @@
+version = 1
+question = "review-fix-2: does Kogen b45ba32b's flow (review-and-fix, no planner, stop at first failed gate) keep correctness against the earlier flow (builder repairs on review findings, planner, run all checks), and at what cost?"
+hypothesis = "exploratory: the new flow matches the old at lower cost; with a weak builder the reviewer-fixer may rescue attempts the old loop loses"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "correctness"
+baseline = "new"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["eu2", "eu2-2", "laptop"]
+seed = 20261032
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.new]
+
+[variant.old]
+review.effect = "builder_repair"
+review.tools = "read_only"
+review.context = "kogen_reviewer_fd0cdcfb"
+plan.enabled = true
+verify.continue = "run_all"
+
+[variant.weak-new]
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+
+[variant.weak-old]
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+review.effect = "builder_repair"
+review.tools = "read_only"
+review.context = "kogen_reviewer_fd0cdcfb"
+plan.enabled = true
+verify.continue = "run_all"
