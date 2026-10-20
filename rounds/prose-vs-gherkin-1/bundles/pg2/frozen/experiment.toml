@@ -1,0 +1,28 @@
+version = 1
+question = "prose-vs-gherkin-1 run 2: with a weak builder and complete prose, do Gherkin scenarios reduce wrong or stopped attempts under Kogen's defaults?"
+hypothesis = "exploratory: the prose arm has more wrong or stopped attempts"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "gherkin"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-7-elixir", "../../tasks/r70-5-go", "../../tasks/r70-7-go"]
+repetitions = 1
+hosts = ["local", "local-2", "local-3"]
+seed = 20261044
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.gherkin]
+shape.supplied = "gherkin"
+
+[variant.prose]
+shape.supplied = "prose"
+artifacts.gherkin = "off"
