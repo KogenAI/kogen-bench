@@ -1,0 +1,30 @@
+version = 1
+question = "mechanism-split-1 run 2b (second repetition, review-fix-2 tasks): with a weak builder, is the new flow's advantage over the earlier flow due to review-and-fix (vs builder repairs on review findings) or to stopping verification at the first failed gate (vs running all checks)?"
+hypothesis = "exploratory: review-and-fix carries most of the advantage; verification stopping early changes cost more than correctness"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "correctness"
+baseline = "new"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["laptop"]
+seed = 20261040
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.new]
+
+[variant.old-review]
+review.effect = "builder_repair"
+review.tools = "read_only"
+review.context = "kogen_reviewer_fd0cdcfb"
+
