@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 131
+DESCRIPTIVE: 132
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -335,3 +335,4 @@ planner-direct-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLET
 claude-builder-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four harder tasks, one attempt per setting; the GPT-6.1 Sol builder 3 of 4, Claude Haiku builder 2 of 3 scored (one attempt without an outcome), Claude Sonnet builder 1 of 4; hung commands killed by hand and two untrusted evaluations disclosed; no official grades.
 builder-subagents-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, in which the builder was offered a helper tool and called it 0 times, so no helper ran; no official grades.
 review-fix-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, covering the new review flow only; 9 of 12 correct, 3 stopped at the repair cap before review, the earlier loop not run; no official grades.
+shape-default-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — exploratory Kogen Lab screen on four tasks, one attempt per setting, on a build whose shaping differs from Kogen's; supplied specification 4 of 4, generated shaping 3 of 4; no official grades.

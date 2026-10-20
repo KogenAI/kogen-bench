@@ -1,0 +1,25 @@
+version = 1
+question = "shape-default-1: with Kogen b2c9876b defaults, does generated shaping by the Sol-high shaper lead to correct builds as often as a supplied Gherkin specification, and at what cost?"
+hypothesis = "exploratory: generated shaping failed with low-effort shapers; the default Sol-high shaper may make it viable"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "supplied"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["eu2", "eu2-2"]
+seed = 20261029
+
+[rule]
+policy = "descriptive"
+
+[shared]
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.supplied]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+
+[variant.generated]
+shape.source = "generate"
