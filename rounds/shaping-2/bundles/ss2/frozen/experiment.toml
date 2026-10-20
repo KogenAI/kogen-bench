@@ -1,0 +1,39 @@
+version = 1
+question = "shaping-2: with Kogen b45ba32b's shaping, does generated shaping lead to correct builds as often as a supplied specification, and does a shaper helper (hint or required) change that or its cost?"
+hypothesis = "exploratory: generated shaping is viable with Sol high (shape-default-1, Lab-only); a helper may cut shaping retries"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "generated"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["local"]
+seed = 20261033
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "generate"
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[shared.roles.shape_helper]
+provider = "openai"
+model = "gpt-6-luna"
+effort = "low"
+
+[variant.generated]
+
+[variant.supplied]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+
+[variant.hint]
+shape.subagents = "explore"
+shape.subagents_guidance = "hint"
+
+[variant.required]
+shape.subagents = "explore"
+shape.subagents_guidance = "hint"
+shape.subagents_required = true
