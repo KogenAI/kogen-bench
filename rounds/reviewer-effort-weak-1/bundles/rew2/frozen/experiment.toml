@@ -1,0 +1,27 @@
+version = 1
+question = "reviewer-effort-weak-1: with a weak builder, does a Sol-medium reviewer-fixer rescue wrong code as often as the default Sol-high one, at lower reviewer input?"
+hypothesis = "exploratory: medium rescues fewer; lower reviewer input"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "reviewer-high"
+tasks = ["../../tasks/r70-5-go", "../../tasks/r70-4-go"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3"]
+seed = 20261047
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.reviewer-high]
+
+[variant.reviewer-medium]
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
