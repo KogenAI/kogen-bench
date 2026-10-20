@@ -30,7 +30,7 @@ The repository exact-join check verifies unique IDs on both sides and every capt
 - `python3 reproduce/validate_spec_snapshot.py`: PASS — 134 linked v1.2 fragments resolve; provenance, local navigation, and published-byte hashes verify.
 - `python3 reproduce/test_validate_release.py`: PASS — six policy cases cover acceptance and rejection conditions for release-included-with-label.
 - `python3 reproduce/validate_repo.py`: PASS — all five r67b task mappings reconcile to official grade rows and exact source-crosswalk identities; the pinned specification checks pass.
-- `python3 reproduce/validate_release.py`: PASS — 237 round pages: 179 historical rounds are labelled, and 58 rounds dated from the strict cutoff of 2026-10-09 are checked under the new-round rule. None of those 58 has complete Standard capture; each carries a DESCRIPTIVE or INVALID label rather than VALID. The registered publication gates and repository checks pass. This result does not mean scrutiny or independent review receipts were checked.
+- `python3 reproduce/validate_release.py`: PASS — 238 round pages: 179 historical rounds are labelled, and 59 rounds dated from the strict cutoff of 2026-10-09 are checked under the new-round rule. None of those 59 has complete Standard capture; each carries a DESCRIPTIVE or INVALID label rather than VALID. The registered publication gates and repository checks pass. This result does not mean scrutiny or independent review receipts were checked.
 
 ## Specification and decision sources
 
@@ -39,7 +39,7 @@ The locally sanitized [specification snapshot](../spec/README.md) preserves the 
 ## Scored-round record and release status
 
 
-- **Named-defect review screen:** The [descriptive screen](../rounds/review-named-defect-1/README.md) scored 6/8 in each setting; 12 reviewer edits were all on already-correct code, with 0 rescues. Reviewer input fell from 1.08M to 0.92M. The four wrong submissions failed a key-order requirement that prose omitted.
+- **Named-defect review:** The [descriptive screen](../rounds/review-named-defect-1/README.md) retains the first run's prose specification gap and reports a weak-builder follow-up with 16 of 16 attempts scored, seven cap stops, one rescue, and no wrong submissions.
 - **Low-effort builder screen:** The [descriptive screen](../rounds/builder-low-1/README.md) scored 8/8 in each setting with no repairs or wrong submissions. Builder input fell 37%, while total input fell 4% (2.42M to 2.33M).
 - **Prose versus Gherkin:** The [round page](../rounds/prose-vs-gherkin-1/README.md) retains the correction that its original prose omitted a key-order requirement. In the weak-builder follow-up, both settings scored 4 of 4, wrong code reached review in 3 of 4 per setting, and the reviewer-fixer rescued six wrong trees.
 
@@ -63,7 +63,7 @@ Family summaries remain bounded. They do not establish a general comparative Bui
 
 - `python3 reproduce/validate_repo.py` checks indexes, records, cross-references, covered numbers, privacy constraints, and authored relative links. It does not independently rerun historical model calls or hidden grading.
 - `python3 reproduce/validate_round.py --round ID --strict` checks one round's Standard record structure, exact gap/deviation declarations, and the strict eligibility predicate. It is a separate command; `validate_release.py` does not call it for historical rounds.
-- `python3 reproduce/validate_release.py` checks that round pages and `rounds/STATUS.md` agree on historical labels, badges, reasons, dates, and recomputation states; applies strict `validate_round.py` checks only to rounds dated 2026-10-09 or later; verifies that the publication-blocker register is well-formed and resolved; and runs `validate_repo.py`. It does not run `scrutinize.py`, inspect or require independent-review receipts, or run official-grade round reproducers. On this snapshot it reports 179 historical rounds and 58 rounds under the strict rule, none with complete Standard capture and each labelled DESCRIPTIVE or INVALID, and `RELEASE GATE: PASS`.
+- `python3 reproduce/validate_release.py` checks that round pages and `rounds/STATUS.md` agree on historical labels, badges, reasons, dates, and recomputation states; applies strict `validate_round.py` checks only to rounds dated 2026-10-09 or later; verifies that the publication-blocker register is well-formed and resolved; and runs `validate_repo.py`. It does not run `scrutinize.py`, inspect or require independent-review receipts, or run official-grade round reproducers. On this snapshot it reports 179 historical rounds and 59 rounds under the strict rule, none with complete Standard capture and each labelled DESCRIPTIVE or INVALID, and `RELEASE GATE: PASS`.
 
 - **Reviewer effort with a weak builder:** The [screen](../rounds/reviewer-effort-weak-1/README.md) started 24 attempts and scored 23; Sol high rescued 11/11 wrong trees and Sol medium 6/6, with thinner rescue evidence for medium. Review stage time (Lab bundle) was 2,619 s for high and 1,173 s for medium (about 55% less); medium received fewer code snapshots failing hidden tests before review.
 - **Lower-cost profile:** The [screen](../rounds/cheap-profile-1/README.md) scored 8/8 in both settings; total input fell 41%, summed recorded stage time fell about 42%, and full attempt elapsed time fell about 39%. Wrong code did not reach review.
