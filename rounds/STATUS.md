@@ -219,7 +219,7 @@ shape1-wave1 | DESCRIPTIVE | RAW_EVIDENCE_PARTIAL, PROTOCOL_DEVIATION
 ## Counts per status
 
 VALID: 10
-DESCRIPTIVE: 140
+DESCRIPTIVE: 141
 PILOT: 10
 INVALID: 37
 INCOMPLETE: 37
@@ -344,3 +344,4 @@ review-fix-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CA
 shaping-2 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — one attempt per task and setting; generated shaping 4 of 4, supplied specification 3 of 3 scored with one infrastructure cell not re-run; helper settings had 3 wrong submissions against 0 without a helper; no official grades.
 prose-vs-gherkin-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — two repetitions per task; Gherkin 10 of 10 and prose 8 of 10, with 2 wrong prose submissions approved unchanged; 12 reviewer edits were on correct code and produced 0 rescues; no official grades.
 mechanism-split-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — the initial screen stopped at its 12M-token budget with 8 of 18 attempts scored and was inconclusive; follow-up screens scored the new flow 6 of 7 and the reverted review loop 1 of 8, with 7 repair-cap stops and 3 already-correct code states; no official grades.
+review-named-defect-1 | DESCRIPTIVE | DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE — two repetitions per task; both reviewer settings scored 6 of 8, with 2 wrong submissions each on a task whose prose omitted output key order; 12 edits were on correct code and produced 0 rescues; no official grades.

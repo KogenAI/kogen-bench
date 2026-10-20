@@ -1,0 +1,27 @@
+version = 1
+question = "review-named-defect-1: does telling Kogen's Sol-high reviewer-fixer to edit only to fix a defect it can name cut polish edits and reviewer input without losing rescues or adding wrong submissions?"
+hypothesis = "exploratory: fewer polish edits and less reviewer input; rescues unchanged"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "kogen-review"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 2
+hosts = ["local", "laptop"]
+seed = 20261042
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "prose"
+artifacts.gherkin = "off"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.kogen-review]
+
+[variant.named-defect]
+review.prompt = "review instruction published in README"

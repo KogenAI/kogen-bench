@@ -38,6 +38,9 @@ The locally sanitized [specification snapshot](../spec/README.md) preserves the 
 
 ## Scored-round record and release status
 
+
+- **Named-defect review screen:** The [descriptive screen](../rounds/review-named-defect-1/README.md) scored 6/8 in each setting; 12 reviewer edits were all on already-correct code, with 0 rescues. Reviewer input fell from 1.08M to 0.92M. The four wrong submissions failed a key-order requirement that prose omitted.
+
 The separate `validate_round.py --round ID --strict` command can check Standard-record structure and declared gaps/deviations for [language replication](../rounds/lang-sol-replication/README.md), [L3 repair](../rounds/l3-repair/README.md), and [L3b repair vs continue](../rounds/l3b-repair-vs-continue/README.md). Their records declare 1,782, 390, and 193 missing Standard capture slots respectively, with four, four, and two deviations. These rounds predate the configured strict cutoff, so `validate_release.py` does not run those strict checks for them and does not invoke their official-grade reproducers. The historical round pages retain their own evidence limits and status labels; missing receipts have not been reconstructed.
 
 ## Archive claims and limits
