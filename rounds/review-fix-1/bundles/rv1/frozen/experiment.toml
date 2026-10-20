@@ -1,0 +1,31 @@
+version = 1
+question = "review-fix-1: does Kogen's review-and-fix flow keep correctness against the earlier builder-repair loop, at what cost, and does a Sol-medium reviewer-fixer do as well as Sol high?"
+hypothesis = "exploratory: review-and-fix matches builder-repair with fewer rounds; Sol medium matches Sol high (fixer-model-1)"
+purpose = "development"
+changes = ["execution", "information"]
+objective = "correctness"
+baseline = "new"
+tasks = ["../../tasks/r70-4-go", "../../tasks/r70-1-go", "../../tasks/r70-4-elixir-2", "../../tasks/r70-6-elixir-2"]
+repetitions = 1
+hosts = ["eu2-2", "laptop"]
+seed = 20261027
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_tokens = 100000
+
+[variant.new]
+
+
+[variant.weak-new]
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+
+[variant.weak-new-medium]
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
+
