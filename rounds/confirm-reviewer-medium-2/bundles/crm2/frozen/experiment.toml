@@ -1,0 +1,27 @@
+version = 1
+question = "confirm-reviewer-medium-2: on fresh tasks with a weak builder, does a Sol-medium reviewer-fixer rescue wrong trees as reliably as Sol high, with no more wrong submissions, at no more than 70% of its reviewer input?"
+hypothesis = "reviewer-medium rescues at least the same share of wrong trees as reviewer-high at most 70% of its reviewer input"
+purpose = "confirmation"
+changes = ["execution"]
+objective = "cost_at_quality"
+baseline = "reviewer-high"
+tasks = ["../../../confirmation-tasks-private/tasks/ledger-go", "../../../confirmation-tasks-private/tasks/ledger-ex", "../../../confirmation-tasks-private/tasks/wrap-go", "../../../confirmation-tasks-private/tasks/wrap-ex"]
+repetitions = 3
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2", "laptop"]
+seed = 20261054
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+roles.builder = { provider = "openai", model = "gpt-6-luna", effort = "low" }
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.reviewer-high]
+
+[variant.reviewer-medium]
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
