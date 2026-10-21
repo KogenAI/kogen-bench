@@ -1,0 +1,26 @@
+version = 1
+question = "intent-short-1: when the acceptance scenarios carry every tested requirement, does a short intent with no rules keep Kogen's correctness against the full prose?"
+hypothesis = "exploratory: short holds (no more wrong or stopped attempts)"
+purpose = "development"
+changes = ["information"]
+objective = "correctness"
+baseline = "full"
+tasks = ["interval-go", "interval-ex", "deps-go", "deps-ex"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2"]
+seed = 20261056
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.full]
+shape.supplied = "full"
+
+[variant.short]
+shape.supplied = "short"
