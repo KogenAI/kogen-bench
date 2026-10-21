@@ -1,0 +1,27 @@
+version = 1
+question = "cheap-profile-1: does a Sol-low builder with a Sol-medium reviewer-fixer keep Kogen's default correctness on the harder tasks at a much lower total input?"
+hypothesis = "exploratory: same correctness, total input at least 25% lower"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "kogen-default"
+tasks = ["../../tasks/r70-5-go", "../../tasks/r70-5-elixir", "../../tasks/rate-go", "../../tasks/artifact-go"]
+repetitions = 1
+hosts = ["eu2", "eu2-2", "laptop"]
+seed = 20261050
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.kogen-default]
+
+[variant.cheap]
+roles.builder = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }

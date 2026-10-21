@@ -1,5 +1,5 @@
 {
-  "description": "Model-free hidden-test grades of code at the last green verification before reviewer edits, for 14 edited attempts across two runs. These grades were correct before review; no wrong code reached review.",
+  "description": "Post-hoc grades of 16 code trees at review, checked without model calls on the attempts' own hosts. 16 trees were already correct before review; 0 failing trees were corrected by review. Only aggregate hidden-test counts are included; public per-test states remain in the exported evaluations.",
   "attempts": [
     {
       "attempt": "cp1-r70-1-go-r0-cheap-a1",
@@ -196,6 +196,34 @@
       "submitted_hidden_passed": 24,
       "submitted_correct": true,
       "class": "polish"
+    },
+    {
+      "attempt": "cp2-artifact-go-r0-cheap-a1",
+      "run": "run 3",
+      "task": "artifact-go",
+      "setting": "cheap",
+      "repetition": "r0",
+      "tree": "e6ee3af1eb5f28b4ddde576a57194344fc335c0d",
+      "hidden_passed": 29,
+      "hidden_total": 29,
+      "correct": true,
+      "submitted_hidden_passed": 29,
+      "submitted_correct": true,
+      "class": "correct before review"
+    },
+    {
+      "attempt": "cp2-r70-5-go-r0-cheap-a1",
+      "run": "run 3",
+      "task": "r70-5-go",
+      "setting": "cheap",
+      "repetition": "r0",
+      "tree": "5156e5764ce5ce34eaef4d9a2ef7de91287310f4",
+      "hidden_passed": 24,
+      "hidden_total": 24,
+      "correct": true,
+      "submitted_hidden_passed": 24,
+      "submitted_correct": true,
+      "class": "correct before review"
     }
   ]
 }
