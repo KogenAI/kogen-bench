@@ -1,0 +1,26 @@
+version = 1
+question = "review-off-hard-1: on hard tasks, does Kogen's default Sol-medium builder send wrong code to review often enough that the Sol-high reviewer-fixer is needed, or could review be turned off for it?"
+hypothesis = "exploratory: some first-green builds are wrong on these tasks; review rescues some of them"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "review-on"
+tasks = ["../../../confirmation-tasks-private/tasks/vm-go", "../../../confirmation-tasks-private/tasks/vm-ex", "../../../confirmation-tasks-private/tasks/cron-go", "../../../confirmation-tasks-private/tasks/cron-ex"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3", "eu2", "eu2-2"]
+seed = 20261055
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.review-on]
+
+[variant.review-off]
+review.enabled = false
