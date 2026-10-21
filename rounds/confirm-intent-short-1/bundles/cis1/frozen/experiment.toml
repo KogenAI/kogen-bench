@@ -1,0 +1,26 @@
+version = 1
+question = "confirm-intent-short-1: on fresh tasks whose acceptance scenarios carry every tested requirement, is a short intent correct in at least as many blocks as the full prose, with no more wrong submissions and no more wrong first-green builds?"
+hypothesis = "short is correct in at least as many paired blocks as full, with no more wrong submissions or wrong first-green builds"
+purpose = "confirmation"
+changes = ["information"]
+objective = "correctness"
+baseline = "full"
+tasks = ["subnet-go", "subnet-ex"]
+repetitions = 3
+hosts = ["eu2", "eu2-2", "laptop"]
+seed = 20261057
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.full]
+shape.supplied = "full"
+
+[variant.short]
+shape.supplied = "short"
