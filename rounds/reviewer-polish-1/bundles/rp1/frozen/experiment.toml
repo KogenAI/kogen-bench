@@ -1,0 +1,26 @@
+version = 1
+question = "reviewer-polish-1: with the default Sol-medium builder, does a Sol-medium reviewer-fixer edit correct trees more often than Sol high, and does that cancel its reviewer-input saving?"
+hypothesis = "exploratory: medium edits more correct trees; reviewer input not lower"
+purpose = "development"
+changes = ["execution"]
+objective = "correctness"
+baseline = "reviewer-high"
+tasks = ["../../../confirmation-tasks-private/tasks/interval-go", "../../../confirmation-tasks-private/tasks/interval-ex", "../../../confirmation-tasks-private/tasks/deps-go", "../../../confirmation-tasks-private/tasks/deps-ex"]
+repetitions = 2
+hosts = ["eu2", "eu2-2", "laptop"]
+seed = 20261053
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.reviewer-high]
+
+[variant.reviewer-medium]
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
