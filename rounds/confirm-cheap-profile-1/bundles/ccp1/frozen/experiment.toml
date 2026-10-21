@@ -1,0 +1,27 @@
+version = 1
+question = "confirm-cheap-profile-1: on fresh tasks, is the Sol-low builder plus Sol-medium reviewer-fixer correct in as many blocks as Kogen's defaults, with no more wrong submissions, at no more than 75% of their total input?"
+hypothesis = "cheap is correct in at least as many paired blocks as kogen-default with at most 75% of its total input"
+purpose = "confirmation"
+changes = ["execution"]
+objective = "cost_at_quality"
+baseline = "kogen-default"
+tasks = ["../../../confirmation-tasks-private/tasks/interval-go", "../../../confirmation-tasks-private/tasks/interval-ex", "../../../confirmation-tasks-private/tasks/deps-go", "../../../confirmation-tasks-private/tasks/deps-ex"]
+repetitions = 2
+hosts = ["local", "local-2", "local-3"]
+seed = 20261051
+
+[rule]
+policy = "descriptive"
+
+[shared]
+shape.source = "supplied"
+shape.supplied = "gherkin"
+stop.max_repairs = 6
+stop.max_command_seconds = 900
+stop.max_wall_seconds = 3600
+
+[variant.kogen-default]
+
+[variant.cheap]
+roles.builder = { provider = "openai", model = "gpt-6.1-sol", effort = "low" }
+roles.reviewer = { provider = "openai", model = "gpt-6.1-sol", effort = "medium" }
