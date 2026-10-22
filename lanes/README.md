@@ -25,7 +25,7 @@ Filled in by later packages (lock, run, grade, report).
 
 ## Tests
 
-`sh lanes/test.sh` runs everything offline.
+`sh lanes/test.sh` runs everything offline. It needs Python 3.11 or later, Go (the version in `grade/go.mod`, on PATH or via `mise`) and git; running against remote hosts also needs rsync and ssh.
 
 ## Private data
 
