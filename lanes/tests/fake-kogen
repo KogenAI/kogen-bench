@@ -8,6 +8,10 @@ Run it inside a git work tree. It makes no model request, unlike the real `init`
 Environment:
   FAKE_KOGEN_MODE     correct (default) | wrong | fail | hang; anything else exits 2
   FAKE_KOGEN_VERSION  version string (default "kogen fake0000 (2026-01-01)")
+  FAKE_KOGEN_USAGE    known (default) | zero | unknown, for a provider that sent no usage:
+                      zero    build requests log 0 for every counter (b45ba32b: ChatGPT.usage/1),
+                              shaping events log null (b45ba32b: known_usage)
+                      unknown null everywhere: future/R2 behaviour, not b45ba32b
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -32,6 +36,15 @@ DEFAULT_MODELS = {
     "build": ("fake-model", "medium"),
     "review": ("fake-model", "high"),
 }
+
+
+USAGE = {  # per request role: input, cached, output, reasoning
+    "build": {"input": 1200, "cached": 800, "output": 300, "reasoning": 120},
+    "review": {"input": 900, "cached": 600, "output": 150, "reasoning": 60},
+}
+
+
+SHAPE_USAGE = {"input": 2000, "cached": 1500, "output": 400, "reasoning": 200}
 
 
 def say(line=""):
@@ -175,6 +188,20 @@ def cmd_shape(root, slug, source):
         f.write(f"# {title}\n\nSlug: {slug}\n\n{request.strip()}\n")
     with open(os.path.join(d, "acceptance.feature"), "w", encoding="utf-8") as f:
         f.write(f"Feature: {title}\n  Scenario: As requested\n    When the request is carried out\n    Then it behaves as asked\n")
+    model, effort = read_models(root)["shape"]
+    usage = dict(SHAPE_USAGE)
+    if os.environ.get("FAKE_KOGEN_USAGE") in ("zero", "unknown"):
+        usage = dict.fromkeys(usage)
+    sdir = os.path.join(root, ".kogen", "local", "shaping", slug)
+    os.makedirs(sdir, exist_ok=True)
+    with open(os.path.join(sdir, "events.ndjson"), "a", encoding="utf-8") as f:
+        for event in (
+            {"event": "provider_call", "role": "shaper", "job": "shape", "revision": 1, "scope": "intent",
+             "configured_model": model, "effective_model": model, "configured_effort": effort,
+             "effective_effort": effort, "started_ms": 5, "status": "completed", "wall_ms": 400, "usage": usage},
+            {"event": "session_end", "wall_ms": 420},
+        ):
+            f.write(json.dumps(event) + "\n")
     say(f"Intent: {os.path.join(d, 'intent.md')}")
     return 0
 
@@ -246,8 +273,12 @@ def cmd_build(root, slug, mode):
     tree = None
     for role in ("build", "review"):
         model, effort = models[role]
-        usage = {"input": 100, "cached": 0, "output": 20, "reasoning": 5}
-        run.log(event="request", role=role, model=model, effort=effort, usage=usage, wall_ms=10)
+        usage = dict(USAGE[role])
+        if os.environ.get("FAKE_KOGEN_USAGE") == "unknown":
+            usage = dict.fromkeys(usage)
+        elif os.environ.get("FAKE_KOGEN_USAGE") == "zero":
+            usage = dict.fromkeys(usage, 0)
+        run.log(event="request", role=role, model=model, effort=effort, usage=usage, wall_ms=250 if role == "build" else 100)
         if role == "build" and mode == "fail":
             detail = "fake failure"
             run.log(event="outcome", outcome="build_blocked")

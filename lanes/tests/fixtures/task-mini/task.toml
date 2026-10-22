@@ -14,5 +14,5 @@ name = "test"
 run = "go test ./..."
 
 [acceptance]
-run = "true"
+run = "go test -count=1 ./features/steps/"
 steps_dir = "features/steps"

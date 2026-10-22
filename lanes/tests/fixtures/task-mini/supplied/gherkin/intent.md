@@ -5,6 +5,7 @@ Model: none
 Acceptance:
 - .kogen/intents/add-numbers/acceptance.feature
 - features/steps/add_steps.js
+- features/steps/acceptance_test.go
 
 `Add(a, b int) int` in add.go returns the sum of a and b, including negative numbers.
 

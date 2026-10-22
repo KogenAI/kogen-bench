@@ -70,6 +70,43 @@ cells/<task>/r<rep>/<lane>/
   result.json  run-log/  final-tree.tar  intent/  stdout.txt  stderr.txt  evaluation.json
 ```
 
-- `result.json`: `{cell, lane, phase, exit_code, outcome, started, ended, wall_s, kogen_version, final_tree, pass_trees: [], intent_hash, host}`.
+- `result.json`: `{cell, lane, phase, exit_code, outcome, started, ended, wall_s, kogen_version, final_tree, pass_trees: [], intent_hash, host, stages, totals}`; `stages` and `totals` are described under Stage records.
 - `run-log/`: copy of Kogen's run folder. `final-tree.tar`: `git archive` of the final tree. `intent/`: the Intent (shape and e2e).
 - `evaluation.json`: added by the grader (L4).
+
+## Stage records (`result.json` `stages`, `totals`)
+
+`lanes/lanes/usage.py` (`parse_run_log(events, commands, table=None, shape_events=None)`) builds them from two sources: the build run log (`events`) and the shaping events (`shape_events`: `.kogen/local/shaping/<slug>/events.ndjson`, which `kogen intent shape` writes; `shape.ex` l.11, `shape_evidence.ex` l.59–90). **L3 copies the shaping events file into the cell** (next to `run-log/`) for every cell that ran `shape`. every phase records them, shape-only cells too, because identical Intents still differ in cost and speed. `commands` is one entry per Kogen command the cell ran, `{stage, started, ended, wall_s, exit_code, timed_out?}`, measured by the harness, so each command's wall time exists even when the log is silent.
+
+`stages[]`, in command order, each `{stage, started, ended, wall_s, exit_code, outcome, requests, models, input_tokens, cached_input_tokens, output_tokens, reasoning_tokens, cost_usd, cost_reason, missing}`:
+
+- `stage`: `shape`, `approve` or `build` (command level; `shape` sums the `provider_call` events of the shaping events, one request each, model = `effective_model`, usage `{input, cached, output, reasoning}` with nulls kept as null, `wall_ms`; `started`/`ended` are ISO-8601 UTC, `wall_s` seconds, `exit_code` the command's), then one inner record per request role the log names `verify`, `review`, `repair`. An inner record has the tokens, cost and the summed request `wall_ms` of that role; `started`, `ended`, `exit_code` and `outcome` are null and listed in `missing`. A request belongs to exactly one record: `build` holds every request not in an inner role.
+- `outcome`: `timeout` when the command hit its deadline; for `build` the last log `outcome` event (`landed`, `build_blocked`, ...), `no_outcome` when a failed build logged none; otherwise `ok` or `exit_<code>` (`approve` exit 5 counts as `ok`: it printed the card).
+- Tokens are sums over the stage's requests (`reasoning_tokens` is a subset of `output_tokens`). A request with a null counter (shaping events when the provider sent no usage; build logs of a future Kogen) makes the stage's sum null. A build request whose four counters are all 0 is flagged, not priced (see the R2 gaps): `usage_zero_is_unknown` in `missing`, `cost_usd` null. `approve` makes no request: zero tokens, cost 0.
+- `cost_usd`: sum of `reproduce/cost_calc.py` over the requests (model id as logged, else the part after `/`); null with `cost_reason` when usage is missing or a model has no price. When cost_calc prices a model from a third-party rate it returns an estimate: `cost_usd` keeps the value and `cost_reason` is cost_calc's status (`declared_estimate`), so an estimate is never reported as exact. Totals join the reasons.
+- `missing`: names of the null fields the log could not supply. Nothing is invented.
+
+`totals`: `{requests, models, input_tokens, cached_input_tokens, output_tokens, reasoning_tokens, wall_s, cost_usd, cost_reason, missing}`. Counters and cost sum all records (null when any is null); `wall_s` sums command-level stages only, since inner records overlap them.
+
+**R2 gaps** (what b45ba32b's log cannot supply, so these fields are null and listed in `missing`):
+- Build `request` events log `ChatGPT.usage/1`, which turns every missing counter into 0 (`chatgpt.ex` l.651–661): a request whose provider sent no usage looks like a request with zero tokens, and the log cannot tell 0 from unknown. The harness therefore flags a build request with all four counters 0 (`usage_zero_is_unknown`, cost null) and R2 would add a null or a flag. Only the shaping events (`known_usage`) carry null counters.
+- The shaping events file is not a run log: it has no outcome and its events are not in the build log, so the harness reads it separately (above).
+- No stage start/end events: `started`, `ended` and `exit_code` come from the harness, and inner stages have none.
+  Inner stages other than `review` are named only if a request role says so; `repair` and `verify` appear only then.
+- No per-request start time in the build log (only `at` at the end and `wall_ms`).
+- Build outcome beyond the last `outcome` event, and distinct exit codes per outcome, as listed under Not in b45ba32b.
+
+## PLAN.json
+
+Written by `python3 -m lanes.plan_hashes <experiment.json> --tasks <dir> --lock lanes.lock.json --out PLAN.json` before any cell runs, and committed to kogen-bench before the run. It holds only hashes for private material:
+
+```
+{experiment: <experiment.json>,
+ hashes: {tasks: {<id>: {task, tree, hidden_tests, task_toml, request, intents: {<form>: sha}}},
+          lanes: {<name>: {patch, settings}}},
+ lock: {sha256, artifacts: {<lane>: artifact_sha256}}}
+```
+
+`task` is the whole task folder (so `reference/` and `wrong/` are covered too), `tree` the `start/` tree, `hidden_tests` the `evaluator/` folder, `intents.<form>` each `supplied/<form>/`, `patch` the patch file (null without one), `settings` the sha256 of the lane's settings as sorted compact JSON. Folder hashes are `common.sha256_tree`; file hashes `common.sha256_file`.
+
+`PLAN.json` omits the experiment's `hosts` (host names never go into the public repo). `plan_hashes` exits 2 with a message, writing nothing, when a task folder, its `start/` or `evaluator/` is missing, when a build or e2e experiment's `intent_form` has no `supplied/<form>/`, when `request.md` is missing for a `shape` or `e2e` experiment (it is optional otherwise, hash null), when the lock is not a list of entries with `name` and `artifact_sha256`, or when a lane has no lock entry.
