@@ -579,8 +579,17 @@ def export(run_dir, round_id, out, date=None, do_register=True, check="release")
 
 # ---- publish-private ------------------------------------------------------------------------
 
+CELL_FILES = ("final-tree.tar", "pass-trees", "intent")  # what lanes-grade reads from a cell besides result.json
+
+
+def published_cell(reproduce_root, cell):
+    """Where a round's `reproduce/` folder holds a cell's trees; the one definition of the layout."""
+    return os.path.join(reproduce_root, "cells", *cell.split("/"))
+
+
 def publish_private(run_dir, out, tasks):
-    """Check the private inputs against the PLAN hashes, then copy them into the round."""
+    """Check the private inputs against the PLAN hashes, then copy them and each graded cell's trees into the round.
+    The whole `reproduce/` folder is built aside and swapped in, so a re-run yields the same files."""
     ctx = load_run(run_dir)
     exp, plan = ctx["experiment"], common.read_json(os.path.join(out, "PLAN.json"))
     bad = []
@@ -597,7 +606,8 @@ def publish_private(run_dir, out, tasks):
                 bad.append(f"patches/{name}")
     if bad:
         raise ExportError("private inputs differ from PLAN.json (nothing was copied): " + ", ".join(bad))
-    stage = tempfile.mkdtemp(prefix=".private-", dir=out)
+    work = tempfile.mkdtemp(prefix=".private-", dir=out)
+    stage = os.path.join(work, "reproduce")
     try:
         for task in exp["tasks"]:
             shutil.copytree(os.path.join(tasks, task), os.path.join(stage, "tasks", task), ignore=shutil.ignore_patterns(".git"))
@@ -605,11 +615,25 @@ def publish_private(run_dir, out, tasks):
             common.write_json(os.path.join(stage, "settings", f"{name}.json"), lane["settings"])
         grade = os.path.join(REPO, "lanes", "grade")
         common.write_json(os.path.join(stage, "grader.json"), {"source_sha256": common.sha256_tree(grade) if os.path.isdir(grade) else None})
+        for row, _, _, _ in ctx["cells"]:
+            src, dest = common.cell_dir(run_dir, row["cell"]), published_cell(stage, row["cell"])
+            os.makedirs(dest)
+            for name in CELL_FILES:
+                if os.path.isdir(os.path.join(src, name)):
+                    shutil.copytree(os.path.join(src, name), os.path.join(dest, name))
+                elif os.path.isfile(os.path.join(src, name)):
+                    shutil.copyfile(os.path.join(src, name), os.path.join(dest, name))
         dest = os.path.join(out, "reproduce")
-        shutil.rmtree(dest, ignore_errors=True)
-        os.rename(stage, dest)
+        if os.path.isdir(dest):
+            os.rename(dest, os.path.join(work, "previous"))
+        try:
+            os.rename(stage, dest)
+        except OSError:
+            if os.path.isdir(os.path.join(work, "previous")):
+                os.rename(os.path.join(work, "previous"), dest)
+            raise
     finally:
-        shutil.rmtree(stage, ignore_errors=True)
+        shutil.rmtree(work, ignore_errors=True)
 
 
 def main(argv=None):

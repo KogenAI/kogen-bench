@@ -205,6 +205,28 @@ class Export(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("tasks/task-mini/hidden_tests", r.stderr)
 
+    def test_publish_private_twice_gives_identical_trees_with_cell_trees(self):
+        for cell in ("task-mini/r0/base", "task-mini/r0/patched"):
+            cd = common.cell_dir(self.run_dir, cell)
+            with open(os.path.join(cd, "final-tree.tar"), "wb") as f:
+                f.write(b"final " + cell.encode())
+            os.makedirs(os.path.join(cd, "pass-trees"))
+            with open(os.path.join(cd, "pass-trees", "p1.tar"), "wb") as f:
+                f.write(b"pass " + cell.encode())
+        self.assertEqual(self.export().returncode, 0)
+
+        def tree():
+            root = os.path.join(self.out, "reproduce")
+            return {os.path.relpath(os.path.join(d, f), root): read(os.path.join(d, f)) for d, _, fs in os.walk(root) for f in fs}
+        self.assertEqual(self.export("--publish-private").returncode, 0)
+        first = tree()
+        self.assertEqual(first["cells/task-mini/r0/base/final-tree.tar"], "final task-mini/r0/base")
+        self.assertEqual(first["cells/task-mini/r0/patched/pass-trees/p1.tar"], "pass task-mini/r0/patched")
+        self.assertNotIn("cells/task-mini/r0/base/result.json", first)
+        self.assertEqual(self.export("--publish-private").returncode, 0)
+        self.assertEqual(tree(), first)
+        self.assertEqual([n for n in os.listdir(self.out) if n.startswith(".")], [])
+
     # ---- review round 1 ----
 
     def test_b1_refuses_without_a_plan_from_before_the_run(self):

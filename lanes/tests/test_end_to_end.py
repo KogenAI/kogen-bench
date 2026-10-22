@@ -89,14 +89,11 @@ class Pipeline:
         return run, self.cli("lanes-report", run).stdout
 
     def export(self, run, round_id):
-        """lanes-export with the strict round check (the whole-checkout release gate takes minutes), then the private inputs and each cell's trees published."""
+        """lanes-export with the strict round check (the whole-checkout release gate takes minutes), then the private inputs and each cell's trees published (--publish-private)."""
         out = os.path.join(self.bench, "rounds", round_id)
         args = [run, "--round-id", round_id, "--out", out, "--date", "2026-10-22", "--check", "round"]
         r = self.cli("lanes-export", *args)
         self.cli("lanes-export", *args, "--publish-private")
-        for cell_dir in glob.glob(os.path.join(run, "cells", "*", "*", "*")):
-            rel = os.path.relpath(cell_dir, os.path.join(run, "cells"))
-            shutil.copytree(cell_dir, os.path.join(out, "reproduce", "cells", rel), ignore=shutil.ignore_patterns("run-log", "*.txt"))
         return out, r.stdout
 
 

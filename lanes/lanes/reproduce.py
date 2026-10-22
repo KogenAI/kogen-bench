@@ -101,7 +101,7 @@ def regrade(rnd, cells, tasks, work, home):
     """Re-grade the published final trees with lanes-grade (no model calls); names of cells that differ."""
     run, bad, missing = os.path.join(work, "grade"), [], set()
     for cell, (attempt, _) in cells.items():
-        src = os.path.join(rnd, "reproduce", "cells", *cell.split("/"))
+        src = export.published_cell(os.path.join(rnd, "reproduce"), cell)
         if not os.path.isdir(src):
             bad.append(f"reproduce/cells/{cell} (final tree not published)")
             missing.add(cell)

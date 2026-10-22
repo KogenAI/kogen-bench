@@ -41,6 +41,18 @@ class Reproduce(unittest.TestCase):
         self.assertIn("artifacts: 0 differ", r.stdout)
         self.assertIn("regrade: 4 of 4 cells match", r.stdout)
 
+    def test_second_publish_private_keeps_the_trees_and_reproduces(self):
+        out = os.path.join(self.pipe.bench, "rounds", "lane-rp-build")
+        before = sorted(glob.glob(os.path.join(self.round, "reproduce", "cells", "**", "*.tar"), recursive=True))
+        self.assertTrue(before)
+        run = os.path.join(self.pipe.tmp, "runs", "rp-build")
+        self.pipe.cli("lanes-export", run, "--round-id", "lane-rp-build", "--out", out, "--check", "round", "--publish-private")
+        shutil.rmtree(self.round)
+        shutil.copytree(out, self.round)
+        self.assertEqual(sorted(glob.glob(os.path.join(self.round, "reproduce", "cells", "**", "*.tar"), recursive=True)), before)
+        r = self.reproduce()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
     def test_changed_hidden_test_exits_one_and_names_the_file(self):
         edit(os.path.join(self.round, "reproduce", "tasks", "task-mini", "evaluator", "files", "add_hidden_test.go"), "Add(", "Add (")
         r = self.reproduce()
