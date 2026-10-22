@@ -49,6 +49,9 @@ def plan_main(argv=None):
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     exp = experiment.load_or_exit(a.experiment)
     try:
+        lock = os.path.join(a.run_dir, "lanes.lock.json")
+        if not os.path.isfile(lock):  # check first: write nothing into a run dir that cannot be planned
+            raise DispatchError("lanes.lock.json is missing in the run dir: run lanes-build first")
         os.makedirs(a.run_dir, exist_ok=True)
         shutil.copyfile(a.experiment, os.path.join(a.run_dir, "experiment.json"))
         for lane in exp["lanes"]:  # patches travel with the experiment so the hashes can be re-checked
@@ -57,9 +60,6 @@ def plan_main(argv=None):
                 dst = os.path.join(a.run_dir, lane["patch"])
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(src, dst)
-        lock = os.path.join(a.run_dir, "lanes.lock.json")
-        if not os.path.isfile(lock):
-            raise DispatchError("lanes.lock.json is missing in the run dir: run lanes-build first")
         common.write_json(os.path.join(a.run_dir, "PLAN.json"), plan_hashes.build_plan(a.experiment, a.tasks, lock))
         with open(os.path.join(a.run_dir, "plan.jsonl"), "w", encoding="utf-8") as f:
             for cell in make_plan(exp):
@@ -307,9 +307,9 @@ class Host:
                    f"lanes/bin/lanes-cell {q(os.path.join(self.root, 'runs', c.exp_id))} "
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
         code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline)
-        if code in (124, 130):  # deadline or stop: the ssh client died, the remote group did not
-            kill = (f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; }}; "
-                    f"rm -rf {q(rcell)} {q(pgfile)}")
+        if code in (124, 130, 255):  # deadline, stop or lost connection: the ssh client died, the remote group may not have
+            kill = (f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; true; }} && "
+                    f"rm -rf {q(rcell)} {q(pgfile)}")  # no pgid: leave the dir, never rm under a live process
             self.sh(kill, force=True)
             return False
         os.makedirs(local_cell, exist_ok=True)

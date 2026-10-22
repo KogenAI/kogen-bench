@@ -12,6 +12,9 @@ Environment:
                       zero    build requests log 0 for every counter (b45ba32b: ChatGPT.usage/1),
                               shaping events log null (b45ba32b: known_usage)
                       unknown null everywhere: future/R2 behaviour, not b45ba32b
+  FAKE_KOGEN_QUESTIONS  once | always: `shape` from a file prints "Questions for <slug>:" and
+                      exits 5; once: `shape <slug> -` (the answers) then completes,
+                      always: it asks again
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -163,9 +166,10 @@ def cmd_init(root):
         return 0
     path = os.path.join(root, ".kogen", "project.yaml")
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    lines = ["version: 1", "models:"] + [f"  {r}: {{model: {m}, effort: {e}}}" for r, (m, e) in DEFAULT_MODELS.items()]
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
+    if not os.path.exists(path):  # a leftover uncommitted project.yaml is committed as it is (init.ex commit_leftover)
+        lines = ["version: 1", "models:"] + [f"  {r}: {{model: {m}, effort: {e}}}" for r, (m, e) in DEFAULT_MODELS.items()]
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
     gi = os.path.join(root, ".gitignore")
     old = read(gi) if os.path.exists(gi) else ""
     if ".kogen/local/" not in old.splitlines():
@@ -179,6 +183,9 @@ def cmd_init(root):
 
 def cmd_shape(root, slug, source):
     request = sys.stdin.read() if source == "-" else read(source)
+    ask = os.environ.get("FAKE_KOGEN_QUESTIONS")
+    if ask and (source != "-" or ask == "always"):
+        die(5, f"Questions for {slug}:\n1. Which?")
     if not request.strip():
         die(2, "intent/empty_request: the request is empty")
     d = intent_dir(root, slug)
@@ -196,10 +203,10 @@ def cmd_shape(root, slug, source):
     os.makedirs(sdir, exist_ok=True)
     with open(os.path.join(sdir, "events.ndjson"), "a", encoding="utf-8") as f:
         for event in (
-            {"event": "provider_call", "role": "shaper", "job": "shape", "revision": 1, "scope": "intent",
+            {"event": "provider_call", "role": "shape", "job": "shape", "revision": 1, "scope": "intent",
              "configured_model": model, "effective_model": model, "configured_effort": effort,
              "effective_effort": effort, "started_ms": 5, "status": "completed", "wall_ms": 400, "usage": usage},
-            {"event": "session_end", "wall_ms": 420},
+            {"event": "session_end", "elapsed_ms": 420},
         ):
             f.write(json.dumps(event) + "\n")
     say(f"Intent: {os.path.join(d, 'intent.md')}")

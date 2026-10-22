@@ -2,6 +2,7 @@ import io
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tarfile
@@ -208,41 +209,54 @@ class CellTest(unittest.TestCase):
         path, _ = self.done(run)
         self.assertFalse([n for n in self.tar_names(path) if "hidden" in n or "evaluator" in n])
 
-    QUESTIONS = ('if [ "$2" = shape ]; then n=$(cat "$0.n" 2>/dev/null || echo 0); echo $((n+1)) > "$0.n"\n'
-                 'if [ "$n" = 0 ]; then echo "Questions for $3:"; echo "1. Which?"; exit 5; fi\n'
-                 'cat > "$0.stdin"; set -- "$1" "$2" "$3" "$REQ"; fi')
-
-    def test_questions_answered_from_answers_file(self):
-        wrapper = self.wrapper(self.QUESTIONS)
+    def answers(self):
         with open(os.path.join(self.tasks, "task-mini", "answers.txt"), "w") as f:
             f.write("1: a\n")
+
+    def test_questions_answered_from_answers_file(self):
+        self.answers()
         run = self.make_run("e2e")
-        r = self.cell(run, artifact=wrapper, REQ=os.path.join(TASK, "request.md"))
+        r = self.cell(run, FAKE_KOGEN_QUESTIONS="once")
         self.assertEqual(r.returncode, 0, r.stderr)
         path, res = self.done(run)
-        self.assertEqual(read(wrapper + ".stdin"), "1: a\n")
         self.assertEqual((res["outcome"], res["exit_code"]), ("landed", 0))
         self.assertEqual([s["stage"] for s in res["stages"]][:3], ["shape", "approve", "build"])
         self.assertEqual(res["stages"][0]["outcome"], "ok")
         self.assertIn("== kogen intent shape task-mini -", read(os.path.join(path, "stdout.txt")))
 
     def test_questions_without_answers_is_pending(self):
-        wrapper = self.wrapper(self.QUESTIONS)
         run = self.make_run("e2e")
-        self.assertEqual(self.cell(run, artifact=wrapper, REQ=os.path.join(TASK, "request.md")).returncode, 0)
+        self.assertEqual(self.cell(run, FAKE_KOGEN_QUESTIONS="once").returncode, 0)
         path, res = self.done(run)
         self.assertEqual(res["outcome"], "questions_pending")
         self.assertEqual([s["stage"] for s in res["stages"]], ["shape"])
         self.assertEqual(res["stages"][0]["outcome"], "questions_pending")
-        self.assertFalse(os.path.exists(wrapper + ".stdin"))  # stdin of the first call is closed, not answers
+        self.assertNotIn("shape task-mini -", read(os.path.join(path, "stdout.txt")))
 
-    def test_same_questions_again_stops(self):
-        wrapper = self.wrapper('if [ "$2" = shape ]; then cat > /dev/null; echo "Questions for $3:"; exit 5; fi')
-        with open(os.path.join(self.tasks, "task-mini", "answers.txt"), "w") as f:
-            f.write("1: a\n")
+    def test_one_answer_round_then_pending(self):  # L9: capped at one round
+        self.answers()
+        run = self.make_run("shape")
+        self.assertEqual(self.cell(run, FAKE_KOGEN_QUESTIONS="always").returncode, 0)
+        path, res = self.done(run)
+        self.assertEqual(res["outcome"], "questions_pending")
+        self.assertEqual(read(os.path.join(path, "stdout.txt")).count("== kogen intent shape"), 2)
+
+    def test_shape_exit_5_without_questions_is_not_ok(self):  # L9: exit 5 is ok only for approve with a card
+        wrapper = self.wrapper('if [ "$2" = shape ]; then echo "something else"; exit 5; fi')
         run = self.make_run("shape")
         self.assertEqual(self.cell(run, artifact=wrapper).returncode, 0)
-        self.assertEqual(self.done(run)[1]["outcome"], "questions_pending")
+        res = self.done(run)[1]
+        self.assertEqual((res["outcome"], res["stages"][0]["outcome"]), ("exit_5", "exit_5"))
+
+    def test_pass_trees_are_stored_as_tars(self):  # L9
+        run = self.make_run("build")
+        self.assertEqual(self.cell(run).returncode, 0)
+        path, res = self.done(run)
+        self.assertTrue(res["pass_trees"])
+        for tree in res["pass_trees"]:
+            tar = os.path.join(path, "pass-trees", tree + ".tar")
+            with tarfile.open(tar) as t:
+                self.assertTrue(any(n.endswith(".go") for n in t.getnames()))
 
     def test_approve_exit_5_without_card_is_not_ok(self):
         wrapper = self.wrapper('if [ "$2" = approve ]; then echo "intent/questions_pending: 1 unanswered"; exit 5; fi')
@@ -352,7 +366,7 @@ class CellTest(unittest.TestCase):
                "TMPDIR": tmpdir}
         proc = subprocess.Popen([sys.executable, ENTRY, run, "task-mini/r1/base", "--tasks", self.tasks,
                                  "--artifact", wrapper], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                text=True)
+                                text=True, preexec_fn=lambda: signal.signal(signal.SIGINT, signal.SIG_DFL))
         for _ in range(500):
             if os.path.exists(pids) and read(pids).strip():
                 break
@@ -367,12 +381,10 @@ class CellTest(unittest.TestCase):
         return proc.returncode, err
 
     def test_sigterm_and_sighup_clean_up(self):
-        import signal
         self.assertEqual(self.interrupt(signal.SIGTERM)[0], 143)
         self.assertEqual(self.interrupt(signal.SIGHUP)[0], 129)
 
     def test_sigint_is_one_line(self):
-        import signal
         code, err = self.interrupt(signal.SIGINT)
         self.assertEqual(code, 130)
         self.assertIn("cell: interrupted", err)

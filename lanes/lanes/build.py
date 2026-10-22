@@ -90,7 +90,11 @@ def ensure_sha(repo, sha, home):
     if not os.path.isdir(git_dir):
         os.makedirs(home, exist_ok=True)
         part = tempfile.mkdtemp(prefix="kogen.git-", dir=home)  # renamed only when complete
-        code, out = _git(["clone", "--bare", "--quiet", repo, os.path.join(part, "c")])
+        try:
+            code, out = _git(["clone", "--bare", "--quiet", repo, os.path.join(part, "c")])
+        except BaseException:  # interrupted: no partial clone dir left behind
+            shutil.rmtree(part, ignore_errors=True)
+            raise
         if code:
             shutil.rmtree(part, ignore_errors=True)
             raise BuildError(f"cannot clone {repo}: {out}")

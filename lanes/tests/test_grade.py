@@ -62,6 +62,15 @@ class GradeCase(unittest.TestCase):
 
 
 class GradeBuild(GradeCase):
+    def test_env_drops_other_variables_that_start_with_go(self):  # L9: GOOGLE_* are credentials
+        env = {"GOPATH": "/g", "GOFLAGS": "-mod=mod", "GOOGLE_API_KEY": "secret", "GOOGLE_APPLICATION_CREDENTIALS": "/c",
+               "GOTOKEN": "x", "MIX_ENV": "test", "OPENAI_API_KEY": "k"}
+        with unittest.mock.patch.dict(os.environ, env):
+            got = grading.task_env(grading.load_task(self.task), os.path.join(self.tmp, "t", "tree"))
+        self.assertEqual((got["GOPATH"], got["GOFLAGS"], got["MIX_ENV"]), ("/g", "-mod=mod", "test"))
+        for name in ("GOOGLE_API_KEY", "GOOGLE_APPLICATION_CREDENTIALS", "GOTOKEN", "OPENAI_API_KEY"):
+            self.assertNotIn(name, got)
+
     def test_correct_tree_passes_and_wrong_fails(self):
         good, gd = self.cell("good", overlays=["reference"])
         bad, bd = self.cell("bad", overlays=["wrong/negatives-clamped"])
@@ -235,6 +244,32 @@ class GradeShape(GradeCase):
                                           "wrong_caught": 0, "wrong_total": 1})
         self.assertIn("fail_on_start=0", out)
         self.assertNotIn(": pass", out)
+
+    def test_scenarios_counted_from_the_intent_feature_not_the_run(self):  # L9
+        c, d = self.shape_cell()
+        edit(os.path.join(self.task, "start", "features", "run_acceptance.py"),
+             "p = subprocess.run", "scen = scen[:1]\np = subprocess.run")  # the runner stops after one scenario
+        self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(self.counts(d), {"scenarios": 2, "pass_on_reference": 1, "fail_on_start": 2,
+                                          "wrong_caught": 1, "wrong_total": 1})
+
+    def test_feature_lines_cover_outline_rows_and_skip_doc_strings(self):  # L9
+        path = os.path.join(self.tmp, "x.feature")
+        with open(path, "w") as f:
+            f.write('Feature: x\n  Background:\n    Given a table\n      | k | v |\n      | 1 | 2 |\n'
+                    '  Scenario: a\n    Given text\n    """\n    Scenario: not one\n    """\n'
+                    '  Scenario Outline: b\n    Given a step table\n      | a | b |\n      | 1 | 2 |\n'
+                    '    Examples:\n      | n |\n      | 1 |\n      | 2 |\n'
+                    '  Rule: r\n    Background:\n      Given rows\n        | x |\n        | y |\n'
+                    '    Example: c\n')
+        self.assertEqual(grading.feature_lines(path), ["6", "17", "18", "24"])
+
+    def test_unresolved_report_ids_are_no_usable_report(self):  # L9
+        c, d = self.shape_cell()
+        edit(os.path.join(self.task, "start", "features", "run_acceptance.py"),
+             '"astNodeIds": ["s%d" % n]', '"astNodeIds": ["gone%d" % n]')
+        self.cli("lanes-grade", self.run_dir)
+        self.assertIn("wrote no usable report", self.evaluation(d)["infrastructure"])
 
     def test_runner_without_report_is_infrastructure_not_a_failure(self):
         c, d = self.shape_cell()

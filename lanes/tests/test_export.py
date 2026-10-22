@@ -240,7 +240,7 @@ class Export(unittest.TestCase):
         for lane, caught in (("base", 1), ("patched", 0)):
             self.edit(lane, "result.json", lambda r: r.update(phase="shape"))
             self.edit(lane, "evaluation.json", lambda e, c=caught: (e.pop("all_passed"), e.update(
-                scenarios=4, pass_on_reference=4, fail_on_start=3, wrong_caught=c, wrong_total=1)))
+                scenarios=4, pass_on_reference=4, fail_on_start=4, wrong_caught=c, wrong_total=1)))
         r = self.export()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         base, patched = sorted(self.records(), key=lambda x: x["arm"])
@@ -251,6 +251,18 @@ class Export(unittest.TestCase):
         self.assertIn("Scenarios passing on reference", readme)
         self.assertNotIn("All hidden tests passed", readme)
         self.assertIn("| base | 1 | 1 | 4 of 4 | 1 of 1 |", readme)
+
+    def test_shape_cell_that_passes_on_start_does_not_pass(self):  # L9: fail_on_start counts
+        exp = common.read_json(os.path.join(self.run_dir, "experiment.json"))
+        exp["phase"] = "shape"
+        common.write_json(os.path.join(self.run_dir, "experiment.json"), exp)
+        self.write_plan()
+        for lane in ("base", "patched"):
+            self.edit(lane, "result.json", lambda r: r.update(phase="shape"))
+            self.edit(lane, "evaluation.json", lambda e: (e.pop("all_passed"), e.update(
+                scenarios=4, pass_on_reference=4, fail_on_start=3, wrong_caught=1, wrong_total=1)))
+        self.assertEqual(self.export().returncode, 0)
+        self.assertEqual({r["outcome"] for r in self.records()}, {"fail"})
 
     def test_b3_leak_leaves_the_checkout_unchanged(self):
         with open(os.path.join(self.run_dir, "patches", "p1.patch"), "a") as f:
@@ -269,6 +281,7 @@ class Export(unittest.TestCase):
         before = self.checkout_state()
         r = self.export()
         self.assertEqual(r.returncode, 1)
+        self.assertNotIn("wrote", r.stdout)  # L9: no success line after a failed validation
         self.assertEqual(self.checkout_state(), before)
         self.assertEqual(sorted(os.listdir(os.path.join(self.bench, "rounds"))), ["README.md", "STATUS.md", "index.json"])
         self.assertEqual(self.export_ok_after_fix(), 0)

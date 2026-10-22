@@ -16,7 +16,13 @@ from . import common
 GRADE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "grade")
 SETUP_DEADLINE_S = 600
 # Host variables the toolchains need; nothing else (no tokens) reaches agent-written code.
-ENV_PREFIXES = ("GO", "MIX_", "HEX_", "NODE_", "NPM_CONFIG_", "npm_config_")
+GO_VARS = frozenset(("GOPATH", "GOCACHE", "GOFLAGS", "GOMODCACHE", "GOPROXY", "GOROOT", "GOTOOLCHAIN",
+                     "GOOS", "GOARCH", "GOMAXPROCS", "GOENV", "GONOPROXY", "GONOSUMDB", "GONOSUMCHECK",
+                     "GOPRIVATE", "GOSUMDB", "GOINSECURE", "GOVCS", "GOWORK", "GOAMD64", "GOARM",
+                     "GOEXPERIMENT", "GODEBUG", "GOTMPDIR", "GOTELEMETRY", "GOTELEMETRYDIR", "GOFIPS140",
+                     "GOCACHEPROG", "GOEXE", "GOHOSTOS", "GOHOSTARCH", "GOTOOLDIR", "GOMEMLIMIT", "GOGC",
+                     "CGO_ENABLED", "CGO_CFLAGS", "CGO_CPPFLAGS", "CGO_CXXFLAGS", "CGO_LDFLAGS"))
+ENV_PREFIXES = ("MIX_", "HEX_", "NODE_", "NPM_CONFIG_", "npm_config_")
 STATUS_ORDER = ["UNKNOWN", "PASSED", "SKIPPED", "PENDING", "UNDEFINED", "AMBIGUOUS", "FAILED"]
 _binary = []
 
@@ -98,7 +104,7 @@ def sh(cmd, cwd, env, deadline_s):
 def task_env(task, tree, extra=None):
     """The Lab's `commandEnv`: toolchain variables, HOME, PATH, LANG, the task `env`, and a private
     TMPDIR next to the tree."""
-    env = {k: v for k, v in os.environ.items() if k.startswith(ENV_PREFIXES)}
+    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k.startswith(ENV_PREFIXES)}
     env.update(HOME=os.environ.get("HOME", "/"), PATH=os.environ.get("PATH", "/usr/bin:/bin"),
                LANG=os.environ.get("LANG", "C.UTF-8"))
     env.update({k: str(v) for k, v in task["task"].get("env", {}).items()})
@@ -229,17 +235,46 @@ def read_report(path):
         if f:
             steps.setdefault(f["testCaseStartedId"], {})[f["testStepId"]] = f["testStepResult"]["status"]
     out = {}
-    for sid, cid in started.items():
-        if sid in retried:
-            continue
-        tc, got = cases[cid], steps.get(sid, {})
-        if sid in finished and all(s["id"] in got for s in tc["testSteps"]):
-            worst = max(got.values(), key=STATUS_ORDER.index, default="UNKNOWN").lower()
-        else:
-            worst = "report_invalid"
-        line = str(lines[pickles[tc["pickleId"]]["astNodeIds"][-1]])
-        out[line] = "duplicate" if line in out else worst
+    try:
+        for sid, cid in started.items():
+            if sid in retried:
+                continue
+            tc, got = cases[cid], steps.get(sid, {})
+            if sid in finished and all(s["id"] in got for s in tc["testSteps"]):
+                worst = max(got.values(), key=STATUS_ORDER.index, default="UNKNOWN").lower()
+            else:
+                worst = "report_invalid"
+            line = str(lines[pickles[tc["pickleId"]]["astNodeIds"][-1]])
+            out[line] = "duplicate" if line in out else worst
+    except (KeyError, IndexError, TypeError, ValueError):  # an id the report does not resolve: report_invalid
+        return None
     return out or None
+
+
+def feature_lines(path):
+    """Line numbers of the scenarios in a feature file, as `read_report` keys them: each `Scenario:`
+    and each data row of an `Examples:` block (not its header row). Rows of a step data table or of a
+    Background are not scenarios: a block ends at any line that is not a table row."""
+    lines, rows, header, doc = [], False, False, False
+    with open(path, encoding="utf-8") as f:
+        for n, raw in enumerate(f, 1):
+            line = raw.strip()
+            if line.startswith(('"""', "```")):
+                doc, rows = not doc, False
+            elif doc or not line or line.startswith("#"):
+                continue
+            elif line.startswith("|"):
+                if rows and header:
+                    header = False
+                elif rows:
+                    lines.append(str(n))
+            elif re.match(r"(Examples|Scenarios)\s*:", line):
+                rows, header = True, True
+            else:
+                rows = False
+                if re.match(r"(Scenario|Example)\s*:", line):
+                    lines.append(str(n))
+    return lines
 
 
 def shape_tree(task, overlays, intent, slug, step_files, deadline_s):
@@ -277,13 +312,14 @@ def grade_shape(task, cell, deadline_s=600):
     """Run the shaped Intent's scenarios against the reference, start and each wrong tree.
 
     `matrix[tree][scenario line]` is the scenario's status. Counts are over scenarios: `scenarios`
-    (those the reference run reports), `pass_on_reference`, `fail_on_start` (scenarios not passing
+    (those in the Intent's feature), `pass_on_reference`, `fail_on_start` (scenarios not passing
     on start); `wrong_caught` counts wrong trees where some scenario does not pass, of `wrong_total`.
     A tree whose run gave no report is `infrastructure` and no counts are written.
     """
     rec = {"phase": "shape", "infrastructure": None}
     intent = os.path.join(cell, "intent")
-    if not task["task"].get("acceptance") or not os.path.isfile(os.path.join(intent, "intent.md")):
+    if not task["task"].get("acceptance") or not all(
+            os.path.isfile(os.path.join(intent, n)) for n in ("intent.md", "acceptance.feature")):
         rec["infrastructure"] = "task has no [acceptance] or the cell has no Intent"
         return rec
     slug = intent_slug(os.path.join(intent, "intent.md"))
@@ -308,9 +344,11 @@ def grade_shape(task, cell, deadline_s=600):
         rec["infrastructure"] = "; ".join(bad)
         return rec
     ref, start = rec["matrix"]["reference"], rec["matrix"]["start"]
-    rec.update(scenarios=len(ref), pass_on_reference=sum(s == "passed" for s in ref.values()),
-               fail_on_start=sum(start.get(line) != "passed" for line in ref),
-               wrong_caught=sum(any(rec["matrix"]["wrong/" + w].get(line) != "passed" for line in ref) for w in wrong),
+    wanted = feature_lines(os.path.join(intent, "acceptance.feature"))  # the Intent's scenarios, not the run's
+    rec.update(scenarios=len(wanted), pass_on_reference=sum(ref.get(line) == "passed" for line in wanted),
+               fail_on_start=sum(start.get(line) != "passed" for line in wanted),
+               wrong_caught=sum(any(rec["matrix"]["wrong/" + w].get(line) != "passed" for line in wanted)
+                                for w in wrong),
                wrong_total=len(wrong))
     return rec
 

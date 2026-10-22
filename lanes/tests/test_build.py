@@ -157,6 +157,13 @@ class BuildLanes(unittest.TestCase):
         self.assertIn("timed out", err)
         self.assertFalse(os.path.exists(os.path.join(self.home, "kogen.git")))
 
+    def test_interrupted_first_clone_leaves_no_temp_dir(self):  # L9
+        self.write([{"name": "base"}])
+        with mock.patch.object(build, "_git", side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                build.ensure_sha(self.repo, self.sha, self.home)
+        self.assertEqual(os.listdir(self.home), [])
+
     def test_sha_reachable_only_from_another_ref(self):
         self.write([{"name": "base"}])
         self.assertEqual(self.run_build()[0], 0)

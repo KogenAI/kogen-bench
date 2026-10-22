@@ -105,6 +105,7 @@ class Dispatch(unittest.TestCase):
         self.assertIn("run lanes-build first", p.stderr)
         self.assertFalse(os.path.exists(os.path.join(self.run_dir, "PLAN.json")))
         self.assertFalse(os.path.exists(os.path.join(self.run_dir, "plan.jsonl")))
+        self.assertFalse(os.path.exists(os.path.join(self.run_dir, "experiment.json")))  # L9: nothing written
 
     def test_run_refuses_plan_without_lock_hash_or_with_changed_lock(self):  # B2
         self.plan()
@@ -304,6 +305,45 @@ class Dispatch(unittest.TestCase):
         started = [int(x) for x in self.read(pids).split()]
         self.assertEqual(self.alive(started), [])
         self.assertEqual(self.results(), {})
+
+    @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
+    def test_remote_ssh_255_kills_remote_group_before_cleanup(self):  # L9: lost connection, cell still running
+        env, root = self.remote_setup()
+        pids = os.path.join(self.tmp, "pids.txt")
+        ssh = os.path.join(self.tmp, "ssh-drop")
+        with open(ssh, "w") as f:  # run the command detached, wait for the cell to start, then drop like ssh
+            f.write('#!/bin/sh\nshift\ncase "$*" in *lanes-cell*) ;; *) exec sh -c "$*";; esac\n'
+                    'sh -c "$*" >/dev/null 2>&1 &\n'
+                    'for i in $(seq 1 100); do test -s "$FAKE_PIDS" && break; sleep 0.1; done\n'
+                    'exit 255\n')
+        os.chmod(ssh, 0o755)
+        env.update(FAKE_SLEEP="30", FAKE_PIDS=pids, LANES_SSH=ssh)
+        with mock.patch.dict(os.environ, env):
+            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES,
+                                              log=lambda m: None), 1)
+        started = [int(x) for x in self.read(pids).split()]
+        self.assertTrue(started)
+        self.assertEqual(self.alive(started), [])
+        self.assertEqual(self.results(), {})
+
+    @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
+    def test_remote_255_without_pgid_leaves_the_dir(self):  # L9 m1: no pgid, no rm -rf
+        env, root = self.remote_setup()
+        ssh = os.path.join(self.tmp, "ssh-drop")
+        with open(ssh, "w") as f:  # the cell never starts, so no pgid file exists
+            f.write('#!/bin/sh\nshift\ncase "$*" in *lanes-cell*) exit 255;; esac\nexec sh -c "$*"\n')
+        os.chmod(ssh, 0o755)
+        keep = []
+        for rep in ("r1", "r2"):
+            for lane in ("base", "patched"):
+                d = os.path.join(root, "runs", "exp-mini", "cells", "task-mini", rep, lane)
+                os.makedirs(d)
+                keep.append(os.path.join(d, "keep"))
+                open(keep[-1], "w").close()
+        env.update(LANES_SSH=ssh)
+        with mock.patch.dict(os.environ, env):
+            dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, log=lambda m: None)
+        self.assertTrue(any(os.path.exists(k) for k in keep))
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
     def test_remote_failed_copy_back_is_not_a_result(self):  # m8

@@ -29,7 +29,7 @@ SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 ERROR_LINE = re.compile(r"^([a-z_]+/[a-z_]+):", re.M)
 INTENT_FILES = ("intent.md", "acceptance.feature")  # and model.*: these live in the Intent folder
 # Exit code -> outcome (FORMATS Kogen exit codes); a build's last `outcome` event wins over these.
-OUTCOMES = {0: "ok", 1: "refused", 2: "usage", 3: "environment", 5: "ok", 70: "internal",
+OUTCOMES = {0: "ok", 1: "refused", 2: "usage", 3: "environment", 70: "internal",
             129: "signal", 130: "signal", 143: "signal"}
 
 
@@ -199,11 +199,9 @@ class Cell:
         return code == 0 and not timed_out and not detail
 
     def shape(self, slug, request, answers):
-        """Shape; while Kogen asks questions, answer them from `answers` (stdin of `shape <slug> -`)."""
+        """Shape; when Kogen asks questions, answer them once from `answers` (stdin of `shape <slug> -`)."""
         calls = [self.invoke(["intent", "shape", slug, request])]
-        while self._asks(calls[-1]) and answers and not calls[-1][1]:
-            if len(calls) > 1 and calls[-1][2] == calls[-2][2]:
-                break  # the same questions again: the answers do not move it
+        if self._asks(calls[-1]) and answers and not calls[-1][1]:
             calls.append(self.invoke(["intent", "shape", slug, "-"], answers))
         return self.record("shape", calls, "questions_pending" if self._asks(calls[-1]) else None)
 
@@ -375,6 +373,10 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
     final_tree = _git(ws, "rev-parse", "HEAD^{tree}")
     _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "final-tree.tar"), "HEAD")
     trees = [e["tree"] for e in events or [] if e.get("event") in ("review", "commit") and e.get("tree")]
+    for tree in dict.fromkeys(trees):  # keep the trees the workspace still has, for lanes-grade
+        if _git(ws, "cat-file", "-t", tree, check=False) == "tree":
+            os.makedirs(os.path.join(out, "pass-trees"), exist_ok=True)
+            _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "pass-trees", tree + ".tar"), tree)
     stages = usage.parse_run_log(events, c.commands, shape_events=shape_events)
     outcomes = {cmd["stage"]: command_outcome(cmd, events) for cmd in c.commands}
     for rec in stages["stages"]:  # one rule for the stage records and the cell

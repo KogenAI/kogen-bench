@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -111,6 +112,35 @@ class FakeKogen(unittest.TestCase):
         self.assertEqual(r.returncode, 0)
         for f in ("intent.md", "acceptance.feature"):
             self.assertTrue(os.path.exists(os.path.join(self.tree, ".kogen/intents/add-numbers", f)))
+
+    def shaping_events(self):
+        path = os.path.join(self.tree, ".kogen/local/shaping/add-numbers/events.ndjson")
+        return [json.loads(l) for l in read(path).splitlines()]
+
+    def test_shaping_events_use_kogens_names(self):  # shape.ex l.374, shape_evidence.ex l.276
+        self.kogen("init")
+        self.assertEqual(self.kogen("intent", "shape", "add-numbers", self.request_file()).returncode, 0)
+        call, end = self.shaping_events()
+        self.assertEqual(call["role"], "shape")
+        self.assertEqual(end, {"event": "session_end", "elapsed_ms": 420})
+
+    def test_questions_mode(self):
+        self.kogen("init")
+        first = self.kogen("intent", "shape", "add-numbers", self.request_file(), FAKE_KOGEN_QUESTIONS="once")
+        self.assertEqual((first.returncode, first.stdout.splitlines()[0]), (5, "Questions for add-numbers:"))
+        self.assertFalse(os.path.exists(os.path.join(self.tree, ".kogen/intents/add-numbers/intent.md")))
+        env = {**os.environ, "FAKE_KOGEN_QUESTIONS": "once"}
+        done = sh(sys.executable, FAKE, "intent", "shape", "add-numbers", "-", cwd=self.tree, env=env, input="1: a\n")
+        self.assertEqual(done.returncode, 0)
+        env["FAKE_KOGEN_QUESTIONS"] = "always"
+        again = sh(sys.executable, FAKE, "intent", "shape", "add-numbers", "-", cwd=self.tree, env=env, input="1: a\n")
+        self.assertEqual(again.returncode, 5)
+
+    def test_init_commits_a_leftover_project_yaml_as_it_is(self):
+        os.makedirs(os.path.join(self.tree, ".kogen"))
+        write(os.path.join(self.tree, ".kogen", "project.yaml"), "version: 1\nmodels:\n  build: {model: mine, effort: low}\n")
+        self.assertEqual(self.kogen("init").returncode, 0)
+        self.assertIn("model: mine", sh("git", "-C", self.tree, "show", "HEAD:.kogen/project.yaml").stdout)
 
     def test_bad_slug_exits_2(self):
         self.assertEqual(self.kogen("intent", "build", "A").returncode, 2)

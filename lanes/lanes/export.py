@@ -157,13 +157,15 @@ def phase_time(stages, evaluation, phase):
 
 def outcome_of(ev):
     """pass | fail | invalid. Shape cells (no `all_passed`): pass when every scenario passes on the
-    reference tree and every known-wrong tree is caught; anything else is declared missing."""
+    reference tree, every one fails on the start tree and every known-wrong tree is caught; anything else
+    is declared missing."""
     if ev.get("infrastructure"):
         return "invalid"
     if isinstance(ev.get("all_passed"), bool):
         return "pass" if ev["all_passed"] else "fail"
-    if all(isinstance(ev.get(k), int) for k in ("scenarios", "pass_on_reference", "wrong_caught", "wrong_total")):
-        ok = ev["scenarios"] > 0 and ev["pass_on_reference"] == ev["scenarios"] and ev["wrong_caught"] == ev["wrong_total"]
+    if all(isinstance(ev.get(k), int) for k in SHAPE_KEYS):
+        ok = (ev["scenarios"] > 0 and ev["pass_on_reference"] == ev["scenarios"]
+              and ev["fail_on_start"] == ev["scenarios"] and ev["wrong_caught"] == ev["wrong_total"])
         return "pass" if ok else "fail"
     return miss("m32")
 
@@ -570,7 +572,8 @@ def export(run_dir, round_id, out, date=None, do_register=True, check="release")
                     with open(os.path.join(bench, p), "wb") as f:
                         f.write(data)
         shutil.rmtree(stage, ignore_errors=True)
-    print(f"wrote {n} Standard 1.2 records to {out}")
+    if ok:
+        print(f"wrote {n} Standard 1.2 records to {out}")
     return code
 
 
