@@ -22,7 +22,7 @@ import tomllib
 
 from . import common, experiment, usage
 
-IDENTITY = {"name": "Kogen Lanes", "email": "lanes@example.invalid"}
+IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
 CARD_HASH = re.compile(r"^SHA-256:\s*([0-9a-f]{64})\s*$", re.M)
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")

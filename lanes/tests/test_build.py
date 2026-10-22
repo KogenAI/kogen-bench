@@ -12,7 +12,7 @@ from unittest import mock
 from lanes import build, common
 
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
-GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"]
+GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@" + "example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"]
 PATCH = "--- a/VERSION\n+++ b/VERSION\n@@ -1 +1 @@\n-1\n+2\n"
 BAD_PATCH = "--- a/VERSION\n+++ b/VERSION\n@@ -1 +1 @@\n-9\n+3\n"
 

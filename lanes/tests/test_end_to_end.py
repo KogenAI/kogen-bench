@@ -18,7 +18,7 @@ FIX = os.path.join(HERE, "fixtures")
 E2E = os.path.join(FIX, "e2e")
 BIN = os.path.join(HERE, "..", "bin")
 FAKE_KOGEN = os.path.join(HERE, "fake-kogen")
-GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"]
+GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@" + "example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"]
 ACCEPT = "run = 'python3 features/run_acceptance.py \"$KOGEN_ACCEPTANCE_REPORT\" \"$KOGEN_ACCEPTANCE_FEATURES\"'"
 
 

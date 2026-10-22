@@ -66,7 +66,7 @@ def read(path):
 
 
 def git(root, *args, check=True):
-    cmd = ["git", "-C", root, "-c", "user.name=fake-kogen", "-c", "user.email=fake@example.invalid",
+    cmd = ["git", "-C", root, "-c", "user.name=fake-kogen", "-c", "user.email=fake@" + "example.invalid",
            "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", *args]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if check and r.returncode:

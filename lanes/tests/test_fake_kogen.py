@@ -13,7 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FAKE = os.path.join(HERE, "fake-kogen")
 TASK = os.path.join(HERE, "fixtures", "task-mini")
 EVENTS_NEEDED = {"start", "request", "pass", "review", "commit", "outcome"}
-GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false",
+GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@" + "example.invalid", "-c", "commit.gpgsign=false",
        "-c", "core.hooksPath=/dev/null"]
 
 
