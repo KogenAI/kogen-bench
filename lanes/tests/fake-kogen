@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""A fake `kogen` for tests: same commands, options, files and run-log events as Kogen b45ba32b.
+
+Commands: version, init, intent shape <slug> <file|->, intent approve <slug> [<hash>] [--by],
+intent build <slug>. `--project <dir>` only where Kogen takes it (not init, not version).
+Run it inside a git work tree. It makes no model request, unlike the real `init`.
+
+Environment:
+  FAKE_KOGEN_MODE     correct (default) | wrong | fail | hang; anything else exits 2
+  FAKE_KOGEN_VERSION  version string (default "kogen fake0000 (2026-01-01)")
+  FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
+                      (default: fixtures/task-mini next to this script)
+"""
+import datetime
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+HASH = re.compile(r"^[0-9a-f]{6,64}$")
+MODES = ("correct", "wrong", "fail", "hang")
+OPTIONS = {"version": [], "init": [], "shape": ["project"], "build": ["project"],
+           "approve": ["project", "by"]}
+DEFAULT_MODELS = {
+    "shape": ("fake-model", "high"),
+    "build": ("fake-model", "medium"),
+    "review": ("fake-model", "high"),
+}
+
+
+def say(line=""):
+    print(line, flush=True)
+
+
+def die(code, line):
+    say(line)
+    sys.exit(code)
+
+
+def read(path):
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def git(root, *args, check=True):
+    cmd = ["git", "-C", root, "-c", "user.name=fake-kogen", "-c", "user.email=fake@example.invalid",
+           "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", *args]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if check and r.returncode:
+        die(3, f"environment/git_failed: {' '.join(args)}: {r.stderr.strip()}")
+    return r.stdout.strip()
+
+
+def now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+
+
+def task_dir():
+    return os.environ.get("FAKE_KOGEN_TASK") or os.path.join(HERE, "fixtures", "task-mini")
+
+
+def intent_dir(root, slug):
+    return os.path.join(root, ".kogen", "intents", slug)
+
+
+def intent_hash(root, slug):
+    h = hashlib.sha256()
+    d = intent_dir(root, slug)
+    for dp, dn, fn in os.walk(d):
+        dn.sort()
+        for n in sorted(fn):
+            p = os.path.join(dp, n)
+            with open(p, "rb") as f:
+                h.update(os.path.relpath(p, d).encode() + b"\0" + f.read() + b"\0")
+    return h.hexdigest()
+
+
+def approval_path(root, slug):
+    return os.path.join(root, ".kogen", "local", "approvals", slug + ".json")
+
+
+def read_models(root):
+    models = dict(DEFAULT_MODELS)
+    path = os.path.join(root, ".kogen", "project.yaml")
+    if os.path.exists(path):
+        for line in read(path).splitlines():
+            m = re.match(r"^\s+(shape|build|review):\s*\{model:\s*(\S+),\s*effort:\s*(\S+)\}", line)
+            if m:
+                models[m.group(1)] = (m.group(2), m.group(3))
+    return models
+
+
+def parse(argv):
+    """Like cli/main.go: command words first, then options and positionals."""
+    if not argv:
+        die(0, "fake kogen: version | init | intent shape|approve|build")
+    if argv[0] == "--version":
+        argv = ["version"]
+    if argv[0] == "intent":
+        if len(argv) < 2 or argv[1] not in ("shape", "approve", "build"):
+            die(2, f"kogen intent: unknown command '{argv[1] if len(argv) > 1 else ''}'")
+        cmd, rest, path = argv[1], argv[2:], "intent " + argv[1]
+    elif argv[0] in ("init", "version"):
+        cmd, rest, path = argv[0], argv[1:], argv[0]
+    else:
+        die(2, f"kogen: unknown command '{argv[0]}'")
+    opts, pos, i = {}, [], 0
+    while i < len(rest):
+        tok = rest[i]
+        if tok == "-" or not tok.startswith("-"):
+            pos.append(tok)
+        elif tok.startswith("--"):
+            name, eq, value = tok[2:].partition("=")
+            if name not in OPTIONS[cmd]:
+                die(2, f"kogen {path}: unknown option '--{name}'\n\nUsage: kogen {path}")
+            if not eq:
+                if i + 1 >= len(rest):
+                    die(2, f"kogen {path}: --{name} needs a value")
+                i += 1
+                value = rest[i]
+            opts[name] = value
+        else:
+            die(2, f"kogen {path}: unknown option '{tok}'")
+        i += 1
+    return cmd, opts, pos
+
+
+def need(pos, n, names, cmd):
+    if len(pos) < n:
+        die(2, f"kogen intent {cmd}: missing {names[len(pos)]}")
+
+
+def slug_of(pos):
+    slug = pos[0]
+    if not SLUG.match(slug) or not 3 <= len(slug) <= 48:
+        die(2, "intent/invalid_slug: Slug must be 3 to 48 characters and use lowercase letters, digits and dashes.")
+    return slug
+
+
+def cmd_init(root):
+    if git(root, "rev-parse", "--verify", "HEAD", check=False) and \
+            git(root, "show", "HEAD:.kogen/project.yaml", check=False):
+        say(f"Kogen is already initialized in {root}")
+        return 0
+    path = os.path.join(root, ".kogen", "project.yaml")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    lines = ["version: 1", "models:"] + [f"  {r}: {{model: {m}, effort: {e}}}" for r, (m, e) in DEFAULT_MODELS.items()]
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    gi = os.path.join(root, ".gitignore")
+    old = read(gi) if os.path.exists(gi) else ""
+    if ".kogen/local/" not in old.splitlines():
+        with open(gi, "w", encoding="utf-8") as f:
+            f.write(old + ("" if old.endswith("\n") or not old else "\n") + ".kogen/local/\n")
+    git(root, "add", ".kogen/project.yaml", ".gitignore")
+    git(root, "commit", "-m", "Add Kogen configuration")
+    say(f"Initialized Kogen in {root}")
+    return 0
+
+
+def cmd_shape(root, slug, source):
+    request = sys.stdin.read() if source == "-" else read(source)
+    if not request.strip():
+        die(2, "intent/empty_request: the request is empty")
+    d = intent_dir(root, slug)
+    os.makedirs(d, exist_ok=True)
+    title = request.strip().splitlines()[0].strip("# ")[:60]
+    with open(os.path.join(d, "intent.md"), "w", encoding="utf-8") as f:
+        f.write(f"# {title}\n\nSlug: {slug}\n\n{request.strip()}\n")
+    with open(os.path.join(d, "acceptance.feature"), "w", encoding="utf-8") as f:
+        f.write(f"Feature: {title}\n  Scenario: As requested\n    When the request is carried out\n    Then it behaves as asked\n")
+    say(f"Intent: {os.path.join(d, 'intent.md')}")
+    return 0
+
+
+def cmd_approve(root, slug, prefix):
+    if prefix is not None and not HASH.match(prefix):
+        die(2, "kogen intent approve: <hash> must be 6 to 64 lowercase hex characters")
+    if not os.path.isdir(intent_dir(root, slug)):
+        die(2, "intent/not_found: Intent does not exist")
+    sha = intent_hash(root, slug)
+    if prefix is None:
+        say(f"Intent: {slug}")
+        say(f"SHA-256: {sha}")
+        say("Approve with:")
+        say(f"  kogen intent approve {slug} {sha[:8]}")
+        return 5
+    if not sha.startswith(prefix):
+        die(1, f"intent/hash_mismatch: {slug} is {sha}, not {prefix}")
+    path = approval_path(root, slug)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"slug": slug, "sha256": sha, "approver": "fake-kogen", "approved_at": now()}, f)
+        f.write("\n")
+    say(f"approved {slug} {sha[:8]}")
+    say(f"Next: kogen intent build {slug}")
+    return 0
+
+
+class RunLog:
+    def __init__(self, root):
+        self.id = os.urandom(4).hex()
+        self.dir = os.path.join(root, ".kogen", "local", "runs", self.id)
+        os.makedirs(self.dir)
+        self.path = os.path.join(self.dir, "log.jsonl")
+
+    def log(self, **event):
+        with open(self.path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({**event, "at": now()}) + "\n")
+
+    def result(self, data):
+        with open(os.path.join(self.dir, "result.json"), "w", encoding="utf-8") as f:
+            json.dump(data, f)
+            f.write("\n")
+
+
+def copy_over(src, dst):
+    for dp, dn, fn in os.walk(src):
+        rel = os.path.relpath(dp, src)
+        os.makedirs(os.path.join(dst, rel), exist_ok=True)
+        for n in fn:
+            shutil.copy2(os.path.join(dp, n), os.path.join(dst, rel, n))
+
+
+def cmd_build(root, slug, mode):
+    ap = approval_path(root, slug)
+    if not os.path.exists(ap):
+        die(1, f"intent/not_approved: {slug} has no approval; run kogen intent approve")
+    with open(ap, encoding="utf-8") as f:
+        approved = json.load(f)["sha256"]
+    if approved != intent_hash(root, slug):
+        die(1, "intent/approval_stale: the Intent changed after approval")
+    run = RunLog(root)
+    start = git(root, "rev-parse", "HEAD")
+    run.log(event="start", slug=slug, start_head=start, approved=approved)
+    if mode == "hang":
+        while True:
+            time.sleep(1)
+    models = read_models(root)
+    tree = None
+    for role in ("build", "review"):
+        model, effort = models[role]
+        usage = {"input": 100, "cached": 0, "output": 20, "reasoning": 5}
+        run.log(event="request", role=role, model=model, effort=effort, usage=usage, wall_ms=10)
+        if role == "build" and mode == "fail":
+            detail = "fake failure"
+            run.log(event="outcome", outcome="build_blocked")
+            run.result({"slug": slug, "build": run.id, "outcome": "build_blocked", "start_head": start})
+            die(1, f"failed {slug}: build_blocked (Build {run.id})\ncandidate/build_blocked: {detail}")
+        if role == "build":
+            wrong = os.path.join(task_dir(), "wrong")
+            src = os.path.join(task_dir(), "reference") if mode == "correct" else \
+                os.path.join(wrong, sorted(os.listdir(wrong))[0])
+            copy_over(src, root)
+            git(root, "add", "-A")
+            tree = git(root, "write-tree")
+            run.log(event="command", name="test", command="fake check")
+            run.log(event="command_result", name="test", status=0, output="ok")
+            run.log(event="pass", **{"pass": 1}, green=True, failing=[], not_run=[],
+                    files_changed_while_checks_ran=[])
+    run.log(event="review", review=1, attempt=1, tree=tree, verdict="approve", findings=[], **{"pass": 1})
+    run.log(event="commit", tree=tree)
+    git(root, "commit", "-m", f"Build {slug}")
+    new = git(root, "rev-parse", "HEAD")
+    os.remove(ap)
+    run.log(event="outcome", outcome="landed", commit=new)
+    run.result({"slug": slug, "build": run.id, "outcome": "landed", "start_head": start, "commit": new})
+    say(f"landed {slug} {new[:8]} (Build {run.id})")
+    return 0
+
+
+def main(argv):
+    mode = os.environ.get("FAKE_KOGEN_MODE", "correct")
+    if mode not in MODES:
+        die(2, f"fake-kogen: unknown FAKE_KOGEN_MODE '{mode}' (use {', '.join(MODES)})")
+    cmd, opts, pos = parse(argv)
+    root = os.path.abspath(opts.get("project") or os.getcwd())
+    if cmd == "version":
+        say(os.environ.get("FAKE_KOGEN_VERSION", "kogen fake0000 (2026-01-01)"))
+        return 0
+    if cmd == "init":
+        if pos:
+            die(2, f"kogen init: unexpected argument '{pos[0]}'")
+        return cmd_init(root)
+    names = {"shape": ["<slug>", "<file|->"], "approve": ["<slug>", "<hash>"], "build": ["<slug>"]}[cmd]
+    need(pos, len(names) - (cmd == "approve"), names, cmd)
+    if len(pos) > len(names):
+        die(2, f"kogen intent {cmd}: unexpected argument '{pos[len(names)]}'")
+    slug = slug_of(pos)
+    if cmd == "shape":
+        return cmd_shape(root, slug, pos[1])
+    if cmd == "approve":
+        return cmd_approve(root, slug, pos[1] if len(pos) > 1 else None)
+    return cmd_build(root, slug, mode)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

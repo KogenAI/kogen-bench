@@ -1,0 +1,18 @@
+# Synthetic task for the harness tests (Lab task.toml, TSK-1).
+name = "task-mini"
+split = "development"
+language = "go"
+requires = ["go"]
+setup = []
+fix = ["gofmt -w ."]
+protect = []
+test_globs = ["**/*_test.go"]
+regression_tests = ["add_test.go"]
+
+[[check]]
+name = "test"
+run = "go test ./..."
+
+[acceptance]
+run = "true"
+steps_dir = "features/steps"

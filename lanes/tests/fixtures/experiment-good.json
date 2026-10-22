@@ -1,0 +1,37 @@
+{
+  "deadline_s": 600,
+  "decision_rule": {
+    "kind": "paired-pass-rate"
+  },
+  "hosts": [
+    "local"
+  ],
+  "id": "exp-mini",
+  "intent_form": "gherkin",
+  "kogen": {
+    "repo": "https://example.invalid/kogen.git"
+  },
+  "lanes": [
+    {
+      "name": "base",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "openai/gpt-x high"
+        }
+      },
+      "sha": "0123456789abcdef0123456789abcdef01234567"
+    },
+    {
+      "name": "patched",
+      "patch": "patches/p1.patch",
+      "settings": {},
+      "sha": "0123456789abcdef0123456789abcdef01234567"
+    }
+  ],
+  "phase": "build",
+  "reps": 2,
+  "tasks": [
+    "task-mini"
+  ]
+}

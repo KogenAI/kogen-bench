@@ -1,0 +1,21 @@
+# Lab evaluate.toml (EVL-1).
+setup = []
+overlay = "files"
+
+[[command]]
+name = "go-test"
+run = "go test -json -count=1 -run '^(TestAddPositive|TestAddNegative)$' ./... > \"$LAB_RESULTS\""
+adapter = "go_test_json"
+results = "go-test.jsonl"
+timeout_seconds = 60
+
+[[command]]
+name = "go-regression"
+run = "go test -json -count=1 -run '^TestAddZero$' ./... > \"$LAB_RESULTS\""
+adapter = "go_test_json"
+results = "go-regression.jsonl"
+timeout_seconds = 60
+
+[expected]
+requested = ["mini/TestAddPositive", "mini/TestAddNegative"]
+regression = ["mini/TestAddZero"]
