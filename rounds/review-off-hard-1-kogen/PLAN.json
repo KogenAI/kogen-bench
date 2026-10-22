@@ -1,0 +1,117 @@
+{
+  "experiment": {
+    "deadline_s": 1600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "review-off-hard-1-kogen",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "baseline",
+        "patch": null,
+        "settings": {},
+        "sha": "b45ba32bacf26e2b17cb0bb81015ba56d27a4b0b"
+      },
+      {
+        "expect": [
+          {
+            "count": 0,
+            "event": "review"
+          },
+          {
+            "count": 0,
+            "event": "request",
+            "where": {
+              "role": "review"
+            }
+          }
+        ],
+        "name": "review-off",
+        "patch": "patches/review-off.diff",
+        "settings": {},
+        "sha": "b45ba32bacf26e2b17cb0bb81015ba56d27a4b0b"
+      }
+    ],
+    "phase": "build",
+    "reps": 1,
+    "tasks": [
+      "vm-go",
+      "vm-ex",
+      "cron-go",
+      "cron-ex"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "baseline": {
+        "patch": null,
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "review-off": {
+        "patch": "ada342e7724149cab80d3f8fd1fd23c543341aa5c593e08db7f0900b4fedd1ef",
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "tasks": {
+      "cron-ex": {
+        "hidden_tests": "05646a102485020c247c30f55fd356d91a2c244a2c8e79d06ecbb759ec97dfd6",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "3f01d062433c1961366286022a8a191a9a2e6084f8f5af6bbe9a7b2693c892fd",
+          "prose": "863d63fd89c2be11e6b99a46851202522c7e5fbe18a41969366a4de41154f61d"
+        },
+        "request": "339a2847023e2cdff28d1e558a9a54db8b3d3f7374022e0a29ecca3a5bfc91ed",
+        "task": "9edfa0803114c46ce1bb57a62354b5c993214d1263f16dd484b6380a16f01fa8",
+        "task_toml": "a62c236effddb64059755c5fa7a9244a5fbb626b0fd800d2bb695be0e0ba7232",
+        "tree": "c4ab02f6e9a8b6072bfbab7934d5f14fad0e8908b7ea1e431b9f6591821d21a2"
+      },
+      "cron-go": {
+        "hidden_tests": "05646a102485020c247c30f55fd356d91a2c244a2c8e79d06ecbb759ec97dfd6",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "77ed235424dee03c05282ec07e2bed12071ff3f022e73f8444476d2a8126a1b0",
+          "prose": "249df474199495ef6a824dd4a2693d1abb67db215ab2e7868e929c443fba9f30"
+        },
+        "request": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+        "task": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+        "task_toml": "dfea3d391cb8799c14afc3a5c79ec806a4953c6b7dbe3b557fc7f4ffe45b7091",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "vm-ex": {
+        "hidden_tests": "e7484a0c7dafe726e7af0a0a6a6c7755d937bfc93c3a6959e4d38f8ac490812d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "5fc41cc8a6f46a3fce369dbd881b27193638aa75bf61f25c1ebbaa2cc1479cf1",
+          "prose": "c2931393afb6b387e7ecb7be2b8e0055005c81b1f5ef4d3c88ee73a85f34dbda"
+        },
+        "request": "f235d558fc1649f67ebaa8e7ced81708a90b5cfb89d1786290df00e2787ae133",
+        "task": "cd988871ff4d2f5a67b7718877c1bc51e0b989f9d19de9f0512909c1a910b79f",
+        "task_toml": "d7530cb18090282a8088cf7d796d7149a2576cf55d1256c21ff52227c0b94365",
+        "tree": "c4ab02f6e9a8b6072bfbab7934d5f14fad0e8908b7ea1e431b9f6591821d21a2"
+      },
+      "vm-go": {
+        "hidden_tests": "e7484a0c7dafe726e7af0a0a6a6c7755d937bfc93c3a6959e4d38f8ac490812d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "03387ab191baca214fba4ec08ef8f13eae72efd8cf50e50ee287967cfc3334e9",
+          "prose": "77ee718d066662e925ad095d761ec943b132c712270770448d8ce064129d1343"
+        },
+        "request": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+        "task": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+        "task_toml": "c4e19bda895149b89353deaf3d455375b806a90e01552b1ba273fdef753dedcc",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "baseline": "e06bb823b334ac208a046d46d616c3ac31be1c76a9a33f014c6b9570c179e8f2",
+      "review-off": "390d195b6cbee781f1a86fd53e4ea94a1c3331bad9d10829993307e8a466010d"
+    },
+    "sha256": "c93395156d111d43060f8d744fc0b5f5315256e674df2e2380c0ec983c4dd4dc"
+  }
+}

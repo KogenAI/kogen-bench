@@ -273,3 +273,5 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [Short intent with complete acceptance scenarios](intent-short-1/README.md) — **DESCRIPTIVE** a 16-attempt development screen, both arms 8/8 correct with no wrong submissions, stops, provider refusals, or wrong first-green builds; the short arm used 19% less input; fixed decision SHORT HOLDS.
 
 - [Short intent on a fresh specification](confirm-intent-short-1/README.md) — **DESCRIPTIVE** a fresh-task screen scored 12 of 12 across six paired blocks; full and short were each correct in 6/6, with no wrong submissions, stops, refusals, or wrong first-green builds; short used 18% less input; the protocol's fixed decision is CONFIRMED.
+
+- [Does real Kogen reproduce the review-off screen?](review-off-hard-1-kogen/README.md) — **DESCRIPTIVE** real Kogen at b45ba32b scored 4 of 4 correct with and without review, as the Lab screen did; skipping review used 57% less input and about 45% less time, and no first-green build was wrong; one repetition on development tasks, so the fixed rule makes no decision.

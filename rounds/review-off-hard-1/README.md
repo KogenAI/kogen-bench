@@ -38,6 +38,8 @@ This was a descriptive screen on development tasks. With no wrong first-green bu
 - [Pre-review grades](PRE-REVIEW-GRADES.json) contains correctness classifications for the five edited attempts in the review-enabled arm; hidden-test counts are not included.
 - [Public bundles](bundles/) contain the frozen settings, task IDs, and public per-test outcome IDs exactly as exported. Task files, hidden tests, references, transcripts, and candidate code are withheld.
 
+Re-run on the real Kogen build: [review-off-hard-1-kogen](../review-off-hard-1-kogen/README.md).
+
 ## Metadata
 
 Round date: 2026-10-21
