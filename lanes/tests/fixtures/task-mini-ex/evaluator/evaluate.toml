@@ -1,0 +1,21 @@
+# Lab evaluate.toml (EVL-1), ExUnit through the Lab formatter.
+setup = []
+overlay = "files"
+
+[[command]]
+name = "exunit"
+run = "elixir -r \"$KOGEN_LAB_ADAPTERS/lab_formatter.exs\" -S mix test --formatter LabFormatter test/lab_eval"
+adapter = "exunit_lab"
+results = "requested-results.jsonl"
+timeout_seconds = 120
+
+[[command]]
+name = "exunit-regression"
+run = "elixir -r \"$KOGEN_LAB_ADAPTERS/lab_formatter.exs\" -S mix test --formatter LabFormatter test/mini_test.exs"
+adapter = "exunit_lab"
+results = "regression-results.jsonl"
+timeout_seconds = 120
+
+[expected]
+requested = ["LabEval.AddTest:test adds positives", "LabEval.AddTest:test adds negatives"]
+regression = ["MiniTest:test adds zero"]

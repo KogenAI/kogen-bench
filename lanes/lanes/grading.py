@@ -14,6 +14,7 @@ import tomllib
 from . import common
 
 GRADE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "grade")
+ADAPTERS_DIR = os.path.join(GRADE_DIR, "adapters")  # `$KOGEN_LAB_ADAPTERS`: files evaluate.toml commands load
 SETUP_DEADLINE_S = 600
 # Host variables the toolchains need; nothing else (no tokens) reaches agent-written code.
 GO_VARS = frozenset(("GOPATH", "GOCACHE", "GOFLAGS", "GOMODCACHE", "GOPROXY", "GOROOT", "GOTOOLCHAIN",
@@ -102,7 +103,7 @@ def sh(cmd, cwd, env, deadline_s):
 
 
 def task_env(task, tree, extra=None):
-    """The Lab's `commandEnv`: toolchain variables, HOME, PATH, LANG, the task `env`, and a private
+    """The Lab's `commandEnv`: toolchain variables, HOME, PATH, LANG, `KOGEN_LAB_ADAPTERS`, the task `env`, and a private
     TMPDIR next to the tree."""
     env = {k: v for k, v in os.environ.items() if k in GO_VARS or k.startswith(ENV_PREFIXES)}
     env.update(HOME=os.environ.get("HOME", "/"), PATH=os.environ.get("PATH", "/usr/bin:/bin"),
@@ -111,6 +112,7 @@ def task_env(task, tree, extra=None):
     tmp = os.path.join(os.path.dirname(tree), "tmp")
     os.makedirs(tmp, exist_ok=True)
     env["TMPDIR"] = tmp
+    env["KOGEN_LAB_ADAPTERS"] = ADAPTERS_DIR
     env.update(extra or {})
     return env
 

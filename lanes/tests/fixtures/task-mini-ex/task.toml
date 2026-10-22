@@ -1,0 +1,17 @@
+# Synthetic Elixir task for the harness tests (Lab task.toml, TSK-2).
+name = "task-mini-ex"
+split = "development"
+language = "elixir"
+requires = ["elixir", "mix"]
+setup = []
+fix = ["mix format"]
+protect = [".formatter.exs"]
+test_globs = ["test/**"]
+regression_tests = ["test/mini_test.exs"]
+
+[env]
+MIX_ENV = "test"
+
+[[check]]
+name = "test"
+run = "mix test"
