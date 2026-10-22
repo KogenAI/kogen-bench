@@ -1,0 +1,29 @@
+# Private confirmation task vm-ex; do not publish.
+name = "vm-ex"
+split = "development"
+language = "elixir"
+requires = ["elixir", "mix", "node", "make", "python3"]
+setup = ["npm ci --ignore-scripts --no-audit --no-fund"]
+fix = ["mix format"]
+protect = ["Makefile", ".formatter.exs"]
+test_globs = ["test/**"]
+regression_tests = ["test/input_test.exs"]
+
+[env]
+MIX_ENV = "test"
+
+[[check]]
+name = "build"
+run = "make build"
+
+[[check]]
+name = "test"
+run = "mix test"
+
+[[check]]
+name = "format"
+run = "mix format --check-formatted"
+
+[acceptance]
+run = "npx cucumber-js --strict --require 'features/steps/*.js' --format message:$KOGEN_ACCEPTANCE_REPORT $KOGEN_ACCEPTANCE_FEATURES"
+steps_dir = "features/steps"

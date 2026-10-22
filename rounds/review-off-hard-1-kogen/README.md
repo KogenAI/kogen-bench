@@ -57,7 +57,7 @@ The rule is descriptive: it reports results and makes no decision. With no wrong
 - The tasks were already used for the Lab round and are too easy to separate the lanes on correctness: all 8 Kogen cells and all 16 Lab attempts passed.
 - The Lab run was approximate. It ran its own build loop with different limits (up to 6 repairs, 900 s per command, 3,600 s per attempt) and extra helper steps, and it verified code in the builder's workspace, not in a clean copy of the candidate as Kogen does. So its token, request and time numbers describe the Lab harness, not Kogen, and the two rounds agree on direction and on correctness, not on exact amounts.
 - Kogen's review-off lane is a two-line patch, not a setting; the Lab arm switched review off by configuration.
-- Task specifications, hidden tests and reference solutions are not published with this round; `PLAN.json` holds their hashes, recorded before any cell ran.
+- The four task folders (specifications, hidden tests, reference solutions, wrong-solution fixtures), the frozen Intents, the patch, the settings and the final and pass trees of all eight cells are published under `reproduce/`, so these tasks are no longer private and cannot be used for future confirmations; `PLAN.json` holds their hashes, recorded before any cell ran.
 
 ## How to reproduce
 
@@ -65,9 +65,7 @@ The rule is descriptive: it reports results and makes no decision. With no wrong
 lanes/reproduce.sh rounds/review-off-hard-1-kogen
 ```
 
-Today this command checks the published files against the hashes in `PLAN.json` and stops. It reports the four task folders and the two settings files as missing, and exits with status 1, because the tasks and hidden tests are not yet published. They will be published when the round closes. Someone who holds the task folders can pass them with `--tasks DIR`.
-
-Full reproduction needs those inputs. Once they are published, the same command checks all input hashes, rebuilds both lanes from Kogen `b45ba32b` and the patch, and re-grades the recorded final trees without model calls. With `--rerun 1` it runs the cells again with your own model login so you can compare quality, cost and time. See [lanes/README.md](../../lanes/README.md).
+The task folders (with hidden tests), the frozen Intents, the settings and the final and pass trees of all eight cells are published under `reproduce/`, and the patch under `patches/`. The command checks every published input against the hashes in `PLAN.json`, rebuilds both lanes from Kogen `b45ba32b` and the patch and reports whether each artifact hash equals the published one, then re-grades the published final trees with the hidden tests, without model calls, and compares the grades with the published ones. It exits 0 when the inputs match, the lanes build and the re-grades match. The artifact check is informational: a rebuild on the machine that ran the round also gave different hashes for both lanes, so the Kogen build is not byte-reproducible here (and the review-off lock carries a dev version stamp). What reproduces is the re-grade of the published trees. With `--rerun 1` it runs the cells again with your own model login so you can compare quality, cost and time. See [lanes/README.md](../../lanes/README.md).
 
 ## Counts
 
@@ -96,7 +94,7 @@ Task IDs: vm-go, vm-ex, cron-go, cron-ex
 Command: lanes-run, lanes-grade and lanes-export on experiment `review-off-hard-1-kogen`.
 Kogen commits: b45ba32bacf26e2b17cb0bb81015ba56d27a4b0b
 Raw records: records.jsonl and the bundle in bundles/review-off-hard-1-kogen preserve every cell's outcome and stages; a record's `ledger_sha256` hashes that cell's published attempt.json and evaluation.json.
-Inputs: PLAN.json holds the hashes of the tasks, hidden tests, Intents, patches and settings; `--publish-private` adds the files after the round closes.
+Inputs: PLAN.json holds the hashes of the tasks, hidden tests, Intents, patches and settings and, under `publication`, the hash of every published hidden-test file; the files are published under `reproduce/` (added with `lanes-export --publish-private`, which copies the tasks, settings and cell trees). The grades are recomputable from the published trees; the usage figures (tokens, cost, time) are not, because the run logs are not published.
 
 ## What's missing and why
 - `circumstances.cap_end` (8 missing): Kogen b45ba32b and the lane harness do not log this field. Boundary telemetry not retained. Reason: Boundary telemetry not retained (`m08`).
