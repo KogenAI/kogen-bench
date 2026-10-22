@@ -330,11 +330,16 @@ class Context:
 
 # ---- the run loop ---------------------------------------------------------------------------
 
-def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print):
+def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
+            skip_preflight=False):
     """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 130 interrupted."""
     run_dir = os.path.abspath(run_dir)
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
     verify_inputs(run_dir, exp, tasks)
+    if not skip_preflight:
+        from . import preflight  # imported here: it needs Python 3.12 (cell.py), plan and dispatch do not
+        if preflight.preflight(run_dir, tasks, out=log):
+            raise DispatchError("pre-flight refused a supplied Intent; no cell started")
     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
     artifacts = {e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
     runner = Runner()
@@ -426,12 +431,14 @@ def run_main(argv=None):
     p.add_argument("--lock-cmd", help="command template run before the first cell on each host ({host}, {name})")
     p.add_argument("--unlock-cmd", help="command template run after the last cell on each host")
     p.add_argument("--lanes-dir", default=LANES_DIR, help=argparse.SUPPRESS)
+    p.add_argument("--skip-preflight", action="store_true",
+                   help="do not lint-approve the supplied Intents first; for tests only, never in a real run")
     a = p.parse_args(argv)
     if not a.tasks:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     try:
         return run_all(a.run_dir, a.tasks, a.hosts, a.lock_cmd, a.unlock_cmd, a.lanes_dir,
-                       log=lambda m: print(m, file=sys.stderr))
+                       skip_preflight=a.skip_preflight, log=lambda m: print(m, file=sys.stderr))
     except (experiment.ExperimentError, DispatchError, plan_hashes.PlanError, OSError, ValueError) as e:
         print(f"run: {e}", file=sys.stderr)
         return 2

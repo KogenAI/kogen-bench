@@ -65,7 +65,7 @@ class Dispatch(unittest.TestCase):
 
     def run_cmd(self, *extra, env=None, timeout=60):
         return subprocess.run([sys.executable, entry("lanes-run"), self.run_dir, "--tasks", self.tasks,
-                               "--hosts", self.hosts, "--lanes-dir", FAKE_LANES, *extra],
+                               "--hosts", self.hosts, "--lanes-dir", FAKE_LANES, "--skip-preflight", *extra],
                               env=env or self.env, capture_output=True, text=True, timeout=timeout)
 
     def events_lines(self, prefix="cell "):
@@ -277,7 +277,7 @@ class Dispatch(unittest.TestCase):
         pids = os.path.join(self.tmp, "pids.txt")
         env.update(FAKE_SLEEP="30", FAKE_PIDS=pids)
         proc = subprocess.Popen([sys.executable, entry("lanes-run"), self.run_dir, "--tasks", self.tasks,
-                                 "--hosts", self.hosts, "--lanes-dir", FAKE_LANES], env=env,
+                                 "--hosts", self.hosts, "--lanes-dir", FAKE_LANES, "--skip-preflight"], env=env,
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.addCleanup(proc.kill)
         end = time.time() + 30
@@ -300,7 +300,7 @@ class Dispatch(unittest.TestCase):
         pids = os.path.join(self.tmp, "pids.txt")
         env.update(FAKE_SLEEP="30", FAKE_PIDS=pids)
         with mock.patch.dict(os.environ, env), mock.patch.object(dispatch, "MARGIN_S", 3):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES,
+            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
                                               log=lambda m: None), 1)
         started = [int(x) for x in self.read(pids).split()]
         self.assertEqual(self.alive(started), [])
@@ -319,7 +319,7 @@ class Dispatch(unittest.TestCase):
         os.chmod(ssh, 0o755)
         env.update(FAKE_SLEEP="30", FAKE_PIDS=pids, LANES_SSH=ssh)
         with mock.patch.dict(os.environ, env):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES,
+            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
                                               log=lambda m: None), 1)
         started = [int(x) for x in self.read(pids).split()]
         self.assertTrue(started)
@@ -342,7 +342,7 @@ class Dispatch(unittest.TestCase):
                 open(keep[-1], "w").close()
         env.update(LANES_SSH=ssh)
         with mock.patch.dict(os.environ, env):
-            dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, log=lambda m: None)
+            dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True, log=lambda m: None)
         self.assertTrue(any(os.path.exists(k) for k in keep))
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
@@ -356,7 +356,7 @@ class Dispatch(unittest.TestCase):
             return real(host, src, dst, *opts)
 
         with mock.patch.dict(os.environ, env), mock.patch.object(dispatch.Host, "rsync", flaky):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES,
+            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
                                               log=lambda m: None), 1)
         self.assertEqual(self.results(), {})
 
@@ -387,7 +387,7 @@ class Dispatch(unittest.TestCase):
             return real(run_dir, 0.3)
 
         with mock.patch.dict(os.environ, env), mock.patch.object(dispatch, "Claims", quick):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES,
+            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
                                               log=lambda m: None), 0)
         starts = self.events_lines()
         self.assertEqual(len(starts), 4)
@@ -435,7 +435,7 @@ class Dispatch(unittest.TestCase):
         pids = os.path.join(self.tmp, "pids.txt")
         env = dict(self.env, FAKE_SLEEP="30", FAKE_PIDS=pids)
         proc = subprocess.Popen([sys.executable, entry("lanes-run"), self.run_dir, "--tasks", self.tasks,
-                                 "--hosts", self.hosts, "--lanes-dir", FAKE_LANES], env=env,
+                                 "--hosts", self.hosts, "--lanes-dir", FAKE_LANES, "--skip-preflight"], env=env,
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         end = time.time() + 20
         while time.time() < end and len(self.read(pids).split() if os.path.exists(pids) else []) < 2:
