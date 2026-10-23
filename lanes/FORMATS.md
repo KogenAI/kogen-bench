@@ -40,6 +40,22 @@ Written and committed before any run; validated by `lanes/lanes/experiment.py` (
 | `hosts[]` | strings | host names only |
 | `decision_rule` | object | has a string `kind` (L6 defines the kinds) |
 
+### Climb experiments
+
+`"kind": "climb"` marks a hill-climbing round (others: no `kind`). Extra fields, all required, validated by `experiment.py`:
+
+| field | type | rule |
+|---|---|---|
+| `lanes[]` | objects | exactly two, named `baseline` and `candidate`, same `sha`; they differ by one patch (different `patch`, same `settings`) or by exactly one `settings` entry (same `patch`), never both |
+| `split.train`, `split.test` | strings | non-empty, unique task ids, disjoint; together exactly `tasks` |
+| `min_effect` | number | greater than 0, at most 1: the smallest pass-rate difference worth acting on |
+| `noise_ref` | string | path to a noise record (written by `lanes-noise`; only its shape is checked here) |
+| `round` | integer | ≥ 1 |
+| `parent` | string or null | previous round's `id`; null exactly in round 1 |
+| `decision_rule.kind` | string | `keep_revert` (and only climb experiments may use it) |
+
+`report.json` of a climb run adds `climb`: per split (`train`, `test`) both lanes' `{correct, n, rate, ci}` (Wilson 95%), `unit` (`task`), `tasks`, `pairs`, `candidate_better`, `baseline_better`, `tied`, `difference` (the pass-rate difference: mean over tasks of each task's mean rep difference), `difference_exact` (the same, a decimal or `n/d`), `difference_ci` (Hoeffding 95% over tasks), `pair_difference`; `plumbing` (one row per excluded cell: `cell`, `lane`, `split`, `category`, `outcome`, which is null for test cells), `plumbing_counts`, and `train_failures` (cells of the train split that failed on the task, for the next round; test failures are never listed). Every lane also carries `pass_rate_ci`, `first_green_pass_rate_ci`, `plumbing` counts and `witness_failures_test` (climb: a count; the lane's `outcomes`, `classes`, `plumbing` and `witness_failures` then cover train cells only, and its rates leave plumbing out).
+
 ## Task folder (private)
 
 Lab layout, e.g. `$LAB_NEXT/spec/examples/tasks/rate-go`; schemas `spec/schema/task.json` and `evaluate.json`. Outside the repo; the harness takes its path from a flag or `KOGEN_LANES_TASKS`. `lanes/tests/fixtures/task-mini` is a tiny Go task valid against both schemas.

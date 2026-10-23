@@ -2,7 +2,7 @@
 
 `experiment.json` `decision_rule` is an object with a `kind`, fixed and committed before any run. `lanes-report <run-dir>` applies it exactly as written and prints one verdict line that names the kind, its parameters and the numbers. The arithmetic is exact (rational numbers, no floats); the kinds and their arithmetic are those of the Lab's scoring.
 
-Common fields for every kind except `descriptive`: `baseline` and `candidate`, two different lane names of the experiment. Thresholds (`min_gain_points`, `max_p`, `max_loss_points`, `min_saving_pct`) are numbers or decimal strings; anything else is an error (exit 2).
+Common fields for every kind except `descriptive` and `keep_revert`: `baseline` and `candidate`, two different lane names of the experiment. Thresholds (`min_gain_points`, `max_p`, `max_loss_points`, `min_saving_pct`) are numbers or decimal strings; anything else is an error (exit 2).
 
 ## Outcome classes
 
@@ -21,7 +21,7 @@ For `shape` cells the ending is `ok` and a cell is `correct` when its Intent's m
 
 `correct`, `incorrect` and `workflow_failure` are *counted* (the Lab's denominator); `infrastructure` and `incomplete` are not. Pass rates divide by the counted cells. In the rules, only `correct` is correct, and a block (a task/rep, or a task for `task_sign`) is *ungraded* when either lane's cell there is not counted.
 
-Verdicts: `keep` (the candidate wins by the rule), `reject` (the baseline wins), `unresolved` (neither), `none` (descriptive). Not the Lab's: `incomplete` (a task/rep the rule needs is ungraded on either lane, that is `infrastructure` or `incomplete` there, or a metric value is missing; nothing is guessed), `invalid` (a lane the rule names failed a witness, see below), `invalid_rule` (unknown kind, bad lanes, or a metric that is not a numeric `result.json` or `totals` field).
+Verdicts: `keep` (the candidate wins by the rule), `reject` (the baseline wins), `unresolved` (neither), `none` (descriptive); `keep_revert` says `keep`, `revert`, `within_noise` or `incomplete`. Not the Lab's: `incomplete` (a task/rep the rule needs is ungraded on either lane, that is `infrastructure` or `incomplete` there, or a metric value is missing; nothing is guessed), `invalid` (a lane the rule names failed a witness, see below), `invalid_rule` (unknown kind, bad lanes, or a metric that is not a numeric `result.json` or `totals` field).
 
 Numbers: `gain_points`, `loss_points`, `saving_pct` are rounded half away from zero to two places; `p` is an integer, a finite decimal or `n/d`. Thresholds are decimals given as numbers or strings.
 
@@ -61,6 +61,21 @@ Fields: `max_loss_points` (default 0), `min_saving_pct` (default 0), `metric` (d
 - A null metric (usage missing, price unknown) in any cell makes the verdict `incomplete`.
 
 Example: `{"kind": "cost_at_quality", "baseline": "base", "candidate": "lean", "max_loss_points": 0, "min_saving_pct": 20, "metric": "cost_usd"}`; equal pass rates, median cost 1.00 → 0.70: saving 30.00, `keep`.
+
+## `keep_revert`
+
+For climb experiments only (`"kind": "climb"`, `FORMATS.md`); it takes no fields: the lanes are `baseline` and `candidate`, the tasks come from `split` and the threshold from the experiment's `min_effect` (a pass-rate difference, 0.05 is 5 points).
+
+- **Plumbing** is not a task failure and leaves the quality numbers: `timeout` (an ending starting `timeout`), `truncation` (the ending `context_exhausted`, or one starting `truncat`), `provider_error` (the `provider_failure` endings, or the `provider_failure` flag of the last `outcome` event), `harness` (every other `infrastructure` or `incomplete` cell: host lost, environment, usage, no result, no grade). Everything else counts, including `build_blocked`, `refused`, `no_outcome`. A cell leaves its lane's rate and its pair, in the climb table and in the Lanes table (labelled "plumbing excluded"). They are listed in their own table with counts per lane; non-climb reports list the counts too but keep the Lab's denominator.
+- Per split (`train`, `test`): each lane's pass rate with a **Wilson 95%** interval over its usable cells. **The unit is the task**, not the cell: reps of one task are correlated (a patch that fixes a task usually fixes it in every rep), so counting them as independent pairs would make a few tasks look like many. For each task, its difference is the mean, over its reps usable on both lanes, of candidate minus baseline (1 / 0 / -1 per rep), a value in [-1, 1]. **The difference is the pass-rate difference: the mean of those per-task differences over the split's tasks** (exact, rational; equal to the plain pass-rate difference over pairs when every task has the same number of usable reps). It is what `min_effect`, `drop` and `flat` compare. Its interval is **Hoeffding's 95% interval over tasks**: difference ± 2·sqrt(ln(2/0.05) / (2·tasks)), clipped to [-1, 1]. It is conservative and needs no assumption beyond independent tasks with values in [-1, 1], so few tasks give a wide interval whatever the reps (±0.50 at 30 tasks, ±1.21 at 5); the price is power: a gain must exceed about 0.5 at 30 tasks to exclude zero. The report also shows the counts of candidate-better, baseline-better and tied tasks and `pair_difference` for reference; they decide nothing. A split without a task that has a usable pair makes the verdict `incomplete`.
+- Cases, checked in this order, `improves` meaning difference > `min_effect` and the interval's lower end > 0:
+  1. a negative difference on either split: `revert` (`drop`);
+  2. train and test both improve: `keep` (`improved_both`);
+  3. train improves and the test difference is at most `min_effect` (test flat): `revert` (`overfit`);
+  4. otherwise `within_noise`: within noise; don't merge. This includes a test difference above `min_effect` whose interval spans zero: an underpowered test split (few tasks) is inconclusive, not overfit; its remedy is more test tasks.
+- The verdict line names the case and gives each split's pass-rate difference with its interval, as compared with `min_effect`, and the task and pair counts. Hill-climbing reads the report's `train_failures` only. The report never lists test failures: in climb reports the lane sections' outcomes, classes, plumbing counts and witness failures cover train cells only (a count of test-cell witness failures is shown, not the cells), and plumbing rows of test cells carry no ending.
+
+Example: `min_effect` 0.1; train 5 → 25 passes of 30 tasks and test 5 → 25 of 30 (one rep): both differences +0.67 with intervals [0.17, 1.00], `keep` (`improved_both`). Train 5 → 25 and test 15 → 15: `revert` (`overfit`). Five test tasks of six reps where the candidate fixes four tasks in every rep: +0.80, interval [-0.41, 1.00]: not an improvement, however many reps. Thirty tasks of six reps where the candidate passes one rep more on every task (3 → 4 of 6): +0.17 [-0.33, 0.66], below a `min_effect` of 0.25 and within noise, although every task is candidate-better.
 
 ## `descriptive`
 

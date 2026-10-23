@@ -12,6 +12,7 @@ INTENT_FORMS = ("gherkin", "gherkin-lean", "gherkin-quint", "prose")
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _SHA = re.compile(r"^[0-9a-f]{40}$")
 _ROLE = re.compile(r"^[a-z][a-z0-9_-]*$")
+_MISSING = object()
 _MODEL = re.compile(r"^[^\s/]+/\S+ \S+$")  # "provider/model effort"
 
 
@@ -98,7 +99,72 @@ def validate(exp):
     rule = _kind(exp.get("decision_rule"), dict, "decision_rule", "an object")
     if not isinstance(rule.get("kind"), str) or not rule["kind"]:
         _fail("decision_rule.kind", "must be a non-empty string")
+    if exp.get("kind") not in (None, "climb"):
+        _fail("kind", "must be absent or 'climb'")
+    if exp.get("kind") == "climb":
+        _climb(exp)
+    elif rule["kind"] == "keep_revert":
+        _fail("decision_rule.kind", "keep_revert needs a climb experiment (kind: climb)")
     return exp
+
+
+def _leaves(value, prefix=""):
+    if isinstance(value, dict):
+        return {k: v for key, sub in value.items() for k, v in _leaves(sub, f"{prefix}{key}.").items()}
+    return {prefix.rstrip("."): value}
+
+
+def _climb(exp):
+    """A climb experiment: baseline vs one candidate change, tasks split into train and test."""
+    lanes = exp["lanes"]
+    if [lane["name"] for lane in lanes] != ["baseline", "candidate"]:
+        _fail("lanes", "a climb experiment has exactly two lanes, named baseline and candidate")
+    base, cand = lanes
+    patched = base["patch"] != cand["patch"]
+    old, new = _leaves(base["settings"]), _leaves(cand["settings"])
+    changed = sorted(k for k in old.keys() | new.keys() if old.get(k, _MISSING) != new.get(k, _MISSING))
+    if base["sha"] != cand["sha"]:
+        _fail("lanes", "baseline and candidate must use the same Kogen sha (change the patch or one setting)")
+    if patched and changed:
+        _fail("lanes", "candidate differs by a patch and by settings; change one thing")
+    if not patched and len(changed) != 1:
+        _fail("lanes", "candidate must differ by one patch or exactly one setting "
+                       f"(differs in {len(changed)} settings and no patch)")
+    split = _kind(exp.get("split"), dict, "split", "an object with train and test lists of task ids")
+    ids = {}
+    for part in ("train", "test"):
+        ids[part] = _kind(split.get(part), list, f"split.{part}", "a non-empty list of task ids")
+        if not ids[part]:
+            _fail(f"split.{part}", "must be a non-empty list of task ids")
+        for i, t in enumerate(ids[part]):
+            _name(t, f"split.{part}[{i}]")
+        if len(set(ids[part])) != len(ids[part]):
+            _fail(f"split.{part}", "ids must be unique")
+    if set(ids["train"]) & set(ids["test"]):
+        _fail("split", "train and test must be disjoint")
+    if set(ids["train"]) | set(ids["test"]) != set(exp["tasks"]):
+        _fail("split", "train and test together must be exactly the experiment's tasks")
+    effect = _kind(exp.get("min_effect"), (int, float), "min_effect", "a number (a pass-rate difference)")
+    if not math.isfinite(effect) or not 0 < effect <= 1:
+        _fail("min_effect", "must be greater than 0 and at most 1 (a pass-rate difference)")
+    ref = exp.get("noise_ref")
+    if not isinstance(ref, str) or not ref.strip():
+        _fail("noise_ref", "must be a non-empty path string to a noise record")
+    if _kind(exp.get("round"), int, "round", "an integer") < 1:
+        _fail("round", "must be at least 1")
+    if "parent" not in exp:
+        _fail("parent", "is required (null or the previous round's id)")
+    if exp["parent"] is None:
+        if exp["round"] != 1:
+            _fail("parent", "is required after round 1")
+    else:
+        _name(exp["parent"], "parent")
+        if exp["round"] == 1:
+            _fail("parent", "must be null in round 1")
+        if exp["parent"] == exp["id"]:
+            _fail("parent", "must be another round")
+    if exp["decision_rule"]["kind"] != "keep_revert":
+        _fail("decision_rule.kind", "a climb experiment uses keep_revert")
 
 
 def load(path):

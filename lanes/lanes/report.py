@@ -10,11 +10,11 @@ import os
 import re
 import sys
 from fractions import Fraction
-from math import comb
+from math import comb, exp, lgamma, log, sqrt
 
 from . import common, experiment, usage
 
-RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "descriptive")
+RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
 SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
 COUNTED = ("correct", "incorrect", "workflow_failure")  # the Lab's Outcome.counted?
 THRESHOLDS = ("min_gain_points", "max_p", "max_loss_points", "min_saving_pct")
@@ -27,7 +27,9 @@ DECIMAL = re.compile(r"[+-]?\d+(\.\d+)?([eE][+-]?\d+)?")
 # - `ratio` accepts "n/d" strings and reads inf/nan as 0, where the Lab's decimal pattern rejects
 #   "n/d" and `decimalBound` treats inf as beyond every ratio and nan as always false; `check_rule`
 #   admits only numbers and decimal strings, so neither case reaches a rule;
-# - Kogen's endings are not the Lab's workflow-end strings: `classify` maps them.
+# - Kogen's endings are not the Lab's workflow-end strings: `classify` maps them;
+# - climb reports leave plumbing cells (timeouts, truncations, provider and harness failures) out of the
+#   quality rates, where the Lab counts timeouts and context exhaustion as `workflow_failure`.
 
 
 class ReportError(Exception):
@@ -79,6 +81,74 @@ def median(values):
         return Fraction(0)
     m = len(s) // 2
     return s[m] if len(s) % 2 else (s[m - 1] + s[m]) / 2
+
+
+# ---- confidence intervals (floats; they inform the climb verdict, see DECISION-RULES.md) ---
+
+Z95 = 1.959964
+
+
+def wilson(k, n, z=Z95):
+    """Wilson score interval of k successes in n; None without trials."""
+    if n <= 0:
+        return None
+    p, z2 = k / n, z * z
+    centre = (p + z2 / (2 * n)) / (1 + z2 / n)
+    half = z * sqrt(p * (1 - p) / n + z2 / (4 * n * n)) / (1 + z2 / n)
+    return max(0.0, centre - half), min(1.0, centre + half)
+
+
+def _binom_ge(k, n, p):
+    """P(X >= k), X ~ Binomial(n, p), 0 < p < 1."""
+    return min(1.0, sum(exp(lgamma(n + 1) - lgamma(i + 1) - lgamma(n - i + 1) + i * log(p) + (n - i) * log(1 - p))
+                        for i in range(k, n + 1)))
+
+
+def _solve(f, target, rising):
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if (f(mid) < target) == rising:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def clopper_pearson(k, n, alpha=0.05):
+    """Exact two-sided (1 - alpha) interval of k successes in n; None without trials."""
+    if n <= 0:
+        return None
+    tail = alpha / 2
+    lower = 0.0 if k == 0 else _solve(lambda p: _binom_ge(k, n, p), tail, True)
+    upper = 1.0 if k == n else _solve(lambda p: 1 - _binom_ge(k + 1, n, p), tail, False)
+    return lower, upper
+
+
+def paired_difference_ci(candidate_only, baseline_only, pairs, alpha=0.05):  # `pairs`: the units (tasks)
+    """Exact, conservative interval of the paired pass-rate difference (candidate - baseline).
+
+    Each pair is a candidate-only win (p+), a baseline-only win (p-) or a tie; d = p+ - p-.
+    Clopper-Pearson intervals of p+ and p- at level 1 - alpha/2 each (Bonferroni) give
+    [lo+ - hi-, hi+ - lo-], which holds at level 1 - alpha. Wide for few pairs, on purpose."""
+    if pairs <= 0:
+        return None
+    plus = clopper_pearson(candidate_only, pairs, alpha / 2)
+    minus = clopper_pearson(baseline_only, pairs, alpha / 2)
+    return max(-1.0, plus[0] - minus[1]), min(1.0, plus[1] - minus[0])
+
+
+def hoeffding(mean, n, alpha=0.05, low=-1.0, high=1.0):
+    """Conservative two-sided (1 - alpha) interval of the mean of n independent values in [low, high]:
+    mean +- (high - low) * sqrt(ln(2 / alpha) / (2 n)) (Hoeffding), clipped to the range; None without values."""
+    if n <= 0:
+        return None
+    half = (high - low) * sqrt(log(2 / alpha) / (2 * n))
+    return max(low, float(mean) - half), min(high, float(mean) + half)
+
+
+def _ci_text(ci):
+    return "n/a" if ci is None else f"[{ci[0]:.2f}, {ci[1]:.2f}]"
 
 
 # ---- rule kinds (the Lab's Decision.decide) ---------------------------------------------
@@ -218,28 +288,36 @@ def _green_pass(evaluation):
     return any(isinstance(t, dict) and t.get("all_passed") is True for t in (evaluation or {}).get("pass_trees") or [])
 
 
-def _lane(lane, cells, phase):
+def _lane(lane, cells, phase, part=None):
+    """`part`: task -> split of a climb experiment. Then the rates leave plumbing cells out, and the
+    outcome, class, plumbing and witness details cover train cells only (test details stay out)."""
     own = [c for c in cells if c["plan"]["lane"] == lane["name"]]
     finished = [c for c in own if c["result"]]
-    counted = [c for c in own if c["class"] in COUNTED]  # the Lab's denominator
+    counted = [c for c in own if c["class"] in COUNTED and not (part and plumbing(c))]  # the Lab's denominator
+    shown = [c for c in own if not part or part.get(c["plan"]["task"]) == "train"]
     graded = [c["evaluation"] for c in own if c["evaluation"] is not None]
     totals = [c["result"].get("totals") or {} for c in finished]
     stages = collections.defaultdict(list)
     for c in finished:
         for s in c["result"].get("stages") or []:
             stages[s["stage"]].append(s)
-    witness = [f"{c['plan']['cell']}: {f}" for c in finished  # a cell that never ran has no log
-               for f in check_witnesses(lane.get("expect"), c["log"])]
+    found = [(c, f) for c in finished  # a cell that never ran has no log
+             for f in check_witnesses(lane.get("expect"), c["log"])]
+    witness = [f"{c['plan']['cell']}: {f}" for c, f in found if c in shown]
+    hidden = sum(1 for c, _ in found if c not in shown)
     shaped = [e for e in graded if all(isinstance(e.get(k), int) for k in SHAPE_KEYS)]
     rate = lambda n: round(n / len(counted), 4) if counted else None
     return {
         "name": lane["name"], "sha": lane.get("sha"), "patch": lane.get("patch"),
-        "valid": not witness, "witness_failures": witness,
+        "valid": not found, "witness_failures": witness, "witness_failures_test": hidden,
         "cells": {"planned": len(own), "finished": len(finished), "graded": len(graded)},
-        "outcomes": dict(collections.Counter(str(c["result"].get("outcome")) for c in finished)),
-        "classes": dict(sorted(collections.Counter(c["class"] for c in own).items())),
+        "outcomes": dict(collections.Counter(str(c["result"].get("outcome")) for c in finished if c in shown)),
+        "classes": dict(sorted(collections.Counter(c["class"] for c in shown).items())),
         "pass_rate": rate(sum(1 for c in counted if c["class"] == "correct")),
+        "pass_rate_ci": wilson(sum(1 for c in counted if c["class"] == "correct"), len(counted)),
         "first_green_pass_rate": rate(sum(1 for c in counted if _green_pass(c["evaluation"]))),
+        "first_green_pass_rate_ci": wilson(sum(1 for c in counted if _green_pass(c["evaluation"])), len(counted)),
+        "plumbing": dict(sorted(collections.Counter(p for p in map(plumbing, shown) if p).items())),
         # usage.py read totals.models from the run log
         "models": sorted({m for t in totals for m in t.get("models") or []}),
         "totals": _sums(totals),
@@ -269,6 +347,8 @@ def apply_rule(rule, cells, lanes):
         return out("invalid_rule", "unknown kind")
     if kind == "descriptive":
         return out("none", "no decision, results only")
+    if kind == "keep_revert":
+        return out("invalid_rule", "keep_revert needs a climb experiment (kind: climb)")
     base, cand = rule.get("baseline"), rule.get("candidate")
     by_name = {l["name"]: l for l in lanes}
     if base not in by_name or cand not in by_name or base == cand:
@@ -318,6 +398,125 @@ def apply_rule(rule, cells, lanes):
     return res
 
 
+# ---- plumbing and the climb rule ---------------------------------------------------------
+
+PLUMBING = ("timeout", "provider_error", "truncation", "harness")
+TRUNCATION = re.compile(r"truncat\w*|context_exhausted")  # Kogen's endings (build.ex); anchored with fullmatch
+
+
+def plumbing(cell):
+    """The plumbing category of a cell (not a task failure), or None."""
+    ending = (cell["result"] or {}).get("outcome")
+    if isinstance(ending, str) and ending not in ("landed", "ok"):
+        if ending.startswith("timeout"):
+            return "timeout"
+        if TRUNCATION.fullmatch(ending):
+            return "truncation"
+        if ending.startswith("provider_failure") or any(
+                e.get("provider_failure") for e in cell["log"] if e.get("event") == "outcome"):
+            return "provider_error"
+    return "harness" if cell["class"] in ("infrastructure", "incomplete") else None
+
+
+def _split_of(exp):
+    return {t: part for part in ("train", "test") for t in exp["split"][part]}
+
+
+def _rate(k, n):
+    return {"correct": k, "n": n, "rate": round(k / n, 4) if n else None, "ci": wilson(k, n)}
+
+
+def climb_report(cells, exp):
+    """Per split: Wilson rates of both lanes and the paired difference, over cells without plumbing."""
+    part = _split_of(exp)
+    out = {"min_effect": exp["min_effect"], "plumbing": [], "splits": {}, "train_failures": []}
+    usable = {}
+    for c in cells:
+        cat = plumbing(c)
+        key = (c["plan"]["lane"], c["plan"]["task"], c["plan"]["rep"])
+        if cat:
+            out["plumbing"].append({"cell": c["plan"]["cell"], "lane": key[0], "split": part.get(key[1]),
+                                    "category": cat, "outcome": (c["result"] or {}).get("outcome")
+                                    if part.get(key[1]) == "train" else None})
+        elif key[1] in part:
+            usable[key] = c["class"] == "correct"
+            if part[key[1]] == "train" and c["class"] != "correct":
+                out["train_failures"].append({"cell": c["plan"]["cell"], "lane": key[0], "class": c["class"],
+                                              "outcome": (c["result"] or {}).get("outcome")})
+    for name in ("train", "test"):
+        res = {}
+        for lane in ("baseline", "candidate"):
+            v = [ok for (l, t, _), ok in usable.items() if l == lane and part[t] == name]
+            res[lane] = _rate(sum(v), len(v))
+        # the task is the unit: its reps (usable on both lanes) average into one difference
+        per_task = collections.defaultdict(list)
+        for (l, t, r) in sorted(usable):
+            if l == "candidate" and part[t] == name and ("baseline", t, r) in usable:
+                per_task[t].append(int(usable[(l, t, r)]) - int(usable[("baseline", t, r)]))
+        mean = {t: Fraction(sum(d), len(d)) for t, d in per_task.items()}
+        b = sum(1 for m in mean.values() if m > 0)
+        o = sum(1 for m in mean.values() if m < 0)
+        pairs = sum(len(d) for d in per_task.values())
+        # the pass-rate difference: the mean over tasks of each task's mean rep difference
+        diff = sum(mean.values(), Fraction(0)) / len(mean) if mean else None
+        res.update({"unit": "task", "tasks": len(mean), "pairs": pairs, "candidate_better": b, "baseline_better": o,
+                    "tied": len(mean) - b - o,
+                    "difference": None if diff is None else round(float(diff), 4),
+                    "difference_exact": None if diff is None else ratio_decimal(diff),
+                    "pair_difference": round(sum(sum(d) for d in per_task.values()) / pairs, 4) if pairs else None,
+                    "difference_ci": hoeffding(diff, len(mean)) if mean else None})
+        out["splits"][name] = res
+    out["plumbing"].sort(key=lambda r: r["cell"])
+    out["plumbing_counts"] = {lane: {cat: sum(1 for r in out["plumbing"] if r["lane"] == lane and r["category"] == cat)
+                                     for cat in PLUMBING} for lane in ("baseline", "candidate")}
+    return out
+
+
+def keep_revert(splits, min_effect):
+    """`splits`: {train, test: {tasks, difference_exact, difference_ci}}; decision and case.
+    The pass-rate difference is exact (`difference_exact`, a decimal or n/d); the interval is float."""
+    if any(s["tasks"] == 0 for s in splits.values()):
+        return {"decision": "incomplete", "case": "no_pairs"}
+    diff = {n: ratio(s["difference_exact"]) for n, s in splits.items()}
+    gains = {n: diff[n] > ratio(min_effect) and splits[n]["difference_ci"][0] > 0  # beats min_effect, interval excludes zero
+             for n in splits}
+    if any(d < 0 for d in diff.values()):
+        return {"decision": "revert", "case": "drop"}
+    if gains["train"] and gains["test"]:
+        return {"decision": "keep", "case": "improved_both"}
+    if gains["train"] and diff["test"] <= ratio(min_effect):  # test flat; a larger gain with a wide interval is noise
+        return {"decision": "revert", "case": "overfit"}
+    return {"decision": "within_noise", "case": "within_noise"}
+
+
+def _climb_verdict(rep, exp, lanes):
+    res = {"kind": "keep_revert", "baseline": "baseline", "candidate": "candidate", "params": {}}
+    bad = [l["name"] for l in lanes if not l["valid"]]
+    if bad:
+        return {**res, "decision": "invalid", "line": f"Rule keep_revert: INVALID: lane {', '.join(bad)} failed a witness"}
+    r = keep_revert(rep["splits"], exp["min_effect"])
+    nums = "; ".join(
+        f"{n} {_diff_text(s)} ({s['tasks']} tasks, {s['pairs']} pairs, candidate-better {s['candidate_better']}, "
+        f"baseline-better {s['baseline_better']})"
+        for n, s in rep["splits"].items())
+    words = {"improved_both": "train and test both improved by more than min_effect with intervals above zero",
+             "overfit": "train improved, test flat (at most min_effect): overfit, revert",
+             "drop": "a split dropped: revert",
+             "within_noise": "within noise; don't merge",
+             "no_pairs": "a split has no task with a usable pair of cells (plumbing excluded)"}[r["case"]]
+    shown = {"within_noise": "WITHIN NOISE"}.get(r["decision"], r["decision"].upper())
+    res.update(r)
+    res["line"] = (f"Rule keep_revert (candidate vs baseline, min_effect {exp['min_effect']}): {shown} "
+                   f"[{r['case']}]: {words}; pass-rate differences (task unit, Hoeffding 95%) vs min_effect "
+                   f"{exp['min_effect']}: {nums}")
+    return res
+
+
+def _diff_text(s):
+    d = s["difference"]
+    return "n/a" if d is None else f"{float(d):+.2f} {_ci_text(s['difference_ci'])}"
+
+
 # ---- report -----------------------------------------------------------------------------
 
 def check_rule(rule):
@@ -336,9 +535,15 @@ def report(run_dir):
         raise ReportError(f"experiment error: {e}") from None
     check_rule(exp["decision_rule"])
     cells = _load_cells(run_dir, exp["phase"])
-    lanes = [_lane(l, cells, exp["phase"]) for l in exp["lanes"]]
-    return {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"],
-            "verdict": apply_rule(exp["decision_rule"], cells, lanes), "lanes": lanes}
+    part = _split_of(exp) if exp.get("kind") == "climb" else None
+    lanes = [_lane(l, cells, exp["phase"], part) for l in exp["lanes"]]
+    rep = {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"], "lanes": lanes}
+    if exp.get("kind") == "climb":
+        rep["climb"] = climb_report(cells, exp)
+        rep["verdict"] = _climb_verdict(rep["climb"], exp, lanes)
+    else:
+        rep["verdict"] = apply_rule(exp["decision_rule"], cells, lanes)
+    return rep
 
 
 COLS = [("requests", "requests"), ("input_tokens", "input"), ("cached_input_tokens", "cached"),
@@ -354,21 +559,54 @@ def _table(heads, rows):
     return [_row(heads), "|" + "---|" * len(heads)] + [_row(r) for r in rows]
 
 
+def _rate_text(rate, ci):
+    return None if rate is None else f"{rate} {_ci_text(ci)}"
+
+
+def _render_climb(c):
+    out = ["", "## Climb", "", "Rates are Wilson 95% over cells. The unit of the difference is the task: each task's "
+           "difference is the mean over its reps of candidate minus baseline (cells with plumbing failures "
+           "excluded); the difference is the pass-rate difference, the mean of those over tasks, compared with "
+           "min_effect, with a conservative Hoeffding 95% interval over tasks (values in [-1, 1]). "
+           f"min_effect {c['min_effect']}.", ""]
+    rows = [[n, s["baseline"]["n"], _rate_text(s["baseline"]["rate"], s["baseline"]["ci"]), s["candidate"]["n"],
+             _rate_text(s["candidate"]["rate"], s["candidate"]["ci"]), s["tasks"], s["pairs"], _diff_text(s)]
+            for n, s in c["splits"].items()]
+    out += _table(["split", "baseline cells", "baseline rate", "candidate cells", "candidate rate", "tasks",
+                   "pairs", "difference (task unit)"], rows)
+    out += ["", "### Plumbing failures (excluded from the rates above)", ""]
+    out += _table(["cell", "lane", "split", "category", "outcome"],
+                  [[r["cell"], r["lane"], r["split"], r["category"], r["outcome"]] for r in c["plumbing"]]) \
+        if c["plumbing"] else ["none"]
+    out += ["", "### Train failures for the next round", ""]
+    out += _table(["cell", "lane", "class", "outcome"],
+                  [[r["cell"], r["lane"], r["class"], r["outcome"]] for r in c["train_failures"]]) \
+        if c["train_failures"] else ["none"]
+    return out
+
+
 def render(rep):
     out = [f"# Report: {rep['experiment']} ({rep['phase']})", "", f"**Verdict:** {rep['verdict']['line']}", "",
            "## Lanes", ""]
-    out += _table(["lane", "valid", "cells planned/finished/graded", "pass rate", "first-green-pass rate"]
+    note = " (plumbing excluded)" if "climb" in rep else ""
+    out += _table(["lane", "valid", "cells planned/finished/graded", "pass rate" + note, "first-green-pass rate" + note]
                   + [h for _, h in COLS],
                   [[l["name"], "yes" if l["valid"] else "INVALID", "/".join(str(v) for v in l["cells"].values()),
-                    l["pass_rate"], l["first_green_pass_rate"]] + [l["totals"][k] for k, _ in COLS]
+                    _rate_text(l["pass_rate"], l["pass_rate_ci"]),
+                    _rate_text(l["first_green_pass_rate"], l["first_green_pass_rate_ci"])] + [l["totals"][k] for k, _ in COLS]
                    for l in rep["lanes"]])
+    if "climb" in rep:
+        out += _render_climb(rep["climb"])
+    scope = " (train cells)" if "climb" in rep else ""
     for l in rep["lanes"]:
         out += ["", f"### {l['name']}", "", f"- sha `{l['sha']}`, patch {l['patch'] or 'none'}",
                 f"- models (run log): {', '.join(l['models']) or 'none logged'}",
-                f"- outcomes: {', '.join(f'{k} {v}' for k, v in sorted(l['outcomes'].items())) or 'none'}",
-                f"- classes: {', '.join(f'{k} {v}' for k, v in l['classes'].items()) or 'none'}"]
+                f"- outcomes{scope}: {', '.join(f'{k} {v}' for k, v in sorted(l['outcomes'].items())) or 'none'}",
+                f"- classes{scope}: {', '.join(f'{k} {v}' for k, v in l['classes'].items()) or 'none'}",
+                f"- plumbing{scope}: {', '.join(f'{k} {v}' for k, v in l['plumbing'].items()) or 'none'}"]
         out += [f"- cost notes: {'; '.join(l['cost_reasons'])}"] if l["cost_reasons"] else []
         out += [f"- WITNESS FAILED: {w}" for w in l["witness_failures"]]
+        out += [f"- WITNESS FAILED on {l['witness_failures_test']} test cells (not listed)"] if l["witness_failures_test"] else []
         if l["shape"]:
             out.append("- shape: " + ", ".join(f"{k} {'n/a' if v is None else v}" for k, v in l["shape"].items()))
         if l["stages"]:
