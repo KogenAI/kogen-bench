@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from export_results import FIELDS
 from privacy import contains_private_path
+from published_hidden import allowed as published_hidden_allowed, plan_publication_spans
 from pass_counts import collect_planned_task_pairs, markdown_tables, self_test as pass_count_self_test, validate_all_round_pages
 from audit_round70_evidence import audit as audit_round70_evidence, self_test as round70_evidence_self_test
 from r70_completeness import audit as audit_r70_completeness, self_test as r70_completeness_self_test
@@ -203,6 +204,8 @@ def publication_scan_findings(text, relative_path):
             allowed_spans.extend(match.span() for match in TASK_REFERENCE_PATCH_EVIDENCE.finditer(text))
             allowed_spans.extend(match.span() for match in TASK_UPSTREAM_PATCH_PATH.finditer(text))
             allowed_spans.extend(match.span() for match in TASK_SEALED_PATCH_EVIDENCE.finditer(text))
+        if label=='private-source artifact reference':
+            allowed_spans.extend(plan_publication_spans(text,relative_path))
         if label=='private-source artifact reference' and relative_path=='RAILS-AI-EVALS-COMPARISON.md':
             allowed_spans.extend(match.span() for match in TASK_COMPARISON_PATCH_PATH.finditer(text))
         scan_text=path_scan_text if label=='home path' else text
@@ -1257,7 +1260,7 @@ def validate_publication_privacy():
         if unregistered_round_path(path):continue
         if '.git' in path.parts or path.is_dir() or path.is_symlink():continue
         if private_or_sealed_path(path):
-            if path.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in path.parts):
+            if (path.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in path.parts)) and not published_hidden_allowed(path,ROOT):
                 check(False,'Forbidden private/sealed artifact present: '+str(path.relative_to(ROOT)))
             continue
         if not path.is_file():continue
@@ -1380,7 +1383,7 @@ for f in repository_files():
         continue
     if not f.is_file():continue
     if private_or_sealed_path(f):
-        if f.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in f.parts):
+        if (f.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in f.parts)) and not published_hidden_allowed(f,ROOT):
             check(False,'Forbidden artifact '+str(f.relative_to(ROOT)))
         continue
     files+=1

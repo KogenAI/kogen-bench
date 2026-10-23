@@ -205,6 +205,48 @@ class Export(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("tasks/task-mini/hidden_tests", r.stderr)
 
+    def test_publish_private_marks_the_plan_closed_with_the_file_hashes(self):
+        self.assertEqual(self.export().returncode, 0)
+        before = common.read_json(os.path.join(self.out, "PLAN.json"))
+        self.assertNotIn("publication", before)
+        self.assertEqual(self.export("--publish-private").returncode, 0)
+        plan = common.read_json(os.path.join(self.out, "PLAN.json"))
+        self.assertEqual({k: v for k, v in plan.items() if k != "publication"}, before)
+        pub = plan["publication"]
+        self.assertIs(pub["closed"], True)
+        self.assertRegex(pub["closed_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+        rel = "reproduce/tasks/task-mini/evaluator/"
+        self.assertIn(rel + "evaluate.toml", pub["files"])
+        for name, digest in pub["files"].items():
+            self.assertTrue(name.startswith(rel))
+            self.assertEqual(common.sha256_file(os.path.join(self.out, name)), digest)
+        self.assertEqual(common.sha256_tree(os.path.join(self.out, rel)), plan["hashes"]["tasks"]["task-mini"]["hidden_tests"])
+        self.assertEqual(self.export("--publish-private").returncode, 0)
+        self.assertEqual(common.read_json(os.path.join(self.out, "PLAN.json"))["publication"], pub)
+
+    def test_publish_private_mismatch_leaves_the_plan_unmarked(self):
+        self.assertEqual(self.export().returncode, 0)
+        hidden = glob.glob(os.path.join(self.tasks, "task-mini", "evaluator", "files", "**", "*.go"), recursive=True)[0]
+        with open(hidden, "a") as f:
+            f.write("// changed\n")
+        r = self.export("--publish-private")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("private inputs differ from PLAN.json", r.stderr)
+        self.assertNotIn("publication", common.read_json(os.path.join(self.out, "PLAN.json")))
+
+    def test_published_hidden_files_refuses_a_staged_folder_that_differs_from_the_plan(self):
+        stage = os.path.join(self.tmp, "stage", "reproduce")
+        folder = os.path.join(stage, "tasks", "t", "evaluator")
+        os.makedirs(folder)
+        with open(os.path.join(folder, "a.txt"), "w") as f:
+            f.write("a")
+        plan = {"hashes": {"tasks": {"t": {"hidden_tests": common.sha256_tree(folder)}}}}
+        self.assertEqual(list(export.published_hidden_files(stage, plan, ["t"])), ["reproduce/tasks/t/evaluator/a.txt"])
+        with open(os.path.join(folder, "a.txt"), "w") as f:
+            f.write("b")
+        with self.assertRaisesRegex(export.ExportError, "published hidden tests differ"):
+            export.published_hidden_files(stage, plan, ["t"])
+
     def test_publish_private_twice_gives_identical_trees_with_cell_trees(self):
         for cell in ("task-mini/r0/base", "task-mini/r0/patched"):
             cd = common.cell_dir(self.run_dir, cell)

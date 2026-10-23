@@ -587,6 +587,44 @@ def published_cell(reproduce_root, cell):
     return os.path.join(reproduce_root, "cells", *cell.split("/"))
 
 
+def now_utc():
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def published_hidden_files(stage, plan, task_ids):
+    """sha256 of every file under each published `evaluator/`, keyed by its path relative to the round.
+    Refuses when a published evaluator/ folder no longer hashes to the pre-run `hidden_tests` hash in PLAN.
+    The source was checked just before the copy, so this guards the copy itself (a change in between)."""
+    files, bad = {}, []
+    for task in task_ids:
+        folder = os.path.join(stage, "tasks", task, "evaluator")
+        if common.sha256_tree(folder) != plan["hashes"]["tasks"][task]["hidden_tests"]:
+            bad.append(f"reproduce/tasks/{task}/evaluator")
+        for d, _, names in os.walk(folder):
+            for name in names:
+                path = os.path.join(d, name)
+                files["/".join(("reproduce", os.path.relpath(path, stage).replace(os.sep, "/")))] = common.sha256_file(path)
+    if bad:
+        raise ExportError("published hidden tests differ from the PLAN.json hashes (nothing was published): " + ", ".join(bad))
+    return dict(sorted(files.items()))
+
+
+def rebind_records(out, old_sha, new_sha):
+    """The marker changes PLAN.json's file hash; point each record's `manifest_sha256` at the published file
+    (reproduce.py checks it). Records are only touched when they name the previous PLAN.json hash."""
+    path = os.path.join(out, "records.jsonl")
+    if old_sha == new_sha or not os.path.isfile(path):
+        return
+    rows = common.read_jsonl(path)
+    for r in rows:
+        prov = r.get("provenance", {})
+        if prov.get("manifest_sha256") == old_sha:
+            prov["manifest_sha256"] = new_sha
+    with open(path, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, sort_keys=True, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+
 def publish_private(run_dir, out, tasks):
     """Check the private inputs against the PLAN hashes, then copy them and each graded cell's trees into the round.
     The whole `reproduce/` folder is built aside and swapped in, so a re-run yields the same files."""
@@ -623,6 +661,7 @@ def publish_private(run_dir, out, tasks):
                     shutil.copytree(os.path.join(src, name), os.path.join(dest, name))
                 elif os.path.isfile(os.path.join(src, name)):
                     shutil.copyfile(os.path.join(src, name), os.path.join(dest, name))
+        files = published_hidden_files(stage, plan, exp["tasks"])
         dest = os.path.join(out, "reproduce")
         if os.path.isdir(dest):
             os.rename(dest, os.path.join(work, "previous"))
@@ -632,6 +671,10 @@ def publish_private(run_dir, out, tasks):
             if os.path.isdir(os.path.join(work, "previous")):
                 os.rename(os.path.join(work, "previous"), dest)
             raise
+        old_sha = common.sha256_file(os.path.join(out, "PLAN.json"))
+        plan["publication"] = {"closed": True, "closed_at": plan.get("publication", {}).get("closed_at") or now_utc(), "files": files}
+        common.write_json(os.path.join(out, "PLAN.json"), plan)
+        rebind_records(out, old_sha, common.sha256_file(os.path.join(out, "PLAN.json")))
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
