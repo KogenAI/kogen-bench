@@ -167,8 +167,16 @@ def _climb(exp):
             _fail("parent", "must be null in round 1")
         if exp["parent"] == exp["id"]:
             _fail("parent", "must be another round")
-    if exp["decision_rule"]["kind"] != "keep_revert":
+    rule = exp["decision_rule"]
+    if rule["kind"] != "keep_revert":
         _fail("decision_rule.kind", "a climb experiment uses keep_revert")
+    if "improves" in rule:
+        imp = _kind(rule["improves"], dict, "decision_rule.improves", 'an object like {"test": "task_sign", "max_p": 0.1}')
+        if set(imp) != {"test", "max_p"} or imp["test"] != "task_sign":
+            _fail("decision_rule.improves", 'must be {"test": "task_sign", "max_p": p} and nothing else')
+        p = imp["max_p"]
+        if isinstance(p, bool) or not isinstance(p, (int, float)) or not 0 < p < 1:
+            _fail("decision_rule.improves.max_p", "must be a number greater than 0 and less than 1")
 
 
 def load(path):

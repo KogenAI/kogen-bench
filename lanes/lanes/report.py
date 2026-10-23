@@ -474,14 +474,26 @@ def climb_report(cells, exp):
     return out
 
 
-def keep_revert(splits, min_effect):
-    """`splits`: {train, test: {tasks, difference_exact, difference_ci}}; decision and case.
-    The pass-rate difference is exact (`difference_exact`, a decimal or n/d); the interval is float."""
+def task_sign_p(split):
+    """`(k, n, p)` of a split: k candidate-better of n untied tasks, p = P(X >= k), X ~ Binomial(n, 1/2), exact."""
+    k = split["candidate_better"]
+    n = k + split["baseline_better"]
+    return k, n, binomial_tail(k, n)
+
+
+def keep_revert(splits, min_effect, improves=None):
+    """`splits`: {train, test: {tasks, difference_exact, difference_ci, candidate_better, baseline_better}};
+    decision and case. The pass-rate difference is exact (`difference_exact`, a decimal or n/d); the interval
+    is float. `improves` (`{"test": "task_sign", "max_p": p}`) swaps the interval for the exact sign test over tasks."""
     if any(s["tasks"] == 0 for s in splits.values()):
         return {"decision": "incomplete", "case": "no_pairs"}
     diff = {n: ratio(s["difference_exact"]) for n, s in splits.items()}
-    gains = {n: diff[n] > ratio(min_effect) and splits[n]["difference_ci"][0] > 0  # beats min_effect, interval excludes zero
-             for n in splits}
+    if improves:
+        gains = {n: diff[n] > ratio(min_effect) and task_sign_p(splits[n])[2] <= ratio(improves["max_p"])
+                 for n in splits}
+    else:
+        gains = {n: diff[n] > ratio(min_effect) and splits[n]["difference_ci"][0] > 0  # beats min_effect, interval excludes zero
+                 for n in splits}
     if any(d < 0 for d in diff.values()):
         return {"decision": "revert", "case": "drop"}
     if gains["train"] and gains["test"]:
@@ -496,7 +508,10 @@ def _climb_verdict(rep, exp, lanes):
     bad = [l["name"] for l in lanes if not l["valid"]]
     if bad:
         return {**res, "decision": "invalid", "line": f"Rule keep_revert: INVALID: lane {', '.join(bad)} failed a witness"}
-    r = keep_revert(rep["splits"], exp["min_effect"])
+    improves = exp["decision_rule"].get("improves")
+    r = keep_revert(rep["splits"], exp["min_effect"], improves)
+    if improves:
+        return _sign_verdict(res, r, rep, exp, improves)
     nums = "; ".join(
         f"{n} {_diff_text(s)} ({s['tasks']} tasks, {s['pairs']} pairs, candidate-better {s['candidate_better']}, "
         f"baseline-better {s['baseline_better']})"
@@ -511,6 +526,29 @@ def _climb_verdict(rep, exp, lanes):
     res["line"] = (f"Rule keep_revert (candidate vs baseline, min_effect {exp['min_effect']}): {shown} "
                    f"[{r['case']}]: {words}; pass-rate differences (task unit, Hoeffding 95%) vs min_effect "
                    f"{exp['min_effect']}: {nums}")
+    return res
+
+
+def _sign_verdict(res, r, rep, exp, improves):
+    """The task_sign flavour of the climb verdict line: k/n and p of each split instead of the interval."""
+    def split_text(n, s):
+        k, m, p = task_sign_p(s)
+        return (f"{n} {float(s['difference']):+.2f} (sign test {k}/{m} tasks candidate-better, p {float(p):.4f}; "
+                f"{s['tasks']} tasks, {s['pairs']} pairs)") if s["difference"] is not None else f"{n} n/a"
+    nums = "; ".join(split_text(n, s) for n, s in rep["splits"].items())
+    words = {"improved_both": "train and test both improved by more than min_effect with a sign test p at most max_p",
+             "overfit": "train improved, test flat (at most min_effect): overfit, revert",
+             "drop": "a split dropped: revert",
+             "within_noise": "within noise; don't merge",
+             "no_pairs": "a split has no task with a usable pair of cells (plumbing excluded)"}[r["case"]]
+    shown = {"within_noise": "WITHIN NOISE"}.get(r["decision"], r["decision"].upper())
+    res.update(r)
+    res["params"] = {"improves": improves}
+    res["sign"] = {n: dict(zip(("k", "n", "p"), (k, m, float(p)))) for n, (k, m, p) in
+                   ((n, task_sign_p(s)) for n, s in rep["splits"].items())}
+    res["line"] = (f"Rule keep_revert (candidate vs baseline, min_effect {exp['min_effect']}, improves task_sign "
+                   f"max_p {improves['max_p']}): {shown} [{r['case']}]: {words}; pass-rate differences (task unit, "
+                   f"exact one-sided sign test over tasks) vs min_effect {exp['min_effect']}: {nums}")
     return res
 
 
