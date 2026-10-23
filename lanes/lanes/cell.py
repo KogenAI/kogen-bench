@@ -8,6 +8,7 @@ tests (`evaluator/`) are never copied anywhere the run can see. `result.json` is
 
 import argparse
 import datetime
+import fcntl
 import glob
 import os
 import re
@@ -26,6 +27,7 @@ IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
 CARD_HASH = re.compile(r"^SHA-256:\s*([0-9a-f]{64})\s*$", re.M)
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+MIN_NODE = 22  # install.sh: Quint and the acceptance bridge run on Node 22 or newer
 ERROR_LINE = re.compile(r"^([a-z_]+/[a-z_]+):", re.M)
 INTENT_FILES = ("intent.md", "acceptance.feature")  # and model.*: these live in the Intent folder
 # Exit code -> outcome (FORMATS Kogen exit codes); a build's last `outcome` event wins over these.
@@ -93,6 +95,48 @@ def _unpack(archive):
         except OSError:  # another cell unpacked it first
             shutil.rmtree(tmp, ignore_errors=True)
     return dest
+
+
+def _probe_node(path):
+    """`(execPath, version)` of a Node, or None when it does not run."""
+    with tempfile.TemporaryFile("w+") as out, open(os.devnull) as fi:
+        code, timed_out = common.run(
+            [path, "-p", "process.execPath + '\\n' + process.versions.node"], stdin=fi, stdout=out, deadline_s=20)
+        out.seek(0)
+        lines = out.read().split("\n")
+    return None if code or timed_out or len(lines) < 2 else (lines[0], lines[1])
+
+
+def release_root(kogen):
+    """The unpacked release folder (install.sh's `$lib`) that holds this `kogen`, or None."""
+    root = os.path.dirname(os.path.dirname(kogen))
+    return root if os.path.isfile(os.path.join(root, "install.sh")) else None
+
+
+def ensure_node_path(root):
+    """Do what install.sh does for Node, without the download: `<root>/node-path` names a Node >= 22 on PATH.
+
+    Returns `{"path", "version"}`. The file is rewritten under a lock when it names another Node.
+    """
+    found = shutil.which("node")
+    node = _probe_node(found) if found else None
+    if not node or int(node[1].split(".")[0]) < MIN_NODE:
+        have = f"found node {node[1]} at {found}" if node else "no working node on PATH"
+        raise CellError(f"environment: Kogen's Quint and acceptance bridge need Node {MIN_NODE} or newer "
+                        f"on PATH ({have}); install it, then rerun")
+    path = os.path.join(root, "node-path")
+    with open(root + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            with open(path) as f:
+                current = f.read().strip()
+        except OSError:
+            current = None
+        if current != node[0]:
+            with open(path + ".tmp", "w") as f:
+                f.write(node[0] + "\n")
+            os.replace(path + ".tmp", path)
+    return {"path": node[0], "version": node[1]}
 
 
 def resolve_kogen(run_dir, lane, artifact=None):
@@ -252,6 +296,8 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     if os.path.exists(os.path.join(out, "result.json")) and not force:
         raise CellError(f"{cell} is already done (result.json exists); use --force to rerun")
     kogen = resolve_kogen(run_dir, lane_name, artifact)
+    root = release_root(kogen)  # an unpacked release: install.sh's Node step, never a download
+    node = ensure_node_path(root) if root else None
     with open(os.path.join(task, "task.toml"), "rb") as f:
         task_toml = tomllib.load(f)
     slug = task_toml.get("name")
@@ -268,7 +314,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     os.makedirs(out)
     tmp = tempfile.mkdtemp(prefix="lanes-cell-")
     try:
-        return _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host)
+        return _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
     finally:
         if keep:
             print(f"kept workspace: {os.path.join(tmp, 'ws')}", file=sys.stderr)
@@ -331,7 +377,7 @@ def save_intent(ws, slug, dest):
             shutil.copyfile(path, os.path.join(dest, rel))
 
 
-def _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host):
+def _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
     phase = exp["phase"]
     ws = os.path.join(tmp, "ws")
     make_workspace(ws, tmp, os.path.join(task, "start"), config)
@@ -355,10 +401,10 @@ def _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host):
         ok = intent_hash is not None
     if ok and phase != "shape":
         c.record("build", [c.invoke(["intent", "build", slug])])
-    return _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host)
+    return _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host, node)
 
 
-def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host):
+def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host, node):
     runs = sorted(glob.glob(os.path.join(ws, ".kogen", "local", "runs", "*")))
     if len(runs) > 1:
         raise CellError(f"{cell}: {len(runs)} build runs in one cell; a cell runs one build")
@@ -384,7 +430,7 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
             rec["outcome"] = outcomes[rec["stage"]]
     result = {"cell": cell, "lane": lane_name, "phase": exp["phase"], "exit_code": c.commands[-1]["exit_code"],
               "outcome": command_outcome(c.commands[-1], events), "started": started, "ended": now(),
-              "wall_s": round(time.monotonic() - t0, 3), "kogen_version": version,
+              "wall_s": round(time.monotonic() - t0, 3), "kogen_version": version, "node": node,
               "final_tree": final_tree, "pass_trees": list(dict.fromkeys(trees)),
               "intent_hash": intent_hash, "host": host, **stages}
     common.write_json(os.path.join(out, "result.json"), result)

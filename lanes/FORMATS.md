@@ -86,7 +86,7 @@ cells/<task>/r<rep>/<lane>/
   result.json  run-log/  final-tree.tar  intent/  stdout.txt  stderr.txt  evaluation.json
 ```
 
-- `result.json`: `{cell, lane, phase, exit_code, outcome, started, ended, wall_s, kogen_version, final_tree, pass_trees: [], intent_hash, host, stages, totals}`; `stages` and `totals` are described under Stage records.
+- `result.json`: `{cell, lane, phase, exit_code, outcome, started, ended, wall_s, kogen_version, node: {path, version} | null (the Node of an unpacked release's `node-path`), final_tree, pass_trees: [], intent_hash, host, stages, totals}`; `stages` and `totals` are described under Stage records.
 - `run-log/`: copy of Kogen's run folder. `final-tree.tar`: `git archive` of the final tree. `intent/`: the Intent (shape and e2e).
 - `evaluation.json`: added by the grader (L4).
 

@@ -1,3 +1,4 @@
+import glob
 import io
 import json
 import os
@@ -435,6 +436,67 @@ class CellTest(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(len(os.listdir(os.path.join(self.home, "unpacked"))), 1)
         self.assertEqual(self.done(run, "b")[1]["kogen_version"], "kogen fake0000 (2026-01-01)")
+
+    def release(self, with_install=True):
+        """A release archive with install.sh's layout (`kogen-x/{install.sh,bin/kogen}`) in a lock-less artifact folder."""
+        folder = os.path.join(self.tmp, "artifact")
+        os.makedirs(folder, exist_ok=True)
+        with tarfile.open(os.path.join(folder, "kogen-fake-test.tar.gz"), "w:gz") as t:
+            t.add(FAKE, "kogen-fake-test/bin/kogen")
+            if with_install:
+                marker = os.path.join(self.tmp, "install.sh")
+                with open(marker, "w") as f:
+                    f.write("#!/bin/sh\n")
+                t.add(marker, "kogen-fake-test/install.sh")
+        return folder
+
+    def fake_node(self, version, name="node-bin"):
+        """A `node` on its own PATH folder that answers the execPath-and-version probe; returns (folder, execPath)."""
+        folder = os.path.join(self.tmp, name)
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, "node")
+        with open(path, "w") as f:
+            f.write(f'#!/bin/sh\nprintf "%s\\n%s\\n" "{path}" "{version}"\n')
+        os.chmod(path, 0o755)
+        return folder, path
+
+    def node_path_file(self):
+        (root,) = glob.glob(os.path.join(self.home, "unpacked", "*", "kogen-fake-test"))
+        return os.path.join(root, "node-path")
+
+    def test_unpacked_release_gets_node_path(self):
+        run = self.make_run("shape")
+        folder, node = self.fake_node("24.1.0")
+        r = self.cell(run, artifact=self.release(), PATH=folder + os.pathsep + os.environ["PATH"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(read(self.node_path_file()), node + "\n")
+        self.assertEqual(self.done(run)[1]["node"], {"path": node, "version": "24.1.0"})
+
+    def test_stale_node_path_is_rewritten(self):
+        run = self.make_run("shape")
+        folder, node = self.fake_node("22.0.0")
+        env = {"PATH": folder + os.pathsep + os.environ["PATH"]}
+        artifact = self.release()
+        self.assertEqual(self.cell(run, artifact=artifact, **env).returncode, 0)
+        with open(self.node_path_file(), "w") as f:
+            f.write("/gone/bin/node\n")
+        self.assertEqual(self.cell(run, "base", "--force", artifact=artifact, **env).returncode, 0)
+        self.assertEqual(read(self.node_path_file()), node + "\n")
+
+    def test_old_or_missing_node_refused(self):
+        run = self.make_run("shape")
+        folder, _ = self.fake_node("20.11.0")
+        for path in (folder + os.pathsep + "/usr/bin:/bin", "/usr/bin:/bin"):
+            r = self.cell(run, artifact=self.release(), PATH=path)
+            self.assertEqual(r.returncode, 2)
+            self.assertIn("Node 22 or newer", r.stderr)
+            self.assertFalse(os.path.exists(os.path.join(common.cell_dir(run, "task-mini/r1/base"), "result.json")))
+
+    def test_plain_artifact_needs_no_node(self):
+        run = self.make_run("shape")
+        r = self.cell(run, artifact=self.release(with_install=False), PATH="/usr/bin:/bin")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIsNone(self.done(run)[1]["node"])
 
     def test_missing_artifact_refused(self):
         run = self.make_run("shape")
