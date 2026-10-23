@@ -10,7 +10,7 @@ import tempfile
 import time
 import unittest
 
-from lanes import common
+from lanes import cell, common
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FAKE = os.path.join(HERE, "fake-kogen")
@@ -174,8 +174,8 @@ class CellTest(unittest.TestCase):
         yaml = subprocess.run(["git", "-C", ws, "show", "HEAD:.kogen/project.yaml"], capture_output=True,
                               text=True).stdout
         self.assertIn("version: 1\n", yaml)
-        self.assertIn("  build: {model: openai/gpt-x, effort: high}\n", yaml)
-        self.assertIn("  review: {model: acme/model-y, effort: low}\n", yaml)
+        self.assertIn("  build: {model: gpt-x, effort: high}\n", yaml)
+        self.assertIn("  review: {model: model-y, effort: low}\n", yaml)
         self.assertIn("    - name: test\n      run: 'go test ./...'\n", yaml)
         self.assertIn("    - 'gofmt -w .'\n", yaml)
         self.assertIn("    steps_dir: 'features/steps'\n", yaml)
@@ -187,7 +187,16 @@ class CellTest(unittest.TestCase):
         path, _ = self.done(run)
         log = common.read_jsonl(os.path.join(path, "run-log", "log.jsonl"))
         self.assertEqual({e["model"] for e in log if e.get("event") == "request" and e["role"] == "build"},
-                         {"openai/gpt-x"})
+                         {"gpt-x"})
+
+    def test_project_yaml_bare_model_ids(self):
+        one = cell.project_yaml({}, {"build": "openai/gpt-6-luna low"})
+        self.assertIn("models:\n  build: {model: gpt-6-luna, effort: low}\n", one)
+        self.assertNotIn("openai", one)
+        self.assertNotIn("review:", one)
+        two = cell.project_yaml({}, {"build": "openai/gpt-6-luna low", "review": "openai/gpt-6 high"})
+        self.assertIn("  build: {model: gpt-6-luna, effort: low}\n  review: {model: gpt-6, effort: high}\n", two)
+        self.assertNotIn("models:", cell.project_yaml({}, {}))
 
     def test_same_start_tree_for_every_cell(self):
         run = self.make_run("shape", lanes=("a", "b"))

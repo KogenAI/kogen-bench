@@ -49,7 +49,7 @@ def yq(s):
 
 
 def project_yaml(task_toml, models):
-    """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines."""
+    """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id)."""
     def items(key, item=yq):
         vals = task_toml.get(key) or []
         return [f"  {key}: []"] if not vals else [f"  {key}:"] + [f"    - {item(v)}" for v in vals]
@@ -67,7 +67,7 @@ def project_yaml(task_toml, models):
         lines.append("models:")
         for role, value in sorted(models.items()):
             model, _, effort = value.rpartition(" ")
-            lines.append(f"  {role}: {{model: {model}, effort: {effort}}}")
+            lines.append(f"  {role}: {{model: {model.partition('/')[2]}, effort: {effort}}}")
     return "\n".join(lines) + "\n"
 
 

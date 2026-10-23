@@ -33,7 +33,7 @@ Written and committed before any run; validated by `lanes/lanes/experiment.py` (
 | `lanes[].name` | string | as `id` |
 | `lanes[].sha` | string | 40 lowercase hex, a Kogen commit |
 | `lanes[].patch` | string or null | path relative to the experiment file, no `..` |
-| `lanes[].settings.models` | object | role → `"provider/model effort"`, applied to `.kogen/project.yaml` |
+| `lanes[].settings.models` | object | role → `"provider/model effort"`; `.kogen/project.yaml` gets `<role>: {model: <part after the first "/">, effort: <last word>}` (bare id, as Kogen takes ChatGPT ids: `config.ex` l.19-21), only for roles set; unset roles keep Kogen's defaults (`config.ex` l.254-268). The provider is recorded only here and in reports |
 | `tasks[]` | strings | task ids, unique, at least one |
 | `reps` | integer | ≥ 1 |
 | `deadline_s` | number | > 0, per cell |
