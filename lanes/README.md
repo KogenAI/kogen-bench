@@ -48,3 +48,11 @@ A published round must be reproducible by a stranger.
 2. rebuild the lanes (Kogen at each `sha`, plus its patch);
 3. re-grade the published final trees with the grader, with no model calls;
 4. optionally re-run the cells with the reader's own provider login and compare quality, cost and time with the published records.
+
+## Before a climb
+
+A climb (`"kind": "climb"`, see FORMATS) compares a candidate with a baseline by an effect of at least `min_effect`. A pass rate moves between two runs of the same lane, so first measure how much:
+
+1. Run the baseline lane twice on the climb's task set: two run dirs from the same `experiment.json` and `PLAN.json`, differing only in the experiment `id`.
+2. `lanes-noise <run-dir-A> <run-dir-B> --out noise.json` writes the noise record: per task and overall, the run-to-run difference of the pass rate, cost, tokens and wall time (absolute differences and an interval for the mean difference over tasks: Hoeffding for the pass rate, Student t for the rest). Plumbing cells (timeouts, truncations, provider and harness failures) are left out. It exits 2 for runs that are not one plan or have fewer than two tasks. The record's `smallest_detectable_effect` is the larger of `rms_effect` (what these runs showed: 95% t-bound of the task differences) and `floor`, the half-width of the Hoeffding interval `keep_revert` uses, over the number of tasks (0.50 at 30 tasks, 1.0 below 15). The floor is there so two runs that agree by chance do not read as "no noise". Reps do not lower it, because the task is the unit; they are recorded and must match. `spread` is the larger of the observed overall pass-rate difference and `smallest_detectable_effect`.
+3. Set `noise_ref` in the climb experiment to the record. `lanes-plan` refuses the climb, writing nothing, unless the record has `kind` `noise` and is for the same baseline (`sha`, patch, settings), phase, Intent form, reps and task set, and its `spread` is smaller than `min_effect`. `keep_revert` decides each split alone, so the gate also applies the floor of the smaller split's task count; the refusal names the spread it used and `min_effect`. Then raise `min_effect`, add tasks, or accept that the climb cannot see that effect.

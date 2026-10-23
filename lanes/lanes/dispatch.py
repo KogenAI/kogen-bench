@@ -12,7 +12,7 @@ import sys
 import threading
 import time
 
-from . import common, experiment, plan_hashes
+from . import common, experiment, noise, plan_hashes
 
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
 LANES_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # the `lanes/` folder
@@ -49,6 +49,8 @@ def plan_main(argv=None):
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     exp = experiment.load_or_exit(a.experiment)
     try:
+        if exp.get("kind") == "climb":
+            noise.check_gate(exp, a.experiment)  # no climb without a measured run-to-run noise below min_effect
         lock = os.path.join(a.run_dir, "lanes.lock.json")
         if not os.path.isfile(lock):  # check first: write nothing into a run dir that cannot be planned
             raise DispatchError("lanes.lock.json is missing in the run dir: run lanes-build first")
@@ -64,7 +66,7 @@ def plan_main(argv=None):
         with open(os.path.join(a.run_dir, "plan.jsonl"), "w", encoding="utf-8") as f:
             for cell in make_plan(exp):
                 f.write(json.dumps(cell, sort_keys=True) + "\n")
-    except (DispatchError, plan_hashes.PlanError, OSError, ValueError) as e:
+    except (DispatchError, noise.NoiseError, plan_hashes.PlanError, OSError, ValueError) as e:
         print(f"plan: {e}", file=sys.stderr)
         return 2
     return 0
