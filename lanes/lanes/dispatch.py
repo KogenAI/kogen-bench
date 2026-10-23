@@ -9,11 +9,13 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
-from . import common, experiment, noise, plan_hashes
+from . import common, costguard, experiment, noise, plan_hashes
 
+CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
 LANES_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # the `lanes/` folder
 
@@ -249,14 +251,15 @@ class Host:
         self.remote = self.target != "local"
         self._lock = threading.Lock()
         self._done = set()
+        self.running = set()  # cells running here now (remote hosts: the controller polls their spend)
         self.ssh = shlex.split(os.environ.get("LANES_SSH", "ssh -o BatchMode=yes -o ConnectTimeout=20"))
 
     def sh(self, command, force=False):
         return self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=MARGIN_S, capture=True, force=force)
 
-    def rsync(self, src, dst, *opts):
+    def rsync(self, src, dst, *opts, force=False):
         cmd = ["rsync", "-a", "-e", shlex.join(self.ssh), *opts, src, dst]
-        return self.ctx.runner.run(cmd, deadline_s=MARGIN_S, capture=True)
+        return self.ctx.runner.run(cmd, deadline_s=MARGIN_S, capture=True, force=force)
 
     def _once(self, key, steps):
         with self._lock:
@@ -274,10 +277,14 @@ class Host:
     def prepare(self, task, lane_artifact):
         """Copy lanes/, the task (no evaluator/) and the artifact once per host."""
         c = self.ctx
-        dirs = [os.path.join(self.root, d) for d in ("tasks", "artifacts", os.path.join("runs", c.exp_id))]
+        dirs = [os.path.join(self.root, d) for d in ("tasks", "artifacts", "reproduce", os.path.join("runs", c.exp_id))]
         self._once("dirs", [lambda: self.sh("mkdir -p " + " ".join(map(shlex.quote, dirs)))])
         self._once("lanes", [lambda: self.rsync(c.lanes_dir + "/", self._dst("lanes") + "/",
                                                 "--delete", "--exclude", "__pycache__", "--exclude", "tests")])
+        reproduce = os.path.join(c.lanes_dir, "..", "reproduce")  # the cost guard prices usage with these
+        self._once("reproduce", [lambda f=f: self.rsync(os.path.join(reproduce, f), self._dst("reproduce") + "/")
+                                 for f in ("cost_calc.py", "price-table-v1.json")
+                                 if os.path.isfile(os.path.join(reproduce, f))])
         self._once(("task", task), [lambda: self.rsync(os.path.join(c.tasks, task) + "/",
                                                        self._dst("tasks", task) + "/",
                                                        "--delete", "--exclude", "/evaluator/")])
@@ -287,8 +294,53 @@ class Host:
         self._once("run", [lambda: self.rsync(os.path.join(c.run_dir, "experiment.json"), self._dst("runs", c.exp_id) + "/"),
                            lambda: self.rsync(os.path.join(c.run_dir, "lanes.lock.json"), self._dst("runs", c.exp_id) + "/")])
 
+    def poll(self):
+        """`{cell: usd}` of the cells in this host's run dir; raises when it cannot be read."""
+        c, q = self.ctx, shlex.quote
+        command = (f"cd {q(os.path.join(self.root, 'lanes'))} && KOGEN_LANES_HOME={q(self.root)} "
+                   f"python3 -m lanes.costguard cells {q(os.path.join(self.root, 'runs', c.exp_id))}")
+        code, out = c.runner.run(self.ssh + [self.target, command], deadline_s=30, capture=True, force=True)
+        try:
+            if code:
+                raise ValueError(f"exit {code}: {out.strip()[-120:]}")
+            return {k: float(v) for k, v in json.loads(out.strip().splitlines()[-1]).items()}
+        except (ValueError, IndexError, TypeError, AttributeError) as e:
+            raise DispatchError(f"{self.name}: cannot read the spend of its cells ({e})") from None
+
     def run_cell(self, cell, lane_artifact):
         """Run one cell; True when its `result.json` is in the controller's run dir afterwards."""
+        self.running.add(cell)
+        try:
+            return self._run_cell(cell, lane_artifact)
+        finally:
+            self.settle(cell)
+
+    def settle(self, cell, usd=None):
+        """The attempt is over: its spend now lives in its local cell dir, or (`usd`) in the ledger.
+        One step under the controller's spend lock, so `spend()` counts the attempt exactly once."""
+        c = self.ctx
+        with c.spend_lock:
+            if usd:
+                costguard.ledger_add(c.run_dir, cell, usd)
+            self.running.discard(cell)
+            c.remote_live.get(self.name, {}).pop(cell, None)
+
+    def store_poll(self, live):
+        with self.ctx.spend_lock:  # only cells still running here: a settled attempt is counted elsewhere
+            self.ctx.remote_live[self.name] = {k: v for k, v in live.items() if k in self.running}
+
+    def _lost_spend(self, cell, rcell, local_cell):
+        """A remote attempt that left no result: keep what it spent (its `spent.json`, or the last polled value)."""
+        c = self.ctx
+        with tempfile.TemporaryDirectory() as tmp:
+            self.rsync(f"{self.target}:{rcell}/", tmp + "/", "--include", "/spent.json", "--exclude", "*", force=True)
+            path = os.path.join(tmp, "spent.json")
+            usd = float(common.read_json(path)["usd"]) if os.path.isfile(path) else 0.0
+        with c.spend_lock:
+            usd = max(usd, c.remote_live.get(self.name, {}).get(cell, 0.0))
+        self.settle(cell, usd)
+
+    def _run_cell(self, cell, lane_artifact):
         c = self.ctx
         deadline = c.exp["deadline_s"] + MARGIN_S
         local_cell = common.cell_dir(c.run_dir, cell)
@@ -298,6 +350,7 @@ class Host:
             self.ctx.runner.run(args, deadline_s=deadline)
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
+        costguard.retire(c.run_dir, cell, local_cell)  # an earlier attempt's partial dir: keep its spend
         rcell = os.path.join(self.root, "runs", c.exp_id, "cells", *cell.split("/"))
         pgfile = os.path.join(self.root, "runs", c.exp_id, "pgid-" + cell.replace("/", "__"))
         q = shlex.quote
@@ -310,9 +363,11 @@ class Host:
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
         code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline)
         if code in (124, 130, 255):  # deadline, stop or lost connection: the ssh client died, the remote group may not have
-            kill = (f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; true; }} && "
-                    f"rm -rf {q(rcell)} {q(pgfile)}")  # no pgid: leave the dir, never rm under a live process
-            self.sh(kill, force=True)
+            kill = f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; true; }}"
+            killed = self.sh(kill, force=True)[0] == 0
+            self._lost_spend(cell, rcell, local_cell)  # before the dir goes
+            if killed:  # no pgid: leave the dir, never rm under a live process
+                self.sh(f"rm -rf {q(rcell)} {q(pgfile)}", force=True)
             return False
         os.makedirs(local_cell, exist_ok=True)
         src = f"{self.target}:{rcell}/"
@@ -327,6 +382,8 @@ class Host:
 class Context:
     def __init__(self, run_dir, tasks, lanes_dir, runner, exp):
         self.run_dir, self.tasks, self.lanes_dir, self.runner, self.exp = run_dir, tasks, lanes_dir, runner, exp
+        self.remote_live = {}  # host name -> {cell: usd} polled from its running cells
+        self.spend_lock = threading.Lock()  # remote_live and the ledger change together under it
         self.exp_id = exp["id"]
 
 
@@ -334,9 +391,14 @@ class Context:
 
 def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
             skip_preflight=False):
-    """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 130 interrupted."""
+    """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost cap stopped
+    the run, 130 interrupted."""
     run_dir = os.path.abspath(run_dir)
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
+    try:
+        soft, hard = costguard.caps(exp)
+    except costguard.CostCapError as e:
+        raise DispatchError(str(e)) from None
     verify_inputs(run_dir, exp, tasks)
     if not skip_preflight:
         from . import preflight  # imported here: it needs Python 3.12 (cell.py), plan and dispatch do not
@@ -352,6 +414,49 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
     pick, failed, mine = threading.Lock(), set(), set()
     active = {h.name: h.slots for h in hosts}
     locked = []
+    capped = []  # [message] once a cap stopped the run
+    hard_hit = threading.Event()  # the hard cap, or an unreadable spend: stop every cell
+
+    def spend():
+        with ctx.spend_lock:
+            extra = {}
+            for live in ctx.remote_live.values():
+                for cell, usd in live.items():
+                    extra[cell] = max(extra.get(cell, 0.0), usd)
+            return costguard.estimate(run_dir, extra=extra)
+
+    def trip(message, hard=True):
+        if hard_hit.is_set() or (capped and not hard):
+            return
+        capped[:] = [message]
+        log(message)
+        if hard:
+            hard_hit.set()
+
+    def over_soft():
+        try:
+            spent = spend()
+        except Exception as e:  # fail closed
+            trip(f"cannot read the run's spend ({e}); stopping")
+            return True
+        if spent >= soft and not capped:
+            costguard.record_stop(run_dir, "soft", spent)
+            trip(f"cost cap reached: spend ${spent:.4f} of the ${soft:g} cap; no new cell starts", hard=False)
+        return bool(capped)
+
+    def poll(host):  # remote hosts: their cells' live spend, read over ssh
+        fails = 0
+        while not runner.stopped.is_set() and not hard_hit.is_set():
+            time.sleep(1)
+            if not host.running:
+                continue
+            try:
+                host.store_poll(host.poll())
+                fails = 0
+            except DispatchError as e:
+                fails += 1
+                if fails >= 3:  # fail closed
+                    trip(f"{e}; stopping every cell")
 
     def finished(cell):
         return os.path.isfile(os.path.join(common.cell_dir(run_dir, cell), "result.json"))
@@ -361,6 +466,8 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             for c in cells:
                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
+                if over_soft():
+                    return None
                 if claims.take(c["cell"], host.name):
                     mine.add(c["cell"])
                     return c
@@ -398,6 +505,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 failed.add(c["cell"])
                 log(f"{host.name}: {c['cell']}: no result.json")
 
+    costguard.clear_stop(run_dir)
     old = {s: signal.signal(s, lambda *_: runner.stop()) for s in (signal.SIGINT, signal.SIGTERM)}
     try:
         for h in hosts:
@@ -410,8 +518,25 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         threads = [threading.Thread(target=loop, args=(h,)) for h in hosts for _ in range(h.slots)]
         for t in threads:
             t.start()
+        for h in hosts:
+            if h.remote:
+                threading.Thread(target=poll, args=(h,), daemon=True).start()
+        grace_end, checked = None, 0.0
         while any(t.is_alive() for t in threads):
             time.sleep(0.1)
+            if grace_end is None and time.monotonic() - checked >= 1.0:
+                checked = time.monotonic()
+                try:
+                    spent = spend()
+                    if spent >= hard:
+                        costguard.record_stop(run_dir, "hard", spent)
+                        trip(f"hard cost cap reached (${hard:g}): stopping every cell")
+                except Exception as e:  # fail closed
+                    trip(f"cannot read the run's spend ({e}); stopping every cell")
+            if grace_end is None and hard_hit.is_set():
+                grace_end = time.monotonic() + CAP_GRACE_S
+            if grace_end is not None and time.monotonic() >= grace_end:
+                runner.stop()
         interrupted = runner.stopped.is_set()
     finally:
         runner.stop()
@@ -420,6 +545,8 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 unlock(h)
         for s, h in old.items():
             signal.signal(s, h)
+    if capped:
+        return 3
     if interrupted:
         return 130
     return 1 if failed else 0

@@ -16,6 +16,8 @@ Environment:
                       exits 5; once: `shape <slug> -` (the answers) then completes,
                       always: it asks again
   FAKE_KOGEN_LINT     refuse: `approve` refuses the Intent with two `intent/lint:` lines and exits 1
+  FAKE_KOGEN_REQUESTS  extra `build` requests to log (default 0), each followed by FAKE_KOGEN_DELAY_S
+                      seconds of sleep (default 0), so a test sees usage arrive over time
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -289,7 +291,10 @@ def cmd_build(root, slug, mode):
             usage = dict.fromkeys(usage)
         elif os.environ.get("FAKE_KOGEN_USAGE") == "zero":
             usage = dict.fromkeys(usage, 0)
-        run.log(event="request", role=role, model=model, effort=effort, usage=usage, wall_ms=250 if role == "build" else 100)
+        for _ in range(1 + (int(os.environ.get("FAKE_KOGEN_REQUESTS", 0)) if role == "build" else 0)):
+            run.log(event="request", role=role, model=model, effort=effort, usage=usage,
+                    wall_ms=250 if role == "build" else 100)
+            time.sleep(float(os.environ.get("FAKE_KOGEN_DELAY_S", 0)))
         if role == "build" and mode == "fail":
             detail = "fake failure"
             run.log(event="outcome", outcome="build_blocked")

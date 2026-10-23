@@ -93,6 +93,10 @@ def validate(exp):
     deadline = _kind(exp.get("deadline_s"), (int, float), "deadline_s", "a number")
     if not math.isfinite(deadline) or deadline <= 0:
         _fail("deadline_s", "must be a finite positive number")
+    if "cost_cap_usd" in exp:  # required only to run cells (costguard.caps)
+        cap = _kind(exp["cost_cap_usd"], (int, float), "cost_cap_usd", "a number of USD")
+        if not math.isfinite(cap) or cap <= 0:
+            _fail("cost_cap_usd", "must be a finite positive number")
     hosts = _kind(exp.get("hosts"), list, "hosts", "a list of host names")
     for i, h in enumerate(hosts):
         _name(h, f"hosts[{i}]")

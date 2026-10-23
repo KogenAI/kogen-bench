@@ -37,6 +37,7 @@ Written and committed before any run; validated by `lanes/lanes/experiment.py` (
 | `tasks[]` | strings | task ids, unique, at least one |
 | `reps` | integer | ≥ 1 |
 | `deadline_s` | number | > 0, per cell |
+| `cost_cap_usd` | number | finite, > 0; required to run cells (`lanes-run`, `lanes-cell` refuse without it); the soft cap, see Cost cap |
 | `hosts[]` | strings | host names only |
 | `decision_rule` | object | has a string `kind` (L6 defines the kinds) |
 
@@ -55,6 +56,26 @@ Written and committed before any run; validated by `lanes/lanes/experiment.py` (
 | `decision_rule.kind` | string | `keep_revert` (and only climb experiments may use it) |
 
 `report.json` of a climb run adds `climb`: per split (`train`, `test`) both lanes' `{correct, n, rate, ci}` (Wilson 95%), `unit` (`task`), `tasks`, `pairs`, `candidate_better`, `baseline_better`, `tied`, `difference` (the pass-rate difference: mean over tasks of each task's mean rep difference), `difference_exact` (the same, a decimal or `n/d`), `difference_ci` (Hoeffding 95% over tasks), `pair_difference`; `plumbing` (one row per excluded cell: `cell`, `lane`, `split`, `category`, `outcome`, which is null for test cells), `plumbing_counts`, and `train_failures` (cells of the train split that failed on the task, for the next round; test failures are never listed). Every lane also carries `pass_rate_ci`, `first_green_pass_rate_ci`, `plumbing` counts and `witness_failures_test` (climb: a count; the lane's `outcomes`, `classes`, `plumbing` and `witness_failures` then cover train cells only, and its rates leave plumbing out).
+
+## Cost cap
+
+`cost_cap_usd` is the **soft cap**; the **hard cap** is 1.25 × `cost_cap_usd`. Both come from `experiment.json` (so `PLAN.json` carries the cap) and are enforced in `lanes/lanes/costguard.py`, which every entry point uses. A run dir whose `experiment.json` has no `cost_cap_usd` (an older run) gets no new cell from `lanes-run` or `lanes-cell`; the error says to add the field and run `lanes-plan` again.
+
+**Spend estimate** of a run dir: finished cells' `totals.cost_usd` (a null one is re-read from the cell's saved logs), plus the spend so far of running cells parsed with `usage.py` from their live Kogen run log and shaping events, plus the **ledger**. A running cell leaves `live.json` in its cell dir (its workspace); a cell that stopped without `result.json` leaves `spent.json`. Spend is never forgotten: before a cell dir is thrown away (a retry, `--force`), its spend is appended to `cost-ledger.jsonl` in the run dir (`{cell, usd}` per line) and counted from then on; a remote attempt that was killed has its `spent.json` fetched into the ledger before the remote dir is removed (the last polled value is the floor).
+- no price row for the model (or no price cost_calc can give): the request's tokens at the highest input, cached-input and output rate in `reproduce/price-table-v1.json`;
+- unknown usage (a null counter, or a build request whose four counters are all 0): an allowance of 100,000 input and 20,000 output tokens at those rates (about $2), above the largest request seen in real logs (53,940 uncached input tokens). It is an allowance, not a proven bound.
+
+**Fails closed on real errors**: unreadable or unparsable usage (a log line that is not a JSON object, other than a last line still being written; counters that are not non-negative integers or cached > input; a malformed `result.json`, `spent.json` or ledger), no `cost_calc.py` or price table, or a crash of the guard stops the run. `lanes-cell` refuses to start (exit 2, "fails closed"); a running cell is aborted as `cost_cap` (`result.json` has `cost_error`); `lanes-run` claims no new cell and stops every cell.
+
+**Exactly once**: a source that is gone because its attempt finished, was retired or was cleaned up is not an error. Every step that moves an attempt's spend from one record to the next holds the run dir's lock (`flock` on `.cost.lock` in the run dir) exclusively: a cell ending (`spent.json` written and `live.json` removed before its workspace is deleted; `result.json` is written while `live.json` still exists and is read first), `retire` (ledger line, then the cell dir removed) and every ledger append. `estimate` reads under the shared lock, so it sees each attempt in exactly one record. A source gone with no final record yet (a `live.json` whose workspace is gone, no `spent.json`) is retried, with the lock released, for 5 s (`RETRY_S`); then the guard fails closed. On the controller, an attempt's remote live spend and its ledger line change together under one lock (only cells still running keep a polled value).
+
+**Soft cap**: `lanes-run` claims no new cell once the estimate is at or above the cap, and exits 3 when cells were left; `lanes-cell` exits 2 without starting when the estimate has reached it. Both print the spend and the cap and write `cost-stop.json` in the run dir (`{cap: soft|hard, spent_usd, at}`; a hard note is never replaced by a soft one; a new `lanes-run` clears it).
+
+**Hard cap**: while a cell runs, a watcher thread in `lanes-cell` (every `LANES_COST_WATCH_S` seconds, default 0.5) kills the cell's own process group as soon as the run dir's estimate reaches the hard cap. The cell is recorded with outcome `cost_cap` (also the killed command's stage outcome); the report counts it as plumbing, not a task failure (class `incomplete`, plumbing category `cost_cap`, also a key of a climb report's `plumbing_counts`). `lanes-run` writes the note, stops claiming, gives local cells 3 s to stop themselves, then stops every cell it started, and exits 3.
+
+**Remote hosts**: `Host.prepare` copies `reproduce/cost_calc.py` and the price table to the host (`<root>/reproduce/`). While a remote cell runs, the controller polls `python3 -m lanes.costguard cells <remote run dir>` over ssh every second and adds each cell's live spend (the larger of the local and the polled value) to its own estimate, so the soft and hard caps cover cells on every host. Three polls in a row that fail stop the run (fail closed). Every remote host is polled. A remote `lanes-cell` also guards its own host's cells.
+
+`report.json` has `cost`: `{cost_cap_usd, hard_cap_usd, spent_usd, lanes: {lane: usd}, cost_cap_cells, not_started, stopped}`; `stopped` is `hard` when any cell ended `cost_cap` (a remote cell's own note stays on its host), else `soft` or `hard` from `cost-stop.json`, else null; `not_started` counts planned cells with no cell dir. `report.md` has the section "Spend vs cost cap".
 
 ## Task folder (private)
 

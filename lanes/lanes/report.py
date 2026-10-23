@@ -12,7 +12,7 @@ import sys
 from fractions import Fraction
 from math import comb, exp, lgamma, log, sqrt
 
-from . import common, experiment, usage
+from . import common, costguard, experiment, usage
 
 RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
 SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
@@ -238,7 +238,7 @@ def classify(result, log, evaluation, phase):
     if (any(e.get("provider_failure") for e in log if e.get("event") == "outcome")
             or ending.startswith("provider_failure") or ending in ("host_lost", "environment", "usage")):
         return "infrastructure"
-    if ending.startswith("interrupted") or ending in ("controller_lost", "signal"):
+    if ending.startswith("interrupted") or ending in ("controller_lost", "signal", "cost_cap"):
         return "incomplete"
     return "workflow_failure"  # build_blocked, no_outcome, refused, internal, timeout, questions_pending, ...
 
@@ -400,7 +400,7 @@ def apply_rule(rule, cells, lanes):
 
 # ---- plumbing and the climb rule ---------------------------------------------------------
 
-PLUMBING = ("timeout", "provider_error", "truncation", "harness")
+PLUMBING = ("timeout", "provider_error", "truncation", "harness", "cost_cap")
 TRUNCATION = re.compile(r"truncat\w*|context_exhausted")  # Kogen's endings (build.ex); anchored with fullmatch
 
 
@@ -408,6 +408,8 @@ def plumbing(cell):
     """The plumbing category of a cell (not a task failure), or None."""
     ending = (cell["result"] or {}).get("outcome")
     if isinstance(ending, str) and ending not in ("landed", "ok"):
+        if ending == "cost_cap":  # the cost guard stopped the cell: not a task failure
+            return "cost_cap"
         if ending.startswith("timeout"):
             return "timeout"
         if TRUNCATION.fullmatch(ending):
@@ -528,6 +530,20 @@ def check_rule(rule):
             raise ReportError(f"decision_rule.{k}: must be a number or a decimal string")
 
 
+def cost_section(run_dir, exp, cells):
+    """Spend against the caps: total and per lane, and which cap stopped the run (cost-stop.json)."""
+    spent, lanes = costguard.estimate(run_dir, per_lane=True)
+    cap = exp.get("cost_cap_usd")
+    stop = os.path.join(run_dir, costguard.STOP)
+    capped = sorted(c["plan"]["cell"] for c in cells if (c["result"] or {}).get("outcome") == "cost_cap")
+    return {"cost_cap_usd": cap, "hard_cap_usd": None if cap is None else cap * costguard.HARD_FACTOR,
+            "spent_usd": spent, "lanes": {l["name"]: lanes.get(l["name"], 0.0) for l in exp["lanes"]},
+            "cost_cap_cells": capped,
+            "not_started": sum(1 for c in cells if not os.path.isdir(common.cell_dir(run_dir, c["plan"]["cell"]))),
+            # a cost_cap cell is a hard stop whatever the note says (a remote cell's note stays on its host)
+            "stopped": "hard" if capped else (common.read_json(stop)["cap"] if os.path.isfile(stop) else None)}
+
+
 def report(run_dir):
     try:
         exp = experiment.load(os.path.join(run_dir, "experiment.json"))
@@ -537,7 +553,8 @@ def report(run_dir):
     cells = _load_cells(run_dir, exp["phase"])
     part = _split_of(exp) if exp.get("kind") == "climb" else None
     lanes = [_lane(l, cells, exp["phase"], part) for l in exp["lanes"]]
-    rep = {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"], "lanes": lanes}
+    rep = {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"], "lanes": lanes,
+           "cost": cost_section(run_dir, exp, cells)}
     if exp.get("kind") == "climb":
         rep["climb"] = climb_report(cells, exp)
         rep["verdict"] = _climb_verdict(rep["climb"], exp, lanes)
@@ -561,6 +578,25 @@ def _table(heads, rows):
 
 def _rate_text(rate, ci):
     return None if rate is None else f"{rate} {_ci_text(ci)}"
+
+
+def _render_cost(c):
+    cap, hard = c["cost_cap_usd"], c["hard_cap_usd"]
+    out = ["", "## Spend vs cost cap", "",
+           "Spend counts finished cells and unpriced requests at the guard's fallback price, so it is an upper "
+           "estimate (lanes/FORMATS.md, Cost cap).", ""]
+    share = lambda v, limit: "n/a" if not limit else f"{100 * v / limit:.0f}%"
+    out += _table(["lane", "spend USD", "of soft cap", "of hard cap"],
+                  [[n, f"{v:.4f}", share(v, cap), share(v, hard)] for n, v in c["lanes"].items()]
+                  + [["total", f"{c['spent_usd']:.4f}", share(c["spent_usd"], cap), share(c["spent_usd"], hard)]])
+    out += ["", "- soft cap: " + ("none set" if cap is None else f"${cap:g}") + "; hard cap: "
+            + ("none set" if hard is None else f"${hard:g}")]
+    if c["stopped"] == "hard":
+        out.append(f"- COST CAP STOPPED THE RUN: the hard cap ended {len(c['cost_cap_cells'])} cell(s) "
+                   f"as cost_cap ({', '.join(c['cost_cap_cells']) or 'none recorded'}); {c['not_started']} cell(s) were not started")
+    elif c["stopped"] == "soft":
+        out.append(f"- COST CAP STOPPED THE RUN: the soft cap was reached; {c['not_started']} cell(s) were not started")
+    return out
 
 
 def _render_climb(c):
@@ -597,6 +633,7 @@ def render(rep):
                    for l in rep["lanes"]])
     if "climb" in rep:
         out += _render_climb(rep["climb"])
+    out += _render_cost(rep["cost"])
     scope = " (train cells)" if "climb" in rep else ""
     for l in rep["lanes"]:
         out += ["", f"### {l['name']}", "", f"- sha `{l['sha']}`, patch {l['patch'] or 'none'}",

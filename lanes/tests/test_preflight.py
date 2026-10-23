@@ -33,7 +33,7 @@ class PreflightTest(unittest.TestCase):
         self.make_run("build")
 
     def make_run(self, phase, lanes=("base", "patched")):
-        exp = {"id": "exp-mini", "phase": phase, "intent_form": "gherkin", "reps": 1, "deadline_s": 60,
+        exp = {"id": "exp-mini", "phase": phase, "intent_form": "gherkin", "reps": 1, "deadline_s": 60, "cost_cap_usd": 100,
                "kogen": {"repo": "https://example.invalid/kogen.git"}, "tasks": ["task-mini"], "hosts": ["local"],
                "decision_rule": {"kind": "paired-pass-rate"},
                "lanes": [{"name": n, "sha": SHA, "patch": None, "settings": {}} for n in lanes]}

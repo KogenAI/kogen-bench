@@ -72,7 +72,7 @@ class Pipeline:
         rule = ({"kind": "paired_sign", "baseline": "wrong", "candidate": "base", "max_p": "0.5"} if phase == "build"
                 else {"kind": "descriptive"})
         exp = {"id": exp_id, "phase": phase, "kogen": {"repo": self.repo}, "lanes": lanes, "tasks": ["task-mini"],
-               "reps": 2 if phase == "build" else 1, "deadline_s": 120, "hosts": ["local"], "decision_rule": rule}
+               "reps": 2 if phase == "build" else 1, "deadline_s": 120, "cost_cap_usd": 100, "hosts": ["local"], "decision_rule": rule}
         if phase == "build":
             exp["intent_form"] = "gherkin"
         path = os.path.join(self.exp_dir, exp_id + ".json")

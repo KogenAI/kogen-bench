@@ -27,7 +27,8 @@ with open(os.path.join(d, "result.json"), "w") as f:
     json.dump({"cell": cell, "host": opts["--host"],
                "evaluator": os.path.exists(os.path.join(opts["--tasks"], task, "evaluator")),
                "start": os.path.isdir(os.path.join(opts["--tasks"], task, "start")),
-               "artifact": os.path.isfile(os.path.join(home, "artifacts", art, "kogen"))}, f)
+               "artifact": os.path.isfile(os.path.join(home, "artifacts", art, "kogen")),
+               "totals": {"cost_usd": float(os.environ.get("FAKE_COST", 0))}}, f)
 if events:
     with open(events, "a") as f:
         f.write(f"end {cell} {opts['--host']}\n")

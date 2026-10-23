@@ -99,6 +99,25 @@ class Dispatch(unittest.TestCase):
         self.assertEqual(cells[0]["cell"], f"a/r1/{cells[0]['lane']}")
         self.assertNotEqual(cells, dispatch.make_plan(dict(exp, id="other-id-2")))
 
+    def test_soft_cap_stops_new_cells(self):
+        self.set_exp(cost_cap_usd=1.0)
+        common.write_json(self.hosts, {"local": {"target": "local", "slots": 1}})
+        self.assertEqual(self.plan().returncode, 0)
+        p = self.run_cmd(env=dict(self.env, FAKE_COST="0.6"))
+        self.assertEqual(p.returncode, 3, p.stderr)
+        self.assertEqual(len(self.results()), 2)  # 0.6, then 1.2 >= 1.0: no third cell
+        self.assertIn("cost cap reached: spend $1.2000 of the $1 cap", p.stderr)
+        self.assertEqual(os.listdir(os.path.join(self.run_dir, "claims")), [])
+
+    def test_run_refuses_without_a_cost_cap(self):
+        exp = common.read_json(self.exp_path)
+        del exp["cost_cap_usd"]
+        common.write_json(self.exp_path, exp)
+        self.assertEqual(self.plan().returncode, 0)
+        p = self.run_cmd()
+        self.assertEqual((p.returncode, self.events_lines()), (2, []))
+        self.assertIn('no "cost_cap_usd"', p.stderr)
+
     def test_plan_refuses_without_lock(self):  # B2: lanes-build comes first
         p = self.plan(lock=False)
         self.assertEqual(p.returncode, 2)

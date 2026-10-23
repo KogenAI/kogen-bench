@@ -18,10 +18,11 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import time
 import tomllib
 
-from . import common, experiment, usage
+from . import common, costguard, experiment, usage
 
 IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
@@ -196,10 +197,13 @@ def make_workspace(ws, tmp, start, config):
 
 
 class Cell:
-    def __init__(self, ws, kogen, out, deadline_s):
+    def __init__(self, ws, kogen, out, deadline_s, abort=None):
         self.ws, self.kogen, self.out = ws, kogen, out
+        self.abort = abort or threading.Event()  # set by the cost guard: stop at once, record `cost_cap`
         self.deadline = time.monotonic() + deadline_s
         self.commands = []
+        self.cut = False  # the abort stopped or skipped a command
+        self.watch = None  # the cost guard's Watcher
         # Kogen's shaper can run shell commands: keep the paths of private data out of its environment.
         self.env = {**{k: v for k, v in os.environ.items() if not k.startswith("KOGEN_LANES_")},
                     "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
@@ -210,9 +214,7 @@ class Cell:
         started, t0 = now(), time.monotonic()
         o, e = os.path.join(self.out, "o.tmp"), os.path.join(self.out, "e.tmp")
         with open(o, "w") as fo, open(e, "w") as fe, open(stdin_path or os.devnull) as fi:
-            code, timed_out = common.run([self.kogen, *args], cwd=self.ws, env=self.env,
-                                         deadline_s=max(self.deadline - t0, 0.01),
-                                         stdout=fo, stderr=fe, stdin=fi)
+            code, timed_out = self._group([self.kogen, *args], fo, fe, fi, max(self.deadline - t0, 0.01))
         text = open(o, encoding="utf-8", errors="replace").read()
         for tmp, name in ((o, "stdout.txt"), (e, "stderr.txt")):
             with open(tmp, encoding="utf-8", errors="replace") as src, \
@@ -220,6 +222,31 @@ class Cell:
                 dst.write(f"== kogen {' '.join(args)}\n{src.read()}")
             os.remove(tmp)
         return code, timed_out, text, started, now(), time.monotonic() - t0
+
+    def _group(self, cmd, stdout, stderr, stdin, deadline_s):
+        """`common.run`, also stopping (its own process group only) when `abort` is set; `(code, timed_out)`."""
+        if self.abort.is_set():
+            self.cut = True
+            return 130, False
+        proc = subprocess.Popen(cmd, cwd=self.ws, env=self.env, stdout=stdout, stderr=stderr, stdin=stdin,
+                                start_new_session=True)
+        end = time.monotonic() + deadline_s
+        try:
+            while True:
+                try:
+                    code = proc.wait(timeout=max(min(0.1, end - time.monotonic()), 0))  # the deadline, exactly
+                    break
+                except subprocess.TimeoutExpired:
+                    if self.abort.is_set() or time.monotonic() >= end:
+                        timed_out = not self.abort.is_set()
+                        self.cut = self.cut or not timed_out
+                        common._kill_group(proc)
+                        return proc.returncode, timed_out
+            common._killpg(proc.pid, signal.SIGKILL)  # stragglers of an exited leader
+            return code, False
+        except BaseException:
+            common._kill_group(proc)
+            raise
 
     def version(self, tmp):
         """`kogen version` in its own group under the cell deadline; None when it fails."""
@@ -293,6 +320,10 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
         raise CellError(f"unknown cell {cell}: lane, rep or task folder not found")
     phase = exp["phase"]
     out = common.cell_dir(run_dir, cell)
+    try:
+        costguard.check_start(run_dir, exp)
+    except costguard.CostCapError as e:
+        raise CellError(str(e)) from None
     if os.path.exists(os.path.join(out, "result.json")) and not force:
         raise CellError(f"{cell} is already done (result.json exists); use --force to rerun")
     kogen = resolve_kogen(run_dir, lane_name, artifact)
@@ -310,16 +341,36 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
         raise CellError(f"{task_id} has no request.md")
     if phase == "build":
         check_supplied(supplied, slug)
-    shutil.rmtree(out, ignore_errors=True)
+    try:
+        costguard.retire(run_dir, cell, out)  # an earlier attempt's spend stays in the run's estimate
+    except Exception as e:
+        raise CellError(f"cannot keep the spend of the earlier attempt of {cell} ({e}); not starting") from None
     os.makedirs(out)
     tmp = tempfile.mkdtemp(prefix="lanes-cell-")
     try:
-        return _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
+        return _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
     finally:
-        if keep:
-            print(f"kept workspace: {os.path.join(tmp, 'ws')}", file=sys.stderr)
-        else:
-            shutil.rmtree(tmp, ignore_errors=True)
+        try:
+            _drop_live(run_dir, out, os.path.join(tmp, "ws"))
+        finally:
+            if keep:
+                print(f"kept workspace: {os.path.join(tmp, 'ws')}", file=sys.stderr)
+            else:
+                shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _drop_live(run_dir, out, ws):
+    """The cell is over: forget where its workspace was; keep what it spent when it left no result.json.
+    One locked step, before the workspace goes, so a reader sees the live workspace or the final record."""
+    with costguard.locked(run_dir):
+        try:
+            if not os.path.isfile(os.path.join(out, "result.json")) and os.path.isdir(ws):
+                common.write_json(os.path.join(out, costguard.SPENT), {"usd": round(costguard.workspace_spend(ws), 8)})
+        finally:
+            try:
+                os.remove(os.path.join(out, costguard.LIVE))
+            except OSError:
+                pass
 
 
 def check_supplied(supplied, slug):
@@ -377,7 +428,7 @@ def save_intent(ws, slug, dest):
             shutil.copyfile(path, os.path.join(dest, rel))
 
 
-def _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
+def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
     phase = exp["phase"]
     ws = os.path.join(tmp, "ws")
     make_workspace(ws, tmp, os.path.join(task, "start"), config)
@@ -387,20 +438,23 @@ def _run(exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
     for name, dst in (("request.md", request), ("answers.txt", answers)):
         if os.path.isfile(os.path.join(task, name)):
             shutil.copyfile(os.path.join(task, name), dst)
-    c = Cell(ws, kogen, out, exp["deadline_s"])
+    common.write_json(os.path.join(out, costguard.LIVE), {"workspace": ws})  # the guard reads its logs live
     started, t0 = now(), time.monotonic()
-    version = c.version(tmp)
-    intent_hash, ok = None, True
-    if phase in ("shape", "e2e"):
-        ok = c.shape(slug, request, answers if os.path.isfile(answers) else None)
-        save_intent(ws, slug, os.path.join(out, "intent"))
-    if phase == "build":
-        install_supplied(ws, os.path.join(task, "supplied", exp["intent_form"]), slug)
-    if ok and phase != "shape":
-        intent_hash = c.approve(slug)
-        ok = intent_hash is not None
-    if ok and phase != "shape":
-        c.record("build", [c.invoke(["intent", "build", slug])])
+    with costguard.Watcher(run_dir, exp) as watch:
+        c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped)
+        c.watch = watch
+        version = c.version(tmp)
+        intent_hash, ok = None, True
+        if phase in ("shape", "e2e"):
+            ok = c.shape(slug, request, answers if os.path.isfile(answers) else None)
+            save_intent(ws, slug, os.path.join(out, "intent"))
+        if phase == "build":
+            install_supplied(ws, os.path.join(task, "supplied", exp["intent_form"]), slug)
+        if ok and phase != "shape":
+            intent_hash = c.approve(slug)
+            ok = intent_hash is not None
+        if ok and phase != "shape":
+            c.record("build", [c.invoke(["intent", "build", slug])])
     return _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host, node)
 
 
@@ -425,14 +479,18 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
             _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "pass-trees", tree + ".tar"), tree)
     stages = usage.parse_run_log(events, c.commands, shape_events=shape_events)
     outcomes = {cmd["stage"]: command_outcome(cmd, events) for cmd in c.commands}
+    if c.cut and c.commands:  # the hard cap killed the last command (or cut the cell short)
+        outcomes[c.commands[-1]["stage"]] = "cost_cap"
     for rec in stages["stages"]:  # one rule for the stage records and the cell
         if rec["stage"] in outcomes:
             rec["outcome"] = outcomes[rec["stage"]]
-    result = {"cell": cell, "lane": lane_name, "phase": exp["phase"], "exit_code": c.commands[-1]["exit_code"],
-              "outcome": command_outcome(c.commands[-1], events), "started": started, "ended": now(),
+    result = {"cell": cell, "lane": lane_name, "phase": exp["phase"],
+              "exit_code": c.commands[-1]["exit_code"] if c.commands else None,
+              "outcome": "cost_cap" if c.cut else command_outcome(c.commands[-1], events), "started": started, "ended": now(),
               "wall_s": round(time.monotonic() - t0, 3), "kogen_version": version, "node": node,
               "final_tree": final_tree, "pass_trees": list(dict.fromkeys(trees)),
-              "intent_hash": intent_hash, "host": host, **stages}
+              "intent_hash": intent_hash, "host": host, **stages,
+              **({"cost_error": c.watch.error} if c.watch and c.watch.error else {})}
     common.write_json(os.path.join(out, "result.json"), result)
     return result
 
