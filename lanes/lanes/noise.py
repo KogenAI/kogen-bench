@@ -1,8 +1,10 @@
-"""Run-to-run noise of one lane: two runs of the same baseline on the same tasks, compared.
+"""Run-to-run noise of one lane: two runs of the same baseline on the same tasks, compared, or the two
+halves of one run with twice the reps (`split_half`).
 
-`noise(run_a, run_b)` returns the noise record `lanes-noise` writes; `check_gate(exp, exp_path)` is the
-climb gate of `lanes-plan`: the experiment's `noise_ref` must name a record for the same baseline and
-task set whose `spread` is smaller than the experiment's `min_effect`.
+`noise(run_a, run_b)` and `split_half(run)` return the noise record `lanes-noise` writes; `check_gate(exp,
+exp_path)` is the climb gate of `lanes-plan`: the experiment's `noise_ref` must name a record for the same
+baseline and task set whose `spread` is smaller than the experiment's `min_effect`. When the climb screens with
+the task sign test, the floor is what that test can resolve (`sign_floor`) instead of the Hoeffding floor.
 """
 
 import argparse
@@ -31,6 +33,15 @@ def floor(tasks):
     """The least pass-rate difference the keep/revert rule can resolve over this many tasks: the half-width of
     its Hoeffding interval (report.climb_report), whatever the runs showed. Reps do not lower it: the task is the unit."""
     return report.hoeffding(0, tasks)[1]
+
+
+def sign_floor(max_p, reps, tasks):
+    """The least pass-rate difference the task sign test can resolve: k_min / (reps * tasks), k_min the least k with
+    0.5 ** k <= max_p (k tasks better, none worse, reach p <= max_p)."""
+    k = 1
+    while 0.5 ** k > max_p:
+        k += 1
+    return k, k / (reps * tasks)
 
 
 def _load(run_dir):
@@ -98,6 +109,31 @@ def _interval(diffs, metric):
 def noise(run_a, run_b):
     a, b = _load(run_a), _load(run_b)
     _same_plan(a, b)
+    return _record(a, b, [a[0]["id"], b[0]["id"]], a[0]["reps"])
+
+
+def split_half(run_dir, tasks=None, exclude=()):
+    """The noise record of one baseline run with 2r reps: reps 1..r against reps r+1..2r of the same cells.
+    `tasks` keeps only those tasks, `exclude` drops those; the record's task set is what remains."""
+    a = _load(run_dir)
+    exp, plan, lane, cells = a
+    unknown = sorted((set(tasks or ()) | set(exclude)) - set(exp["tasks"]))
+    if unknown:
+        raise NoiseError(f"{run_dir}: not tasks of the run: {', '.join(unknown)}")
+    keep = [t for t in exp["tasks"] if (tasks is None or t in tasks) and t not in exclude]
+    exp = dict(exp, tasks=keep)
+    cells = [c for c in cells if c["plan"]["task"] in keep]
+    if exp["reps"] < 2 or exp["reps"] % 2:
+        raise NoiseError(f"{run_dir}: --split-half needs an even number of reps, at least 2 (the run has {exp['reps']})")
+    r = exp["reps"] // 2
+    first = (exp, plan, lane, [c for c in cells if c["plan"]["rep"] <= r])
+    second = (exp, plan, lane, [c for c in cells if c["plan"]["rep"] > r])
+    rec = _record(first, second, [exp["id"]], r)
+    rec["split_half"], rec["r"] = True, r
+    return rec
+
+
+def _record(a, b, runs, reps):
     exp, plan, lane = a[0], a[1], a[2]
     va, vb = _values(a[3]), _values(b[3])
     tasks = sorted(set(exp["tasks"]))
@@ -121,23 +157,35 @@ def noise(run_a, run_b):
     sde = max(rms, floor(len(d)))  # runs that agree by chance must not read as "no noise"
     hashes = plan["hashes"]["lanes"][lane["name"]]
     return {
-        "kind": "noise", "runs": [exp["id"], b[0]["id"]], "phase": exp["phase"], "intent_form": exp.get("intent_form"),
+        "kind": "noise", "runs": runs, "phase": exp["phase"], "intent_form": exp.get("intent_form"),
         "baseline": {"sha": lane["sha"], "patch_sha256": hashes["patch"], "settings_sha256": hashes["settings"]},
-        "tasks": tasks, "reps": exp["reps"], "per_task": per_task, "overall": overall,
+        "tasks": tasks, "reps": reps, "per_task": per_task, "overall": overall,
         "rms_effect": round(rms, 6), "floor": round(floor(len(d)), 6), "smallest_detectable_effect": round(sde, 6),
         # the number a climb's min_effect must exceed: the larger of the observed and the expected difference
         "spread": round(max(rate["abs_difference"], sde), 6),
     }
 
 
+def _ids(text):
+    return [x for x in text.split(",") if x]
+
+
 def main(argv=None):
-    p = argparse.ArgumentParser(description="Run-to-run noise of a baseline lane from two runs of one plan.")
+    p = argparse.ArgumentParser(description="Run-to-run noise of a baseline lane from two runs of one plan, "
+                                            "or from one run with 2r reps (--split-half).")
     p.add_argument("run_a")
-    p.add_argument("run_b")
+    p.add_argument("run_b", nargs="?", help="the second run (not with --split-half)")
+    p.add_argument("--split-half", action="store_true", help="compare reps 1..r with reps r+1..2r of the one run")
+    p.add_argument("--tasks", type=_ids, help="with --split-half: only these tasks (comma-separated ids)")
+    p.add_argument("--exclude", type=_ids, default=[], help="with --split-half: leave these tasks out (comma-separated ids)")
     p.add_argument("--out", required=True, help="noise record to write (JSON)")
     a = p.parse_args(argv)
+    if a.split_half == (a.run_b is not None):
+        p.error("give two run directories, or one run directory with --split-half")
+    if (a.tasks is not None or a.exclude) and not a.split_half:
+        p.error("--tasks and --exclude go with --split-half")
     try:
-        rec = noise(a.run_a, a.run_b)
+        rec = split_half(a.run_a, a.tasks, a.exclude) if a.split_half else noise(a.run_a, a.run_b)
         common.write_json(a.out, rec)
     except (NoiseError, OSError) as e:
         print(f"noise: {e}", file=sys.stderr)
@@ -176,8 +224,30 @@ def check_gate(exp, exp_path):
         raise NoiseError(f"noise_ref {ref}: recorded for another task set")
     # keep_revert decides on each split alone: the smaller split's floor applies as well
     small = min(len(exp["split"]["train"]), len(exp["split"]["test"]))
+    improves = (exp.get("decision_rule") or {}).get("improves")
+    if isinstance(improves, dict) and improves.get("test") == "task_sign":
+        _sign_gate(exp, rec, ref, small, improves["max_p"])
+        return
     spread = round(max(spread, floor(small)), 6)
     if not spread < exp["min_effect"]:
         raise NoiseError(f"noise_ref {ref}: run-to-run spread {spread} (at least the floor for the smaller split, "
                          f"{small} tasks) is not smaller than min_effect {exp['min_effect']}; "
+                         "the climb cannot tell such an effect from noise")
+
+
+def _sign_gate(exp, rec, ref, small, max_p):
+    """Under the task sign test the floor is what the test can resolve; the record's own Hoeffding floor does not apply."""
+    try:  # the measured part of the record's spread: the observed difference and the t-bound, without the floor
+        measured = max(rec["overall"]["pass_rate"]["abs_difference"], rec["rms_effect"])
+    except (KeyError, TypeError):
+        measured = rec["spread"]  # a record without those fields: its whole spread
+    k, f = sign_floor(max_p, exp["reps"], small)
+    if small < k:  # even every task better gives p = 0.5 ** small > max_p: the split can never improve
+        raise NoiseError(f"noise_ref {ref}: the smaller split has {small} tasks; the sign test at max_p {max_p} "
+                         f"needs at least {k}, or no task can show an improvement")
+    need = round(max(measured, f), 6)
+    if not need < exp["min_effect"]:
+        raise NoiseError(f"noise_ref {ref}: min_effect {exp['min_effect']} is not above the larger of the measured "
+                         f"run-to-run spread {round(measured, 6)} and the sign-test floor {round(f, 6)} "
+                         f"(k_min {k} at max_p {max_p}, / ({exp['reps']} reps x {small} tasks in the smaller split)); "
                          "the climb cannot tell such an effect from noise")
