@@ -35,6 +35,25 @@ def alive(pid):
     return True
 
 
+# Workspace setup counts against the cell deadline, so under load a short deadline can pass before the fake
+# Kogen has written its pid file. Use a deadline that setup cannot plausibly use up, and wait (bounded) for the file.
+HANG_DEADLINE_S = 10
+KILL_MARGIN_S = 15  # the cell must be over this long after its deadline
+
+
+def wait_pids(path, count, limit=30):
+    end = time.monotonic() + limit
+    while time.monotonic() < end:
+        try:
+            pids = read(path).split()
+        except FileNotFoundError:
+            pids = []
+        if len(pids) >= count:
+            return [int(p) for p in pids]
+        time.sleep(0.05)
+    raise AssertionError(f"{path} not written with {count} pids within {limit}s")
+
+
 class CellTest(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -149,7 +168,7 @@ class CellTest(unittest.TestCase):
         self.assertEqual([s["stage"] for s in res["stages"]], ["shape"])
 
     def test_hang_times_out_without_orphans(self):
-        run = self.make_run("build", deadline_s=2)
+        run = self.make_run("build", deadline_s=HANG_DEADLINE_S)
         pids = os.path.join(self.tmp, "pids")
         wrapper = os.path.join(self.tmp, "kogen")
         with open(wrapper, "w") as f:
@@ -158,13 +177,12 @@ class CellTest(unittest.TestCase):
         os.chmod(wrapper, 0o755)
         t0 = time.monotonic()
         self.assertEqual(self.cell(run, mode="hang", artifact=wrapper).returncode, 0)
-        self.assertLess(time.monotonic() - t0, 20)
+        self.assertLess(time.monotonic() - t0, HANG_DEADLINE_S + KILL_MARGIN_S)
         path, res = self.done(run)
         self.assertEqual(res["outcome"], "timeout")
         self.assertEqual(res["stages"][1]["outcome"], "timeout")
-        self.assertEqual(len(read(pids).split()), 2)
-        for pid in read(pids).split():
-            self.assertFalse(alive(int(pid)), f"process {pid} outlived the cell")
+        for pid in wait_pids(pids, 2):
+            self.assertFalse(alive(pid), f"process {pid} outlived the cell")
 
     def test_settings_and_commands_in_project_yaml(self):
         run = self.make_run("shape", models={"build": "openai/gpt-x high", "review": "acme/model-y low"})
@@ -327,15 +345,15 @@ class CellTest(unittest.TestCase):
     def test_hung_version_times_out_without_orphans(self):
         pids = os.path.join(self.tmp, "pids")
         wrapper = self.wrapper(f'if [ "$1" = version ]; then sleep 300 & echo $$ $! > {pids}; wait; fi')
-        run = self.make_run("shape", deadline_s=2)
+        run = self.make_run("shape", deadline_s=HANG_DEADLINE_S)
         t0 = time.monotonic()
         self.assertEqual(self.cell(run, artifact=wrapper).returncode, 0)
-        self.assertLess(time.monotonic() - t0, 20)
+        self.assertLess(time.monotonic() - t0, HANG_DEADLINE_S + KILL_MARGIN_S)
         path, res = self.done(run)
         self.assertEqual(res["outcome"], "timeout")
         self.assertIsNone(res["kogen_version"])
-        for pid in read(pids).split():
-            self.assertFalse(alive(int(pid)), f"process {pid} outlived the cell")
+        for pid in wait_pids(pids, 2):
+            self.assertFalse(alive(pid), f"process {pid} outlived the cell")
 
     def test_e2e_deadline_is_shared_across_commands(self):
         run = self.make_run("e2e", deadline_s=3)
@@ -354,10 +372,10 @@ class CellTest(unittest.TestCase):
         self.assertEqual((res["outcome"], res["exit_code"]), ("refused", 1))
         pid = os.path.join(self.tmp, "shape-pid")
         wrapper = self.wrapper(f'if [ "$2" = shape ]; then echo $$ > {pid}; exec sleep 300; fi', "kogen2")
-        run = self.make_run("shape", deadline_s=2)
+        run = self.make_run("shape", deadline_s=HANG_DEADLINE_S)
         self.assertEqual(self.cell(run, "base", "--force", artifact=wrapper).returncode, 0)
         self.assertEqual(self.done(run)[1]["outcome"], "timeout")
-        self.assertFalse(alive(int(read(pid))))
+        self.assertFalse(alive(wait_pids(pid, 1)[0]))
 
     def test_failed_build_without_outcome_event_has_one_outcome(self):
         wrapper = self.wrapper('if [ "$2" = build ]; then exit 1; fi')
