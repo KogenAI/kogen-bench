@@ -12,7 +12,7 @@ import sys
 import tempfile
 import tomllib
 
-from . import cell, common, experiment
+from . import cell, common, experiment, leakage
 
 DEADLINE_S = 120
 
@@ -64,12 +64,28 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
 
 
 def preflight(run_dir, tasks, artifact=None, out=print):
-    """Check every task x lane of the run; returns the number of refusals (0 for any phase but build)."""
-    exp = experiment.load(os.path.join(run_dir, "experiment.json"))
+    """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only)."""
+    exp_path = os.path.join(run_dir, "experiment.json")
+    exp = experiment.load(exp_path)
+    leaks = 0
+    if exp.get("kind") == "climb":  # a climb patch must not carry task content
+        home = common.runs_dir()
+        earlier = [os.path.join(home, d) for d in sorted(os.listdir(home)) if d != exp["id"]
+                   and os.path.isdir(os.path.join(home, d, "cells"))] if os.path.isdir(home) else []
+        notes = []
+        try:
+            hits = leakage.check(exp_path, tasks, earlier, notes=notes)
+        except (OSError, ValueError) as e:
+            hits = [("leakcheck", "error", str(e), "run dir")]
+        for note in notes:
+            out(f"leakcheck: note: {note}")
+        for hit in hits:
+            out("LEAK: " + leakage.format_hit(hit))
+        leaks = len(hits)
     if exp["phase"] != "build":
         out(f"preflight: phase {exp['phase']} supplies no Intent; nothing to check")
-        return 0
-    bad = 0
+        return leaks
+    bad = leaks
     for task_id in exp["tasks"]:
         for lane in exp["lanes"]:
             ok, message = check_one(exp, run_dir, tasks, task_id, lane, artifact)
