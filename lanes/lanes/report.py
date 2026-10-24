@@ -597,6 +597,9 @@ def report(run_dir):
     except experiment.ExperimentError as e:
         raise ReportError(f"experiment error: {e}") from None
     check_rule(exp["decision_rule"])
+    if exp["phase"] == "probe":
+        from . import probe  # probe imports this module
+        return probe.report_probe(run_dir, exp)
     cells = _load_cells(run_dir, exp["phase"])
     part = _split_of(exp) if exp.get("kind") == "climb" else None
     lanes = [_lane(l, cells, exp["phase"], part) for l in exp["lanes"]]
@@ -681,6 +684,9 @@ def _render_climb(c):
 
 
 def render(rep):
+    if rep["phase"] == "probe":
+        from . import probe
+        return probe.render(rep)
     out = [f"# Report: {rep['experiment']} ({rep['phase']})", "", f"**Verdict:** {rep['verdict']['line']}", "",
            "## Lanes", ""]
     note = " (plumbing excluded)" if "climb" in rep else ""

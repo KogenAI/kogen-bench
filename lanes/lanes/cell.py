@@ -22,7 +22,7 @@ import threading
 import time
 import tomllib
 
-from . import common, costguard, experiment, usage
+from . import common, costguard, experiment, probe, usage
 
 IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
@@ -316,6 +316,11 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     """Run the cell and write its cell dir; returns `result.json` as a dict."""
     task_id, rep, lane_name = cell.split("/")
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
+    if exp["phase"] == "probe":  # `tasks` is the corpus folder
+        try:
+            return probe.run_cell(run_dir, cell, tasks, host, force)
+        except probe.ProbeError as e:
+            raise CellError(str(e)) from None
     lane = next((l for l in exp["lanes"] if l["name"] == lane_name), None)
     task = os.path.join(tasks, task_id)
     if lane is None or not re.fullmatch(r"r\d+", rep) or not os.path.isdir(os.path.join(task, "start")):
@@ -515,17 +520,22 @@ def main(argv=None):
     p.add_argument("run_dir")
     p.add_argument("cell", help="<task>/r<rep>/<lane>")
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder")
+    p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"), help="probe corpus folder")
     p.add_argument("--artifact", help="kogen executable, folder or .tar.gz (default: lanes.lock.json)")
     p.add_argument("--host", default="local")
     p.add_argument("--keep", action="store_true", help="keep the temp workspace")
     p.add_argument("--force", action="store_true", help="rerun a finished cell")
     a = p.parse_args(argv)
-    if not a.tasks:
+    try:
+        data = probe.corpus_path(a.run_dir, a.corpus) if probe.is_probe(a.run_dir) else a.tasks
+    except probe.ProbeError as e:
+        p.error(str(e))
+    if not data:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     for sig in (signal.SIGTERM, signal.SIGHUP):  # stop like Ctrl-C: kill our groups, remove the workspace
         signal.signal(sig, _terminate)
     try:
-        result = run_cell(a.run_dir, a.cell, a.tasks, a.artifact, a.host, a.keep, a.force)
+        result = run_cell(a.run_dir, a.cell, data, a.artifact, a.host, a.keep, a.force)
     except (CellError, experiment.ExperimentError) as e:
         print(f"cell: {e}", file=sys.stderr)
         return 2

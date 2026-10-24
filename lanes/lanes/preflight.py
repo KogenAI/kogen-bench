@@ -12,7 +12,7 @@ import sys
 import tempfile
 import tomllib
 
-from . import cell, common, experiment, leakage
+from . import cell, common, experiment, leakage, probe
 
 DEADLINE_S = 120
 
@@ -67,6 +67,8 @@ def preflight(run_dir, tasks, artifact=None, out=print):
     """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only)."""
     exp_path = os.path.join(run_dir, "experiment.json")
     exp = experiment.load(exp_path)
+    if exp["phase"] == "probe":  # `tasks` is the corpus folder
+        return probe.preflight(run_dir, tasks, out=out)
     leaks = 0
     if exp.get("kind") == "climb":  # a climb patch must not carry task content
         home = common.runs_dir()
@@ -98,12 +100,17 @@ def main(argv=None):
     p = argparse.ArgumentParser(description="Lint-approve every supplied Intent with every lane's Kogen.")
     p.add_argument("run_dir")
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder")
+    p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"), help="probe corpus folder")
     p.add_argument("--artifact", help="kogen executable, folder or .tar.gz for every lane (default: lanes.lock.json)")
     a = p.parse_args(argv)
-    if not a.tasks:
+    try:
+        data = probe.corpus_path(a.run_dir, a.corpus) if probe.is_probe(a.run_dir) else a.tasks
+    except probe.ProbeError as e:
+        p.error(str(e))
+    if not data:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     try:
-        bad = preflight(a.run_dir, a.tasks, a.artifact)
+        bad = preflight(a.run_dir, data, a.artifact)
     except (experiment.ExperimentError, OSError, ValueError) as e:
         print(f"preflight: {e}", file=sys.stderr)
         return 2

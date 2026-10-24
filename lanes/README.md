@@ -23,6 +23,17 @@ A harness that compares **real Kogen** builds.
 
 Filled in by later packages (lock, run, grade, report).
 
+## Probes (funnel steps 0–2)
+
+A probe experiment (`"phase": "probe"`, FORMATS "Probe") compares commands, not Kogen builds: each lane is an argv that reads one corpus item on stdin and prints its output, a grader scores it against the item's hidden `expected`, and the report gives per-lane means over items with intervals, plus latency, CPU, peak memory and cost. It is the cheap first step before a Kogen run. A corpus is a folder with `items.jsonl` and the files the items refer to; its tree is hashed in `PLAN.json` and `lanes-run` refuses if it changed.
+
+```sh
+lanes/bin/lanes-plan experiment.json --run-dir "$RUN" --corpus "$CORPUS"   # no lanes-build, no Kogen
+lanes/bin/lanes-preflight "$RUN"      # commands exist; a dry run only for lanes with "dry_run_ok": true
+lanes/bin/lanes-run "$RUN" --hosts hosts.json      # local hosts only
+lanes/bin/lanes-report "$RUN"
+```
+
 ## Cost guard
 
 `cost_cap_usd` in `experiment.json` caps **ChatGPT-priced** spend (lanes with no provider, `openai/` or `chatgpt/`); the soft cap stops new cells, the hard cap (1.25 ×) stops running ones. Every other provider is a separate subscription: a lane using one needs `"provider_caps": {"opencode-go": {"cells": N}}` (or `supergrok`; a `usd` key may be added, with the same soft/hard rule), which caps the cells started for that provider's lanes. Their estimated dollars are recorded and reported, and stop a run only through a `usd` cap. The first rate-limit failure of a provider (HTTP 429, or a `usage_limit`/`rate_limit` error class in the saved logs or Kogen's `provider/<reason>:` line) writes `rate-limit-stop.json` and stops new cells of that provider; other providers go on. `lanes-run` exits 3 for a cap and 4 for a rate limit. Details: `FORMATS.md`, "Cost cap".

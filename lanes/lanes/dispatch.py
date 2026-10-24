@@ -13,7 +13,7 @@ import tempfile
 import threading
 import time
 
-from . import common, costguard, experiment, noise, plan_hashes
+from . import common, costguard, experiment, noise, plan_hashes, probe
 
 CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
@@ -46,10 +46,19 @@ def plan_main(argv=None):
     p.add_argument("experiment")
     p.add_argument("--run-dir", required=True)
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder")
+    p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"),
+                   help="probe corpus folder (default: the experiment's corpus)")
     a = p.parse_args(argv)
+    exp = experiment.load_or_exit(a.experiment)
+    if exp["phase"] == "probe":
+        try:
+            probe.plan(exp, a.experiment, a.run_dir, a.corpus)
+        except (probe.ProbeError, OSError, ValueError) as e:
+            print(f"plan: {e}", file=sys.stderr)
+            return 2
+        return 0
     if not a.tasks:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
-    exp = experiment.load_or_exit(a.experiment)
     try:
         if exp.get("kind") == "climb":
             noise.check_gate(exp, a.experiment)  # no climb without a measured run-to-run noise below min_effect
@@ -349,8 +358,9 @@ class Host:
         deadline = c.exp["deadline_s"] + MARGIN_S
         local_cell = common.cell_dir(c.run_dir, cell)
         if not self.remote:
+            data = "--corpus" if c.exp["phase"] == "probe" else "--tasks"
             args = [sys.executable, os.path.join(c.lanes_dir, "bin", "lanes-cell"), c.run_dir, cell,
-                    "--tasks", c.tasks, "--host", self.name]
+                    data, c.tasks, "--host", self.name]
             self.ctx.runner.run(args, deadline_s=deadline, tag=self.ctx.provider(cell))
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
@@ -408,17 +418,28 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         costguard.require_provider_caps(exp)
     except costguard.CostCapError as e:
         raise DispatchError(str(e)) from None
-    verify_inputs(run_dir, exp, tasks)
+    probing = exp["phase"] == "probe"  # `tasks` is then the corpus folder
+    if probing:
+        probe.verify_inputs(run_dir, exp, tasks)
+    else:
+        verify_inputs(run_dir, exp, tasks)
     if not skip_preflight:
-        from . import preflight  # imported here: it needs Python 3.12 (cell.py), plan and dispatch do not
-        if preflight.preflight(run_dir, tasks, out=log):
-            raise DispatchError("pre-flight refused a supplied Intent; no cell started")
+        if probing:
+            if probe.preflight(run_dir, tasks, out=log):
+                raise DispatchError("pre-flight refused the probe; no cell started")
+        else:
+            from . import preflight  # imported here: it needs Python 3.12 (cell.py), plan and dispatch do not
+            if preflight.preflight(run_dir, tasks, out=log):
+                raise DispatchError("pre-flight refused a supplied Intent; no cell started")
     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
-    artifacts = {e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
+    artifacts = {} if probing else {
+        e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
     runner = Runner()
     started = []
     ctx = Context(run_dir, tasks, lanes_dir, runner, exp)
     hosts = [Host(n, c, ctx) for n, c in load_hosts(hosts_file, exp["hosts"]).items()]
+    if probing and any(h.remote for h in hosts):
+        raise DispatchError("probe cells run on local hosts only")
     lanes = {l["name"]: l for l in exp["lanes"]}
     claims = Claims(run_dir, exp["deadline_s"] + MARGIN_S)
     pick, failed, mine = threading.Lock(), set(), set()
@@ -524,7 +545,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 return
             ok = False
             try:
-                ok = host.run_cell(c["cell"], artifacts[c["lane"]])
+                ok = host.run_cell(c["cell"], artifacts.get(c["lane"]))
             except DispatchError as e:
                 log(f"{host.name}: {c['cell']}: {e}")
             finally:
@@ -602,6 +623,7 @@ def run_main(argv=None):
     p = argparse.ArgumentParser(description="Run the planned cells of a run dir across hosts.")
     p.add_argument("run_dir")
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder")
+    p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"), help="probe corpus folder")
     p.add_argument("--hosts", required=True, help="hosts file (JSON, operator's, private)")
     p.add_argument("--lock-cmd", help="command template run before the first cell on each host ({host}, {name})")
     p.add_argument("--unlock-cmd", help="command template run after the last cell on each host")
@@ -609,10 +631,14 @@ def run_main(argv=None):
     p.add_argument("--skip-preflight", action="store_true",
                    help="do not lint-approve the supplied Intents first; for tests only, never in a real run")
     a = p.parse_args(argv)
-    if not a.tasks:
+    try:
+        data = probe.corpus_path(a.run_dir, a.corpus) if probe.is_probe(a.run_dir) else a.tasks
+    except probe.ProbeError as e:
+        p.error(str(e))
+    if not data:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     try:
-        return run_all(a.run_dir, a.tasks, a.hosts, a.lock_cmd, a.unlock_cmd, a.lanes_dir,
+        return run_all(a.run_dir, data, a.hosts, a.lock_cmd, a.unlock_cmd, a.lanes_dir,
                        skip_preflight=a.skip_preflight, log=lambda m: print(m, file=sys.stderr))
     except (experiment.ExperimentError, DispatchError, plan_hashes.PlanError, OSError, ValueError) as e:
         print(f"run: {e}", file=sys.stderr)
