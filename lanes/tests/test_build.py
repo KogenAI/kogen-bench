@@ -1,4 +1,5 @@
 import contextlib
+import glob
 import io
 import os
 import shutil
@@ -11,6 +12,7 @@ from unittest import mock
 
 from lanes import build, common
 
+REAL_DETECT = list(build.DETECT)
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 GIT = ["git", "-c", "user.name=t", "-c", "user.email=t@" + "example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"]
 PATCH = "--- a/VERSION\n+++ b/VERSION\n@@ -1 +1 @@\n-1\n+2\n"
@@ -254,6 +256,35 @@ class BuildLanes(unittest.TestCase):
         with open(os.path.join(tree, "cli", "main.go"), "w") as f:
             f.write("package main\n\nfunc main() {}\n")
         self.assertEqual(build._go_main_dir(tree), "./cli")
+
+    def go_repo(self):
+        """Point the experiment at a copy of the Go layout fixture (`cli/go.mod`, `packaging/package.sh`)."""
+        repo = os.path.join(self.tmp, "kogen-go")
+        shutil.copytree(os.path.join(FIX, "kogen-go-repo"), repo)
+        git(repo, "init", "-q")
+        git(repo, "add", ".")
+        git(repo, "commit", "-q", "-m", "one")
+        self.repo, self.sha = repo, git(repo, "rev-parse", "HEAD")
+        self.write([{"name": "base"}, {"name": "p", "patch": "p.patch"}], {"p.patch": PATCH})
+
+    def test_go_release_layout_builds_the_archive(self):
+        self.go_repo()
+        with mock.patch.object(build, "DETECT", REAL_DETECT), \
+                mock.patch.object(build.shutil, "which", lambda tool: "/bin/" + tool):
+            self.assertEqual(self.run_build()[0], 0)
+        base, patched = self.lock()
+        self.assertEqual(base["kogen_version"], "kogen dev+1 (2026-01-01, uncommitted source)")
+        self.assertEqual(patched["kogen_version"], "kogen dev+2 (2026-01-01, uncommitted source)")
+        self.assertTrue(glob.glob(os.path.join(self.home, "artifacts", base["artifact_sha256"], "kogen-*.tar.gz")))
+
+    def test_go_release_layout_names_a_missing_tool(self):
+        self.go_repo()
+        with mock.patch.object(build, "DETECT", REAL_DETECT), \
+                mock.patch.object(build.shutil, "which", lambda tool: None if tool == "npm" else "/bin/" + tool):
+            code, err = self.run_build()
+        self.assertEqual(code, 1)
+        self.assertIn("needs `npm` on PATH", err)
+        self.assertEqual(self.builds(), 0)  # the script never ran
 
 
 if __name__ == "__main__":

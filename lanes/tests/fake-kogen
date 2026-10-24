@@ -18,6 +18,10 @@ Environment:
   FAKE_KOGEN_LINT     refuse: `approve` refuses the Intent with two `intent/lint:` lines and exits 1
   FAKE_KOGEN_REQUESTS  extra `build` requests to log (default 0), each followed by FAKE_KOGEN_DELAY_S
                       seconds of sleep (default 0), so a test sees usage arrive over time
+  FAKE_KOGEN_CLI      elixir (default) | go: act like the Go Kogen at 687f1407 where it differs: a missing
+                      or invalid `.kogen/project.yaml` exits 3 (`environment/not_initialized`,
+                      `environment/project_config_invalid`; models roles other than shape, build,
+                      review, plan are unknown keys), and a build logs a `stage_pass` event with the tree
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -51,6 +55,9 @@ USAGE = {  # per request role: input, cached, output, reasoning
 
 
 SHAPE_USAGE = {"input": 2000, "cached": 1500, "output": 400, "reasoning": 200}
+
+
+GO = os.environ.get("FAKE_KOGEN_CLI") == "go"
 
 
 def say(line=""):
@@ -184,6 +191,21 @@ def cmd_init(root):
     return 0
 
 
+def check_config(root):
+    """Go Kogen: `.kogen/project.yaml` must exist and name only known model roles (cli/project/config.go)."""
+    path = os.path.join(root, ".kogen", "project.yaml")
+    if not os.path.exists(path):
+        die(3, f"environment/not_initialized: {root} has no .kogen/project.yaml; run kogen init")
+    text, in_models, bad = read(path), False, []
+    for n, line in enumerate(text.splitlines(), 1):
+        if re.match(r"^\S", line):
+            in_models = line.startswith("models:")
+        elif in_models and (m := re.match(r"^  ([a-z_]+):", line)) and m.group(1) not in (*DEFAULT_MODELS, "plan"):
+            bad.append(f"line {n}: unknown key {m.group(1)}")
+    if "version: 1" not in text.splitlines() or bad:
+        die(3, "\n".join([f"environment/project_config_invalid: {path}", *bad]))
+
+
 def cmd_shape(root, slug, source):
     request = sys.stdin.read() if source == "-" else read(source)
     ask = os.environ.get("FAKE_KOGEN_QUESTIONS")
@@ -311,6 +333,10 @@ def cmd_build(root, slug, mode):
             run.log(event="command_result", name="test", status=0, output="ok")
             run.log(event="pass", **{"pass": 1}, green=True, failing=[], not_run=[],
                     files_changed_while_checks_ran=[])
+            if GO:  # two stages: the first one failing on the start tree, then the green one
+                run.log(event="stage_pass", stage_id="s1", stage_index=0, tree=git(root, "rev-parse", "HEAD^{tree}"),
+                        green=False, failing=["test"], not_run=[])
+                run.log(event="stage_pass", stage_id="s2", stage_index=1, tree=tree, green=True, failing=[], not_run=[])
     run.log(event="review", review=1, attempt=1, tree=tree, verdict="approve", findings=[], **{"pass": 1})
     run.log(event="commit", tree=tree)
     git(root, "commit", "-m", f"Build {slug}")
@@ -335,6 +361,8 @@ def main(argv):
         if pos:
             die(2, f"kogen init: unexpected argument '{pos[0]}'")
         return cmd_init(root)
+    if GO:
+        check_config(root)
     names = {"shape": ["<slug>", "<file|->"], "approve": ["<slug>", "<hash>"], "build": ["<slug>"]}[cmd]
     need(pos, len(names) - (cmd == "approve"), names, cmd)
     if len(pos) > len(names):

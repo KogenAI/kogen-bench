@@ -46,6 +46,8 @@ Models are priced by the log's `effective_model`, else its `configured_model` (s
 
 ## Tests
 
+`lanes-build` builds the Elixir Kogen (`mix.exs`) and the Go Kogen (`cli/go.mod` with `packaging/package.sh`, which needs Go and npm on PATH, and the network for `npm ci`); `FORMATS.md` lists the Go CLI facts.
+
 `sh lanes/test.sh` runs everything offline. It needs Python 3.11 or later, Go (the version in `grade/go.mod`, on PATH or via `mise`) and git; running against remote hosts also needs rsync and ssh.
 
 ## Private data

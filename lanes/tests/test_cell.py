@@ -290,6 +290,45 @@ class CellTest(unittest.TestCase):
         res = self.done(run)[1]
         self.assertEqual((res["outcome"], res["stages"][0]["outcome"]), ("exit_5", "exit_5"))
 
+    # The Go Kogen (687f1407): same commands, card, paths and events; FAKE_KOGEN_CLI=go adds its differences.
+    GO = {"FAKE_KOGEN_CLI": "go"}
+    ROLES = {"shape": "openai/gpt-x low", "build": "openai/gpt-x high", "review": "acme/model-y high"}
+
+    def test_go_cli_shape_build_and_e2e(self):
+        for phase, stages in (("shape", ["shape"]), ("build", ["approve", "build", "review"]),
+                              ("e2e", ["shape", "approve", "build", "review"])):
+            with self.subTest(phase):
+                run = self.make_run(phase, models=self.ROLES)
+                r = self.cell(run, **self.GO)
+                self.assertEqual(r.returncode, 0, r.stderr)
+                path, res = self.done(run)
+                self.assertEqual(res["outcome"], "ok" if phase == "shape" else "landed")
+                self.assertEqual([s["stage"] for s in res["stages"]], stages)
+                self.assertEqual(res["totals"]["requests"], {"shape": 1, "build": 2, "e2e": 3}[phase])
+
+    def test_go_cli_stage_pass_trees_are_pass_trees(self):
+        run = self.make_run("build")
+        self.assertEqual(self.cell(run, **self.GO).returncode, 0)
+        path, res = self.done(run)
+        events = common.read_jsonl(os.path.join(path, "run-log", "log.jsonl"))
+        stage_trees = [e["tree"] for e in events if e["event"] == "stage_pass"]
+        self.assertEqual(len(stage_trees), 2)
+        self.assertEqual(sorted(res["pass_trees"]), sorted(set(stage_trees)))
+        for tree in res["pass_trees"]:
+            self.assertTrue(os.path.isfile(os.path.join(path, "pass-trees", tree + ".tar")))
+
+    def test_go_cli_refuses_a_role_it_does_not_know(self):
+        run = self.make_run("shape", models={"read": "openai/gpt-x low"})
+        self.assertEqual(self.cell(run, **self.GO).returncode, 0)
+        path, res = self.done(run)
+        self.assertEqual((res["outcome"], res["exit_code"]), ("environment", 3))
+        self.assertIn("project_config_invalid", read(os.path.join(path, "stdout.txt")))
+        self.assertIn("unknown key read", read(os.path.join(path, "stdout.txt")))
+
+    def test_provider_refusal_exit_4_is_an_outcome(self):
+        cmd = {"stage": "shape", "exit_code": 4}
+        self.assertEqual(cell.command_outcome(cmd, None), "provider")
+
     def test_pass_trees_are_stored_as_tars(self):  # L9
         run = self.make_run("build")
         self.assertEqual(self.cell(run).returncode, 0)
@@ -390,6 +429,18 @@ class CellTest(unittest.TestCase):
         self.assertEqual(self.cell(run, "base", "--force", artifact=wrapper).returncode, 0)
         self.assertEqual(self.done(run)[1]["outcome"], "timeout")
         self.assertFalse(alive(wait_pids(pid, 1)[0]))
+
+    def test_build_exiting_before_the_run_log_gets_its_exit_codes_class(self):  # G1 B1, both CLIs
+        for cli in ("elixir", "go"):
+            for code, outcome in ((4, "provider"), (3, "environment"), (5, "dirty_tree"), (2, "usage")):
+                with self.subTest(cli=cli, code=code):
+                    wrapper = self.wrapper(f'if [ "$2" = build ]; then echo "x/y: stopped"; exit {code}; fi')
+                    run = self.make_run("build")
+                    r = self.cell(run, "base", "--force", artifact=wrapper, FAKE_KOGEN_CLI=cli)
+                    self.assertEqual(r.returncode, 0, r.stderr)
+                    res = self.done(run)[1]
+                    self.assertEqual((res["outcome"], res["exit_code"]), (outcome, code))
+                    self.assertEqual(res["stages"][1]["outcome"], outcome)
 
     def test_failed_build_without_outcome_event_has_one_outcome(self):
         wrapper = self.wrapper('if [ "$2" = build ]; then exit 1; fi')

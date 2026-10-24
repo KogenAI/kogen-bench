@@ -31,8 +31,8 @@ SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 MIN_NODE = 22  # install.sh: Quint and the acceptance bridge run on Node 22 or newer
 ERROR_LINE = re.compile(r"^([a-z_]+/[a-z_]+):", re.M)
 INTENT_FILES = ("intent.md", "acceptance.feature")  # and model.*: these live in the Intent folder
-# Exit code -> outcome (FORMATS Kogen exit codes); a build's last `outcome` event wins over these.
-OUTCOMES = {0: "ok", 1: "refused", 2: "usage", 3: "environment", 70: "internal",
+# Exit code -> outcome (FORMATS Kogen exit codes; 4 is the Go Kogen's provider refusal); a build's last `outcome` event wins over these.
+OUTCOMES = {0: "ok", 1: "refused", 2: "usage", 3: "environment", 4: "provider", 70: "internal",
             129: "signal", 130: "signal", 143: "signal"}
 
 
@@ -308,7 +308,12 @@ def command_outcome(cmd, events):
         return cmd["detail"]
     if cmd["stage"] == "build":
         logged = [e.get("outcome") for e in events or [] if e.get("event") == "outcome"]
-        return logged[-1] if logged else ("ok" if cmd["exit_code"] == 0 else "no_outcome")
+        if logged:
+            return logged[-1]
+        code = cmd["exit_code"]  # no run log: Kogen stopped before it started one; its exit code is the class
+        if code in (0, 1):
+            return "ok" if code == 0 else "no_outcome"
+        return "dirty_tree" if code == 5 else OUTCOMES.get(code, f"exit_{code}")
     return OUTCOMES.get(cmd["exit_code"], f"exit_{cmd['exit_code']}")
 
 
@@ -484,7 +489,7 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
         shutil.copyfile(shape_path, os.path.join(out, "shaping-events.ndjson"))
     final_tree = _git(ws, "rev-parse", "HEAD^{tree}")
     _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "final-tree.tar"), "HEAD")
-    trees = [e["tree"] for e in events or [] if e.get("event") in ("review", "commit") and e.get("tree")]
+    trees = [e["tree"] for e in events or [] if e.get("event") in ("review", "commit", "stage_pass") and e.get("tree")]
     for tree in dict.fromkeys(trees):  # keep the trees the workspace still has, for lanes-grade
         if _git(ws, "cat-file", "-t", tree, check=False) == "tree":
             os.makedirs(os.path.join(out, "pass-trees"), exist_ok=True)

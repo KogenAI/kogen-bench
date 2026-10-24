@@ -41,12 +41,27 @@ def _build_go(tree, log):
     return os.path.join(tree, ".lane-out", "kogen")
 
 
-def _build_elixir(tree, log):
+def _build_packaged(tree, log, tools=()):
+    """Run the release script and take the one archive from `dist/`; `tools` must be on PATH first."""
+    if not os.path.isfile(os.path.join(tree, "packaging", "package.sh")):
+        raise BuildError("no packaging/package.sh in this tree")
+    for tool in tools:
+        if not shutil.which(tool):
+            raise BuildError(f"packaging/package.sh needs `{tool}` on PATH; install it and rerun")
     _run(["sh", "packaging/package.sh"], tree, log)
     archives = glob.glob(os.path.join(tree, "dist", "kogen-*.tar.gz"))
     if len(archives) != 1:
         raise BuildError("packaging/package.sh did not produce exactly one archive")
     return archives[0]
+
+
+def _build_elixir(tree, log):
+    return _build_packaged(tree, log)
+
+
+def _build_go_release(tree, log):
+    """The Go Kogen (module in `cli/`, no root go.mod): the same script, which needs Go and Node (npm)."""
+    return _build_packaged(tree, log, ("go", "npm"))
 
 
 def _build_marker(tree, log):
@@ -59,6 +74,7 @@ def _build_marker(tree, log):
 # artifact path: an executable `kogen`, or a `.tar.gz` release holding `<top>/bin/kogen`.
 DETECT = [
     ("mix.exs", _build_elixir),
+    ("cli/go.mod", _build_go_release),
     ("go.mod", _build_go),
 ]
 

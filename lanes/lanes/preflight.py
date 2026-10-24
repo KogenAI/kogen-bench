@@ -34,6 +34,9 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
         cell.check_supplied(supplied, slug)
         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
         config = cell.project_yaml(task_toml, lane["settings"].get("models"))
+        root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
+        if root:
+            cell.ensure_node_path(root)
     except (OSError, ValueError, cell.CellError) as e:
         return False, str(e)
     tmp = tempfile.mkdtemp(prefix="lanes-preflight-")
