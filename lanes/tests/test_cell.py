@@ -194,7 +194,7 @@ class CellTest(unittest.TestCase):
                               text=True).stdout
         self.assertIn("version: 1\n", yaml)
         self.assertIn("  build: {model: gpt-x, effort: high}\n", yaml)
-        self.assertIn("  review: {model: model-y, effort: low}\n", yaml)
+        self.assertIn("  review: {model: model-y, effort: low, provider: acme}\n", yaml)
         self.assertIn("    - name: test\n      run: 'go test ./...'\n", yaml)
         self.assertIn("    - 'gofmt -w .'\n", yaml)
         self.assertIn("    steps_dir: 'features/steps'\n", yaml)
@@ -216,6 +216,20 @@ class CellTest(unittest.TestCase):
         two = cell.project_yaml({}, {"build": "openai/gpt-6-luna low", "review": "openai/gpt-6 high"})
         self.assertIn("  build: {model: gpt-6-luna, effort: low}\n  review: {model: gpt-6, effort: high}\n", two)
         self.assertNotIn("models:", cell.project_yaml({}, {}))
+
+    def test_project_yaml_provider(self):
+        chatgpt = cell.project_yaml({}, {"build": "chatgpt/gpt-6 low"})
+        self.assertIn("models:\n  build: {model: gpt-6, effort: low}\n", chatgpt)
+        self.assertNotIn("provider", chatgpt)
+        self.assertIn("  build: {model: grok-4.7, effort: high, provider: supergrok}\n",
+                      cell.project_yaml({}, {"build": "supergrok/grok-4.7 high"}))
+        self.assertIn("  build: {model: kimi-k3, effort: low, provider: opencode-go}\n",
+                      cell.project_yaml({}, {"build": "opencode-go/kimi-k3 low"}))
+        mixed = cell.project_yaml({}, {"build": "supergrok/grok-4.7 high", "review": "openai/gpt-6 high",
+                                       "shape": "opencode-go/glm-5 low"})
+        self.assertIn("  build: {model: grok-4.7, effort: high, provider: supergrok}\n"
+                      "  review: {model: gpt-6, effort: high}\n"
+                      "  shape: {model: glm-5, effort: low, provider: opencode-go}\n", mixed)
 
     def test_same_start_tree_for_every_cell(self):
         run = self.make_run("shape", lanes=("a", "b"))

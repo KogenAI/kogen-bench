@@ -33,7 +33,7 @@ Written and committed before any run; validated by `lanes/lanes/experiment.py` (
 | `lanes[].name` | string | as `id` |
 | `lanes[].sha` | string | 40 lowercase hex, a Kogen commit |
 | `lanes[].patch` | string or null | path relative to the experiment file, no `..` |
-| `lanes[].settings.models` | object | role → `"provider/model effort"`; `.kogen/project.yaml` gets `<role>: {model: <part after the first "/">, effort: <last word>}` (bare id, as Kogen takes ChatGPT ids: `config.ex` l.19-21), only for roles set; unset roles keep Kogen's defaults (`config.ex` l.254-268). The provider is recorded only here and in reports |
+| `lanes[].settings.models` | object | role → `"provider/model effort"`; `.kogen/project.yaml` gets `<role>: {model: <part after the first "/">, effort: <last word>}` (bare id, as Kogen takes ChatGPT ids: `config.ex` l.19-21) for prefix `openai/` or `chatgpt/`, and `{model: …, effort: …, provider: <prefix>}` for any other prefix (e.g. `supergrok/grok-4.7 high`, `opencode-go/…`), only for roles set. The `provider` key exists from Kogen main 65640c6; b45ba32b lanes must use `openai/`. Kogen's own config validation decides which providers and models are valid; unset roles keep Kogen's defaults (`config.ex` l.254-268). |
 | `tasks[]` | strings | task ids, unique, at least one |
 | `reps` | integer | ≥ 1 |
 | `deadline_s` | number | > 0, per cell |
