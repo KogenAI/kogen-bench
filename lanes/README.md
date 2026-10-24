@@ -23,6 +23,16 @@ A harness that compares **real Kogen** builds.
 
 Filled in by later packages (lock, run, grade, report).
 
+## Cost guard
+
+`cost_cap_usd` in `experiment.json` caps **ChatGPT-priced** spend (lanes with no provider, `openai/` or `chatgpt/`); the soft cap stops new cells, the hard cap (1.25 ×) stops running ones. Every other provider is a separate subscription: a lane using one needs `"provider_caps": {"opencode-go": {"cells": N}}` (or `supergrok`; a `usd` key may be added, with the same soft/hard rule), which caps the cells started for that provider's lanes. Their estimated dollars are recorded and reported, and stop a run only through a `usd` cap. The first rate-limit failure of a provider (HTTP 429, or a `usage_limit`/`rate_limit` error class in the saved logs or Kogen's `provider/<reason>:` line) writes `rate-limit-stop.json` and stops new cells of that provider; other providers go on. `lanes-run` exits 3 for a cap and 4 for a rate limit. Details: `FORMATS.md`, "Cost cap".
+
+Models are priced by the log's `effective_model`, else its `configured_model` (stage records say which: `model_sources`). `reproduce/price-table-v1.json` rows come from the providers' official price pages; a rate a page does not state is null and is charged at the table's highest rate for that component only.
+
+**Recompute after a pricing fix.** `lanes-cost recompute <run-dir>` reprices every finished cell from its stored run log and shaping events with the current parser and price table. It rewrites only the cost fields (`cost_usd`, `cost_reason`, `models`, `model_sources` of the stages and totals), keeps the old values in `cost-backup.json` beside `result.json` (from the first recompute), never reruns or deletes a cell, keeps every retired attempt's ledger line and every `spent.json` as recorded (it says how many: their logs are not stored), works on a run dir made before `provider_caps` existed, and removes `cost-stop.json` once no USD cap is reached any more. It refuses while a cell is running.
+
+**Resume a stopped run.** After a cost stop: `lanes-cost recompute <run-dir>` (if the prices were wrong), or raise the cap in `experiment.json` and run `lanes-plan` again; a run dir made before `provider_caps` existed needs it added to `experiment.json` for every non-ChatGPT provider (`lanes-run` and `lanes-cell` refuse to start cells without it; reading and recompute do not) and `lanes-plan` run again; then `lanes-run <run-dir> --hosts ...` again (finished cells are skipped), or `lanes-cell <run-dir> <task>/r<n>/<lane>` per cell. After a rate limit: wait for the limit to reset, delete `rate-limit-stop.json` (or the provider's entry) in the run dir, then run `lanes-run` again; the cell that hit the limit has a `result.json`, so rerun it with `lanes-cell ... --force`.
+
 ## Tests
 
 `sh lanes/test.sh` runs everything offline. It needs Python 3.11 or later, Go (the version in `grade/go.mod`, on PATH or via `mise`) and git; running against remote hosts also needs rsync and ssh.

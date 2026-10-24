@@ -15,7 +15,7 @@ ADD = "mini/TestAddNegative"
 
 
 def experiment(id_, rnd, parent, train=("t1", "t2"), test=("t3",)):
-    lane = {"sha": SHA, "settings": {"models": {"build": "p/m high"}}}
+    lane = {"sha": SHA, "settings": {"models": {"build": "openai/m high"}}}
     return {"id": id_, "kind": "climb", "phase": "build", "intent_form": "gherkin", "kogen": {"repo": "x"},
             "lanes": [dict(lane, name="baseline", patch=None), dict(lane, name="candidate", patch="p.patch")],
             "tasks": [*train, *test], "reps": 1, "deadline_s": 60, "hosts": ["local"],

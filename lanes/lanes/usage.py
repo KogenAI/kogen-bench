@@ -13,6 +13,7 @@ from . import common
 STAGES = ("shape", "approve", "build")
 INNER = ("verify", "review", "repair")  # request roles Kogen names that get their own record
 TOKENS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_tokens")
+RATES = ("input", "cached_input", "output")
 USAGE_KEYS = dict(zip(TOKENS, ("input", "cached", "output", "reasoning")))
 ZERO_USAGE = "usage all zero (b45ba32b logs unknown usage as 0)"
 COST_CALC = os.path.join(os.path.dirname(__file__), "..", "..", "reproduce", "cost_calc.py")
@@ -25,19 +26,44 @@ def _cost_calc():
     return mod
 
 
+def model_of(event):
+    """`(model, source)` of a shaping or build event: its `effective_model` (or build `model`), else its
+    `configured_model` (Kogen leaves `effective_model` null for some providers); `(None, None)` when
+    neither is named. A model name is never made up."""
+    for key, source in (("effective_model", "effective"), ("model", "effective"), ("configured_model", "configured")):
+        if event.get(key):
+            return event[key], source
+    return None, None
+
+
+def top_rates(table):
+    """The highest input, cached-input and output rate of the price table: the guard's fallback rates."""
+    rows = list(table["models"].values())
+    return {k: max(float(r[k]) for r in rows if r.get(k) is not None) for k in RATES}
+
+
 def request_cost(model, usage, table=None, calc=None):
     """`(usd or None, reason or None)` for one request; `usage` has the TOKENS keys.
 
-    A price that cost_calc flags as an estimate keeps its usd and returns the status as reason.
+    A price that cost_calc flags as an estimate keeps its usd and returns the status as reason. A row
+    whose rate for one component is null (the provider's page does not state it) prices that component at
+    the table's highest rate, the reason `fallback_rate: <component>`; the other components keep their rows.
     """
     calc = calc or _cost_calc()
     if any(usage.get(k) is None for k in ("input_tokens", "cached_input_tokens", "output_tokens")):
         return None, "usage missing"
+    if not model:
+        return None, "model missing"
     table = table if table is not None else calc.load_table()
     for name in (model, (model or "").split("/", 1)[-1]):
         if name in table.get("models", {}):
             model = name
             break
+    row = table.get("models", {}).get(model)
+    gaps = sorted(k for k in RATES if isinstance(row, dict) and row.get(k) is None and k in row)
+    if gaps:
+        top = top_rates(table)
+        table = {**table, "models": {**table["models"], model: {**row, **{k: top[k] for k in gaps}}}}
     try:
         r = calc.calculate(model, usage["input_tokens"], usage["cached_input_tokens"],
                            usage["output_tokens"], table)
@@ -45,6 +71,8 @@ def request_cost(model, usage, table=None, calc=None):
         return None, str(e)
     if r["usd"] is None:
         return None, f"{r['status']}: {model}"
+    if gaps:
+        return float(r["usd"]), "fallback_rate: " + ", ".join(gaps)
     return float(r["usd"]), (r["status"] if r["status"] != "priced" else None)
 
 
@@ -53,7 +81,8 @@ def _record(stage, command, requests, table, calc):
     missing = []
     rec = {"stage": stage, "started": None, "ended": None, "wall_s": None, "exit_code": None,
            "outcome": None, "requests": len(requests),
-           "models": sorted({r["model"] for r in requests if r.get("model")})}
+           "models": sorted({r["model"] for r in requests if r.get("model")}),
+           "model_sources": sorted({r["model_source"] for r in requests if r.get("model_source")})}
     if command:
         for k in ("started", "ended", "wall_s", "exit_code"):
             rec[k] = command.get(k)
@@ -91,7 +120,8 @@ def shape_requests(events):
     for e in events or []:
         if e.get("event") == "provider_call":
             u = e.get("usage") or {}
-            out.append({"role": "shape", "model": e.get("effective_model"), "wall_ms": e.get("wall_ms"),
+            model, source = model_of(e)
+            out.append({"role": "shape", "model": model, "model_source": source, "wall_ms": e.get("wall_ms"),
                         "usage": {k: u.get(v) for k, v in USAGE_KEYS.items()}})
     return out
 
@@ -116,7 +146,8 @@ def parse_run_log(events, commands, table=None, shape_events=None):
         if e.get("event") == "request":
             u = e.get("usage") or {}
             usage = {k: u.get(v) for k, v in USAGE_KEYS.items()}
-            reqs.append({"role": e.get("role"), "model": e.get("model"), "wall_ms": e.get("wall_ms"),
+            model, source = model_of(e)
+            reqs.append({"role": e.get("role"), "model": model, "model_source": source, "wall_ms": e.get("wall_ms"),
                          "usage": usage, "zero_is_unknown": all(v == 0 for v in usage.values())})
     outcomes = [e.get("outcome") for e in events if e.get("event") == "outcome"]
     stages = []
@@ -149,7 +180,8 @@ def parse_run_log(events, commands, table=None, shape_events=None):
 
 def totals(stages):
     """Sums over all records; wall time sums only command-level stages (inner ones overlap them)."""
-    t = {"requests": sum(s["requests"] for s in stages), "models": sorted({m for s in stages for m in s["models"]})}
+    t = {"requests": sum(s["requests"] for s in stages), "models": sorted({m for s in stages for m in s["models"]}),
+         "model_sources": sorted({m for s in stages for m in s["model_sources"]})}
     for k in TOKENS:
         vals = [s[k] for s in stages]
         t[k] = None if any(v is None for v in vals) else sum(vals)

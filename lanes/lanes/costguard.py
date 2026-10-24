@@ -15,6 +15,8 @@ The guard fails closed on real errors: unreadable or unparsable usage, no price 
 error: the steps that move spend from one record to the next (live workspace -> result.json or spent.json,
 cell dir -> ledger) hold the run dir's lock (`locked`), and readers take it too, so each attempt is counted
 exactly once. A source gone with no final record is retried for `RETRY_S` seconds, then the guard fails closed.
+`cost_cap_usd` covers ChatGPT-priced spend only; `provider_caps` cap the cells (and optionally the USD) of every
+other provider; a provider's first rate-limit failure stops new cells of that provider (`rate-limit-stop.json`).
 `python3 -m lanes.costguard cells <run-dir>` prints `{cell: usd}` (the controller polls it on remote hosts).
 """
 
@@ -23,12 +25,13 @@ import fcntl
 import glob
 import json
 import os
+import re
 import shutil
 import sys
 import threading
 import time
 
-from . import common, usage
+from . import common, experiment, usage
 
 HARD_FACTOR = 1.25  # hard cap = HARD_FACTOR * cost_cap_usd
 FALLBACK_TOKENS = {"input_tokens": 100_000, "cached_input_tokens": 0, "output_tokens": 20_000}
@@ -36,6 +39,8 @@ LIVE = "live.json"    # in a running cell's dir: where its workspace is
 SPENT = "spent.json"  # in a cell dir that stopped without result.json: what it had spent
 LEDGER = "cost-ledger.jsonl"  # in the run dir: spend of attempts whose cell dir was thrown away
 STOP = "cost-stop.json"       # in the run dir: which cap stopped the run
+RATE = "rate-limit-stop.json"  # in the run dir: the providers that hit a rate or usage limit
+LIMIT_WORDS = ("usage_limit", "rate_limit", "rate-limit", "too_many_requests")  # in a Kogen error class or reason
 LOCK = ".cost.lock"           # in the run dir: the spend lock
 RETRY_S = 5.0  # how long a source that is gone without a final record is retried before failing closed
 _pricing = None
@@ -92,8 +97,7 @@ def pricing():
     if _pricing is None:
         calc = usage._cost_calc()
         table = calc.load_table()
-        rows = list(table["models"].values())
-        _pricing = calc, table, {k: max(float(r[k]) for r in rows) for k in ("input", "cached_input", "output")}
+        _pricing = calc, table, usage.top_rates(table)
     return _pricing
 
 
@@ -233,11 +237,159 @@ def estimate(run_dir, per_lane=False, extra=None, retry_s=None):
     return (total, {k: round(v, 8) for k, v in sorted(lanes.items())}) if per_lane else total
 
 
-def record_stop(run_dir, cap, spent):
+def require_provider_caps(exp):
+    """Before a cell starts: every provider other than ChatGPT that a lane uses needs a `provider_caps` entry
+    (older run dirs lack it; read-only commands never ask). CostCapError says how to add it."""
+    caps_ = exp.get("provider_caps") or {}
+    for lane in exp.get("lanes", []):
+        names = experiment.lane_providers(lane) - {experiment.CHATGPT}
+        if len(names) > 1:
+            raise CostCapError(f"lane {lane['name']} names more than one non-ChatGPT provider: " + ", ".join(sorted(names)))
+        for name in names:
+            if not caps_.get(name):
+                raise CostCapError(f'lane {lane["name"]} uses provider {name}: add "provider_caps": {{"{name}": '
+                                   '{"cells": N}} to experiment.json (the cost cap covers ChatGPT only), then run '
+                                   "lanes-plan again so PLAN.json carries it")
+
+
+def lane_providers(exp):
+    """`{lane: provider}` of the experiment's lanes (none for an experiment dict without lanes)."""
+    return {l["name"]: experiment.lane_provider(l) for l in exp.get("lanes", [])}
+
+
+def provider_spend(run_dir, exp, extra=None, retry_s=None):
+    """`{provider: usd}`: the estimate split by the provider of each cell's lane (ChatGPT when unknown)."""
+    _, lanes = estimate(run_dir, per_lane=True, extra=extra, retry_s=retry_s)
+    names, out = lane_providers(exp), {}
+    for lane, usd in lanes.items():
+        p = names.get(lane, experiment.CHATGPT)
+        out[p] = out.get(p, 0.0) + usd
+    return {p: round(v, 8) for p, v in out.items()}
+
+
+def started_cells(run_dir, exp, ignore=None):
+    """`{provider: set of cells}` with a cell dir or a ledger line (a retired attempt still counts as started)."""
+    names, out = lane_providers(exp), {}
+    cells = os.path.join(run_dir, "cells")
+    found = {os.path.relpath(p, cells).replace(os.sep, "/") for p in glob.glob(os.path.join(cells, "*", "r*", "*"))
+             if os.path.isdir(p)}
+    path = os.path.join(run_dir, LEDGER)
+    found |= {e["cell"] for e in (common.read_jsonl(path) if os.path.isfile(path) else [])}
+    for cell in found - {ignore}:
+        out.setdefault(names.get(cell.split("/")[-1], experiment.CHATGPT), set()).add(cell)
+    return out
+
+
+def usd_caps(exp):
+    """`{provider: (soft, hard)}` for the USD caps: ChatGPT's `cost_cap_usd` and any `provider_caps.<p>.usd`."""
+    out = {p: (c["usd"], c["usd"] * HARD_FACTOR) for p, c in (exp.get("provider_caps") or {}).items() if "usd" in c}
+    if exp.get("cost_cap_usd") is not None:
+        out[experiment.CHATGPT] = caps(exp)
+    return out
+
+
+def rate_limited(run_dir):
+    """`{provider: {cell, reason, at}}` from `rate-limit-stop.json`."""
+    path = os.path.join(run_dir, RATE)
+    return common.read_json(path) if os.path.isfile(path) else {}
+
+
+def _limit_fields(failure):
+    """The reason when a Kogen `provider_failure` record (`http_status`, `code`, `type`, `event_kind`) is a limit."""
+    if not isinstance(failure, dict):
+        return None
+    if str(failure.get("http_status")) == "429":
+        return "http_429"
+    for k in ("code", "type"):
+        v = failure.get(k)
+        if isinstance(v, str) and any(w in v.lower() for w in LIMIT_WORDS):
+            return v
+    return None
+
+
+def find_rate_limit(cell_dir):
+    """The reason when a cell's saved logs show it failed on a rate or usage limit, else None.
+
+    Kogen's structured records, in order: a build `outcome` event's `provider_failure` (written after the
+    retries failed; a 429 a retry recovered is not one); a shaping `provider_call` that failed (`error` set)
+    with `provider.provider_failure`; an event's `error`, `reason`, `code` or `outcome` class naming a limit;
+    and, in stdout, Kogen's `provider/<reason>:` error line (reason names a limit) and its
+    `provider failure: {json}` line. Free text is the last fallback, only for a `provider/<reason>:` line whose
+    detail says HTTP 429, where Kogen gave no class."""
+    for name in (os.path.join("run-log", "log.jsonl"), "shaping-events.ndjson"):
+        path = os.path.join(cell_dir, name)
+        for e in (_read_saved(path) if os.path.isfile(path) else []):
+            prov = e.get("provider") if isinstance(e.get("provider"), dict) else {}
+            found = (_limit_fields(e.get("provider_failure")) if e.get("event") == "outcome" else None) \
+                or (_limit_fields(prov.get("provider_failure")) if e.get("event") == "provider_call" and e.get("error") else None)
+            for k in ("error", "reason", "code", "outcome"):
+                v = e.get(k)
+                if not found and isinstance(v, str) and any(w in v.lower() for w in LIMIT_WORDS):
+                    found = v
+            if found:
+                return found
+    path = os.path.join(cell_dir, "stdout.txt")
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                m = re.match(r"\s*provider failure: (\{.*\})\s*$", line)
+                if m:
+                    try:
+                        found = _limit_fields(json.loads(m.group(1)))
+                    except ValueError:
+                        found = None
+                    if found:
+                        return found
+                m = re.match(r"provider/([a-z_]+):(.*)", line)
+                if m and (any(w in m.group(1) for w in LIMIT_WORDS) or re.search(r"\bHTTP 429\b", m.group(2))):
+                    return "provider/" + m.group(1)
+    return None
+
+
+def note_rate_limit(run_dir, exp, cell):
+    """After a cell: record the first rate-limit failure of its provider. Returns the reason, or None."""
+    reason = find_rate_limit(common.cell_dir(run_dir, cell))
+    if reason is None:
+        return None
+    provider = lane_providers(exp).get(cell.split("/")[-1], experiment.CHATGPT)
+    with locked(run_dir):
+        marks = rate_limited(run_dir)
+        marks.setdefault(provider, {"cell": cell, "reason": reason, "rate_limited": True,
+                                    "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+        common.write_json(os.path.join(run_dir, RATE), marks)
+    return reason
+
+
+def blocked(exp, lane, spends, started, limits=None):
+    """Why a new cell of `lane` may not start: a soft cap of its provider reached, its cell cap used up, or
+    the provider rate limited. None when it may. `spends` is `provider_spend`, `started` is `started_cells`."""
+    provider = experiment.lane_provider(next(l for l in exp["lanes"] if l["name"] == lane))
+    cap = usd_caps(exp).get(provider)
+    spent = spends.get(provider, 0.0)
+    if cap and spent >= cap[0]:
+        if provider == experiment.CHATGPT:
+            return f"cost cap reached: spend ${spent:.4f} of the ${cap[0]:g} cap; no new cell starts"
+        return f"cost cap reached: {provider} spend ${spent:.4f} of the ${cap[0]:g} cap; no new {provider} cell starts"
+    cells = ((exp.get("provider_caps") or {}).get(provider) or {}).get("cells")
+    if cells is not None and len(started.get(provider, ())) >= cells:
+        return f"{provider} cell cap reached: {cells} cell(s) started; no new {provider} cell starts"
+    if provider in (limits if limits is not None else {}):
+        mark = limits[provider]
+        return f"{provider} is rate limited ({mark['reason']} at {mark['cell']}); no new {provider} cell starts"
+    return None
+
+
+def over_hard(exp, spends, provider=None):
+    """`[(provider, spent, hard)]` of the USD caps (of `provider` only, when given) whose hard limit is reached."""
+    return [(p, spends[p], hard) for p, (_, hard) in usd_caps(exp).items()
+            if provider in (None, p) and spends.get(p, 0.0) >= hard]
+
+
+def record_stop(run_dir, cap, spent, provider=experiment.CHATGPT):
     """Note which cap stopped the run; a hard stop overrides a soft one, never the reverse."""
     path = os.path.join(run_dir, STOP)
     if cap == "hard" or not os.path.exists(path):
-        common.write_json(path, {"cap": cap, "spent_usd": round(spent, 8),
+        common.write_json(path, {"cap": cap, "spent_usd": round(spent, 8), "provider": provider,
                                  "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
 
 
@@ -247,24 +399,35 @@ def clear_stop(run_dir):
         os.remove(os.path.join(run_dir, STOP))
 
 
-def check_start(run_dir, exp):
-    """Refuse to start a cell once the soft cap is reached, or when spend cannot be read."""
-    soft, _ = caps(exp)
+def check_start(run_dir, exp, cell=None):
+    """Refuse to start a cell once a soft cap of its provider is reached, its provider is rate limited, or
+    when spend cannot be read. Without `cell`, the lane is taken as ChatGPT."""
+    caps(exp)
+    require_provider_caps(exp)
+    lane = cell.split("/")[-1] if cell else None
     try:
         pricing()  # no price table, no guard: refuse rather than run uncapped
-        spent = estimate(run_dir)
+        spends = provider_spend(run_dir, exp)
+        started = started_cells(run_dir, exp, ignore=cell) if cell else {}
+        limits = rate_limited(run_dir)
     except Exception as e:
         raise CostCapError(f"cannot read the run's spend ({e}); the cost guard fails closed") from None
-    if spent >= soft:
-        record_stop(run_dir, "soft", spent)
-        raise CostCapError(f"cost cap reached: spend ${spent:.4f} of the ${soft:g} cap; no new cell starts")
+    provider = lane_providers(exp).get(lane, experiment.CHATGPT)
+    why = blocked(exp, lane, spends, started, limits) if lane in lane_providers(exp) else (
+        f"cost cap reached: spend ${spends.get(provider, 0.0):.4f} of the ${caps(exp)[0]:g} cap; no new cell starts"
+        if spends.get(provider, 0.0) >= caps(exp)[0] else None)
+    if why:
+        if why.startswith("cost cap"):
+            record_stop(run_dir, "soft", spends.get(provider, 0.0), provider)
+        raise CostCapError(why)
 
 
 class Watcher:
-    """Thread that sets `tripped` once the run dir's estimate reaches the hard cap, or cannot be read."""
+    """Thread that sets `tripped` once the hard cap of its cell's provider is reached (any, without `provider`), or the spend cannot be read."""
 
-    def __init__(self, run_dir, exp, interval_s=None):
-        self.run_dir, self.hard = run_dir, caps(exp)[1]
+    def __init__(self, run_dir, exp, interval_s=None, provider=None):
+        self.run_dir, self.exp, self.provider = run_dir, exp, provider
+        caps(exp)
         self.interval = float(os.environ.get("LANES_COST_WATCH_S", 0.5)) if interval_s is None else interval_s
         self.tripped, self.error, self.spent = threading.Event(), None, None
         self._stop = threading.Event()
@@ -273,9 +436,11 @@ class Watcher:
     def _loop(self):
         while not self._stop.wait(self.interval):
             try:
-                self.spent = estimate(self.run_dir)
-                if self.spent >= self.hard:
-                    record_stop(self.run_dir, "hard", self.spent)
+                spends = provider_spend(self.run_dir, self.exp)
+                self.spent = spends.get(experiment.CHATGPT, 0.0)
+                hit = over_hard(self.exp, spends, self.provider)
+                if hit:
+                    record_stop(self.run_dir, "hard", hit[0][1], hit[0][0])
                     self.tripped.set()
                     return
             except Exception as e:  # fail closed: a guard that cannot read the spend stops the cell

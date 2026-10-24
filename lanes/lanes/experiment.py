@@ -16,6 +16,9 @@ _MISSING = object()
 _MODEL = re.compile(r"^[^\s/]+/\S+ \S+$")  # "provider/model effort"
 
 
+CHATGPT = "chatgpt"  # the provider of a lane that names none (or `openai/`, `chatgpt/`): `cost_cap_usd` covers it
+
+
 class ExperimentError(ValueError):
     """The message names the offending field."""
 
@@ -60,6 +63,37 @@ def _lane(lane, i):
             _fail(f + f".settings.models.{role}", "must look like 'provider/model effort'")
 
 
+def lane_providers(lane):
+    """The providers a lane's `settings.models` name, `openai` and `chatgpt` as one; ChatGPT when it names none."""
+    names = {spec.split("/", 1)[0] for spec in lane["settings"].get("models", {}).values()}
+    return {CHATGPT if n in ("openai", CHATGPT) else n for n in names} or {CHATGPT}
+
+
+def lane_provider(lane):
+    """The provider a lane's spend and cells count against: its one non-ChatGPT provider, else ChatGPT."""
+    other = lane_providers(lane) - {CHATGPT}
+    return next(iter(other)) if other else CHATGPT
+
+
+def _provider_caps(exp):
+    caps = _kind(exp.get("provider_caps", {}), dict, "provider_caps",
+                 'an object like {"opencode-go": {"cells": 8}}')
+    for name, cap in caps.items():
+        f = f"provider_caps.{name}"
+        _name(name, "provider_caps key")
+        if name == CHATGPT:
+            _fail(f, "ChatGPT is capped by cost_cap_usd")
+        _kind(cap, dict, f, 'an object with "cells" and/or "usd"')
+        if not cap or set(cap) - {"cells", "usd"}:
+            _fail(f, 'must have "cells" and/or "usd", and nothing else')
+        if "cells" in cap and (isinstance(cap["cells"], bool) or not isinstance(cap["cells"], int) or cap["cells"] < 1):
+            _fail(f + ".cells", "must be an integer of at least 1")
+        if "usd" in cap:
+            usd = _kind(cap["usd"], (int, float), f + ".usd", "a number of USD")
+            if not math.isfinite(usd) or usd <= 0:
+                _fail(f + ".usd", "must be a finite positive number")
+
+
 def validate(exp):
     """Return `exp` if valid, else raise ExperimentError."""
     _kind(exp, dict, "experiment", "an object")
@@ -97,6 +131,7 @@ def validate(exp):
         cap = _kind(exp["cost_cap_usd"], (int, float), "cost_cap_usd", "a number of USD")
         if not math.isfinite(cap) or cap <= 0:
             _fail("cost_cap_usd", "must be a finite positive number")
+    _provider_caps(exp)
     hosts = _kind(exp.get("hosts"), list, "hosts", "a list of host names")
     for i, h in enumerate(hosts):
         _name(h, f"hosts[{i}]")

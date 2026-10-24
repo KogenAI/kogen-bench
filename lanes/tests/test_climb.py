@@ -12,8 +12,8 @@ SHA = "0123456789abcdef0123456789abcdef01234567"
 def climb():
     return {
         "id": "climb-r1", "kind": "climb", "phase": "build", "intent_form": "gherkin", "kogen": {"repo": "x"},
-        "lanes": [{"name": "baseline", "sha": SHA, "patch": None, "settings": {"models": {"build": "p/m high"}}},
-                  {"name": "candidate", "sha": SHA, "patch": "p.patch", "settings": {"models": {"build": "p/m high"}}}],
+        "lanes": [{"name": "baseline", "sha": SHA, "patch": None, "settings": {"models": {"build": "openai/m high"}}},
+                  {"name": "candidate", "sha": SHA, "patch": "p.patch", "settings": {"models": {"build": "openai/m high"}}}],
         "tasks": ["a1", "a2", "b1"], "reps": 1, "deadline_s": 60, "hosts": ["local"],
         "split": {"train": ["a1", "a2"], "test": ["b1"]}, "min_effect": 0.1, "noise_ref": "noise/r0.json",
         "round": 1, "parent": None, "decision_rule": {"kind": "keep_revert"},
@@ -33,14 +33,14 @@ class Validate(unittest.TestCase):
 
     def test_settings_change_instead_of_patch(self):
         exp = climb()
-        exp["lanes"][1].update(patch=None, settings={"models": {"build": "p/m low"}})
+        exp["lanes"][1].update(patch=None, settings={"models": {"build": "openai/m low"}})
         experiment.validate(exp)
 
     def test_bad_climbs(self):
         def two_patches(e):
-            e["lanes"][1]["settings"] = {"models": {"build": "p/m low"}}
+            e["lanes"][1]["settings"] = {"models": {"build": "openai/m low"}}
         def two_settings(e):
-            e["lanes"][1].update(patch=None, settings={"models": {"build": "p/m low", "review": "p/m low"}})
+            e["lanes"][1].update(patch=None, settings={"models": {"build": "openai/m low", "review": "openai/m low"}})
         def no_change(e):
             e["lanes"][1]["patch"] = None
         cases = [

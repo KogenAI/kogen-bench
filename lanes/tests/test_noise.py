@@ -10,7 +10,7 @@ from lanes import common, noise as noise_mod, plan_hashes
 
 BIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "bin")
 SHA = "0123456789abcdef0123456789abcdef01234567"
-SETTINGS = {"models": {"build": "p/m high"}}
+SETTINGS = {"models": {"build": "openai/m high"}}
 TASKS = ["t1", "t2", "t3", "t4"]
 MANY = [f"t{i}" for i in range(30)]
 
@@ -262,7 +262,7 @@ class Gate(unittest.TestCase):
                          split={"train": MANY[:15], "test": MANY[15:]}, decision_rule={"kind": "keep_revert"})
         exp["lanes"] = [{"name": "baseline", "sha": SHA, "patch": None, "settings": SETTINGS},
                         {"name": "candidate", "sha": SHA, "patch": None,
-                         "settings": {"models": {"build": "p/m low"}}}]
+                         "settings": {"models": {"build": "openai/m low"}}}]
         exp.update(exp_fields or {})
         common.write_json(self.exp_path, exp)
         if write:

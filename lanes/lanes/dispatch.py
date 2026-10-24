@@ -194,10 +194,11 @@ class Runner:
 
     def __init__(self):
         self.stopped = threading.Event()
+        self.halted = set()  # tags (providers) whose commands stop while the others go on
         self._procs = set()
         self._lock = threading.Lock()
 
-    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False):
+    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False, tag=None):
         """Return `(exit_code, output)`; exit 124 on the deadline, 130 when stopped (`force`: ignore stop)."""
         if self.stopped.is_set() and not force:
             return 130, ""
@@ -216,7 +217,7 @@ class Runner:
             try:
                 code = proc.wait(timeout=0.1)
             except subprocess.TimeoutExpired:
-                if self.stopped.is_set() and not force:
+                if (self.stopped.is_set() or tag in self.halted) and not force:
                     code = 130
                 elif end and time.monotonic() > end:
                     code = 124
@@ -231,6 +232,9 @@ class Runner:
                 proc.stdout.close()
         text = reader[0].decode(errors="replace") if reader else ""
         return (code if code >= 0 else 128 - code), text
+
+    def halt(self, tag):
+        self.halted.add(tag)
 
     def stop(self):
         self.stopped.set()  # waiting loops notice within 0.1 s and kill their own group
@@ -347,7 +351,7 @@ class Host:
         if not self.remote:
             args = [sys.executable, os.path.join(c.lanes_dir, "bin", "lanes-cell"), c.run_dir, cell,
                     "--tasks", c.tasks, "--host", self.name]
-            self.ctx.runner.run(args, deadline_s=deadline)
+            self.ctx.runner.run(args, deadline_s=deadline, tag=self.ctx.provider(cell))
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
         costguard.retire(c.run_dir, cell, local_cell)  # an earlier attempt's partial dir: keep its spend
@@ -361,7 +365,7 @@ class Host:
                    f"KOGEN_LANES_HOME={q(self.root)} python3 -c {q(launch)} {q(pgfile)} "
                    f"lanes/bin/lanes-cell {q(os.path.join(self.root, 'runs', c.exp_id))} "
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
-        code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline)
+        code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline, tag=self.ctx.provider(cell))
         if code in (124, 130, 255):  # deadline, stop or lost connection: the ssh client died, the remote group may not have
             kill = f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; true; }}"
             killed = self.sh(kill, force=True)[0] == 0
@@ -385,18 +389,23 @@ class Context:
         self.remote_live = {}  # host name -> {cell: usd} polled from its running cells
         self.spend_lock = threading.Lock()  # remote_live and the ledger change together under it
         self.exp_id = exp["id"]
+        self.providers = costguard.lane_providers(exp)
+
+    def provider(self, cell):
+        return self.providers.get(cell.split("/")[-1], experiment.CHATGPT)
 
 
 # ---- the run loop ---------------------------------------------------------------------------
 
 def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
             skip_preflight=False):
-    """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost cap stopped
-    the run, 130 interrupted."""
+    """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost or cell cap
+    stopped the run, 4 a provider's rate limit left cells unstarted, 130 interrupted."""
     run_dir = os.path.abspath(run_dir)
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
     try:
-        soft, hard = costguard.caps(exp)
+        costguard.caps(exp)
+        costguard.require_provider_caps(exp)
     except costguard.CostCapError as e:
         raise DispatchError(str(e)) from None
     verify_inputs(run_dir, exp, tasks)
@@ -410,20 +419,23 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
     started = []
     ctx = Context(run_dir, tasks, lanes_dir, runner, exp)
     hosts = [Host(n, c, ctx) for n, c in load_hosts(hosts_file, exp["hosts"]).items()]
+    lanes = {l["name"]: l for l in exp["lanes"]}
     claims = Claims(run_dir, exp["deadline_s"] + MARGIN_S)
     pick, failed, mine = threading.Lock(), set(), set()
     active = {h.name: h.slots for h in hosts}
     locked = []
     capped = []  # [message] once a cap stopped the run
+    limited = []  # [provider] whose rate limit left a cell unstarted
+    noted = set()
     hard_hit = threading.Event()  # the hard cap, or an unreadable spend: stop every cell
 
-    def spend():
+    def spend():  # {provider: usd}
         with ctx.spend_lock:
             extra = {}
             for live in ctx.remote_live.values():
                 for cell, usd in live.items():
                     extra[cell] = max(extra.get(cell, 0.0), usd)
-            return costguard.estimate(run_dir, extra=extra)
+            return costguard.provider_spend(run_dir, exp, extra=extra)
 
     def trip(message, hard=True):
         if hard_hit.is_set() or (capped and not hard):
@@ -433,16 +445,32 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         if hard:
             hard_hit.set()
 
-    def over_soft():
+    def refuse(c):
+        """Why cell `c` may not start now (its provider's soft cap, cell cap or rate limit), else None."""
         try:
-            spent = spend()
+            started = costguard.started_cells(run_dir, exp)
+            for m in mine:
+                started.setdefault(experiment.lane_provider(lanes[m.split("/")[-1]]), set()).add(m)
+            spends = spend()
+            why = costguard.blocked(exp, c["lane"], spends, started, costguard.rate_limited(run_dir))
         except Exception as e:  # fail closed
             trip(f"cannot read the run's spend ({e}); stopping")
-            return True
-        if spent >= soft and not capped:
-            costguard.record_stop(run_dir, "soft", spent)
-            trip(f"cost cap reached: spend ${spent:.4f} of the ${soft:g} cap; no new cell starts", hard=False)
-        return bool(capped)
+            return "unreadable spend"
+        if why is None:
+            return None
+        provider = experiment.lane_provider(lanes[c["lane"]])
+        if "rate limited" in why:
+            if provider not in limited:
+                limited.append(provider)
+        else:
+            if why.startswith("cost cap"):
+                costguard.record_stop(run_dir, "soft", spends.get(provider, 0.0), provider)
+            if why not in capped:
+                capped.append(why)
+        if why not in noted:
+            noted.add(why)
+            log(why)
+        return why
 
     def poll(host):  # remote hosts: their cells' live spend, read over ssh
         fails = 0
@@ -466,8 +494,10 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             for c in cells:
                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
-                if over_soft():
+                if hard_hit.is_set():
                     return None
+                if refuse(c):
+                    continue  # another provider's cells may still start
                 if claims.take(c["cell"], host.name):
                     mine.add(c["cell"])
                     return c
@@ -498,6 +528,14 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             except DispatchError as e:
                 log(f"{host.name}: {c['cell']}: {e}")
             finally:
+                try:  # before the cell is released, so no sibling slot starts another of this provider first
+                    reason = costguard.note_rate_limit(run_dir, exp, c["cell"])
+                except Exception as e:
+                    reason = None
+                    log(f"{c['cell']}: cannot read its logs for a rate limit ({e})")
+                if reason:
+                    log(f"rate limited: {c['lane']} cell {c['cell']} ended with {reason}; no new cell of its provider starts. "
+                        f"After the limit resets, delete {costguard.RATE} in the run dir and run lanes-run again")
                 claims.release(c["cell"])
                 with pick:
                     mine.discard(c["cell"])
@@ -521,18 +559,24 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         for h in hosts:
             if h.remote:
                 threading.Thread(target=poll, args=(h,), daemon=True).start()
-        grace_end, checked = None, 0.0
+        grace_end, checked, hard_at = None, 0.0, {}  # hard_at: provider -> when its hard cap was seen
         while any(t.is_alive() for t in threads):
             time.sleep(0.1)
             if grace_end is None and time.monotonic() - checked >= 1.0:
                 checked = time.monotonic()
                 try:
-                    spent = spend()
-                    if spent >= hard:
-                        costguard.record_stop(run_dir, "hard", spent)
-                        trip(f"hard cost cap reached (${hard:g}): stopping every cell")
+                    for p, spent, limit in costguard.over_hard(exp, spend()):
+                        if p not in hard_at:
+                            costguard.record_stop(run_dir, "hard", spent, p)
+                            hard_at[p] = time.monotonic()
+                            msg = f"hard cost cap reached ({p}, ${limit:g}): stopping every {p} cell"
+                            log(msg)
+                            capped.append(msg)
                 except Exception as e:  # fail closed
                     trip(f"cannot read the run's spend ({e}); stopping every cell")
+            for p, t in hard_at.items():  # local cells stop themselves in the grace time; then the rest of that provider's
+                if time.monotonic() >= t + CAP_GRACE_S:
+                    runner.halt(p)
             if grace_end is None and hard_hit.is_set():
                 grace_end = time.monotonic() + CAP_GRACE_S
             if grace_end is not None and time.monotonic() >= grace_end:
@@ -547,6 +591,8 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             signal.signal(s, h)
     if capped:
         return 3
+    if limited:
+        return 4
     if interrupted:
         return 130
     return 1 if failed else 0

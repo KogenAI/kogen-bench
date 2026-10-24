@@ -23,12 +23,17 @@ os.makedirs(d, exist_ok=True)
 lock = json.load(open(os.path.join(run_dir, "lanes.lock.json")))
 art = lock[0]["artifact_sha256"]
 home = os.environ.get("KOGEN_LANES_HOME", "")
-with open(os.path.join(d, "result.json"), "w") as f:
+with open(os.path.join(d, "result.json.tmp"), "w") as f:  # atomic, like lanes-cell
     json.dump({"cell": cell, "host": opts["--host"],
                "evaluator": os.path.exists(os.path.join(opts["--tasks"], task, "evaluator")),
                "start": os.path.isdir(os.path.join(opts["--tasks"], task, "start")),
                "artifact": os.path.isfile(os.path.join(home, "artifacts", art, "kogen")),
-               "totals": {"cost_usd": float(os.environ.get("FAKE_COST", 0))}}, f)
+               "totals": {"cost_usd": float(os.environ.get("FAKE_COST_" + cell.split("/")[-1].upper(),
+                                                           os.environ.get("FAKE_COST", 0)))}}, f)
+os.replace(os.path.join(d, "result.json.tmp"), os.path.join(d, "result.json"))
+if os.environ.get("FAKE_RATE_LIMIT") == cell:  # Kogen's error line for a provider's usage limit
+    with open(os.path.join(d, "stdout.txt"), "w") as f:
+        f.write("provider/usage_limit: usage limit reached\n")
 if events:
     with open(events, "a") as f:
         f.write(f"end {cell} {opts['--host']}\n")

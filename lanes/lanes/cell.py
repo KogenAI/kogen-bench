@@ -323,7 +323,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     phase = exp["phase"]
     out = common.cell_dir(run_dir, cell)
     try:
-        costguard.check_start(run_dir, exp)
+        costguard.check_start(run_dir, exp, cell)
     except costguard.CostCapError as e:
         raise CellError(str(e)) from None
     if os.path.exists(os.path.join(out, "result.json")) and not force:
@@ -350,7 +350,12 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     os.makedirs(out)
     tmp = tempfile.mkdtemp(prefix="lanes-cell-")
     try:
-        return _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
+        result = _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
+        reason = costguard.note_rate_limit(run_dir, exp, cell)
+        if reason:
+            print(f"cell: {cell} hit a rate limit ({reason}); no new cell of its provider starts until "
+                  f"{costguard.RATE} is deleted from the run dir", file=sys.stderr)
+        return result
     finally:
         try:
             _drop_live(run_dir, out, os.path.join(tmp, "ws"))
@@ -442,7 +447,7 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
             shutil.copyfile(os.path.join(task, name), dst)
     common.write_json(os.path.join(out, costguard.LIVE), {"workspace": ws})  # the guard reads its logs live
     started, t0 = now(), time.monotonic()
-    with costguard.Watcher(run_dir, exp) as watch:
+    with costguard.Watcher(run_dir, exp, provider=costguard.lane_providers(exp).get(lane_name)) as watch:
         c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped)
         c.watch = watch
         version = c.version(tmp)

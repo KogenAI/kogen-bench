@@ -80,7 +80,7 @@ class CellTest(unittest.TestCase):
     def make_run(self, phase, deadline_s=60, models=None, lanes=("base",)):
         run = os.path.join(self.tmp, "run-" + phase)
         exp = {"id": "exp-mini", "phase": phase, "intent_form": "gherkin", "reps": 1, "deadline_s": deadline_s, "cost_cap_usd": 100,
-               "kogen": {"repo": "https://example.invalid/kogen.git"}, "tasks": ["task-mini"], "hosts": ["local"],
+               "provider_caps": {"acme": {"cells": 5}}, "kogen": {"repo": "https://example.invalid/kogen.git"}, "tasks": ["task-mini"], "hosts": ["local"],
                "decision_rule": {"kind": "paired-pass-rate"},
                "lanes": [{"name": n, "sha": SHA, "patch": None, "settings": {"models": models or {}}} for n in lanes]}
         common.write_json(os.path.join(run, "experiment.json"), exp)

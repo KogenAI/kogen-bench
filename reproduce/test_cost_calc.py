@@ -32,7 +32,8 @@ class CostCalculatorTests(unittest.TestCase):
         self.assertEqual(expected,actual)
     def test_requested_rows_have_official_sources_and_rates(self):
         table=cost_calc.load_table()
-        self.assertEqual(set(table['models']),{'gpt-6-luna','gpt-6.1-sol','gpt-6-astra'})
+        self.assertEqual(set(table['models']),{'gpt-6-luna','gpt-6.1-sol','gpt-6-astra','kimi-k3','grok-4.7'})
+        for row in table['models'].values(): self.assertTrue(row['source_url'].startswith('https://'))
         self.assertIn('https://platform.openai.com/pricing',table['models']['gpt-6.1-sol']['source_url'])
         self.assertIn('https://openai.com/index/introducing-gpt-6-1-sol/',table['models']['gpt-6.1-sol']['additional_sources'])
 

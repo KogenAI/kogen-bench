@@ -126,8 +126,8 @@ class LeakTest(unittest.TestCase):
     def test_settings_are_checked(self):
         self.two_tasks()
         path = self.experiment(lanes=[
-            {"name": "baseline", "sha": SHA, "patch": None, "settings": {"models": {"build": "p/m high"}}},
-            {"name": "candidate", "sha": SHA, "patch": None, "settings": {"models": {"build": "p/task-two high"}}}])
+            {"name": "baseline", "sha": SHA, "patch": None, "settings": {"models": {"build": "openai/m high"}}},
+            {"name": "candidate", "sha": SHA, "patch": None, "settings": {"models": {"build": "openai/task-two high"}}}])
         p = subprocess.run([sys.executable, ENTRY, path, "--tasks", self.tasks], capture_output=True, text=True)
         self.assertEqual(p.returncode, 1)
         self.assertIn("candidate settings: task name", p.stdout)

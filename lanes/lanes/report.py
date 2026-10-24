@@ -322,6 +322,7 @@ def _lane(lane, cells, phase, part=None):
         "models": sorted({m for t in totals for m in t.get("models") or []}),
         "totals": _sums(totals),
         "cost_reasons": sorted({t["cost_reason"] for t in totals if t.get("cost_reason")}),
+        "model_sources": sorted({m for t in totals for m in t.get("model_sources") or []}),
         "stages": [{"stage": k, "cells": len(v), **_sums(v)} for k, v in sorted(
             stages.items(), key=lambda kv: STAGE_ORDER.index(kv[0]) if kv[0] in STAGE_ORDER else len(STAGE_ORDER))],
         "shape": {k: _sum([e[k] for e in shaped]) for k in SHAPE_KEYS} if phase == "shape" else None,
@@ -574,7 +575,15 @@ def cost_section(run_dir, exp, cells):
     cap = exp.get("cost_cap_usd")
     stop = os.path.join(run_dir, costguard.STOP)
     capped = sorted(c["plan"]["cell"] for c in cells if (c["result"] or {}).get("outcome") == "cost_cap")
-    return {"cost_cap_usd": cap, "hard_cap_usd": None if cap is None else cap * costguard.HARD_FACTOR,
+    names, started, limits = costguard.lane_providers(exp), costguard.started_cells(run_dir, exp), costguard.rate_limited(run_dir)
+    by_provider, usd = costguard.provider_spend(run_dir, exp), costguard.usd_caps(exp)
+    providers = {}
+    for p in sorted(set(names.values()) | set(by_provider)):
+        providers[p] = {"spent_usd": by_provider.get(p, 0.0), "usd_cap": usd[p][0] if p in usd else None,
+                        "hard_cap_usd": usd[p][1] if p in usd else None, "cells_started": len(started.get(p, ())),
+                        "cells_cap": ((exp.get("provider_caps") or {}).get(p) or {}).get("cells"),
+                        "rate_limited": limits.get(p)}
+    return {"providers": providers, "lane_providers": names, "cost_cap_usd": cap, "hard_cap_usd": None if cap is None else cap * costguard.HARD_FACTOR,
             "spent_usd": spent, "lanes": {l["name"]: lanes.get(l["name"], 0.0) for l in exp["lanes"]},
             "cost_cap_cells": capped,
             "not_started": sum(1 for c in cells if not os.path.isdir(common.cell_dir(run_dir, c["plan"]["cell"]))),
@@ -624,9 +633,21 @@ def _render_cost(c):
            "Spend counts finished cells and unpriced requests at the guard's fallback price, so it is an upper "
            "estimate (lanes/FORMATS.md, Cost cap).", ""]
     share = lambda v, limit: "n/a" if not limit else f"{100 * v / limit:.0f}%"
-    out += _table(["lane", "spend USD", "of soft cap", "of hard cap"],
-                  [[n, f"{v:.4f}", share(v, cap), share(v, hard)] for n, v in c["lanes"].items()]
-                  + [["total", f"{c['spent_usd']:.4f}", share(c["spent_usd"], cap), share(c["spent_usd"], hard)]])
+    gpt_spent = c["providers"].get("chatgpt", {}).get("spent_usd", 0.0)
+    gpt = lambda n: c["lane_providers"].get(n, "chatgpt") == "chatgpt"  # the cap covers ChatGPT lanes only
+    out += _table(["lane", "provider", "spend USD", "of soft cap", "of hard cap"],
+                  [[n, c["lane_providers"].get(n, "chatgpt"), f"{v:.4f}", share(v, cap) if gpt(n) else "n/a",
+                    share(v, hard) if gpt(n) else "n/a"] for n, v in c["lanes"].items()]
+                  + [["total", "", f"{c['spent_usd']:.4f}", share(gpt_spent, cap), share(gpt_spent, hard)]])
+    out += ["", "`cost_cap_usd` covers ChatGPT-priced spend only; other providers' dollars are estimates and stop a run "
+            "only through their own `provider_caps`.", ""]
+    out += _table(["provider", "est. spend USD", "$ cap (soft / hard)", "cells started", "cell cap", "rate limited"],
+                  [[p, f"{v['spent_usd']:.4f}",
+                    "none" if v["usd_cap"] is None else f"{v['usd_cap']:g} / {v['hard_cap_usd']:g}"
+                    + f" ({100 * v['spent_usd'] / v['usd_cap']:.0f}%)",
+                    v["cells_started"], "none" if v["cells_cap"] is None else v["cells_cap"],
+                    "no" if not v["rate_limited"] else f"{v['rate_limited']['reason']} ({v['rate_limited']['cell']})"]
+                   for p, v in c["providers"].items()])
     out += ["", "- soft cap: " + ("none set" if cap is None else f"${cap:g}") + "; hard cap: "
             + ("none set" if hard is None else f"${hard:g}")]
     if c["stopped"] == "hard":
@@ -675,7 +696,8 @@ def render(rep):
     scope = " (train cells)" if "climb" in rep else ""
     for l in rep["lanes"]:
         out += ["", f"### {l['name']}", "", f"- sha `{l['sha']}`, patch {l['patch'] or 'none'}",
-                f"- models (run log): {', '.join(l['models']) or 'none logged'}",
+                f"- models (run log): {', '.join(l['models']) or 'none logged'}"
+                + (f" (name source: {', '.join(l['model_sources'])})" if l["model_sources"] else ""),
                 f"- outcomes{scope}: {', '.join(f'{k} {v}' for k, v in sorted(l['outcomes'].items())) or 'none'}",
                 f"- classes{scope}: {', '.join(f'{k} {v}' for k, v in l['classes'].items()) or 'none'}",
                 f"- plumbing{scope}: {', '.join(f'{k} {v}' for k, v in l['plumbing'].items()) or 'none'}"]

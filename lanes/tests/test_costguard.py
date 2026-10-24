@@ -346,7 +346,7 @@ class ReportSection(unittest.TestCase):
                          (6.0, {"base": 4.0, "cand": 2.0}, 12.5, None))
         text = report.render(run.report())
         self.assertIn("## Spend vs cost cap", text)
-        self.assertIn("| total | 6.0000 | 60% | 48% |", text)
+        self.assertIn("| total |  | 6.0000 | 60% | 48% |", text)
         self.assertNotIn("COST CAP STOPPED", text)
 
     def test_a_line_when_a_cap_stopped_the_run(self):
