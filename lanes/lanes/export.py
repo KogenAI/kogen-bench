@@ -18,7 +18,7 @@ import sys
 import tempfile
 from collections import Counter
 
-from . import common, experiment, plan_hashes, usage
+from . import common, experiment, plan_hashes, probe, usage
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PHASES = ("setup", "shape", "plan", "develop", "review", "gate", "grade")
@@ -27,6 +27,11 @@ PHASES = ("setup", "shape", "plan", "develop", "review", "gate", "grade")
 # of request wall time inside the build command, so they overlap `develop` (the build command).
 PHASE_STAGES = {"shape": ("shape",), "develop": ("build", "repair"), "review": ("review",), "gate": ("verify",)}
 STOP = {"landed": "completed", "timeout": "timeout"}
+# A probe cell has no hidden tests: `pass` means it gave a gradable output (the metrics are in the bundle and the results table).
+PROBE_OUTCOME = {"ok": "pass", "exec_error": "invalid", "grader_error": "invalid"}
+PROBE_STOP = {"ok": "completed", "timeout": "timeout"}
+PROBE_KEYS = ("cell", "lane", "phase", "outcome", "detail", "exit_code", "started", "ended", "wall_s", "cpu_s", "peak_rss_kb",
+              "usage", "totals")
 WHY = "DESCRIPTIVE_ONLY, PROTOCOL_DEVIATION, INCOMPLETE_CAPTURE"
 REGISTRY = ("rounds/STATUS.md", "rounds/index.json", "rounds/README.md", "reproduce/round-inventory.json")
 SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
@@ -133,14 +138,14 @@ def tokens(stages):
     return {"input": i - c, "cached_input": c, "output": o, "reasoning": r}
 
 
-def phase_tokens(stages, phase):
+def phase_tokens(stages, phase, probing=False):
     own = [stages[s] for s in PHASE_STAGES.get(phase, ()) if s in stages]
     if not own:
-        return {k: na(f"Kogen logged no {phase} request in this cell.") for k in TOKEN_KEYS}
+        return {k: na("A probe runs no Kogen." if probing else f"Kogen logged no {phase} request in this cell.") for k in TOKEN_KEYS}
     return tokens(own) or {k: miss("m44") for k in TOKEN_KEYS}
 
 
-def phase_time(stages, evaluation, phase):
+def phase_time(stages, evaluation, phase, probing=False):
     if phase == "plan":
         return na("Kogen has no separate plan phase.")
     if phase == "grade":  # the Lab declares grade time n/a; here the grader's own command wall time is known
@@ -150,7 +155,7 @@ def phase_time(stages, evaluation, phase):
         return miss("m45")
     own = [stages[s] for s in PHASE_STAGES[phase] if s in stages]
     if not own:
-        return na(f"Kogen logged no {phase} stage in this cell.")
+        return na("A probe runs no Kogen." if probing else f"Kogen logged no {phase} stage in this cell.")
     wall = own[0].get("wall_s")  # build's wall already holds its repair requests
     return wall if isinstance(wall, (int, float)) else miss("m45")
 
@@ -174,18 +179,23 @@ def stop_reason(res, events):
     outcomes = [e for e in events if e.get("event") == "outcome"]
     if outcomes and outcomes[-1].get("provider_failure"):
         return "provider_error"
+    if res.get("phase") == "probe":
+        return PROBE_STOP.get(res.get("outcome"), "harness_error")
     return STOP.get(res.get("outcome"), miss("m31"))
 
 
 def public_cell(res, ev, hosts):
     """The scrubbed attempt and evaluation published in the bundle (the record's ledger hash covers them)."""
+    if res.get("phase") == "probe":
+        return scrub({k: res.get(k) for k in PROBE_KEYS}, hosts), scrub({k: ev[k] for k in ("grader", "metrics", "undefined") if k in ev}, hosts)
     keys = ("cell", "lane", "phase", "outcome", "exit_code", "started", "ended", "wall_s", "kogen_version",
             "intent_hash", "final_tree", "pass_trees", "stages", "totals")
     return scrub({k: res.get(k) for k in keys}, hosts), scrub({k: ev[k] for k in EVAL_KEYS if k in ev}, hosts)
 
 
 def record(round_id, plan_sha, ctx, row, res, ev, events):
-    lane, lock = ctx["lanes"][row["lane"]], ctx["lock"][row["lane"]]
+    lane, lock = ctx["lanes"][row["lane"]], ctx["lock"].get(row["lane"], {})
+    probing = res.get("phase") == "probe"
     stages = {s["stage"]: s for s in res.get("stages", [])}
     totals = res.get("totals") or {}
     models = [m.split(" ")[0] for m in lane["settings"].get("models", {}).values()]
@@ -207,16 +217,19 @@ def record(round_id, plan_sha, ctx, row, res, ev, events):
         "model": {"requested": one(models, "m39"), "effective": one(totals.get("models", []), "m74")},
         "effort": {"requested": one(efforts, "m39"), "effective": miss("m73") if effort == "provider_default" else effort,
                    "runner_requested": one(efforts, "m39")},
-        "recipe": (f"lane {lane['name']} kogen:{lane['sha']} patch_sha256:{lock.get('patch_sha256') or 'none'} "
+        "recipe": (f"probe lane {lane['name']} command_sha256:{ctx['commands']['lanes'][lane['name']]['command_sha256']} "
+                   f"models:{json.dumps(lane['settings'].get('models', {}), sort_keys=True)}" if probing else
+                   f"lane {lane['name']} kogen:{lane['sha']} patch_sha256:{lock.get('patch_sha256') or 'none'} "
                    f"artifact_sha256:{lock['artifact_sha256']} models:{json.dumps(lane['settings'].get('models', {}), sort_keys=True)}"),
         "host": {"id": miss("m39"), **{k: WITHHELD for k in ("spec_ref", "cpu", "vcpu", "ram_gib", "os", "kernel")}},
-        "tools": {"harness": "kogen-lanes", "kogen": res.get("kogen_version") or lock.get("kogen_version") or lane["sha"],
+        "tools": {"harness": "kogen-lanes", "kogen": na("A probe lane runs no Kogen.") if probing else
+                  res.get("kogen_version") or lock.get("kogen_version") or lane["sha"],
                   "codex_cli": na("Kogen does not use Codex CLI."), "runner": miss("m83"), "grader": grader, "toolchains": toolchain},
         "sandbox": {"profile": miss("m87"), "profile_sha256": miss("m86"), "egress_profile": miss("m76"), "egress_allow": miss("m75")},
-        "timing": {"phases_s": {p: phase_time(stages, ev, p) for p in PHASES},
+        "timing": {"phases_s": {p: phase_time(stages, ev, p, probing) for p in PHASES},
                    "total_wall_s": res["wall_s"] if isinstance(res.get("wall_s"), (int, float)) else miss("m58"),
                    "timeout_cap_s": ctx["experiment"]["deadline_s"]},
-        "tokens": {"phases": {p: phase_tokens(stages, p) for p in PHASES},
+        "tokens": {"phases": {p: phase_tokens(stages, p, probing) for p in PHASES},
                    "total": tokens([{**totals, "missing": totals.get("missing", [])}]) or {k: miss("m10") for k in TOKEN_KEYS}},
         # The table version is read at export time, not recorded per cell (see ISSUES: L1b should log it in totals).
         "cost": {"usd": cost if cost is not None else miss("m70"), "price_table_version": calc.load_table().get("version") or miss("m89"),
@@ -224,7 +237,7 @@ def record(round_id, plan_sha, ctx, row, res, ev, events):
                  "accounting": f"per-request {calc.VERSION}" + (f" ({totals['cost_reason']})" if totals.get("cost_reason") else "")
                  if cost is not None else miss("m70"),
                  "long_context_reconciled": miss("m07")},
-        "outcome": outcome_of(ev),
+        "outcome": PROBE_OUTCOME.get(res.get("outcome"), "fail") if probing else outcome_of(ev),
         "stop_reason": stop_reason(res, events),
         "graded": True,
         "itt": {"class": "counted", "evidence_ref": na("Every graded cell counts; no exclusion was applied."), "cohort": "scored"},
@@ -244,7 +257,7 @@ def record(round_id, plan_sha, ctx, row, res, ev, events):
                         "account_class": miss("m100")},
         "setup": {"task_base": {"kind": miss("m43"), "hash": miss("m42")}, "adapter_harness_sha": miss("m39"),
                   "sandbox_mode": miss("m85"), "sandbox_profile_sha256": miss("m84"), "deps_source": miss("m71"),
-                  "kogen_sha": lane["sha"]},
+                  "kogen_sha": lane["sha"] if lane.get("sha") else na("A probe lane runs no Kogen.")},
     }
 
 
@@ -254,7 +267,8 @@ def load_run(run_dir):
     exp_path = os.path.join(run_dir, "experiment.json")
     try:
         exp = experiment.load(exp_path)
-        lock = {e["name"]: e for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
+        probing = exp["phase"] == "probe"  # a probe run has no Kogen build, so no lock
+        lock = {} if probing else {e["name"]: e for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
         plan = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
     except (OSError, ValueError, experiment.ExperimentError, KeyError, TypeError) as e:
         raise ExportError(f"run dir {run_dir}: {e}") from None
@@ -264,7 +278,8 @@ def load_run(run_dir):
         res, ev = os.path.join(cd, "result.json"), os.path.join(cd, "evaluation.json")
         started += os.path.isfile(res)
         if not (os.path.isfile(res) and os.path.isfile(ev)):
-            skipped.append({"cell": row["cell"], "reason": "no result or no evaluation"})
+            why = common.read_json(res)["outcome"] if probing and os.path.isfile(res) else None
+            skipped.append({"cell": row["cell"], "reason": f"cell outcome {why}, not graded" if why else "no result or no evaluation"})
             continue
         events = usage.read_log(os.path.join(cd, "run-log", "log.jsonl")) or []
         cells.append((row, common.read_json(res), common.read_json(ev), events))
@@ -281,7 +296,8 @@ def load_plan(run_dir, ctx):
     public = {k: v for k, v in ctx["experiment"].items() if k != "hosts"}
     if plan.get("experiment") != public:
         raise ExportError("PLAN.json's experiment differs from the run's experiment.json", 2)
-    if plan.get("lock", {}).get("sha256") != common.sha256_file(os.path.join(run_dir, "lanes.lock.json")):
+    probing = ctx["experiment"]["phase"] == "probe"
+    if not probing and plan.get("lock", {}).get("sha256") != common.sha256_file(os.path.join(run_dir, "lanes.lock.json")):
         raise ExportError("lanes.lock.json differs from the PLAN.json lock hash", 2)
     return plan
 
@@ -382,7 +398,8 @@ def write_docs(out, round_id, date, ctx, plan, records, evals, legend):
                f"capture and strict release eligibility. Raw model transcripts and tool output are not published.\n")
     used = {f"{r} {m}" for l in ctx["lanes"].values() for r, m in l["settings"].get("models", {}).items()}
     models = "; ".join(sorted(used)) or "the Kogen defaults"
-    write_text(out, "README.md", f"""# {round_id}
+    probing = exp["phase"] == "probe"
+    head = probe_head(round_id, ctx, plan) if probing else f"""# {round_id}
 
 A lane comparison of real Kogen builds: experiment `{exp['id']}`, phase `{exp['phase']}`, {len(exp['tasks'])} task(s), {exp['reps']} repetition(s), \
 {len(ctx['lanes'])} lane(s). Descriptive: no official benchmark grade.
@@ -393,7 +410,8 @@ A lane comparison of real Kogen builds: experiment `{exp['id']}`, phase `{exp['p
 
 ## Results
 
-{results_table(ctx, records, evals)}
+{results_table(ctx, records, evals)}"""
+    write_text(out, "README.md", f"""{head}
 
 Decision rule `{exp['decision_rule']['kind']}` is recorded in `PLAN.json`, which the run wrote before any cell started.
 
@@ -420,12 +438,12 @@ STATUS: **DESCRIPTIVE**
 
 Harness commit: {harness_commit()}
 Model and effort: {models}
-Task IDs: {', '.join(exp['tasks'])}
-Command: lanes-run, lanes-grade and lanes-export on experiment `{exp['id']}`.
-Kogen commits: {', '.join(sorted({l['sha'] for l in ctx['lanes'].values()}))}
+Task IDs{' (corpus items)' if probing else ''}: {', '.join(ctx['report']['ids'] if probing else exp['tasks'])}
+Command: {'lanes-run and' if probing else 'lanes-run, lanes-grade and'} lanes-export on experiment `{exp['id']}`.
+Kogen commits: {', '.join(sorted({l['sha'] for l in ctx['lanes'].values() if l.get('sha')})) or 'not applicable (probe lanes run no Kogen)'}
 Raw records: records.jsonl and the bundle in bundles/{round_id} preserve every cell's outcome and stages; a record's `ledger_sha256` \
 hashes that cell's published attempt.json and evaluation.json.
-Inputs: PLAN.json holds the hashes of the tasks, hidden tests, Intents, patches and settings; \
+Inputs: PLAN.json holds the hashes of the {'corpus, items, lane commands and settings' if probing else 'tasks, hidden tests, Intents, patches and settings'}; \
 `--publish-private` adds the files after the round closes.
 
 ## What's missing and why
@@ -442,6 +460,136 @@ def write_bundle(out, round_id, ctx, published):
         d = os.path.join(base, "attempts", row["task"], f"r{row['rep']}", row["lane"], "a1")
         common.write_json(os.path.join(d, "attempt.json"), attempt)
         common.write_json(os.path.join(d, "evaluation.json"), evaluation)
+
+
+# ---- probe rounds ---------------------------------------------------------------------------
+
+def command_units(ctx, plan):
+    """`(name, argv, plan file hashes)` of every lane command and of a `command` grader."""
+    units = [(n, l["probe"]["command"], plan["hashes"]["lanes"][n]["files"]) for n, l in ctx["lanes"].items()]
+    grader = ctx["experiment"]["grader"]
+    if grader["kind"] == "command":
+        units.append(("grader", grader["command"], plan["hashes"]["grader"]["files"]))
+    return units
+
+
+def hash_path(path):
+    return common.sha256_tree(path) if os.path.isdir(path) else common.sha256_file(path)
+
+
+COMMANDS_DIR = "commands"
+# Interpreters by base name; a venv, pyenv, uv, conda or CI toolcache shim of one carries the same name.
+INTERPRETER = re.compile(r"python(?:3(?:\.\d+)*)?|node|sh|bash|zsh|ruby|elixir|erl|go|perl|deno|bun")
+BINARY_MAGIC = (b"\x7fELF", b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
+                b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca")  # ELF, Mach-O 32/64 both byte orders, universal
+
+
+def is_binary(path):
+    try:
+        with open(path, "rb") as f:
+            return f.read(4) in BINARY_MAGIC
+    except OSError:
+        return False
+
+
+def is_interpreter(index, raw, path):
+    """Classify a command element by what the file is, not where it lives: an interpreter (published by name with
+    its `--version` output, never copied) is a binary executable (ELF or Mach-O) or has a known interpreter's base
+    name; a bare command name counts when it is found on PATH. Every other file, a script wherever it lives, is copied."""
+    if not os.path.isabs(path):  # not a file: a bare name, the command itself when it is on PATH
+        found = shutil.which(raw) if index == 0 and "/" not in raw else None
+        return bool(found) and (INTERPRETER.fullmatch(raw) is not None or is_binary(found))
+    return os.path.isfile(path) and (INTERPRETER.fullmatch(os.path.basename(raw)) is not None or is_binary(path))
+
+
+def tool_version(exe):
+    """First line of `exe --version` (stdout or stderr), or `unavailable`; run in its own group under a deadline."""
+    with tempfile.TemporaryFile("w+") as log:
+        try:
+            code, _ = common.run([exe, "--version"], deadline_s=10, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
+        except OSError:
+            return "unavailable"
+        log.seek(0)
+        lines = log.read().strip().splitlines()
+    return lines[0][:200] if code == 0 and lines else "unavailable"
+
+
+def publish_commands(stage, ctx, plan, run_dir):
+    """Describe every command in `commands.json`: its published argv, its sha256, the files copied into
+    `commands/<name>/<argv index>/` (each checked against the PLAN hash; their argv element is the relative copy)
+    and the system interpreters, published by name with their `--version` output (`external`)."""
+    base, out = probe.base_dir(run_dir), {}
+    for name, argv, want in command_units(ctx, plan):
+        pub, files, external = [], {}, {}
+        for i, (raw, path) in enumerate(zip(argv, probe.resolve(argv, base))):
+            digest = want.get(str(i))
+            if is_interpreter(i, raw, path):
+                exe = path if os.path.isabs(raw) else raw
+                pub.append(os.path.basename(raw))
+                external[str(i)] = {"name": os.path.basename(raw), "sha256": digest, "version": tool_version(exe)}
+            elif digest is None:
+                pub.append(raw)
+            else:
+                rel = "/".join((COMMANDS_DIR, name, str(i), os.path.basename(path)))
+                dest = os.path.join(stage, *rel.split("/"))
+                os.makedirs(os.path.dirname(dest))
+                if os.path.isdir(path):
+                    shutil.copytree(path, dest, ignore=shutil.ignore_patterns(".git"))
+                else:
+                    shutil.copyfile(path, dest)
+                if hash_path(dest) != digest:
+                    raise ExportError(f"{name}: command file {raw} changed since the plan was written", 2)
+                pub.append(rel)
+                files[str(i)] = {"path": rel, "sha256": digest}
+        out[name] = {"argv": pub, "command_sha256": plan_hashes.sha256_json(pub), "files": files, "external": external}
+    doc = {"lanes": {n: v for n, v in out.items() if n != "grader"}, "grader": out.get("grader")}
+    common.write_json(os.path.join(stage, "commands.json"), scrub(doc, ctx["experiment"].get("hosts", [])))
+    return doc
+
+
+def metric_rows(rep):
+    rows = ["| Lane | Metric | Mean | 95% interval (items) | Items covered | Items left out |", "| --- | --- | ---: | --- | ---: | ---: |"]
+    for lane in rep["lanes"]:
+        for name, m in lane["metrics"].items():
+            f = "{:.6g}" if name == "cost_usd" else "{:.4f}"  # a probe's spend is cents or less: keep its digits
+            ci = f"[{f.format(m['ci'][0])}, {f.format(m['ci'][1])}]" if m["ci"] else "n/a"
+            rows.append(f"| {lane['name']} | {name} | {f.format(m['mean'])} | {ci} | {m['items']} | {m['left_out']['count']} |")
+    return "\n".join(rows)
+
+
+def probe_head(round_id, ctx, plan):
+    exp, rep = ctx["experiment"], ctx["report"]
+    lanes = ["| Lane | Command sha256 | Command files | Models |", "| --- | --- | --- | --- |"]
+    for name, lane in ctx["lanes"].items():
+        c = ctx["commands"]["lanes"][name]
+        models = "; ".join(f"{r}: {m}" for r, m in sorted(lane["settings"].get("models", {}).items())) or "none"
+        lanes.append(f"| {name} | `{c['command_sha256']}` | {', '.join(f['path'] for f in c['files'].values()) or 'none'} | {models} |")
+    outcomes = ["| Lane | Cells planned | Cells ok | Other outcomes |", "| --- | ---: | ---: | --- |"]
+    for lane in rep["lanes"]:
+        other = ", ".join(f"{k} {v}" for k, v in lane["outcomes"].items() if k != "ok") or "none"
+        outcomes.append(f"| {lane['name']} | {lane['cells']['planned']} | {lane['cells']['ok']} | {other} |")
+    return f"""# {round_id}
+
+A probe round: experiment `{exp['id']}`, phase `probe`, {rep['items']} item(s), {exp['reps']} repetition(s), {len(ctx['lanes'])} lane(s). \
+Each cell runs one lane command on one corpus item (no Kogen) and is graded by `{exp['grader']['kind']}`. Descriptive: no official benchmark grade. \
+Corpus tree hash `{plan['hashes']['corpus']['tree']}`; the corpus itself is added by `--publish-private` after the round closes.
+
+## Lanes
+
+{'' .join(l + chr(10) for l in lanes)}
+The commands and the files they name are in `commands.json` and `commands/`; their hashes are in `PLAN.json`.
+
+## Results
+
+Per lane and metric: the mean over items of each item's mean over its ok repetitions, with a Student t 95% interval over items. \
+Only ok cells count. Records are the cells that gave a gradable output (`pass`); the others are in `bundles/{round_id}/EXCLUDED.json`. \
+Time, CPU, memory, tokens and cost are in each cell's published attempt.
+
+{metric_rows(rep)}
+
+{chr(10).join(outcomes)}
+
+{rep['verdict']['line']}"""
 
 
 # ---- registry -------------------------------------------------------------------------------
@@ -506,6 +654,11 @@ def build_round(stage, run_dir, round_id, date, ctx, plan, legend):
             dest = os.path.join(stage, "patches", name, os.path.basename(src))
             os.makedirs(os.path.dirname(dest))
             shutil.copyfile(src, dest)
+    if ctx["experiment"]["phase"] == "probe":
+        ctx["commands"] = publish_commands(stage, ctx, plan, run_dir)
+        ctx["report"] = probe.report_probe(run_dir, ctx["experiment"])
+        ctx["report"]["ids"] = list(dict.fromkeys(row["task"] for row, *_ in ctx["cells"]))
+        common.write_json(os.path.join(stage, "results.json"), scrub({k: ctx["report"][k] for k in ("lanes", "verdict", "items", "reps")}, hosts))
     common.write_json(os.path.join(stage, "PLAN.json"), scrub(plan, hosts))
     plan_sha = common.sha256_file(os.path.join(stage, "PLAN.json"))
     records = [scrub(record(round_id, plan_sha, ctx, row, res, ev, events), hosts) for row, res, ev, events in ctx["cells"]]
@@ -661,20 +814,61 @@ def publish_private(run_dir, out, tasks):
                     shutil.copytree(os.path.join(src, name), os.path.join(dest, name))
                 elif os.path.isfile(os.path.join(src, name)):
                     shutil.copyfile(os.path.join(src, name), os.path.join(dest, name))
-        files = published_hidden_files(stage, plan, exp["tasks"])
-        dest = os.path.join(out, "reproduce")
-        if os.path.isdir(dest):
-            os.rename(dest, os.path.join(work, "previous"))
-        try:
-            os.rename(stage, dest)
-        except OSError:
-            if os.path.isdir(os.path.join(work, "previous")):
-                os.rename(os.path.join(work, "previous"), dest)
-            raise
-        old_sha = common.sha256_file(os.path.join(out, "PLAN.json"))
-        plan["publication"] = {"closed": True, "closed_at": plan.get("publication", {}).get("closed_at") or now_utc(), "files": files}
-        common.write_json(os.path.join(out, "PLAN.json"), plan)
-        rebind_records(out, old_sha, common.sha256_file(os.path.join(out, "PLAN.json")))
+        swap_in(out, work, stage, plan, published_hidden_files(stage, plan, exp["tasks"]))
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def swap_in(out, work, stage, plan, files):
+    """Put the built `reproduce/` folder in place of the old one and mark the PLAN closed with the file hashes."""
+    dest = os.path.join(out, "reproduce")
+    if os.path.isdir(dest):
+        os.rename(dest, os.path.join(work, "previous"))
+    try:
+        os.rename(stage, dest)
+    except OSError:
+        if os.path.isdir(os.path.join(work, "previous")):
+            os.rename(os.path.join(work, "previous"), dest)
+        raise
+    old_sha = common.sha256_file(os.path.join(out, "PLAN.json"))
+    plan["publication"] = {"closed": True, "closed_at": plan.get("publication", {}).get("closed_at") or now_utc(), "files": files}
+    common.write_json(os.path.join(out, "PLAN.json"), plan)
+    rebind_records(out, old_sha, common.sha256_file(os.path.join(out, "PLAN.json")))
+
+
+def publish_private_probe(run_dir, out, corpus):
+    """Probe round: check the corpus (tree and each item) and the published command files against the PLAN
+    hashes, then copy the corpus and each graded cell's output into `reproduce/` (nothing is copied on a mismatch)."""
+    ctx = load_run(run_dir)
+    exp, plan = ctx["experiment"], common.read_json(os.path.join(out, "PLAN.json"))
+    want = plan["hashes"]["corpus"]
+    got = probe.corpus_hashes(corpus, probe.load_corpus(corpus, exp))
+    bad = [f"corpus/{i}" for i in sorted(set(want["items"]) | set(got["items"])) if got["items"].get(i) != want["items"].get(i)]
+    bad += ["corpus files"] * (got["tree"] != want["tree"])
+    commands = common.read_json(os.path.join(out, "commands.json"))
+    for name, c in {**commands["lanes"], **({"grader": commands["grader"]} if commands["grader"] else {})}.items():
+        for i, f in c["files"].items():
+            path = os.path.join(out, *f["path"].split("/"))
+            if not os.path.exists(path) or hash_path(path) != f["sha256"]:
+                bad.append(f["path"])
+    for name, lane in ctx["lanes"].items():
+        if plan_hashes.sha256_json(lane["settings"]) != plan["hashes"]["lanes"][name]["settings"]:
+            bad.append(f"settings/{name}")
+    if bad:
+        raise ExportError("private inputs differ from PLAN.json (nothing was copied): " + ", ".join(bad))
+    work = tempfile.mkdtemp(prefix=".private-", dir=out)
+    stage = os.path.join(work, "reproduce")
+    try:
+        shutil.copytree(corpus, os.path.join(stage, "corpus"), ignore=shutil.ignore_patterns(".git"))
+        if common.sha256_tree(os.path.join(stage, "corpus")) != want["tree"]:
+            raise ExportError("the corpus changed while it was copied (nothing was published)")
+        for row, *_ in ctx["cells"]:
+            src, dest = common.cell_dir(run_dir, row["cell"]), published_cell(stage, row["cell"])
+            os.makedirs(dest)
+            shutil.copyfile(os.path.join(src, "output.json"), os.path.join(dest, "output.json"))
+        files = {"/".join(("reproduce", os.path.relpath(os.path.join(d, n), stage).replace(os.sep, "/"))): common.sha256_file(os.path.join(d, n))
+                 for d, _, names in os.walk(os.path.join(stage, "corpus")) for n in names}
+        swap_in(out, work, stage, plan, dict(sorted(files.items())))
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
@@ -685,6 +879,7 @@ def main(argv=None):
     p.add_argument("--round-id", required=True)
     p.add_argument("--out", required=True, help="<kogen-bench>/rounds/<round id>")
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder (--publish-private)")
+    p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"), help="probe corpus folder (--publish-private; default: the run's)")
     p.add_argument("--date", help="round date (YYYY-MM-DD, default today UTC)")
     p.add_argument("--no-register", action="store_true", help="do not touch rounds/STATUS.md, index.json, README.md, round-inventory.json")
     p.add_argument("--check", choices=("release", "round", "none"), default="release",
@@ -692,13 +887,16 @@ def main(argv=None):
     p.add_argument("--publish-private", action="store_true", help="after the round closes: copy private inputs and check the PLAN hashes")
     a = p.parse_args(argv)
     try:
+        if a.publish_private and probe.is_probe(a.run_dir):
+            publish_private_probe(a.run_dir, a.out, probe.corpus_path(a.run_dir, a.corpus))
+            return 0
         if a.publish_private:
             if not a.tasks:
                 p.error("--tasks or KOGEN_LANES_TASKS is required")
             publish_private(a.run_dir, a.out, a.tasks)
             return 0
         return 0 if export(a.run_dir, a.round_id, a.out, a.date, not a.no_register, a.check) == 0 else 1
-    except (ExportError, plan_hashes.PlanError, OSError, ValueError) as e:
+    except (ExportError, plan_hashes.PlanError, probe.ProbeError, OSError, ValueError) as e:
         print(f"export: {e}", file=sys.stderr)
         return getattr(e, "code", 1)
 
