@@ -377,7 +377,7 @@ class Host:
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
         code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline, tag=self.ctx.provider(cell))
         if code in (124, 130, 255):  # deadline, stop or lost connection: the ssh client died, the remote group may not have
-            kill = f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -- -$p; sleep 2; kill -KILL -- -$p; true; }}"
+            kill = f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -$p; sleep 2; kill -KILL -$p; true; }}"
             killed = self.sh(kill, force=True)[0] == 0
             self._lost_spend(cell, rcell, local_cell)  # before the dir goes
             if killed:  # no pgid: leave the dir, never rm under a live process
