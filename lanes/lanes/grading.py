@@ -75,10 +75,45 @@ def lay(src, dest):
     shutil.copytree(src, dest, dirs_exist_ok=True, symlinks=True)
 
 
+def fresh_export(tree):
+    """Make `tree` a fresh export: delete every file the tree's own `.gitignore` files ignore.
+
+    Task trees are laid by copying folders, so a build output that a `.gitignore` hides (the `./run` of a
+    Go task) can sit in the tree and mask a missing build step; Kogen's own verification starts from the
+    tracked files only. Git decides what is ignored, with the user's and the system's git config left out
+    so the answer is the same on every host. Returns the removed paths, relative to `tree`.
+    """
+    git_dir = tempfile.mkdtemp(prefix="export-", dir=os.path.dirname(tree))
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    try:
+        for cmd in (["init", "-q", "--bare", git_dir],
+                    ["--git-dir", git_dir, "--work-tree", tree, "ls-files", "-z", "--others", "--ignored",
+                     "--exclude-standard"]):
+            try:
+                r = subprocess.run(["git", *cmd], capture_output=True, env=env, timeout=120)
+            except (OSError, subprocess.TimeoutExpired) as e:
+                raise GradeError(f"cannot export a fresh tree: {e}")
+            if r.returncode:
+                raise GradeError("cannot export a fresh tree: " + r.stderr.decode(errors="replace").strip())
+        removed = [p for p in r.stdout.decode("utf-8", "surrogateescape").split("\0") if p]
+    finally:
+        shutil.rmtree(git_dir, ignore_errors=True)
+    for rel in removed:
+        path = os.path.join(tree, rel)
+        os.remove(path)
+        parent = os.path.dirname(path)
+        while parent != tree and not os.listdir(parent):  # drop the folders that held only ignored files
+            os.rmdir(parent)
+            parent = os.path.dirname(parent)
+    return removed
+
+
 @contextlib.contextmanager
-def scratch(task_dir=None, *overlays):
+def scratch(task_dir=None, *overlays, export=False):
     """A fresh grading dir under `$KOGEN_LANES_HOME/tmp`; yields its `tree/` (`start/` with the
-    overlay folders, e.g. `reference`, laid over it when `task_dir` is given). Removed on exit."""
+    overlay folders, e.g. `reference`, laid over it when `task_dir` is given; with `export` the
+    ignored files are then removed, see `fresh_export`). Removed on exit."""
     base = os.path.join(common.lanes_home(), "tmp")
     os.makedirs(base, exist_ok=True)
     root = tempfile.mkdtemp(prefix="grade-", dir=base)
@@ -88,6 +123,8 @@ def scratch(task_dir=None, *overlays):
         if task_dir:
             for sub in ("start",) + overlays:
                 lay(os.path.join(task_dir, sub), tree)
+            if export:
+                fresh_export(tree)
         yield tree
     finally:
         shutil.rmtree(root, ignore_errors=True)
@@ -279,14 +316,14 @@ def feature_lines(path):
     return lines
 
 
-def shape_tree(task, overlays, intent, slug, step_files, deadline_s):
+def shape_tree(task, overlays, intent, slug, step_files, deadline_s, export=False):
     """Run the task's acceptance runner on one tree with the shaped Intent's scenarios and steps.
 
     Returns `{line: status}` or `{"infrastructure": reason}` (setup failed, or the runner wrote no
-    usable report: a runner error is not a failed scenario).
+    usable report: a runner error is not a failed scenario). `export` starts from a fresh export (see `fresh_export`).
     """
     acc = task["task"]["acceptance"]
-    with scratch(task["dir"], *overlays) as tree:
+    with scratch(task["dir"], *overlays, export=export) as tree:
         shutil.rmtree(os.path.join(tree, acc.get("steps_dir", "features/steps")), ignore_errors=True)
         folder = os.path.join(tree, ".kogen", "intents", slug)
         os.makedirs(folder)
@@ -396,6 +433,9 @@ def finished_cells(run_dir):
 def qualify(task_dir):
     """The Lab's qualification rules (`steps.go`); returns a list of `(check, ok, detail)`.
 
+    Every tree runs from a fresh export (ignored files removed), and the `acceptance` check runs the supplied
+    Intent's scenarios on the reference with the task's own setup only, so a missing build step cannot hide.
+
     Not ported: repeating start and reference three times (determinism compares two reference
     runs), second implementations, the killed-evaluator check and `[expected]` inference.
     """
@@ -404,7 +444,7 @@ def qualify(task_dir):
     requested, regression = exp.get("requested", []), exp.get("regression", [])
 
     def run(overlays, hidden=True):
-        with scratch(task_dir, *overlays) as tree:
+        with scratch(task_dir, *overlays, export=True) as tree:  # a fresh export: ignored build outputs cannot mask a step
             return evaluate_tree(task, tree, hidden=hidden)
 
     def note(check, ok, detail):
@@ -433,10 +473,45 @@ def qualify(task_dir):
     note("emptied overlay", not bare["infrastructure"] and not bare["all_passed"],
          bare["infrastructure"] or ("passes without the hidden tests" if bare["all_passed"]
                                     else "does not pass without the hidden tests"))
+    note("acceptance", *qualify_acceptance(task))
     again = run(["reference"])
     note("determinism", again["ids"] == ref["ids"], "same result twice" if again["ids"] == ref["ids"]
          else "reference results differ between runs")
     return out
+
+
+def qualify_acceptance(task):
+    """Run the supplied Intent's scenarios on the reference as Kogen's verification does: a fresh export, the
+    task `setup`, then the task's acceptance command (the evaluator's own setup does not run, so a build
+    that only the evaluator performs is caught). Returns `(ok, detail)`; skipped, as ok, when the task has no
+    report-writing `[acceptance]`, no supplied Gherkin Intent, or needs a `$KOGEN_*` runner variable the host lacks.
+    """
+    acc, form = task["task"].get("acceptance"), os.path.join(task["dir"], "supplied", "gherkin")
+    if not acc or "KOGEN_ACCEPTANCE_REPORT" not in acc.get("run", "") or not os.path.isfile(
+            os.path.join(form, "intent.md")) or not os.path.isfile(os.path.join(form, "acceptance.feature")):
+        return True, "skipped: no acceptance command that writes a report, or no supplied Gherkin Intent"
+    absent = sorted(v for v in set(re.findall(r"\$\{?(KOGEN_[A-Z_]+)", acc["run"]))
+                    if not v.startswith("KOGEN_ACCEPTANCE_") and v not in os.environ)
+    if absent:
+        return True, "skipped: needs " + ", ".join(absent) + " in the environment"
+    intent = os.path.join(form, "intent.md")
+    try:
+        listed = intent_steps(intent)
+        found = {p: os.path.join(form, p) for p in listed if os.path.isfile(os.path.join(form, p))}
+        if not listed or len(found) < len(listed):
+            return False, "step files not available: " + ", ".join(
+                [p for p in listed if p not in found] or ["none listed"])
+        got = shape_tree(task, ["reference"], form, intent_slug(intent), found, 600, export=True)
+    except GradeError as e:
+        return False, str(e)
+    if "infrastructure" in got:
+        return False, got["infrastructure"]
+    wanted = feature_lines(os.path.join(form, "acceptance.feature"))
+    bad = [line for line in wanted if got.get(line) != "passed"]
+    if not wanted or bad:
+        return False, ("no scenarios in the supplied feature" if not wanted else
+                       "reference does not pass supplied scenarios at line " + ", ".join(bad))
+    return True, f"reference passes all {len(wanted)} supplied scenarios from a fresh export"
 
 
 def qualify_main(argv):
