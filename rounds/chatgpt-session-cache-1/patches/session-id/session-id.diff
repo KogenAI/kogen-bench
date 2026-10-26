@@ -1,0 +1,140 @@
+diff --git a/cli/build/context.go b/cli/build/context.go
+index 742ccc6..19d1631 100644
+--- a/cli/build/context.go
++++ b/cli/build/context.go
+@@ -346,6 +346,9 @@ func (b *Attempt) prepareContext(owner string, role project.Role, instructions s
+ 	b.WorkingContext[owner] = state
+ 	b.s.Progress(fmt.Sprintf("kogen: %s local reset %d -> %d bytes; ceiling %d; reserve %d; history %s",
+ 		owner, measured.RenderedBytes, next.RenderedBytes, agent.InputBudgetBytes, reservedOutputTokens, path))
++	b.Run.Event(map[string]any{
++		"event": "window_reset", "role": owner, "bytes_before": measured.RenderedBytes, "bytes_after": next.RenderedBytes,
++	})
+ 	return reduced, nil
+ }
+ 
+diff --git a/cli/build/context_test.go b/cli/build/context_test.go
+index 0f72a27..2ffde9e 100644
+--- a/cli/build/context_test.go
++++ b/cli/build/context_test.go
+@@ -36,6 +36,17 @@ func TestAConversationOverTheBudgetIsResetToALocalWorkingWindow(t *testing.T) {
+ 	if len(history) == 0 {
+ 		t.Fatal("no archived window")
+ 	}
++	resets := eventsNamed(e.events(id), "window_reset")
++	if len(resets) != len(history) {
++		t.Fatalf("window_reset events %d, archives %d", len(resets), len(history))
++	}
++	for _, r := range resets {
++		before, _ := r["bytes_before"].(float64)
++		after, _ := r["bytes_after"].(float64)
++		if r["role"] != "build" || before <= after || after <= 0 || r["at"] == nil {
++			t.Fatalf("window_reset %v", r)
++		}
++	}
+ 	for i, h := range history {
+ 		ref := h.(map[string]any)
+ 		path := ref["path"].(string)
+diff --git a/cli/provider/respond_test.go b/cli/provider/respond_test.go
+index 6e6614e..1b507a8 100644
+--- a/cli/provider/respond_test.go
++++ b/cli/provider/respond_test.go
+@@ -70,8 +70,9 @@ func TestRespondHappyPathWithFunctionCall(t *testing.T) {
+ 	if r.Method != "POST" || r.Path != "/v1/responses" {
+ 		t.Fatalf("%s %s", r.Method, r.Path)
+ 	}
+-	// GPT-7: headers are exactly the application headers plus ordinary HTTP framing.
+-	if got := headerNames(r.Header); !reflect.DeepEqual(got, []string{"Accept", "Authorization", "Connection", "Content-Length", "Content-Type"}) {
++	// GPT-7: headers are exactly the application headers plus ordinary HTTP framing
++	// (research lane c-sid adds the conversation's session_id/conversation_id routing headers).
++	if got := headerNames(r.Header); !reflect.DeepEqual(got, []string{"Accept", "Authorization", "Connection", "Content-Length", "Content-Type", "Conversation_id", "Session_id"}) {
+ 		t.Fatalf("headers = %v", got)
+ 	}
+ 	if r.Header.Get("Authorization") != "Bearer fake-access-token" || r.Header.Get("Accept") != "text/event-stream" || r.Header.Get("Content-Type") != "application/json" {
+diff --git a/cli/provider/wire.go b/cli/provider/wire.go
+index 43d03de..cb05fc2 100644
+--- a/cli/provider/wire.go
++++ b/cli/provider/wire.go
+@@ -1,5 +1,7 @@
+ package provider
+ 
++import "os"
++
+ // rendered is one request as the provider's adapter writes it: the JSON body, the headers
+ // that carry routing (besides authorization and content negotiation) and the cache evidence.
+ type rendered struct {
+@@ -44,6 +46,12 @@ func render(info Info, req Request, id string, unsupported bool) (rendered, erro
+ 		if !unsupported {
+ 			body["prompt_cache_key"] = id
+ 		}
++		// research lane c-sid (CACHE-BEST C-3): the conversation's cache identity also as the
++		// session_id/conversation_id headers, which C-1 found the official route needs to keep a
++		// conversation on its cache. Kill switch: KOGEN_CHATGPT_SESSION_HEADERS=off.
++		if os.Getenv("KOGEN_CHATGPT_SESSION_HEADERS") != "off" {
++			r.headers = map[string]string{"session_id": id, "conversation_id": id}
++		}
+ 	case !unsupported:
+ 		body["prompt_cache_key"] = id
+ 	}
+diff --git a/cli/provider/wire_sid_test.go b/cli/provider/wire_sid_test.go
+new file mode 100644
+index 0000000..5f47457
+--- /dev/null
++++ b/cli/provider/wire_sid_test.go
+@@ -0,0 +1,23 @@
++package provider
++
++import "testing"
++
++func TestChatGPTSessionHeadersLaneCSID(t *testing.T) {
++	info := Info{Name: "chatgpt"}
++	if !info.chatgpt() {
++		t.Skip("chatgpt Info helper differs; covered by the render test below")
++	}
++	req := Request{Role: Role{Model: "gpt-6.1-sol", Effort: "medium"}, Instructions: "i", Input: []any{}}
++	r, err := render(info, req, "cache-abc", false)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if r.headers["session_id"] != "cache-abc" || r.headers["conversation_id"] != "cache-abc" || r.body["prompt_cache_key"] != "cache-abc" {
++		t.Fatalf("headers %v body key %v", r.headers, r.body["prompt_cache_key"])
++	}
++	t.Setenv("KOGEN_CHATGPT_SESSION_HEADERS", "off")
++	r, _ = render(info, req, "cache-abc", false)
++	if len(r.headers) != 0 {
++		t.Fatalf("kill switch left headers %v", r.headers)
++	}
++}
+diff --git a/cli/shape/window.go b/cli/shape/window.go
+index 938a0fb..d46fdd4 100644
+--- a/cli/shape/window.go
++++ b/cli/shape/window.go
+@@ -324,6 +324,9 @@ func (w *window) prepare(p windowPrep, input []any) ([]any, error) {
+ 		"input_budget_bytes": agent.InputBudgetBytes, "output_reserve_tokens": agent.OutputReserveTokens,
+ 		"archive": archive.value(),
+ 	})
++	p.ev.Record(map[string]any{
++		"event": "window_reset", "role": w.owner, "bytes_before": before.RenderedBytes, "bytes_after": after.RenderedBytes,
++	})
+ 	p.progress(fmt.Sprintf("kogen: %s local working-window reset %d -> %d bytes; custody %s", w.title(), before.RenderedBytes, after.RenderedBytes, archive.Path))
+ 	return reduced, nil
+ }
+diff --git a/cli/shape/window_test.go b/cli/shape/window_test.go
+index e48f430..d9d63c5 100644
+--- a/cli/shape/window_test.go
++++ b/cli/shape/window_test.go
+@@ -225,6 +225,15 @@ func TestTheResetEventMeasuresTheRequestOfTheNewWindow(t *testing.T) {
+ 		event["input_budget_bytes"] != float64(524288) || event["output_reserve_tokens"] != float64(131072) {
+ 		t.Fatalf("event %v, request %d bytes", event, actual.RenderedBytes)
+ 	}
++	var reset map[string]any
++	for _, e := range windowEvents(t, f.root) {
++		if e["event"] == "window_reset" {
++			reset = e
++		}
++	}
++	if reset == nil || reset["role"] != "shape" || reset["bytes_after"] != float64(actual.RenderedBytes) || reset["bytes_before"] != event["before_bytes"] {
++		t.Fatalf("window_reset %v", reset)
++	}
+ }
+ 
+ func TestUnsafeAncestorCustodyRefusesBeforeWritingAnUnsentArchive(t *testing.T) {

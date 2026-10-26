@@ -1,0 +1,36 @@
+{
+  "all_passed": true,
+  "commands": [
+    {
+      "name": "go-test",
+      "ok": true,
+      "status": 0,
+      "timed_out": false
+    },
+    {
+      "name": "go-regression",
+      "ok": true,
+      "status": 0,
+      "timed_out": false
+    }
+  ],
+  "expected": {
+    "regression": [
+      "rate/TestAllowsNPerWindow",
+      "rate/TestWindowResets"
+    ],
+    "requested": [
+      "rate/TestBurstUsedOncePerWindow",
+      "rate/TestRemainingReportsBurstSeparately",
+      "rate/TestBurstPerKey"
+    ]
+  },
+  "ids": {
+    "rate/TestAllowsNPerWindow": "passed",
+    "rate/TestBurstPerKey": "passed",
+    "rate/TestBurstUsedOncePerWindow": "passed",
+    "rate/TestRemainingReportsBurstSeparately": "passed",
+    "rate/TestWindowResets": "passed"
+  },
+  "infrastructure": null
+}

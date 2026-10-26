@@ -1,0 +1,132 @@
+{
+  "experiment": {
+    "cost_cap_usd": 40,
+    "deadline_s": 1800,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "chatgpt-session-cache-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "baseline",
+        "patch": "patches/baseline.diff",
+        "settings": {},
+        "sha": "687f140700426b3b4ad3e3eae7f1d854762dad31"
+      },
+      {
+        "name": "session-id",
+        "patch": "patches/session-id.diff",
+        "settings": {},
+        "sha": "687f140700426b3b4ad3e3eae7f1d854762dad31"
+      }
+    ],
+    "phase": "build",
+    "reps": 2,
+    "tasks": [
+      "cron-go",
+      "ledger-go",
+      "vm-go",
+      "rate-go",
+      "pool-go",
+      "inventory-go"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "baseline": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "session-id": {
+        "patch": "43c0f97759168066251c21cbbddc76b9262dc412b1f42811d74e4a16fd8bc2ee",
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "tasks": {
+      "cron-go": {
+        "hidden_tests": "05646a102485020c247c30f55fd356d91a2c244a2c8e79d06ecbb759ec97dfd6",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "77ed235424dee03c05282ec07e2bed12071ff3f022e73f8444476d2a8126a1b0",
+          "prose": "249df474199495ef6a824dd4a2693d1abb67db215ab2e7868e929c443fba9f30"
+        },
+        "request": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+        "task": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+        "task_toml": "dfea3d391cb8799c14afc3a5c79ec806a4953c6b7dbe3b557fc7f4ffe45b7091",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "inventory-go": {
+        "hidden_tests": "a0d0a37f582ef502d70566c1338fb4f600cce0b956afd37bee0c4ac955df958a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "0ee54c4f49d3181b37cf1ee77ac236ded1e23107573aa45a94ca1213d24ccb89",
+          "prose": "f7522f276a0bd96606e9b35f44405309a65a5587f2edd0186e3a5968d6f13a26"
+        },
+        "request": "5639a41aeecaee7b5f5b64f5d37f9e8e178c87054451410401c61c861600e97e",
+        "task": "21c71729f5c18b404b427e7647550443f498b42164ef0f4ff2d42300afc4e30e",
+        "task_toml": "9e6cef52b044689e084a06790fb86d4d2f27206e9fc84327eeb1b0d213fd2a80",
+        "tree": "99c808fd70a00acb45b1af122471d48f9c91a324464cedb1c215766b10ca50f0"
+      },
+      "ledger-go": {
+        "hidden_tests": "9a4de5f0fa689dba8111a2eb4f81398b576cad2c61fed6ebf72580b51d1963ff",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "743f22a08f0e47a6c9bf9f8d1b501d2e678fd29b2e9966c86b4112493e8930fe",
+          "prose": "95011fa7afaeb689d2965297a31adebd99a43fc5fd1534e92c7b6fc221968750"
+        },
+        "request": "f3ddcf1f2c4628a61744bd2433f19c521871d540fe7e591903f059de21dc42f7",
+        "task": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+        "task_toml": "ac430e8f20dd5a1003fce35799ab195811e4fc34899f86004c402c4860d12cb6",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "pool-go": {
+        "hidden_tests": "f391aaf90745b57fc3668b44ce9824386217e5537f61076e1aa32c34eb1b57b8",
+        "intents": {
+          "gherkin": "49dcdca203f3f4518eb6ea6c5614cb9fbd0dc0b84ed8867c0fc51f68e72d8555",
+          "prose": "1295da7f1ef39f62d5763f90e764e1a634c53112c3e18f86a85a194233590e2f"
+        },
+        "request": "4ded33f51bc2cacb0252cee009235f9cf06ebcbb09ec8952b3721162592b6ae9",
+        "task": "4d9df4702537260a66a7abbb553f65cbc7c0b8b6dd58fbbead303b9de70fd118",
+        "task_toml": "7b265fabcc145d6935d0b4bea74ae31cf165b99c44d8e253a2209c1f76604f70",
+        "tree": "0826be6a20b26442120b45af1ef8261889564bc14d7531876fcceba45ada327f"
+      },
+      "rate-go": {
+        "hidden_tests": "90516c0cc468b61e595275481bc87fb2d1d198d6a7e316b2d9b20047ae779368",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "be48415b659d0ff149b6782e157a91dfd37b37e167c3e0e2bcb3a09c7cf8ccc4",
+          "gherkin-lean": "e7413c073ec081e732b8915f1b5291206ae116b48200dfa0b4651add003b6351",
+          "gherkin-quint": "efbadcc95d0b4525f0e075aef574e86dda89c378735894251615226e9bf93d2a",
+          "prose": "655f2b8640b5d27893c5484c1f22eaaf848c5c3067af351ff567362e6172a829"
+        },
+        "request": "f56c59424f6a42a40b7fbb01494e0f5edc0b1e212f679efbd71d817845ecfebb",
+        "task": "9f9e04404ef938f10d983a823db8d0347319eb1100e0a9ec7a639fa8c9963871",
+        "task_toml": "6a83a699d87f50a52d93b5462ccbfb297e0ddde41cc028a603cb3122b0552ebe",
+        "tree": "918068146c0525e3657373bb26b864eda943f9cc21c87c8553e831d14bb22fd6"
+      },
+      "vm-go": {
+        "hidden_tests": "e7484a0c7dafe726e7af0a0a6a6c7755d937bfc93c3a6959e4d38f8ac490812d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "03387ab191baca214fba4ec08ef8f13eae72efd8cf50e50ee287967cfc3334e9",
+          "prose": "77ee718d066662e925ad095d761ec943b132c712270770448d8ce064129d1343"
+        },
+        "request": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+        "task": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+        "task_toml": "c4e19bda895149b89353deaf3d455375b806a90e01552b1ba273fdef753dedcc",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "baseline": "c9d7f98587972f8421ab5e23d8dbfecca653aaa4d80afc055b675d04c35fb7e3",
+      "session-id": "3340744bbfb3678e89a30ec525aee15dc1befe388532591eac40d51dc85bdeb8"
+    },
+    "sha256": "fb7f75582166f4dca3fa834a724a54452fc0aa63469f0e8021f6da858e5b53ac"
+  }
+}
