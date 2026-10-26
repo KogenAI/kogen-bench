@@ -1,0 +1,53 @@
+{
+  "experiment": {
+    "cost_cap_usd": 8,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "long-tasks-reset-fix-1-after-studio",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "fixed",
+        "patch": "patches/measurement.diff",
+        "settings": {},
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      }
+    ],
+    "phase": "build",
+    "reps": 2,
+    "tasks": [
+      "shaping-technical-discovery"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "fixed": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "tasks": {
+      "shaping-technical-discovery": {
+        "hidden_tests": "e943e5d7e14239f1052e5833789f741282f2788989159bbd3d9a12339c1d41e0",
+        "intents": {
+          "gherkin": "307a0ccb009ed306aa978fd38821e55eb7c56a4a1f4a8f6f72b8eaf1b4f49cb8"
+        },
+        "request": "6701f786ce07ef90144386440a0d7c79e39eb8d4aff51392c9594b77e05a0c1f",
+        "task": "30ce18cc31d87bc092413f446e02cad2dc639d514c2afdd0128a3fb00abe6fc6",
+        "task_toml": "c4886e02b9345773e26d23a244675952aa50bc6e89e6d90d4cbbd1f8f920c83b",
+        "tree": "5b83138b5e55d00dab469208ed2b1caee83c52889bae1f2660b8baa0fc6bcf77"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "fixed": "38957108e29c4f2a41a44202b6ccdfd9432b56b061de2c3b98388a6c03aac01e"
+    },
+    "sha256": "43ec1ca559b2bfc0d6d2ee3944990bf5258b3725d32ac743246d28c1fba9b9e3"
+  }
+}

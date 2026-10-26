@@ -286,3 +286,9 @@ These pages are indexed alongside the numbered rounds. The status shown here is 
 - [Natural builds with review on: three review settings](review-value-2-natural-reviewed/README.md) — **DESCRIPTIVE** 126 builds; committed trees wrong in 0 of 41 (Sonnet medium), 0 of 42 (Sonnet low) and 2 of 42 (Haiku); low effort cost 6.5% more per build, Haiku 38% less but 45% slower; no official grades.
 
 - [Seeded defects again, with an OpenAI reviewer](review-value-2-openai/README.md) — **DESCRIPTIVE** the same 26 seeded cases with GPT-6.1 Sol at high effort as reviewer, 78 cells: 0 committed wrong (upper bound 3.8% per cell), including both cases a Sonnet reviewer let through; $0.2053 per cell; no lighter or no-review arm; no official grades.
+
+- [Long tasks on Kogen, before the reset fix](long-tasks-reset-fix-1-before/README.md) — **DESCRIPTIVE** the older Kogen version on four long tasks, 8 cells on one machine: 0 passed all hidden tests, and after context resets it repeated 265 file reads (up to 45.7% of a resetting conversation's input); observation, 2 repetitions per task.
+
+- [Long tasks on Kogen, after the reset fix](long-tasks-reset-fix-1-after/README.md) — **DESCRIPTIVE** the fixed version on the same tasks, 10 cells (8 here, 2 on the second-machine page): repeated reads after resets fell to 9 (largest share 4.6%), while 0 of 10 cells passed all hidden tests, so correctness on these long tasks is an open result; different machines, small n, observation.
+
+- [Long tasks on Kogen, after the reset fix: two more repetitions on a second machine](long-tasks-reset-fix-1-after-studio/README.md) — **DESCRIPTIVE** two more repetitions of one task on the fixed version: 0 of 2 passed all hidden tests; counted in the comparison on the after page.

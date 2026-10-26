@@ -1,0 +1,86 @@
+{
+  "experiment": {
+    "cost_cap_usd": 25,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "long-tasks-reset-fix-1-after",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "fixed",
+        "patch": "patches/measurement.diff",
+        "settings": {},
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      }
+    ],
+    "phase": "build",
+    "reps": 2,
+    "tasks": [
+      "documentation-lookup-evidence",
+      "opencode-go-subscription",
+      "prompt-cache-reuse-and-usage",
+      "shaping-technical-discovery"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "fixed": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "tasks": {
+      "documentation-lookup-evidence": {
+        "hidden_tests": "f6721c6e2703494e89e1480b68361cef3172592fd590476d08583416de1e983c",
+        "intents": {
+          "gherkin": "bd670c7af941741a2cbe9e66a62e723c96335b1959889e2547f39cd1195f38e4"
+        },
+        "request": "0552705147341f209b30267872fa40ed1d76d5db4575fd6c9cd166ebc90ec21d",
+        "task": "a809c26a22f4993fd47d6c43c4e5f79bfefc29e9cf1267d5a24c6ed751f4d1c1",
+        "task_toml": "be1a2ac5c176a4722f10eada309e5662b4761821b91b05ed9b9a9698782f2b57",
+        "tree": "f5148e416da44f66dcd631578a8ac2ef313b328899757701ff7bdb52e0aef0d0"
+      },
+      "opencode-go-subscription": {
+        "hidden_tests": "a9a86f74e19c55d7a0721156e36e62a72f116312f6324a5aa54519bdac8550fc",
+        "intents": {
+          "gherkin": "1d4d8c0392d5a232b7cddb07fb022afe83f119baf7babdc644b1c06ef8f7eb72"
+        },
+        "request": "8bfa6f4fc0819db6b4cdc0c6fed6a472f1295ec7b7397df65cb29629cb12b197",
+        "task": "dc1b06870f8fd25605a22d385d5cbfb46dcf237b783eaeae83f4dcaa4981e1ab",
+        "task_toml": "0441923ca379633fda6ae12dfc3476e5285e9117e4467796397caf8108946ba3",
+        "tree": "a45ef30a10c52eeeccb03aa5724040bb4657d89de3168db9bda1c2da3b7eb22f"
+      },
+      "prompt-cache-reuse-and-usage": {
+        "hidden_tests": "27a5ca014c512c1989e0d1bccf206a83ea9e8efcc3c46a2f634af1d3b5612eef",
+        "intents": {
+          "gherkin": "d4264954e7910196d410d6350830fd0808e44af9c21a633239d50e793288603a"
+        },
+        "request": "2be5d52a0db6d6ab6d6279d7dd73b336415bb13fc6c2f21747d7def86f2a36dd",
+        "task": "b888f1e23f89a6a5e1735945ce72fe74b27558172199289b8d22a510273fe488",
+        "task_toml": "6e50bb98eae27a3b2949acfc8fcc556b4cd3cc7031cbc1f96fb77a6254d9ce73",
+        "tree": "6e0e4b07a0b32d36f195e76406c846cfc82666d254e78ed9e0eea9b164a9e035"
+      },
+      "shaping-technical-discovery": {
+        "hidden_tests": "e943e5d7e14239f1052e5833789f741282f2788989159bbd3d9a12339c1d41e0",
+        "intents": {
+          "gherkin": "307a0ccb009ed306aa978fd38821e55eb7c56a4a1f4a8f6f72b8eaf1b4f49cb8"
+        },
+        "request": "6701f786ce07ef90144386440a0d7c79e39eb8d4aff51392c9594b77e05a0c1f",
+        "task": "30ce18cc31d87bc092413f446e02cad2dc639d514c2afdd0128a3fb00abe6fc6",
+        "task_toml": "c4886e02b9345773e26d23a244675952aa50bc6e89e6d90d4cbbd1f8f920c83b",
+        "tree": "5b83138b5e55d00dab469208ed2b1caee83c52889bae1f2660b8baa0fc6bcf77"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "fixed": "b5978ba30d0df8cb24102c59dacd5e591fed0a0cf4ba0517721bbb83bd4741ac"
+    },
+    "sha256": "08447740d597d3a2a51ebdab63721ddb04a5324e88da373628acaa7b7efeab7a"
+  }
+}
