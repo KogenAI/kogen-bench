@@ -1,0 +1,235 @@
+{
+  "experiment": {
+    "cost_cap_usd": 1,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "review-value-2-natural-off",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "r-off",
+        "patch": "patches/rv-off-lane+dump.diff",
+        "settings": {
+          "models": {
+            "build": "anthropic/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "3f0322062e4568ba1e7649054287508f866a0416"
+      }
+    ],
+    "phase": "build",
+    "provider_caps": {
+      "anthropic": {
+        "usd": 25.0
+      }
+    },
+    "reps": 6,
+    "tasks": [
+      "artifact-go",
+      "cron-go",
+      "deps-go",
+      "inventory-go",
+      "ledger-go",
+      "logq-go",
+      "pool-go",
+      "r70-1-go",
+      "r70-4-go",
+      "r70-5-go",
+      "r70-7-go",
+      "readtime-go",
+      "sync3-go",
+      "vm-go"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "r-off": {
+        "patch": "318f2da58835342301d962fc22773b41b9a045e5d7d1773ce1e3ffba4cbf5e27",
+        "settings": "05128756320ad7190cb380363e9d0f16cbfcbc20ee8f7aa687bfd793d33237c3"
+      }
+    },
+    "tasks": {
+      "artifact-go": {
+        "hidden_tests": "306f3d3afc88c12d37fd321f68f71b648422c6e1b0735b4a302d584def43cc07",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "50807a8c1f0c44148a8b355ce529ac00c129d01d3dcc17de206814d2d596f8c6",
+          "prose": "003b18522e9b43d230be9e92ee3b800851b25576f9b0d03195877cda8be33f8c"
+        },
+        "request": "5dc44ef99fd53cf90892aefebf8f273d1e57922cc609f7d85a76d70f347ce317",
+        "task": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+        "task_toml": "1995288e98af17a5492d28d6a6e2cf934a3e49549d94858286202c1bb5d90675",
+        "tree": "eeba0088f6e84a9ec9bc3058927908d8f5f659c0eb1f5a00979caa580d29bc33"
+      },
+      "cron-go": {
+        "hidden_tests": "05646a102485020c247c30f55fd356d91a2c244a2c8e79d06ecbb759ec97dfd6",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "77ed235424dee03c05282ec07e2bed12071ff3f022e73f8444476d2a8126a1b0",
+          "prose": "249df474199495ef6a824dd4a2693d1abb67db215ab2e7868e929c443fba9f30"
+        },
+        "request": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+        "task": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+        "task_toml": "dfea3d391cb8799c14afc3a5c79ec806a4953c6b7dbe3b557fc7f4ffe45b7091",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "deps-go": {
+        "hidden_tests": "1312e7c9f658bbfab93d9ab8e8c10b8a937ff92d8fd4e3547bc9f88b488f3347",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "full": "21593945fa1195eec24f8abdef04b8b4d9e396cb8fd391b4711c5df196311e5e",
+          "gherkin": "c59de2f6030ad9e2825719fc176270f4767b36a24b525e7cffc785461458b534",
+          "prose": "7b3ecfe3c8db6c7ba9882528c79a132c42b4cff06b420995467b0e2e0707f0b8",
+          "short": "36e356241a75f256a075ebb8fc793db0505ae84e2a7b293ecb9ae4b58c4717c6"
+        },
+        "request": "0aba2d53a5a713c303bae473d2f9e5c6f3ba40e9b01a251b82707da331a01326",
+        "task": "be66782b34f2ca4cacd40c36ac424d06d99cb0707d8fdf3432714f58b2154674",
+        "task_toml": "63f0cc948efa61104b3d1ab98ab4d029a62b93bb75b6cda5e0aedaaeba127a52",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "inventory-go": {
+        "hidden_tests": "a0d0a37f582ef502d70566c1338fb4f600cce0b956afd37bee0c4ac955df958a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "0ee54c4f49d3181b37cf1ee77ac236ded1e23107573aa45a94ca1213d24ccb89",
+          "prose": "f7522f276a0bd96606e9b35f44405309a65a5587f2edd0186e3a5968d6f13a26"
+        },
+        "request": "5639a41aeecaee7b5f5b64f5d37f9e8e178c87054451410401c61c861600e97e",
+        "task": "21c71729f5c18b404b427e7647550443f498b42164ef0f4ff2d42300afc4e30e",
+        "task_toml": "9e6cef52b044689e084a06790fb86d4d2f27206e9fc84327eeb1b0d213fd2a80",
+        "tree": "99c808fd70a00acb45b1af122471d48f9c91a324464cedb1c215766b10ca50f0"
+      },
+      "ledger-go": {
+        "hidden_tests": "9a4de5f0fa689dba8111a2eb4f81398b576cad2c61fed6ebf72580b51d1963ff",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "743f22a08f0e47a6c9bf9f8d1b501d2e678fd29b2e9966c86b4112493e8930fe",
+          "prose": "95011fa7afaeb689d2965297a31adebd99a43fc5fd1534e92c7b6fc221968750"
+        },
+        "request": "f3ddcf1f2c4628a61744bd2433f19c521871d540fe7e591903f059de21dc42f7",
+        "task": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+        "task_toml": "ac430e8f20dd5a1003fce35799ab195811e4fc34899f86004c402c4860d12cb6",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "logq-go": {
+        "hidden_tests": "b81ab4ea3f6427a776d56ffb462312ea12afbefd8f2baa82c935a56db46fcf44",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "a2fe5c3f39a2a6195a2fc024fa870d874dfe1bd3bf0528b54ac2659279c62b38",
+          "prose": "a2a3447d08594db751076f4b8d5bd433d4d9187afe3ffca84c896ac6768f9499"
+        },
+        "request": "b30ad247346b5fbaf9425bad28b3f8608f2b897ac457c8fea6f87e6bb1a74a16",
+        "task": "e9c35cce119492bb69c4aef1fa6617742ada15e868f4f773e82845b9f703ab85",
+        "task_toml": "348f54b15b4ca702f1ec0792665ae6e848abf84d439f9f178a5b79f0ba669fb5",
+        "tree": "228b83f9bb73726df70ceddda0f4a0fd24cca1821152badc8e03fc6fb939eb5e"
+      },
+      "pool-go": {
+        "hidden_tests": "f391aaf90745b57fc3668b44ce9824386217e5537f61076e1aa32c34eb1b57b8",
+        "intents": {
+          "gherkin": "49dcdca203f3f4518eb6ea6c5614cb9fbd0dc0b84ed8867c0fc51f68e72d8555",
+          "prose": "1295da7f1ef39f62d5763f90e764e1a634c53112c3e18f86a85a194233590e2f"
+        },
+        "request": "4ded33f51bc2cacb0252cee009235f9cf06ebcbb09ec8952b3721162592b6ae9",
+        "task": "4d9df4702537260a66a7abbb553f65cbc7c0b8b6dd58fbbead303b9de70fd118",
+        "task_toml": "7b265fabcc145d6935d0b4bea74ae31cf165b99c44d8e253a2209c1f76604f70",
+        "tree": "0826be6a20b26442120b45af1ef8261889564bc14d7531876fcceba45ada327f"
+      },
+      "r70-1-go": {
+        "hidden_tests": "8bd1d942c2a06010af7d160908c87a6272b8899c077403620152a3a8e9222aaa",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "d366c095ab2b38149d9dcd8f183737372cecc37dd60adcde15b4c431a690c0b9",
+          "prose": "0b9a4e947729935303f000b03399e6a536c786cc1460795193402768b39bfa72"
+        },
+        "request": "b01e5f35a051bf66d721459a3e424302aed5a9798089cc276a0041a99dddf410",
+        "task": "4dfe84ccd4a6bd5ef194e208f9c5e839968adf53a0557adbf9f2427dc560ee81",
+        "task_toml": "64b9927880447f6fcf8c2738e4fa09b0db99f599aa8065735bdac2fd8d840603",
+        "tree": "66d79e6d5a46509dc85403a2c34e6f701f146a5fffc62349f3fe66b449425610"
+      },
+      "r70-4-go": {
+        "hidden_tests": "c2c99505a4aab33a3091ffa4b6a7a2366489fc24a948ed558c54c3e85ba41def",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "78241425b31bcf7b9338cd4527a874ddbc3a93700ee084c506f18bcf2d5a1379",
+          "prose": "a1a44f4d3659c39a9a5e874d99c292927b3b7720a788d0c3ba5431317e5ab61a"
+        },
+        "request": "6a20095b8e1b5067feb5b04584e59c43aaed4db4544054db6bde677d8d94e611",
+        "task": "da57f34f57a2d8ab5091aabe3f3c1fab7d149d9fdaa85e7e746032aeb78c5509",
+        "task_toml": "a77ad7565d9f3851133bc385b55a788472f40c710a32fd68bf071e0f8f5753ad",
+        "tree": "90c20e4f139cadfba46ff6967d2a84fb6c54221e368d9eee66e34fc43a278daf"
+      },
+      "r70-5-go": {
+        "hidden_tests": "f4f10f81d6257bb9e4171c74dcde919ac7a2bedc7129d65ec97321b877c1b03f",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "d9b972a8bf0e342cfb0e9f300492d3fd3086dc89810d77b42d4339f25d78139c",
+          "prose": "06fae871655d64d35878afd2bca8899add5150915ee4f38afcb4554aef55fc9a"
+        },
+        "request": "0cb83e8fb48ac4f869c505ccd4ab17bcbb011a14439ecc544c3f766ea0fb8252",
+        "task": "5c5540dc37c6c75261c6e8f4a94a8064a9b2583ac2cdde4e47beb6255796f24b",
+        "task_toml": "853680c150dcd1cc25293456bf1e2b33588f4fdf525addc8110f952a025b4ee7",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      },
+      "r70-7-go": {
+        "hidden_tests": "f808ce64fd3301fc29f8806b8bdf6b797195bb5ec1fdefcdf3d231f130ac0f07",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "355d10e9cc09e87e76c63d51a31056fbebd6c2dba97eb9244cc7faaf2f5b2895",
+          "prose": "0dd800daef6718ffdc667e6b97b00f6f6a449a230e9c61e2d873f31e76281fe3"
+        },
+        "request": "7a0470e98189cd82d25d52a671c34bc95ed6873177c2228a16281351fd356141",
+        "task": "78d1ff7be95f6f5e56171cb5bd81b3fff2c38b9dfee93d30f9c345c58d1299ab",
+        "task_toml": "b8338fb4001ff4e5969cee871a55e7e63e68ed3aa2fc06d0b10d2583a80ed793",
+        "tree": "1f72aa36608cf83b3a2f80015c0f7f55beca0af1894330e95a8181ba85fdbf2e"
+      },
+      "readtime-go": {
+        "hidden_tests": "cce29ead0210781e3d41f0a5121cd99937fa527fef6a0e9dc4abbed47c925a57",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "39c56be86f63a14fd421c6b34555d017056dc409d064addec86126dbdb0510ba",
+          "prose": "ef3affc4f9440e595e9631f0788f471699bd098620ebc513f52c4e18fa68f1d2"
+        },
+        "request": "36de64def51fcd86487203c9cc2c3d6c4b435f7a1a9b838ecf4e72ca43ef3f99",
+        "task": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+        "task_toml": "21874fd44f0b3f602ca437c85cec417dc94d79080b773a931f97e962d7b25c54",
+        "tree": "5e915844546abbb06113e94d4b4d1d31e14c96008f3b777e39f82f3083d80450"
+      },
+      "sync3-go": {
+        "hidden_tests": "4b728bce93a4e5108c7f2ce228878d42cc2adf10cec566b9b6a7b46d3488d697",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "7f7e59888d244dcc33c6956da51beb0227e2b2b5b8793d8bc4a4d004d76772f1",
+          "prose": "b2d5137e06975a72b5c6f9b74013360d548b05f49545f95c056427f6e719f5e1"
+        },
+        "request": "efbf90df0ac2de1c02cd9555861f0eed0ae79c3d542d0d65c91965b7a2888fa5",
+        "task": "d82a42f93d601240ea36eda715466a2b668d892e8279930e6bcf7b007086e547",
+        "task_toml": "319b7390a4b27233cdba4466d7ab2572a39fe14161165a1485b9a68f61cf7f20",
+        "tree": "b5026d3ec66582c90caec35d62981e71d8a6eaa18bde85295df3abb2b4960a71"
+      },
+      "vm-go": {
+        "hidden_tests": "e7484a0c7dafe726e7af0a0a6a6c7755d937bfc93c3a6959e4d38f8ac490812d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "03387ab191baca214fba4ec08ef8f13eae72efd8cf50e50ee287967cfc3334e9",
+          "prose": "77ee718d066662e925ad095d761ec943b132c712270770448d8ce064129d1343"
+        },
+        "request": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+        "task": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+        "task_toml": "c4e19bda895149b89353deaf3d455375b806a90e01552b1ba273fdef753dedcc",
+        "tree": "cc30d1d27aa1728d5db30ab2ce9aa295fdaa443e1724001f445dd973d79c19f8"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "r-off": "e71ffff20857bf705d5457c1b588941dee2f1d56e4c7d8c7b75d01f076e51a81"
+    },
+    "sha256": "3ca8d1627495031e8ba1bb62735aa5fe49666cea91bbad9cef7e1f1edfe287a7"
+  }
+}

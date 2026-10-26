@@ -1,0 +1,106 @@
+# review-value-2: recomputed from the published records
+
+## Cells per round
+- review-value-2: 234 cells, list-price cost $8.27
+- review-value-2-clean: 90 cells, list-price cost $3.08
+- review-value-2-natural-off: 84 cells, list-price cost $7.96
+- review-value-2-natural-reviewed: 126 cells, list-price cost $17.37
+- review-value-2-openai: 78 cells, list-price cost $16.01
+- total 612 cells, $52.69
+
+## Seeded defects, Claude models (26 cases x 3 reviewer settings x 3 repetitions)
+| reviewer | cells | acceptance caught the planted tree | build stopped | valid | escaped | escape rate | Wilson 95% | case bootstrap 95% |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| r-now | 78 | 1 | 0 {} | 77 | 5 | 6.5% | 2.8% to 14.3% | 0.0% to 16.7% |
+| r-low | 78 | 0 | 0 {} | 78 | 6 | 7.7% | 3.6% to 15.8% | 0.0% to 19.2% |
+| r-haiku | 78 | 1 | 11 {'review_invalid': 9, 'timeout': 2} | 66 | 1 | 1.5% | 0.3% to 8.1% | 0.0% to 4.8% |
+
+Paired per-case difference against r-now (percentage points, reps averaged inside case):
+- r-low: mean +1.3, bootstrap 95% +0.0 to +3.8, one-sided upper 95% +3.8, 1 of 26 cases differ
+- r-haiku: mean -5.1, bootstrap 95% -12.8 to +0.0, one-sided upper 95% +0.0, 2 of 26 cases differ
+
+r-haiku sensitivity to the cells it lost:
+- protocol (all lost cells excluded): 1 of 66 = 1.5%
+- review_invalid kept as not escaped: 1 of 75 = 1.3%
+- review_invalid counted as escaped: 10 of 75 = 13.3%
+- review_invalid and timeouts counted as escaped: 12 of 77 = 15.6%
+
+Cases with at least one escape (escaped / valid cells):
+- r-now: seed-08 2/3, seed-25 3/3
+- r-low: seed-08 3/3, seed-25 3/3
+- r-haiku: seed-25 1/3
+- 0 cases escaped with the OpenAI reviewer
+
+Review stage per seeded cell:
+| reviewer | cell cost | review cost | review requests | review wall, median |
+| --- | ---: | ---: | ---: | ---: |
+| r-now | $0.0524 | $0.0517 | 3.5 | 12.6 s |
+| r-low | $0.0445 | $0.0445 | 3.0 | 10.9 s |
+| r-haiku | $0.0091 | $0.0085 | 7.3 | 37.7 s |
+
+## Per-case table (escaped / valid cells)
+| case | r-now | r-low | r-haiku | OpenAI reviewer |
+| --- | --- | --- | --- | --- |
+| seed-01 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-02 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-03 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-04 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-05 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-06 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-07 | 0/3 | 0/3 | 0/1 | 0/3 |
+| seed-08 | 2/3 | 3/3 | 0/2 | 0/3 |
+| seed-09 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-10 | 0/3 | 0/3 | 0/2 | 0/3 |
+| seed-11 | 0/2 | 0/3 | 0/2 | 0/3 |
+| seed-12 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-13 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-14 | 0/3 | 0/3 | 0/2 | 0/3 |
+| seed-15 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-16 | 0/3 | 0/3 | 0/1 | 0/3 |
+| seed-17 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-18 | 0/3 | 0/3 | 0/2 | 0/3 |
+| seed-19 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-20 | 0/3 | 0/3 | 0/2 | 0/3 |
+| seed-21 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-22 | 0/3 | 0/3 | 0/1 | 0/3 |
+| seed-23 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-24 | 0/3 | 0/3 | 0/3 | 0/3 |
+| seed-25 | 3/3 | 3/3 | 1/3 | 0/3 |
+| seed-26 | 0/3 | 0/3 | 0/3 | 0/3 |
+
+## Clean controls (15 tasks x 3 reviewer settings x 2 repetitions)
+| reviewer | cells | landed | hidden tests failed | builder requests | cell cost | review cost | review requests | review wall, mean |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| r-now | 30 | 30 | 0 | 0 | $0.0471 | $0.0471 | 2.5 | 9.9 s |
+| r-low | 30 | 30 | 0 | 0 | $0.0453 | $0.0453 | 2.6 | 8.0 s |
+| r-haiku | 30 | 30 | 0 | 0 | $0.0102 | $0.0102 | 7.2 | 48.4 s |
+
+## Natural builds, Sonnet 5.5 medium builder (14 tasks)
+| setting | cells | landed | build stopped | final tree fails hidden tests | cost per landed cell | review cost | review wall | wall per landed cell |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| r-off | 84 | 79 | 5 {'invalid_response': 5} {'pool-go': 5} | 1 ['cron-go/r2'] | $0.0932 | $0.0000 | 0.0 s | 64.1 s |
+| r-now | 42 | 41 | 1 {'invalid_response': 1} {'pool-go': 1} | 0 [] | $0.1540 | $0.0707 | 10.9 s | 89.7 s |
+| r-low | 42 | 42 | 0 {} {} | 0 [] | $0.1647 | $0.0678 | 9.8 s | 92.5 s |
+| r-haiku | 42 | 42 | 0 {} {} | 2 ['r70-1-go/r1', 'r70-1-go/r2'] | $0.0959 | $0.0097 | 44.2 s | 133.6 s |
+
+r-off first green wrong: 1 of 79 landed cells = 1.3%; exact one-sided 95% upper bound 5.9%; Wilson 95% 0.2% to 6.8%
+  with the 5 lost cells counted as correct: 1 of 84, upper bound 5.5%
+- r-low against r-now, 41 matched (task, repetition) blocks: whole-cell cost saving -6.5% (-9.0% to -3.4%); review stage cost saving 4.3% (-1.3% to 9.2%); wall saving -2.0% (-6.0% to 2.0%)
+- r-haiku against r-now, 41 matched (task, repetition) blocks: whole-cell cost saving 38.4% (34.0% to 44.1%); review stage cost saving 86.5% (84.4% to 88.4%); wall saving -45.1% (-58.2% to -32.5%)
+- r-off against r-now, per-task means over 14 tasks (different hosts): cost saving 38.1% (31.9% to 46.2%)
+- review cost per build, r-now minus r-off whole-cell mean: $0.0608; review stage cost in r-now cells: $0.0707; review wall per build in r-now cells: 10.9 s (12.1% of the cell)
+
+Price of a review that is switched on (break-even), with the escape rate of r-now from the seeded cases:
+| builds wrong on green (p) | escapes prevented per 1000 builds | review cost per 1000 builds | review wall per 1000 builds | cost per prevented escape |
+| ---: | ---: | ---: | ---: | ---: |
+| 0.1% | 0.94 | $60.8 | 3.0 h | $64.98 |
+| 1.0% | 9.35 | $60.8 | 3.0 h | $6.50 |
+| 2.0% | 18.70 | $60.8 | 3.0 h | $3.25 |
+
+## Confirmation with a different provider (seeded cases, OpenAI reviewer)
+- cells 78, acceptance caught the planted tree 0, build stopped 0, valid 78, escaped 0 (0.0%), exact one-sided 95% upper bound 3.8%
+- cost $16.01 in total, $0.2053 per cell (review stage $0.2053), 12.1 review requests per cell, median cell wall 317 s
+- Claude r-now on the same cases: 5 of 77 escaped (6.5%), $0.0524 per cell
+
+## Tasks (ids and content hashes only; the tasks are still in use)
+55 task ids in the three Claude rounds; the hashes are in each round's PLAN.json.

@@ -1,0 +1,250 @@
+diff --git a/cli/build/builder.go b/cli/build/builder.go
+index e73dde5..ccae6c5 100644
+--- a/cli/build/builder.go
++++ b/cli/build/builder.go
+@@ -393,7 +393,7 @@ func (b *Attempt) verifyAndReview(ctx context.Context) (string, bool, error) {
+ 		b.Repairs++
+ 		return b.PassFeedback(pass, "finish"), false, nil
+ 	}
+-	approved, err := b.deps.reviewer().Review(ctx, b, pass)
++	approved, err := b.reviewer().Review(ctx, b, pass)
+ 	if err != nil {
+ 		return "", false, err
+ 	}
+@@ -421,7 +421,7 @@ func (b *Attempt) resumeStage(ctx context.Context) error {
+ 		}
+ 		return b.drive(ctx, b.afterRound(c.Input, c.Finish, feedback), true)
+ 	default: // the review stages
+-		approved, err := b.deps.reviewer().Resume(ctx, b)
++		approved, err := b.reviewer().Resume(ctx, b)
+ 		if err != nil {
+ 			return err
+ 		}
+diff --git a/cli/build/context.go b/cli/build/context.go
+index 696be81..f7e21b5 100644
+--- a/cli/build/context.go
++++ b/cli/build/context.go
+@@ -346,6 +346,9 @@ func (b *Attempt) prepareContext(owner string, role project.Role, instructions s
+ 	b.WorkingContext[owner] = state
+ 	b.s.Progress(fmt.Sprintf("kogen: %s local reset %d -> %d bytes; ceiling %d; reserve %d; history %s",
+ 		owner, measured.RenderedBytes, next.RenderedBytes, agent.InputBudgetBytes, reservedOutputTokens, path))
++	b.Run.Event(map[string]any{
++		"event": "window_reset", "role": owner, "bytes_before": measured.RenderedBytes, "bytes_after": next.RenderedBytes,
++	})
+ 	return reduced, nil
+ }
+ 
+diff --git a/cli/build/context_test.go b/cli/build/context_test.go
+index 3d0f134..fe216a1 100644
+--- a/cli/build/context_test.go
++++ b/cli/build/context_test.go
+@@ -37,6 +37,17 @@ func TestAConversationOverTheBudgetIsResetToALocalWorkingWindow(t *testing.T) {
+ 	if len(history) == 0 {
+ 		t.Fatal("no archived window")
+ 	}
++	resets := eventsNamed(e.events(id), "window_reset")
++	if len(resets) != len(history) {
++		t.Fatalf("window_reset events %d, archives %d", len(resets), len(history))
++	}
++	for _, r := range resets {
++		before, _ := r["bytes_before"].(float64)
++		after, _ := r["bytes_after"].(float64)
++		if r["role"] != "build" || before <= after || after <= 0 || r["at"] == nil {
++			t.Fatalf("window_reset %v", r)
++		}
++	}
+ 	for i, h := range history {
+ 		ref := h.(map[string]any)
+ 		path := ref["path"].(string)
+diff --git a/cli/build/rvoff.go b/cli/build/rvoff.go
+new file mode 100644
+index 0000000..64cdf51
+--- /dev/null
++++ b/cli/build/rvoff.go
+@@ -0,0 +1,44 @@
++package build
++
++import (
++	"context"
++
++	"kogen/verify"
++)
++
++// Research lane rv-off (REVIEW-VALUE-2): KOGEN_REVIEW_OFF=1 approves every green pass with the
++// existing approveWithoutReview stub, so no reviewer request is made. "0", "" or no value
++// leave the independent review as it is (any other value means the same as no value). A
++// Deps.Reviewer set by the caller (tests) wins.
++//
++// reviewOffDefault is what "no value" means. It is false here. The "-lane" variants of the
++// patch set it to true, so that a lane whose binary is the review-off arm needs no environment
++// variable (the lanes harness cannot set one per lane); KOGEN_REVIEW_OFF=0 then turns review on.
++const reviewOffEnv = "KOGEN_REVIEW_OFF"
++
++var reviewOffDefault = true
++
++func reviewOff(value string) bool {
++	switch value {
++	case "1":
++		return true
++	case "0":
++		return false
++	}
++	return reviewOffDefault
++}
++
++type skippedReview struct{ approveWithoutReview }
++
++func (r skippedReview) Review(ctx context.Context, b *Attempt, pass verify.Pass) (Approved, error) {
++	b.Run.Event(map[string]any{"event": "review_skipped"})
++	return r.approveWithoutReview.Review(ctx, b, pass)
++}
++
++// reviewer is the Build's reviewer: the stub when review is switched off, else the Deps one.
++func (b *Attempt) reviewer() Reviewer {
++	if b.deps.Reviewer == nil && reviewOff(b.s.Getenv(reviewOffEnv)) {
++		return skippedReview{}
++	}
++	return b.deps.reviewer()
++}
+diff --git a/cli/build/rvoff_test.go b/cli/build/rvoff_test.go
+new file mode 100644
+index 0000000..6a56e48
+--- /dev/null
++++ b/cli/build/rvoff_test.go
+@@ -0,0 +1,71 @@
++package build
++
++import "testing"
++
++// The suite runs with the base meaning of "no value" whichever default a patch variant carries.
++func init() { reviewOffDefault = false }
++
++func TestRVOffApprovesAGreenPassWithoutAReviewerRequest(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(landScript(f)...)
++	t.Setenv("KOGEN_REVIEW_OFF", "1")
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	eq(t, "review requests", len(f.reviewRequests()), 0)
++	eq(t, "requests", f.count(), 1)
++	events := e.events(id)
++	eq(t, "review_skipped", len(eventsNamed(events, "review_skipped")), 1)
++	reviews := eventsNamed(events, "review")
++	if len(reviews) != 1 || reviews[0]["stub"] != "no independent review ran" || reviews[0]["verdict"] != "approve" {
++		t.Fatalf("review events %v", reviews)
++	}
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "candidate")
++}
++
++func TestRVOffIsOffUnlessExactlyOne(t *testing.T) {
++	for _, v := range []string{"", "0", "off", "true"} {
++		t.Run("value "+v, func(t *testing.T) {
++			e := newEnv(t)
++			f := e.prov
++			f.then(landScript(f)...)
++			f.then(submit(f, "approve"))
++			t.Setenv("KOGEN_REVIEW_OFF", v)
++			a := e.reviewed()
++			if a.exit != 0 || a.err != nil {
++				t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++			}
++			eq(t, "review requests", len(f.reviewRequests()), 1)
++			eq(t, "review_skipped", len(eventsNamed(e.events(e.onlyRun()), "review_skipped")), 0)
++		})
++	}
++}
++
++func TestRVOffLaneDefaultSwitchesReviewOffUnlessZero(t *testing.T) {
++	reviewOffDefault = true
++	t.Cleanup(func() { reviewOffDefault = false })
++	for value, wantOff := range map[string]bool{"": true, "1": true, "other": true, "0": false} {
++		t.Run("value "+value, func(t *testing.T) {
++			e := newEnv(t)
++			f := e.prov
++			f.then(landScript(f)...)
++			if !wantOff {
++				f.then(submit(f, "approve"))
++			}
++			t.Setenv("KOGEN_REVIEW_OFF", value)
++			a := e.reviewed()
++			if a.exit != 0 || a.err != nil {
++				t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++			}
++			wantReviews, wantSkips := 1, 0
++			if wantOff {
++				wantReviews, wantSkips = 0, 1
++			}
++			eq(t, "review requests", len(f.reviewRequests()), wantReviews)
++			eq(t, "review_skipped", len(eventsNamed(e.events(e.onlyRun()), "review_skipped")), wantSkips)
++		})
++	}
++}
+diff --git a/cli/shape/window.go b/cli/shape/window.go
+index 9d470b9..31a1ee6 100644
+--- a/cli/shape/window.go
++++ b/cli/shape/window.go
+@@ -326,6 +326,9 @@ func (w *window) prepare(p windowPrep, input []any) ([]any, error) {
+ 		"input_budget_bytes": agent.InputBudgetBytes, "output_reserve_tokens": agent.OutputReserveTokens,
+ 		"archive": archive.value(),
+ 	})
++	p.ev.Record(map[string]any{
++		"event": "window_reset", "role": w.owner, "bytes_before": before.RenderedBytes, "bytes_after": after.RenderedBytes,
++	})
+ 	p.progress(fmt.Sprintf("kogen: %s local working-window reset %d -> %d bytes; custody %s", w.title(), before.RenderedBytes, after.RenderedBytes, archive.Path))
+ 	return reduced, nil
+ }
+diff --git a/cli/shape/window_test.go b/cli/shape/window_test.go
+index e48f430..d9d63c5 100644
+--- a/cli/shape/window_test.go
++++ b/cli/shape/window_test.go
+@@ -225,6 +225,15 @@ func TestTheResetEventMeasuresTheRequestOfTheNewWindow(t *testing.T) {
+ 		event["input_budget_bytes"] != float64(524288) || event["output_reserve_tokens"] != float64(131072) {
+ 		t.Fatalf("event %v, request %d bytes", event, actual.RenderedBytes)
+ 	}
++	var reset map[string]any
++	for _, e := range windowEvents(t, f.root) {
++		if e["event"] == "window_reset" {
++			reset = e
++		}
++	}
++	if reset == nil || reset["role"] != "shape" || reset["bytes_after"] != float64(actual.RenderedBytes) || reset["bytes_before"] != event["before_bytes"] {
++		t.Fatalf("window_reset %v", reset)
++	}
+ }
+ 
+ func TestUnsafeAncestorCustodyRefusesBeforeWritingAnUnsentArchive(t *testing.T) {
+diff --git a/cli/provider/respond.go b/cli/provider/respond.go
+index 3980160..885de8e 100644
+--- a/cli/provider/respond.go
++++ b/cli/provider/respond.go
+@@ -5,7 +5,10 @@ import (
+ 	"context"
+ 	"io"
+ 	"net/http"
++	"os"
++	"path/filepath"
+ 	"regexp"
++	"strconv"
+ 	"strings"
+ 	"time"
+ 	"unicode"
+@@ -689,6 +692,15 @@ func (r *run) completeMessages(stream, key string) (result, error) {
+ 		return result{}, err
+ 	}
+ 	res := parseMessages(stream)
++	// research lane sse-dump (KOGEN-059): keep the raw stream of a completion judged invalid, bounded, private.
++	if dir := os.Getenv("KOGEN_SSE_DUMP_DIR"); dir != "" && res.kind == resInvalid {
++		raw := stream
++		if len(raw) > 4<<20 {
++			raw = raw[:4<<20]
++		}
++		name := filepath.Join(dir, strconv.FormatInt(time.Now().UnixNano(), 10)+"-"+strconv.Itoa(os.Getpid())+".sse")
++		_ = os.WriteFile(name, []byte("# detail: "+res.detail+"\n"+raw), 0o600)
++	}
+ 	if res.kind == resOK {
+ 		meta := make(map[string]any, len(res.meta))
+ 		for name, v := range res.meta {

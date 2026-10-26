@@ -1,0 +1,569 @@
+diff --git a/cli/build/build.go b/cli/build/build.go
+index 958dd87..505ea9a 100644
+--- a/cli/build/build.go
++++ b/cli/build/build.go
+@@ -324,6 +324,11 @@ func (b *Attempt) begin(ctx context.Context) error {
+ 	if b.diag != nil {
+ 		input = append(input, b.diag.message())
+ 	}
++	if dir, err := b.seedDir(); err != nil {
++		return err
++	} else if dir != "" {
++		return b.driveSeeded(ctx, input, dir)
++	}
+ 	return b.drive(ctx, input, true)
+ }
+ 
+diff --git a/cli/build/context.go b/cli/build/context.go
+index 696be81..f7e21b5 100644
+--- a/cli/build/context.go
++++ b/cli/build/context.go
+@@ -346,6 +346,9 @@ func (b *Attempt) prepareContext(owner string, role project.Role, instructions s
+ 	b.WorkingContext[owner] = state
+ 	b.s.Progress(fmt.Sprintf("kogen: %s local reset %d -> %d bytes; ceiling %d; reserve %d; history %s",
+ 		owner, measured.RenderedBytes, next.RenderedBytes, agent.InputBudgetBytes, reservedOutputTokens, path))
++	b.Run.Event(map[string]any{
++		"event": "window_reset", "role": owner, "bytes_before": measured.RenderedBytes, "bytes_after": next.RenderedBytes,
++	})
+ 	return reduced, nil
+ }
+ 
+diff --git a/cli/build/context_test.go b/cli/build/context_test.go
+index 3d0f134..fe216a1 100644
+--- a/cli/build/context_test.go
++++ b/cli/build/context_test.go
+@@ -37,6 +37,17 @@ func TestAConversationOverTheBudgetIsResetToALocalWorkingWindow(t *testing.T) {
+ 	if len(history) == 0 {
+ 		t.Fatal("no archived window")
+ 	}
++	resets := eventsNamed(e.events(id), "window_reset")
++	if len(resets) != len(history) {
++		t.Fatalf("window_reset events %d, archives %d", len(resets), len(history))
++	}
++	for _, r := range resets {
++		before, _ := r["bytes_before"].(float64)
++		after, _ := r["bytes_after"].(float64)
++		if r["role"] != "build" || before <= after || after <= 0 || r["at"] == nil {
++			t.Fatalf("window_reset %v", r)
++		}
++	}
+ 	for i, h := range history {
+ 		ref := h.(map[string]any)
+ 		path := ref["path"].(string)
+diff --git a/cli/build/rvseed.go b/cli/build/rvseed.go
+new file mode 100644
+index 0000000..d6f9a58
+--- /dev/null
++++ b/cli/build/rvseed.go
+@@ -0,0 +1,189 @@
++package build
++
++import (
++	"context"
++	"io/fs"
++	"os"
++	"path/filepath"
++	"slices"
++	"strings"
++
++	"kogen/sys"
++)
++
++// Research lane rv-seed (REVIEW-VALUE-2): when KOGEN_SEED_TREE names a directory, the Build
++// applies that directory's files onto the candidate in place of the builder's first round, so
++// that the real fixers, clean-copy verification, independent review and commit path judge a
++// candidate that Kogen did not write. No builder request is made for that round.
++//
++// KOGEN_SEED_TREE is an absolute path, or a path relative to the repository root. A missing
++// absolute directory is refused; a missing relative one means "nothing to seed" (so one relative
++// value can serve every cell of a run, the overlay being only in the start tree
++// of the seeded tasks). An unset or empty variable leaves the Build exactly as it is.
++//
++// seedDefault is what an unset or empty variable means. It is empty here. The "-lane" variants
++// of the patch set it to ".kogen/local/seed", so that a lane needs no environment variable
++// (the lanes harness cannot set one per lane, and does not forward its own to remote hosts);
++// KOGEN_SEED_TREE=off then switches seeding off.
++const seedEnv = "KOGEN_SEED_TREE"
++
++var seedDefault = ".kogen/local/seed"
++
++// seedDir is the directory to seed from, or "" when this Build is not seeded.
++func (b *Attempt) seedDir() (string, error) {
++	v := b.s.Getenv(seedEnv)
++	if v == "" {
++		v = seedDefault
++	}
++	if v == "" || v == "off" {
++		return "", nil
++	}
++	absolute := filepath.IsAbs(v)
++	dir := v
++	if !absolute {
++		dir = filepath.Join(b.Root, v)
++	}
++	info, err := os.Stat(dir)
++	if err != nil || !info.IsDir() {
++		if !absolute && os.IsNotExist(err) {
++			return "", nil
++		}
++		return "", sys.Fail("environment", "seed_tree", seedEnv+" does not name a directory: "+v, 3)
++	}
++	return dir, nil
++}
++
++// seedFiles lists the overlay's files as slash-separated paths, refusing anything that is not
++// a plain file or that would land on Git's or Kogen's own state or on a protected path.
++func (b *Attempt) seedFiles(dir string) ([]string, error) {
++	var files []string
++	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
++		if err != nil {
++			return err
++		}
++		if d.IsDir() {
++			return nil
++		}
++		rel, err := filepath.Rel(dir, path)
++		if err != nil {
++			return err
++		}
++		rel = filepath.ToSlash(rel)
++		if !d.Type().IsRegular() {
++			return sys.Fail("environment", "seed_tree", "the seed tree has a path that is not a plain file: "+rel, 3)
++		}
++		if rel == ".git" || strings.HasPrefix(rel, ".git/") || rel == ".kogen" || strings.HasPrefix(rel, ".kogen/") ||
++			(slices.Contains(b.Baseline, rel) && !b.sameAsTree(rel, path)) {
++			return sys.Fail("environment", "seed_tree", "the seed tree has a protected path: "+rel, 3)
++		}
++		files = append(files, rel)
++		return nil
++	})
++	if err != nil {
++		return nil, err
++	}
++	slices.Sort(files)
++	return files, nil
++}
++
++// sameAsTree reports whether the work tree already has the file at rel with the bytes of src
++// (and an equal executable bit), so that applying it would change nothing.
++func (b *Attempt) sameAsTree(rel, src string) bool {
++	have, err := os.Stat(filepath.Join(b.Root, filepath.FromSlash(rel)))
++	want, err2 := os.Stat(src)
++	if err != nil || err2 != nil || !have.Mode().IsRegular() || have.Mode()&0o100 != want.Mode()&0o100 {
++		return false
++	}
++	a, err := os.ReadFile(filepath.Join(b.Root, filepath.FromSlash(rel)))
++	c, err2 := os.ReadFile(src)
++	return err == nil && err2 == nil && slices.Equal(a, c)
++}
++
++// applySeed copies the overlay onto the work tree and returns how many files it wrote (files
++// that are already identical are left alone and not counted). A seed
++// directory inside the repository's .kogen/local (git-ignored scratch space) is removed once
++// read, so that neither the verification nor the reviewer can see it.
++func (b *Attempt) applySeed(dir string) (int, error) {
++	files, err := b.seedFiles(dir)
++	if err != nil {
++		return 0, err
++	}
++	type entry struct {
++		rel  string
++		data []byte
++		mode os.FileMode
++	}
++	var entries []entry
++	for _, rel := range files {
++		src := filepath.Join(dir, filepath.FromSlash(rel))
++		if b.sameAsTree(rel, src) {
++			continue // already as the seed has it: nothing to apply, not counted
++		}
++		data, err := os.ReadFile(src)
++		if err != nil {
++			return 0, err
++		}
++		info, err := os.Stat(src)
++		if err != nil {
++			return 0, err
++		}
++		mode := os.FileMode(0o644)
++		if info.Mode()&0o100 != 0 {
++			mode = 0o755
++		}
++		entries = append(entries, entry{rel, data, mode})
++	}
++	for _, e := range entries {
++		dst := filepath.Join(b.Root, filepath.FromSlash(e.rel))
++		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
++			return 0, err
++		}
++		if err := os.WriteFile(dst, e.data, e.mode); err != nil {
++			return 0, err
++		}
++		if err := os.Chmod(dst, e.mode); err != nil {
++			return 0, err
++		}
++	}
++	if local := filepath.Join(b.Root, ".kogen", "local") + string(filepath.Separator); strings.HasPrefix(dir, local) {
++		if err := os.RemoveAll(dir); err != nil {
++			return 0, err
++		}
++	}
++	return len(entries), nil
++}
++
++// driveSeeded plays the first round from the overlay instead of the builder: verification,
++// the fixers, review and commit follow exactly as after a builder's finish. If the pass is
++// red the Build goes on as Kogen normally would, with the builder answering the feedback; the
++// run log then holds a `seed_red` event.
++func (b *Attempt) driveSeeded(ctx context.Context, input []any, dir string) error {
++	if b.StageProgress != nil && b.StageProgress.Phase == phaseStage {
++		return sys.Fail("environment", "seed_staged", seedEnv+" cannot seed an Intent that has a stage plan", 3)
++	}
++	if err := b.facts.update(b, "building", ""); err != nil {
++		return err
++	}
++	b.Round++
++	if err := b.Track(); err != nil {
++		return err
++	}
++	b.s.Progress("kogen: building (round " + itoa(b.Round) + ", seeded from " + filepath.Base(dir) + ")")
++	n, err := b.applySeed(dir)
++	if err != nil {
++		return err
++	}
++	if err := b.BaselineIntact(); err != nil {
++		return err
++	}
++	b.Run.Event(map[string]any{"event": "seeded", "variant": filepath.Base(dir), "files": n})
++	if err := b.Save(Continuation{Stage: StageBuilderVerify, Input: input}); err != nil {
++		return err
++	}
++	feedback, landed, err := b.roundEnd(ctx)
++	if err != nil || landed {
++		return err
++	}
++	b.Run.Event(map[string]any{"event": "seed_red", "round": b.Round, "repairs": b.Repairs})
++	return b.drive(ctx, b.afterRound(input, nil, feedback), true)
++}
+diff --git a/cli/build/rvseed_test.go b/cli/build/rvseed_test.go
+new file mode 100644
+index 0000000..1102004
+--- /dev/null
++++ b/cli/build/rvseed_test.go
+@@ -0,0 +1,251 @@
++package build
++
++import (
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	"kogen/agent"
++)
++
++// The suite runs with the base meaning of "no value" whichever default a patch variant carries.
++func init() { seedDefault = "" }
++
++// builderRequests are the provider requests of the builder, in order.
++func (f *fakeProvider) builderRequests() []map[string]any {
++	var out []map[string]any
++	for _, req := range f.requests() {
++		if requestInstructions(req) == agent.Prompt(agent.Builder) {
++			out = append(out, req)
++		}
++	}
++	return out
++}
++
++func seedTree(t *testing.T, name string, files map[string]string) string {
++	t.Helper()
++	dir := filepath.Join(t.TempDir(), name)
++	for rel, content := range files {
++		writeFile(t, filepath.Join(dir, filepath.FromSlash(rel)), content, 0o644)
++	}
++	return dir
++}
++
++func reviewSource(t *testing.T, f *fakeProvider) string {
++	t.Helper()
++	reqs := f.reviewRequests()
++	if len(reqs) == 0 {
++		t.Fatal("no review request")
++	}
++	blocks := requestInput(reqs[0])[0].(map[string]any)["content"].([]any)
++	return blocks[1].(map[string]any)["text"].(string)
++}
++
++func TestRVSeedAppliesTheOverlayInPlaceOfTheBuildersFirstRound(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(submit(f, "approve"))
++	dir := seedTree(t, "variant-one", map[string]string{"app.txt": "seeded\n", "lib/extra.txt": "extra\n"})
++	t.Setenv("KOGEN_SEED_TREE", dir)
++	start := e.head()
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	eq(t, "builder requests", len(f.builderRequests()), 0)
++	eq(t, "review requests", len(f.reviewRequests()), 1)
++	eq(t, "requests", f.count(), 1)
++	seeded := eventsNamed(e.events(id), "seeded")
++	if len(seeded) != 1 || seeded[0]["variant"] != "variant-one" || seeded[0]["files"] != float64(2) {
++		t.Fatalf("seeded events %v", seeded)
++	}
++	eq(t, "seed_red events", len(eventsNamed(e.events(id), "seed_red")), 0)
++	eq(t, "commits", e.gitOut("rev-list", "--count", start+"..HEAD"), "1")
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "seeded")
++	eq(t, "committed extra", e.gitOut("show", "HEAD:lib/extra.txt"), "extra")
++	// The reviewer's material is the diff against the start HEAD, seeded changes included.
++	source := reviewSource(t, f)
++	contains(t, "review source", source, "-baseline\n+seeded\n")
++	contains(t, "review source", source, "--- lib/extra.txt (added; mode 100644)\nextra\n")
++	eq(t, "round", e.result(id)["passes"], any(float64(1)))
++}
++
++func TestRVSeedFromTheRepositoryIsRelativeAndInvisibleToTheReviewer(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(submit(f, "approve"))
++	e.write(".kogen/local/seed/app.txt", "seeded\n")
++	t.Setenv("KOGEN_SEED_TREE", ".kogen/local/seed")
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	seeded := eventsNamed(e.events(id), "seeded")
++	if len(seeded) != 1 || seeded[0]["variant"] != "seed" || seeded[0]["files"] != float64(1) {
++		t.Fatalf("seeded events %v", seeded)
++	}
++	if _, err := os.Stat(filepath.Join(e.root, ".kogen/local/seed")); !os.IsNotExist(err) {
++		t.Fatalf("seed directory still in the work tree: %v", err)
++	}
++	lacks(t, "review source", reviewSource(t, f), ".kogen/local/seed")
++	eq(t, "builder requests", len(f.builderRequests()), 0)
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "seeded")
++}
++
++func TestRVSeedWithAMissingRelativeDirectoryBuildsNormally(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(landScript(f)...)
++	f.then(submit(f, "approve"))
++	t.Setenv("KOGEN_SEED_TREE", ".kogen/local/seed")
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	eq(t, "seeded events", len(eventsNamed(e.events(e.onlyRun()), "seeded")), 0)
++	eq(t, "builder requests", len(f.builderRequests()), 1)
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "candidate")
++}
++
++func TestRVSeedUnsetLeavesTheBuildUnchanged(t *testing.T) {
++	t.Setenv("KOGEN_SEED_TREE", "")
++	e := newEnv(t)
++	f := e.prov
++	f.then(landScript(f)...)
++	f.then(submit(f, "approve"))
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	eq(t, "builder requests", len(f.builderRequests()), 1)
++	eq(t, "review requests", len(f.reviewRequests()), 1)
++	for _, ev := range e.events(id) {
++		name, _ := ev["event"].(string)
++		if strings.HasPrefix(name, "seed") || name == "review_skipped" {
++			t.Fatalf("unexpected event %v", ev)
++		}
++	}
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "candidate")
++}
++
++func TestRVSeedThatFailsVerificationContinuesWithTheBuilder(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(landScript(f)...) // the builder answers the red feedback
++	f.then(submit(f, "approve"))
++	dir := seedTree(t, "red-variant", map[string]string{"app.txt": "red\n"}) // accept.sh fails on this
++	t.Setenv("KOGEN_SEED_TREE", dir)
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	events := e.events(id)
++	eq(t, "seeded", len(eventsNamed(events, "seeded")), 1)
++	red := eventsNamed(events, "seed_red")
++	if len(red) != 1 || red[0]["round"] != float64(1) {
++		t.Fatalf("seed_red events %v", red)
++	}
++	eq(t, "builder requests", len(f.builderRequests()), 1)
++	feedback := requestText(f.builderRequests()[0])
++	contains(t, "builder request", feedback, "Verification pass 1 is not green")
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "candidate")
++}
++
++func TestRVSeedRefusesProtectedAndUnusablePaths(t *testing.T) {
++	for name, files := range map[string]map[string]string{
++		"kogen":  {".kogen/project.yaml": "version: 1\n"},
++		"git":    {".git/config": "x\n"},
++		"intent": {".kogen/intents/fixture/acceptance.feature": "Feature: other\n"},
++		"steps":  {stepsFile: "// changed\n"},
++	} {
++		t.Run(name, func(t *testing.T) {
++			e := newEnv(t)
++			t.Setenv("KOGEN_SEED_TREE", seedTree(t, "bad", files))
++			start := e.head()
++			a := e.reviewed()
++			eq(t, "exit", a.exit, 3)
++			contains(t, "stdout", a.shown(), "environment/seed_tree")
++			eq(t, "head", e.head(), start)
++			eq(t, "requests", e.prov.count(), 0)
++		})
++	}
++	t.Run("missing absolute directory", func(t *testing.T) {
++		e := newEnv(t)
++		t.Setenv("KOGEN_SEED_TREE", filepath.Join(t.TempDir(), "absent"))
++		a := e.reviewed()
++		eq(t, "exit", a.exit, 3)
++		contains(t, "stdout", a.shown(), "environment/seed_tree")
++		eq(t, "requests", e.prov.count(), 0)
++	})
++}
++
++func TestRVSeedLaneDefaultSeedsFromTheRepositoryUnlessOff(t *testing.T) {
++	seedDefault = ".kogen/local/seed"
++	t.Cleanup(func() { seedDefault = "" })
++	t.Run("default", func(t *testing.T) {
++		e := newEnv(t)
++		f := e.prov
++		f.then(submit(f, "approve"))
++		e.write(".kogen/local/seed/app.txt", "seeded\n")
++		t.Setenv("KOGEN_SEED_TREE", "")
++		a := e.reviewed()
++		if a.exit != 0 || a.err != nil {
++			t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++		}
++		eq(t, "seeded", len(eventsNamed(e.events(e.onlyRun()), "seeded")), 1)
++		eq(t, "builder requests", len(f.builderRequests()), 0)
++		eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "seeded")
++	})
++	t.Run("no seed directory", func(t *testing.T) {
++		e := newEnv(t)
++		f := e.prov
++		f.then(landScript(f)...)
++		f.then(submit(f, "approve"))
++		t.Setenv("KOGEN_SEED_TREE", "")
++		a := e.reviewed()
++		if a.exit != 0 || a.err != nil {
++			t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++		}
++		eq(t, "seeded", len(eventsNamed(e.events(e.onlyRun()), "seeded")), 0)
++		eq(t, "builder requests", len(f.builderRequests()), 1)
++	})
++	t.Run("off", func(t *testing.T) {
++		e := newEnv(t)
++		f := e.prov
++		f.then(landScript(f)...)
++		f.then(submit(f, "approve"))
++		e.write(".kogen/local/seed/app.txt", "seeded\n")
++		t.Setenv("KOGEN_SEED_TREE", "off")
++		a := e.reviewed()
++		if a.exit != 0 || a.err != nil {
++			t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++		}
++		eq(t, "seeded", len(eventsNamed(e.events(e.onlyRun()), "seeded")), 0)
++		eq(t, "builder requests", len(f.builderRequests()), 1)
++		eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "candidate")
++	})
++}
++
++func TestRVSeedLeavesIdenticalFilesAloneAndAcceptsAnUnchangedProtectedFile(t *testing.T) {
++	e := newEnv(t)
++	f := e.prov
++	f.then(submit(f, "approve"))
++	dir := seedTree(t, "mixed", map[string]string{
++		"app.txt": "seeded\n", "README.md": "# Fixture project\n", stepsFile: "// steps\n",
++	})
++	t.Setenv("KOGEN_SEED_TREE", dir)
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	seeded := eventsNamed(e.events(e.onlyRun()), "seeded")
++	if len(seeded) != 1 || seeded[0]["files"] != float64(1) {
++		t.Fatalf("seeded events %v", seeded)
++	}
++	eq(t, "committed app", e.gitOut("show", "HEAD:app.txt"), "seeded")
++}
+diff --git a/cli/shape/window.go b/cli/shape/window.go
+index 9d470b9..31a1ee6 100644
+--- a/cli/shape/window.go
++++ b/cli/shape/window.go
+@@ -326,6 +326,9 @@ func (w *window) prepare(p windowPrep, input []any) ([]any, error) {
+ 		"input_budget_bytes": agent.InputBudgetBytes, "output_reserve_tokens": agent.OutputReserveTokens,
+ 		"archive": archive.value(),
+ 	})
++	p.ev.Record(map[string]any{
++		"event": "window_reset", "role": w.owner, "bytes_before": before.RenderedBytes, "bytes_after": after.RenderedBytes,
++	})
+ 	p.progress(fmt.Sprintf("kogen: %s local working-window reset %d -> %d bytes; custody %s", w.title(), before.RenderedBytes, after.RenderedBytes, archive.Path))
+ 	return reduced, nil
+ }
+diff --git a/cli/shape/window_test.go b/cli/shape/window_test.go
+index e48f430..d9d63c5 100644
+--- a/cli/shape/window_test.go
++++ b/cli/shape/window_test.go
+@@ -225,6 +225,15 @@ func TestTheResetEventMeasuresTheRequestOfTheNewWindow(t *testing.T) {
+ 		event["input_budget_bytes"] != float64(524288) || event["output_reserve_tokens"] != float64(131072) {
+ 		t.Fatalf("event %v, request %d bytes", event, actual.RenderedBytes)
+ 	}
++	var reset map[string]any
++	for _, e := range windowEvents(t, f.root) {
++		if e["event"] == "window_reset" {
++			reset = e
++		}
++	}
++	if reset == nil || reset["role"] != "shape" || reset["bytes_after"] != float64(actual.RenderedBytes) || reset["bytes_before"] != event["before_bytes"] {
++		t.Fatalf("window_reset %v", reset)
++	}
+ }
+ 
+ func TestUnsafeAncestorCustodyRefusesBeforeWritingAnUnsentArchive(t *testing.T) {
+diff --git a/cli/provider/respond.go b/cli/provider/respond.go
+index 3980160..885de8e 100644
+--- a/cli/provider/respond.go
++++ b/cli/provider/respond.go
+@@ -5,7 +5,10 @@ import (
+ 	"context"
+ 	"io"
+ 	"net/http"
++	"os"
++	"path/filepath"
+ 	"regexp"
++	"strconv"
+ 	"strings"
+ 	"time"
+ 	"unicode"
+@@ -689,6 +692,15 @@ func (r *run) completeMessages(stream, key string) (result, error) {
+ 		return result{}, err
+ 	}
+ 	res := parseMessages(stream)
++	// research lane sse-dump (KOGEN-059): keep the raw stream of a completion judged invalid, bounded, private.
++	if dir := os.Getenv("KOGEN_SSE_DUMP_DIR"); dir != "" && res.kind == resInvalid {
++		raw := stream
++		if len(raw) > 4<<20 {
++			raw = raw[:4<<20]
++		}
++		name := filepath.Join(dir, strconv.FormatInt(time.Now().UnixNano(), 10)+"-"+strconv.Itoa(os.Getpid())+".sse")
++		_ = os.WriteFile(name, []byte("# detail: "+res.detail+"\n"+raw), 0o600)
++	}
+ 	if res.kind == resOK {
+ 		meta := make(map[string]any, len(res.meta))
+ 		for name, v := range res.meta {
