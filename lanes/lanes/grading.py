@@ -6,12 +6,13 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
 import tomllib
 
-from . import common
+from . import cell, common, experiment, preflight
 
 GRADE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "grade")
 ADAPTERS_DIR = os.path.join(GRADE_DIR, "adapters")  # `$KOGEN_LAB_ADAPTERS`: files evaluate.toml commands load
@@ -434,7 +435,7 @@ def finished_cells(run_dir):
 
 # --- qualification -----------------------------------------------------------------------------
 
-def qualify(task_dir):
+def qualify(task_dir, kogen=None):
     """The Lab's qualification rules (`steps.go`); returns a list of `(check, ok, detail)`.
 
     Every tree runs from a fresh export (ignored files removed), and the `acceptance` check runs the supplied
@@ -442,6 +443,9 @@ def qualify(task_dir):
 
     Not ported: repeating start and reference three times (determinism compares two reference
     runs), second implementations, the killed-evaluator check and `[expected]` inference.
+
+    The `intent` check lint-approves the supplied Intent with Kogen (`kogen`, else `$KOGEN_BIN`); it is
+    skipped, as ok, when neither names a Kogen.
     """
     task, out = load_task(task_dir), []
     exp = task["eval"].get("expected", {})
@@ -478,6 +482,8 @@ def qualify(task_dir):
          bare["infrastructure"] or ("passes without the hidden tests" if bare["all_passed"]
                                     else "does not pass without the hidden tests"))
     note("acceptance", *qualify_acceptance(task))
+    for check, ok, detail in qualify_intent(task, kogen):
+        note(check, ok, detail)
     again = run(["reference"])
     note("determinism", again["ids"] == ref["ids"], "same result twice" if again["ids"] == ref["ids"]
          else "reference results differ between runs")
@@ -518,12 +524,57 @@ def qualify_acceptance(task):
     return True, f"reference passes all {len(wanted)} supplied scenarios from a fresh export"
 
 
+def qualify_intent(task, kogen=None):
+    """Ask Kogen whether each supplied Intent is acceptable, as `lanes-preflight` will: install it in a scratch
+    workspace and run `kogen intent approve <slug>` (twice, the second time with the printed hash), within the
+    task's `approve_timeout_s`. Runs `gherkin` (always) and every other form the task supplies. Returns
+    `(check, ok, detail)` rows: `intent`, then `intent/<form>`; one skipped row, as ok, when `kogen` (a Kogen
+    executable, a folder or a release archive) and `$KOGEN_BIN` are both missing.
+    """
+    kogen = kogen or os.environ.get("KOGEN_BIN")
+    if not kogen:
+        return [("intent", True, "skipped: needs --kogen or KOGEN_BIN in the environment")]
+    forms = ["gherkin"] + [f for f in experiment.INTENT_FORMS[1:]
+                           if os.path.isfile(os.path.join(task["dir"], "supplied", f, "intent.md"))]
+    rows = []
+    for form in forms:
+        check = "intent" if form == "gherkin" else "intent/" + form
+        try:
+            slug = task["task"].get("name")
+            if not isinstance(slug, str) or not cell.SLUG.match(slug) or not 3 <= len(slug) <= 48:
+                raise cell.CellError(f"task.toml name {slug!r} is not a Kogen slug")
+            supplied = os.path.join(task["dir"], "supplied", form)
+            cell.check_supplied(supplied, slug)
+            deadline_s = cell.approve_timeout(task["task"], preflight.DEADLINE_S)
+            binary = cell.resolve_kogen(None, "qualify", kogen)
+            config = cell.project_yaml(task["task"], None)
+            root = cell.release_root(binary)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
+            if root:
+                cell.ensure_node_path(root)
+            rows.append((check, *preflight.approve_supplied(task["dir"], slug, supplied, binary, config, deadline_s)))
+        except (OSError, ValueError, cell.CellError) as e:
+            rows.append((check, False, str(e)))
+    return rows
+
+
 def qualify_main(argv):
+    kogen, tasks, i = None, [], 0
+    while i < len(argv):
+        if argv[i] == "--kogen":
+            if i + 1 == len(argv):
+                print("lanes-qualify: --kogen needs a path", file=sys.stderr)
+                return 2
+            kogen, i = argv[i + 1], i + 2
+        elif argv[i].startswith("--kogen=") and len(argv[i]) > 8:
+            kogen, i = argv[i][8:], i + 1
+        else:
+            tasks.append(argv[i])
+            i += 1
     code = 0
-    for task_dir in argv:
+    for task_dir in tasks:
         name = os.path.basename(os.path.normpath(task_dir))
         try:
-            rows = qualify(task_dir)
+            rows = qualify(task_dir, kogen)
         except (GradeError, OSError, KeyError, tomllib.TOMLDecodeError) as e:
             rows = [("task", False, str(e))]
         for check, ok, detail in rows:

@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""lanes-qualify <task-dir>...: check each task against the qualification rules; exit 1 on a failure."""
+"""lanes-qualify [--kogen PATH] <task-dir>...: check each task against the qualification rules; exit 1 on a failure.
+
+Checks: reference, start, wrong/<name>, emptied overlay, acceptance, intent, determinism.
+
+intent: installs each supplied Intent (gherkin always; gherkin-lean, gherkin-quint and prose when present) in a
+scratch workspace and runs `kogen intent approve <slug>` as lanes-preflight does, within the task's
+approve_timeout_s (default 120 s). It prints `ok   <task> intent: approved <hash8>` or `FAIL ...` with Kogen's
+lint or refusal lines, so a title that is too long or a missing ## Tests section shows up here, not at preflight.
+The Kogen is --kogen PATH (an executable, a release folder or a .tar.gz) or the KOGEN_BIN environment variable;
+with neither the line reads `skipped: needs --kogen or KOGEN_BIN in the environment` and counts as ok.
+No model provider is called."""
 import os
 import sys
 

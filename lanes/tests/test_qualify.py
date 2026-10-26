@@ -1,11 +1,14 @@
 import os
 import shutil
+import subprocess
+import sys
 import unittest
 import unittest.mock
 
-from lanes import grading
-from tests.test_grade import GradeCase, edit
+from lanes import grading, preflight
+from tests.test_grade import BIN, GradeCase, edit
 
+FAKE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fake-kogen")
 E2E = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "e2e")
 ACCEPT = 'run = \'python3 features/run_acceptance.py "$KOGEN_ACCEPTANCE_REPORT" "$KOGEN_ACCEPTANCE_FEATURES"\''
 
@@ -21,7 +24,7 @@ class Qualify(GradeCase):
     def test_fixture_qualifies(self):
         code, out = self.qualify()
         self.assertEqual(code, 0, out)
-        self.assertEqual(len(out.splitlines()), 6)
+        self.assertEqual(len(out.splitlines()), 7)
         self.assertTrue(all(line.startswith("ok") for line in out.splitlines()))
 
     def test_reference_must_pass(self):
@@ -154,7 +157,7 @@ class FreshExport(GradeCase):
         self.accepting()
         code, out = self.qualify()
         self.assertEqual(code, 0, out)
-        self.assertEqual(len(out.splitlines()), 6)
+        self.assertEqual(len(out.splitlines()), 7)
         self.assertIn("ok   task-mini acceptance: reference passes all 2 supplied scenarios from a fresh export", out)
 
     def test_acceptance_fails_when_only_the_evaluator_builds(self):  # acceptance steps run a binary that only the evaluator builds
@@ -193,6 +196,119 @@ class FreshExport(GradeCase):
         code, out = self.qualify()
         self.assertEqual(code, 0, out)
         self.assertIn("ok   task-mini acceptance: skipped", out)
+
+
+class IntentCheck(GradeCase):
+    """`lanes-qualify` asks Kogen to approve the supplied Intent, as `lanes-preflight` will."""
+
+    def setUp(self):
+        super().setUp()
+        edit(os.path.join(self.task, "supplied", "gherkin", "intent.md"), "add-numbers", "task-mini")
+
+    def qualify(self, *args, **env):
+        e = {**os.environ, "KOGEN_LANES_TASKS": self.tasks, **env}
+        r = subprocess.run([sys.executable, os.path.join(BIN, "lanes-qualify"), *args, self.task],
+                           capture_output=True, text=True, env=e, timeout=120)
+        return r.returncode, r.stdout
+
+    def intent_lines(self, out):
+        return [line for line in out.splitlines() if " intent" in line.split(":")[0]]
+
+    def test_approved_intent_is_ok(self):
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 0, out)
+        (line,) = self.intent_lines(out)
+        self.assertRegex(line, r"^ok   task-mini intent: approved [0-9a-f]{8}$")
+        self.assertEqual(len(out.splitlines()), 7)
+
+    def test_kogen_from_the_environment(self):
+        code, out = self.qualify(KOGEN_BIN=FAKE)
+        self.assertEqual(code, 0, out)
+        self.assertRegex(self.intent_lines(out)[0], r"^ok   task-mini intent: approved [0-9a-f]{8}$")
+
+    def test_lint_refusal_fails_and_shows_kogens_lines(self):
+        code, out = self.qualify("--kogen", FAKE, FAKE_KOGEN_LINT="refuse")
+        self.assertEqual(code, 1, out)
+        (line,) = [l for l in out.splitlines() if l.startswith("FAIL")]
+        self.assertTrue(line.startswith("FAIL task-mini intent: approve refused (exit 1):"), line)
+        self.assertIn("intent/lint: task-mini: scenario 'As requested' has no Then step", out)
+        self.assertIn("intent/lint: acceptance.feature: Feature title does not match the Intent title", out)
+
+    def test_no_kogen_is_skipped_and_the_result_does_not_change(self):
+        code, out = self.qualify()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.intent_lines(out), ["ok   task-mini intent: skipped: needs --kogen or KOGEN_BIN in the environment"])
+        self.assertEqual(len(out.splitlines()), 7)
+        self.assertTrue(all(line.startswith("ok") for line in out.splitlines()))
+
+    def test_no_kogen_still_reports_other_failures(self):
+        shutil.rmtree(os.path.join(self.task, "wrong"))
+        code, out = self.qualify()
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL task-mini wrong", out)
+
+    def test_kogen_flag_needs_a_value(self):
+        r = subprocess.run([sys.executable, os.path.join(BIN, "lanes-qualify"), "--kogen"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 2)
+
+    def test_kogen_that_does_not_exist_fails_the_line(self):
+        code, out = self.qualify("--kogen", os.path.join(self.tmp, "missing"))
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL task-mini intent: no kogen executable in artifact", out)
+
+    def test_supplied_intent_with_another_slug_fails_the_line(self):
+        edit(os.path.join(self.task, "supplied", "gherkin", "intent.md"), "Slug: task-mini", "Slug: other-slug")
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL task-mini intent: supplied Intent says Slug: other-slug", out)
+
+    def test_other_supplied_forms_are_checked_too(self):
+        prose = os.path.join(self.task, "supplied", "prose")
+        os.makedirs(prose)
+        shutil.copy(os.path.join(self.task, "supplied", "gherkin", "intent.md"), prose)
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(len(self.intent_lines(out)), 2, out)
+        self.assertRegex(out, r"ok   task-mini intent/prose: approved [0-9a-f]{8}")
+
+    def test_a_refused_prose_form_fails_only_its_own_line(self):
+        prose = os.path.join(self.task, "supplied", "prose")
+        os.makedirs(prose)
+        with open(os.path.join(prose, "intent.md"), "w") as f:
+            f.write("Slug: wrong-slug\n")
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 1, out)
+        self.assertEqual([l.split(":")[0] for l in out.splitlines() if l.startswith("FAIL")], ["FAIL task-mini intent/prose"])
+        self.assertIn("ok   task-mini intent: approved", out)
+
+    def here(self, deadline_s, **env):
+        """In-process, the default approval deadline cut to `deadline_s`; the rows of the `intent` check."""
+        e = {"FAKE_KOGEN_APPROVE_DELAY_S": "2", **env}
+        with unittest.mock.patch.dict(os.environ, e), unittest.mock.patch.object(preflight, "DEADLINE_S", deadline_s):
+            return grading.qualify_intent(grading.load_task(self.task), FAKE)
+
+    def test_default_deadline_applies_without_the_key(self):
+        ((check, ok, detail),) = self.here(1)  # 2 s per call > the 1 s deadline
+        self.assertEqual((check, ok), ("intent", False))
+        self.assertIn("approve refused (timed out)", detail)
+
+    def test_approve_timeout_s_is_honoured(self):
+        edit(os.path.join(self.task, "task.toml"), "setup = []", "setup = []\napprove_timeout_s = 20")
+        ((check, ok, detail),) = self.here(1)
+        self.assertEqual((check, ok), ("intent", True), detail)
+        self.assertTrue(detail.startswith("approved "))
+
+    def test_approve_timeout_s_is_still_a_deadline(self):
+        edit(os.path.join(self.task, "task.toml"), "setup = []", "setup = []\napprove_timeout_s = 1")
+        ((check, ok, detail),) = self.here(60, FAKE_KOGEN_APPROVE_DELAY_S="3")
+        self.assertEqual((check, ok), ("intent", False))
+        self.assertIn("approve refused (timed out)", detail)
+
+    def test_invalid_approve_timeout_s_fails_the_line(self):
+        edit(os.path.join(self.task, "task.toml"), "setup = []", "setup = []\napprove_timeout_s = 0")
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL task-mini intent: task.toml approve_timeout_s", out)
 
 
 if __name__ == "__main__":

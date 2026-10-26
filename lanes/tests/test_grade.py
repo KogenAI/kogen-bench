@@ -36,6 +36,7 @@ class GradeCase(unittest.TestCase):
         env = unittest.mock.patch.dict(os.environ, {"KOGEN_LANES_HOME": os.path.join(self.tmp, "home")})
         env.start()
         self.addCleanup(env.stop)
+        os.environ.pop("KOGEN_BIN", None)  # restored by `env.stop`: lanes-qualify must not find a Kogen unasked
         self.tasks = os.path.join(self.tmp, "tasks")
         self.task = os.path.join(self.tasks, "task-mini")
         shutil.copytree(FIX, self.task)

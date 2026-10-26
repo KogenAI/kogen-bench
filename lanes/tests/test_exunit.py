@@ -20,7 +20,7 @@ class ExUnitTask(GradeCase):
     def test_fixture_qualifies(self):
         code, out, err = self.cli("lanes-qualify", self.task)
         self.assertEqual(code, 0, out + err)
-        self.assertEqual(len(out.splitlines()), 6)
+        self.assertEqual(len(out.splitlines()), 7)
 
     def test_formatter_is_found_through_the_adapters_variable(self):
         env = grading.task_env(grading.load_task(self.task), os.path.join(self.tmp, "t", "tree"))

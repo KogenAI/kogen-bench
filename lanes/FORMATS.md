@@ -140,6 +140,13 @@ Lab layout, e.g. `$LAB_NEXT/spec/examples/tasks/rate-go`; schemas `spec/schema/t
 - `request.md` — the shape brief (`shape` and `e2e`).
 - `supplied/<form>/` — the frozen approved Intent, one folder per Intent form: `intent.md`, `acceptance.feature` and the step files the Intent's `Acceptance:` list names (e.g. `features/steps/…`); `gherkin-lean` adds `model.lean`, `gherkin-quint` adds `model.qnt`; `prose` has only `intent.md`. Forms: `gherkin`, `gherkin-lean`, `gherkin-quint`, `prose` (`$LAB_NEXT/spec/examples/tasks/rate-go/supplied/`, `EQUIVALENCE.md`; chosen in the Lab by `shape.supplied`, `spec/schema/config.json` l.740–749). A `build` experiment names the form in `intent_form`.
 
+### `lanes-qualify`
+
+`lanes-qualify [--kogen PATH] <task-dir>...` prints one line per check, `ok   <task> <check>: <detail>` or `FAIL <task> <check>: <detail>`, and exits 1 if any line fails. Checks, in order: `reference`, `start`, `wrong/<name>` (one per known-wrong tree), `emptied overlay`, `acceptance`, `intent`, `determinism`.
+
+- `intent` asks Kogen whether the supplied Intent is acceptable, as `lanes-preflight` will: the Intent goes into a scratch workspace made from `start/` and `kogen intent approve <slug>` runs, then again with the printed hash, within the task's `approve_timeout_s` (default 120 s). Approval prints `ok   <task> intent: approved <hash8>`. A refusal prints `FAIL <task> intent: approve refused (exit N):` followed by Kogen's lines (for example `intent/lint:` errors such as a title over 50 characters, a missing or empty `## Tests` section or a missing `## Feasibility` section). The `gherkin` form is always checked; `gherkin-lean`, `gherkin-quint` and `prose` are checked when `supplied/<form>/intent.md` exists, each on its own line named `intent/<form>`. No model provider is called.
+- The Kogen comes from `--kogen PATH` (an executable, a release folder or a `.tar.gz`), else the `KOGEN_BIN` environment variable. With neither, the line reads `ok   <task> intent: skipped: needs --kogen or KOGEN_BIN in the environment` and does not change the exit code, as for an `acceptance` check that needs a missing `KOGEN_*` runner variable.
+
 ## lanes.lock.json (from L2)
 
 `[{name, sha, patch_sha256, artifact_sha256, kogen_version}]`, one entry per lane; `patch_sha256` is null without a patch.

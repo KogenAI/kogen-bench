@@ -41,6 +41,12 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
             cell.ensure_node_path(root)
     except (OSError, ValueError, cell.CellError) as e:
         return False, str(e)
+    return approve_supplied(task, slug, supplied, kogen, config, deadline_s)
+
+
+def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
+    """In a scratch workspace made from the task's `start/`: install the supplied Intent, run `kogen intent
+    approve <slug>`, then again with the printed hash. `(ok, message)`; `lanes-qualify` uses this too."""
     tmp = tempfile.mkdtemp(prefix="lanes-preflight-")
     try:
         ws, out = os.path.join(tmp, "ws"), os.path.join(tmp, "out")
