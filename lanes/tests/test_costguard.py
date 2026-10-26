@@ -398,7 +398,7 @@ class ReportSection(unittest.TestCase):
         self.assertIn("soft cap: none set; hard cap: none set", report.render(run.report()))
 
 
-@unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
+@unittest.skipUnless(shutil.which("rsync") and shutil.which("go"), "rsync or go not installed")
 class LanesRun(unittest.TestCase):
     """`lanes-run` end to end with the fake Kogen emitting usage over time (build phase, 4 cells)."""
 

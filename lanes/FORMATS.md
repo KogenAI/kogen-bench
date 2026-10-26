@@ -128,6 +128,17 @@ Files: `result.json`, `stdout.raw`, `stderr.txt`, and for a valid reply `output.
 
 `report.json` has `cost`: `{cost_cap_usd, hard_cap_usd, spent_usd, lanes: {lane: usd}, lane_providers, providers: {provider: {spent_usd, usd_cap, hard_cap_usd, cells_started, cells_cap, rate_limited}}, cost_cap_cells, not_started, stopped}`; `stopped` is `hard` when any cell ended `cost_cap` (a remote cell's own note stays on its host), else `soft` or `hard` from `cost-stop.json`, else null; `not_started` counts planned cells with no cell dir. `report.md` has the section "Spend vs cost cap".
 
+## `lanes-leakcheck`
+
+Compares a lane's added text (patch `+` lines and target paths, and settings) with what only the
+tasks know. Only added text can leak: a string literal or hidden-test line is skipped when it occurs,
+whitespace folded, anywhere in the base prompt surface (the files under `cli/agent/prompts/` of the
+Kogen the lane is built on, `--kogen DIR` or the clone at the lane's sha, plus the patch's own context
+and removed lines), even when the patch rewrites the line around it or moves it. This substring rule
+does not extend to the rest of Kogen's source, because a task made from a reverted Kogen feature can
+have its solution there; the older whole-identifier and whole-literal exemptions for Kogen's source
+are unchanged. New wording is still compared. There are no per-hit exemptions.
+
 ## Task folder (private)
 
 Lab layout, e.g. `$LAB_NEXT/spec/examples/tasks/rate-go`; schemas `spec/schema/task.json` and `evaluate.json`. Outside the repo; the harness takes its path from a flag or `KOGEN_LANES_TASKS`. `lanes/tests/fixtures/task-mini` is a tiny Go task valid against both schemas.

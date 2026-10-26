@@ -13,6 +13,15 @@ the check is stricter, not looser. Failure output is read from every cell whose 
 does not say `all_passed: true` (ungraded and shape cells included); passing cells hold nothing to
 copy. A task folder without `task.toml`, `start/` or `evaluator/`, or a runs folder without
 `cells/`, is an error (exit 2), never a clean result.
+
+Only added text can leak. Text already present verbatim in the base prompt surface (the prompt files
+under cli/agent/prompts/ at the lane's sha, plus the patch's own context and removed lines: the prompt
+every arm sees before the patch) is not a leak, however the patch rewrites or moves the line around it.
+So a string literal or hidden-test line is skipped when it occurs, whitespace folded, anywhere in that
+prompt surface. The substring rule deliberately does not extend to the rest of Kogen's source: a task
+made from a reverted Kogen feature can have its solution in the source at the lane's sha. The older
+whole-identifier and whole-literal exemptions for Kogen's source are unchanged. A phrase that is new in
+the patch is still compared. There are no per-hit exemptions.
 """
 
 import argparse
@@ -112,14 +121,20 @@ def _words(text):
 class Known:
     """Words that are not task content: Kogen's source and the patch's own context."""
 
-    def __init__(self, texts=()):
+    def __init__(self, texts=(), surface=()):
         self.idents, self.literals, words = set(), set(), []
+        folded = [_fold(text) for text in surface]
         for text in texts:
             i, lit = _tokens(text)
             self.idents |= i
             self.literals |= lit
             words.append(_words(text))
         self.words = "\n".join(words)
+        self.folded = "\n".join(folded)
+
+    def has_text(self, text):
+        """True when the whitespace-folded `text` occurs verbatim in the base prompt surface."""
+        return text in self.folded
 
     def has_gram(self, gram):
         return gram in self.words
@@ -224,12 +239,15 @@ def _passed(cell_dir):
         return False
 
 
+PROMPT_SURFACE = "cli/agent/prompts/"
+
+
 def kogen_texts(kogen, sha, notes=None):
-    """Source texts of the Kogen the lane builds on: a folder, else the harness's clone at `sha`."""
+    """`[(path, text)]` of the Kogen the lane builds on: a folder, else the harness's clone at `sha`."""
     if kogen:
         if not os.path.isdir(kogen):
             raise ValueError(f"--kogen {kogen}: not a folder")
-        return [text for _, text in _files(kogen)]
+        return list(_files(kogen))
     git_dir = os.path.join(common.lanes_home(), "kogen.git")
     texts = []
     if os.path.isdir(git_dir):
@@ -242,7 +260,7 @@ def kogen_texts(kogen, sha, notes=None):
                     for m in t:
                         if m.isfile() and m.size <= MAX_FILE:
                             try:
-                                texts.append(t.extractfile(m).read().decode("utf-8"))
+                                texts.append((m.name, t.extractfile(m).read().decode("utf-8")))
                             except UnicodeError:
                                 pass
     if not texts and notes is not None:
@@ -261,10 +279,10 @@ def check_text(text, ref, grams=(), known=None):
     for ident in sorted(set(_IDENT.findall(text)) & ref.idents.keys() - known.idents):
         hits.append(("identifier", ident, ref.idents[ident]))
     for lit, source in ref.literals.items():
-        if lit in folded and lit not in known.literals:
+        if lit in folded and lit not in known.literals and not known.has_text(lit):
             hits.append(("string literal", lit, source))
     for line, source in ref.lines.items():
-        if line in folded:
+        if line in folded and not known.has_text(line):
             hits.append(("hidden-test line", line, source))
     shared = sorted(g for g in _ngrams(text) & grams.keys() if not known.has_gram(g)) if grams else []
     if len(shared) >= NGRAM_HITS:
@@ -301,7 +319,9 @@ def check(exp_path, tasks, runs=(), kogen=None, notes=None):
         if lane["sha"] not in kogen_by_sha:
             kogen_by_sha[lane["sha"]] = kogen_texts(kogen, lane["sha"], notes)
         for where, text, context in texts:
-            known = Known(kogen_by_sha[lane["sha"]] + [context])
+            files = kogen_by_sha[lane["sha"]]
+            surface = [text for path, text in files if path.startswith(PROMPT_SURFACE)]
+            known = Known([text for _, text in files] + [context], surface + [context])
             for kind, what, source in check_text(text, ref, grams, known):
                 out.append((f"{lane['name']} {where}", kind, what, source))
     return out

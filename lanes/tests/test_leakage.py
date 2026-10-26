@@ -184,6 +184,65 @@ class LeakTest(unittest.TestCase):
         self.write_patch(self.diff_adding("  # n |> Integer.to_string() stays", context="   def run(n), do: Integer.to_string(n)"))
         self.assertEqual(self.leak().returncode, 0)
 
+    PHRASE = "verify every boundary value before you report success"
+
+    def base_prompt_task(self):
+        """The task holds PHRASE in a literal; the base prompt (`--kogen`) holds it inside a longer one."""
+        self.put("reference/lib/phrase.ex", 'def note, do: "%s"\n' % self.PHRASE)
+        return self.kogen_dir('@prompt "Be careful: %s, then stop."\n@other "second line of the prompt"\n' % self.PHRASE)
+
+    def test_base_phrase_kept_in_a_rewritten_line_is_not_a_hit(self):
+        kogen = self.base_prompt_task()
+        self.write_patch(
+            '--- a/prompt.ex\n+++ b/prompt.ex\n@@ -1,2 +1,2 @@\n'
+            '-@prompt "Be careful: %s, then stop."\n'
+            '+@prompt "Always, %s, and then rest."\n @other "second line of the prompt"\n' % (self.PHRASE, self.PHRASE))
+        p = self.leak("--kogen", kogen)
+        self.assertEqual((p.returncode, p.stdout), (0, ""), p.stderr)
+
+    def test_new_phrase_copied_from_a_task_is_a_hit(self):
+        kogen = self.base_prompt_task()
+        self.put("reference/lib/fresh.ex", 'def fresh, do: "rerun the migration twice and compare checksums"\n')
+        self.write_patch(CLEAN + '+  # Always rerun the migration twice and compare checksums.\n')
+        p = self.leak("--kogen", kogen)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("string literal 'rerun the migration twice and compare checksums'", p.stdout)
+
+    def test_moved_base_phrase_is_not_a_hit(self):
+        kogen = self.base_prompt_task()
+        self.write_patch(
+            '--- a/prompt.ex\n+++ b/prompt.ex\n@@ -1,2 +1,2 @@\n'
+            '-@prompt "Be careful: %s, then stop."\n @other "second line of the prompt"\n'
+            '+@prompt "Be careful: %s, then stop."\n' % (self.PHRASE, self.PHRASE))
+        p = self.leak("--kogen", kogen)
+        self.assertEqual((p.returncode, p.stdout), (0, ""), p.stderr)
+
+    def kogen_file(self, rel, text):
+        d = os.path.join(self.tmp, "kogen-src")
+        os.makedirs(os.path.dirname(os.path.join(d, rel)), exist_ok=True)
+        with open(os.path.join(d, rel), "w") as f:
+            f.write(text)
+        return d
+
+    def test_phrase_in_a_base_prompt_file_is_not_a_hit(self):
+        """A phrase the base prompt files already hold is not task content, even outside the patch context."""
+        self.put("reference/lib/phrase.ex", 'def note, do: "%s"\n' % self.PHRASE)
+        kogen = self.kogen_file("cli/agent/prompts/builder.md", "Rules: %s, then stop.\n" % self.PHRASE)
+        self.write_patch(CLEAN + "+  # Always %s.\n" % self.PHRASE)
+        p = self.leak("--kogen", kogen)
+        self.assertEqual((p.returncode, p.stdout), (0, ""), p.stderr)
+
+    def test_solution_phrase_only_in_kogen_source_is_still_a_hit(self):
+        """The substring rule covers the prompt surface only: a task made from a reverted Kogen feature
+        can have its solution phrasing elsewhere in the source at the lane's sha."""
+        self.put("reference/lib/phrase.ex", 'def note, do: "%s"\n' % self.PHRASE)
+        kogen = self.kogen_file("lib/kogen/solution.ex", '@doc "Then %s, as the old code did."\n' % self.PHRASE)
+        self.kogen_file("cli/agent/prompts/builder.md", "Rules: read the request first.\n")
+        self.write_patch(CLEAN + "+  # Always %s.\n" % self.PHRASE)
+        p = self.leak("--kogen", kogen)
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("string literal '%s'" % self.PHRASE, p.stdout)
+
     def test_numbers_are_not_identifiers(self):
         self.elixir_task()
         self.write_patch(self.diff_adding("  @max_output 1_048_576"))
