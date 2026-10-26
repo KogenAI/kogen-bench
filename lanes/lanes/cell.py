@@ -51,6 +51,20 @@ def yq(s):
     return "'" + s.replace("'", "''") + "'"
 
 
+APPROVE_TIMEOUT_MAX_S = 3600
+
+
+def approve_timeout(task_toml, default):
+    """The task's `approve_timeout_s` (whole seconds, 1 to 3600), else `default`; CellError for anything else."""
+    value = task_toml.get("approve_timeout_s")
+    if value is None:
+        return default
+    if type(value) is not int or not 0 < value <= APPROVE_TIMEOUT_MAX_S:
+        raise CellError(f"task.toml approve_timeout_s {value!r} must be a whole number of seconds, "
+                        f"1 to {APPROVE_TIMEOUT_MAX_S}")
+    return value
+
+
 def project_yaml(task_toml, models):
     """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id, plus `provider` unless it is openai/chatgpt)."""
     def items(key, item=yq):
@@ -346,6 +360,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     slug = task_toml.get("name")
     if not isinstance(slug, str) or not SLUG.match(slug) or not 3 <= len(slug) <= 48:
         raise CellError(f"{task_id}: task.toml name {slug!r} is not a Kogen slug (3-48 of a-z, 0-9, -)")
+    approve_timeout(task_toml, 0)  # the key only sets lanes-preflight's deadline; a bad one is refused here too
     config = project_yaml(task_toml, lane["settings"].get("models"))
     request = os.path.join(task, "request.md")
     supplied = os.path.join(task, "supplied", exp.get("intent_form") or "")

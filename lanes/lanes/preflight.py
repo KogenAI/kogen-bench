@@ -2,7 +2,8 @@
 
 For phase `build`, each task x lane gets a scratch workspace set up as `lanes-cell` does, the supplied
 Intent installed, and `kogen intent approve <slug>` run, then again with the printed hash. Approve is
-local: no provider is involved. Nothing is written to the run dir.
+local: no provider is involved. Nothing is written to the run dir. The approval deadline is 120 s, or the
+task's `approve_timeout_s` (readiness may run a long regression suite).
 """
 
 import argparse
@@ -14,7 +15,7 @@ import tomllib
 
 from . import cell, common, experiment, leakage, probe
 
-DEADLINE_S = 120
+DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
 
 
 def _lines(text):
@@ -32,6 +33,7 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
             raise cell.CellError(f"task.toml name {slug!r} is not a Kogen slug")
         supplied = os.path.join(task, "supplied", exp["intent_form"])
         cell.check_supplied(supplied, slug)
+        deadline_s = cell.approve_timeout(task_toml, DEADLINE_S)
         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
         config = cell.project_yaml(task_toml, lane["settings"].get("models"))
         root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
@@ -45,7 +47,7 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
         os.makedirs(out)
         cell.make_workspace(ws, tmp, os.path.join(task, "start"), config)
         cell.install_supplied(ws, supplied, slug)
-        c = cell.Cell(ws, kogen, out, DEADLINE_S)
+        c = cell.Cell(ws, kogen, out, deadline_s)
         card = c.invoke(["intent", "approve", slug])
         m = cell.CARD_HASH.search(card[2])
         calls = [card]

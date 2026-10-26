@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from lanes import common, dispatch
+from lanes import cell, common, dispatch, preflight
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FAKE = os.path.join(HERE, "fake-kogen")
@@ -75,6 +75,62 @@ class PreflightTest(unittest.TestCase):
         p = self.preflight(FAKE_KOGEN_LINT="refuse")
         self.assertEqual(p.returncode, 0)
         self.assertIn("nothing to check", p.stdout)
+
+    def set_task_toml(self, line):
+        path = os.path.join(self.tasks, "task-mini", "task.toml")
+        with open(path) as f:
+            text = f.read()
+        with open(path, "w") as f:
+            f.write(line + "\n" + text)  # before the first table, so it is a top-level key
+
+    def preflight_here(self, deadline_s=1, **env):
+        """In-process, with the default approval deadline cut to `deadline_s`; returns `(refusals, lines)`."""
+        lines = []
+        e = {"KOGEN_LANES_HOME": self.home, "FAKE_KOGEN_TASK": TASK, **env}
+        with mock.patch.dict(os.environ, e), mock.patch.object(preflight, "DEADLINE_S", deadline_s):
+            bad = preflight.preflight(self.run_dir, self.tasks, artifact=FAKE, out=lines.append)
+        return bad, lines
+
+    def test_default_approval_deadline_is_120_seconds(self):
+        self.assertEqual(preflight.DEADLINE_S, 120)
+
+    def test_default_deadline_applies_without_the_key(self):
+        bad, lines = self.preflight_here(FAKE_KOGEN_APPROVE_DELAY_S="2")
+        self.assertEqual(bad, 2)
+        self.assertEqual(len(lines), 2)
+        for line in lines:
+            self.assertIn("REFUSED: approve refused (timed out)", line)
+
+    def test_approve_timeout_s_replaces_the_deadline(self):
+        self.set_task_toml("approve_timeout_s = 20")
+        bad, lines = self.preflight_here(FAKE_KOGEN_APPROVE_DELAY_S="2")  # 2 s per call > the 1 s default
+        self.assertEqual((bad, len(lines)), (0, 2), lines)
+        self.assertTrue(all(": ok: approved " in line for line in lines))
+
+    def test_approve_timeout_s_is_still_a_deadline(self):
+        self.set_task_toml("approve_timeout_s = 1")
+        bad, lines = self.preflight_here(deadline_s=60, FAKE_KOGEN_APPROVE_DELAY_S="3")
+        self.assertEqual(bad, 2)
+        self.assertIn("approve refused (timed out)", lines[0])
+
+    def test_invalid_approve_timeout_s_is_refused_before_kogen_runs(self):
+        for value in ("0", "-5", "1.5", '"60"', "true", "3601", "[]"):
+            with self.subTest(value=value):
+                self.make_run("build", lanes=("base",))
+                self.restore_task_toml()
+                self.set_task_toml(f"approve_timeout_s = {value}")
+                bad, lines = self.preflight_here()
+                self.assertEqual(bad, 1)
+                self.assertIn("REFUSED: task.toml approve_timeout_s", lines[0])
+                self.assertIn("1 to 3600", lines[0])
+
+    def restore_task_toml(self):
+        shutil.copy(os.path.join(TASK, "task.toml"), os.path.join(self.tasks, "task-mini", "task.toml"))
+
+    def test_cap_is_accepted(self):
+        self.set_task_toml(f"approve_timeout_s = {cell.APPROVE_TIMEOUT_MAX_S}")
+        bad, lines = self.preflight_here()
+        self.assertEqual(bad, 0, lines)
 
     def test_lanes_run_refuses_to_start_any_cell(self):
         art = "ab" * 32

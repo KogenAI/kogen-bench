@@ -400,6 +400,30 @@ class CellTest(unittest.TestCase):
         self.assertIn("Slug", r.stderr)
         self.assertFalse(os.path.exists(common.cell_dir(run, "task-mini/r1/base")))
 
+    def set_task_toml(self, line):
+        path = os.path.join(self.tasks, "task-mini", "task.toml")
+        with open(os.path.join(TASK, "task.toml")) as f:
+            text = f.read()
+        with open(path, "w") as f:
+            f.write(line + "\n" + text)  # before the first table, so it is a top-level key
+
+    def test_invalid_approve_timeout_s_is_refused_before_the_cell_starts(self):
+        run = self.make_run("build")
+        for value in ("0", "1.5", "3601", '"60"'):
+            with self.subTest(value=value):
+                self.set_task_toml(f"approve_timeout_s = {value}")
+                r = self.cell(run)
+                self.assertEqual(r.returncode, 2)
+                self.assertIn("approve_timeout_s", r.stderr)
+                self.assertFalse(os.path.exists(common.cell_dir(run, "task-mini/r1/base")))
+
+    def test_valid_approve_timeout_s_does_not_stop_the_cell(self):  # the cell keeps the experiment's deadline
+        self.set_task_toml("approve_timeout_s = 3000")
+        run = self.make_run("build")
+        r = self.cell(run)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(self.done(run)[1]["outcome"], "landed")
+
     def test_shaped_intent_saved_with_its_step_files(self):
         wrapper = self.wrapper(
             'if [ "$2" = shape ]; then "$0.real" "$@"; c=$?; i=.kogen/intents/$3/intent.md\n'

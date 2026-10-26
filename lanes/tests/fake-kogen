@@ -16,6 +16,7 @@ Environment:
                       exits 5; once: `shape <slug> -` (the answers) then completes,
                       always: it asks again
   FAKE_KOGEN_LINT     refuse: `approve` refuses the Intent with two `intent/lint:` lines and exits 1
+  FAKE_KOGEN_APPROVE_DELAY_S  seconds `approve` sleeps before it answers (default 0), each call
   FAKE_KOGEN_REQUESTS  extra `build` requests to log (default 0), each followed by FAKE_KOGEN_DELAY_S
                       seconds of sleep (default 0), so a test sees usage arrive over time
   FAKE_KOGEN_CLI      elixir (default) | go: act like the Go Kogen at 687f1407 where it differs: a missing
@@ -241,6 +242,7 @@ def cmd_shape(root, slug, source):
 
 
 def cmd_approve(root, slug, prefix):
+    time.sleep(float(os.environ.get("FAKE_KOGEN_APPROVE_DELAY_S", 0)))
     if prefix is not None and not HASH.match(prefix):
         die(2, "kogen intent approve: <hash> must be 6 to 64 lowercase hex characters")
     if not os.path.isdir(intent_dir(root, slug)):
