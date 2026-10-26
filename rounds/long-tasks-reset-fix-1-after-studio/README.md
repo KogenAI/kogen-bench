@@ -15,6 +15,8 @@ Observation only. Two repetitions of one task, one model (Sol, `gpt-6.1-sol`), K
 
 0 of 2 cells passed all hidden tests. Both landed and each failed some hidden tests.
 
+**Correction (27 October 2026):** some hidden tests of these tasks call internal names the request never states, so a correct implementation could fail them. Counting only fair hidden tests, both cells on this page and 5 of 10 fixed-version cells overall passed every fair test. Details on the [comparison page](../long-tasks-reset-fix-1-after/README.md).
+
 | Task | Repetition | Kogen finished | Hidden tests failed | Context resets | Repeated reads after a reset | Venue |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
 | shaping-technical-discovery | 1 | landed | 11 of 33 | 2 | 2 | Mac Studio |

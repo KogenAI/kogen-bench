@@ -19,6 +19,8 @@ When Kogen's build or review conversation outgrows its size limit, Kogen resets 
 
 All 8 cells ran on a Mac Studio. 0 of 8 cells passed all hidden tests. 6 landed (Kogen's own checks passed and it submitted a tree) and each of those failed some hidden tests. 2 timed out at 3,600 s; a timed-out cell is graded on the unchanged starting tree.
 
+**Correction (27 October 2026):** some hidden tests of these tasks call internal names the request never states, so a correct implementation could fail them. Counting only fair hidden tests, 4 of 8 cells here and 5 of 10 in the fixed version passed every fair test. Details on the [comparison page](../long-tasks-reset-fix-1-after/README.md).
+
 | Task | Repetition | Kogen finished | Hidden tests failed | Context resets | Repeated reads after a reset | Venue |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
 | documentation-lookup-evidence | 1 | landed | 1 of 17 | 0 | 0 | Mac Studio |
