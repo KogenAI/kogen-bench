@@ -225,6 +225,12 @@ def _eval_state(evaluation, phase):
     return "incomplete"
 
 
+def _shape_class(shape):
+    """The class of the Intent an e2e cell shaped: correct, incorrect or infrastructure (as `classify` names them)."""
+    state = _eval_state(shape, "shape")
+    return {"all_passed": "correct", "failed": "incorrect"}.get(state, "infrastructure")
+
+
 def classify(result, log, evaluation, phase):
     """The Lab's outcome class (Outcome.classify) for a Kogen cell; the table is in DECISION-RULES.md."""
     ending = (result or {}).get("outcome")
@@ -306,6 +312,9 @@ def _lane(lane, cells, phase, part=None):
     witness = [f"{c['plan']['cell']}: {f}" for c, f in found if c in shown]
     hidden = sum(1 for c, _ in found if c not in shown)
     shaped = [e for e in graded if all(isinstance(e.get(k), int) for k in SHAPE_KEYS)]
+    shapes = [e["shape"] for e in graded if phase == "e2e" and isinstance(e.get("shape"), dict)]
+    if phase == "e2e":  # an e2e cell's evaluation holds the grade of the Intent it shaped under `shape`
+        shaped = [e for e in shapes if all(isinstance(e.get(k), int) for k in SHAPE_KEYS)]
     rate = lambda n: round(n / len(counted), 4) if counted else None
     return {
         "name": lane["name"], "sha": lane.get("sha"), "patch": lane.get("patch"),
@@ -325,7 +334,8 @@ def _lane(lane, cells, phase, part=None):
         "model_sources": sorted({m for t in totals for m in t.get("model_sources") or []}),
         "stages": [{"stage": k, "cells": len(v), **_sums(v)} for k, v in sorted(
             stages.items(), key=lambda kv: STAGE_ORDER.index(kv[0]) if kv[0] in STAGE_ORDER else len(STAGE_ORDER))],
-        "shape": {k: _sum([e[k] for e in shaped]) for k in SHAPE_KEYS} if phase == "shape" else None,
+        "shape": {k: _sum([e[k] for e in shaped]) for k in SHAPE_KEYS} if phase == "shape" or shapes else None,
+        **({"shape_classes": dict(sorted(collections.Counter(_shape_class(e) for e in shapes).items()))} if shapes else {}),
     }
 
 
@@ -712,6 +722,8 @@ def render(rep):
         out += [f"- WITNESS FAILED on {l['witness_failures_test']} test cells (not listed)"] if l["witness_failures_test"] else []
         if l["shape"]:
             out.append("- shape: " + ", ".join(f"{k} {'n/a' if v is None else v}" for k, v in l["shape"].items()))
+        if l.get("shape_classes"):
+            out.append("- shape classes: " + ", ".join(f"{k} {v}" for k, v in l["shape_classes"].items()))
         if l["stages"]:
             out += [""] + _table(["stage", "cells"] + [h for _, h in COLS],
                                  [[s["stage"], s["cells"]] + [s[k] for k, _ in COLS] for s in l["stages"]])

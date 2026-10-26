@@ -31,6 +31,10 @@ def main(argv=None):
             verdict = grading.shape_summary(rec)
         else:
             verdict = "pass" if rec["all_passed"] else "fail"
+        shape = rec.get("shape")  # an e2e cell also grades the Intent it shaped
+        if isinstance(shape, dict):
+            verdict += "; shape " + (("infrastructure: " + shape["infrastructure"]) if shape.get("infrastructure")
+                                     else grading.shape_summary(shape))
         print(f"{cell}: {verdict}")
     return status
 

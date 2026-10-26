@@ -402,6 +402,20 @@ def shape_summary(rec):
 
 # --- cells -------------------------------------------------------------------------------------
 
+def shaped_intent_grade(task, d, result, deadline_s=None):
+    """The shape matrix of the Intent an `e2e` cell shaped, as `grade_shape` writes it for a shape cell.
+
+    A shape stage that did not succeed (a refusal, questions left pending, a timeout) gives
+    `grade_shape`'s refused form, `infrastructure` set and no counts, even when part of an Intent
+    was left behind.
+    """
+    for stage in result.get("stages") or []:
+        if stage.get("stage") == "shape" and (stage.get("exit_code") != 0 or stage.get("timed_out") or stage.get("detail")):
+            why = stage.get("detail") or ("timed out" if stage.get("timed_out") else f"exit {stage.get('exit_code')}")
+            return {"phase": "shape", "infrastructure": f"shape stage did not finish: {why}"}
+    return grade_shape(task, d, deadline_s or 600)
+
+
 def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
     """Grade one finished cell and write its `evaluation.json`; return the record."""
     d = common.cell_dir(run_dir, cell)
@@ -415,6 +429,8 @@ def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
             rec = grade_archive(task, tar, deadline_s)
         else:
             rec = {"all_passed": False, "infrastructure": "final-tree.tar missing"}
+        if result.get("phase") == "e2e":  # the build keys above stay as they were; the Intent's grade is added
+            rec["shape"] = shaped_intent_grade(task, d, result, deadline_s)
         # FORMATS names pass trees only by id; the run dir holds no tree content for them yet (see
         # ISSUES.md, L4 -> L1/L3). A tree archive at `pass-trees/<id>.tar` is graded when present.
         # The entry for `first_green_tree` (the first green `pass` tree, before any review edit) says so.

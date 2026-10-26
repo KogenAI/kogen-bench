@@ -11,6 +11,7 @@ import unittest
 import unittest.mock
 
 from lanes import common, grading
+from lanes import report as reportlib
 
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "task-mini")
 BIN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin")
@@ -238,7 +239,7 @@ sys.exit(1 if failed else 0)
 RUN = 'python3 features/run_acceptance.py "$KOGEN_ACCEPTANCE_REPORT" "$KOGEN_ACCEPTANCE_FEATURES"'
 
 
-class GradeShape(GradeCase):
+class ShapeFixture(GradeCase):
     """The task's acceptance runner is a stand-in for cucumber-js: it reads the two KOGEN_ACCEPTANCE_*
     paths, so a harness that sets neither, or does not lay the Intent's feature in the tree, fails."""
 
@@ -254,10 +255,12 @@ class GradeShape(GradeCase):
         shutil.copytree(os.path.join(self.task, "supplied/gherkin"), os.path.join(d, "intent"))
         return c, d
 
-    def counts(self, d):
-        ev = self.evaluation(d)
+    def counts(self, d, ev=None):
+        ev = ev or self.evaluation(d)
         return {k: ev[k] for k in ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")}
 
+
+class GradeShape(ShapeFixture):
     def test_matrix_and_counts_per_scenario(self):
         c, d = self.shape_cell()
         code, out, err = self.cli("lanes-grade", self.run_dir)
@@ -328,6 +331,81 @@ class GradeShape(GradeCase):
         shutil.rmtree(os.path.join(d, "intent", "features"))
         self.cli("lanes-grade", self.run_dir)
         self.assertIn("step files not available", self.evaluation(d)["infrastructure"])
+
+
+class GradeE2eShape(ShapeFixture):
+    """An e2e cell is graded like a build, and also like a shape cell on the Intent it shaped."""
+
+    BUILD_KEYS = ("all_passed", "commands", "expected", "ids", "infrastructure", "totals", "pass_trees")
+
+    def e2e_cell(self, stages=None, intent=True):
+        c, d = self.cell("e2e", phase="e2e", overlays=("reference",))
+        if stages is not None:
+            result = common.read_json(os.path.join(d, "result.json"))
+            common.write_json(os.path.join(d, "result.json"), dict(result, stages=stages))
+        if intent:
+            shutil.copytree(os.path.join(self.task, "supplied/gherkin"), os.path.join(d, "intent"))
+        return c, d
+
+    def test_shape_matrix_is_added_to_the_build_grade(self):
+        c, d = self.e2e_cell(stages=[{"stage": "shape", "exit_code": 0}, {"stage": "build", "exit_code": 0}])
+        code, out, err = self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(code, 0, err)
+        ev = self.evaluation(d)
+        self.assertEqual(self.counts(d, ev["shape"]), {"scenarios": 2, "pass_on_reference": 2, "fail_on_start": 2,
+                                                      "wrong_caught": 1, "wrong_total": 1})
+        self.assertIsNone(ev["shape"]["infrastructure"])
+        self.assertEqual(ev["shape"]["matrix"]["wrong/negatives-clamped"], {"3": "passed", "7": "failed"})
+        self.assertNotIn("scenarios", ev)  # the counts live under `shape`, not at the top level
+        self.assertIn("shape scenarios=2 pass_on_reference=2 fail_on_start=2 wrong_caught=1/1", out)
+
+    def test_build_keys_match_a_build_cell(self):
+        c, d = self.e2e_cell()
+        self.cli("lanes-grade", self.run_dir)
+        e2e = self.evaluation(d)
+        b, bd = self.cell("build", phase="build", overlays=("reference",))
+        self.cli("lanes-grade", self.run_dir)
+        build = self.evaluation(bd)
+        self.assertNotIn("shape", build)
+        self.assertEqual({k: v for k, v in e2e.items() if k != "shape"}, build)
+        self.assertTrue(e2e["all_passed"])
+
+    def test_refused_shape_stage_is_infrastructure_with_no_counts(self):
+        c, d = self.e2e_cell(stages=[{"stage": "shape", "exit_code": 2}])
+        self.cli("lanes-grade", self.run_dir)
+        ev = self.evaluation(d)
+        self.assertEqual(ev["shape"], {"phase": "shape", "infrastructure": "shape stage did not finish: exit 2"})
+        self.assertIn("all_passed", ev)  # the build grade is still there, and its own infrastructure stays unset
+        self.assertIsNone(ev["infrastructure"])
+
+    def test_pending_questions_are_named(self):
+        c, d = self.e2e_cell(stages=[{"stage": "shape", "exit_code": 5, "detail": "questions_pending"}])
+        self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(self.evaluation(d)["shape"]["infrastructure"], "shape stage did not finish: questions_pending")
+
+    def test_no_intent_folder_is_the_shape_cell_convention(self):
+        c, d = self.e2e_cell(intent=False)
+        self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(self.evaluation(d)["shape"],
+                         {"phase": "shape", "infrastructure": "task has no [acceptance] or the cell has no Intent"})
+
+    def test_report_shows_the_shape_class_next_to_the_build_result(self):
+        c, d = self.e2e_cell()
+        self.cli("lanes-grade", self.run_dir)
+        report = reportlib._lane({"name": "e2e", "sha": None, "patch": None}, [
+            {"plan": {"cell": c, "task": "task-mini", "lane": "e2e"}, "result": {"outcome": "landed"},
+             "evaluation": self.evaluation(d), "log": [], "class": "correct"},
+            {"plan": {"cell": "x", "task": "task-mini", "lane": "e2e"}, "result": {"outcome": "landed"},
+             "evaluation": {"all_passed": True, "shape": {"phase": "shape", "infrastructure": "no Intent"}}, "log": [],
+             "class": "correct"}], "e2e")
+        self.assertEqual(report["classes"], {"correct": 2})
+        self.assertEqual(report["shape_classes"], {"correct": 1, "infrastructure": 1})
+        self.assertEqual(report["shape"]["scenarios"], 2)
+        build = reportlib._lane({"name": "b", "sha": None, "patch": None}, [
+            {"plan": {"cell": c, "task": "task-mini", "lane": "b"}, "result": {"outcome": "landed"},
+             "evaluation": {"all_passed": True}, "log": [], "class": "correct"}], "build")
+        self.assertNotIn("shape_classes", build)
+        self.assertIsNone(build["shape"])
 
 
 if __name__ == "__main__":

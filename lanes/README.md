@@ -9,7 +9,7 @@ A harness that compares **real Kogen** builds.
 
 - `shape`: a fixed brief goes to Kogen, which shapes an Intent; graded on the Intent and its scenarios.
 - `build`: a fixed, frozen, approved Intent goes to Kogen, which builds; hidden tests grade the final tree (and each pass tree when the run log names them).
-- `e2e`: shape, approve, build; graded like `build`.
+- `e2e`: shape, approve, build; graded like `build`, plus the shape matrix of the Intent it shaped (`evaluation.shape`, see FORMATS.md).
 
 ## Layout
 
