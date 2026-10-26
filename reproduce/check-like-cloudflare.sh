@@ -40,6 +40,10 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 git_dir=$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)
+# A hook exports GIT_DIR and friends for the caller's repository; they would
+# redirect every git command below away from the scratch clone.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_OBJECT_DIRECTORY \
+    GIT_ALTERNATE_OBJECT_DIRECTORIES
 source_repo=$scratch/source
 if ! git clone --quiet --no-local --no-checkout "$git_dir" "$source_repo"; then
     echo "check-like-cloudflare: could not make a fresh repository clone" >&2

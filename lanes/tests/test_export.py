@@ -178,6 +178,17 @@ class Export(unittest.TestCase):
         self.assertEqual(declared["cost.usd"]["count"], 1)
         self.assertEqual(declared["tokens.total.input"]["reason_code"], "m10")
 
+    def test_missing_note_names_the_rounds_kogen_commit(self):
+        path = os.path.join(common.cell_dir(self.run_dir, "task-mini/r0/base"), "result.json")
+        res = common.read_json(path)
+        res["totals"].update(cost_usd=None, missing=["cost_usd"])
+        common.write_json(path, res)
+        self.assertEqual(self.export().returncode, 0)
+        note = common.read_json(os.path.join(self.out, "MISSING-DECLARED.json"))["fields"]["cost.usd"]["note"]
+        self.assertIn(f"Kogen {SHA[:8]} ", note)
+        self.assertNotIn("b45ba32b", note)
+        self.assertNotIn("b45ba32b", read(os.path.join(self.out, "MISSING.md")))
+
     def test_ungraded_cell_is_excluded_not_exported(self):
         os.remove(os.path.join(common.cell_dir(self.run_dir, "task-mini/r0/patched"), "evaluation.json"))
         self.assertEqual(self.export().returncode, 0)

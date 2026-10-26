@@ -1,7 +1,7 @@
 """Export a graded lane run as a kogen-bench round: Standard 1.2 records, bundles, PLAN, README.
 
 Adapted from the Lab's export_bench_round.py: one record per graded cell, every field Kogen
-b45ba32b does not log is a declared missing marker (never a guess), public files are scrubbed of
+(at the round's own commit) does not log is a declared missing marker (never a guess), public files are scrubbed of
 personal paths, hosts and credentials, and the output is checked with the bench validator.
 The round is built in a temporary folder and scanned for leaks; only then is it moved into the
 checkout, registered and validated, and a failure there restores the checkout as it was.
@@ -343,7 +343,7 @@ def results_table(ctx, records, evals):
     return "\n".join(rows + [f"| {l} | {len(c)} | {sum(r['outcome'] == 'pass' for r, _ in c)} |" for l, c in arms.items()])
 
 
-def declaration(records, legend):
+def declaration(records, legend, kogen="Kogen"):
     counts = {}
     for r in records:
         for path, v in leaves(r):
@@ -361,7 +361,7 @@ def declaration(records, legend):
         fields[path] = {"affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release "
                         "eligibility; they do not change the hidden-test outcomes reported on this page.",
                         "count": sum(codes.values()), "reason_code": main, "reasons": dict(sorted(reasons.items())),
-                        "note": f"Kogen b45ba32b and the lane harness do not log this field. {legend[main]['reason']}."}
+                        "note": f"{kogen} and the lane harness do not log this field. {legend[main]['reason']}."}
     return fields, {c: {p: dict(s) for p, s in d.items()} for c, d in sources.items()}
 
 
@@ -382,7 +382,8 @@ def write_text(out, name, text):
 
 
 def write_docs(out, round_id, date, ctx, plan, records, evals, legend):
-    fields, gap_sources = declaration(records, legend)
+    shas = sorted({l["sha"][:8] for l in ctx["lanes"].values() if l.get("sha")})
+    fields, gap_sources = declaration(records, legend, f"Kogen {', '.join(shas)}" if shas else "Kogen")
     exp, n = ctx["experiment"], len(records)
     deviations = ["Cells ran in the kogen-lanes harness, not a registered kogen-bench protocol: no official grade receipts, sandbox, "
                   "venue, host or ITT receipts. Missing values remain unknown and are not zero measurements."]
