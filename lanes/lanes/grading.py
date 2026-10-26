@@ -24,6 +24,8 @@ GO_VARS = frozenset(("GOPATH", "GOCACHE", "GOFLAGS", "GOMODCACHE", "GOPROXY", "G
                      "GOCACHEPROG", "GOEXE", "GOHOSTOS", "GOHOSTARCH", "GOTOOLDIR", "GOMEMLIMIT", "GOGC",
                      "CGO_ENABLED", "CGO_CFLAGS", "CGO_CPPFLAGS", "CGO_CXXFLAGS", "CGO_LDFLAGS"))
 ENV_PREFIXES = ("MIX_", "HEX_", "NODE_", "NPM_CONFIG_", "npm_config_")
+# The acceptance runner's own variables (a task's `[acceptance] run` line uses them), by exact name: no `KOGEN_` prefix.
+RUNNER_VARS = frozenset(("KOGEN_CUCUMBER", "KOGEN_NODE"))
 STATUS_ORDER = ["UNKNOWN", "PASSED", "SKIPPED", "PENDING", "UNDEFINED", "AMBIGUOUS", "FAILED"]
 _binary = []
 
@@ -140,9 +142,9 @@ def sh(cmd, cwd, env, deadline_s):
 
 
 def task_env(task, tree, extra=None):
-    """The Lab's `commandEnv`: toolchain variables, HOME, PATH, LANG, `KOGEN_LAB_ADAPTERS`, the task `env`, and a private
+    """The Lab's `commandEnv`: toolchain variables, the acceptance runner variables, HOME, PATH, LANG, `KOGEN_LAB_ADAPTERS`, the task `env`, and a private
     TMPDIR next to the tree."""
-    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k.startswith(ENV_PREFIXES)}
+    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k in RUNNER_VARS or k.startswith(ENV_PREFIXES)}
     env.update(HOME=os.environ.get("HOME", "/"), PATH=os.environ.get("PATH", "/usr/bin:/bin"),
                LANG=os.environ.get("LANG", "C.UTF-8"))
     env.update({k: str(v) for k, v in task["task"].get("env", {}).items()})

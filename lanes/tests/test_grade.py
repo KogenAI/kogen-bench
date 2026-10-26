@@ -72,6 +72,15 @@ class GradeBuild(GradeCase):
         for name in ("GOOGLE_API_KEY", "GOOGLE_APPLICATION_CREDENTIALS", "GOTOKEN", "OPENAI_API_KEY"):
             self.assertNotIn(name, got)
 
+    def test_env_keeps_the_acceptance_runner_variables_only(self):
+        env = {"KOGEN_CUCUMBER": "/c/cucumber.js", "KOGEN_NODE": "/n/node", "KOGEN_FOO": "x",
+               "KOGEN_NODE_EXTRA": "y", "KOGEN_CUCUMBERS": "z", "OPENAI_API_KEY": "k"}
+        with unittest.mock.patch.dict(os.environ, env):
+            got = grading.task_env(grading.load_task(self.task), os.path.join(self.tmp, "t", "tree"))
+        self.assertEqual((got["KOGEN_CUCUMBER"], got["KOGEN_NODE"]), ("/c/cucumber.js", "/n/node"))
+        for name in ("KOGEN_FOO", "KOGEN_NODE_EXTRA", "KOGEN_CUCUMBERS", "OPENAI_API_KEY"):
+            self.assertNotIn(name, got)
+
     def test_correct_tree_passes_and_wrong_fails(self):
         good, gd = self.cell("good", overlays=["reference"])
         bad, bd = self.cell("bad", overlays=["wrong/negatives-clamped"])
