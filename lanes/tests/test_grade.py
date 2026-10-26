@@ -41,7 +41,7 @@ class GradeCase(unittest.TestCase):
         shutil.copytree(FIX, self.task)
         self.run_dir = os.path.join(self.tmp, "run")
 
-    def cell(self, name, phase="build", overlays=(), cell_id=None, pass_trees=()):
+    def cell(self, name, phase="build", overlays=(), cell_id=None, pass_trees=(), first_green=None):
         """A finished cell whose final tree is `start/` with the overlays laid over it."""
         cell_id = cell_id or f"task-mini/r1/{name}"
         d = common.cell_dir(self.run_dir, cell_id)
@@ -49,7 +49,8 @@ class GradeCase(unittest.TestCase):
         with grading.scratch(self.task, *overlays) as tree:
             tar_tree(tree, os.path.join(d, "final-tree.tar"))
         common.write_json(os.path.join(d, "result.json"), {
-            "cell": cell_id, "lane": name, "phase": phase, "pass_trees": list(pass_trees)})
+            "cell": cell_id, "lane": name, "phase": phase, "pass_trees": list(pass_trees),
+            **({"first_green_tree": first_green} if first_green else {})})
         return cell_id, d
 
     def cli(self, script, *args):
@@ -156,6 +157,32 @@ class GradeBuild(GradeCase):
         first, second = self.evaluation(d)["pass_trees"]
         self.assertEqual((first["tree"], first["all_passed"]), ("aaa", False))
         self.assertEqual(second, {"tree": "bbb", "ungraded": "tree not available"})
+
+    def test_first_green_tree_is_marked_and_graded_like_the_others(self):
+        c, d = self.cell("good", overlays=["reference"], pass_trees=["aaa", "bbb", "ccc"], first_green="aaa")
+        os.makedirs(os.path.join(d, "pass-trees"))
+        with grading.scratch(self.task, "reference") as tree:
+            tar_tree(tree, os.path.join(d, "pass-trees", "aaa.tar"))
+        with grading.scratch(self.task, "wrong/negatives-clamped") as tree:
+            tar_tree(tree, os.path.join(d, "pass-trees", "bbb.tar"))
+        self.assertEqual(self.cli("lanes-grade", self.run_dir)[0], 0)
+        first, second, third = self.evaluation(d)["pass_trees"]
+        self.assertEqual((first["tree"], first["all_passed"], first["first_green"]), ("aaa", True, True))
+        self.assertEqual((second["tree"], second["all_passed"]), ("bbb", False))
+        self.assertEqual(third, {"tree": "ccc", "ungraded": "tree not available"})
+        self.assertNotIn("first_green", second)
+        self.assertNotIn("first_green", third)
+
+    def test_an_ungraded_first_green_tree_is_still_marked(self):
+        c, d = self.cell("good", overlays=["reference"], pass_trees=["aaa"], first_green="aaa")
+        self.assertEqual(self.cli("lanes-grade", self.run_dir)[0], 0)
+        self.assertEqual(self.evaluation(d)["pass_trees"],
+                         [{"tree": "aaa", "ungraded": "tree not available", "first_green": True}])
+
+    def test_a_result_without_a_first_green_tree_marks_nothing(self):
+        c, d = self.cell("good", overlays=["reference"], pass_trees=["aaa"])
+        self.assertEqual(self.cli("lanes-grade", self.run_dir)[0], 0)
+        self.assertNotIn("first_green", self.evaluation(d)["pass_trees"][0])
 
     def test_missing_tasks_flag_and_unfinished_cell(self):
         os.makedirs(os.path.join(self.run_dir, "cells", "task-mini", "r1", "x"))

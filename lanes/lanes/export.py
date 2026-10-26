@@ -190,6 +190,8 @@ def public_cell(res, ev, hosts):
         return scrub({k: res.get(k) for k in PROBE_KEYS}, hosts), scrub({k: ev[k] for k in ("grader", "metrics", "undefined") if k in ev}, hosts)
     keys = ("cell", "lane", "phase", "outcome", "exit_code", "started", "ended", "wall_s", "kogen_version",
             "intent_hash", "final_tree", "pass_trees", "stages", "totals")
+    if "first_green_tree" in res:  # older results have no such field; their records stay as they were
+        keys += ("first_green_tree",)
     return scrub({k: res.get(k) for k in keys}, hosts), scrub({k: ev[k] for k in EVAL_KEYS if k in ev}, hosts)
 
 

@@ -414,11 +414,13 @@ def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
             rec = {"all_passed": False, "infrastructure": "final-tree.tar missing"}
         # FORMATS names pass trees only by id; the run dir holds no tree content for them yet (see
         # ISSUES.md, L4 -> L1/L3). A tree archive at `pass-trees/<id>.tar` is graded when present.
+        # The entry for `first_green_tree` (the first green `pass` tree, before any review edit) says so.
         rec["pass_trees"] = []
+        first = result.get("first_green_tree")
         for tree in result.get("pass_trees") or []:
             p = os.path.join(d, "pass-trees", str(tree) + ".tar")
             sub = grade_archive(task, p, deadline_s) if os.path.isfile(p) else {"ungraded": "tree not available"}
-            rec["pass_trees"].append(dict(sub, tree=tree))
+            rec["pass_trees"].append(dict(sub, tree=tree, **({"first_green": True} if first and tree == first else {})))
     common.write_json(os.path.join(d, "evaluation.json"), rec)
     return rec
 

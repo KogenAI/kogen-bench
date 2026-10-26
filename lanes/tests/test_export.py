@@ -431,5 +431,18 @@ class Export(unittest.TestCase):
         self.assertIn("RELEASE GATE: PASS", r.stdout)
 
 
+class PublicCellFirstGreen(unittest.TestCase):
+    def test_the_first_green_tree_is_published_when_the_result_has_it(self):
+        res = cell_result("task-mini/r1/base", "base", [])
+        attempt, _ = export.public_cell(dict(res, first_green_tree="ef" * 20), {}, [])
+        self.assertEqual(attempt["first_green_tree"], "ef" * 20)
+        attempt, _ = export.public_cell(dict(res, first_green_tree=None), {}, [])
+        self.assertIsNone(attempt["first_green_tree"])
+
+    def test_an_older_result_publishes_the_same_keys_as_before(self):
+        attempt, _ = export.public_cell(cell_result("task-mini/r1/base", "base", []), {}, [])
+        self.assertNotIn("first_green_tree", attempt)
+
+
 if __name__ == "__main__":
     unittest.main()

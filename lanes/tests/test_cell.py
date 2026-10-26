@@ -317,6 +317,33 @@ class CellTest(unittest.TestCase):
         for tree in res["pass_trees"]:
             self.assertTrue(os.path.isfile(os.path.join(path, "pass-trees", tree + ".tar")))
 
+    def test_go_cli_first_green_tree_is_the_pass_tree_before_review_edits(self):
+        run = self.make_run("build")
+        self.assertEqual(self.cell(run, FAKE_KOGEN_REVIEW_EDITS="1", **self.GO).returncode, 0)
+        path, res = self.done(run)
+        events = common.read_jsonl(os.path.join(path, "run-log", "log.jsonl"))
+        passes = [e for e in events if e["event"] == "pass"]
+        self.assertEqual([e["green"] for e in passes], [False, True, True])
+        green = passes[-1]["tree"]
+        self.assertEqual(res["first_green_tree"], green)
+        self.assertNotEqual(res["first_green_tree"], res["final_tree"])  # the reviewer edited it
+        self.assertIn(res["first_green_tree"], res["pass_trees"])
+        self.assertIn(res["final_tree"], res["pass_trees"])
+        for tree in res["pass_trees"]:
+            self.assertTrue(os.path.isfile(os.path.join(path, "pass-trees", tree + ".tar")))
+        with tarfile.open(os.path.join(path, "pass-trees", green + ".tar")) as t:
+            self.assertNotIn("review-note.txt", t.getnames())
+        with tarfile.open(os.path.join(path, "final-tree.tar")) as t:
+            self.assertIn("review-note.txt", t.getnames())
+
+    def test_a_log_whose_pass_events_carry_no_tree_has_no_first_green_tree(self):
+        run = self.make_run("build")
+        self.assertEqual(self.cell(run).returncode, 0)
+        res = self.done(run)[1]
+        self.assertIn("first_green_tree", res)
+        self.assertIsNone(res["first_green_tree"])
+        self.assertEqual(res["pass_trees"], [res["final_tree"]])
+
     def test_go_cli_refuses_a_role_it_does_not_know(self):
         run = self.make_run("shape", models={"read": "openai/gpt-x low"})
         self.assertEqual(self.cell(run, **self.GO).returncode, 0)
@@ -586,6 +613,39 @@ class CellTest(unittest.TestCase):
         r = self.cell(run, artifact=None)
         self.assertEqual(r.returncode, 2)
         self.assertIn("lanes.lock.json", r.stderr)
+
+
+class PassTrees(unittest.TestCase):
+    def test_trees_in_log_order_without_repeats(self):
+        events = [{"event": "pass", "green": True, "tree": "t1"}, {"event": "review", "tree": "t2"},
+                  {"event": "pass", "green": True, "tree": "t2"}, {"event": "commit", "tree": "t2"}]
+        self.assertEqual(cell.pass_trees(events), (["t1", "t2"], "t1"))
+
+    def test_a_red_pass_is_not_a_pass_tree_and_is_never_the_first_green(self):
+        events = [{"event": "pass", "green": False, "tree": "red"}, {"event": "pass", "green": True, "tree": "ok"},
+                  {"event": "pass", "green": True, "tree": "later"}]
+        self.assertEqual(cell.pass_trees(events), (["ok", "later"], "ok"))
+
+    def test_events_without_a_tree_are_skipped(self):
+        events = [{"event": "pass", "green": True}, {"event": "review"}, {"event": "commit", "tree": "c"}]
+        self.assertEqual(cell.pass_trees(events), (["c"], None))
+        self.assertEqual(cell.pass_trees(None), ([], None))
+        self.assertEqual(cell.pass_trees([]), ([], None))
+
+    def test_a_pass_without_a_green_flag_does_not_count(self):
+        self.assertEqual(cell.pass_trees([{"event": "pass", "tree": "t"}]), ([], None))
+        self.assertEqual(cell.pass_trees([{"event": "pass", "green": "yes", "tree": "t"}]), ([], None))
+
+    def test_a_staged_build_counts_only_the_passes_after_the_last_stage(self):
+        events = [{"event": "pass", "green": True, "tree": "s1"}, {"event": "stage_pass", "tree": "s1", "green": True},
+                  {"event": "pass", "green": True, "tree": "s2"}, {"event": "stage_pass", "tree": "s2", "green": True},
+                  {"event": "pass", "green": False, "tree": "whole-red"},
+                  {"event": "pass", "green": True, "tree": "whole"}, {"event": "review", "tree": "edited"}]
+        self.assertEqual(cell.pass_trees(events), (["s1", "s2", "whole", "edited"], "whole"))
+
+    def test_a_staged_build_that_never_passed_whole_has_no_first_green_tree(self):
+        events = [{"event": "pass", "green": True, "tree": "s1"}, {"event": "stage_pass", "tree": "s1", "green": True}]
+        self.assertEqual(cell.pass_trees(events), (["s1"], None))
 
 
 if __name__ == "__main__":

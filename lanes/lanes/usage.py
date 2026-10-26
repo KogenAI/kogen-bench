@@ -76,7 +76,7 @@ def request_cost(model, usage, table=None, calc=None):
     return float(r["usd"]), (r["status"] if r["status"] != "priced" else None)
 
 
-def _record(stage, command, requests, table, calc):
+def _record(stage, command, requests, table, calc, zero_ok=False):
     """One record from a command-level `command` (or None for an inner stage) and its requests."""
     missing = []
     rec = {"stage": stage, "started": None, "ended": None, "wall_s": None, "exit_code": None,
@@ -91,8 +91,8 @@ def _record(stage, command, requests, table, calc):
         missing += ["started", "ended", "exit_code"]
     for k in TOKENS:
         vals = [r["usage"].get(k) for r in requests]
-        rec[k] = None if (not requests and stage != "approve") or any(v is None for v in vals) else sum(vals)
-    if stage != "approve" and not requests:
+        rec[k] = None if (not requests and stage != "approve" and not zero_ok) or any(v is None for v in vals) else sum(vals)
+    if stage != "approve" and not requests and not zero_ok:
         missing += list(TOKENS)
     else:
         missing += [k for k in TOKENS if rec[k] is None]
@@ -102,6 +102,8 @@ def _record(stage, command, requests, table, calc):
         missing.append("usage_zero_is_unknown")
     if stage == "approve" and not requests:
         rec["cost_usd"], rec["cost_reason"] = 0.0, None
+    elif zero_ok and not requests:  # a declared seed replaced the builder: no request is known, not missing
+        rec["cost_usd"], rec["cost_reason"] = 0.0, "seeded: no builder request by design"
     elif not requests:
         rec["cost_usd"], rec["cost_reason"] = None, "no request in the log"
     elif any(c[0] is None for c in costs):
@@ -134,6 +136,8 @@ def parse_run_log(events, commands, table=None, shape_events=None):
     their `provider_call`s.
     `commands`: one dict per Kogen command the cell ran, in order: `stage` (shape | approve |
     build), `started`, `ended`, `wall_s`, `exit_code`, and optionally `timed_out`.
+    A build stage with no request counts as zero, not as missing, when the log has a `seeded` event: a
+    declared seed replaced the builder, so it has no builder request by design.
     Requests with role verify, review or repair become an inner record after their command's;
     every other request belongs to its command's stage (a `shape` request to shape).
     Returns `{"stages": [...], "totals": {...}}`.
@@ -150,6 +154,7 @@ def parse_run_log(events, commands, table=None, shape_events=None):
             reqs.append({"role": e.get("role"), "model": model, "model_source": source, "wall_ms": e.get("wall_ms"),
                          "usage": usage, "zero_is_unknown": all(v == 0 for v in usage.values())})
     outcomes = [e.get("outcome") for e in events if e.get("event") == "outcome"]
+    seeded = any(e.get("event") == "seeded" for e in events)
     stages = []
     for c in commands:
         name = c["stage"]
@@ -159,7 +164,7 @@ def parse_run_log(events, commands, table=None, shape_events=None):
             own = [r for r in reqs if r["role"] not in INNER]
         else:
             own = []
-        rec = _record(name, c, own, table, calc)
+        rec = _record(name, c, own, table, calc, zero_ok=(name == "build" and seeded))
         if c.get("timed_out"):
             rec["outcome"] = "timeout"
         elif name == "build":

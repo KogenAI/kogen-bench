@@ -168,6 +168,41 @@ class Usage(unittest.TestCase):
         self.assertEqual(r["stages"][0]["outcome"], "build_blocked")
         self.assertEqual(r["stages"][0]["reasoning_tokens"], 0)
 
+    SEED_LOG = [{"event": "seeded"},
+                {"event": "request", "role": "review", "model": "fake-model", "wall_ms": 100,
+                 "usage": {"input": 900, "cached": 0, "output": 100, "reasoning": 0}},
+                {"event": "outcome", "outcome": "landed"}]
+
+    def test_a_seeded_build_without_requests_counts_as_zero(self):
+        """A declared seed replaces the builder: zero builder requests by design, not missing usage."""
+        r = usage.parse_run_log(self.SEED_LOG, COMMANDS, TABLE)
+        build = [s for s in r["stages"] if s["stage"] == "build"][0]
+        self.assertEqual((build["requests"], build["input_tokens"], build["output_tokens"]), (0, 0, 0))
+        self.assertEqual((build["cost_usd"], build["cost_reason"]), (0.0, "seeded: no builder request by design"))
+        self.assertEqual(build["missing"], [])
+        self.assertEqual(r["totals"]["cost_usd"], 0.00110)
+        self.assertEqual(r["totals"]["missing"], [])
+
+    def test_without_a_seed_a_build_without_requests_stays_missing(self):
+        r = usage.parse_run_log(self.SEED_LOG[1:], COMMANDS, TABLE)
+        build = [s for s in r["stages"] if s["stage"] == "build"][0]
+        self.assertIsNone(build["cost_usd"])
+        self.assertEqual(build["cost_reason"], "no request in the log")
+        self.assertEqual(build["missing"], sorted(usage.TOKENS))
+        self.assertIsNone(r["totals"]["cost_usd"])
+
+    def test_a_seeded_build_with_requests_is_priced_from_them(self):
+        log = self.SEED_LOG[:1] + [{"event": "request", "role": "build", "model": "fake-model", "wall_ms": 5,
+                                    "usage": {"input": 10, "cached": 0, "output": 5, "reasoning": 0}}] + self.SEED_LOG[1:]
+        build = usage.parse_run_log(log, COMMANDS, TABLE)["stages"][1]
+        self.assertEqual((build["requests"], build["input_tokens"], build["cost_reason"]), (1, 10, None))
+
+    def test_the_seed_rule_does_not_reach_shape_or_approve(self):
+        cmds = [{"stage": "shape", "wall_s": 1, "exit_code": 0}]
+        shape = usage.parse_run_log(self.SEED_LOG, cmds, TABLE)["stages"][0]
+        self.assertIsNone(shape["cost_usd"])
+        self.assertEqual(shape["cost_reason"], "no request in the log")
+
 
 if __name__ == "__main__":
     unittest.main()

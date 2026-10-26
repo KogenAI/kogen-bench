@@ -475,6 +475,30 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
     return _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host, node)
 
 
+def pass_trees(events):
+    """`(pass_trees, first_green_tree)` from a build run log's events.
+
+    Trees come from `review`, `commit` and `stage_pass` events and from green `pass` events that carry a
+    `tree`, in log order without repeats. The first green tree is the tree of the first green `pass` event
+    that carries one: the candidate that passed verification before any review edit. In a staged build
+    only the `pass` events after the last `stage_pass` count, because earlier ones check one stage's
+    commands, not the whole Intent. It is None when no such event exists (a Kogen whose `pass` event has
+    no tree, or a build that never went green).
+    """
+    events = events or []
+    trees, first = [], None
+    last_stage = max((i for i, e in enumerate(events) if e.get("event") == "stage_pass"), default=-1)
+    for i, e in enumerate(events):
+        tree, kind = e.get("tree"), e.get("event")
+        if not tree:
+            continue
+        if kind in ("review", "commit", "stage_pass") or (kind == "pass" and e.get("green") is True):
+            trees.append(tree)
+        if kind == "pass" and e.get("green") is True and first is None and i > last_stage:
+            first = tree
+    return list(dict.fromkeys(trees)), first
+
+
 def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, intent_hash, host, node):
     runs = sorted(glob.glob(os.path.join(ws, ".kogen", "local", "runs", "*")))
     if len(runs) > 1:
@@ -489,8 +513,8 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
         shutil.copyfile(shape_path, os.path.join(out, "shaping-events.ndjson"))
     final_tree = _git(ws, "rev-parse", "HEAD^{tree}")
     _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "final-tree.tar"), "HEAD")
-    trees = [e["tree"] for e in events or [] if e.get("event") in ("review", "commit", "stage_pass") and e.get("tree")]
-    for tree in dict.fromkeys(trees):  # keep the trees the workspace still has, for lanes-grade
+    trees, first_green = pass_trees(events)
+    for tree in trees:  # keep the trees the workspace still has, for lanes-grade
         if _git(ws, "cat-file", "-t", tree, check=False) == "tree":
             os.makedirs(os.path.join(out, "pass-trees"), exist_ok=True)
             _git(ws, "archive", "--format=tar", "-o", os.path.join(out, "pass-trees", tree + ".tar"), tree)
@@ -505,7 +529,8 @@ def _collect(exp, cell, lane_name, ws, slug, c, out, started, t0, version, inten
               "exit_code": c.commands[-1]["exit_code"] if c.commands else None,
               "outcome": "cost_cap" if c.cut else command_outcome(c.commands[-1], events), "started": started, "ended": now(),
               "wall_s": round(time.monotonic() - t0, 3), "kogen_version": version, "node": node,
-              "final_tree": final_tree, "pass_trees": list(dict.fromkeys(trees)),
+              "final_tree": final_tree, "pass_trees": trees,
+              "first_green_tree": first_green,
               "intent_hash": intent_hash, "host": host, **stages,
               **({"cost_error": c.watch.error} if c.watch and c.watch.error else {})}
     common.write_json(os.path.join(out, "result.json"), result)

@@ -21,7 +21,9 @@ Environment:
   FAKE_KOGEN_CLI      elixir (default) | go: act like the Go Kogen at 687f1407 where it differs: a missing
                       or invalid `.kogen/project.yaml` exits 3 (`environment/not_initialized`,
                       `environment/project_config_invalid`; models roles other than shape, build,
-                      review, plan are unknown keys), and a build logs a `stage_pass` event with the tree
+                      review, plan are unknown keys), and a build logs `stage_pass` events and `pass` events with the tree
+  FAKE_KOGEN_REVIEW_EDITS  non-empty: the review edits the green candidate, so the review and commit
+                      trees differ from the tree the `pass` events name
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -331,12 +333,25 @@ def cmd_build(root, slug, mode):
             tree = git(root, "write-tree")
             run.log(event="command", name="test", command="fake check")
             run.log(event="command_result", name="test", status=0, output="ok")
-            run.log(event="pass", **{"pass": 1}, green=True, failing=[], not_run=[],
-                    files_changed_while_checks_ran=[])
-            if GO:  # two stages: the first one failing on the start tree, then the green one
-                run.log(event="stage_pass", stage_id="s1", stage_index=0, tree=git(root, "rev-parse", "HEAD^{tree}"),
+            if GO:  # two stage gates (each a `pass` then a `stage_pass`), then the whole-Intent `pass`; both carry a tree
+                start_tree = git(root, "rev-parse", "HEAD^{tree}")
+                run.log(event="pass", **{"pass": 1}, green=False, tree=start_tree, failing=["test"], not_run=[],
+                        files_changed_while_checks_ran=[])
+                run.log(event="stage_pass", stage_id="s1", stage_index=0, tree=start_tree,
                         green=False, failing=["test"], not_run=[])
+                run.log(event="pass", **{"pass": 2}, green=True, tree=tree, failing=[], not_run=[],
+                        files_changed_while_checks_ran=[])
                 run.log(event="stage_pass", stage_id="s2", stage_index=1, tree=tree, green=True, failing=[], not_run=[])
+                run.log(event="pass", **{"pass": 3}, green=True, tree=tree, failing=[], not_run=[],
+                        files_changed_while_checks_ran=[])
+            else:
+                run.log(event="pass", **{"pass": 1}, green=True, failing=[], not_run=[],
+                        files_changed_while_checks_ran=[])
+            if os.environ.get("FAKE_KOGEN_REVIEW_EDITS"):  # the reviewer edits the green candidate: a later tree
+                with open(os.path.join(root, "review-note.txt"), "w") as f:
+                    f.write("edited in review\n")
+                git(root, "add", "-A")
+                tree = git(root, "write-tree")
     run.log(event="review", review=1, attempt=1, tree=tree, verdict="approve", findings=[], **{"pass": 1})
     run.log(event="commit", tree=tree)
     git(root, "commit", "-m", f"Build {slug}")
