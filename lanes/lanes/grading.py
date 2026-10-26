@@ -543,7 +543,9 @@ def qualify_acceptance(task):
 def qualify_intent(task, kogen=None):
     """Ask Kogen whether each supplied Intent is acceptable, as `lanes-preflight` will: install it in a scratch
     workspace and run `kogen intent approve <slug>` (twice, the second time with the printed hash), within the
-    task's `approve_timeout_s`. Runs `gherkin` (always) and every other form the task supplies. Returns
+    task's `approve_timeout_s`. Runs `gherkin` (always) and every other supplied form that has an `intent.md`
+    and an `acceptance.feature`, the forms Kogen can approve; a form without a feature file (`prose`) is not
+    checked and prints nothing, as for an absent form. Returns
     `(check, ok, detail)` rows: `intent`, then `intent/<form>`; one skipped row, as ok, when `kogen` (a Kogen
     executable, a folder or a release archive) and `$KOGEN_BIN` are both missing.
     """
@@ -551,7 +553,8 @@ def qualify_intent(task, kogen=None):
     if not kogen:
         return [("intent", True, "skipped: needs --kogen or KOGEN_BIN in the environment")]
     forms = ["gherkin"] + [f for f in experiment.INTENT_FORMS[1:]
-                           if os.path.isfile(os.path.join(task["dir"], "supplied", f, "intent.md"))]
+                           if all(os.path.isfile(os.path.join(task["dir"], "supplied", f, n))
+                                  for n in ("intent.md", "acceptance.feature"))]
     rows = []
     for form in forms:
         check = "intent" if form == "gherkin" else "intent/" + form

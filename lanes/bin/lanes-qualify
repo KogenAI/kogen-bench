@@ -3,7 +3,8 @@
 
 Checks: reference, start, wrong/<name>, emptied overlay, acceptance, intent, determinism.
 
-intent: installs each supplied Intent (gherkin always; gherkin-lean, gherkin-quint and prose when present) in a
+intent: installs each supplied Intent Kogen can approve (gherkin always; gherkin-lean and gherkin-quint when
+their folder has an intent.md and an acceptance.feature; prose has no feature file and is not checked) in a
 scratch workspace and runs `kogen intent approve <slug>` as lanes-preflight does, within the task's
 approve_timeout_s (default 120 s). It prints `ok   <task> intent: approved <hash8>` or `FAIL ...` with Kogen's
 lint or refusal lines, so a title that is too long or a missing ## Tests section shows up here, not at preflight.

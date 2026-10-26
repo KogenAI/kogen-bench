@@ -262,23 +262,44 @@ class IntentCheck(GradeCase):
         self.assertEqual(code, 1, out)
         self.assertIn("FAIL task-mini intent: supplied Intent says Slug: other-slug", out)
 
-    def test_other_supplied_forms_are_checked_too(self):
-        prose = os.path.join(self.task, "supplied", "prose")
-        os.makedirs(prose)
-        shutil.copy(os.path.join(self.task, "supplied", "gherkin", "intent.md"), prose)
+    def supply(self, form, feature=False, intent=None):
+        """Add `supplied/<form>/` to the task: the gherkin Intent (or `intent` text), and optionally its feature."""
+        folder = os.path.join(self.task, "supplied", form)
+        os.makedirs(folder)
+        gherkin = os.path.join(self.task, "supplied", "gherkin")
+        if intent is None:
+            shutil.copy(os.path.join(gherkin, "intent.md"), folder)
+        else:
+            with open(os.path.join(folder, "intent.md"), "w") as f:
+                f.write(intent)
+        if feature:
+            shutil.copy(os.path.join(gherkin, "acceptance.feature"), folder)
+
+    def test_other_supplied_forms_with_a_feature_are_checked_too(self):
+        self.supply("gherkin-lean", feature=True)
         code, out = self.qualify("--kogen", FAKE)
         self.assertEqual(code, 0, out)
         self.assertEqual(len(self.intent_lines(out)), 2, out)
-        self.assertRegex(out, r"ok   task-mini intent/prose: approved [0-9a-f]{8}")
+        self.assertRegex(out, r"ok   task-mini intent/gherkin-lean: approved [0-9a-f]{8}")
 
-    def test_a_refused_prose_form_fails_only_its_own_line(self):
-        prose = os.path.join(self.task, "supplied", "prose")
-        os.makedirs(prose)
-        with open(os.path.join(prose, "intent.md"), "w") as f:
-            f.write("Slug: wrong-slug\n")
+    def test_a_prose_form_without_a_feature_is_not_checked_and_does_not_fail(self):
+        self.supply("prose")
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(len(self.intent_lines(out)), 1, out)
+        self.assertNotIn("intent/prose", out)
+
+    def test_a_prose_form_without_a_feature_is_not_checked_even_if_its_intent_is_wrong(self):
+        self.supply("prose", intent="Slug: wrong-slug\n")
+        code, out = self.qualify("--kogen", FAKE)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("intent/prose", out)
+
+    def test_a_refused_other_form_fails_only_its_own_line(self):
+        self.supply("gherkin-lean", feature=True, intent="Slug: wrong-slug\n")
         code, out = self.qualify("--kogen", FAKE)
         self.assertEqual(code, 1, out)
-        self.assertEqual([l.split(":")[0] for l in out.splitlines() if l.startswith("FAIL")], ["FAIL task-mini intent/prose"])
+        self.assertEqual([l.split(":")[0] for l in out.splitlines() if l.startswith("FAIL")], ["FAIL task-mini intent/gherkin-lean"])
         self.assertIn("ok   task-mini intent: approved", out)
 
     def here(self, deadline_s, **env):
