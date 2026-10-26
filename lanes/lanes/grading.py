@@ -134,7 +134,17 @@ def scratch(task_dir=None, *overlays, export=False):
 
 
 def sh(cmd, cwd, env, deadline_s):
-    """Run a shell line in its own group; return `{status, timed_out, wall_ms}`."""
+    """Run a shell line in its own group; return `{status, timed_out, wall_ms}`.
+
+    With `LANES_SHARED_GOCACHE` set, any inline `GOCACHE=<word>` in the line is pointed at that shared cache and
+    `GOCACHE` is set in the environment too: a per-tree Go build cache makes every grade recompile the whole
+    codebase, while the cache is content-addressed and safe to share between trees. Unset, the line and the
+    environment are passed as they are.
+    """
+    shared = os.environ.get("LANES_SHARED_GOCACHE")
+    if shared:
+        cmd = re.sub(r"\bGOCACHE=\S+", lambda _: "GOCACHE=" + shared, cmd)
+        env = dict(env, GOCACHE=shared)
     t0 = time.monotonic()
     with open(os.devnull, "wb") as null:
         code, timed_out = common.run(["sh", "-c", cmd], cwd=cwd, env=env, deadline_s=deadline_s,
@@ -506,6 +516,26 @@ def qualify(task_dir, kogen=None):
     return out
 
 
+SHARED_CACHE_ROOTS = ("/", "~", "$HOME", "${HOME}", "$LANES_SHARED_GOCACHE", "${LANES_SHARED_GOCACHE}")
+
+
+def qualify_warnings(task_dir):
+    """Non-failing notes on the evaluator: one line per command that sets a per-tree `GOCACHE`.
+
+    An inline `GOCACHE=` whose value is under `$PWD` or is otherwise a relative or tree path gives every grading
+    tree its own Go build cache, so every grade recompiles the whole codebase. An absolute path, `~`, `$HOME` and
+    the shared cache variable are not per-tree.
+    """
+    task, out = load_task(task_dir), []
+    for n, command in enumerate(task["eval"]["command"], 1):
+        for value in re.findall(r"\bGOCACHE=(\S+)", str(command.get("run", ""))):
+            if not value.strip("\"'").startswith(SHARED_CACHE_ROOTS):
+                out.append(f"warn {os.path.basename(os.path.normpath(task_dir))} evaluator: per-tree GOCACHE in command {n} "
+                           "recompiles every grade; drop it (the harness supplies a shared cache via LANES_SHARED_GOCACHE)")
+                break
+    return out
+
+
 def qualify_acceptance(task):
     """Run the supplied Intent's scenarios on the reference as Kogen's verification does: a fresh export, the
     task `setup`, then the task's acceptance command (the evaluator's own setup does not run, so a build
@@ -599,4 +629,10 @@ def qualify_main(argv):
         for check, ok, detail in rows:
             print(f"{'ok  ' if ok else 'FAIL'} {name} {check}: {detail}")
             code = code or (0 if ok else 1)
+        try:
+            warnings = qualify_warnings(task_dir)
+        except (GradeError, OSError, KeyError, AttributeError, tomllib.TOMLDecodeError):
+            warnings = []  # an unreadable evaluator is already a FAIL line above
+        for line in warnings:
+            print(line)
     return code

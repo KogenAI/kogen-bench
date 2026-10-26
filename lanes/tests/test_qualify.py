@@ -105,6 +105,63 @@ class Qualify(GradeCase):
         self.assertEqual((code, self.failing(out)), (1, ["task"]))
 
 
+class CacheWarning(GradeCase):
+    FIRST = "run = \"go test -json -count=1 -run '^(TestAddPositive"
+    SECOND = "run = \"go test -json -count=1 -run '^TestAddZero$'"
+
+    def qualify(self):
+        code, out, err = self.cli("lanes-qualify", self.task)
+        return code, out
+
+    def prefix(self, old, cache):
+        edit(os.path.join(self.task, "evaluator", "evaluate.toml"), old, old.replace('"go test', '"' + cache + " go test", 1))
+
+    def lines(self, out, prefix):
+        return [line for line in out.splitlines() if line.startswith(prefix)]
+
+    def test_per_tree_gocache_warns_and_changes_nothing_else(self):
+        self.prefix(self.FIRST, "GOCACHE=$PWD/.cache/go")
+        code, out = self.qualify()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.lines(out, "warn"), [
+            "warn task-mini evaluator: per-tree GOCACHE in command 1 recompiles every grade; drop it "
+            "(the harness supplies a shared cache via LANES_SHARED_GOCACHE)"])
+        self.assertEqual(len(self.lines(out, "ok")), 7)
+        self.assertEqual(self.lines(out, "FAIL"), [])
+        self.assertEqual(len(out.splitlines()), 8)
+
+    def test_the_warning_names_the_command_and_covers_relative_and_tree_paths(self):
+        for cache in ("$PWD/.cache/go", "${PWD}/.cache/go", ".cache/go", "./.cache/go", '"$PWD/.cache/go"', "$TMPDIR/go"):
+            with self.subTest(cache=cache):
+                with open(os.path.join(self.task, "evaluator", "evaluate.toml"), "w") as f:
+                    f.write("overlay = \"files\"\n"
+                            "[[command]]\nname = \"a\"\nrun = 'go vet ./...'\n"
+                            f"[[command]]\nname = \"b\"\nrun = 'GOCACHE={cache} go test ./...'\n")
+                (line,) = grading.qualify_warnings(self.task)
+                self.assertTrue(line.startswith("warn task-mini evaluator: per-tree GOCACHE in command 2 "), line)
+
+    def test_no_gocache_no_warning(self):
+        code, out = self.qualify()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.lines(out, "warn"), [])
+        self.assertEqual(len(out.splitlines()), 7)
+
+    def test_shared_or_absolute_cache_is_not_per_tree(self):
+        for cache in ("/var/cache/go", "$HOME/.cache/go", "~/.cache/go", "$LANES_SHARED_GOCACHE"):
+            with self.subTest(cache=cache):
+                with open(os.path.join(self.task, "evaluator", "evaluate.toml"), "w") as f:
+                    f.write("overlay = \"files\"\n"
+                            f"[[command]]\nname = \"a\"\nrun = 'GOCACHE={cache} go test ./...'\n")
+                self.assertEqual(grading.qualify_warnings(self.task), [])
+
+    def test_the_warning_does_not_hide_a_failure(self):
+        self.prefix(self.SECOND, "GOCACHE=$PWD/.c")
+        edit(os.path.join(self.task, "task.toml"), "setup = []", 'setup = ["exit 1"]')
+        code, out = self.qualify()
+        self.assertEqual(code, 1)
+        self.assertEqual(len(self.lines(out, "warn")), 1)
+
+
 class FreshExport(GradeCase):
     def qualify(self):
         code, out, err = self.cli("lanes-qualify", self.task)
