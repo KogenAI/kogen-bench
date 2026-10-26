@@ -4,8 +4,13 @@ Spend = finished cells' `totals.cost_usd` + the live spend of running cells, rea
 logs and shaping events as requests complete + the ledger of earlier attempts that were thrown away.
 A request that cannot be priced counts at a conservative fallback:
 
-- a model with no price row, or a price cost_calc cannot give: the request's tokens at the highest
-  input, cached-input and output rate in `reproduce/price-table-v1.json`;
+- a model with no price row, or a price cost_calc cannot give: if `reproduce/guard-estimates.json` lists
+  the model (`{"models": {model: {"as": priced model, "note": why}}}`), the request's tokens at the rates of
+  the priced model named by `as`; otherwise the request's tokens at the highest input, cached-input and
+  output rate in `reproduce/price-table-v1.json`. A guard estimate is for this spend estimate only: reported
+  costs (`usage.request_cost`, records, result totals, exports) never read it, so an unpriced model stays
+  unpriced (`cost_usd` null, `cost_reason` `unlisted_model`) in every published figure. The price table is
+  hash-pinned, so the estimates live in their own file;
 - a request with unknown usage (null counters, or a build request whose four counters are all 0, which
   Kogen logs for unknown): `FALLBACK_TOKENS`, an allowance above the largest request seen in real logs
   (53,940 uncached input tokens), at those rates. It is an allowance, not a proven bound.
@@ -43,7 +48,9 @@ RATE = "rate-limit-stop.json"  # in the run dir: the providers that hit a rate o
 LIMIT_WORDS = ("usage_limit", "rate_limit", "rate-limit", "too_many_requests")  # in a Kogen error class or reason
 LOCK = ".cost.lock"           # in the run dir: the spend lock
 RETRY_S = 5.0  # how long a source that is gone without a final record is retried before failing closed
+GUARD_ESTIMATES = os.path.join(os.path.dirname(__file__), "..", "..", "reproduce", "guard-estimates.json")
 _pricing = None
+_estimates = None
 
 
 class CostCapError(Exception):
@@ -101,6 +108,35 @@ def pricing():
     return _pricing
 
 
+def guard_estimates():
+    """`{model: {"as": priced model, "note": ...}}` of `guard-estimates.json`, loaded once; {} when the file is
+    absent (older checkouts and remote hosts without it keep the highest-rate fallback). A malformed file or an
+    `as` that has no complete price row in the table raises: the guard fails closed."""
+    global _estimates
+    if _estimates is None:
+        _estimates = {}
+        if os.path.isfile(GUARD_ESTIMATES):
+            rows = common.read_json(GUARD_ESTIMATES)["models"]
+            table = pricing()[1]["models"]
+            for model, row in rows.items():
+                target = table.get(row["as"])
+                if not isinstance(row.get("note"), str) or not isinstance(target, dict) \
+                        or any(not isinstance(target.get(k), (int, float)) for k in usage.RATES):
+                    raise ValueError(f"{GUARD_ESTIMATES}: {model} must have a note and an `as` with a complete price row")
+                _estimates[model] = row
+    return _estimates
+
+
+def _unpriced_cost(model, tokens, table, calc, rates):
+    """Guard spend of a request that has no price: at its `guard_estimates` model's rates, else at the top rates."""
+    row = guard_estimates().get(model) or guard_estimates().get((model or "").split("/", 1)[-1])
+    if row:
+        cost, _ = usage.request_cost(row["as"], tokens, table, calc)
+        if cost is not None:
+            return cost
+    return _at_top(tokens, rates)
+
+
 def _at_top(tokens, rates):
     uncached = tokens["input_tokens"] - tokens["cached_input_tokens"]
     return (uncached * rates["input"] + tokens["cached_input_tokens"] * rates["cached_input"]
@@ -125,7 +161,7 @@ def log_spend(events, shape_events):
         if any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in counts) or counts[1] > counts[0]:
             raise ValueError(f"unparsable usage of a {model} request: {tokens}")
         cost, _ = usage.request_cost(model, tokens, table, calc)
-        total += cost if cost is not None else _at_top(tokens, rates)
+        total += cost if cost is not None else _unpriced_cost(model, tokens, table, calc, rates)
     return total
 
 

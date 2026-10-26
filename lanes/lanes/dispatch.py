@@ -296,7 +296,7 @@ class Host:
                                                 "--delete", "--exclude", "__pycache__", "--exclude", "tests")])
         reproduce = os.path.join(c.lanes_dir, "..", "reproduce")  # the cost guard prices usage with these
         self._once("reproduce", [lambda f=f: self.rsync(os.path.join(reproduce, f), self._dst("reproduce") + "/")
-                                 for f in ("cost_calc.py", "price-table-v1.json")
+                                 for f in ("cost_calc.py", "price-table-v1.json", "guard-estimates.json")
                                  if os.path.isfile(os.path.join(reproduce, f))])
         self._once(("task", task), [lambda: self.rsync(os.path.join(c.tasks, task) + "/",
                                                        self._dst("tasks", task) + "/",

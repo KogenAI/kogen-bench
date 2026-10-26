@@ -39,6 +39,28 @@ class Estimate(unittest.TestCase):
         spend = costguard.log_spend([request("no-such-model", 1200, 800, 300)], None)
         self.assertAlmostEqual(spend, at_top(1200, 800, 300))
 
+    def test_unpriced_model_in_guard_estimates_counts_at_the_stated_rate(self):
+        row = costguard.guard_estimates()["gpt-6.1-terra"]
+        self.assertEqual(row["as"], "gpt-6.1-sol")
+        self.assertNotIn("gpt-6.1-terra", PRICES)
+        sol = PRICES["gpt-6.1-sol"]
+        want = 400 * sol["input"] / 1e6 + 800 * sol["cached_input"] / 1e6 + 300 * sol["output"] / 1e6
+        spend = costguard.log_spend([request("gpt-6.1-terra", 1200, 800, 300)], None)
+        self.assertAlmostEqual(spend, want)
+        self.assertLess(spend, at_top(1200, 800, 300))
+
+    def test_reported_cost_of_a_guard_estimated_model_stays_unpriced(self):
+        calc, table, _ = costguard.pricing()
+        tokens = {"input_tokens": 1200, "cached_input_tokens": 800, "output_tokens": 300}
+        self.assertEqual(usage.request_cost("gpt-6.1-terra", tokens, table, calc),
+                         (None, "unlisted_model: gpt-6.1-terra"))
+        shaping = [{"event": "provider_call", "effective_model": "gpt-6.1-terra",
+                    "usage": {"input": 1200, "cached": 800, "output": 300, "reasoning": 0}}]
+        rec = usage.shape_requests(shaping)
+        rec = usage._record("shape", None, [dict(r, model_source="effective") for r in rec], table, calc)
+        self.assertIsNone(rec["cost_usd"])
+        self.assertIn("unlisted_model", rec["cost_reason"])
+
     def test_listed_model_counts_at_its_price(self):
         spend = costguard.log_spend([request("gpt-6-luna", 1000000, 0, 1000000)], None)
         self.assertAlmostEqual(spend, 0.1 + 0.5)
