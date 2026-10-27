@@ -204,6 +204,26 @@ class Dispatched(unittest.TestCase):
         exp["lanes"][0]["settings"] = {"models": {"build": "openai/gpt-6 high", "review": CC}}
         self.assertEqual(costguard.lane_providers(exp)["base"], "claude-code")
 
+    def test_a_cc_build_with_a_priced_review_counts_cells_and_dollars_separately(self):
+        api = "anthropic/claude-opus-5-5 medium"
+        self.start(caps={"claude-code": {"cells": 2}, "anthropic": {"usd": 5}})
+        exp = common.read_json(self.exp_path)
+        exp["lanes"][0]["settings"] = {"models": {"build": CC, "review": api}}
+        self.assertEqual(costguard.lane_providers(exp)["base"], "anthropic")
+        self.assertEqual(costguard.lane_cap_providers(exp)["base"], {"claude-code", "anthropic"})
+        costguard.require_provider_caps(exp)
+        started = {"claude-code": {"t/r1/base", "t/r2/base"}, "anthropic": {"t/r1/base", "t/r2/base"}}
+        self.assertIn("claude-code cell cap reached", costguard.blocked(exp, "base", {}, started))
+        self.assertIn("anthropic spend", costguard.blocked(exp, "base", {"anthropic": 5.0}, {}))
+        self.assertIsNone(costguard.blocked(exp, "base", {"anthropic": 1.0}, {"claude-code": {"t/r1/base"}}))
+        exp["provider_caps"] = {"claude-code": {"cells": 2}}
+        with self.assertRaisesRegex(costguard.CostCapError, "uses provider anthropic"):
+            costguard.require_provider_caps(exp)
+        exp["lanes"][0]["settings"]["models"]["review"] = "opencode-go/kimi-k3 high"
+        exp["lanes"][0]["settings"]["models"]["shape"] = api
+        with self.assertRaisesRegex(costguard.CostCapError, "more than one non-ChatGPT provider"):
+            costguard.require_provider_caps(exp)
+
     # ---- the run-start preflight
 
     def test_lanes_run_refuses_at_start_and_starts_no_cell(self):

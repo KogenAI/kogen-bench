@@ -279,7 +279,7 @@ def require_provider_caps(exp):
     caps_ = exp.get("provider_caps") or {}
     for lane in exp.get("lanes", []):
         names = experiment.lane_providers(lane) - {experiment.CHATGPT}
-        if len(names) > 1:
+        if len(names - {experiment.CLAUDE_CODE}) > 1:
             raise CostCapError(f"lane {lane['name']} names more than one non-ChatGPT provider: " + ", ".join(sorted(names)))
         for name in names:
             if not caps_.get(name):
@@ -291,6 +291,11 @@ def require_provider_caps(exp):
 def lane_providers(exp):
     """`{lane: provider}` of the experiment's lanes (none for an experiment dict without lanes)."""
     return {l["name"]: experiment.lane_provider(l) for l in exp.get("lanes", [])}
+
+
+def lane_cap_providers(exp):
+    """`{lane: set of providers}` whose caps the lane's cells count against (`experiment.cap_providers`)."""
+    return {l["name"]: experiment.cap_providers(l) for l in exp.get("lanes", [])}
 
 
 def provider_spend(run_dir, exp, extra=None, retry_s=None):
@@ -305,14 +310,15 @@ def provider_spend(run_dir, exp, extra=None, retry_s=None):
 
 def started_cells(run_dir, exp, ignore=None):
     """`{provider: set of cells}` with a cell dir or a ledger line (a retired attempt still counts as started)."""
-    names, out = lane_providers(exp), {}
+    names, out = lane_cap_providers(exp), {}
     cells = os.path.join(run_dir, "cells")
     found = {os.path.relpath(p, cells).replace(os.sep, "/") for p in glob.glob(os.path.join(cells, "*", "r*", "*"))
              if os.path.isdir(p)}
     path = os.path.join(run_dir, LEDGER)
     found |= {e["cell"] for e in (common.read_jsonl(path) if os.path.isfile(path) else [])}
     for cell in found - {ignore}:
-        out.setdefault(names.get(cell.split("/")[-1], experiment.CHATGPT), set()).add(cell)
+        for p in names.get(cell.split("/")[-1], {experiment.CHATGPT}):
+            out.setdefault(p, set()).add(cell)
     return out
 
 
@@ -399,19 +405,19 @@ def note_rate_limit(run_dir, exp, cell):
 def blocked(exp, lane, spends, started, limits=None):
     """Why a new cell of `lane` may not start: a soft cap of its provider reached, its cell cap used up, or
     the provider rate limited. None when it may. `spends` is `provider_spend`, `started` is `started_cells`."""
-    provider = experiment.lane_provider(next(l for l in exp["lanes"] if l["name"] == lane))
-    cap = usd_caps(exp).get(provider)
-    spent = spends.get(provider, 0.0)
-    if cap and spent >= cap[0]:
-        if provider == experiment.CHATGPT:
-            return f"cost cap reached: spend ${spent:.4f} of the ${cap[0]:g} cap; no new cell starts"
-        return f"cost cap reached: {provider} spend ${spent:.4f} of the ${cap[0]:g} cap; no new {provider} cell starts"
-    cells = ((exp.get("provider_caps") or {}).get(provider) or {}).get("cells")
-    if cells is not None and len(started.get(provider, ())) >= cells:
-        return f"{provider} cell cap reached: {cells} cell(s) started; no new {provider} cell starts"
-    if provider in (limits if limits is not None else {}):
-        mark = limits[provider]
-        return f"{provider} is rate limited ({mark['reason']} at {mark['cell']}); no new {provider} cell starts"
+    for provider in sorted(experiment.cap_providers(next(l for l in exp["lanes"] if l["name"] == lane))):
+        cap = usd_caps(exp).get(provider)
+        spent = spends.get(provider, 0.0)
+        if cap and spent >= cap[0]:
+            if provider == experiment.CHATGPT:
+                return f"cost cap reached: spend ${spent:.4f} of the ${cap[0]:g} cap; no new cell starts"
+            return f"cost cap reached: {provider} spend ${spent:.4f} of the ${cap[0]:g} cap; no new {provider} cell starts"
+        cells = ((exp.get("provider_caps") or {}).get(provider) or {}).get("cells")
+        if cells is not None and len(started.get(provider, ())) >= cells:
+            return f"{provider} cell cap reached: {cells} cell(s) started; no new {provider} cell starts"
+        if provider in (limits if limits is not None else {}):
+            mark = limits[provider]
+            return f"{provider} is rate limited ({mark['reason']} at {mark['cell']}); no new {provider} cell starts"
     return None
 
 

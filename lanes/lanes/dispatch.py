@@ -491,7 +491,8 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         try:
             started = costguard.started_cells(run_dir, exp)
             for m in mine:
-                started.setdefault(experiment.lane_provider(lanes[m.split("/")[-1]]), set()).add(m)
+                for p in experiment.cap_providers(lanes[m.split("/")[-1]]):
+                    started.setdefault(p, set()).add(m)
             spends = spend()
             why = costguard.blocked(exp, c["lane"], spends, started, costguard.rate_limited(run_dir))
         except Exception as e:  # fail closed

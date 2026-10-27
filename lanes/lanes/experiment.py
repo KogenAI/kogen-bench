@@ -83,6 +83,9 @@ def _lane(lane, i, probe=False):
             _fail(f + f".settings.models.{role}", "must look like 'provider/model effort'")
 
 
+CLAUDE_CODE = "claude-code"
+
+
 def lane_providers(lane):
     """The providers a lane's `settings.models` name, `openai` and `chatgpt` as one; ChatGPT when it names none."""
     names = {spec.split("/", 1)[0] for spec in lane["settings"].get("models", {}).values()}
@@ -90,9 +93,16 @@ def lane_providers(lane):
 
 
 def lane_provider(lane):
-    """The provider a lane's spend and cells count against: its one non-ChatGPT provider, else ChatGPT."""
+    """The provider a lane's spend counts against: its one non-ChatGPT provider, else ChatGPT. A lane that pairs the
+    claude-code executor with one priced provider (CC build, API review) counts its dollars against the priced one."""
     other = lane_providers(lane) - {CHATGPT}
-    return next(iter(other)) if other else CHATGPT
+    priced = other - {CLAUDE_CODE}
+    return next(iter(priced or other)) if other else CHATGPT
+
+
+def cap_providers(lane):
+    """Every provider whose caps a new cell of the lane must pass: its non-ChatGPT providers, else ChatGPT."""
+    return (lane_providers(lane) - {CHATGPT}) or {CHATGPT}
 
 
 def _provider_caps(exp):
