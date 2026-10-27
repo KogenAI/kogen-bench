@@ -1,0 +1,35 @@
+# reviewer-models-seeded-1 and reviewer-models-clean-1: recomputed from the published files
+
+## Seeded defects (26 cases x 3 repetitions = 78 cells per arm)
+
+| Review setting | Cells | Landed | Committed wrong (escapes) | Upper bound (one-sided 95%) | Cases with an escape |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 78 | 78 | 0 | 3.8% | 0 of 26 |
+| Terra medium | 78 | 78 | 0 | 3.8% | 0 of 26 |
+| Opus medium | 78 | 78 | 0 | 3.8% | 0 of 26 |
+
+## Review stage per cell (median; sums in brackets)
+
+| Review setting | Wall seconds | Requests | Input tokens | Output tokens | List-price cost per cell |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 265 (sum 6.1 h) | 11.5 | 269,772 (27.7M) | 10,062 | $0.187 (total $16.01) |
+| Terra medium | 38 (sum 1.4 h) | 5 | 99,166 (8.3M) | 1,300 | unpriced |
+| Opus medium | 42 (sum 1.2 h) | 7 | 195,174 (20.1M) | 3,723 | $0.168 (total $16.96) |
+
+## Against Sol high
+
+| Review setting | Wall time, Sol high / this | Input tokens per task vs Sol high (median per task) | Tasks lower / higher | Sign test p |
+| --- | ---: | ---: | ---: | ---: |
+| Terra medium | 6.9x | -65% | 26 / 0 | 0.0000 |
+| Opus medium | 6.2x | -29% | 22 / 4 | 0.0005 |
+
+Context, from the published earlier round: Claude Sonnet 5.5 at medium effort as reviewer committed a wrong tree in 5 cells (78 records; that page counts 77 valid cells because one cell was invalid).
+
+## Clean controls (correct code; 15 cases x 2 repetitions planned per arm)
+
+| Review setting | Cells graded | Cells planned | False blocks | Committed wrong | Review wall median s | Review requests median |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 18 | 30 | 0 | 0 | 323 | 10 |
+| Terra medium | 19 | 30 | 0 | 0 | 44 | 5 |
+| Opus medium | 30 | 30 | 0 | 0 | 45 | 5 |
+

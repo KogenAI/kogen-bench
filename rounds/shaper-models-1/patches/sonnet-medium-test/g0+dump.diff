@@ -1,0 +1,132 @@
+diff --git a/cli/build/context.go b/cli/build/context.go
+index 742ccc6..19d1631 100644
+--- a/cli/build/context.go
++++ b/cli/build/context.go
+@@ -346,6 +346,9 @@ func (b *Attempt) prepareContext(owner string, role project.Role, instructions s
+ 	b.WorkingContext[owner] = state
+ 	b.s.Progress(fmt.Sprintf("kogen: %s local reset %d -> %d bytes; ceiling %d; reserve %d; history %s",
+ 		owner, measured.RenderedBytes, next.RenderedBytes, agent.InputBudgetBytes, reservedOutputTokens, path))
++	b.Run.Event(map[string]any{
++		"event": "window_reset", "role": owner, "bytes_before": measured.RenderedBytes, "bytes_after": next.RenderedBytes,
++	})
+ 	return reduced, nil
+ }
+ 
+diff --git a/cli/build/context_test.go b/cli/build/context_test.go
+index 0f72a27..2ffde9e 100644
+--- a/cli/build/context_test.go
++++ b/cli/build/context_test.go
+@@ -36,6 +36,17 @@ func TestAConversationOverTheBudgetIsResetToALocalWorkingWindow(t *testing.T) {
+ 	if len(history) == 0 {
+ 		t.Fatal("no archived window")
+ 	}
++	resets := eventsNamed(e.events(id), "window_reset")
++	if len(resets) != len(history) {
++		t.Fatalf("window_reset events %d, archives %d", len(resets), len(history))
++	}
++	for _, r := range resets {
++		before, _ := r["bytes_before"].(float64)
++		after, _ := r["bytes_after"].(float64)
++		if r["role"] != "build" || before <= after || after <= 0 || r["at"] == nil {
++			t.Fatalf("window_reset %v", r)
++		}
++	}
+ 	for i, h := range history {
+ 		ref := h.(map[string]any)
+ 		path := ref["path"].(string)
+diff --git a/cli/shape/window.go b/cli/shape/window.go
+index 938a0fb..d46fdd4 100644
+--- a/cli/shape/window.go
++++ b/cli/shape/window.go
+@@ -324,6 +324,9 @@ func (w *window) prepare(p windowPrep, input []any) ([]any, error) {
+ 		"input_budget_bytes": agent.InputBudgetBytes, "output_reserve_tokens": agent.OutputReserveTokens,
+ 		"archive": archive.value(),
+ 	})
++	p.ev.Record(map[string]any{
++		"event": "window_reset", "role": w.owner, "bytes_before": before.RenderedBytes, "bytes_after": after.RenderedBytes,
++	})
+ 	p.progress(fmt.Sprintf("kogen: %s local working-window reset %d -> %d bytes; custody %s", w.title(), before.RenderedBytes, after.RenderedBytes, archive.Path))
+ 	return reduced, nil
+ }
+diff --git a/cli/shape/window_test.go b/cli/shape/window_test.go
+index e48f430..d9d63c5 100644
+--- a/cli/shape/window_test.go
++++ b/cli/shape/window_test.go
+@@ -225,6 +225,15 @@ func TestTheResetEventMeasuresTheRequestOfTheNewWindow(t *testing.T) {
+ 		event["input_budget_bytes"] != float64(524288) || event["output_reserve_tokens"] != float64(131072) {
+ 		t.Fatalf("event %v, request %d bytes", event, actual.RenderedBytes)
+ 	}
++	var reset map[string]any
++	for _, e := range windowEvents(t, f.root) {
++		if e["event"] == "window_reset" {
++			reset = e
++		}
++	}
++	if reset == nil || reset["role"] != "shape" || reset["bytes_after"] != float64(actual.RenderedBytes) || reset["bytes_before"] != event["before_bytes"] {
++		t.Fatalf("window_reset %v", reset)
++	}
+ }
+ 
+ func TestUnsafeAncestorCustodyRefusesBeforeWritingAnUnsentArchive(t *testing.T) {
+diff --git a/cli/provider/respond.go b/cli/provider/respond.go
+index 3980160..885de8e 100644
+--- a/cli/provider/respond.go
++++ b/cli/provider/respond.go
+@@ -5,7 +5,10 @@ import (
+ 	"context"
+ 	"io"
+ 	"net/http"
++	"os"
++	"path/filepath"
+ 	"regexp"
++	"strconv"
+ 	"strings"
+ 	"time"
+ 	"unicode"
+@@ -689,6 +692,15 @@ func (r *run) completeMessages(stream, key string) (result, error) {
+ 		return result{}, err
+ 	}
+ 	res := parseMessages(stream)
++	// research lane sse-dump (KOGEN-059): keep the raw stream of a completion judged invalid, bounded, private.
++	if dir := os.Getenv("KOGEN_SSE_DUMP_DIR"); dir != "" && res.kind == resInvalid {
++		raw := stream
++		if len(raw) > 4<<20 {
++			raw = raw[:4<<20]
++		}
++		name := filepath.Join(dir, strconv.FormatInt(time.Now().UnixNano(), 10)+"-"+strconv.Itoa(os.Getpid())+".sse")
++		_ = os.WriteFile(name, []byte("# detail: "+res.detail+"\n"+raw), 0o600)
++	}
+ 	if res.kind == resOK {
+ 		meta := make(map[string]any, len(res.meta))
+ 		for name, v := range res.meta {
+diff --git a/cli/build/review.go b/cli/build/review.go
+index 9f53a5f..a56cd51 100644
+--- a/cli/build/review.go
++++ b/cli/build/review.go
+@@ -8,7 +8,9 @@ import (
+ 	"os"
+ 	"path/filepath"
+ 	"slices"
++	"strconv"
+ 	"strings"
++	"time"
+ 
+ 	"kogen/agent"
+ 	"kogen/project"
+@@ -419,6 +421,16 @@ func (r *reviewRun) converse(ctx context.Context) (reviewVerdict, error) {
+ 				}
+ 				if probs != nil {
+ 					problems = probs
++					// research observation (review-dump): keep a rejected submit_review's raw arguments with the
++					// problems, bounded and private, so an invalid verdict names its failing field. No behaviour change.
++					if dir := os.Getenv("KOGEN_REVIEW_DUMP_DIR"); dir != "" {
++						if raw, jerr := json.Marshal(map[string]any{"problems": probs, "arguments": call.Args()}); jerr == nil {
++							if len(raw) > 1<<20 {
++								raw = raw[:1<<20]
++							}
++							_ = os.WriteFile(filepath.Join(dir, strconv.FormatInt(time.Now().UnixNano(), 10)+"-"+strconv.Itoa(os.Getpid())+".review.json"), raw, 0o600)
++						}
++					}
+ 					outs = append(outs, call.Output(agent.Cut("invalid verdict:\n"+strings.Join(probs, "\n"))))
+ 				} else {
+ 					verdict = v

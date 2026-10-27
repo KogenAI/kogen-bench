@@ -1,0 +1,194 @@
+{
+  "experiment": {
+    "cost_cap_usd": 20,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "terra-builder-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "terra-medium-trap",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra medium",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      },
+      {
+        "name": "terra-max-trap",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra max",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      },
+      {
+        "name": "sol-medium-trap",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-sol medium",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      },
+      {
+        "name": "terra-medium-long",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra medium",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      },
+      {
+        "name": "terra-max-long",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra max",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      },
+      {
+        "name": "sol-medium-long",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-sol medium",
+            "review": "openai/gpt-6.1-sol high",
+            "shape": "openai/gpt-6.1-sol high"
+          }
+        },
+        "sha": "56eecd572a6e07184863939254a90d9a2dc44e96"
+      }
+    ],
+    "phase": "build",
+    "reps": 1,
+    "tasks": [
+      "task-06",
+      "task-05",
+      "task-04",
+      "task-01",
+      "task-02"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "sol-medium-long": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "a1767ff9157a6c186ac9c282cca21e3bf02185b232814e9387c71ab9c3280432"
+      },
+      "sol-medium-trap": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "a1767ff9157a6c186ac9c282cca21e3bf02185b232814e9387c71ab9c3280432"
+      },
+      "terra-max-long": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "779d5830879f34ed434150a132013d2fa87c72aa8a1c97ed3e80b33a1976aa50"
+      },
+      "terra-max-trap": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "779d5830879f34ed434150a132013d2fa87c72aa8a1c97ed3e80b33a1976aa50"
+      },
+      "terra-medium-long": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "41f57fb5c428bf01905cb70428653f7bb64162daa6d91a51aa14e03bd2c33605"
+      },
+      "terra-medium-trap": {
+        "patch": "f4664506a979901c1508d3878631fec6472d6c905cb9a061832ed94a87799844",
+        "settings": "41f57fb5c428bf01905cb70428653f7bb64162daa6d91a51aa14e03bd2c33605"
+      }
+    },
+    "tasks": {
+      "task-01": {
+        "hidden_tests": "f6721c6e2703494e89e1480b68361cef3172592fd590476d08583416de1e983c",
+        "intents": {
+          "gherkin": "bd670c7af941741a2cbe9e66a62e723c96335b1959889e2547f39cd1195f38e4"
+        },
+        "request": "0552705147341f209b30267872fa40ed1d76d5db4575fd6c9cd166ebc90ec21d",
+        "task": "a809c26a22f4993fd47d6c43c4e5f79bfefc29e9cf1267d5a24c6ed751f4d1c1",
+        "task_toml": "be1a2ac5c176a4722f10eada309e5662b4761821b91b05ed9b9a9698782f2b57",
+        "tree": "f5148e416da44f66dcd631578a8ac2ef313b328899757701ff7bdb52e0aef0d0"
+      },
+      "task-02": {
+        "hidden_tests": "a9a86f74e19c55d7a0721156e36e62a72f116312f6324a5aa54519bdac8550fc",
+        "intents": {
+          "gherkin": "1d4d8c0392d5a232b7cddb07fb022afe83f119baf7babdc644b1c06ef8f7eb72"
+        },
+        "request": "8bfa6f4fc0819db6b4cdc0c6fed6a472f1295ec7b7397df65cb29629cb12b197",
+        "task": "dc1b06870f8fd25605a22d385d5cbfb46dcf237b783eaeae83f4dcaa4981e1ab",
+        "task_toml": "0441923ca379633fda6ae12dfc3476e5285e9117e4467796397caf8108946ba3",
+        "tree": "a45ef30a10c52eeeccb03aa5724040bb4657d89de3168db9bda1c2da3b7eb22f"
+      },
+      "task-04": {
+        "hidden_tests": "9148a81f6f0898dafc24dce0416db21726455d7eb71a78035dcfec28a88ff90a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "306696fa44e7dc1c34104348ef1e350e03cd2736a79a3940ccb4266337406021",
+          "prose": "038dc6199b1d1ec202b45fcc004c305dbd8de143da7ee144c382f430b80510dc"
+        },
+        "request": "db1101733363e1259f387b7a4d8f6065410c5b56fc91a8235a614526e1a480bc",
+        "task": "a23a4b3e5d350530ba55c3e8a2ab006e8e9ee9176eae4106a464e36fc90d1d27",
+        "task_toml": "4c12d5d80656013a7df90732df2bc76f1b0f19541f7b42d03ddad86b30e8fe88",
+        "tree": "d44051ad38a3f1632bbdd2340086a83431f7a478a7b6bc6c1390c5ced09dd7cc"
+      },
+      "task-05": {
+        "hidden_tests": "b2c61190e76a20d6528da86d7b0269180e85a098abe57176fad8eb9d31097e14",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "016258961d3a7b088c6a53ee8efdf67e5b640242f81040c443a9f88ea3021afd",
+          "prose": "239f40480778b6e2a233e609f0a9c8a0f26435dc533a1ea85488fc42621837bb"
+        },
+        "request": "e56983336f071d0fd2c1f630d5adb9d6daf30e6ac447c0ec580ba84827f9d874",
+        "task": "df37da4991e4c7f76f69272fb071d7e77d66bd1a560a01f7b408333e99089a77",
+        "task_toml": "f6cb81e5c432790290ed2d5cb7828d694e9bd01b66ac2e9f84380d5327cab4ae",
+        "tree": "1a1f679441e13a66a7be6924d5f315a9c691eca34d6043f55a762411e515603d"
+      },
+      "task-06": {
+        "hidden_tests": "cb6474ac77d2bd67afef3957bd7349bb8909f9b81643252a5aad81f22e65164d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "bc4a16c109058ad887e3e782e0e0f87268b1ce1d92ff892d777fa2215e0055aa",
+          "prose": "fa368c6bde643b7c96a66f3d2b216da52aae7860da2e8f10f70bf2cae9080e3a"
+        },
+        "request": "d48c1fdade10e273647ab8187ee36034334c52f22b53098a5bb8da307611c7e1",
+        "task": "f7f26336025c3f64bcebddb7ead8a71fb106696b336e221beffc7cec3ce31a14",
+        "task_toml": "b96cb051d1f0ca30673840e2fa6582058307d86b49bf2b8b13aa69cf3fce8c42",
+        "tree": "1ae6944b093655422462f0943d0069cd483871c565d7e770c74e75dd5888fee8"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "sol-medium-long": "b5978ba30d0df8cb24102c59dacd5e591fed0a0cf4ba0517721bbb83bd4741ac",
+      "sol-medium-trap": "3921ec6a74467ccefafdc071bd095d72c66feb11b4ba104d6dfafb5bbc48848b",
+      "terra-max-long": "b5978ba30d0df8cb24102c59dacd5e591fed0a0cf4ba0517721bbb83bd4741ac",
+      "terra-max-trap": "3921ec6a74467ccefafdc071bd095d72c66feb11b4ba104d6dfafb5bbc48848b",
+      "terra-medium-long": "b5978ba30d0df8cb24102c59dacd5e591fed0a0cf4ba0517721bbb83bd4741ac",
+      "terra-medium-trap": "3921ec6a74467ccefafdc071bd095d72c66feb11b4ba104d6dfafb5bbc48848b"
+    },
+    "sha256": "4d43f011fff9ecdebd6bae8651210adf537761cc9314b360e04ff6c1d158b2cd"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "cell": "task-05/r1/terra-high-trap",
+  "ended": "2026-10-26T21:39:58.476Z",
+  "exit_code": 1,
+  "final_tree": "e3d58384d857b869989905dced89170fd60c73fc",
+  "first_green_tree": null,
+  "intent_hash": "1aad111042da830494551fafaeadbc280ccc453cb7e6da8726570821f6fc08f7",
+  "kogen_version": "kogen dev+4f495569 (2026-10-26, uncommitted source)",
+  "lane": "terra-high-trap",
+  "outcome": "review_blocked",
+  "pass_trees": [
+    "26204f206fbc441ebe0af41fbbd649858943f98e"
+  ],
+  "phase": "build",
+  "stages": [
+    {
+      "cached_input_tokens": 0,
+      "cost_reason": null,
+      "cost_usd": 0.0,
+      "ended": "2026-10-26T21:35:47.458Z",
+      "exit_code": 0,
+      "input_tokens": 0,
+      "missing": [],
+      "model_sources": [],
+      "models": [],
+      "outcome": "ok",
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "requests": 0,
+      "stage": "approve",
+      "started": "2026-10-26T21:35:41.323Z",
+      "wall_s": 6.135
+    },
+    {
+      "cached_input_tokens": 21248,
+      "cost_reason": "unlisted_model: gpt-6.1-terra",
+      "cost_usd": null,
+      "ended": "2026-10-26T21:39:58.450Z",
+      "exit_code": 1,
+      "input_tokens": 31333,
+      "missing": [],
+      "model_sources": [
+        "effective"
+      ],
+      "models": [
+        "gpt-6.1-terra"
+      ],
+      "outcome": "review_blocked",
+      "output_tokens": 2544,
+      "reasoning_tokens": 197,
+      "requests": 4,
+      "stage": "build",
+      "started": "2026-10-26T21:35:47.458Z",
+      "wall_s": 250.992
+    },
+    {
+      "cached_input_tokens": 105856,
+      "cost_reason": null,
+      "cost_usd": 0.0932536,
+      "ended": null,
+      "exit_code": null,
+      "input_tokens": 125240,
+      "missing": [
+        "ended",
+        "exit_code",
+        "outcome",
+        "started"
+      ],
+      "model_sources": [
+        "effective"
+      ],
+      "models": [
+        "gpt-6.1-sol"
+      ],
+      "outcome": null,
+      "output_tokens": 4390,
+      "reasoning_tokens": 2295,
+      "requests": 7,
+      "stage": "review",
+      "started": null,
+      "wall_s": 155.946
+    }
+  ],
+  "started": "2026-10-26T21:35:41.313Z",
+  "totals": {
+    "cached_input_tokens": 127104,
+    "cost_reason": "unlisted_model: gpt-6.1-terra",
+    "cost_usd": null,
+    "input_tokens": 156573,
+    "missing": [],
+    "model_sources": [
+      "effective"
+    ],
+    "models": [
+      "gpt-6.1-sol",
+      "gpt-6.1-terra"
+    ],
+    "output_tokens": 6934,
+    "reasoning_tokens": 2492,
+    "requests": 11,
+    "wall_s": 257.127
+  },
+  "wall_s": 257.163
+}

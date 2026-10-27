@@ -1,0 +1,63 @@
+# shaper-models-1: recomputed from the published bundle
+
+Graded cells: 120
+
+## Matrices held, by arm and split
+
+| Arm | Split | Cells | Held | Shaper outcomes |
+| --- | --- | ---: | ---: | --- |
+| sol-high | train | 16 | 5 | ok 14, refused 1, timeout 1 |
+| sol-high | test | 16 | 1 | ok 13, questions_pending 1, refused 2 |
+| sol-low | train | 16 | 9 | ok 13, refused 3 |
+| sol-low | test | 16 | 4 | ok 14, questions_pending 2 |
+| sonnet-medium | train | 16 | 5 | ok 16 |
+| sonnet-medium | test | 16 | 6 | ok 16 |
+| opus-medium | train | 16 | 4 | ok 8, provider 2, refused 6 |
+| terra-medium | test | 8 | 3 | ok 7, refused 1 |
+
+## All 16 tasks, 2 repetitions (32 cells per arm)
+
+| Arm | Cells | Held | Share | 95% Wilson interval |
+| --- | ---: | ---: | ---: | --- |
+| sol-high | 32 | 6 | 19% | 9% to 35% |
+| sol-low | 32 | 13 | 41% | 26% to 58% |
+| sonnet-medium | 32 | 11 | 34% | 20% to 52% |
+| opus-medium | 16 | 4 | 25% | 10% to 49% |
+| terra-medium | 8 | 3 | 38% | 14% to 69% |
+
+## Paired comparisons by task (repetitions summed per task; two-sided exact sign test over tasks that differ)
+
+| Comparison | Tasks | A better | B better | Tied | p |
+| --- | --- | ---: | ---: | ---: | ---: |
+| sol-low (A) vs sol-high (B) | all 16 | 7 | 2 | 7 | 0.180 |
+| sonnet-medium (A) vs sol-high (B) | all 16 | 5 | 2 | 9 | 0.453 |
+| sol-low (A) vs sonnet-medium (B) | all 16 | 3 | 2 | 11 | 1.000 |
+| opus-medium (A) vs sol-high (B) | train 8 | 1 | 2 | 5 | 1.000 |
+| opus-medium (A) vs sol-low (B) | train 8 | 0 | 3 | 5 | 0.250 |
+| opus-medium (A) vs sonnet-medium (B) | train 8 | 1 | 1 | 6 | 1.000 |
+| terra-medium (A) vs sol-high (B) | test 8 | 2 | 0 | 6 | 0.500 |
+| terra-medium (A) vs sol-low (B) | test 8 | 1 | 2 | 5 | 1.000 |
+| terra-medium (A) vs sonnet-medium (B) | test 8 | 0 | 3 | 5 | 0.250 |
+
+Smallest p among these nine comparisons: 0.180. None is below 0.05.
+
+## Shape stage per cell (median over cells that logged the value)
+
+| Arm | Wall seconds | Requests | Input tokens | Output tokens | List-price cost per cell |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| sol-high | 1,113 | 13 | 433,769 | 28,799 | $0.40 (29 cells priced) |
+| sol-low | 341 | 9 | 142,854 | 8,358 | $0.15 (32 cells priced) |
+| sonnet-medium | 131 | 6 | 153,639 | 17,384 | $0.28 (32 cells priced) |
+| opus-medium | 643 | 16 | 727,154 | 60,292 | $1.68 (14 cells priced) |
+| terra-medium | 135 | 7 | 100,124 | 5,262 | unpriced |
+
+## Graded cells per lane
+
+- sol-high-train: 16 graded cells
+- sol-high-test: 16 graded cells
+- sol-low-train: 16 graded cells
+- sol-low-test: 16 graded cells
+- sonnet-medium-test: 16 graded cells
+- sonnet-medium-train: 16 graded cells
+- opus-medium-train: 16 graded cells
+- terra-medium-test: 8 graded cells

@@ -1,0 +1,65 @@
+# terra-builder-1 and terra-builder-effort-1: recomputed from the published files
+
+## terra-builder-1
+
+### Per task: outcome and hidden tests passed
+
+| Task | Hidden tests (not passing the request-stated filter: unfair) | sol-medium | terra-medium | terra-max |
+| --- | --- | --- | --- | --- |
+| task-01 | 17 (1 unfair) | landed, 16/17 | landed, 16/17 | landed, 16/17 |
+| task-02 | 66 (6 unfair) | landed, 57/66 | cost_cap, 28/66 | cost_cap, 28/66 |
+| task-04 | 19 (0 unfair) | landed, 15/19 | landed, 19/19 (all) | landed, 19/19 (all) |
+| task-05 | 10 (0 unfair) | review_blocked, 0/10 | landed, 0/10 | build_blocked, 0/10 |
+| task-06 | 7 (0 unfair) | landed, 7/7 (all) | landed, 7/7 (all) | build_blocked, 0/7 |
+
+### Per arm, as run (all tasks)
+
+| Arm | Cells | Passed all hidden tests | Hidden tests passed | Median wall s | Input tokens (sum) | Output tokens (sum) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| sol-medium | 5 | 1 | 95/119 | 816 | 6.79M | 70k |
+| terra-medium | 5 | 2 | 70/119 | 824 | 6.14M | 47k |
+| terra-max | 5 | 1 | 63/119 | 1,024 | 10.17M | 134k |
+
+### Re-score: fair tests, void tasks and harness stops removed
+
+Counts over the cells that remain (task-05 and task-06 are void for every arm; cost_cap cells are excluded).
+
+| Arm | Cells kept | Passed the fair tests | Fair hidden tests passed (kept cells) | Cells kept out | Passed the fair tests, all cells as run |
+| --- | ---: | ---: | ---: | --- | ---: |
+| sol-medium | 3 | 1 | 87/95 | task-05 (void task), task-06 (void task) | 2 of 5 |
+| terra-medium | 2 | 2 | 35/35 | task-02 (cost_cap), task-05 (void task), task-06 (void task) | 3 of 5 |
+| terra-max | 2 | 2 | 35/35 | task-02 (cost_cap), task-05 (void task), task-06 (void task) | 2 of 5 |
+
+## terra-builder-effort-1
+
+### Per task: outcome and hidden tests passed
+
+| Task | Hidden tests (not passing the request-stated filter: unfair) | sol-medium | terra-low | terra-medium | terra-high |
+| --- | --- | --- | --- | --- | --- |
+| task-01 | 17 (1 unfair) | landed, 16/17 | landed, 16/17 | landed, 16/17 | landed, 16/17 |
+| task-02 | 66 (6 unfair) | landed, 58/66 | context_budget_exceeded, 28/66 | context_budget_exceeded, 28/66 | landed, 59/66 |
+| task-03 | 33 (11 unfair) | landed, 1/33 | landed, 22/33 | landed, 22/33 | landed, 22/33 |
+| task-04 | 19 (0 unfair) | landed, 15/19 | landed, 19/19 (all) | landed, 19/19 (all) | landed, 19/19 (all) |
+| task-05 | 10 (0 unfair) | landed, 0/10 | landed, 0/10 | landed, 0/10 | review_blocked, 0/10 |
+| task-06 | 7 (0 unfair) | landed, 7/7 (all) | landed, 7/7 (all) | landed, 7/7 (all) | landed, 7/7 (all) |
+
+### Per arm, as run (all tasks)
+
+| Arm | Cells | Passed all hidden tests | Hidden tests passed | Median wall s | Input tokens (sum) | Output tokens (sum) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| sol-medium | 6 | 1 | 97/152 | 771 | 12.88M | 109k |
+| terra-low | 6 | 2 | 92/152 | 742 | 7.82M | 73k |
+| terra-medium | 6 | 2 | 92/152 | 760 | 10.13M | 72k |
+| terra-high | 6 | 2 | 123/152 | 642 | 13.51M | 108k |
+
+### Re-score: fair tests, void tasks and harness stops removed
+
+Counts over the cells that remain (task-05 and task-06 are void for every arm; cost_cap cells are excluded).
+
+| Arm | Cells kept | Passed the fair tests | Fair hidden tests passed (kept cells) | Cells kept out | Passed the fair tests, all cells as run |
+| --- | ---: | ---: | ---: | --- | ---: |
+| sol-medium | 4 | 1 | 89/117 | task-05 (void task), task-06 (void task) | 2 of 6 |
+| terra-low | 4 | 3 | 85/117 | task-05 (void task), task-06 (void task) | 4 of 6 |
+| terra-medium | 4 | 3 | 85/117 | task-05 (void task), task-06 (void task) | 4 of 6 |
+| terra-high | 4 | 3 | 115/117 | task-05 (void task), task-06 (void task) | 4 of 6 |
+

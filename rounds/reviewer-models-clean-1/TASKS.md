@@ -1,0 +1,21 @@
+# Tasks of reviewer-models-clean-1 (ids and content hashes only)
+
+These tasks are still used by running experiments, so their text, Intents, hidden tests, test names and trees are not published. Each row gives the task id, how this round used it, and sha256 content hashes recorded in the round's `PLAN.json` before the run. The tasks will be published once the experiments using them finish; the hashes then show they are unchanged. The ids are opaque and numbered in the sorted order of the original ids; the mapping will be published with the tasks, and the hashes are those of the real task folders. Kind: clean control: the correct solution.
+
+| Task id | Used as | Task hash | Hidden-test hash | Start-tree hash |
+| --- | --- | --- | --- | --- |
+| `clean-01` | clean control | `cdc70a7ee64528518295a9fa53a03bd4a2f45cb558f1945cee437f5bce9540ec` | `306f3d3afc88c12d37fd321f68f71b648422c6e1b0735b4a302d584def43cc07` | `1fa1d86ad718b13b77e49554ee0085f5a1d2ff81565dfd9f0c81705022e9cd65` |
+| `clean-02` | clean control | `bcc66a86f31d5689b2c907b82ddabf3e4c9fd2402e6efbef0890dfb8742cb6d3` | `05646a102485020c247c30f55fd356d91a2c244a2c8e79d06ecbb759ec97dfd6` | `bab89bba111608d25d4cf490de7443b55fa5934361f55dd7d148056d873bc00f` |
+| `clean-03` | clean control | `b6eb899e5a4f3912763fd8425b9f825813ec2e5d1de69db38ca491e9994166a3` | `1312e7c9f658bbfab93d9ab8e8c10b8a937ff92d8fd4e3547bc9f88b488f3347` | `0183c6a0ad55b7cfad11cce1afb58b7eb68ee3887638b691701590c2a9f16cd2` |
+| `clean-04` | clean control | `911168b30f7292ea9d42640a29552a5eacd02f0905e2c1b32ffa44b7b971b819` | `a0d0a37f582ef502d70566c1338fb4f600cce0b956afd37bee0c4ac955df958a` | `bbb185a6dd41c977fb2dd14dc4421d4e3b0da531452d78eebad582ef0b402498` |
+| `clean-05` | clean control | `43d7f308c6f09b827a621d3acc8eed8dfbc77c2a12e7499d6f63ff67c718d562` | `9a4de5f0fa689dba8111a2eb4f81398b576cad2c61fed6ebf72580b51d1963ff` | `249ed93d36c209887b1e9cadde682d82ab026776b26576c7e06be785c8838e1a` |
+| `clean-06` | clean control | `613fb13cc869490dcec284427abd03622a8cd0d587d11688a9532edb65c474cd` | `b81ab4ea3f6427a776d56ffb462312ea12afbefd8f2baa82c935a56db46fcf44` | `cddccaea712166e30f0a6d2c5061112b5e4c75fb2b76b826a9000d4ff164d22c` |
+| `clean-07` | clean control | `8c4be5b6cdc5325f72200599e913f6d4e34a6e016bc563d5c7365e4b3705fab1` | `f391aaf90745b57fc3668b44ce9824386217e5537f61076e1aa32c34eb1b57b8` | `a6e0a883764c2979935b0f5cdcd68d0f4c8237c0caa8f8434a698ab177525307` |
+| `clean-08` | clean control | `b28de46d63d353ad2a4013411100a6d9f27e9b75e996012f135e14aa29020a70` | `8bd1d942c2a06010af7d160908c87a6272b8899c077403620152a3a8e9222aaa` | `c526d6c0aaafeaf77bed00c9ec116ac11cdd45326441f449f5387f91fcbca259` |
+| `clean-09` | clean control | `41da092a4651549eeafa96ecfbca009929c80ece64e2cc2f435659f54cfb045b` | `c2c99505a4aab33a3091ffa4b6a7a2366489fc24a948ed558c54c3e85ba41def` | `630922d91cd80bf373ac0dfcc1ce8c6b0e9e257da927109176e4c9c0bf98abfe` |
+| `clean-10` | clean control | `b6f96181f4c9eb29fd73122149d1a8ee39ad1e82905b142c243f8ab2d3be5a2e` | `f4f10f81d6257bb9e4171c74dcde919ac7a2bedc7129d65ec97321b877c1b03f` | `b61152af3554d646d8e35ed4f5fd949dbd8c886376e48520b25df3a7dc7c9e95` |
+| `clean-11` | clean control | `7498ca76cff2d15301709c85b50cc6bd7c51d25be7f6be35a7532a3ef61bcf98` | `f808ce64fd3301fc29f8806b8bdf6b797195bb5ec1fdefcdf3d231f130ac0f07` | `6f2b6a5d3648124b2c5d1dca2747da5d99ca1b72f372cee1a98ac0761c60b8dc` |
+| `clean-12` | clean control | `e80fc644b79706e5b6a32c9149cd8792bde4b44ac3de4f9807896eebb256c4a6` | `90516c0cc468b61e595275481bc87fb2d1d198d6a7e316b2d9b20047ae779368` | `783bf97f9570637a8f0534d0a4fe9f425db5bc20a5dec9c04e3ca089d21e07bf` |
+| `clean-13` | clean control | `d967ee0303037588489773e036a448c0e5428e613e50a69e2684ea8c43d75cf9` | `cce29ead0210781e3d41f0a5121cd99937fa527fef6a0e9dc4abbed47c925a57` | `29029b1ec01592189d7e247e30484cd1aabd62c887f3db520907c817d189128c` |
+| `clean-14` | clean control | `92b214c8aa440f1e163a2bb6bb6d7aa5f2914e1074a88378366dd0a7b6d8c44d` | `4b728bce93a4e5108c7f2ce228878d42cc2adf10cec566b9b6a7b46d3488d697` | `7d9c206a8af366828c49e92ad730460701b5dd8288a60952e5f99c9f2412dc85` |
+| `clean-15` | clean control | `52c98c1e345253045b52c25be31c318a2a084a0546d6bceaa59824219c377c25` | `e7484a0c7dafe726e7af0a0a6a6c7755d937bfc93c3a6959e4d38f8ac490812d` | `e410d7fb49f411a622a4106aeea32d6cb56f8da20651636c0adf052a3f6950f3` |
