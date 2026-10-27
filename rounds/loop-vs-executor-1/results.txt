@@ -1,0 +1,94 @@
+## Cells and passes, as run
+
+| Machine | Arm | Cells | Passed every hidden test |
+| --- | --- | ---: | ---: |
+| mac | native | 14 | 14 |
+| mac | cc | 14 | 14 |
+| linux-a | native | 24 | 21 |
+| linux-a | cc | 24 | 23 |
+| linux-b | native | 16 | 14 |
+| linux-b | cc | 16 | 14 |
+| all | native | 54 | 49 |
+| all | cc | 54 | 51 |
+
+Tasks whose start check failed before the build in every cell (void for both arms): build-10.
+
+## Per task
+
+| Task | Machine | Hidden tests | Reps | native passed | cc passed | Favours |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `build-01` | mac | 19 | 2 | 2 | 2 | tie |
+| `build-02` | linux-a | 11 | 4 | 2 | 3 | cc |
+| `build-03` | linux-a | 10 | 4 | 4 | 4 | tie |
+| `build-04` | linux-a | 10 | 4 | 4 | 4 | tie |
+| `build-05` | mac | 11 | 2 | 2 | 2 | tie |
+| `build-06` | mac | 7 | 2 | 2 | 2 | tie |
+| `build-07` | mac | 10 | 2 | 2 | 2 | tie |
+| `build-08` | linux-b | 11 | 2 | 2 | 2 | tie |
+| `build-09` | mac | 7 | 2 | 2 | 2 | tie |
+| `build-10` | linux-b | 962 | 2 | 0 | 0 | tie |
+| `build-11` | linux-b | 12 | 2 | 2 | 2 | tie |
+| `build-12` | linux-a | 11 | 4 | 4 | 4 | tie |
+| `build-13` | mac | 9 | 2 | 2 | 2 | tie |
+| `build-14` | mac | 15 | 2 | 2 | 2 | tie |
+| `build-15` | linux-b | 389 | 2 | 2 | 2 | tie |
+| `build-16` | linux-b | 10 | 2 | 2 | 2 | tie |
+| `build-17` | linux-a | 11 | 4 | 4 | 4 | tie |
+| `build-18` | linux-b | 900 | 2 | 2 | 2 | tie |
+| `build-19` | linux-b | 9 | 2 | 2 | 2 | tie |
+| `build-20` | linux-b | 9 | 2 | 2 | 2 | tie |
+| `build-21` | linux-a | 7 | 4 | 3 | 4 | cc |
+
+Sign test, all 21 tasks, as run: cc favoured on 2 tasks, native on 0, ties 19; pass rate native 49/54 = 0.907, cc 51/54 = 0.944; one-sided p (cc better) 0.2500, (native better) 1.0000.
+Sign test, without the void task: cc favoured on 2 tasks, native on 0, ties 18; pass rate native 49/52 = 0.942, cc 51/52 = 0.981; one-sided p (cc better) 0.2500, (native better) 1.0000.
+
+## Cells that did not pass every hidden test
+
+| Cell | Outcome | Hidden tests passed |
+| --- | --- | ---: |
+| `build-02/r2/native-linux-a` | landed | 0 of 11 |
+| `build-02/r3/cc-linux-a` | landed | 0 of 11 |
+| `build-02/r4/native-linux-a` | landed | 0 of 11 |
+| `build-10/r1/cc-linux-b` | check_failing | 0 of 962 |
+| `build-10/r1/native-linux-b` | check_failing | 0 of 962 |
+| `build-10/r2/cc-linux-b` | check_failing | 0 of 962 |
+| `build-10/r2/native-linux-b` | check_failing | 0 of 962 |
+| `build-21/r1/native-linux-a` | landed | 0 of 7 |
+
+## Wall time (seconds per cell; build stage is the build command)
+
+| Set | Arm | Cells | Median cell | Sum, cell | Median build | Sum, build |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| all cells | native | 54 | 150 | 10,578 | 143 | 9,775 |
+| all cells | cc | 54 | 173 | 11,255 | 156 | 10,343 |
+| without the void task | native | 52 | 156 | 10,492 | 145 | 9,721 |
+| without the void task | cc | 52 | 174 | 11,192 | 157 | 10,315 |
+| short tasks (mac, linux-a) | native | 38 | 164 | 5,819 | 149 | 5,402 |
+| short tasks (mac, linux-a) | cc | 38 | 175 | 6,193 | 162 | 5,760 |
+| linux-b tasks, without the void task | native | 14 | 125 | 4,673 | 117 | 4,319 |
+| linux-b tasks, without the void task | cc | 14 | 148 | 4,999 | 142 | 4,556 |
+
+Per-task median cell wall time ratio, cc over native (tasks with every cell built, void task left out):
+median 1.08, cc faster on 6 of 20 tasks, slower on 14.
+
+## Build tokens and cost (build stage only; the Opus review is native in both arms)
+
+Native: Kogen's own request log, list prices. cc: harness-reported tokens from Kogen's executor line, and Claude Code's own cost estimate, which is an estimate and not a bill. Input tokens include cached input and are summed over requests (native) or turns (cc), so they are comparable only roughly.
+
+| Set | Arm | Cells | Median input | Median output | Sum input | Sum output | Sum cost, USD | Median cost, USD |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| all cells with a build | native | 52 | 46,422 | 3,640 | 22,382,430 | 326,469 | 10.44 | 0.063 |
+| all cells with a build | cc | 52 | 130,230 | 4,502 | 28,848,850 | 397,578 | 12.03 | 0.108 |
+
+Per-task ratio of median build tokens, cc over native (20 tasks): input median 2.68, cc higher on 20; output median 1.28, cc higher on 20.
+
+## Review (Opus 5.5 medium, native in both arms), list price
+
+| Arm | Cells reviewed | Sum input | Sum output | Sum cost, USD | Median cost, USD |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| native | 52 | 6,378,808 | 163,990 | 10.60 | 0.133 |
+| cc | 52 | 5,804,029 | 153,988 | 10.49 | 0.143 |
+
+## Native arm, list-price cost per cell (build plus review)
+
+54 cells: sum 21.04 USD, median 0.193 USD, mean 0.390 USD.

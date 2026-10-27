@@ -1,0 +1,126 @@
+{
+  "experiment": {
+    "cost_cap_usd": 1,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "executor-lineup-dry-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "cc-lineup-mac",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "claude-code/claude-opus-5-5 medium",
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "44cb3c2af5ada38a5523a56461305d55c3b1d4ee"
+      },
+      {
+        "name": "cc-lineup-linux-a",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "claude-code/claude-opus-5-5 medium",
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "44cb3c2af5ada38a5523a56461305d55c3b1d4ee"
+      },
+      {
+        "name": "cc-lineup-linux-b",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "claude-code/claude-opus-5-5 medium",
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "44cb3c2af5ada38a5523a56461305d55c3b1d4ee"
+      }
+    ],
+    "phase": "e2e",
+    "provider_caps": {
+      "claude-code": {
+        "cells": 3
+      }
+    },
+    "reps": 1,
+    "tasks": [
+      "build-06",
+      "build-21",
+      "build-16"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "cc-lineup-linux-a": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "14727a756846da78bdf47079d52a9943d166050120a277f2ccf4bcbb3e7c51e2"
+      },
+      "cc-lineup-linux-b": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "14727a756846da78bdf47079d52a9943d166050120a277f2ccf4bcbb3e7c51e2"
+      },
+      "cc-lineup-mac": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "14727a756846da78bdf47079d52a9943d166050120a277f2ccf4bcbb3e7c51e2"
+      }
+    },
+    "tasks": {
+      "build-06": {
+        "hidden_tests": "b6b08fa07e61302a5bf74eb9b6d916a150d23713c114583abdbc27581b7beeaa",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "94aaea08cf7b4f4e83b115ecc4ab7c6a8805d355f00a6e6757c6488f9e12b782",
+          "prose": "ba3a0eb62137430a107f3c62dee3ccef837f1715db6ba5709b875d41f6ee198c"
+        },
+        "request": "0a38ab0d47a0b780c78fa47afaa42b2023b211cc2251c044003d70355c791ccb",
+        "task": "69a00cc1c61bfb66d8a6922454c03d0b2e7d5d25484b8746d1e3b714cb97810b",
+        "task_toml": "42dcab93be9d99e77e8c7f6ec5bb3c0585f70aa9d5cf728822b9c51af1dd0554",
+        "tree": "d94b091512aeea2d75b6dd8c31ed1a918c988cab9a317707c8e8a6101fffea2d"
+      },
+      "build-16": {
+        "hidden_tests": "59ecdcae15063a4dbc56961b5123e6e6f8f44e9ba678555fdb47d68366aac2a9",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "90c67e90c28037b7f53bc4b2a768ddd1c3aee43f6a1af7aaa13555e79b274266",
+          "prose": "fd9986390caa7ab309edfceb2f8a0747f872c9d2b91a95df79ff6bf8c3e1470f"
+        },
+        "request": "7d8b01e3a453ca5b9aa1e0c5c8010ff5e7a5b37008867231f7c5d0b00f84e081",
+        "task": "e2395445b2e967c76915d2ac13975d0803ac8b4fbb4e3f6ca0afa13026d75e0f",
+        "task_toml": "3927246d6e0aacfbb75abc8387388a27e966c595f0ccf3c6b818c073873307a6",
+        "tree": "534f92932377aa20db7b47c59081197454372d50f38b24ccd9a3e185d215d471"
+      },
+      "build-21": {
+        "hidden_tests": "7a3b09a606e4364e583900d2a8355db88aa27a11a379682ec4d540dc08c5fa05",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "6364c331696a160545d60cc1c6f307b95652591dd39c44c1adc30b2c351a660c",
+          "prose": "a5df79266e5c07600dbad3cbbb8973e5212522eaf71300bfa8bd35528d678ea5"
+        },
+        "request": "3a93f30b008b224c97d4714e4ed85b0133e7e9d5cb5296f20017f0299f3b9741",
+        "task": "fe85ad509b07541d3e561af7ecaadb3f0bc4257994d273d1837be753dda0eb63",
+        "task_toml": "956b2d0bf3e2392d84dcf48ec06c9ff4d6b870242818515cacb85fbec6a98fcc",
+        "tree": "214a988aba96a8c7a2c3fe3a427bd52287a877ba969442dddf82b647fadfafd3"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "cc-lineup-linux-a": "b26c364113dec57a8406a409dabf0785b86d4c05983ae180ee073f6d05ccbd92",
+      "cc-lineup-linux-b": "221dfad4cfc350a3ce852bed30c5a2ee5522702e8f671b215c806821377c384b",
+      "cc-lineup-mac": "b41ca9eb878737499af107f24b7fb1ffd4c3e485c7073b0fcdfd8e689e6271ff"
+    },
+    "sha256": "0f380c605f24b93f066893692b2de0c9f176e317290e6340a1ee1382336d9d61"
+  }
+}

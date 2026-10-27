@@ -1,0 +1,28 @@
+## Per cell
+
+| Machine | Task | Outcome | Hidden tests passed | Cell wall, s | Shape, s | Build, s | Executor started in shape, build, review | Native calls in shape, in build and review |
+| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |
+| mac | `build-06` | landed | 7 of 7 | 170 | 83 | 86 | 1, 1, 1 | 0, 0 |
+| linux-b | `build-16` | landed | 10 of 10 | 167 | 63 | 104 | 1, 1, 1 | 0, 0 |
+| linux-a | `build-21` | landed | 7 of 7 | 255 | 149 | 106 | 1, 1, 1 | 0, 0 |
+
+## Grade of the shaped Intent
+
+| Machine | Scenarios | Holding on the reference solution | Failing on the starting code | Known-wrong solutions caught |
+| --- | ---: | ---: | ---: | ---: |
+| mac | 31 | 31 | 30 | 4 of 4 |
+| linux-b | 10 | 10 | 9 | 4 of 5 |
+| linux-a | 16 | 16 | 13 | 8 of 8 |
+
+## Claude Code usage as reported by Kogen (not a bill)
+
+| Machine | Role | Input tokens | of which cached | Output tokens | Claude Code's own cost estimate, USD |
+| --- | --- | ---: | ---: | ---: | ---: |
+| mac | build | 181,141 | 160,246 | 4,855 | 0.1481 |
+| mac | review | 37,713 | 0 | 1,001 | 0.3217 |
+| linux-b | build | 78,965 | 62,779 | 2,974 | 0.1007 |
+| linux-b | review | 32,360 | 12,406 | 655 | 0.1752 |
+| linux-a | build | 117,994 | 97,600 | 4,924 | 0.1406 |
+| linux-a | review | 78,177 | 38,232 | 1,076 | 0.3487 |
+
+Cells: 3; landed: 3; every hidden test passed: 3; native model calls in any role: 0.
