@@ -449,7 +449,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 raise DispatchError("pre-flight refused the probe; no cell started")
         else:
             from . import preflight  # imported here: it needs Python 3.12 (cell.py), plan and dispatch do not
-            if preflight.preflight(run_dir, tasks, out=log):
+            if preflight.preflight(run_dir, tasks, out=log, claude_code_checked=True):
                 raise DispatchError("pre-flight refused a supplied Intent; no cell started")
     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
     artifacts = {} if probing else {

@@ -74,12 +74,13 @@ def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None):
+def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_code_checked=False):
     """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only).
-    A run with a claude-code lane also needs `hosts_file`: each host's CLAUDE_CONFIG_DIR and Claude Code login are checked."""
+    A run with a claude-code lane also needs `hosts_file`: each host's CLAUDE_CONFIG_DIR and Claude Code login are checked
+    (unless the caller already did: `claude_code_checked`, as `lanes-run` does for its own hosts)."""
     exp_path = os.path.join(run_dir, "experiment.json")
     exp = experiment.load(exp_path)
-    if ccroute.uses_claude_code(exp):
+    if ccroute.uses_claude_code(exp) and not claude_code_checked:
         from . import dispatch  # the hosts file format lives there
         hosts = dispatch.load_hosts(hosts_file, exp["hosts"]) if hosts_file else None
         if ccroute.preflight(exp, hosts, out=out):

@@ -158,6 +158,16 @@ class PreflightCommand(unittest.TestCase):
     def test_no_hosts_file_refuses(self):
         self.assertEqual(self.run_preflight().returncode, 1)
 
+    def test_lanes_run_checks_the_intents_after_its_own_login_check(self):
+        from lanes import preflight
+        lines = []
+        env = {"KOGEN_LANES_HOME": self.home, "FAKE_KOGEN_TASK": test_preflight.TASK}
+        with unittest.mock.patch.dict(os.environ, env):
+            bad = preflight.preflight(self.run_dir, self.tasks, test_preflight.FAKE, out=lines.append,
+                                      claude_code_checked=True)
+        self.assertEqual(bad, 0, lines)
+        self.assertIn("task-mini x base: ok", "\n".join(lines))
+
 
 class Dispatched(unittest.TestCase):
     """`lanes-run` and `lanes-ccdry` with the stand-in lanes-cell."""
