@@ -359,7 +359,7 @@ class Plumbing(unittest.TestCase):
                                 "a5/r1/candidate": "harness", "a7/r1/baseline": "provider_error",
                                 "a8/r1/candidate": "truncation", "b1/r1/candidate": "timeout"})
         self.assertEqual(c["plumbing_counts"]["candidate"],
-                         {"timeout": 2, "provider_error": 0, "truncation": 2, "harness": 1, "cost_cap": 0})
+                         {"timeout": 2, "provider_error": 0, "truncation": 2, "harness": 1, "cost_cap": 0, "memory_cap": 0})
         train = c["splits"]["train"]
         self.assertEqual(train["candidate"]["n"], 30 - 4)  # a1, a3, a5, a8 excluded; a6 build_blocked is a task failure
         self.assertEqual(train["baseline"]["n"], 30 - 3)

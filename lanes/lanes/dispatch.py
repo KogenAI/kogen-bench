@@ -13,7 +13,7 @@ import tempfile
 import threading
 import time
 
-from . import ccroute, common, costguard, experiment, noise, plan_hashes, probe
+from . import ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe
 
 CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
@@ -114,7 +114,7 @@ def verify_inputs(run_dir, exp, tasks_dir):
 # ---- hosts ----------------------------------------------------------------------------------
 
 def load_hosts(path, names):
-    """`{name: {target, slots, root, claude_config_dir?, claude_bin?}}` for the experiment's hosts (all of the file when it names none)."""
+    """`{name: {target, slots, root, claude_config_dir?, claude_bin?, cell_memory_max?}}` for the experiment's hosts (all of the file when it names none)."""
     raw = common.read_json(path)
     names = names or sorted(raw)
     out = {}
@@ -133,6 +133,14 @@ def load_hosts(path, names):
                 if not isinstance(h[key], str) or not h[key]:
                     raise DispatchError(f"hosts file: {n}.{key} must be a non-empty string")
                 out[n][key] = h[key]
+        if "cell_memory_max" in h:  # a cap per local cell, like "4G"; absent: no cap
+            if h["target"] != "local":
+                raise DispatchError(f"hosts file: {n}.cell_memory_max applies to local hosts only")
+            try:
+                memcap.parse_size(h["cell_memory_max"])
+            except ValueError as e:
+                raise DispatchError(f"hosts file: {n}.cell_memory_max: {e}") from None
+            out[n]["cell_memory_max"] = h["cell_memory_max"]
     return out
 
 
@@ -212,8 +220,9 @@ class Runner:
         self._procs = set()
         self._lock = threading.Lock()
 
-    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False, tag=None):
-        """Return `(exit_code, output)`; exit 124 on the deadline, 130 when stopped (`force`: ignore stop)."""
+    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False, tag=None, on_start=None):
+        """Return `(exit_code, output)`; exit 124 on the deadline, 130 when stopped (`force`: ignore stop).
+        `on_start(proc)` is called once the command runs."""
         if self.stopped.is_set() and not force:
             return 130, ""
         out = subprocess.PIPE if capture else subprocess.DEVNULL
@@ -221,6 +230,8 @@ class Runner:
                                 stderr=subprocess.STDOUT, start_new_session=True)
         with self._lock:
             self._procs.add(proc)
+        if on_start:
+            on_start(proc)
         reader = []
         if capture:
             t = threading.Thread(target=lambda: reader.append(proc.stdout.read()), daemon=True)
@@ -270,6 +281,7 @@ class Host:
         # Kogen finds `claude` on PATH: the folder of claude_bin goes first on the PATH of those cells
         self.claude_dir = os.path.dirname(cfg["claude_bin"]) if cfg.get("claude_bin") else None
         self.remote = self.target != "local"
+        self.limiter = memcap.Limiter(cfg["cell_memory_max"], ctx.log, name) if cfg.get("cell_memory_max") else None
         self._lock = threading.Lock()
         self._done = set()
         self.running = set()  # cells running here now (remote hosts: the controller polls their spend)
@@ -361,6 +373,26 @@ class Host:
             usd = max(usd, c.remote_live.get(self.name, {}).get(cell, 0.0))
         self.settle(cell, usd)
 
+    def _memory_capped(self, cell, local_cell, hit):
+        """The memory cap stopped the cell: record it, and give a cell that left no result one saying so
+        (`outcome: memory_cap`, a plumbing class like a timeout). The run goes on with its next cell."""
+        c = self.ctx
+        c.log(f"{self.name}: {cell}: stopped by the memory cap ({hit['cap']} bytes, peak {hit['peak_rss']})")
+        os.makedirs(local_cell, exist_ok=True)
+        common.write_json(os.path.join(local_cell, memcap.RECORD), hit)
+        path = os.path.join(local_cell, "result.json")
+        if os.path.isfile(path):  # the cell finished before the kill
+            return
+        try:
+            with costguard.locked(c.run_dir):  # its spend moves from the workspace to this result
+                usd = costguard.cell_spend(local_cell)
+                common.write_json(path, {
+                    "cell": cell, "lane": cell.split("/")[-1], "phase": c.exp["phase"], "exit_code": None,
+                    "outcome": "memory_cap", "host": self.name, "ended": hit["at"], "memory_cap": hit,
+                    "stages": [], "totals": {"cost_usd": usd}})
+        except Exception as e:  # without the spend no result: the cell stays unfinished, as before
+            c.log(f"{self.name}: {cell}: cannot record the memory cap result ({e})")
+
     def _run_cell(self, cell, lane_artifact):
         c = self.ctx
         deadline = c.exp["deadline_s"] + MARGIN_S
@@ -374,7 +406,14 @@ class Host:
                 env = dict(os.environ, CLAUDE_CONFIG_DIR=self.claude_config_dir)
                 if self.claude_dir:
                     env["PATH"] = self.claude_dir + os.pathsep + env.get("PATH", "")
-            self.ctx.runner.run(args, deadline_s=deadline, env=env, tag=self.ctx.provider(cell))
+            guard = self.limiter.guard(cell) if self.limiter else None
+            try:
+                self.ctx.runner.run(guard.wrap(args) if guard else args, deadline_s=deadline, env=env,
+                                    tag=self.ctx.provider(cell), on_start=guard.attach if guard else None)
+            finally:
+                hit = guard.finish() if guard else None
+            if hit:
+                self._memory_capped(cell, local_cell, hit)
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
         costguard.retire(c.run_dir, cell, local_cell)  # an earlier attempt's partial dir: keep its spend
@@ -412,7 +451,8 @@ class Host:
 
 
 class Context:
-    def __init__(self, run_dir, tasks, lanes_dir, runner, exp):
+    def __init__(self, run_dir, tasks, lanes_dir, runner, exp, log=print):
+        self.log = log
         self.run_dir, self.tasks, self.lanes_dir, self.runner, self.exp = run_dir, tasks, lanes_dir, runner, exp
         self.remote_live = {}  # host name -> {cell: usd} polled from its running cells
         self.spend_lock = threading.Lock()  # remote_live and the ledger change together under it
@@ -464,7 +504,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
     runner = Runner()
     started = []
-    ctx = Context(run_dir, tasks, lanes_dir, runner, exp)
+    ctx = Context(run_dir, tasks, lanes_dir, runner, exp, log)
     hosts = [Host(n, c, ctx) for n, c in host_cfgs.items()]
     if probing and any(h.remote for h in hosts):
         raise DispatchError("probe cells run on local hosts only")

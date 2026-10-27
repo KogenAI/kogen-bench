@@ -244,7 +244,7 @@ def classify(result, log, evaluation, phase):
     if (any(e.get("provider_failure") for e in log if e.get("event") == "outcome")
             or ending.startswith("provider_failure") or ending in ("host_lost", "environment", "usage")):
         return "infrastructure"
-    if ending.startswith("interrupted") or ending in ("controller_lost", "signal", "cost_cap"):
+    if ending.startswith("interrupted") or ending in ("controller_lost", "signal", "cost_cap", "memory_cap"):
         return "incomplete"
     return "workflow_failure"  # build_blocked, no_outcome, refused, internal, timeout, questions_pending, ...
 
@@ -411,7 +411,7 @@ def apply_rule(rule, cells, lanes):
 
 # ---- plumbing and the climb rule ---------------------------------------------------------
 
-PLUMBING = ("timeout", "provider_error", "truncation", "harness", "cost_cap")
+PLUMBING = ("timeout", "provider_error", "truncation", "harness", "cost_cap", "memory_cap")
 TRUNCATION = re.compile(r"truncat\w*|context_exhausted")  # Kogen's endings (build.ex); anchored with fullmatch
 
 
@@ -421,6 +421,8 @@ def plumbing(cell):
     if isinstance(ending, str) and ending not in ("landed", "ok"):
         if ending == "cost_cap":  # the cost guard stopped the cell: not a task failure
             return "cost_cap"
+        if ending == "memory_cap":  # the host's per-cell memory cap stopped the cell
+            return "memory_cap"
         if ending.startswith("timeout"):
             return "timeout"
         if TRUNCATION.fullmatch(ending):
