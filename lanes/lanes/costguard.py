@@ -43,6 +43,7 @@ from . import common, experiment, live, usage
 HARD_FACTOR = 1.25  # hard cap = HARD_FACTOR * cost_cap_usd
 FALLBACK_TOKENS = {"input_tokens": 100_000, "cached_input_tokens": 0, "output_tokens": 20_000}
 LIVE = "live.json"    # in a running cell's dir: its workspace and the pid and start time of its lanes-cell
+STALE = "live.json.stale-finished"  # a `live.json` left beside a `result.json`, moved aside by `reap_phantoms`
 REAPED = "live.json.reaped"  # a phantom `live.json` (its process died hard), moved aside by `reap_phantoms`
 PHANTOM_REQUESTS = 5  # requests a phantom cell is assumed to have spent when nothing else is known (see `phantom_estimate`)
 SPENT = "spent.json"  # in a cell dir that stopped without result.json: what it had spent
@@ -252,11 +253,18 @@ def phantom_estimate(run_dir, ws):
 def reap_phantoms(run_dir, host=None, log=None):
     """Settle every phantom `live.json` under the run dir (`live.phantom`): write the cell's `spent.json` with
     `phantom_estimate` (unless it already has a `result.json` or `spent.json`), move `live.json` to `REAPED`, log
-    one line. One locked step per cell, judged again under the lock. Returns the cells reaped."""
+    one line. A `live.json` beside a `result.json` is moved to `STALE` (no spend change, no line). One locked step per cell, judged again under the lock. Returns the cells reaped."""
     log = log or (lambda m: print(m, file=sys.stderr))
     reaped = []
     for path in sorted(glob.glob(os.path.join(run_dir, "cells", "*", "r*", "*", LIVE))):
         cell_dir = os.path.dirname(path)
+        if os.path.isfile(os.path.join(cell_dir, "result.json")):  # finished: its live.json is a leftover, whoever owns the pid
+            with locked(run_dir):
+                try:
+                    os.replace(path, os.path.join(cell_dir, STALE))  # no spend change: result.json is the record
+                except OSError:
+                    pass  # the cell removed it itself
+            continue
         try:
             if not live.phantom(common.read_json(path)):
                 continue

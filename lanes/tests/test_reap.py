@@ -1,12 +1,15 @@
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import unittest
+from unittest import mock
 
-from lanes import common, costguard, live
+from lanes import common, costguard, dispatch, live
 from tests import test_dispatch
 from tests.test_dispatch import FAKE_LANES, entry
 
@@ -155,3 +158,81 @@ class Reap(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HostGate(unittest.TestCase):
+    """The host gate counts live cells across every run dir, after reaping the phantoms and the leftovers of all of them."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp)
+        self.runs = os.path.join(self.tmp, "runs")
+        self.capf = os.path.join(self.tmp, "host-cap")
+        self.log = []
+        nograde = mock.Mock(return_value=subprocess.CompletedProcess([], 0, stdout="", stderr=""))
+        for p in (mock.patch.object(dispatch.subprocess, "run", nograde), mock.patch.object(dispatch.os, "cpu_count", return_value=4)):
+            p.start()
+            self.addCleanup(p.stop)
+
+    def cell(self, run, name="base", info="running", result=False):
+        d = os.path.join(self.runs, run, "cells", "task-mini", "r1", name)
+        os.makedirs(d)
+        ws = os.path.join(self.tmp, f"ws-{run}-{name}")
+        os.makedirs(ws)
+        if info == "running":
+            info = live.record(ws, "h1")  # this process
+        elif info == "dead":
+            child = subprocess.Popen([sys.executable, "-c", "pass"])
+            child.wait()
+            info = {"workspace": ws, "pid": child.pid, "start": "ticks:1", "node": None}
+        common.write_json(os.path.join(d, "live.json"), info)
+        if result:
+            common.write_json(os.path.join(d, "result.json"), {})
+        return d
+
+    def gate(self, text, load=0.5):
+        with open(self.capf, "w") as f:
+            f.write(text)
+        with mock.patch.object(dispatch.os, "getloadavg", return_value=(load, 0, 0)):
+            return dispatch.gate_admits(self.runs, self.capf, "local", self.log.append)
+
+    def test_admits_below_the_cap_at_low_load_and_holds_otherwise(self):
+        self.cell("run-a")
+        self.cell("run-b")
+        self.assertTrue(self.gate("3")[0])
+        ok, live_n, *_ = self.gate("2")  # live 2 >= cap 2
+        self.assertEqual((ok, live_n), (False, 2))
+        self.assertFalse(self.gate("3", load=4.5)[0])  # load above 4 cpus x 1.0
+        self.assertTrue(self.gate("3 1.5", load=4.5)[0])  # factor 1.5: limit 6
+        self.assertFalse(self.gate("3 1.5", load=6.5)[0])
+        self.assertTrue(self.gate("0", load=1)[0])  # cap 0: only the load counts
+        self.assertEqual(self.log, [])  # nothing to reap
+
+    def test_phantom_in_another_run_does_not_block_and_is_reaped(self):
+        d = self.cell("run-other", info="dead")
+        shutil.rmtree(os.path.join(self.tmp, "ws-run-other-base"))  # no logs left to read: the upper estimate
+        self.cell("run-mine")
+        ok, live_n, *_ = self.gate("2")
+        self.assertEqual((ok, live_n), (True, 1))
+        self.assertEqual(common.read_json(os.path.join(d, "spent.json")), {"usd": 10.0})
+        self.assertTrue(os.path.isfile(os.path.join(d, "live.json.reaped")))
+        self.assertFalse(os.path.exists(os.path.join(d, "live.json")))
+        self.assertEqual(len(self.log), 1)
+        self.assertRegex(self.log[0], r"^local: reaped phantom cell task-mini/r1/base \(pid \d+ gone; ")
+
+    def test_leftover_live_json_of_a_finished_cell_is_moved_aside(self):
+        d = self.cell("run-done", result=True)  # its pid is this live process, but the cell is over
+        ok, live_n, *_ = self.gate("1")
+        self.assertEqual((ok, live_n), (True, 0))
+        self.assertTrue(os.path.isfile(os.path.join(d, "live.json.stale-finished")))
+        self.assertFalse(os.path.exists(os.path.join(d, "live.json")))
+        self.assertFalse(os.path.exists(os.path.join(d, "spent.json")))  # no spend change
+        self.assertEqual(self.log, [])
+
+    def test_a_running_cell_in_another_run_still_counts(self):
+        d = self.cell("run-other")
+        self.cell("run-mine")
+        ok, live_n, *_ = self.gate("2")
+        self.assertEqual((ok, live_n), (False, 2))
+        self.assertEqual(sorted(os.listdir(d)), ["live.json"])  # not reaped
+        self.assertEqual(self.log, [])

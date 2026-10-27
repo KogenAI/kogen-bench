@@ -1,6 +1,8 @@
 """Plan the cells of an experiment and run them across hosts (local or over ssh)."""
 
 import argparse
+import fcntl
+import glob
 import hashlib
 import json
 import os
@@ -22,6 +24,44 @@ LANES_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # the `
 
 class DispatchError(RuntimeError):
     pass
+
+
+# ---- host gate ------------------------------------------------------------------------------
+
+def host_live(runs, host_name, log):
+    """Live cells on this machine: every `<runs>/*/cells/*/*/*/live.json` plus each running `lanes-grade` (grading runs
+    test suites outside the cells). First reaps the phantoms of every run dir under `runs`, not only this run's, so
+    a cell that died hard in another run does not hold a place."""
+    for run in sorted({p.split(os.sep + "cells" + os.sep)[0] for p in glob.glob(os.path.join(runs, "*", "cells", "*", "*", "*", "live.json"))}):
+        try:
+            costguard.reap_phantoms(run, host_name, log)
+        except Exception as e:  # what is still unreadable counts as live
+            log(f"{host_name}: cannot reap phantom cells of {os.path.basename(run)} ({e})")
+    live = len(glob.glob(os.path.join(runs, "*", "cells", "*", "*", "*", "live.json")))
+    try:
+        live += len(subprocess.run(["pgrep", "-f", "bin/lanes-grade"], capture_output=True, text=True).stdout.split())
+    except OSError:
+        pass
+    return live
+
+
+def read_host_cap(capf):
+    """`(cap, load factor)` from the host-cap file "<cap> [<load factor>]"; cap 0 is no cap; factor defaults to 1.0."""
+    try:
+        parts = open(capf).read().split()
+        return (int(parts[0]) if parts else 0), (float(parts[1]) if len(parts) > 1 else 1.0)
+    except (OSError, ValueError):
+        return 0, 1.0
+
+
+def gate_admits(runs, capf, host_name, log):
+    """`(admit, live, load, ncpu, factor, cap)`: one look at the gate. Admit while live < cap (cap 0: no cap) and the
+    1-minute load is at most CPUs x factor."""
+    ncpu = os.cpu_count() or 1
+    cap, factor = read_host_cap(capf)
+    live = host_live(runs, host_name, log)
+    load = os.getloadavg()[0]
+    return ((not cap or live < cap) and load <= ncpu * factor), live, load, ncpu, factor, cap
 
 
 # ---- plan -----------------------------------------------------------------------------------
@@ -616,8 +656,37 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             if last:  # the host's last slot is done: release the host now, not when all hosts end
                 unlock(host)
 
+    gate_lock = threading.Lock()
+
+    def host_gate(host):
+        """Host gate: before a local slot takes its next cell, wait while this machine's 1-minute load exceeds its CPU
+        count x the factor, or while its live cells across all runs reach the cap in `<runs>/../host-cap` (see
+        FORMATS.md; no file: no gate). One admission at a time, then a short settle so the new cell's live.json is
+        counted by the next sibling."""
+        if host.target != "local":
+            return
+        runs = os.path.dirname(os.path.abspath(run_dir))
+        capf = os.path.join(os.path.dirname(runs), "host-cap")
+        if not os.path.exists(capf):  # opt-in: only hosts with a host-cap file are gated
+            return
+        said = False
+        with gate_lock, open(capf + ".lock", "a") as lockf:  # host-wide: one admission at a time across all runs
+            fcntl.flock(lockf, fcntl.LOCK_EX)
+            while not runner.stopped.is_set():
+                ok, live, load, ncpu, factor, cap = gate_admits(runs, capf, host.name, log)
+                if ok:
+                    runner.stopped.wait(20)
+                    return
+                if not said:
+                    log(f"{host.name}: holding the next cell (load {load:.1f} > {ncpu} cpus x {factor}, or live {live} >= cap {cap or 'none'})")
+                    said = True
+                runner.stopped.wait(30)
+
     def cell_loop(host):
         while not runner.stopped.is_set():
+            host_gate(host)
+            if runner.stopped.is_set():
+                return
             c = next_cell(host)
             if c is None:
                 return
