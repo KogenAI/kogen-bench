@@ -1,21 +1,23 @@
 ## Cells and passes, as run
 
-| Machine | Arm | Cells | Passed every hidden test |
-| --- | --- | ---: | ---: |
-| m1 | native | 34 | 32 |
-| m1 | cc | 34 | 32 |
-| m2 | native | 50 | 46 |
-| m2 | cc | 50 | 48 |
-| m3 | native | 26 | 24 |
-| m3 | cc | 26 | 24 |
-| m4 | native | 10 | 4 |
-| m4 | cc | 11 | 5 |
-| all | native | 120 | 106 |
-| all | cc | 121 | 109 |
+| Machine | Arm | Cells | Passed every hidden test | Cells without plumbing cells | Passed, of those |
+| --- | --- | ---: | ---: | ---: | ---: |
+| m1 | native | 34 | 32 | 34 | 32 |
+| m1 | cc | 34 | 32 | 34 | 32 |
+| m2 | native | 67 | 63 | 67 | 63 |
+| m2 | cc | 66 | 63 | 66 | 63 |
+| m3 | native | 50 | 40 | 46 | 40 |
+| m3 | cc | 50 | 40 | 44 | 40 |
+| m4 | native | 24 | 18 | 24 | 18 |
+| m4 | cc | 24 | 18 | 24 | 18 |
+| all | native | 175 | 153 | 171 | 153 |
+| all | cc | 174 | 153 | 168 | 153 |
 
-Cells without a partner (the other arm's cell with the same task, machine and repetition never finished): build-08/r1/cc-m4. Pairs: 120.
+Cells without a partner (the other arm's cell with the same task, machine and repetition never finished): build-19/r3/native-m2. Pairs: 174.
 
-Void groups (a task and machine where the start check failed before the build in every cell of both arms): build-10 on m3 (4 cells).
+Plumbing cells (stopped outside the model's work; reason, machine, arm: cells): start_check_failed on m3 (cc): 6; start_check_failed on m3 (native): 4. Total 10 of 349 cells; 6 of 174 pairs lose a cell to them.
+
+Extra executor repetitions (executor cells with no native partner by design): 36 cells, 32 passed, 1 plumbing.
 
 ## Per task (pairs only, all machines pooled)
 
@@ -28,87 +30,115 @@ Void groups (a task and machine where the start check failed before the build in
 | `build-05` | m1+m2 | 11 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
 | `build-06` | m1+m2 | 7 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
 | `build-07` | m1+m2 | 10 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-08` | m1+m3 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-08` | m1+m2+m3+m4 | 11 | 14 | 14 | 13 | native | 100.0% | 92.9% |
 | `build-09` | m1+m2 | 7 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-10` | m1+m3 | 962 | 4 | 2 | 2 | tie | 50.0% | 50.0% |
-| `build-11` | m1+m3 | 12 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-10` | m1+m3 | 962 | 6 | 2 | 2 | tie | 33.3% | 33.3% |
+| `build-11` | m1+m2+m3+m4 | 12 | 14 | 14 | 14 | tie | 100.0% | 100.0% |
 | `build-12` | m2 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
 | `build-13` | m1+m2 | 9 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
 | `build-14` | m1+m2 | 15 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-15` | m1+m3 | 389 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-16` | m1+m3+m4 | 10 | 8 | 8 | 8 | tie | 100.0% | 100.0% |
+| `build-15` | m1+m3 | 389 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-16` | m1+m2+m3+m4 | 10 | 14 | 14 | 14 | tie | 100.0% | 100.0% |
 | `build-17` | m2 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
-| `build-18` | m1+m3 | 900 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-19` | m1+m3 | 9 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
-| `build-20` | m1+m3 | 9 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-18` | m1+m3 | 900 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-19` | m1+m2+m3+m4 | 9 | 12 | 12 | 12 | tie | 100.0% | 100.0% |
+| `build-20` | m1+m2+m3+m4 | 9 | 12 | 12 | 12 | tie | 100.0% | 100.0% |
 | `build-21` | m2 | 7 | 6 | 5 | 6 | cc | 83.3% | 100.0% |
-| `build-22` | m1+m4 | 17 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
-| `build-23` | m1+m4 | 66 | 4 | 0 | 0 | tie | 90.9% | 92.4% |
-| `build-24` | m4 | 97 | 2 | 0 | 0 | tie | 73.2% | 73.2% |
-| `build-25` | m4 | 33 | 2 | 0 | 0 | tie | 92.4% | 90.9% |
+| `build-22` | m1+m3+m4 | 17 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-23` | m1+m3+m4 | 66 | 6 | 0 | 0 | tie | 90.9% | 92.4% |
+| `build-24` | m3+m4 | 97 | 4 | 0 | 0 | tie | 80.2% | 73.2% |
+| `build-25` | m3+m4 | 33 | 4 | 0 | 0 | tie | 79.5% | 91.7% |
+| `build-26` | m4 | 85 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-27` | m4 | 1305 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-29` | m4 | 597 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
 
 ## Sign test over tasks
 
-Sign test, all tasks, as run: 25 tasks, 120 pairs; cc favoured on 2 tasks, native on 0, ties 23; pair passes native 106/120 = 0.883, cc 108/120 = 0.900; one-sided p (cc better) 0.2500, (native better) 1.0000.
-Sign test, without the void groups: 25 tasks, 118 pairs; cc favoured on 2 tasks, native on 0, ties 23; pair passes native 106/118 = 0.898, cc 108/118 = 0.915; one-sided p (cc better) 0.2500, (native better) 1.0000.
+Sign test, all tasks, as run: 28 tasks, 174 pairs; cc favoured on 2 tasks, native on 1, ties 25; pair passes native 152/174 = 0.874, cc 153/174 = 0.879; one-sided p (cc better) 0.5000, (native better) 0.8750.
+Sign test, without the plumbing cells: 28 tasks, 168 pairs; cc favoured on 2 tasks, native on 1, ties 25; pair passes native 152/168 = 0.905, cc 153/168 = 0.911; one-sided p (cc better) 0.5000, (native better) 0.8750.
 
 Per machine (the tasks that ran on that machine, its own pairs only):
 
-Sign test, machine m1, without the void groups: 17 tasks, 34 pairs; cc favoured on 0 tasks, native on 0, ties 17; pair passes native 32/34 = 0.941, cc 32/34 = 0.941; one-sided p (cc better) 1.0000, (native better) 1.0000.
-Sign test, machine m2, without the void groups: 13 tasks, 50 pairs; cc favoured on 2 tasks, native on 0, ties 11; pair passes native 46/50 = 0.920, cc 48/50 = 0.960; one-sided p (cc better) 0.2500, (native better) 1.0000.
-Sign test, machine m3, without the void groups: 7 tasks, 24 pairs; cc favoured on 0 tasks, native on 0, ties 7; pair passes native 24/24 = 1.000, cc 24/24 = 1.000; one-sided p (cc better) 1.0000, (native better) 1.0000.
-Sign test, machine m4, without the void groups: 5 tasks, 10 pairs; cc favoured on 0 tasks, native on 0, ties 5; pair passes native 4/10 = 0.400, cc 4/10 = 0.400; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m1, as run: 17 tasks, 34 pairs; cc favoured on 0 tasks, native on 0, ties 17; pair passes native 32/34 = 0.941, cc 32/34 = 0.941; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m2, as run: 18 tasks, 66 pairs; cc favoured on 2 tasks, native on 1, ties 15; pair passes native 62/66 = 0.939, cc 63/66 = 0.955; one-sided p (cc better) 0.5000, (native better) 0.8750.
+Sign test, machine m3, as run: 12 tasks, 50 pairs; cc favoured on 0 tasks, native on 0, ties 12; pair passes native 40/50 = 0.800, cc 40/50 = 0.800; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m4, as run: 12 tasks, 24 pairs; cc favoured on 0 tasks, native on 0, ties 12; pair passes native 18/24 = 0.750, cc 18/24 = 0.750; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m1, without the plumbing cells: 17 tasks, 34 pairs; cc favoured on 0 tasks, native on 0, ties 17; pair passes native 32/34 = 0.941, cc 32/34 = 0.941; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m2, without the plumbing cells: 18 tasks, 66 pairs; cc favoured on 2 tasks, native on 1, ties 15; pair passes native 62/66 = 0.939, cc 63/66 = 0.955; one-sided p (cc better) 0.5000, (native better) 0.8750.
+Sign test, machine m3, without the plumbing cells: 10 tasks, 44 pairs; cc favoured on 0 tasks, native on 0, ties 10; pair passes native 40/44 = 0.909, cc 40/44 = 0.909; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m4, without the plumbing cells: 12 tasks, 24 pairs; cc favoured on 0 tasks, native on 0, ties 12; pair passes native 18/24 = 0.750, cc 18/24 = 0.750; one-sided p (cc better) 1.0000, (native better) 1.0000.
 
 ## Cells that did not pass every hidden test
 
-| Cell | Outcome | Hidden tests passed |
-| --- | --- | ---: |
-| `build-02/r2/native-m2` | landed | 0 of 11 |
-| `build-02/r3/cc-m2` | landed | 0 of 11 |
-| `build-02/r4/native-m2` | landed | 0 of 11 |
-| `build-02/r5/cc-m2` | landed | 0 of 11 |
-| `build-02/r6/native-m2` | landed | 0 of 11 |
-| `build-10/r1/cc-m3` | check_failing | 0 of 962 |
-| `build-10/r1/native-m3` | check_failing | 0 of 962 |
-| `build-10/r2/cc-m3` | check_failing | 0 of 962 |
-| `build-10/r2/native-m3` | check_failing | 0 of 962 |
-| `build-21/r1/native-m2` | landed | 0 of 7 |
-| `build-23/r1/cc-m1` | landed | 61 of 66 |
-| `build-23/r1/cc-m4` | landed | 61 of 66 |
-| `build-23/r1/native-m1` | landed | 60 of 66 |
-| `build-23/r1/native-m4` | landed | 59 of 66 |
-| `build-23/r2/cc-m1` | landed | 61 of 66 |
-| `build-23/r2/cc-m4` | landed | 61 of 66 |
-| `build-23/r2/native-m1` | landed | 61 of 66 |
-| `build-23/r2/native-m4` | landed | 60 of 66 |
-| `build-24/r1/cc-m4` | timeout | 71 of 97 |
-| `build-24/r1/native-m4` | timeout | 71 of 97 |
-| `build-24/r2/cc-m4` | timeout | 71 of 97 |
-| `build-24/r2/native-m4` | timeout | 71 of 97 |
-| `build-25/r1/cc-m4` | landed | 30 of 33 |
-| `build-25/r1/native-m4` | landed | 30 of 33 |
-| `build-25/r2/cc-m4` | landed | 30 of 33 |
-| `build-25/r2/native-m4` | landed | 31 of 33 |
+| Cell | Outcome | Plumbing reason | Hidden tests passed |
+| --- | --- | --- | ---: |
+| `build-02/r2/native-m2` | landed |  | 0 of 11 |
+| `build-02/r3/cc-m2` | landed |  | 0 of 11 |
+| `build-02/r4/native-m2` | landed |  | 0 of 11 |
+| `build-02/r5/cc-m2` | landed |  | 0 of 11 |
+| `build-02/r6/native-m2` | landed |  | 0 of 11 |
+| `build-02/r7/cc-m2` | landed |  | 0 of 11 |
+| `build-02/r8/cc-m2` | landed |  | 0 of 11 |
+| `build-03/r8/cc-m2` | invalid_response |  | 0 of 10 |
+| `build-08/r2/cc-m2` | timeout |  | 0 of 11 |
+| `build-08/r3/cc-m4` | memory_cap | memory_cap | 0 of 0 |
+| `build-10/r1/cc-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r1/native-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r2/cc-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r2/native-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r3/cc-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r3/native-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r4/cc-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-10/r4/native-m3` | check_failing | start_check_failed | 0 of 962 |
+| `build-21/r1/native-m2` | landed |  | 0 of 7 |
+| `build-23/r1/cc-m1` | landed |  | 61 of 66 |
+| `build-23/r1/cc-m3` | landed |  | 61 of 66 |
+| `build-23/r1/cc-m4` | landed |  | 61 of 66 |
+| `build-23/r1/native-m1` | landed |  | 60 of 66 |
+| `build-23/r1/native-m3` | landed |  | 60 of 66 |
+| `build-23/r1/native-m4` | landed |  | 59 of 66 |
+| `build-23/r2/cc-m1` | landed |  | 61 of 66 |
+| `build-23/r2/cc-m3` | landed |  | 61 of 66 |
+| `build-23/r2/cc-m4` | landed |  | 61 of 66 |
+| `build-23/r2/native-m1` | landed |  | 61 of 66 |
+| `build-23/r2/native-m3` | landed |  | 60 of 66 |
+| `build-23/r2/native-m4` | landed |  | 60 of 66 |
+| `build-24/r1/cc-m3` | check_failing | start_check_failed | 71 of 97 |
+| `build-24/r1/cc-m4` | timeout |  | 71 of 97 |
+| `build-24/r1/native-m3` | landed |  | 85 of 97 |
+| `build-24/r1/native-m4` | timeout |  | 71 of 97 |
+| `build-24/r2/cc-m3` | check_failing | start_check_failed | 71 of 97 |
+| `build-24/r2/cc-m4` | timeout |  | 71 of 97 |
+| `build-24/r2/native-m3` | landed |  | 84 of 97 |
+| `build-24/r2/native-m4` | timeout |  | 71 of 97 |
+| `build-25/r1/cc-m3` | landed |  | 30 of 33 |
+| `build-25/r1/cc-m4` | landed |  | 30 of 33 |
+| `build-25/r1/native-m3` | landed |  | 31 of 33 |
+| `build-25/r1/native-m4` | landed |  | 30 of 33 |
+| `build-25/r2/cc-m3` | landed |  | 31 of 33 |
+| `build-25/r2/cc-m4` | landed |  | 30 of 33 |
+| `build-25/r2/native-m3` | baseline_changed |  | 13 of 33 |
+| `build-25/r2/native-m4` | landed |  | 31 of 33 |
 
 ## Wall time (seconds per cell; build stage is the build command)
 
 | Set | Arm | Cells | Median cell | Sum, cell | Median build | Sum, build |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| all cells | native | 120 | 172 | 42,850 | 158 | 40,033 |
-| all cells | cc | 121 | 180 | 42,451 | 164 | 39,480 |
-| without the void groups | native | 118 | 174 | 42,764 | 159 | 39,980 |
-| without the void groups | cc | 119 | 180 | 42,388 | 166 | 39,452 |
-| machine m1, without the void groups | native | 34 | 140 | 10,559 | 134 | 9,972 |
-| machine m1, without the void groups | cc | 34 | 142 | 10,897 | 136 | 10,339 |
-| machine m2, without the void groups | native | 50 | 180 | 8,847 | 164 | 8,145 |
-| machine m2, without the void groups | cc | 50 | 184 | 9,380 | 173 | 8,661 |
-| machine m3, without the void groups | native | 24 | 134 | 7,419 | 122 | 6,919 |
-| machine m3, without the void groups | cc | 24 | 161 | 6,495 | 147 | 5,921 |
-| machine m4, without the void groups | native | 10 | 1,470 | 15,940 | 1,393 | 14,943 |
-| machine m4, without the void groups | cc | 11 | 1,127 | 15,617 | 981 | 14,530 |
+| all cells | native | 175 | 179 | 71,755 | 163 | 67,553 |
+| all cells | cc | 174 | 182 | 67,877 | 170 | 62,997 |
+| without the plumbing cells | native | 171 | 180 | 71,600 | 164 | 67,461 |
+| without the plumbing cells | cc | 168 | 182 | 66,136 | 172 | 61,692 |
+| machine m1, without the plumbing cells | native | 34 | 140 | 10,559 | 134 | 9,972 |
+| machine m1, without the plumbing cells | cc | 34 | 142 | 10,897 | 136 | 10,339 |
+| machine m2, without the plumbing cells | native | 67 | 180 | 14,063 | 164 | 13,069 |
+| machine m2, without the plumbing cells | cc | 66 | 184 | 16,267 | 173 | 15,248 |
+| machine m3, without the plumbing cells | native | 46 | 160 | 26,852 | 149 | 25,436 |
+| machine m3, without the plumbing cells | cc | 44 | 172 | 18,527 | 157 | 16,860 |
+| machine m4, without the plumbing cells | native | 24 | 377 | 20,126 | 311 | 18,984 |
+| machine m4, without the plumbing cells | cc | 24 | 385 | 20,445 | 354 | 19,245 |
 
-Per-task median cell wall time ratio, cc over native (all cells of the task, void groups left out):
-median 1.07, cc faster on 7 of 25 tasks, slower on 18.
+Per-task median cell wall time ratio, cc over native (all cells of the task, plumbing cells left out):
+median 1.08, cc faster on 7 of 28 tasks, slower on 21.
 
 ## Build tokens and cost (build stage only; the Opus review is native in both arms)
 
@@ -116,18 +146,52 @@ Native: Kogen's own request log, list prices. cc: harness-reported tokens from K
 
 | Set | Arm | Cells | Median input | Median output | Sum input | Sum output | Sum cost, USD | Median cost, USD |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| all cells with a build | native | 118 | 48,634 | 3,692 | 97,639,372 | 1,099,588 | 40.92 | 0.065 |
-| all cells with a build | cc | 117 | 139,061 | 4,862 | 115,616,986 | 1,201,340 | 39.06 | 0.127 |
+| all cells with a build, plumbing cells left out | native | 171 | 51,163 | 3,930 | 168,929,523 | 1,852,077 | 69.22 | 0.071 |
+| all cells with a build, plumbing cells left out | cc | 165 | 139,744 | 5,036 | 189,834,742 | 1,919,618 | 62.68 | 0.126 |
 
-Per-task ratio of median build tokens, cc over native (24 tasks): input median 2.33, cc higher on 24; output median 1.31, cc higher on 24.
+Per-task ratio of median build tokens, cc over native (27 tasks): input median 2.15, cc higher on 27; output median 1.31, cc higher on 27.
 
 ## Review (Opus 5.5 medium, native in both arms), list price
 
 | Arm | Cells reviewed | Sum input | Sum output | Sum cost, USD | Median cost, USD |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| native | 116 | 20,897,165 | 410,286 | 35.76 | 0.139 |
-| cc | 118 | 19,328,612 | 368,239 | 37.37 | 0.144 |
+| native | 168 | 40,636,637 | 637,842 | 62.97 | 0.155 |
+| cc | 167 | 36,616,235 | 559,264 | 62.11 | 0.146 |
 
 ## Native arm, list-price cost per cell (build plus review)
 
-120 cells: sum 76.68 USD, median 0.204 USD, mean 0.639 USD.
+171 cells: sum 132.19 USD, median 0.229 USD, mean 0.773 USD.
+
+## Extra executor repetitions (executor arm only, no native partner; not in the sign test)
+
+Per task: the executor cells of the paired design (plumbing cells left out) against the extra repetitions (plumbing cells left out). Wall time is the whole cell.
+
+| Task | Paired-design executor cells | Passed | Extra cells | Passed | Plumbing cells among extra | Median cell wall, extra | Median cell wall, paired-design |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `build-01` | 4 | 4 | 2 | 2 | 0 | 375 | 277 |
+| `build-02` | 6 | 4 | 2 | 0 | 0 | 217 | 191 |
+| `build-03` | 6 | 6 | 2 | 1 | 0 | 234 | 185 |
+| `build-04` | 6 | 6 | 2 | 2 | 0 | 188 | 165 |
+| `build-05` | 4 | 4 | 2 | 2 | 0 | 143 | 131 |
+| `build-06` | 4 | 4 | 2 | 2 | 0 | 271 | 159 |
+| `build-07` | 4 | 4 | 2 | 2 | 0 | 251 | 128 |
+| `build-08` | 14 | 13 | 1 | 1 | 1 | 201 | 189 |
+| `build-09` | 4 | 4 | 2 | 2 | 0 | 337 | 117 |
+| `build-11` | 14 | 14 | 2 | 2 | 0 | 109 | 132 |
+| `build-12` | 6 | 6 | 2 | 2 | 0 | 223 | 183 |
+| `build-13` | 4 | 4 | 2 | 2 | 0 | 477 | 207 |
+| `build-14` | 4 | 4 | 2 | 2 | 0 | 270 | 176 |
+| `build-16` | 14 | 14 | 2 | 2 | 0 | 124 | 128 |
+| `build-17` | 6 | 6 | 2 | 2 | 0 | 227 | 183 |
+| `build-19` | 12 | 12 | 2 | 2 | 0 | 177 | 172 |
+| `build-20` | 12 | 12 | 2 | 2 | 0 | 139 | 130 |
+| `build-21` | 6 | 6 | 2 | 2 | 0 | 278 | 156 |
+
+| Machine | Extra cells | Plumbing | Passed (of the rest) | Median cell wall |
+| --- | ---: | ---: | ---: | ---: |
+| m2 | 26 | 0 | 23 of 26 | 251 |
+| m4 | 10 | 1 | 9 of 9 | 138 |
+
+Median cell wall time of the extra cells 238 s against 172 s for the paired-design executor cells on the same tasks. The machines differ (the extra repetitions ran on three machines at other times), so this is a rough comparison.
+
+All extra cells: 36; plumbing 1; passed 32 of 35. The executor cells of the paired design on the same tasks (plumbing left out): 127 of 130.
