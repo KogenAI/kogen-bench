@@ -72,6 +72,7 @@ run_build() {
     label=$1
     build_home=$2
     build_cache=$3
+    script=$4
     log=$scratch/$label.log
     printf 'Cloudflare build (%s HOME): ' "$label"
     if (cd "$clone" && env -i \
@@ -81,9 +82,10 @@ run_build() {
         MISE_DATA_DIR="$mise_data_dir" \
         MISE_STATE_DIR="$scratch/mise-state" \
         CHECK_NPM_CACHE="$check_npm_cache" \
+        NPM_SCRIPT="$script" \
         npm_config_cache="$build_cache" \
         "$mise_bin" exec "node@$node_version" "python@$python_version" -- \
-        sh -c 'cd site && if [ -n "$CHECK_NPM_CACHE" ]; then npm ci --offline --cache "$CHECK_NPM_CACHE"; else npm ci; fi || exit 41; npm run release || exit 42') >"$log" 2>&1; then
+        sh -c 'cd site && if [ -n "$CHECK_NPM_CACHE" ]; then npm ci --offline --cache "$CHECK_NPM_CACHE"; else npm ci; fi || exit 41; npm run "$NPM_SCRIPT" || exit 42') >"$log" 2>&1; then
         echo PASS
     else
         status=$?
@@ -99,7 +101,7 @@ run_build() {
                     echo 'FAIL (site finalization)'
                 elif grep -Fq 'astro build' "$log"; then
                     echo 'FAIL (Astro build)'
-                elif grep -Fq 'npm run build' "$log"; then
+                elif [ "$script" = build ] || grep -Fq 'npm run build' "$log"; then
                     echo 'FAIL (site preparation)'
                 else
                     echo 'FAIL (release validation)'
@@ -116,7 +118,8 @@ npm_cache=${check_npm_cache:-$scratch/npm-cache}
 mkdir -p "$npm_cache"
 mkdir -m 700 "$empty_home"
 empty_status=0
-run_build empty "$empty_home" "$npm_cache" || empty_status=1
+# the release check runs once per commit (with the first build); the second HOME setup only builds
+run_build empty "$empty_home" "$npm_cache" release || empty_status=1
 
 restricted_parent=$scratch/restricted-parent
 mkdir -m 700 "$restricted_parent"
@@ -124,5 +127,5 @@ restricted_home=$restricted_parent/home
 mkdir -m 700 "$restricted_home"
 chmod 000 "$restricted_parent"
 restricted_status=0
-run_build restricted "$restricted_home" "$npm_cache" || restricted_status=1
+run_build restricted "$restricted_home" "$npm_cache" build || restricted_status=1
 [ "$empty_status" -eq 0 ] && [ "$restricted_status" -eq 0 ]

@@ -137,8 +137,9 @@ On the MacBook checked for this recovery, Ruby 3.4.8 and Bundler 2.7.2 are avail
 1. Commit the completed change.
 2. When you push, the pre-push hook runs
    `reproduce/check-like-cloudflare.sh <commit>` for the exact commit being
-   pushed. Locally, it makes a fresh clone and runs the Pages release with an
-   empty HOME and with HOME below a locked parent.
+   pushed. Locally, it makes a fresh clone and runs the Pages release (the
+   release check, then the build) with an empty HOME, and the build alone with
+   HOME below a locked parent, so the release check runs once per commit.
 3. The hook runs that same script for the same commit on a Linux host as a
    non-root user, using the pinned Node and Python versions and a prepared npm
    cache.
