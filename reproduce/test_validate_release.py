@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import unittest
+from unittest import mock
 from datetime import date
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from validate_release import (
     round_date,
     validate_historical_inventory,
 )
+from round_cache import RoundCache
 
 
 class ReleasePolicyTest(unittest.TestCase):
@@ -373,6 +375,66 @@ class ReleasePolicyTest(unittest.TestCase):
             with contextlib.redirect_stdout(output), self.assertRaises(SystemExit):
                 release_main(root, records_override=[{}], validate_override=lambda *_args, **_kwargs: report)
             self.assertIn("sample is VALID but has 1 missing Standard capture fields", output.getvalue())
+
+
+class RoundCacheTest(unittest.TestCase):
+    def setUp(self):
+        from tempfile import TemporaryDirectory
+
+        self.temp = TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.repo = Path(self.temp.name) / "repo"
+        (self.repo / "reproduce").mkdir(parents=True)
+        (self.repo / "rounds/a").mkdir(parents=True)
+        (self.repo / "reproduce/v.py").write_text("x = 1\n")
+        (self.repo / "rounds/a/README.md").write_text("one\n")
+        self.cache = str(Path(self.temp.name) / "cache")
+        self.git("init", "-q")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "Add a")
+        env = mock.patch.dict(os.environ, {"KOGEN_VALIDATE_CACHE": self.cache})
+        env.start()
+        self.addCleanup(env.stop)
+
+    def git(self, *args):
+        # A throwaway repo isolated from the user's Git config, hooks and signing.
+        env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
+               "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t" + "@" + "example.invalid",
+               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t" + "@" + "example.invalid"}
+        subprocess.run(["git", *args], cwd=self.repo, check=True, capture_output=True, env=env)
+
+    def test_pass_is_reused_until_tree_or_validator_changes(self):
+        first = RoundCache(self.repo)
+        self.assertIsNone(first.lookup("a"))
+        first.record_pass("a", {"files": 1})
+        self.assertEqual(RoundCache(self.repo).lookup("a"), {"files": 1})
+        (self.repo / "reproduce/v.py").write_text("x = 2\n")
+        self.assertIsNone(RoundCache(self.repo).lookup("a"))
+
+    def test_dirty_round_is_never_cached(self):
+        RoundCache(self.repo).record_pass("a", {"files": 1})
+        (self.repo / "rounds/a/README.md").write_text("two\n")
+        dirty = RoundCache(self.repo)
+        self.assertIsNone(dirty.lookup("a"))
+        dirty.record_pass("a", {"files": 1})
+        self.git("checkout", "--", "rounds/a/README.md")
+        (self.repo / "rounds/a/extra.txt").write_text("new\n")
+        self.assertIsNone(RoundCache(self.repo).lookup("a"))
+
+    def test_committed_change_misses(self):
+        RoundCache(self.repo).record_pass("a", {"files": 1})
+        (self.repo / "rounds/a/README.md").write_text("two\n")
+        self.git("commit", "-qam", "Edit a")
+        self.assertIsNone(RoundCache(self.repo).lookup("a"))
+
+    def test_off_and_unwritable_mean_full_check(self):
+        RoundCache(self.repo).record_pass("a", {"files": 1})
+        with mock.patch.dict(os.environ, {"KOGEN_VALIDATE_CACHE": "off"}):
+            self.assertIsNone(RoundCache(self.repo).lookup("a"))
+        blocker = Path(self.temp.name) / "file"
+        blocker.write_text("")
+        with mock.patch.dict(os.environ, {"KOGEN_VALIDATE_CACHE": str(blocker / "sub")}):
+            self.assertIsNone(RoundCache(self.repo).lookup("a"))
 
 
 if __name__ == "__main__":

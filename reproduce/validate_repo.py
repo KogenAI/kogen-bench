@@ -1375,22 +1375,40 @@ for error in audit_r70_completeness(ROOT):check(False,error)
 validate_markdown_links()
 links=sum(len(re.findall(r'\]\(([^)]+)\)',page.read_text())) for page in public_markdown_files())
 files=0
+from round_cache import RoundCache
+round_cache=RoundCache(ROOT)
+round_scan={}
 for f in repository_files():
     if unregistered_round_path(f):continue
     if '.git' in f.parts or '__pycache__' in f.parts:continue
+    parts=f.relative_to(ROOT).parts
+    rid=parts[1] if len(parts)>2 and parts[0]=='rounds' else None
+    if rid is not None and rid not in round_scan:
+        hit=round_cache.lookup(rid)
+        round_scan[rid]={'hit':bool(hit),'files':hit['files'] if hit else 0,'failed':False}
+        if hit:files+=hit['files']
+    state=round_scan.get(rid)
+    if state and state['hit']:continue
+    before=len(errors)
     if f.is_symlink():
         check(False,'Symlink '+str(f.relative_to(ROOT)))
-        continue
-    if not f.is_file():continue
-    if private_or_sealed_path(f):
-        if (f.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in f.parts)) and not published_hidden_allowed(f,ROOT):
-            check(False,'Forbidden artifact '+str(f.relative_to(ROOT)))
-        continue
-    files+=1
-    text=f.read_text(errors='replace')
-    relative=f.relative_to(ROOT).as_posix()
-    for finding in publication_scan_findings(text,relative):
-        check(False,'Publication scan ('+finding+') in '+relative)
+    elif f.is_file():
+        if private_or_sealed_path(f):
+            if (f.name.lower() in SENSITIVE_FILENAMES or any(part.lower() in {'sealed','author-private','author_private'} for part in f.parts)) and not published_hidden_allowed(f,ROOT):
+                check(False,'Forbidden artifact '+str(f.relative_to(ROOT)))
+        else:
+            files+=1
+            if state:state['files']+=1
+            text=f.read_text(errors='replace')
+            relative=f.relative_to(ROOT).as_posix()
+            for finding in publication_scan_findings(text,relative):
+                check(False,'Publication scan ('+finding+') in '+relative)
+    if state and len(errors)>before:state['failed']=True
+for rid,state in round_scan.items():
+    if state['hit']:round_cache.cached+=1
+    else:
+        round_cache.checked+=1
+        if not state['failed']:round_cache.record_pass(rid,{'files':state['files']})
 # Register and status consistency (added 6 Oct 2026): every round directory is indexed and listed,
 # the register status equals the page status, a page has one status, and summaries do not contradict it.
 STATUSES='VALID|CONFOUNDED|INVALID|INTERIM|WITHDRAWN|NOT-RUN|DESCRIPTIVE|INCOMPLETE|PILOT'
@@ -1607,6 +1625,7 @@ for relative,size in oversized:
     errors.append(f'Committed file exceeds {limit//1_000_000} MB: {relative} ({size} bytes)')
 if errors:raise SystemExit('\n'.join(sorted(set(errors))))
 print(f'Validated {len(rounds)} round pages, {len(tasks)} task records, {len(rows)} matching CSV/JSONL rows, {pass_table_groups} table pass-count groups, {links} authored links and {files} files; pass-count self-test passed; no privacy/forbidden-artifact failures; remote configuration not inspected.')
+print(round_cache.note())
 for gate in sorted(resolved_gates):
     print('PUBLICATION GATE RESOLVED: '+gate)
 for blocker in sorted(set(blockers)):
