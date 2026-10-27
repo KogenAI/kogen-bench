@@ -25,6 +25,10 @@ Environment:
                       review, plan are unknown keys), and a build logs `stage_pass` events and `pass` events with the tree
   FAKE_KOGEN_REVIEW_EDITS  non-empty: the review edits the green candidate, so the review and commit
                       trees differ from the tree the `pass` events name
+  FAKE_KOGEN_EXECUTOR honor (default) | fallback: a build role whose project.yaml names `executor: claude-code`
+                      logs the executor events (executor_started, executor_round_started,
+                      executor_round_ended; no `request` for it) like Kogen a54aa260; fallback ignores the
+                      executor and logs the native `request`, as a Kogen that did not start it would
   FAKE_KOGEN_TASK     task folder whose reference/ and wrong/ the build copies
                       (default: fixtures/task-mini next to this script)
 """
@@ -119,10 +123,18 @@ def read_models(root):
     path = os.path.join(root, ".kogen", "project.yaml")
     if os.path.exists(path):
         for line in read(path).splitlines():
-            m = re.match(r"^\s+(shape|build|review):\s*\{model:\s*(\S+),\s*effort:\s*(\S+)\}", line)
+            m = re.match(r"^\s+(shape|build|review):\s*\{(?:executor:\s*\S+,\s*)?model:\s*(\S+),\s*effort:\s*([^\s,}]+)", line)
             if m:
                 models[m.group(1)] = (m.group(2), m.group(3))
     return models
+
+
+def claude_code_build(root):
+    """True when project.yaml gives the build role `executor: claude-code` and the fake is not told to fall back."""
+    path = os.path.join(root, ".kogen", "project.yaml")
+    if os.environ.get("FAKE_KOGEN_EXECUTOR") == "fallback" or not os.path.exists(path):
+        return False
+    return any(re.match(r"^\s+build:\s*\{executor:\s*claude-code[,}]", line) for line in read(path).splitlines())
 
 
 def parse(argv):
@@ -317,7 +329,15 @@ def cmd_build(root, slug, mode):
             usage = dict.fromkeys(usage)
         elif os.environ.get("FAKE_KOGEN_USAGE") == "zero":
             usage = dict.fromkeys(usage, 0)
-        for _ in range(1 + (int(os.environ.get("FAKE_KOGEN_REQUESTS", 0)) if role == "build" else 0)):
+        if role == "build" and claude_code_build(root):
+            run.log(event="executor_started", executor="claude-code", model=model, effort=effort, run_id=run.id)
+            run.log(event="executor_round_started", round=1, resume=False)
+            run.log(event="executor_round_ended", round=1, ending="finished")
+            time.sleep(float(os.environ.get("FAKE_KOGEN_DELAY_S", 0)))
+            reps = range(0)
+        else:
+            reps = range(1 + (int(os.environ.get("FAKE_KOGEN_REQUESTS", 0)) if role == "build" else 0))
+        for _ in reps:
             run.log(event="request", role=role, model=model, effort=effort, usage=usage,
                     wall_ms=250 if role == "build" else 100)
             time.sleep(float(os.environ.get("FAKE_KOGEN_DELAY_S", 0)))

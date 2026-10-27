@@ -30,6 +30,16 @@ with open(os.path.join(d, "result.json.tmp"), "w") as f:  # atomic, like lanes-c
                "artifact": os.path.isfile(os.path.join(home, "artifacts", art, "kogen")),
                "totals": {"cost_usd": float(os.environ.get("FAKE_COST_" + cell.split("/")[-1].upper(),
                                                            os.environ.get("FAKE_COST", 0)))}}, f)
+if os.environ.get("FAKE_RUNLOG"):  # a Kogen run log: executor events, a native build request, or none at all
+    names = {"executor": ["executor_started", "executor_round_started", "executor_round_ended"],
+             "native": ["request"], "empty": []}[os.environ["FAKE_RUNLOG"]]
+    os.makedirs(os.path.join(d, "run-log"), exist_ok=True)
+    with open(os.path.join(d, "run-log", "log.jsonl"), "w") as f:
+        for n in names:
+            f.write(json.dumps({"event": n, "executor": "claude-code", "role": "build"}) + "\n")
+if os.environ.get("FAKE_ENV_LOG"):  # whether CLAUDE_CONFIG_DIR reached the cell (the value only)
+    with open(os.environ["FAKE_ENV_LOG"], "a") as f:
+        f.write(f"{cell} {os.environ.get('CLAUDE_CONFIG_DIR', '-')}\n")
 os.replace(os.path.join(d, "result.json.tmp"), os.path.join(d, "result.json"))
 if os.environ.get("FAKE_RATE_LIMIT") == cell:  # Kogen's error line for a provider's usage limit
     with open(os.path.join(d, "stdout.txt"), "w") as f:

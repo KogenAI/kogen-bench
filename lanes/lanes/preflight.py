@@ -13,7 +13,7 @@ import sys
 import tempfile
 import tomllib
 
-from . import cell, common, experiment, leakage, probe
+from . import ccroute, cell, common, experiment, leakage, probe
 
 DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
 
@@ -74,10 +74,16 @@ def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-def preflight(run_dir, tasks, artifact=None, out=print):
-    """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only)."""
+def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None):
+    """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only).
+    A run with a claude-code lane also needs `hosts_file`: each host's CLAUDE_CONFIG_DIR and Claude Code login are checked."""
     exp_path = os.path.join(run_dir, "experiment.json")
     exp = experiment.load(exp_path)
+    if ccroute.uses_claude_code(exp):
+        from . import dispatch  # the hosts file format lives there
+        hosts = dispatch.load_hosts(hosts_file, exp["hosts"]) if hosts_file else None
+        if ccroute.preflight(exp, hosts, out=out):
+            return 1
     if exp["phase"] == "probe":  # `tasks` is the corpus folder
         return probe.preflight(run_dir, tasks, out=out)
     leaks = 0
@@ -112,6 +118,7 @@ def main(argv=None):
     p.add_argument("run_dir")
     p.add_argument("--tasks", default=os.environ.get("KOGEN_LANES_TASKS"), help="private tasks folder")
     p.add_argument("--corpus", default=os.environ.get("KOGEN_LANES_CORPUS"), help="probe corpus folder")
+    p.add_argument("--hosts", help="hosts file (JSON): needed when a lane uses the claude-code executor")
     p.add_argument("--artifact", help="kogen executable, folder or .tar.gz for every lane (default: lanes.lock.json)")
     a = p.parse_args(argv)
     try:
@@ -121,7 +128,7 @@ def main(argv=None):
     if not data:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
     try:
-        bad = preflight(a.run_dir, data, a.artifact)
+        bad = preflight(a.run_dir, data, a.artifact, hosts_file=a.hosts)
     except (experiment.ExperimentError, OSError, ValueError) as e:
         print(f"preflight: {e}", file=sys.stderr)
         return 2

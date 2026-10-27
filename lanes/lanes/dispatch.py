@@ -13,7 +13,7 @@ import tempfile
 import threading
 import time
 
-from . import common, costguard, experiment, noise, plan_hashes, probe
+from . import ccroute, common, costguard, experiment, noise, plan_hashes, probe
 
 CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
@@ -114,7 +114,7 @@ def verify_inputs(run_dir, exp, tasks_dir):
 # ---- hosts ----------------------------------------------------------------------------------
 
 def load_hosts(path, names):
-    """`{name: {target, slots, root}}` for the experiment's hosts (all of the file when it names none)."""
+    """`{name: {target, slots, root, claude_config_dir?, claude_bin?}}` for the experiment's hosts (all of the file when it names none)."""
     raw = common.read_json(path)
     names = names or sorted(raw)
     out = {}
@@ -128,6 +128,11 @@ def load_hosts(path, names):
         if h["target"] != "local" and not h.get("root"):
             raise DispatchError(f"hosts file: {n}.root (a work folder on the host) is required")
         out[n] = {"target": h["target"], "slots": slots, "root": h.get("root")}
+        for key in ("claude_config_dir", "claude_bin"):  # Claude Code runs: the login folder and the executable
+            if key in h:
+                if not isinstance(h[key], str) or not h[key]:
+                    raise DispatchError(f"hosts file: {n}.{key} must be a non-empty string")
+                out[n][key] = h[key]
     return out
 
 
@@ -261,6 +266,7 @@ class Host:
     def __init__(self, name, cfg, ctx):
         self.name, self.target, self.slots, self.root = name, cfg["target"], cfg["slots"], cfg["root"]
         self.ctx = ctx
+        self.claude_config_dir = cfg.get("claude_config_dir")  # CLAUDE_CONFIG_DIR of this host's Claude Code cells
         self.remote = self.target != "local"
         self._lock = threading.Lock()
         self._done = set()
@@ -361,7 +367,9 @@ class Host:
             data = "--corpus" if c.exp["phase"] == "probe" else "--tasks"
             args = [sys.executable, os.path.join(c.lanes_dir, "bin", "lanes-cell"), c.run_dir, cell,
                     data, c.tasks, "--host", self.name]
-            self.ctx.runner.run(args, deadline_s=deadline, tag=self.ctx.provider(cell))
+            env = dict(os.environ, CLAUDE_CONFIG_DIR=self.claude_config_dir) \
+                if self.claude_config_dir and c.claude_code(cell) else None
+            self.ctx.runner.run(args, deadline_s=deadline, env=env, tag=self.ctx.provider(cell))
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
         costguard.retire(c.run_dir, cell, local_cell)  # an earlier attempt's partial dir: keep its spend
@@ -371,8 +379,10 @@ class Host:
         # the launcher starts a new session and records its pgid, so a stop can kill the whole group
         launch = ("import os,sys;os.setsid();open(sys.argv[1],'w').write(str(os.getpid()));"
                   "os.execvp('python3',['python3']+sys.argv[2:])")
+        cc = f"CLAUDE_CONFIG_DIR={q(self.claude_config_dir)} " if self.claude_config_dir and \
+            c.claude_code(cell) else ""
         command = (f"rm -rf {q(rcell)} {q(pgfile)} && cd {q(self.root)} && "
-                   f"KOGEN_LANES_HOME={q(self.root)} python3 -c {q(launch)} {q(pgfile)} "
+                   f"{cc}KOGEN_LANES_HOME={q(self.root)} python3 -c {q(launch)} {q(pgfile)} "
                    f"lanes/bin/lanes-cell {q(os.path.join(self.root, 'runs', c.exp_id))} "
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
         code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline, tag=self.ctx.provider(cell))
@@ -400,6 +410,11 @@ class Context:
         self.spend_lock = threading.Lock()  # remote_live and the ledger change together under it
         self.exp_id = exp["id"]
         self.providers = costguard.lane_providers(exp)
+        self.cc_lanes = {l["name"] for l in exp.get("lanes", []) if ccroute.lane_uses_claude_code(l)}
+
+    def claude_code(self, cell):
+        """True when the cell's lane runs a role on the Claude Code executor (its Kogen needs CLAUDE_CONFIG_DIR)."""
+        return cell.split("/")[-1] in self.cc_lanes
 
     def provider(self, cell):
         return self.providers.get(cell.split("/")[-1], experiment.CHATGPT)
@@ -408,9 +423,11 @@ class Context:
 # ---- the run loop ---------------------------------------------------------------------------
 
 def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
-            skip_preflight=False):
+            skip_preflight=False, only_host=None, max_cells=None, claude_code_only=False):
     """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost or cell cap
-    stopped the run, 4 a provider's rate limit left cells unstarted, 130 interrupted."""
+    stopped the run, 4 a provider's rate limit left cells unstarted, 130 interrupted. `only_host` runs on that
+    host alone, `max_cells` starts at most that many cells, `claude_code_only` only cells of Claude Code lanes
+    (`lanes-ccdry` uses all three)."""
     run_dir = os.path.abspath(run_dir)
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
     try:
@@ -423,7 +440,10 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         probe.verify_inputs(run_dir, exp, tasks)
     else:
         verify_inputs(run_dir, exp, tasks)
+    host_cfgs = load_hosts(hosts_file, [only_host] if only_host else exp["hosts"])
     if not skip_preflight:
+        if ccroute.preflight(exp, host_cfgs, out=log):
+            raise DispatchError("claude-code pre-flight refused a host; no cell started")
         if probing:
             if probe.preflight(run_dir, tasks, out=log):
                 raise DispatchError("pre-flight refused the probe; no cell started")
@@ -437,12 +457,12 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
     runner = Runner()
     started = []
     ctx = Context(run_dir, tasks, lanes_dir, runner, exp)
-    hosts = [Host(n, c, ctx) for n, c in load_hosts(hosts_file, exp["hosts"]).items()]
+    hosts = [Host(n, c, ctx) for n, c in host_cfgs.items()]
     if probing and any(h.remote for h in hosts):
         raise DispatchError("probe cells run on local hosts only")
     lanes = {l["name"]: l for l in exp["lanes"]}
     claims = Claims(run_dir, exp["deadline_s"] + MARGIN_S)
-    pick, failed, mine = threading.Lock(), set(), set()
+    pick, failed, mine, begun = threading.Lock(), set(), set(), set()
     active = {h.name: h.slots for h in hosts}
     locked = []
     capped = []  # [message] once a cap stopped the run
@@ -515,12 +535,17 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             for c in cells:
                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
+                if claude_code_only and not ctx.claude_code(c["cell"]):
+                    continue
+                if max_cells is not None and len(begun) >= max_cells:
+                    return None
                 if hard_hit.is_set():
                     return None
                 if refuse(c):
                     continue  # another provider's cells may still start
                 if claims.take(c["cell"], host.name):
                     mine.add(c["cell"])
+                    begun.add(c["cell"])
                     return c
         return None
 
@@ -630,6 +655,9 @@ def run_main(argv=None):
     p.add_argument("--lanes-dir", default=LANES_DIR, help=argparse.SUPPRESS)
     p.add_argument("--skip-preflight", action="store_true",
                    help="do not lint-approve the supplied Intents first; for tests only, never in a real run")
+    p.add_argument("--only-host", help="run on this host of the hosts file alone")
+    p.add_argument("--max-cells", type=int, help="start at most this many cells (at least 1)")
+    p.add_argument("--claude-code-only", action="store_true", help="start only cells of lanes that use the claude-code executor")
     a = p.parse_args(argv)
     try:
         data = probe.corpus_path(a.run_dir, a.corpus) if probe.is_probe(a.run_dir) else a.tasks
@@ -637,9 +665,12 @@ def run_main(argv=None):
         p.error(str(e))
     if not data:
         p.error("--tasks or KOGEN_LANES_TASKS is required")
+    if a.max_cells is not None and a.max_cells < 1:
+        p.error("--max-cells must be at least 1")
     try:
         return run_all(a.run_dir, data, a.hosts, a.lock_cmd, a.unlock_cmd, a.lanes_dir,
-                       skip_preflight=a.skip_preflight, log=lambda m: print(m, file=sys.stderr))
+                       skip_preflight=a.skip_preflight, only_host=a.only_host, max_cells=a.max_cells,
+                       claude_code_only=a.claude_code_only, log=lambda m: print(m, file=sys.stderr))
     except (experiment.ExperimentError, DispatchError, plan_hashes.PlanError, OSError, ValueError) as e:
         print(f"run: {e}", file=sys.stderr)
         return 2

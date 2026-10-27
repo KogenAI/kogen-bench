@@ -65,6 +65,19 @@ def approve_timeout(task_toml, default):
     return value
 
 
+def role_entry(value):
+    """The `project.yaml` flow mapping for one lane role string `"provider/model effort"`; the only place that
+    maps a role string to Kogen's config keys. `claude-code/<model> <effort>` is the Claude Code executor
+    (`executor: claude-code`, `model`, `effort`; no `provider`, Kogen refuses it with the executor); `openai/` and
+    `chatgpt/` write no provider; any other prefix is `provider: <prefix>`."""
+    model, _, effort = value.rpartition(" ")
+    provider, _, model = model.partition("/")
+    if provider == "claude-code":
+        return f"{{executor: claude-code, model: {model}, effort: {effort}}}"
+    extra = "" if provider in ("openai", "chatgpt") else f", provider: {provider}"
+    return f"{{model: {model}, effort: {effort}{extra}}}"
+
+
 def project_yaml(task_toml, models):
     """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id, plus `provider` unless it is openai/chatgpt)."""
     def items(key, item=yq):
@@ -83,10 +96,7 @@ def project_yaml(task_toml, models):
     if models:
         lines.append("models:")
         for role, value in sorted(models.items()):
-            model, _, effort = value.rpartition(" ")
-            provider, _, model = model.partition("/")
-            extra = "" if provider in ("openai", "chatgpt") else f", provider: {provider}"
-            lines.append(f"  {role}: {{model: {model}, effort: {effort}{extra}}}")
+            lines.append(f"  {role}: {role_entry(value)}")
     return "\n".join(lines) + "\n"
 
 

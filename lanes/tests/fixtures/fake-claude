@@ -1,0 +1,12 @@
+#!/bin/sh
+# Stand-in for `claude`: only `auth status --json`. FAKE_CLAUDE_STATE: true (default) | false | garbage.
+# FAKE_CLAUDE_LOG gets the HOME and CLAUDE_CONFIG_DIR it ran under and whether a stripped token reached it.
+[ "$1 $2 $3" = "auth status --json" ] || { echo "fake claude: unexpected arguments" >&2; exit 2; }
+if [ -n "$FAKE_CLAUDE_LOG" ]; then
+  echo "home=$HOME config=$CLAUDE_CONFIG_DIR token=${CLAUDE_CODE_OAUTH_TOKEN:+set}" >> "$FAKE_CLAUDE_LOG"
+fi
+case "${FAKE_CLAUDE_STATE:-true}" in
+  true) echo '{"loggedIn": true, "authMethod": "claude.ai", "account": "secret-account"}' ;;
+  false) echo '{"loggedIn": false}'; exit 1 ;;
+  *) echo 'not json' ;;
+esac
