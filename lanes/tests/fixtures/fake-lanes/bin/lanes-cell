@@ -21,6 +21,24 @@ if os.environ.get("FAKE_HOG") == cell:  # a child that allocates steadily, MB pe
            " keep.append(bytearray(b'x'*(int(os.environ.get('FAKE_HOG_STEP_MB','10'))<<20)))\n time.sleep(0.25)\n"
            "time.sleep(float(os.environ.get('FAKE_HOG_HOLD','30')))\n")
     subprocess.run([sys.executable, "-c", hog])
+if os.environ.get("FAKE_LIVE"):  # a running cell: live.json as lanes-cell writes it (its pid and start time)
+    sys.path.insert(0, os.environ["FAKE_LIVE"])  # the real lanes package
+    from lanes import live
+    live_dir = os.path.join(run_dir, "cells", *cell.split("/"))
+    os.makedirs(live_dir, exist_ok=True)
+    ws = os.path.join(run_dir, "ws-" + cell.replace("/", "__"))
+    os.makedirs(ws, exist_ok=True)
+    with open(os.path.join(live_dir, "live.json"), "w") as f:
+        json.dump(live.record(ws, opts["--host"]), f)
+    if os.environ.get("FAKE_WS_GONE"):  # as when the workspace went with the run unit
+        os.rmdir(ws)
+    if os.environ.get("FAKE_HOLD"):  # the first cell to start here records its pid and then hangs, to be killed
+        try:
+            with open(os.environ["FAKE_HOLD"], "x") as f:
+                f.write(str(os.getpid()))
+            time.sleep(60)
+        except FileExistsError:
+            pass
 time.sleep(float(os.environ.get("FAKE_SLEEP_" + opts["--host"], os.environ.get("FAKE_SLEEP", "0"))))
 if os.environ.get("FAKE_FAIL") == cell:
     sys.exit(3)
@@ -51,6 +69,8 @@ if os.environ.get("FAKE_PATH_LOG"):  # the first PATH entry the cell's Kogen wou
     with open(os.environ["FAKE_PATH_LOG"], "a") as f:
         f.write(f"{cell} {os.environ.get('PATH', '').split(os.pathsep)[0]}\n")
 os.replace(os.path.join(d, "result.json.tmp"), os.path.join(d, "result.json"))
+if os.environ.get("FAKE_LIVE"):  # a cell that ends leaves no live.json
+    os.remove(os.path.join(d, "live.json"))
 if os.environ.get("FAKE_RATE_LIMIT") == cell:  # Kogen's error line for a provider's usage limit
     with open(os.path.join(d, "stdout.txt"), "w") as f:
         f.write("provider/usage_limit: usage limit reached\n")

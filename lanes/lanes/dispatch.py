@@ -580,6 +580,10 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         return os.path.isfile(os.path.join(common.cell_dir(run_dir, cell), "result.json"))
 
     def next_cell(host):
+        try:  # a cell that died hard leaves a live.json that no slot will ever clear
+            costguard.reap_phantoms(run_dir, host.name, log)
+        except Exception as e:  # the spend read below fails closed on what is still unreadable
+            log(f"{host.name}: cannot reap phantom cells ({e})")
         with pick:
             for c in cells:
                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):

@@ -222,13 +222,18 @@ class Races(unittest.TestCase):
     def test_a_source_gone_without_a_final_record_is_retried_then_fails_closed(self):
         out = common.cell_dir(self.run_dir, "t/r1/a")
         common.write_json(os.path.join(out, costguard.LIVE), {"workspace": os.path.join(self.tmp, "gone")})
+        self.assertAlmostEqual(costguard.estimate(self.run_dir, retry_s=0.3), 10.0)  # a phantom is reaped, not an error
+        os.replace(os.path.join(out, costguard.REAPED), os.path.join(out, costguard.LIVE))
+        os.remove(os.path.join(out, costguard.SPENT))
         t0 = time.monotonic()
-        with self.assertRaisesRegex(costguard.CostCapError, "gone with no final record.*fails closed"):
-            costguard.estimate(self.run_dir, retry_s=0.3)
+        with mock.patch.object(costguard, "reap_phantoms"), \
+                self.assertRaisesRegex(costguard.CostCapError, "gone with no final record.*fails closed"):
+            costguard.estimate(self.run_dir, retry_s=0.3)  # the race the reaper does not cover: still fails closed
         self.assertGreaterEqual(time.monotonic() - t0, 0.3)
         timer = threading.Timer(0.2, common.write_json, (os.path.join(out, costguard.SPENT), {"usd": 0.3}))
         timer.start()
-        self.assertAlmostEqual(costguard.estimate(self.run_dir, retry_s=5), 0.3)  # the record arrived in time
+        with mock.patch.object(costguard, "reap_phantoms"):
+            self.assertAlmostEqual(costguard.estimate(self.run_dir, retry_s=5), 0.3)  # the record arrived in time
         timer.join()
 
 

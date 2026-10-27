@@ -20,6 +20,8 @@ The guard fails closed on real errors: unreadable or unparsable usage, no price 
 error: the steps that move spend from one record to the next (live workspace -> result.json or spent.json,
 cell dir -> ledger) hold the run dir's lock (`locked`), and readers take it too, so each attempt is counted
 exactly once. A source gone with no final record is retried for `RETRY_S` seconds, then the guard fails closed.
+A cell that died hard leaves a phantom `live.json`; `reap_phantoms` settles it into a `spent.json` first, so it
+is a final record and not a gone source.
 `cost_cap_usd` covers ChatGPT-priced spend only; `provider_caps` cap the cells (and optionally the USD) of every
 other provider; a provider's first rate-limit failure stops new cells of that provider (`rate-limit-stop.json`).
 `python3 -m lanes.costguard cells <run-dir>` prints `{cell: usd}` (the controller polls it on remote hosts).
@@ -36,11 +38,13 @@ import sys
 import threading
 import time
 
-from . import common, experiment, usage
+from . import common, experiment, live, usage
 
 HARD_FACTOR = 1.25  # hard cap = HARD_FACTOR * cost_cap_usd
 FALLBACK_TOKENS = {"input_tokens": 100_000, "cached_input_tokens": 0, "output_tokens": 20_000}
-LIVE = "live.json"    # in a running cell's dir: where its workspace is
+LIVE = "live.json"    # in a running cell's dir: its workspace and the pid and start time of its lanes-cell
+REAPED = "live.json.reaped"  # a phantom `live.json` (its process died hard), moved aside by `reap_phantoms`
+PHANTOM_REQUESTS = 5  # requests a phantom cell is assumed to have spent when nothing else is known (see `phantom_estimate`)
 SPENT = "spent.json"  # in a cell dir that stopped without result.json: what it had spent
 LEDGER = "cost-ledger.jsonl"  # in the run dir: spend of attempts whose cell dir was thrown away
 STOP = "cost-stop.json"       # in the run dir: which cap stopped the run
@@ -75,10 +79,13 @@ def locked(run_dir, exclusive=True):
             os.close(fd)  # releases the lock
 
 
-def _retrying(run_dir, fn, exclusive=False, retry_s=None):
-    """`fn()` under the lock; a source gone without a final record is retried (lock released), then fails closed."""
+def _retrying(run_dir, fn, exclusive=False, retry_s=None, before=None):
+    """`fn()` under the lock; a source gone without a final record is retried (lock released), then fails closed.
+    `before()` runs ahead of every try, lock not held (a process that just died may need a moment to be seen dead)."""
     end = time.monotonic() + (RETRY_S if retry_s is None else retry_s)
     while True:
+        if before:
+            before()
         try:
             with locked(run_dir, exclusive):
                 return fn()
@@ -220,6 +227,62 @@ def cell_spend(cell_dir):
     return 0.0
 
 
+def phantom_estimate(run_dir, ws):
+    """Upper estimate in USD of a phantom cell's spend. The spend its workspace logs still show when they can be
+    read (the cell logged every request that finished; one in flight is not in them). Otherwise the larger of an
+    allowance of `PHANTOM_REQUESTS` unknown-usage requests (`FALLBACK_TOKENS` at the top rates, as `log_spend`
+    counts a request with unknown usage) and the mean cost of the run's finished cells."""
+    if ws and os.path.isdir(ws):
+        try:
+            return workspace_spend(ws)
+        except (OSError, ValueError):
+            pass
+    allowance = PHANTOM_REQUESTS * _at_top(FALLBACK_TOKENS, pricing()[2])
+    done = []
+    for path in glob.glob(os.path.join(run_dir, "cells", "*", "r*", "*", "result.json")):
+        try:
+            cost = (common.read_json(path).get("totals") or {}).get("cost_usd")
+        except (OSError, ValueError):
+            continue
+        if isinstance(cost, (int, float)) and not isinstance(cost, bool):
+            done.append(float(cost))
+    return max(allowance, sum(done) / len(done) if done else 0.0)
+
+
+def reap_phantoms(run_dir, host=None, log=None):
+    """Settle every phantom `live.json` under the run dir (`live.phantom`): write the cell's `spent.json` with
+    `phantom_estimate` (unless it already has a `result.json` or `spent.json`), move `live.json` to `REAPED`, log
+    one line. One locked step per cell, judged again under the lock. Returns the cells reaped."""
+    log = log or (lambda m: print(m, file=sys.stderr))
+    reaped = []
+    for path in sorted(glob.glob(os.path.join(run_dir, "cells", "*", "r*", "*", LIVE))):
+        cell_dir = os.path.dirname(path)
+        try:
+            if not live.phantom(common.read_json(path)):
+                continue
+        except (OSError, ValueError, KeyError):
+            continue  # gone or half written: the cell is ending or starting
+        with locked(run_dir):
+            try:
+                info = common.read_json(path)
+            except (OSError, ValueError):
+                continue
+            why = live.phantom(info)
+            if not why:
+                continue
+            cell = os.path.relpath(cell_dir, os.path.join(run_dir, "cells")).replace(os.sep, "/")
+            if os.path.isfile(os.path.join(cell_dir, "result.json")) or os.path.isfile(os.path.join(cell_dir, SPENT)):
+                usd = cell_spend(cell_dir)  # settled already: the process died between its steps
+            else:
+                usd = round(phantom_estimate(run_dir, info.get("workspace")), 8)
+                common.write_json(os.path.join(cell_dir, SPENT), {"usd": usd})
+            os.replace(path, os.path.join(cell_dir, REAPED))
+        log(f"{info.get('host') or host or 'local'}: reaped phantom cell {cell} ({why}; "
+            f"spend settled at ${usd:.4f}, upper estimate)")
+        reaped.append(cell)
+    return reaped
+
+
 def cell_spends(run_dir):
     """`{cell: usd}` of the cell dirs under the run dir (no lock; see `snapshot`)."""
     cells = os.path.join(run_dir, "cells")
@@ -233,7 +296,8 @@ def snapshot(run_dir, retry_s=None):
         path = os.path.join(run_dir, LEDGER)
         ledger = [(e["cell"], float(e["usd"])) for e in (common.read_jsonl(path) if os.path.isfile(path) else [])]
         return cell_spends(run_dir), ledger
-    return _retrying(run_dir, read, retry_s=retry_s)
+    # reaping takes the lock itself: a phantom becomes a spent.json before it is read, on every try
+    return _retrying(run_dir, read, retry_s=retry_s, before=lambda: reap_phantoms(run_dir))
 
 
 def _append(run_dir, cell, usd):
@@ -248,6 +312,7 @@ def ledger_add(run_dir, cell, usd):
 
 def retire(run_dir, cell, out, retry_s=None):
     """Throw away an old attempt's cell dir, keeping what it spent in the ledger (one locked step)."""
+    reap_phantoms(run_dir)
     def move():
         if os.path.isdir(out):
             usd = cell_spend(out)

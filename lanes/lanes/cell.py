@@ -22,7 +22,7 @@ import threading
 import time
 import tomllib
 
-from . import common, costguard, experiment, probe, usage
+from . import common, costguard, experiment, live, probe, usage
 
 IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
@@ -480,7 +480,7 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
     for name, dst in (("request.md", request), ("answers.txt", answers)):
         if os.path.isfile(os.path.join(task, name)):
             shutil.copyfile(os.path.join(task, name), dst)
-    common.write_json(os.path.join(out, costguard.LIVE), {"workspace": ws})  # the guard reads its logs live
+    common.write_json(os.path.join(out, costguard.LIVE), live.record(ws, host))  # the guard reads its logs live; the pid says who owns it
     started, t0 = now(), time.monotonic()
     with costguard.Watcher(run_dir, exp, provider=costguard.lane_providers(exp).get(lane_name)) as watch:
         c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped)
