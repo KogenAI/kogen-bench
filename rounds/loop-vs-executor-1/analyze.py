@@ -8,11 +8,14 @@ uses the Python standard library, makes no model call and needs no private data.
 tables; with --write it also writes results.txt next to itself.
 
 Definitions. A cell "passed" when its build landed and every hidden test of its task passed. Lane names are
-<arm>-<machine>: arm native (Kogen's own build loop) or cc (the Claude Code executor), machine mac, linux-a or
-linux-b. The sign test follows the registered rule: per task, count the cells each arm passed; the arm with more
-passes on a task is favoured there; ties are dropped; p is the exact one-sided binomial P(X >= k) with n = k + m,
-reported in both directions. A task whose own start check failed before the
-build in every cell of both arms (found by the script) is void and is also shown excluded.
+<arm>-<machine>: arm native (Kogen's own build loop) or cc (the Claude Code executor), machine m1 to m4 (four
+machines, see README.md). A "pair" is a task, a machine and a repetition number for which both arms have a graded
+cell; the comparison uses pairs only, so a cell whose partner never finished does not tilt it. The sign test follows
+the registered rule: per task, count the pair passes of each arm (all machines pooled); the arm with more passes on a
+task is favoured there; ties are dropped; p is the exact one-sided binomial P(X >= k) with n = k + m, reported in
+both directions. The same test is also run on each machine alone. A "void" group is a task on a machine where the
+task's own start check failed before the build in every cell of both arms (found by the script); its cells are shown
+as run and also left out. A task that has other cells on another machine stays in the comparison with those.
 """
 import glob
 import json
@@ -23,6 +26,7 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = []
+MACHINES = ("m1", "m2", "m3", "m4")
 
 
 def say(text=""):
@@ -50,7 +54,8 @@ def load():
         arm, machine = a["lane"].split("-", 1)
         st = {s["stage"]: s for s in a["stages"]}
         ids = e["ids"]
-        c = {"cell": a["cell"], "task": task, "arm": arm, "machine": machine, "outcome": a["outcome"],
+        c = {"cell": a["cell"], "task": task, "arm": arm, "machine": machine, "rep": int(a["cell"].split("/")[1][1:]),
+             "outcome": a["outcome"],
              "pass": a["outcome"] == "landed" and bool(e["all_passed"]), "passed": ids["passed_count"],
              "total": ids["passed_count"] + ids["failed_count"] + ids["other_count"], "wall": a["wall_s"],
              "build_wall": st["build"]["wall_s"], "review_wall": st.get("review", {}).get("wall_s"),
@@ -61,7 +66,7 @@ def load():
             c.update(b_in=b["input_tokens"], b_out=b["output_tokens"], b_cost=b["cost_usd"], b_req=b["requests"])
         else:
             u = usage.get(a["cell"])
-            u = u and u["build"]
+            u = u and u.get("build")
             c.update(b_in=u and u["input_tokens"], b_out=u and u["output_tokens"], b_cost=u and u["estimate_usd"], b_req=None)
         cells.append(c)
     return cells
@@ -76,17 +81,46 @@ def fmt(x, d=0):
     return "n/a" if x is None else f"{x:,.{d}f}"
 
 
+def pairs_of(cells):
+    """(task, machine, rep) -> {arm: cell} for keys where both arms have a cell."""
+    by = defaultdict(dict)
+    for c in cells:
+        by[(c["task"], c["machine"], c["rep"])][c["arm"]] = c
+    return {k: v for k, v in by.items() if len(v) == 2}
+
+
+def sign(pairs, keep, label):
+    """Sign test over tasks on the pairs whose task is in keep; returns the printed line."""
+    n, k = defaultdict(int), defaultdict(int)
+    for (t, _, _), v in pairs.items():
+        if t in keep:
+            n[t] += v["native"]["pass"]
+            k[t] += v["cc"]["pass"]
+    cc_t = sum(k[t] > n[t] for t in n)
+    nat_t = sum(n[t] > k[t] for t in n)
+    ties = len(n) - cc_t - nat_t
+    pn, pc = sum(n.values()), sum(k.values())
+    cnt = sum(1 for (t, _, _) in pairs if t in keep)
+    say(f"Sign test, {label}: {len(n)} tasks, {cnt} pairs; cc favoured on {cc_t} tasks, native on {nat_t}, ties {ties}; "
+        f"pair passes native {pn}/{cnt} = {pn / cnt:.3f}, cc {pc}/{cnt} = {pc / cnt:.3f}; "
+        f"one-sided p (cc better) {p_upper(cc_t, cc_t + nat_t):.4f}, (native better) {p_upper(nat_t, cc_t + nat_t):.4f}.")
+
+
 def main():
     cells = load()
     tasks = sorted({c["task"] for c in cells})
-    mach = {t: next(c["machine"] for c in cells if c["task"] == t) for t in tasks}
-    total = {t: next(c["total"] for c in cells if c["task"] == t and c["total"]) for t in tasks}
-    VOID = {t for t in tasks if all(c["outcome"] == "check_failing" for c in cells if c["task"] == t)}
+    pairs = pairs_of(cells)
+    paired_cells = {c["cell"] for v in pairs.values() for c in v.values()}
+    total = {t: max(c["total"] for c in cells if c["task"] == t) for t in tasks}
+    VOIDG = {(t, m) for t, m in {(c["task"], c["machine"]) for c in cells}
+             if all(c["outcome"] == "check_failing" for c in cells if c["task"] == t and c["machine"] == m)}
+    voidcells = {c["cell"] for c in cells if (c["task"], c["machine"]) in VOIDG}
+    pairs_nv = {k: v for k, v in pairs.items() if (k[0], k[1]) not in VOIDG}
     say("## Cells and passes, as run")
     say()
     say("| Machine | Arm | Cells | Passed every hidden test |")
     say("| --- | --- | ---: | ---: |")
-    for m in ("mac", "linux-a", "linux-b"):
+    for m in MACHINES:
         for arm in ("native", "cc"):
             cs = [c for c in cells if c["machine"] == m and c["arm"] == arm]
             say(f"| {m} | {arm} | {len(cs)} | {sum(c['pass'] for c in cs)} |")
@@ -94,29 +128,39 @@ def main():
         cs = [c for c in cells if c["arm"] == arm]
         say(f"| all | {arm} | {len(cs)} | {sum(c['pass'] for c in cs)} |")
     say()
-    say(f"Tasks whose start check failed before the build in every cell (void for both arms): {', '.join(sorted(VOID)) or 'none'}.")
+    say(f"Cells without a partner (the other arm's cell with the same task, machine and repetition never finished): "
+        f"{', '.join(sorted(c['cell'] for c in cells if c['cell'] not in paired_cells)) or 'none'}. "
+        f"Pairs: {len(pairs)}.")
     say()
-    say("## Per task")
+    say("Void groups (a task and machine where the start check failed before the build in every cell of both arms): "
+        + (", ".join(f"{t} on {m} ({sum(1 for c in cells if c['task'] == t and c['machine'] == m)} cells)" for t, m in sorted(VOIDG)) or "none") + ".")
     say()
-    say("| Task | Machine | Hidden tests | Reps | native passed | cc passed | Favours |")
-    say("| --- | --- | ---: | ---: | ---: | ---: | --- |")
-    fav = {}
+    say("## Per task (pairs only, all machines pooled)")
+    say()
+    say("| Task | Machines | Hidden tests | Pairs | native passed | cc passed | Favours | Hidden tests passed, native | Hidden tests passed, cc |")
+    say("| --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |")
     for t in tasks:
-        n = sum(c["pass"] for c in cells if c["task"] == t and c["arm"] == "native")
-        k = sum(c["pass"] for c in cells if c["task"] == t and c["arm"] == "cc")
-        reps = sum(1 for c in cells if c["task"] == t and c["arm"] == "cc")
-        fav[t] = "cc" if k > n else "native" if n > k else "tie"
-        say(f"| `{t}` | {mach[t]} | {total[t]} | {reps} | {n} | {k} | {fav[t]} |")
+        ks = [k for k in pairs if k[0] == t]
+        n = sum(pairs[k]["native"]["pass"] for k in ks)
+        k_ = sum(pairs[k]["cc"]["pass"] for k in ks)
+        fav = "cc" if k_ > n else "native" if n > k_ else "tie"
+        ms = "+".join(sorted({k[1] for k in ks}))
+        tn = sum(pairs[k]["native"]["passed"] for k in ks)
+        tc = sum(pairs[k]["cc"]["passed"] for k in ks)
+        tt = sum(pairs[k]["cc"]["total"] for k in ks)
+        say(f"| `{t}` | {ms} | {total[t]} | {len(ks)} | {n} | {k_} | {fav} | {tn / tt:.1%} | {tc / tt:.1%} |")
     say()
-    for label, keep in (("all 21 tasks, as run", tasks), ("without the void task", [t for t in tasks if t not in VOID])):
-        k = sum(fav[t] == "cc" for t in keep)
-        m = sum(fav[t] == "native" for t in keep)
-        ties = sum(fav[t] == "tie" for t in keep)
-        cn = [c for c in cells if c["task"] in keep and c["arm"] == "native"]
-        cc = [c for c in cells if c["task"] in keep and c["arm"] == "cc"]
-        rn, rc = sum(c["pass"] for c in cn) / len(cn), sum(c["pass"] for c in cc) / len(cc)
-        say(f"Sign test, {label}: cc favoured on {k} tasks, native on {m}, ties {ties}; pass rate native {sum(c['pass'] for c in cn)}/{len(cn)} = {rn:.3f}, "
-            f"cc {sum(c['pass'] for c in cc)}/{len(cc)} = {rc:.3f}; one-sided p (cc better) {p_upper(k, k + m):.4f}, (native better) {p_upper(m, k + m):.4f}.")
+    say("## Sign test over tasks")
+    say()
+    keep_all = set(tasks)
+    sign(pairs, keep_all, "all tasks, as run")
+    sign(pairs_nv, keep_all, "without the void groups")
+    say()
+    say("Per machine (the tasks that ran on that machine, its own pairs only):")
+    say()
+    for m in MACHINES:
+        pm = {k: v for k, v in pairs_nv.items() if k[1] == m}
+        sign(pm, {k[0] for k in pm}, f"machine {m}, without the void groups")
     say()
     say("## Cells that did not pass every hidden test")
     say()
@@ -130,21 +174,19 @@ def main():
     say()
     say("| Set | Arm | Cells | Median cell | Sum, cell | Median build | Sum, build |")
     say("| --- | --- | ---: | ---: | ---: | ---: | ---: |")
-    sets = [("all cells", lambda c: True), ("without the void task", lambda c: c["task"] not in VOID),
-            ("short tasks (mac, linux-a)", lambda c: c["machine"] != "linux-b"), ("linux-b tasks, without the void task", lambda c: c["machine"] == "linux-b" and c["task"] not in VOID)]
+    sets = [("all cells", lambda c: True), ("without the void groups", lambda c: c["cell"] not in voidcells)]
+    sets += [(f"machine {m}, without the void groups", (lambda m: lambda c: c["machine"] == m and c["cell"] not in voidcells)(m)) for m in MACHINES]
     for name, f in sets:
         for arm in ("native", "cc"):
             cs = [c for c in cells if f(c) and c["arm"] == arm]
             say(f"| {name} | {arm} | {len(cs)} | {fmt(median([c['wall'] for c in cs]))} | {fmt(tot([c['wall'] for c in cs]))} | "
                 f"{fmt(median([c['build_wall'] for c in cs]))} | {fmt(tot([c['build_wall'] for c in cs]))} |")
     say()
-    say("Per-task median cell wall time ratio, cc over native (tasks with every cell built, void task left out):")
+    say("Per-task median cell wall time ratio, cc over native (all cells of the task, void groups left out):")
     ratios = []
     for t in tasks:
-        if t in VOID:
-            continue
-        a = median([c["wall"] for c in cells if c["task"] == t and c["arm"] == "cc"])
-        b = median([c["wall"] for c in cells if c["task"] == t and c["arm"] == "native"])
+        a = median([c["wall"] for c in cells if c["task"] == t and c["arm"] == "cc" and c["cell"] not in voidcells])
+        b = median([c["wall"] for c in cells if c["task"] == t and c["arm"] == "native" and c["cell"] not in voidcells])
         ratios.append(a / b)
     say(f"median {median(ratios):.2f}, cc faster on {sum(r < 1 for r in ratios)} of {len(ratios)} tasks, slower on {sum(r > 1 for r in ratios)}.")
     say()

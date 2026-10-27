@@ -12,7 +12,7 @@
     },
     "lanes": [
       {
-        "name": "native-mac",
+        "name": "native-m1",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -23,7 +23,7 @@
         "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
       },
       {
-        "name": "cc-mac",
+        "name": "cc-m1",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -34,7 +34,7 @@
         "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
       },
       {
-        "name": "native-linux-a",
+        "name": "native-m2",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -45,7 +45,7 @@
         "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
       },
       {
-        "name": "cc-linux-a",
+        "name": "cc-m2",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -56,7 +56,7 @@
         "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
       },
       {
-        "name": "native-linux-b",
+        "name": "native-m3",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -67,7 +67,29 @@
         "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
       },
       {
-        "name": "cc-linux-b",
+        "name": "cc-m3",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "native-m4",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "anthropic/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "cc-m4",
         "patch": "patches/g0.diff",
         "settings": {
           "models": {
@@ -81,13 +103,13 @@
     "phase": "build",
     "provider_caps": {
       "anthropic": {
-        "usd": 165
+        "usd": 260
       },
       "claude-code": {
-        "cells": 42
+        "cells": 60
       }
     },
-    "reps": 4,
+    "reps": 6,
     "tasks": [
       "build-06",
       "build-14",
@@ -96,12 +118,6 @@
       "build-01",
       "build-07",
       "build-09",
-      "build-21",
-      "build-17",
-      "build-04",
-      "build-12",
-      "build-03",
-      "build-02",
       "build-16",
       "build-08",
       "build-11",
@@ -109,32 +125,50 @@
       "build-20",
       "build-18",
       "build-10",
-      "build-15"
+      "build-15",
+      "build-22",
+      "build-23",
+      "build-24",
+      "build-25",
+      "build-21",
+      "build-17",
+      "build-04",
+      "build-12",
+      "build-03",
+      "build-02"
     ]
   },
   "hashes": {
     "lanes": {
-      "cc-linux-a": {
+      "cc-m1": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "141295a335ecbcee249df25a2cf09c2bf1592687d4bfffa1308912ba0d528d60"
       },
-      "cc-linux-b": {
+      "cc-m2": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "141295a335ecbcee249df25a2cf09c2bf1592687d4bfffa1308912ba0d528d60"
       },
-      "cc-mac": {
+      "cc-m3": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "141295a335ecbcee249df25a2cf09c2bf1592687d4bfffa1308912ba0d528d60"
       },
-      "native-linux-a": {
+      "cc-m4": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "141295a335ecbcee249df25a2cf09c2bf1592687d4bfffa1308912ba0d528d60"
+      },
+      "native-m1": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
       },
-      "native-linux-b": {
+      "native-m2": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
       },
-      "native-mac": {
+      "native-m3": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
+      },
+      "native-m4": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
       }
@@ -391,18 +425,60 @@
         "task": "fe85ad509b07541d3e561af7ecaadb3f0bc4257994d273d1837be753dda0eb63",
         "task_toml": "956b2d0bf3e2392d84dcf48ec06c9ff4d6b870242818515cacb85fbec6a98fcc",
         "tree": "214a988aba96a8c7a2c3fe3a427bd52287a877ba969442dddf82b647fadfafd3"
+      },
+      "build-22": {
+        "hidden_tests": "f6721c6e2703494e89e1480b68361cef3172592fd590476d08583416de1e983c",
+        "intents": {
+          "gherkin": "62c4a6cd3066b5f14d7e9d088f06ee43d419dc70847e209d15654d2015aea94b"
+        },
+        "request": "fcb0806c81d13c8044ce1b0fe29f54b49fddc0a5c9bf42d4df15b05e7b4cabbd",
+        "task": "27bfe08f0751b25ce1e13f1260099d30f0814affc7aa1ccc6148291ed8a77a71",
+        "task_toml": "be1a2ac5c176a4722f10eada309e5662b4761821b91b05ed9b9a9698782f2b57",
+        "tree": "f5148e416da44f66dcd631578a8ac2ef313b328899757701ff7bdb52e0aef0d0"
+      },
+      "build-23": {
+        "hidden_tests": "a9a86f74e19c55d7a0721156e36e62a72f116312f6324a5aa54519bdac8550fc",
+        "intents": {
+          "gherkin": "35011c9c192af8d93c9f975f5bde47c918befbce2455aef51c49b5f5779d8518"
+        },
+        "request": "40ab614af59f829ffe8dbf716dcbee974ec59cef4e8985423f60cc7bc05e6b93",
+        "task": "4f5a775c55742cb9a532589594174452929e60c973d46761c7a64b88fe4c2e25",
+        "task_toml": "0441923ca379633fda6ae12dfc3476e5285e9117e4467796397caf8108946ba3",
+        "tree": "a45ef30a10c52eeeccb03aa5724040bb4657d89de3168db9bda1c2da3b7eb22f"
+      },
+      "build-24": {
+        "hidden_tests": "fc2dc682ea493339acd0d490a51f378c089ba6865b68427fa9974b23caf127e0",
+        "intents": {
+          "gherkin": "d4264954e7910196d410d6350830fd0808e44af9c21a633239d50e793288603a"
+        },
+        "request": "fa5136384dc9b777e4851184a12ccfe3bbc980dcfbca9782afd820a620cdd0c1",
+        "task": "83013fbfa799ddb043b657a6f9ec8c4732760b9f2cc0cf3c4a886f2fbfe55338",
+        "task_toml": "70b7dbcad97a76104b27f96afac47d9fdf2b3286c772126177396522901bddf1",
+        "tree": "168c074e56ee68e3511d2bac46e878e4c82872653874bbc49f77a7ec18b946b7"
+      },
+      "build-25": {
+        "hidden_tests": "e943e5d7e14239f1052e5833789f741282f2788989159bbd3d9a12339c1d41e0",
+        "intents": {
+          "gherkin": "2ef97143dd6a2b4eba9282da1ef22de1d60e0e522252bcbb3faa0b84bad3b264"
+        },
+        "request": "e00e9f4322feb70c95d54db2599b496d4366118d300c4f9507e068e4dae7293d",
+        "task": "f1ad36e09284f4c703a3f76ee95df812aa9dc919d998f7267ce61b1ef2e4f506",
+        "task_toml": "c4886e02b9345773e26d23a244675952aa50bc6e89e6d90d4cbbd1f8f920c83b",
+        "tree": "5b83138b5e55d00dab469208ed2b1caee83c52889bae1f2660b8baa0fc6bcf77"
       }
     }
   },
   "lock": {
     "artifacts": {
-      "cc-linux-a": "a80089487946e24b7412906ce7e2686fec2f202770d8b7ac7b925cc1a3c14414",
-      "cc-linux-b": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
-      "cc-mac": "e71385458143fd179c2ca4ddb56f8ec35ed65b26964ce1f9a6b4cfcccdcb3db6",
-      "native-linux-a": "a80089487946e24b7412906ce7e2686fec2f202770d8b7ac7b925cc1a3c14414",
-      "native-linux-b": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
-      "native-mac": "e71385458143fd179c2ca4ddb56f8ec35ed65b26964ce1f9a6b4cfcccdcb3db6"
+      "cc-m1": "e71385458143fd179c2ca4ddb56f8ec35ed65b26964ce1f9a6b4cfcccdcb3db6",
+      "cc-m2": "a80089487946e24b7412906ce7e2686fec2f202770d8b7ac7b925cc1a3c14414",
+      "cc-m3": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
+      "cc-m4": "c5793b873b87a01c8deb3d268597d6399c0f6b1d740a4376c4cbd73b5f6f544c",
+      "native-m1": "e71385458143fd179c2ca4ddb56f8ec35ed65b26964ce1f9a6b4cfcccdcb3db6",
+      "native-m2": "a80089487946e24b7412906ce7e2686fec2f202770d8b7ac7b925cc1a3c14414",
+      "native-m3": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
+      "native-m4": "c5793b873b87a01c8deb3d268597d6399c0f6b1d740a4376c4cbd73b5f6f544c"
     },
-    "sha256": "ed31308f63abbaa188d6bfe4290ef1428d5de5918cc62303e94f615110c71b4e"
+    "sha256": "615e5c318bd6adca19c55fad283036563739f18c003dcaa09297907761eb0d4c"
   }
 }

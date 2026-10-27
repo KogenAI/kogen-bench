@@ -1,364 +1,364 @@
 # Missing data — loop-vs-executor-1
 
-Cells: 108
+Cells: 241
 
 Declared gaps:
-- `circumstances.cap_end`: 108 — Boundary telemetry not retained (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.cap_start`: 108 — Boundary telemetry not retained (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.concurrent_cells_end`: 108 — Host-wide concurrent cell count was not captured (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.concurrent_cells_start`: 108 — Host-wide concurrent cell count was not captured (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.dispatcher_id`: 108 — Exact dispatcher revision is not present in the public receipt extract (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.incidents`: 108 — Per-cell incident receipt was not captured (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.load1_end`: 108 — Host boundary load was not captured in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.load1_start`: 108 — Host boundary load was not captured in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.load_samples`: 108 — Timestamped host-wide load samples were not captured (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `circumstances.queue`: 108 — Queue receipt was not captured (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `cost.accounting`: 56 — Per-cell cost and pricing inputs are not present in the public round data (56). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `cost.long_context_reconciled`: 108 — Boolean receipt not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `cost.usd`: 56 — Per-cell cost and pricing inputs are not present in the public round data (56). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `effort.effective`: 4 — Per-cell effective-effort receipt not published (4). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.account_class`: 108 — No owner-approved class-only account receipt is available for the cell (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.network.allowlist_hosts`: 108 — Per-cell network allowlist not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.network.profile`: 108 — Per-cell network profile not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.elixir`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.erlang`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.node`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.other_inventory`: 108 — Full per-cell toolchain inventory not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.python`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.ruby`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `environment.toolchains.rust`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `grade.grader`: 108 — Per-cell grader software version is not in the public data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `grade.timestamp`: 108 — No official grade in the public snapshot (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `host.id`: 108 — Not recorded in available public metadata (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `model.effective`: 56 — Per-cell effective-model receipt not published (56). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `model.requested`: 108 — Not recorded in available public metadata (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `sandbox.egress_allow`: 108 — Per-cell egress allowlist is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `sandbox.egress_profile`: 108 — Per-cell egress profile is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `sandbox.profile`: 108 — Per-cell sandbox profile is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `sandbox.profile_sha256`: 108 — Per-cell sandbox profile fingerprint is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.adapter_harness_sha`: 108 — Not recorded in available public metadata (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.deps_source`: 108 — Per-cell dependency source is not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.sandbox_mode`: 108 — Per-cell sandbox mode is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.sandbox_profile_sha256`: 108 — Per-cell sandbox fingerprint is not present in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.task_base.hash`: 108 — Original base commit/tree hash absent; fresh_base_commit is not a base hash (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `setup.task_base.kind`: 108 — Original base revision type not recorded per cell (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.cap_end`: 241 — Boundary telemetry not retained (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.cap_start`: 241 — Boundary telemetry not retained (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.concurrent_cells_end`: 241 — Host-wide concurrent cell count was not captured (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.concurrent_cells_start`: 241 — Host-wide concurrent cell count was not captured (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.dispatcher_id`: 241 — Exact dispatcher revision is not present in the public receipt extract (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.incidents`: 241 — Per-cell incident receipt was not captured (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.load1_end`: 241 — Host boundary load was not captured in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.load1_start`: 241 — Host boundary load was not captured in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.load_samples`: 241 — Timestamped host-wide load samples were not captured (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `circumstances.queue`: 241 — Queue receipt was not captured (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `cost.accounting`: 123 — Per-cell cost and pricing inputs are not present in the public round data (123). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `cost.long_context_reconciled`: 241 — Boolean receipt not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `cost.usd`: 123 — Per-cell cost and pricing inputs are not present in the public round data (123). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `effort.effective`: 5 — Per-cell effective-effort receipt not published (5). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.account_class`: 241 — No owner-approved class-only account receipt is available for the cell (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.network.allowlist_hosts`: 241 — Per-cell network allowlist not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.network.profile`: 241 — Per-cell network profile not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.elixir`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.erlang`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.node`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.other_inventory`: 241 — Full per-cell toolchain inventory not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.python`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.ruby`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `environment.toolchains.rust`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `grade.grader`: 241 — Per-cell grader software version is not in the public data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `grade.timestamp`: 241 — No official grade in the public snapshot (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `host.id`: 241 — Not recorded in available public metadata (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `model.effective`: 121 — Per-cell effective-model receipt not published (121). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `model.requested`: 241 — Not recorded in available public metadata (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `sandbox.egress_allow`: 241 — Per-cell egress allowlist is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `sandbox.egress_profile`: 241 — Per-cell egress profile is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `sandbox.profile`: 241 — Per-cell sandbox profile is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `sandbox.profile_sha256`: 241 — Per-cell sandbox profile fingerprint is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.adapter_harness_sha`: 241 — Not recorded in available public metadata (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.deps_source`: 241 — Per-cell dependency source is not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.sandbox_mode`: 241 — Per-cell sandbox mode is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.sandbox_profile_sha256`: 241 — Per-cell sandbox fingerprint is not present in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.task_base.hash`: 241 — Original base commit/tree hash absent; fresh_base_commit is not a base hash (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `setup.task_base.kind`: 241 — Original base revision type not recorded per cell (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
 - `stop_reason`: 4 — No normalized stop receipt (4). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `task.base_repo`: 108 — Not recorded in available public metadata (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `task.base_revision.hash`: 108 — Original base commit/tree hash absent; fresh_base_commit is not a base hash (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `task.base_revision.kind`: 108 — Original base revision type not recorded per cell (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.develop.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.develop.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.gate.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.gate.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.grade.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.grade.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.plan.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.plan.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.review.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.review.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.setup.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.setup.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.shape.end_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timestamps.phases.shape.start_utc`: 108 — Phase timestamp not present in the public per-cell data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timing.phases_s.grade`: 108 — Phase wall not emitted or not separable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `timing.phases_s.setup`: 108 — Phase wall not emitted or not separable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.develop.cached_input`: 108 — Per-phase token counter not emitted (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.develop.input`: 108 — Per-phase token counter not emitted (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.develop.output`: 108 — Per-phase token counter not emitted (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.develop.reasoning`: 108 — Per-phase token counter not emitted (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.review.cached_input`: 104 — Per-phase token counter not emitted (104). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.review.input`: 104 — Per-phase token counter not emitted (104). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.review.output`: 104 — Per-phase token counter not emitted (104). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.phases.review.reasoning`: 104 — Per-phase token counter not emitted (104). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.total.cached_input`: 108 — Complete per-model billable vector unavailable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.total.input`: 108 — Complete per-model billable vector unavailable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.total.output`: 108 — Complete per-model billable vector unavailable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tokens.total.reasoning`: 108 — Complete per-model billable vector unavailable (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.grader`: 108 — Per-cell grader software version is not in the public data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.runner`: 108 — Per-cell runner version not recorded in the public round data (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.elixir`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.erlang`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.node`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.other_inventory`: 108 — Full per-cell toolchain inventory not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.python`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.ruby`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
-- `tools.toolchains.rust`: 108 — Toolchain version not recorded (108). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `task.base_repo`: 241 — Not recorded in available public metadata (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `task.base_revision.hash`: 241 — Original base commit/tree hash absent; fresh_base_commit is not a base hash (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `task.base_revision.kind`: 241 — Original base revision type not recorded per cell (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.develop.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.develop.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.gate.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.gate.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.grade.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.grade.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.plan.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.plan.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.review.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.review.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.setup.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.setup.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.shape.end_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timestamps.phases.shape.start_utc`: 241 — Phase timestamp not present in the public per-cell data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timing.phases_s.grade`: 241 — Phase wall not emitted or not separable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `timing.phases_s.setup`: 241 — Phase wall not emitted or not separable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.develop.cached_input`: 241 — Per-phase token counter not emitted (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.develop.input`: 241 — Per-phase token counter not emitted (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.develop.output`: 241 — Per-phase token counter not emitted (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.develop.reasoning`: 241 — Per-phase token counter not emitted (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.review.cached_input`: 234 — Per-phase token counter not emitted (234). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.review.input`: 234 — Per-phase token counter not emitted (234). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.review.output`: 234 — Per-phase token counter not emitted (234). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.phases.review.reasoning`: 234 — Per-phase token counter not emitted (234). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.total.cached_input`: 241 — Complete per-model billable vector unavailable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.total.input`: 241 — Complete per-model billable vector unavailable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.total.output`: 241 — Complete per-model billable vector unavailable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tokens.total.reasoning`: 241 — Complete per-model billable vector unavailable (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.grader`: 241 — Per-cell grader software version is not in the public data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.runner`: 241 — Per-cell runner version not recorded in the public round data (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.elixir`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.erlang`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.node`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.other_inventory`: 241 — Full per-cell toolchain inventory not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.python`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.ruby`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
+- `tools.toolchains.rust`: 241 — Toolchain version not recorded (241). Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.
 
 ```json
 {
-  "cells": 108,
+  "cells": 241,
   "fields": {
     "circumstances.cap_end": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Boundary telemetry not retained": 108
+        "Boundary telemetry not retained": 241
       }
     },
     "circumstances.cap_start": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Boundary telemetry not retained": 108
+        "Boundary telemetry not retained": 241
       }
     },
     "circumstances.concurrent_cells_end": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Host-wide concurrent cell count was not captured": 108
+        "Host-wide concurrent cell count was not captured": 241
       }
     },
     "circumstances.concurrent_cells_start": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Host-wide concurrent cell count was not captured": 108
+        "Host-wide concurrent cell count was not captured": 241
       }
     },
     "circumstances.dispatcher_id": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Exact dispatcher revision is not present in the public receipt extract": 108
+        "Exact dispatcher revision is not present in the public receipt extract": 241
       }
     },
     "circumstances.incidents": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell incident receipt was not captured": 108
+        "Per-cell incident receipt was not captured": 241
       }
     },
     "circumstances.load1_end": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Host boundary load was not captured in the public round data": 108
+        "Host boundary load was not captured in the public round data": 241
       }
     },
     "circumstances.load1_start": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Host boundary load was not captured in the public round data": 108
+        "Host boundary load was not captured in the public round data": 241
       }
     },
     "circumstances.load_samples": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Timestamped host-wide load samples were not captured": 108
+        "Timestamped host-wide load samples were not captured": 241
       }
     },
     "circumstances.queue": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Queue receipt was not captured": 108
+        "Queue receipt was not captured": 241
       }
     },
     "cost.accounting": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 56,
+      "count": 123,
       "reasons": {
-        "Per-cell cost and pricing inputs are not present in the public round data": 56
+        "Per-cell cost and pricing inputs are not present in the public round data": 123
       }
     },
     "cost.long_context_reconciled": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Boolean receipt not recorded": 108
+        "Boolean receipt not recorded": 241
       }
     },
     "cost.usd": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 56,
+      "count": 123,
       "reasons": {
-        "Per-cell cost and pricing inputs are not present in the public round data": 56
+        "Per-cell cost and pricing inputs are not present in the public round data": 123
       }
     },
     "effort.effective": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 4,
+      "count": 5,
       "reasons": {
-        "Per-cell effective-effort receipt not published": 4
+        "Per-cell effective-effort receipt not published": 5
       }
     },
     "environment.account_class": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "No owner-approved class-only account receipt is available for the cell": 108
+        "No owner-approved class-only account receipt is available for the cell": 241
       }
     },
     "environment.network.allowlist_hosts": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell network allowlist not present in the public round data": 108
+        "Per-cell network allowlist not present in the public round data": 241
       }
     },
     "environment.network.profile": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell network profile not present in the public round data": 108
+        "Per-cell network profile not present in the public round data": 241
       }
     },
     "environment.toolchains.elixir": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "environment.toolchains.erlang": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "environment.toolchains.node": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "environment.toolchains.other_inventory": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Full per-cell toolchain inventory not recorded": 108
+        "Full per-cell toolchain inventory not recorded": 241
       }
     },
     "environment.toolchains.python": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "environment.toolchains.ruby": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "environment.toolchains.rust": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "grade.grader": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell grader software version is not in the public data": 108
+        "Per-cell grader software version is not in the public data": 241
       }
     },
     "grade.timestamp": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "No official grade in the public snapshot": 108
+        "No official grade in the public snapshot": 241
       }
     },
     "host.id": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Not recorded in available public metadata": 108
+        "Not recorded in available public metadata": 241
       }
     },
     "model.effective": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 56,
+      "count": 121,
       "reasons": {
-        "Per-cell effective-model receipt not published": 56
+        "Per-cell effective-model receipt not published": 121
       }
     },
     "model.requested": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Not recorded in available public metadata": 108
+        "Not recorded in available public metadata": 241
       }
     },
     "sandbox.egress_allow": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell egress allowlist is not present in the public round data": 108
+        "Per-cell egress allowlist is not present in the public round data": 241
       }
     },
     "sandbox.egress_profile": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell egress profile is not present in the public round data": 108
+        "Per-cell egress profile is not present in the public round data": 241
       }
     },
     "sandbox.profile": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell sandbox profile is not present in the public round data": 108
+        "Per-cell sandbox profile is not present in the public round data": 241
       }
     },
     "sandbox.profile_sha256": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell sandbox profile fingerprint is not present in the public round data": 108
+        "Per-cell sandbox profile fingerprint is not present in the public round data": 241
       }
     },
     "setup.adapter_harness_sha": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Not recorded in available public metadata": 108
+        "Not recorded in available public metadata": 241
       }
     },
     "setup.deps_source": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell dependency source is not recorded": 108
+        "Per-cell dependency source is not recorded": 241
       }
     },
     "setup.sandbox_mode": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell sandbox mode is not present in the public round data": 108
+        "Per-cell sandbox mode is not present in the public round data": 241
       }
     },
     "setup.sandbox_profile_sha256": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell sandbox fingerprint is not present in the public round data": 108
+        "Per-cell sandbox fingerprint is not present in the public round data": 241
       }
     },
     "setup.task_base.hash": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 108
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 241
       }
     },
     "setup.task_base.kind": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Original base revision type not recorded per cell": 108
+        "Original base revision type not recorded per cell": 241
       }
     },
     "stop_reason": {
@@ -370,526 +370,526 @@ Declared gaps:
     },
     "task.base_repo": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Not recorded in available public metadata": 108
+        "Not recorded in available public metadata": 241
       }
     },
     "task.base_revision.hash": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 108
+        "Original base commit/tree hash absent; fresh_base_commit is not a base hash": 241
       }
     },
     "task.base_revision.kind": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Original base revision type not recorded per cell": 108
+        "Original base revision type not recorded per cell": 241
       }
     },
     "timestamps.phases.develop.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.develop.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.gate.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.gate.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.grade.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.grade.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.plan.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.plan.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.review.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.review.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.setup.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.setup.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.shape.end_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timestamps.phases.shape.start_utc": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase timestamp not present in the public per-cell data": 108
+        "Phase timestamp not present in the public per-cell data": 241
       }
     },
     "timing.phases_s.grade": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase wall not emitted or not separable": 108
+        "Phase wall not emitted or not separable": 241
       }
     },
     "timing.phases_s.setup": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Phase wall not emitted or not separable": 108
+        "Phase wall not emitted or not separable": 241
       }
     },
     "tokens.phases.develop.cached_input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-phase token counter not emitted": 108
+        "Per-phase token counter not emitted": 241
       }
     },
     "tokens.phases.develop.input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-phase token counter not emitted": 108
+        "Per-phase token counter not emitted": 241
       }
     },
     "tokens.phases.develop.output": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-phase token counter not emitted": 108
+        "Per-phase token counter not emitted": 241
       }
     },
     "tokens.phases.develop.reasoning": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-phase token counter not emitted": 108
+        "Per-phase token counter not emitted": 241
       }
     },
     "tokens.phases.review.cached_input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 104,
+      "count": 234,
       "reasons": {
-        "Per-phase token counter not emitted": 104
+        "Per-phase token counter not emitted": 234
       }
     },
     "tokens.phases.review.input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 104,
+      "count": 234,
       "reasons": {
-        "Per-phase token counter not emitted": 104
+        "Per-phase token counter not emitted": 234
       }
     },
     "tokens.phases.review.output": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 104,
+      "count": 234,
       "reasons": {
-        "Per-phase token counter not emitted": 104
+        "Per-phase token counter not emitted": 234
       }
     },
     "tokens.phases.review.reasoning": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 104,
+      "count": 234,
       "reasons": {
-        "Per-phase token counter not emitted": 104
+        "Per-phase token counter not emitted": 234
       }
     },
     "tokens.total.cached_input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Complete per-model billable vector unavailable": 108
+        "Complete per-model billable vector unavailable": 241
       }
     },
     "tokens.total.input": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Complete per-model billable vector unavailable": 108
+        "Complete per-model billable vector unavailable": 241
       }
     },
     "tokens.total.output": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Complete per-model billable vector unavailable": 108
+        "Complete per-model billable vector unavailable": 241
       }
     },
     "tokens.total.reasoning": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Complete per-model billable vector unavailable": 108
+        "Complete per-model billable vector unavailable": 241
       }
     },
     "tools.grader": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell grader software version is not in the public data": 108
+        "Per-cell grader software version is not in the public data": 241
       }
     },
     "tools.runner": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Per-cell runner version not recorded in the public round data": 108
+        "Per-cell runner version not recorded in the public round data": 241
       }
     },
     "tools.toolchains.elixir": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "tools.toolchains.erlang": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "tools.toolchains.node": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "tools.toolchains.other_inventory": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Full per-cell toolchain inventory not recorded": 108
+        "Full per-cell toolchain inventory not recorded": 241
       }
     },
     "tools.toolchains.python": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "tools.toolchains.ruby": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     },
     "tools.toolchains.rust": {
       "affects_verdict": "Unavailable Standard receipts limit capture completeness and strict release eligibility; they do not change the hidden-test outcomes reported on this page.",
-      "count": 108,
+      "count": 241,
       "reasons": {
-        "Toolchain version not recorded": 108
+        "Toolchain version not recorded": 241
       }
     }
   },
   "gap_sources": {
     "lost": {
       "circumstances.cap_end": {
-        "none": 108
+        "none": 241
       },
       "circumstances.cap_start": {
-        "none": 108
+        "none": 241
       },
       "circumstances.concurrent_cells_end": {
-        "none": 108
+        "none": 241
       },
       "circumstances.concurrent_cells_start": {
-        "none": 108
+        "none": 241
       },
       "circumstances.dispatcher_id": {
-        "none": 108
+        "none": 241
       },
       "circumstances.incidents": {
-        "none": 108
+        "none": 241
       },
       "circumstances.load1_end": {
-        "none": 108
+        "none": 241
       },
       "circumstances.load1_start": {
-        "none": 108
+        "none": 241
       },
       "circumstances.load_samples": {
-        "none": 108
+        "none": 241
       },
       "circumstances.queue": {
-        "none": 108
+        "none": 241
       },
       "cost.accounting": {
-        "none": 56
+        "none": 123
       },
       "cost.long_context_reconciled": {
-        "none": 108
+        "none": 241
       },
       "cost.usd": {
-        "none": 56
+        "none": 123
       },
       "effort.effective": {
-        "none": 4
+        "none": 5
       },
       "environment.account_class": {
-        "none": 108
+        "none": 241
       },
       "environment.network.allowlist_hosts": {
-        "none": 108
+        "none": 241
       },
       "environment.network.profile": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.elixir": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.erlang": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.node": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.other_inventory": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.python": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.ruby": {
-        "none": 108
+        "none": 241
       },
       "environment.toolchains.rust": {
-        "none": 108
+        "none": 241
       },
       "grade.grader": {
-        "none": 108
+        "none": 241
       },
       "grade.timestamp": {
-        "not re-derivable from the public record": 108
+        "not re-derivable from the public record": 241
       },
       "host.id": {
-        "none": 108
+        "none": 241
       },
       "model.effective": {
-        "none": 56
+        "none": 121
       },
       "model.requested": {
-        "none": 108
+        "none": 241
       },
       "sandbox.egress_allow": {
-        "none": 108
+        "none": 241
       },
       "sandbox.egress_profile": {
-        "none": 108
+        "none": 241
       },
       "sandbox.profile": {
-        "none": 108
+        "none": 241
       },
       "sandbox.profile_sha256": {
-        "none": 108
+        "none": 241
       },
       "setup.adapter_harness_sha": {
-        "none": 108
+        "none": 241
       },
       "setup.deps_source": {
-        "none": 108
+        "none": 241
       },
       "setup.sandbox_mode": {
-        "none": 108
+        "none": 241
       },
       "setup.sandbox_profile_sha256": {
-        "none": 108
+        "none": 241
       },
       "setup.task_base.hash": {
-        "none": 108
+        "none": 241
       },
       "setup.task_base.kind": {
-        "none": 108
+        "none": 241
       },
       "stop_reason": {
         "none": 4
       },
       "task.base_repo": {
-        "none": 108
+        "none": 241
       },
       "task.base_revision.hash": {
-        "none": 108
+        "none": 241
       },
       "task.base_revision.kind": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.develop.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.develop.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.gate.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.gate.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.grade.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.grade.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.plan.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.plan.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.review.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.review.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.setup.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.setup.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.shape.end_utc": {
-        "none": 108
+        "none": 241
       },
       "timestamps.phases.shape.start_utc": {
-        "none": 108
+        "none": 241
       },
       "timing.phases_s.grade": {
-        "none": 108
+        "none": 241
       },
       "timing.phases_s.setup": {
-        "none": 108
+        "none": 241
       },
       "tokens.phases.develop.cached_input": {
-        "none": 108
+        "none": 241
       },
       "tokens.phases.develop.input": {
-        "none": 108
+        "none": 241
       },
       "tokens.phases.develop.output": {
-        "none": 108
+        "none": 241
       },
       "tokens.phases.develop.reasoning": {
-        "none": 108
+        "none": 241
       },
       "tokens.phases.review.cached_input": {
-        "none": 104
+        "none": 234
       },
       "tokens.phases.review.input": {
-        "none": 104
+        "none": 234
       },
       "tokens.phases.review.output": {
-        "none": 104
+        "none": 234
       },
       "tokens.phases.review.reasoning": {
-        "none": 104
+        "none": 234
       },
       "tokens.total.cached_input": {
-        "none": 108
+        "none": 241
       },
       "tokens.total.input": {
-        "none": 108
+        "none": 241
       },
       "tokens.total.output": {
-        "none": 108
+        "none": 241
       },
       "tokens.total.reasoning": {
-        "none": 108
+        "none": 241
       },
       "tools.grader": {
-        "none": 108
+        "none": 241
       },
       "tools.runner": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.elixir": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.erlang": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.node": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.other_inventory": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.python": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.ruby": {
-        "none": 108
+        "none": 241
       },
       "tools.toolchains.rust": {
-        "none": 108
+        "none": 241
       }
     },
     "reconstructable": {}

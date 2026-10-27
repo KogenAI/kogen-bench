@@ -2,74 +2,113 @@
 
 | Machine | Arm | Cells | Passed every hidden test |
 | --- | --- | ---: | ---: |
-| mac | native | 14 | 14 |
-| mac | cc | 14 | 14 |
-| linux-a | native | 24 | 21 |
-| linux-a | cc | 24 | 23 |
-| linux-b | native | 16 | 14 |
-| linux-b | cc | 16 | 14 |
-| all | native | 54 | 49 |
-| all | cc | 54 | 51 |
+| m1 | native | 34 | 32 |
+| m1 | cc | 34 | 32 |
+| m2 | native | 50 | 46 |
+| m2 | cc | 50 | 48 |
+| m3 | native | 26 | 24 |
+| m3 | cc | 26 | 24 |
+| m4 | native | 10 | 4 |
+| m4 | cc | 11 | 5 |
+| all | native | 120 | 106 |
+| all | cc | 121 | 109 |
 
-Tasks whose start check failed before the build in every cell (void for both arms): build-10.
+Cells without a partner (the other arm's cell with the same task, machine and repetition never finished): build-08/r1/cc-m4. Pairs: 120.
 
-## Per task
+Void groups (a task and machine where the start check failed before the build in every cell of both arms): build-10 on m3 (4 cells).
 
-| Task | Machine | Hidden tests | Reps | native passed | cc passed | Favours |
-| --- | --- | ---: | ---: | ---: | ---: | --- |
-| `build-01` | mac | 19 | 2 | 2 | 2 | tie |
-| `build-02` | linux-a | 11 | 4 | 2 | 3 | cc |
-| `build-03` | linux-a | 10 | 4 | 4 | 4 | tie |
-| `build-04` | linux-a | 10 | 4 | 4 | 4 | tie |
-| `build-05` | mac | 11 | 2 | 2 | 2 | tie |
-| `build-06` | mac | 7 | 2 | 2 | 2 | tie |
-| `build-07` | mac | 10 | 2 | 2 | 2 | tie |
-| `build-08` | linux-b | 11 | 2 | 2 | 2 | tie |
-| `build-09` | mac | 7 | 2 | 2 | 2 | tie |
-| `build-10` | linux-b | 962 | 2 | 0 | 0 | tie |
-| `build-11` | linux-b | 12 | 2 | 2 | 2 | tie |
-| `build-12` | linux-a | 11 | 4 | 4 | 4 | tie |
-| `build-13` | mac | 9 | 2 | 2 | 2 | tie |
-| `build-14` | mac | 15 | 2 | 2 | 2 | tie |
-| `build-15` | linux-b | 389 | 2 | 2 | 2 | tie |
-| `build-16` | linux-b | 10 | 2 | 2 | 2 | tie |
-| `build-17` | linux-a | 11 | 4 | 4 | 4 | tie |
-| `build-18` | linux-b | 900 | 2 | 2 | 2 | tie |
-| `build-19` | linux-b | 9 | 2 | 2 | 2 | tie |
-| `build-20` | linux-b | 9 | 2 | 2 | 2 | tie |
-| `build-21` | linux-a | 7 | 4 | 3 | 4 | cc |
+## Per task (pairs only, all machines pooled)
 
-Sign test, all 21 tasks, as run: cc favoured on 2 tasks, native on 0, ties 19; pass rate native 49/54 = 0.907, cc 51/54 = 0.944; one-sided p (cc better) 0.2500, (native better) 1.0000.
-Sign test, without the void task: cc favoured on 2 tasks, native on 0, ties 18; pass rate native 49/52 = 0.942, cc 51/52 = 0.981; one-sided p (cc better) 0.2500, (native better) 1.0000.
+| Task | Machines | Hidden tests | Pairs | native passed | cc passed | Favours | Hidden tests passed, native | Hidden tests passed, cc |
+| --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| `build-01` | m1+m2 | 19 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-02` | m2 | 11 | 6 | 3 | 4 | cc | 50.0% | 66.7% |
+| `build-03` | m2 | 10 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-04` | m2 | 10 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-05` | m1+m2 | 11 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-06` | m1+m2 | 7 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-07` | m1+m2 | 10 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-08` | m1+m3 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-09` | m1+m2 | 7 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-10` | m1+m3 | 962 | 4 | 2 | 2 | tie | 50.0% | 50.0% |
+| `build-11` | m1+m3 | 12 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-12` | m2 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-13` | m1+m2 | 9 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-14` | m1+m2 | 15 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-15` | m1+m3 | 389 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-16` | m1+m3+m4 | 10 | 8 | 8 | 8 | tie | 100.0% | 100.0% |
+| `build-17` | m2 | 11 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-18` | m1+m3 | 900 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-19` | m1+m3 | 9 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-20` | m1+m3 | 9 | 6 | 6 | 6 | tie | 100.0% | 100.0% |
+| `build-21` | m2 | 7 | 6 | 5 | 6 | cc | 83.3% | 100.0% |
+| `build-22` | m1+m4 | 17 | 4 | 4 | 4 | tie | 100.0% | 100.0% |
+| `build-23` | m1+m4 | 66 | 4 | 0 | 0 | tie | 90.9% | 92.4% |
+| `build-24` | m4 | 97 | 2 | 0 | 0 | tie | 73.2% | 73.2% |
+| `build-25` | m4 | 33 | 2 | 0 | 0 | tie | 92.4% | 90.9% |
+
+## Sign test over tasks
+
+Sign test, all tasks, as run: 25 tasks, 120 pairs; cc favoured on 2 tasks, native on 0, ties 23; pair passes native 106/120 = 0.883, cc 108/120 = 0.900; one-sided p (cc better) 0.2500, (native better) 1.0000.
+Sign test, without the void groups: 25 tasks, 118 pairs; cc favoured on 2 tasks, native on 0, ties 23; pair passes native 106/118 = 0.898, cc 108/118 = 0.915; one-sided p (cc better) 0.2500, (native better) 1.0000.
+
+Per machine (the tasks that ran on that machine, its own pairs only):
+
+Sign test, machine m1, without the void groups: 17 tasks, 34 pairs; cc favoured on 0 tasks, native on 0, ties 17; pair passes native 32/34 = 0.941, cc 32/34 = 0.941; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m2, without the void groups: 13 tasks, 50 pairs; cc favoured on 2 tasks, native on 0, ties 11; pair passes native 46/50 = 0.920, cc 48/50 = 0.960; one-sided p (cc better) 0.2500, (native better) 1.0000.
+Sign test, machine m3, without the void groups: 7 tasks, 24 pairs; cc favoured on 0 tasks, native on 0, ties 7; pair passes native 24/24 = 1.000, cc 24/24 = 1.000; one-sided p (cc better) 1.0000, (native better) 1.0000.
+Sign test, machine m4, without the void groups: 5 tasks, 10 pairs; cc favoured on 0 tasks, native on 0, ties 5; pair passes native 4/10 = 0.400, cc 4/10 = 0.400; one-sided p (cc better) 1.0000, (native better) 1.0000.
 
 ## Cells that did not pass every hidden test
 
 | Cell | Outcome | Hidden tests passed |
 | --- | --- | ---: |
-| `build-02/r2/native-linux-a` | landed | 0 of 11 |
-| `build-02/r3/cc-linux-a` | landed | 0 of 11 |
-| `build-02/r4/native-linux-a` | landed | 0 of 11 |
-| `build-10/r1/cc-linux-b` | check_failing | 0 of 962 |
-| `build-10/r1/native-linux-b` | check_failing | 0 of 962 |
-| `build-10/r2/cc-linux-b` | check_failing | 0 of 962 |
-| `build-10/r2/native-linux-b` | check_failing | 0 of 962 |
-| `build-21/r1/native-linux-a` | landed | 0 of 7 |
+| `build-02/r2/native-m2` | landed | 0 of 11 |
+| `build-02/r3/cc-m2` | landed | 0 of 11 |
+| `build-02/r4/native-m2` | landed | 0 of 11 |
+| `build-02/r5/cc-m2` | landed | 0 of 11 |
+| `build-02/r6/native-m2` | landed | 0 of 11 |
+| `build-10/r1/cc-m3` | check_failing | 0 of 962 |
+| `build-10/r1/native-m3` | check_failing | 0 of 962 |
+| `build-10/r2/cc-m3` | check_failing | 0 of 962 |
+| `build-10/r2/native-m3` | check_failing | 0 of 962 |
+| `build-21/r1/native-m2` | landed | 0 of 7 |
+| `build-23/r1/cc-m1` | landed | 61 of 66 |
+| `build-23/r1/cc-m4` | landed | 61 of 66 |
+| `build-23/r1/native-m1` | landed | 60 of 66 |
+| `build-23/r1/native-m4` | landed | 59 of 66 |
+| `build-23/r2/cc-m1` | landed | 61 of 66 |
+| `build-23/r2/cc-m4` | landed | 61 of 66 |
+| `build-23/r2/native-m1` | landed | 61 of 66 |
+| `build-23/r2/native-m4` | landed | 60 of 66 |
+| `build-24/r1/cc-m4` | timeout | 71 of 97 |
+| `build-24/r1/native-m4` | timeout | 71 of 97 |
+| `build-24/r2/cc-m4` | timeout | 71 of 97 |
+| `build-24/r2/native-m4` | timeout | 71 of 97 |
+| `build-25/r1/cc-m4` | landed | 30 of 33 |
+| `build-25/r1/native-m4` | landed | 30 of 33 |
+| `build-25/r2/cc-m4` | landed | 30 of 33 |
+| `build-25/r2/native-m4` | landed | 31 of 33 |
 
 ## Wall time (seconds per cell; build stage is the build command)
 
 | Set | Arm | Cells | Median cell | Sum, cell | Median build | Sum, build |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| all cells | native | 54 | 150 | 10,578 | 143 | 9,775 |
-| all cells | cc | 54 | 173 | 11,255 | 156 | 10,343 |
-| without the void task | native | 52 | 156 | 10,492 | 145 | 9,721 |
-| without the void task | cc | 52 | 174 | 11,192 | 157 | 10,315 |
-| short tasks (mac, linux-a) | native | 38 | 164 | 5,819 | 149 | 5,402 |
-| short tasks (mac, linux-a) | cc | 38 | 175 | 6,193 | 162 | 5,760 |
-| linux-b tasks, without the void task | native | 14 | 125 | 4,673 | 117 | 4,319 |
-| linux-b tasks, without the void task | cc | 14 | 148 | 4,999 | 142 | 4,556 |
+| all cells | native | 120 | 172 | 42,850 | 158 | 40,033 |
+| all cells | cc | 121 | 180 | 42,451 | 164 | 39,480 |
+| without the void groups | native | 118 | 174 | 42,764 | 159 | 39,980 |
+| without the void groups | cc | 119 | 180 | 42,388 | 166 | 39,452 |
+| machine m1, without the void groups | native | 34 | 140 | 10,559 | 134 | 9,972 |
+| machine m1, without the void groups | cc | 34 | 142 | 10,897 | 136 | 10,339 |
+| machine m2, without the void groups | native | 50 | 180 | 8,847 | 164 | 8,145 |
+| machine m2, without the void groups | cc | 50 | 184 | 9,380 | 173 | 8,661 |
+| machine m3, without the void groups | native | 24 | 134 | 7,419 | 122 | 6,919 |
+| machine m3, without the void groups | cc | 24 | 161 | 6,495 | 147 | 5,921 |
+| machine m4, without the void groups | native | 10 | 1,470 | 15,940 | 1,393 | 14,943 |
+| machine m4, without the void groups | cc | 11 | 1,127 | 15,617 | 981 | 14,530 |
 
-Per-task median cell wall time ratio, cc over native (tasks with every cell built, void task left out):
-median 1.08, cc faster on 6 of 20 tasks, slower on 14.
+Per-task median cell wall time ratio, cc over native (all cells of the task, void groups left out):
+median 1.07, cc faster on 7 of 25 tasks, slower on 18.
 
 ## Build tokens and cost (build stage only; the Opus review is native in both arms)
 
@@ -77,18 +116,18 @@ Native: Kogen's own request log, list prices. cc: harness-reported tokens from K
 
 | Set | Arm | Cells | Median input | Median output | Sum input | Sum output | Sum cost, USD | Median cost, USD |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| all cells with a build | native | 52 | 46,422 | 3,640 | 22,382,430 | 326,469 | 10.44 | 0.063 |
-| all cells with a build | cc | 52 | 130,230 | 4,502 | 28,848,850 | 397,578 | 12.03 | 0.108 |
+| all cells with a build | native | 118 | 48,634 | 3,692 | 97,639,372 | 1,099,588 | 40.92 | 0.065 |
+| all cells with a build | cc | 117 | 139,061 | 4,862 | 115,616,986 | 1,201,340 | 39.06 | 0.127 |
 
-Per-task ratio of median build tokens, cc over native (20 tasks): input median 2.68, cc higher on 20; output median 1.28, cc higher on 20.
+Per-task ratio of median build tokens, cc over native (24 tasks): input median 2.33, cc higher on 24; output median 1.31, cc higher on 24.
 
 ## Review (Opus 5.5 medium, native in both arms), list price
 
 | Arm | Cells reviewed | Sum input | Sum output | Sum cost, USD | Median cost, USD |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| native | 52 | 6,378,808 | 163,990 | 10.60 | 0.133 |
-| cc | 52 | 5,804,029 | 153,988 | 10.49 | 0.143 |
+| native | 116 | 20,897,165 | 410,286 | 35.76 | 0.139 |
+| cc | 118 | 19,328,612 | 368,239 | 37.37 | 0.144 |
 
 ## Native arm, list-price cost per cell (build plus review)
 
-54 cells: sum 21.04 USD, median 0.193 USD, mean 0.390 USD.
+120 cells: sum 76.68 USD, median 0.204 USD, mean 0.639 USD.

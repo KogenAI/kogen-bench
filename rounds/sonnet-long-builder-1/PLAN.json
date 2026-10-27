@@ -1,0 +1,128 @@
+{
+  "experiment": {
+    "cost_cap_usd": 10,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "sonnet-long-builder-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "sonnet-review-m4",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "anthropic/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "opus-review-m4",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "anthropic/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "opus-review-m3",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "anthropic/claude-sonnet-5-5 medium",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      }
+    ],
+    "phase": "build",
+    "provider_caps": {
+      "anthropic": {
+        "usd": 112
+      }
+    },
+    "reps": 2,
+    "tasks": [
+      "build-22",
+      "build-23",
+      "build-25",
+      "build-24"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "opus-review-m3": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
+      },
+      "opus-review-m4": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "9d114fc78411ab667344e28da59de32eef3db834ed306c35422859dde5842b7e"
+      },
+      "sonnet-review-m4": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "05128756320ad7190cb380363e9d0f16cbfcbc20ee8f7aa687bfd793d33237c3"
+      }
+    },
+    "tasks": {
+      "build-22": {
+        "hidden_tests": "f6721c6e2703494e89e1480b68361cef3172592fd590476d08583416de1e983c",
+        "intents": {
+          "gherkin": "62c4a6cd3066b5f14d7e9d088f06ee43d419dc70847e209d15654d2015aea94b"
+        },
+        "request": "fcb0806c81d13c8044ce1b0fe29f54b49fddc0a5c9bf42d4df15b05e7b4cabbd",
+        "task": "27bfe08f0751b25ce1e13f1260099d30f0814affc7aa1ccc6148291ed8a77a71",
+        "task_toml": "be1a2ac5c176a4722f10eada309e5662b4761821b91b05ed9b9a9698782f2b57",
+        "tree": "f5148e416da44f66dcd631578a8ac2ef313b328899757701ff7bdb52e0aef0d0"
+      },
+      "build-23": {
+        "hidden_tests": "a9a86f74e19c55d7a0721156e36e62a72f116312f6324a5aa54519bdac8550fc",
+        "intents": {
+          "gherkin": "35011c9c192af8d93c9f975f5bde47c918befbce2455aef51c49b5f5779d8518"
+        },
+        "request": "40ab614af59f829ffe8dbf716dcbee974ec59cef4e8985423f60cc7bc05e6b93",
+        "task": "4f5a775c55742cb9a532589594174452929e60c973d46761c7a64b88fe4c2e25",
+        "task_toml": "0441923ca379633fda6ae12dfc3476e5285e9117e4467796397caf8108946ba3",
+        "tree": "a45ef30a10c52eeeccb03aa5724040bb4657d89de3168db9bda1c2da3b7eb22f"
+      },
+      "build-24": {
+        "hidden_tests": "fc2dc682ea493339acd0d490a51f378c089ba6865b68427fa9974b23caf127e0",
+        "intents": {
+          "gherkin": "d4264954e7910196d410d6350830fd0808e44af9c21a633239d50e793288603a"
+        },
+        "request": "fa5136384dc9b777e4851184a12ccfe3bbc980dcfbca9782afd820a620cdd0c1",
+        "task": "83013fbfa799ddb043b657a6f9ec8c4732760b9f2cc0cf3c4a886f2fbfe55338",
+        "task_toml": "70b7dbcad97a76104b27f96afac47d9fdf2b3286c772126177396522901bddf1",
+        "tree": "168c074e56ee68e3511d2bac46e878e4c82872653874bbc49f77a7ec18b946b7"
+      },
+      "build-25": {
+        "hidden_tests": "e943e5d7e14239f1052e5833789f741282f2788989159bbd3d9a12339c1d41e0",
+        "intents": {
+          "gherkin": "2ef97143dd6a2b4eba9282da1ef22de1d60e0e522252bcbb3faa0b84bad3b264"
+        },
+        "request": "e00e9f4322feb70c95d54db2599b496d4366118d300c4f9507e068e4dae7293d",
+        "task": "f1ad36e09284f4c703a3f76ee95df812aa9dc919d998f7267ce61b1ef2e4f506",
+        "task_toml": "c4886e02b9345773e26d23a244675952aa50bc6e89e6d90d4cbbd1f8f920c83b",
+        "tree": "5b83138b5e55d00dab469208ed2b1caee83c52889bae1f2660b8baa0fc6bcf77"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "opus-review-m3": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
+      "opus-review-m4": "c5793b873b87a01c8deb3d268597d6399c0f6b1d740a4376c4cbd73b5f6f544c",
+      "sonnet-review-m4": "c5793b873b87a01c8deb3d268597d6399c0f6b1d740a4376c4cbd73b5f6f544c"
+    },
+    "sha256": "734651463620ab92a44d36fc6e558eef8039ca92c9f7f686c8428203bb252da6"
+  }
+}
