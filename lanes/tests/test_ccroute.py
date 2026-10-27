@@ -274,6 +274,19 @@ class Dispatched(unittest.TestCase):
         seen = dict(l.split() for l in self.read(log).splitlines())
         self.assertEqual(seen, {"task-mini/r1/base": self.config, "task-mini/r1/patched": "-"})
 
+    def test_claude_bins_folder_leads_the_path_of_claude_code_cells_only(self):
+        for host in ({}, {"target": "far.invalid", "root": os.path.join(self.tmp, "root")}):
+            if host and not shutil.which("rsync"):
+                continue
+            self.start(caps={"claude-code": {"cells": 9}}, reps=1, claude_bin="/opt/cc/bin/claude", **host)
+            log = os.path.join(self.tmp, "path.txt")
+            self.assertEqual(self.run_cmd(env=dict(self.env, FAKE_PATH_LOG=log, LANES_SSH=FAKE_SSH)).returncode, 0)
+            seen = dict(l.split() for l in self.read(log).splitlines())
+            self.assertEqual(seen["task-mini/r1/base"], "/opt/cc/bin", host)
+            self.assertNotEqual(seen["task-mini/r1/patched"], "/opt/cc/bin", host)
+            os.remove(log)
+            shutil.rmtree(self.run_dir)
+
     # ---- the dry cell
 
     def dry(self, runlog, *extra):

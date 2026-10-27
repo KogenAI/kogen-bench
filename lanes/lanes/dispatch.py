@@ -267,6 +267,8 @@ class Host:
         self.name, self.target, self.slots, self.root = name, cfg["target"], cfg["slots"], cfg["root"]
         self.ctx = ctx
         self.claude_config_dir = cfg.get("claude_config_dir")  # CLAUDE_CONFIG_DIR of this host's Claude Code cells
+        # Kogen finds `claude` on PATH: the folder of claude_bin goes first on the PATH of those cells
+        self.claude_dir = os.path.dirname(cfg["claude_bin"]) if cfg.get("claude_bin") else None
         self.remote = self.target != "local"
         self._lock = threading.Lock()
         self._done = set()
@@ -367,8 +369,11 @@ class Host:
             data = "--corpus" if c.exp["phase"] == "probe" else "--tasks"
             args = [sys.executable, os.path.join(c.lanes_dir, "bin", "lanes-cell"), c.run_dir, cell,
                     data, c.tasks, "--host", self.name]
-            env = dict(os.environ, CLAUDE_CONFIG_DIR=self.claude_config_dir) \
-                if self.claude_config_dir and c.claude_code(cell) else None
+            env = None
+            if self.claude_config_dir and c.claude_code(cell):
+                env = dict(os.environ, CLAUDE_CONFIG_DIR=self.claude_config_dir)
+                if self.claude_dir:
+                    env["PATH"] = self.claude_dir + os.pathsep + env.get("PATH", "")
             self.ctx.runner.run(args, deadline_s=deadline, env=env, tag=self.ctx.provider(cell))
             return os.path.isfile(os.path.join(local_cell, "result.json"))
         self.prepare(cell.split("/")[0], lane_artifact)
@@ -379,8 +384,11 @@ class Host:
         # the launcher starts a new session and records its pgid, so a stop can kill the whole group
         launch = ("import os,sys;os.setsid();open(sys.argv[1],'w').write(str(os.getpid()));"
                   "os.execvp('python3',['python3']+sys.argv[2:])")
-        cc = f"CLAUDE_CONFIG_DIR={q(self.claude_config_dir)} " if self.claude_config_dir and \
-            c.claude_code(cell) else ""
+        cc = ""
+        if self.claude_config_dir and c.claude_code(cell):
+            cc = f"CLAUDE_CONFIG_DIR={q(self.claude_config_dir)} "
+            if self.claude_dir:
+                cc += f'PATH={q(self.claude_dir)}:"$PATH" '
         command = (f"rm -rf {q(rcell)} {q(pgfile)} && cd {q(self.root)} && "
                    f"{cc}KOGEN_LANES_HOME={q(self.root)} python3 -c {q(launch)} {q(pgfile)} "
                    f"lanes/bin/lanes-cell {q(os.path.join(self.root, 'runs', c.exp_id))} "
