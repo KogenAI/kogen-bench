@@ -6,3 +6,5 @@
 - [Kogen versus Codex](kogen-vs-codex.md)
 - [Stacks](stacks.md)
 - [Tools and review](tools-jev-and-review.md)
+- [Mechanism inventory](mechanism-inventory.md)
+- [Mechanism profiles](mechanism-profiles.md)

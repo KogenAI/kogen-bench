@@ -2,7 +2,7 @@
 
 Before Kogen builds anything, its **Shape** step turns a user's request into an **Intent**, a set of acceptance scenarios that say what the finished feature must do. Real requests are sometimes flawed: two sentences give different results for one input, nothing says which of two rules wins, or a test needs a name or a value that nothing defines. If Shape lets such a flaw through, the builder gets a flawed Intent. This round measures how often Shape catches known flaws, then tries to improve that one change at a time (a "climb"). It holds the baseline, three changes to it (a checklist added to Shape's instructions, L1; a stronger Claude shaper, L2; higher effort, L3), and Shape run on other model families (GPT-6.1 Terra and Sol).
 
-**The climb is ongoing.** Nothing is decided here, and the evidence is **observation**, not decision-grade. The page has two parts: the update of 28 October (new arms and extra repetitions) and the findings of 27 October (the first four arms), kept unchanged below it.
+**The climb is ongoing.** Nothing is decided here, and the evidence is **observation**, not decision-grade. The page has three parts: the update of 28 October (new arms and extra repetitions), an interim section on the request audit and decision check, and the findings of 27 October (the first four arms), kept unchanged below them.
 
 ## Update, 28 October
 
@@ -19,7 +19,7 @@ Before Kogen builds anything, its **Shape** step turns a user's request into an 
 
 **Extra repetitions (secondary).** The baseline, L1 and L2 were repeated on the train cases (baseline 6 repetitions in all, L1 4, L2 6; the baseline's third and fourth repetitions cover only 3 of the 8 cases so far). Pooled over all repetitions: baseline 27 of 100 (0.27), L1 26 of 84 (0.31), L2 34 of 108 (0.31). Against the pooled baseline neither lever reaches the "better" bar (p at most 0.10 and a mean gain above 0.15): L1 p = 0.19, mean change +0.04; L2 p = 0.31, mean change +0.05. The verdicts registered on the first two repetitions stand. One label differs in wording: on the pooled counts L2's new-flaw hits no longer rise, so the literal rule gives "no change" instead of "worse" for it; nothing about its catch rate changed.
 
-**Product changes under test.** Two opt-in Kogen Shape features were tried in five dry cells before any comparison: a request audit with a coverage gate, and a decision check ([Kogen commit `323a967c`](https://github.com/KogenAI/kogen/commit/323a967c31589195408ae1c981bc52f1632c9f9e)). The audit produced a targeted question that named both conflicting statements. Both features also caused refusals in cells the baseline publishes, because of a readiness rule on the sources of Decision lines. Fixes are being built, and the four-arm comparison (audit, decision check, both, neither) will run on the fixed build. There are no results from these features on this page.
+**Product changes under test.** Two opt-in Kogen Shape features were tried in five dry cells before any comparison: a request audit with a coverage gate, and a decision check ([Kogen commit `323a967c`](https://github.com/KogenAI/kogen/commit/323a967c31589195408ae1c981bc52f1632c9f9e)). The audit produced a targeted question that named both conflicting statements. Both features also caused refusals in cells the baseline publishes, because of a readiness rule on the sources of Decision lines. Fixes are being built, and the four-arm comparison (audit, decision check, both, neither) will run on the fixed build. The first interim results of that comparison are in the section below.
 
 **Cells added.** 334 cells on top of the first 96: 430 in all (418 graded or empty, 12 left out because a memory cap stopped them before any output). 18 planned cells of the extra repetitions had not finished or been graded when the data were taken and are left out; a second batch of Sol medium repetitions (16 cells) finished but is not graded yet. They will be added when graded.
 
@@ -118,6 +118,23 @@ Pooled arms against the pooled baseline, frozen statistics:
 The baseline pooled over its extra repetitions has more cells on every case, so its per-case rate is a better estimate than the first two repetitions alone.
 
 The shape matrix and the time and tokens of the new arms are in [`results.txt`](results.txt).
+
+## Interim: request audit and decision check (2×2 factorial)
+
+Interim, descriptive only, no verdict. Kogen has two optional Shape checks. The **request audit** (`shape_audit`) reads the raw request once, before Shape starts, and looks for contradictions and unstated names. The **decision check** (`shape_decision_check`) checks each Decision line of the Intent against the request; a Decision the request does not support must carry an assumption marker, and a contradicted one is refused. This comparison switches the two on and off in all four combinations: neither, decision check only, audit only, both.
+
+- **Setup.** Shape is Claude Sonnet 5.5 at medium effort on the Claude Code route. The cases are the 8 train requests, graded by the same blind grader and rubric as the rest of this page. 4 of the 10 planned repetitions have run so far, which is 26 cells per arm. The remaining repetitions are running.
+- **Primary view: net effect.** A submission that Shape refused counts as catching nothing, because a user whose request is refused gets no Intent. The mean change is against the "neither" arm, over the 8 requests.
+- **Refusals.** Cells where Shape refused to publish an Intent: neither 1 of 26, decision check only 11 of 26, audit only 7 of 26, both 20 of 26. The refusals were mostly two rules: the Intent title may have at most 50 characters, and every unsupported Decision must be marked in the required assumption format.
+- **Decision check only.** Mean change in the caught-flaw rate +0.00 (3 requests up, 3 down, 2 unchanged).
+- **Audit only.** +0.12 (4 up, 2 down, 2 unchanged; one-sided sign test p = 0.34).
+- **Both.** +0.15 (3 up, 0 down, 5 unchanged; p = 0.13).
+- **New issues.** The number of new flaws the grader found per cell rose slightly in all three arms (+0.06 to +0.16).
+- **Secondary view: refused cells left out.** With refused submissions removed, "both" gains +0.20 on the 5 requests that still had a graded submission in both arms. It leaves out the cells where Shape refused, so it does not show what a user would receive.
+- **Against the registered bar.** No arm meets it: a one-sided sign-test p of at most 0.10, a mean gain above 0.15, and no rise in new issues. "Both" comes closest on the gain and p, and it does not meet the bar on either.
+- **Cells left out.** 24 cells from one machine are excluded and are being rerun. A setup failure left the Elixir toolchain out of the cell environment, in those cells.
+
+These counts are not in the cell records and tables elsewhere on this page. They will be added when the repetitions finish and the cells are graded, and until then they are a progress report.
 
 ## Findings of 27 October (first four arms, repetitions 1 and 2)
 
@@ -343,6 +360,7 @@ The 12 cells were a seeded random sample of the cells graded at that point. The 
 - Claude Code reports tokens by its own count; no price is given.
 - Kogen builds `eea5864e` and `641a53a6` with a research patch, not the current Kogen release.
 - The dry cells of the product changes are described, not measured here.
+- The request audit and decision check comparison is interim: 4 of 10 planned repetitions, 8 requests, 24 cells excluded for a setup failure and being rerun. Its numbers have no cell records on this page yet.
 
 ## Task publication
 

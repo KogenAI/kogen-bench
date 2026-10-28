@@ -11,6 +11,7 @@ Benchmarks for [Kogen](https://github.com/KogenAI), a coding-agent harness. The 
 - [Round register](rounds/README.md) lists experiment pages and their status; each round page is the authority for that run's history and limits.
 - [Publication validation](results/publication-validation.md) records the final validator output, current blockers, and bounded claims safe to publish.
 - [Public glossary](rounds/GLOSSARY.md) defines arm, model, and analysis terms.
+- [Mechanism inventory](categories/mechanism-inventory.md) lists the 80 changeable parts of Kogen and its build loop, with their defaults and what the benchmarks have and have not measured for each Two [model-free profiles](categories/mechanism-profiles.md) of run logs (checkpoint cost, provider retries) sit beside it.
 - [Verification guide](reproduce/VERIFY.md) gives the commands and limits for recomputing published records and numbers.
 - [Rerun guide](reproduce/RERUN.md) explains task grading and the current state of the execution kit.
 - [Ubuntu host setup](reproduce/setup-host.sh) is the one-command installer for a fresh Ubuntu 24.04 x86_64 worker. Fresh-machine setup was verified on 9 October 2026 on a host that has since been retired. See the [rerun guide](reproduce/RERUN.md) for the manual login and admission controls.
@@ -46,6 +47,8 @@ The historical audit command can rewrite round audit documents and the validatio
 - [rounds/](rounds/README.md): round records, outcomes, and status labels
 - [decisions/](decisions/README.md): analysis rulings
 - [categories/](categories/README.md): results grouped by topic
+- [Mechanism inventory](categories/mechanism-inventory.md): every changeable part of Kogen, its default, where it lives and its evidence status
+- [Mechanism profiles](categories/mechanism-profiles.md): model-free profiles of checkpoint cost and provider-retry frequency
 - [tasks/](tasks/README.md): task records and public-prompt coverage
 - [results/](results/README.md): official outcome export and separately captured standard records
 
