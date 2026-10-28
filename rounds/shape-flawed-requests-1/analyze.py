@@ -3,6 +3,9 @@
 
 Usage, from the repository root:  python3 -I rounds/shape-flawed-requests-1/analyze.py [--write]
 
+The first part (up to "Grader agreement") is the 27 October result: the cells of the first four arms, repetitions 1 and 2 only,
+exactly as first published. The part after it, "Update, 28 October", adds the arms and repetitions that were measured later.
+
 It reads only this round's files: the bundle (attempt.json and evaluation.json of every cell), grades.json (the blind
 grader's label counts per cell), grader-agreement.json (a second grader's labels on a sample) and shape-usage.json.
 Standard library only, no model call, no private data. Without --write it prints the tables; with --write it also
@@ -34,6 +37,14 @@ ARMS = [("Baseline (Sonnet medium)", ("sonnet-medium-train", "sonnet-medium-test
         ("L2 (Opus medium)", ("opus-medium-train",)),
         ("Sol low (reference)", ("sol-low-reference",))]
 LANE_ARM = {lane: name for name, lanes in ARMS for lane in lanes}
+# Family of every lane, for the update: the first four families also hold later repetitions (lanes named "more", and
+# repetitions 3 and up of the first lanes); the family is the shaper setting.
+FAMILY = {"sonnet-medium-train": "base", "sonnet-medium-test": "base", "sonnet-medium-more-a": "base", "sonnet-medium-more-b": "base",
+          "sonnet-medium-checklist-train": "l1", "opus-medium-train": "l2", "opus-medium-more-a": "l2", "sonnet-high-train": "l3",
+          "terra-medium-a": "terra", "terra-medium-b": "terra", "terra-high": "terrah", "sol-medium": "solm",
+          "sol-low-reference": "sol", "sol-low-reference-b": "sol", "sol-low-reference-c": "sol"}
+FAMILY_NAME = {"base": "Baseline (Sonnet medium)", "l1": "L1 (checklist)", "l2": "L2 (Opus medium)", "l3": "L3 (Sonnet high)",
+               "terra": "Terra medium", "terrah": "Terra high", "solm": "Sol medium", "sol": "Sol low"}
 CAUGHT = ("RESOLVED-STATED", "ASKED")
 
 
@@ -67,7 +78,10 @@ def load():
         case, rep, lane = cid.split("/")
         gr = g["cells"][cid]
         lab = gr.get("labels") or {}
-        cells[cid] = {"cell": cid, "case": case, "rep": rep, "lane": lane, "arm": LANE_ARM[lane], "outcome": a["outcome"],
+        tot = a.get("totals") or {}
+        cells[cid] = {"cell": cid, "case": case, "rep": rep, "lane": lane, "arm": LANE_ARM.get(lane), "outcome": a["outcome"],
+                      "rep_n": int(rep[1:]), "family": FAMILY[lane], "frozen": lane in LANE_ARM and int(rep[1:]) <= 2,
+                      "tok_in": tot.get("input_tokens"), "tok_out": tot.get("output_tokens"),
                       "wall": a.get("wall_s"), "status": gr["status"], "n": gr["known_defects"],
                       "caught": sum(lab.get(k, 0) for k in CAUGHT), "labels": lab, "nhits": gr.get("n_test_hits", 0),
                       "questions": gr.get("questions_asked", 0), "eval": e, "usage": usage.get(cid),
@@ -81,7 +95,8 @@ def graded(cells):
 
 def main():
     g, cells = load()
-    cl = list(cells.values())
+    allc = list(cells.values())
+    cl = [c for c in allc if c["frozen"]]
     cases = sorted(g["cases"])
     say("## Cells and grading")
     say()
@@ -213,8 +228,177 @@ def main():
     k2 = (po2 - pe2) / (1 - pe2) if pe2 < 1 else 1.0
     say(f"A second blind grader re-labelled {len(ag)} cells ({n} labels): raw agreement {po:.2f}, Cohen's kappa {kappa:.2f} over the four labels; "
         f"caught against not caught: agreement {po2:.2f}, kappa {k2:.2f}. Disagreements: {n - round(po * n)} of {n}.")
+    update(g, allc)
     if "--write" in sys.argv:
         open(os.path.join(HERE, "results.txt"), "w").write("\n".join(OUT) + "\n")
+
+
+def compare(base, lev, g):
+    """Frozen climb statistics of one arm against another on the train half: lists of cells in, a dict out."""
+    train = [c for c in sorted(g["cases"]) if g["cases"][c]["half"] == "train"]
+    rows, diffs, dnew, floor = [], [], [], 0
+    for case in train:
+        b = graded([c for c in base if c["case"] == case])
+        l = graded([c for c in lev if c["case"] == case])
+        if not b or not l:
+            continue
+        bc, bn, lc, ln = sum(c["caught"] for c in b), sum(c["n"] for c in b), sum(c["caught"] for c in l), sum(c["n"] for c in l)
+        d = lc / ln - bc / bn
+        diffs.append(d)
+        bnh, lnh = sum(c["nhits"] for c in b) / len(b), sum(c["nhits"] for c in l) / len(l)
+        dnew.append(lnh - bnh)
+        floor += bc == 0 and lc == 0
+        rows.append((case, bc, bn, lc, ln, d, bnh, lnh))
+    pos, neg = sum(d > 0 for d in diffs), sum(d < 0 for d in diffs)
+    p = p_upper(pos, pos + neg)
+    mean, mnew = sum(diffs) / len(diffs), sum(dnew) / len(dnew)
+    verdict = "better (replicate on test)" if p <= 0.10 and mean > 0.15 and mnew <= 1 else ("worse" if mean < 0 or mnew > 0 else "no change")
+    return {"rows": rows, "pos": pos, "neg": neg, "same": len(diffs) - pos - neg, "p": p, "mean": mean, "mnew": mnew, "floor": floor,
+            "verdict": verdict, "n": len(diffs)}
+
+
+def tally(cs):
+    gc = graded(cs)
+    n = sum(c["n"] for c in gc)
+    cau = sum(c["caught"] for c in gc)
+    return gc, n, cau, sum(c["nhits"] for c in gc)
+
+
+def rate_out(gc):
+    """Caught rate over the cells that produced output (a cell with nothing counts every defect as silent elsewhere)."""
+    w = [c for c in gc if c["status"] != "empty"]
+    n = sum(c["n"] for c in w)
+    return f"{sum(c['caught'] for c in w) / n:.2f} ({sum(c['caught'] for c in w)} of {n})" if n else "n/a"
+
+
+def update(g, allc):
+    say()
+    say("## Update, 28 October (arms and repetitions added after the first publication)")
+    say()
+    train = lambda cs: [c for c in cs if c["half"] == "train"]
+    fam = lambda f, only_frozen=False: [c for c in allc if c["family"] == f and (c["frozen"] or not only_frozen)]
+    base_f = fam("base", True)  # the frozen baseline: repetitions 1 and 2, as first published
+    base_t = train(base_f)
+    say("## Update: arms and cells")
+    say()
+    say("| Arm | Repetitions | Cells | Graded or empty | Excluded (memory cap) | Cells that refused with nothing | Defect-cells | Caught | Caught rate | Cells with a question |")
+    say("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    reps = lambda cs: f"{min(c['rep_n'] for c in cs)} to {max(c['rep_n'] for c in cs)}"
+    for f in ("base", "l1", "l2", "l3", "terra", "terrah", "solm", "sol"):
+        cs = fam(f)
+        gc, n, cau, nh = tally(cs)
+        say(f"| {FAMILY_NAME[f]}, all cells | {reps(cs)} | {len(cs)} | {len(gc)} | {len(cs) - len(gc)} | {sum(c['status'] == 'empty' for c in cs)} | {n} | {cau} | {cau / n:.2f} | {sum(c['questions'] > 0 for c in gc)} |")
+    say()
+    say("## Update: shape outcomes of the new and extended arms (cells)")
+    say()
+    outs = sorted({c["outcome"] for c in allc})
+    say("| Arm | " + " | ".join(outs) + " |")
+    say("| --- | " + " | ".join("---:" for _ in outs) + " |")
+    for f in ("base", "l1", "l2", "l3", "terra", "terrah", "solm", "sol"):
+        cs = fam(f)
+        say(f"| {FAMILY_NAME[f]} | " + " | ".join(str(sum(c["outcome"] == o for c in cs)) for o in outs) + " |")
+    say()
+    say("## Update: other model families against the baseline, train half")
+    say()
+    say("Each arm against the baseline of the first publication (Sonnet medium, repetitions 1 and 2, 10 of 42 on the train half), per case, with the frozen climb rule. A case counts with all of the arm's repetitions.")
+    say()
+    say("| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate | Cases up | Cases down | Cases unchanged | One-sided sign test p | Mean gain in caught rate | Mean change in new-flaw hits per cell | Verdict under the frozen rule | Cells with no output (counted silent) | Caught rate over cells with output |")
+    say("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |")
+    stats = {}
+    for f in ("l3", "terra", "terrah", "solm", "sol"):
+        cs = train(fam(f))
+        st = stats[f] = compare(base_t, cs, g)
+        gc, n, cau, nh = tally(cs)
+        say(f"| {FAMILY_NAME[f]} | {reps(cs)} | {len(gc)} | {cau} of {n} | {cau / n:.2f} | {st['pos']} | {st['neg']} | {st['same']} | {st['p']:.3f} | {st['mean']:+.3f} | {st['mnew']:+.2f} | {st['verdict']} | {sum(c['status'] == 'empty' for c in gc)} | {rate_out(gc)} |")
+    gc, n, cau, nh = tally(base_t)
+    say(f"| Baseline (reference row) | 1 to 2 | {len(gc)} | {cau} of {n} | {cau / n:.2f} | | | | | | | | {sum(c['status'] == 'empty' for c in gc)} | {rate_out(gc)} |")
+    say()
+    say("Per case, caught defects over defect-cells on the train half (new-flaw hits per cell in brackets):")
+    say()
+    cols = ["base", "l3", "terra", "terrah", "solm", "sol"]
+    say("| Case | Known defects | " + " | ".join(FAMILY_NAME[f] + (" (reps 1 to 2)" if f == "base" else "") for f in cols) + " |")
+    say("| --- | ---: | " + " | ".join("---:" for _ in cols) + " |")
+    for case in sorted(g["cases"]):
+        if g["cases"][case]["half"] != "train":
+            continue
+        row = []
+        for f in cols:
+            cs = [c for c in (base_t if f == "base" else train(fam(f))) if c["case"] == case]
+            gc = graded(cs)
+            row.append(f"{sum(c['caught'] for c in gc)} of {sum(c['n'] for c in gc)} ({sum(c['nhits'] for c in gc) / len(gc):.2f})")
+        say(f"| `{case}` | {g['cases'][case]['known_defects']} | " + " | ".join(row) + " |")
+    say()
+    say("Sizes: the baseline has 2 repetitions per case; L3 has 2, Sol medium 2, Terra high 4, Terra medium 6 and Sol low 8. Rates are pooled per case, so unequal repetition counts weigh each case equally.")
+    say()
+    say("All cases (train and test halves), every repetition:")
+    say()
+    say("| Arm | Graded or empty cells | Caught of defect-cells | Caught rate | Train: caught rate | Test: caught rate |")
+    say("| --- | ---: | ---: | ---: | ---: | ---: |")
+    for f in ("base", "terra", "terrah", "solm", "sol"):
+        cs = fam(f, f == "base")
+        gc, n, cau, _ = tally(cs)
+        h = []
+        for half in ("train", "test"):
+            _, n2, c2, _ = tally([c for c in cs if c["half"] == half])
+            h.append(f"{c2 / n2:.2f} ({c2} of {n2})" if n2 else "not run")
+        say(f"| {FAMILY_NAME[f]}{' (reps 1 to 2)' if f == 'base' else ''} | {len(gc)} | {cau} of {n} | {cau / n:.2f} | {h[0]} | {h[1]} |")
+    say()
+    say("## Update: shape matrix of the new arms (cells that produced a graded Intent)")
+    say()
+    say("| Arm | Cells with scenarios | Scenarios | Passing on the reference | Failing on the starting code | Wrong variants caught | Wrong variants |")
+    say("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+    for f in ("base", "l3", "terra", "terrah", "solm", "sol"):
+        cs = [c for c in (base_t if f == "base" else train(fam(f))) if c["eval"].get("scenarios")]
+        t = lambda k: sum(c["eval"].get(k, 0) for c in cs)
+        say(f"| {FAMILY_NAME[f]}, train half | {len(cs)} | {t('scenarios')} | {t('pass_on_reference')} | {t('fail_on_start')} | {t('wrong_caught')} | {t('wrong_total')} |")
+    say()
+    say("## Update: time and tokens of the new arms (shape stage; per cell)")
+    say()
+    say("| Arm | Cells | Median cell wall, s | Median input tokens (cached included) | Median output tokens |")
+    say("| --- | ---: | ---: | ---: | ---: |")
+    for f in ("base", "l3", "terra", "terrah", "solm", "sol"):
+        cs = [c for c in fam(f, f == "base") if c["status"] != "infra-excluded" and c["outcome"] != "memory_cap"]
+        if f in ("base", "l3"):
+            us = [c["usage"] for c in cs if c["usage"]]
+            ti, to = [u["input"] for u in us], [u["output"] for u in us]
+        else:
+            ti, to = [c["tok_in"] for c in cs if c["tok_in"] is not None], [c["tok_out"] for c in cs if c["tok_out"] is not None]
+        say(f"| {FAMILY_NAME[f]}{' (reps 1 to 2)' if f == 'base' else ''} | {len(cs)} | {fmt(median([c['wall'] for c in cs]))} | {fmt(median(ti))} | {fmt(median(to))} |")
+    say()
+    say("Claude arms: Claude Code's own report. ChatGPT arms: the counts of Kogen's own loop (input includes cached input); cells that ended with no model call have none.")
+    say()
+    say("## Update: extra repetitions of the first arms (secondary), train half")
+    say()
+    say("The extra repetitions repeat the baseline, L1 and L2 on the train cases with the same build and settings. They are secondary: the verdicts of the first publication stay as they were registered. Each arm pools all its repetitions per case, and is compared with the pooled baseline.")
+    say()
+    say("| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate | New-flaw hits per cell |")
+    say("| --- | --- | ---: | ---: | ---: | ---: |")
+    pooled = {f: train(fam(f)) for f in ("base", "l1", "l2")}
+    for f in ("base", "l1", "l2"):
+        cs = pooled[f]
+        gc, n, cau, nh = tally(cs)
+        say(f"| {FAMILY_NAME[f]}, all repetitions | {reps(cs)} | {len(gc)} | {cau} of {n} | {cau / n:.2f} | {nh / len(gc):.2f} |")
+    say()
+    say("By group of repetitions (train half only, a group is one run of the arm):")
+    say()
+    say("| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate |")
+    say("| --- | --- | ---: | ---: | ---: |")
+    for f in ("base", "l1", "l2"):
+        for lo, hi in ((1, 2), (3, 4), (5, 6)):
+            cs = [c for c in pooled[f] if lo <= c["rep_n"] <= hi]
+            if cs:
+                gc, n, cau, nh = tally(cs)
+                say(f"| {FAMILY_NAME[f]} | {lo} to {hi} | {len(gc)} | {cau} of {n} | {cau / n:.2f} |")
+    say()
+    say("Pooled arms against the pooled baseline, frozen statistics:")
+    say()
+    say("| Arm | Cases up | Cases down | Cases unchanged | One-sided sign test p | Mean gain in caught rate | Mean change in new-flaw hits per cell | Verdict under the frozen rule |")
+    say("| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |")
+    for f in ("l1", "l2"):
+        st = compare(pooled["base"], pooled[f], g)
+        say(f"| {FAMILY_NAME[f]} | {st['pos']} | {st['neg']} | {st['same']} | {st['p']:.3f} | {st['mean']:+.3f} | {st['mnew']:+.2f} | {st['verdict']} |")
+    say()
+    say("The baseline pooled over its extra repetitions has more cells on every case, so its per-case rate is a better estimate than the first two repetitions alone.")
 
 
 main()

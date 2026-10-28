@@ -115,3 +115,125 @@ Pooled over all train cells: Baseline (Sonnet medium) caught 10 of 42, new-flaw 
 ## Grader agreement
 
 A second blind grader re-labelled 12 cells (29 labels): raw agreement 0.97, Cohen's kappa 0.78 over the four labels; caught against not caught: agreement 0.97, kappa 0.78. Disagreements: 1 of 29.
+
+## Update, 28 October (arms and repetitions added after the first publication)
+
+## Update: arms and cells
+
+| Arm | Repetitions | Cells | Graded or empty | Excluded (memory cap) | Cells that refused with nothing | Defect-cells | Caught | Caught rate | Cells with a question |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium), all cells | 1 to 6 | 64 | 60 | 4 | 0 | 134 | 29 | 0.22 | 1 |
+| L1 (checklist), all cells | 1 to 4 | 32 | 32 | 0 | 0 | 84 | 26 | 0.31 | 0 |
+| L2 (Opus medium), all cells | 1 to 6 | 46 | 46 | 0 | 0 | 108 | 34 | 0.31 | 1 |
+| L3 (Sonnet high), all cells | 1 to 2 | 16 | 15 | 1 | 0 | 41 | 9 | 0.22 | 1 |
+| Terra medium, all cells | 1 to 6 | 96 | 92 | 4 | 15 | 206 | 18 | 0.09 | 12 |
+| Terra high, all cells | 1 to 4 | 32 | 32 | 0 | 2 | 84 | 7 | 0.08 | 8 |
+| Sol medium, all cells | 1 to 2 | 16 | 16 | 0 | 0 | 42 | 8 | 0.19 | 4 |
+| Sol low, all cells | 1 to 8 | 128 | 125 | 3 | 1 | 277 | 32 | 0.12 | 19 |
+
+## Update: shape outcomes of the new and extended arms (cells)
+
+| Arm | memory_cap | ok | questions_pending | refused |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 4 | 59 | 1 | 0 |
+| L1 (checklist) | 0 | 32 | 0 | 0 |
+| L2 (Opus medium) | 0 | 45 | 1 | 0 |
+| L3 (Sonnet high) | 1 | 14 | 1 | 0 |
+| Terra medium | 4 | 64 | 12 | 16 |
+| Terra high | 0 | 22 | 8 | 2 |
+| Sol medium | 0 | 12 | 4 | 0 |
+| Sol low | 3 | 105 | 18 | 2 |
+
+## Update: other model families against the baseline, train half
+
+Each arm against the baseline of the first publication (Sonnet medium, repetitions 1 and 2, 10 of 42 on the train half), per case, with the frozen climb rule. A case counts with all of the arm's repetitions.
+
+| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate | Cases up | Cases down | Cases unchanged | One-sided sign test p | Mean gain in caught rate | Mean change in new-flaw hits per cell | Verdict under the frozen rule | Cells with no output (counted silent) | Caught rate over cells with output |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| L3 (Sonnet high) | 1 to 2 | 15 | 9 of 41 | 0.22 | 3 | 2 | 3 | 0.500 | +0.130 | -0.06 | no change | 0 | 0.22 (9 of 41) |
+| Terra medium | 1 to 6 | 48 | 8 of 126 | 0.06 | 0 | 4 | 4 | 1.000 | -0.192 | +0.04 | worse | 5 | 0.07 (8 of 116) |
+| Terra high | 1 to 4 | 32 | 7 of 84 | 0.08 | 1 | 3 | 4 | 0.938 | -0.140 | +0.00 | worse | 2 | 0.09 (7 of 80) |
+| Sol medium | 1 to 2 | 16 | 8 of 42 | 0.19 | 3 | 3 | 2 | 0.656 | +0.142 | +0.06 | worse | 0 | 0.19 (8 of 42) |
+| Sol low | 1 to 8 | 64 | 14 of 168 | 0.08 | 1 | 3 | 4 | 0.938 | -0.140 | -0.06 | worse | 0 | 0.08 (14 of 168) |
+| Baseline (reference row) | 1 to 2 | 16 | 10 of 42 | 0.24 | | | | | | | | 0 | 0.24 (10 of 42) |
+
+Per case, caught defects over defect-cells on the train half (new-flaw hits per cell in brackets):
+
+| Case | Known defects | Baseline (Sonnet medium) (reps 1 to 2) | L3 (Sonnet high) | Terra medium | Terra high | Sol medium | Sol low |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `case-01` | 1 | 0 of 2 (0.00) | 1 of 2 (0.00) | 0 of 6 (0.33) | 0 of 4 (0.00) | 2 of 2 (0.00) | 0 of 8 (0.00) |
+| `case-02` | 1 | 1 of 2 (0.00) | 1 of 2 (0.00) | 2 of 6 (0.17) | 3 of 4 (0.25) | 2 of 2 (0.50) | 6 of 8 (0.00) |
+| `case-03` | 1 | 2 of 2 (0.00) | 2 of 2 (0.00) | 0 of 6 (0.00) | 0 of 4 (0.25) | 0 of 2 (0.00) | 0 of 8 (0.00) |
+| `case-07` | 5 | 2 of 10 (0.00) | 1 of 10 (0.00) | 0 of 30 (0.33) | 0 of 20 (0.00) | 0 of 10 (0.00) | 0 of 40 (0.00) |
+| `case-08` | 9 | 3 of 18 (0.00) | 1 of 18 (0.50) | 0 of 54 (0.00) | 0 of 36 (0.00) | 0 of 18 (0.00) | 0 of 72 (0.00) |
+| `case-10` | 1 | 0 of 2 (0.00) | 1 of 2 (0.00) | 0 of 6 (0.33) | 0 of 4 (0.00) | 2 of 2 (0.00) | 0 of 8 (0.00) |
+| `case-11` | 1 | 2 of 2 (0.00) | 1 of 1 (0.00) | 6 of 6 (0.00) | 4 of 4 (0.00) | 2 of 2 (0.00) | 8 of 8 (0.00) |
+| `case-16` | 2 | 0 of 4 (1.00) | 1 of 4 (0.00) | 0 of 12 (0.17) | 0 of 8 (0.50) | 0 of 4 (1.00) | 0 of 16 (0.50) |
+
+Sizes: the baseline has 2 repetitions per case; L3 has 2, Sol medium 2, Terra high 4, Terra medium 6 and Sol low 8. Rates are pooled per case, so unequal repetition counts weigh each case equally.
+
+All cases (train and test halves), every repetition:
+
+| Arm | Graded or empty cells | Caught of defect-cells | Caught rate | Train: caught rate | Test: caught rate |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) (reps 1 to 2) | 30 | 12 of 68 | 0.18 | 0.24 (10 of 42) | 0.08 (2 of 26) |
+| Terra medium | 92 | 18 of 206 | 0.09 | 0.06 (8 of 126) | 0.12 (10 of 80) |
+| Terra high | 32 | 7 of 84 | 0.08 | 0.08 (7 of 84) | not run |
+| Sol medium | 16 | 8 of 42 | 0.19 | 0.19 (8 of 42) | not run |
+| Sol low | 125 | 32 of 277 | 0.12 | 0.08 (14 of 168) | 0.17 (18 of 109) |
+
+## Update: shape matrix of the new arms (cells that produced a graded Intent)
+
+| Arm | Cells with scenarios | Scenarios | Passing on the reference | Failing on the starting code | Wrong variants caught | Wrong variants |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium), train half | 10 | 341 | 340 | 277 | 47 | 52 |
+| L3 (Sonnet high), train half | 9 | 207 | 206 | 176 | 43 | 48 |
+| Terra medium, train half | 30 | 501 | 472 | 420 | 112 | 156 |
+| Terra high, train half | 20 | 493 | 488 | 417 | 83 | 104 |
+| Sol medium, train half | 10 | 147 | 144 | 129 | 48 | 52 |
+| Sol low, train half | 40 | 793 | 754 | 721 | 180 | 208 |
+
+## Update: time and tokens of the new arms (shape stage; per cell)
+
+| Arm | Cells | Median cell wall, s | Median input tokens (cached included) | Median output tokens |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) (reps 1 to 2) | 30 | 112 | 247,490 | 14,816 |
+| L3 (Sonnet high) | 15 | 363 | 1,254,442 | 57,024 |
+| Terra medium | 92 | 56 | 101,218 | 3,676 |
+| Terra high | 32 | 61 | 105,618 | 3,774 |
+| Sol medium | 16 | 256 | 200,210 | 9,752 |
+| Sol low | 125 | 167 | 125,120 | 4,636 |
+
+Claude arms: Claude Code's own report. ChatGPT arms: the counts of Kogen's own loop (input includes cached input); cells that ended with no model call have none.
+
+## Update: extra repetitions of the first arms (secondary), train half
+
+The extra repetitions repeat the baseline, L1 and L2 on the train cases with the same build and settings. They are secondary: the verdicts of the first publication stay as they were registered. Each arm pools all its repetitions per case, and is compared with the pooled baseline.
+
+| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate | New-flaw hits per cell |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium), all repetitions | 1 to 6 | 38 | 27 of 100 | 0.27 | 0.21 |
+| L1 (checklist), all repetitions | 1 to 4 | 32 | 26 of 84 | 0.31 | 0.22 |
+| L2 (Opus medium), all repetitions | 1 to 6 | 46 | 34 of 108 | 0.31 | 0.11 |
+
+By group of repetitions (train half only, a group is one run of the arm):
+
+| Arm | Repetitions | Train cells (graded or empty) | Caught of defect-cells | Caught rate |
+| --- | --- | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 1 to 2 | 16 | 10 of 42 | 0.24 |
+| Baseline (Sonnet medium) | 3 to 4 | 6 | 7 of 16 | 0.44 |
+| Baseline (Sonnet medium) | 5 to 6 | 16 | 10 of 42 | 0.24 |
+| L1 (checklist) | 1 to 2 | 16 | 14 of 42 | 0.33 |
+| L1 (checklist) | 3 to 4 | 16 | 12 of 42 | 0.29 |
+| L2 (Opus medium) | 1 to 2 | 16 | 12 of 42 | 0.29 |
+| L2 (Opus medium) | 3 to 4 | 16 | 14 of 42 | 0.33 |
+| L2 (Opus medium) | 5 to 6 | 14 | 8 of 24 | 0.33 |
+
+Pooled arms against the pooled baseline, frozen statistics:
+
+| Arm | Cases up | Cases down | Cases unchanged | One-sided sign test p | Mean gain in caught rate | Mean change in new-flaw hits per cell | Verdict under the frozen rule |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| L1 (checklist) | 4 | 1 | 3 | 0.188 | +0.036 | +0.05 | worse |
+| L2 (Opus medium) | 3 | 1 | 4 | 0.312 | +0.049 | -0.05 | no change |
+
+The baseline pooled over its extra repetitions has more cells on every case, so its per-case rate is a better estimate than the first two repetitions alone.

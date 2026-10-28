@@ -60,15 +60,115 @@
           }
         },
         "sha": "641a53a65a23c3d980b21a4678ca10b857535c35"
+      },
+      {
+        "name": "sonnet-medium-more-a",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "sonnet-medium-more-b",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "opus-medium-more-a",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "claude-code/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "sonnet-high-train",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "claude-code/claude-sonnet-5-5 high"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "sol-low-reference-b",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-sol low"
+          }
+        },
+        "sha": "641a53a65a23c3d980b21a4678ca10b857535c35"
+      },
+      {
+        "name": "sol-low-reference-c",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-sol low"
+          }
+        },
+        "sha": "641a53a65a23c3d980b21a4678ca10b857535c35"
+      },
+      {
+        "name": "sol-medium",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-sol medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "terra-medium-a",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-terra medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "terra-medium-b",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-terra medium"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
+      },
+      {
+        "name": "terra-high",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "openai/gpt-6.1-terra high"
+          }
+        },
+        "sha": "eea5864ee6ce45bd6b158b1689ac7cbc293e251d"
       }
     ],
     "phase": "shape",
     "provider_caps": {
       "claude-code": {
-        "cells": 64
+        "cells": 80
       }
     },
-    "reps": 2,
+    "reps": 8,
     "tasks": [
       "case-07",
       "case-02",
@@ -90,6 +190,10 @@
   },
   "hashes": {
     "lanes": {
+      "opus-medium-more-a": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "f17f1979027de6ec7b27d15bb36cb90ff489290bda5a2dbaf68b335c1c56fcca"
+      },
       "opus-medium-train": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "f17f1979027de6ec7b27d15bb36cb90ff489290bda5a2dbaf68b335c1c56fcca"
@@ -98,8 +202,32 @@
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "ba4ab0d6e01d1d3610601038642554e74f9f8ff2b97aa161c46bb59eb93281aa"
       },
+      "sol-low-reference-b": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "ba4ab0d6e01d1d3610601038642554e74f9f8ff2b97aa161c46bb59eb93281aa"
+      },
+      "sol-low-reference-c": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "ba4ab0d6e01d1d3610601038642554e74f9f8ff2b97aa161c46bb59eb93281aa"
+      },
+      "sol-medium": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "4a1bb9e8c9449752885df8de76b8bfa4d51c1b6c42ca5c2bac6dfd8ba0e5299c"
+      },
+      "sonnet-high-train": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "58a0738654683d825235ced8e09a9956742acb2d29ec2bea1218be977763f960"
+      },
       "sonnet-medium-checklist-train": {
         "patch": "b922ee0347dec5253d4dedf11e00fc0bf8475e05241fcef2db67b481869830a8",
+        "settings": "cd7a19930fa53af1a2e51bed7ac36c72bd7e35f2874a201f306d84b2aca0134e"
+      },
+      "sonnet-medium-more-a": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "cd7a19930fa53af1a2e51bed7ac36c72bd7e35f2874a201f306d84b2aca0134e"
+      },
+      "sonnet-medium-more-b": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "cd7a19930fa53af1a2e51bed7ac36c72bd7e35f2874a201f306d84b2aca0134e"
       },
       "sonnet-medium-test": {
@@ -109,6 +237,18 @@
       "sonnet-medium-train": {
         "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
         "settings": "cd7a19930fa53af1a2e51bed7ac36c72bd7e35f2874a201f306d84b2aca0134e"
+      },
+      "terra-high": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "d27e9d40b77a1d051e2c02a871db3858f41bc9a82e4a6eac2f1147a7280c05cf"
+      },
+      "terra-medium-a": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "4fbeaef67a476b4d9a1b92c05f2c29f9c6034b49a93c1242b15ada94436899aa"
+      },
+      "terra-medium-b": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "4fbeaef67a476b4d9a1b92c05f2c29f9c6034b49a93c1242b15ada94436899aa"
       }
     },
     "tasks": {
@@ -300,12 +440,22 @@
   },
   "lock": {
     "artifacts": {
+      "opus-medium-more-a": "30b94ac66405754255bf545255dd75c781d408cb34a2123bcbd3c89f47091d46",
       "opus-medium-train": "a5dfde099104ff951c3e4cd50add7b98ec3302ed12f34e2bb08f3e854a45022a",
       "sol-low-reference": "063a0d25068fd0bf0774d49bc754720136d820faf62713725d2ccb97b2e4eec2",
+      "sol-low-reference-b": "4e638dca869ba1e6e6fe4d016e7f55cf16e1384b3fec1d77537c766997821df4",
+      "sol-low-reference-c": "71c36a3530050a8b243dc20ecc1ed62482677f7c578ddbab59366519fdd348c1",
+      "sol-medium": "30b94ac66405754255bf545255dd75c781d408cb34a2123bcbd3c89f47091d46",
+      "sonnet-high-train": "a5dfde099104ff951c3e4cd50add7b98ec3302ed12f34e2bb08f3e854a45022a",
       "sonnet-medium-checklist-train": "18f00959ad928dc151f208941fba9f1d66f4d4b42e5290e09b879aa22d0f4944",
+      "sonnet-medium-more-a": "30b94ac66405754255bf545255dd75c781d408cb34a2123bcbd3c89f47091d46",
+      "sonnet-medium-more-b": "6fa6321cdb88d859ff08250a9d47a893bedd08f92f30b4d4ed89849c9a4da091",
       "sonnet-medium-test": "a5dfde099104ff951c3e4cd50add7b98ec3302ed12f34e2bb08f3e854a45022a",
-      "sonnet-medium-train": "30b94ac66405754255bf545255dd75c781d408cb34a2123bcbd3c89f47091d46"
+      "sonnet-medium-train": "30b94ac66405754255bf545255dd75c781d408cb34a2123bcbd3c89f47091d46",
+      "terra-high": "6fa6321cdb88d859ff08250a9d47a893bedd08f92f30b4d4ed89849c9a4da091",
+      "terra-medium-a": "6fa6321cdb88d859ff08250a9d47a893bedd08f92f30b4d4ed89849c9a4da091",
+      "terra-medium-b": "a5dfde099104ff951c3e4cd50add7b98ec3302ed12f34e2bb08f3e854a45022a"
     },
-    "sha256": "2c7e4e815ce6f627467077d8f86b187ab6f4897cf0857f72c8a0d2551c0b40c4"
+    "sha256": "aec4e0b0e4c8532d85bb0ca4fae6d83a6d9affecf23cb07ae245bce74b31c6ae"
   }
 }

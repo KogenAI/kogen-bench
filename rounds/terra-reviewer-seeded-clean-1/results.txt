@@ -1,0 +1,60 @@
+# terra-reviewer-seeded-clean-1: recomputed from the published bundles
+
+Cells in the bundles: 384; lanes: 6.
+
+## Seeded cases (26 cases x 3 repetitions = 78 cells per arm)
+
+| Review setting | Cells | Landed | Committed wrong (escapes) | Upper bound, exact (one-sided 95%) | Upper bound, Wilson (two-sided 95%) | Cases with an escape |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 78 | 78 | 0 | 3.8% | 4.7% | 0 of 26 |
+| Terra medium | 78 | 78 | 0 | 3.8% | 4.7% | 0 of 26 |
+| Opus medium | 78 | 78 | 0 | 3.8% | 4.7% | 0 of 26 |
+
+## Clean controls (15 cases x 2 repetitions = 30 cells per arm)
+
+| Review setting | Cells | Landed | False blocks | Committed wrong | Upper bound on the false-block rate, exact (one-sided 95%) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 30 | 30 | 0 | 0 | 9.5% |
+| Terra medium | 30 | 30 | 0 | 0 | 9.5% |
+| Opus medium | 30 | 30 | 0 | 0 | 9.5% |
+
+## Review stage per cell, seeded cases (median; input sum in brackets)
+
+| Review setting | Cells | Wall seconds | Requests | Input tokens (cached included) | Output tokens | List-price cost per cell |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 78 | 265 | 11.5 | 269,772 (27.7M) | 10,062 | $0.187 (total $16.01) |
+| Terra medium | 78 | 38 | 5 | 99,166 (8.3M) | 1,300 | unpriced |
+| Opus medium | 78 | 42 | 7 | 195,174 (20.1M) | 3,723 | $0.168 (total $16.96) |
+
+## Review stage per cell, clean controls (median; input sum in brackets)
+
+| Review setting | Cells | Wall seconds | Requests | Input tokens (cached included) | Output tokens | List-price cost per cell |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Sol high | 30 | 307 | 9 | 187,957 (8.1M) | 8,734 | $0.155 (total $5.29) |
+| Terra medium | 30 | 44 | 5 | 101,588 (3.0M) | 1,664 | unpriced |
+| Opus medium | 30 | 45 | 5 | 132,000 (6.3M) | 4,168 | $0.168 (total $6.52) |
+
+## Against Sol high, seeded and clean cells together
+
+| Review setting | Wall time, Sol high / this (seeded) | Wall time, Sol high / this (clean) | Input tokens per task vs Sol high (median per task) | Tasks lower / higher | Sign test p |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Terra medium | 6.9x | 7.0x | -63% | 41 / 0 | 0.0000 |
+| Opus medium | 6.2x | 6.9x | -28% | 34 / 7 | 0.0000 |
+
+## Registered rule for Terra as a reviewer candidate
+
+| Condition | Terra medium | Sol high | Met |
+| --- | ---: | ---: | --- |
+| 1. Escapes on the seeded cases: at most 1 in 78, and the Wilson upper bound within 5 points of Sol high's | 0 of 78 (bound 4.7%) | 0 of 78 (bound 4.7%) | yes |
+| 2. No false block on the clean controls | 0 of 30 | 0 of 30 | yes |
+| 3. Validity equal: invalid reviews plus timeouts not above Sol high's | 0 | 0 | yes |
+
+Verdict: **Terra medium meets the registered rule and is a reviewer candidate**.
+
+## Effort grid on a 20-case subset (12 seeded, 8 clean; one repetition each)
+
+| Terra review effort | Seeded cells | Escapes | Clean cells | False blocks | Review wall median s | Review input median (cached included) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Terra low | 12 | 0 | 8 | 0 | 21 | 78,925 |
+| Terra medium | 12 | 0 | 8 | 0 | 40 | 104,323 |
+| Terra high | 12 | 0 | 8 | 0 | 41 | 125,150 |
