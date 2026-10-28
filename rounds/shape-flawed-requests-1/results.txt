@@ -1,0 +1,117 @@
+## Cells and grading
+
+| Arm | Cells | Graded or empty | Excluded (memory cap) | Defect-cells | Caught | Caught rate | RESOLVED-STATED | ASKED | SILENT | NEW | new-flaw hits | new-flaw hits per cell | Cells with a question |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 32 | 30 | 2 | 68 | 12 | 0.18 | 12 | 0 | 56 | 0 | 5 | 0.17 | 1 |
+| L1 (checklist) | 16 | 16 | 0 | 42 | 14 | 0.33 | 14 | 0 | 26 | 2 | 5 | 0.31 | 0 |
+| L2 (Opus medium) | 16 | 16 | 0 | 42 | 12 | 0.29 | 12 | 0 | 29 | 1 | 4 | 0.25 | 0 |
+| Sol low (reference) | 32 | 31 | 1 | 69 | 9 | 0.13 | 9 | 0 | 54 | 6 | 4 | 0.13 | 4 |
+
+- sonnet-medium-train: 16 cells, caught 10 of 42
+- sonnet-medium-test: 14 cells, caught 2 of 26
+- sonnet-medium-checklist-train: 16 cells, caught 14 of 42
+- opus-medium-train: 16 cells, caught 12 of 42
+- sol-low-reference: 31 cells, caught 9 of 69
+
+## Per case and arm: caught defects over defect-cells (new-flaw hits)
+
+| Case | Half | Known defects | Baseline (Sonnet medium) | L1 (checklist) | L2 (Opus medium) | Sol low (reference) |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `case-01` | train | 1 | 0 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 0, 2 cells) |
+| `case-02` | train | 1 | 1 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) |
+| `case-03` | train | 1 | 2 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) | 1 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 0, 2 cells) |
+| `case-04` | test | 1 | 0 of 2 (new flaws 0, 2 cells) | not graded | not graded | 2 of 2 (new flaws 0, 2 cells) |
+| `case-05` | test | 1 | 0 of 2 (new flaws 0, 2 cells) | not graded | not graded | 0 of 2 (new flaws 1, 2 cells) |
+| `case-06` | test | 5 | 0 of 10 (new flaws 2, 2 cells) | not graded | not graded | 0 of 10 (new flaws 0, 2 cells) |
+| `case-07` | train | 5 | 2 of 10 (new flaws 0, 2 cells) | 4 of 10 (new flaws 2, 2 cells) | 3 of 10 (new flaws 2, 2 cells) | 0 of 10 (new flaws 0, 2 cells) |
+| `case-08` | train | 9 | 3 of 18 (new flaws 0, 2 cells) | 5 of 18 (new flaws 0, 2 cells) | 4 of 18 (new flaws 1, 2 cells) | 0 of 18 (new flaws 0, 2 cells) |
+| `case-09` | test | 1 | 0 of 2 (new flaws 0, 2 cells) | not graded | not graded | 1 of 2 (new flaws 0, 2 cells) |
+| `case-10` | train | 1 | 0 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 1, 2 cells) | 0 of 2 (new flaws 0, 2 cells) | 0 of 2 (new flaws 0, 2 cells) |
+| `case-11` | train | 1 | 2 of 2 (new flaws 0, 2 cells) | 1 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) | 2 of 2 (new flaws 0, 2 cells) |
+| `case-12` | test | 1 | not graded | not graded | not graded | 0 of 1 (new flaws 0, 1 cells) |
+| `case-13` | test | 1 | 0 of 2 (new flaws 0, 2 cells) | not graded | not graded | 0 of 2 (new flaws 0, 2 cells) |
+| `case-14` | test | 1 | 0 of 2 (new flaws 1, 2 cells) | not graded | not graded | 1 of 2 (new flaws 0, 2 cells) |
+| `case-15` | test | 3 | 2 of 6 (new flaws 0, 2 cells) | not graded | not graded | 1 of 6 (new flaws 0, 2 cells) |
+| `case-16` | train | 2 | 0 of 4 (new flaws 2, 2 cells) | 0 of 4 (new flaws 2, 2 cells) | 0 of 4 (new flaws 1, 2 cells) | 0 of 4 (new flaws 3, 2 cells) |
+
+## Halves
+
+| Arm | Train: caught of defect-cells | Test: caught of defect-cells |
+| --- | ---: | ---: |
+| Baseline (Sonnet medium) | 10 of 42 (16 cells) | 2 of 26 (14 cells) |
+| L1 (checklist) | 14 of 42 (16 cells) | not run |
+| L2 (Opus medium) | 12 of 42 (16 cells) | not run |
+| Sol low (reference) | 4 of 42 (16 cells) | 5 of 27 (15 cells) |
+
+## Shape outcomes (cells)
+
+| Arm | memory_cap | ok | questions_pending | refused |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 2 | 29 | 1 | 0 |
+| L1 (checklist) | 0 | 16 | 0 | 0 |
+| L2 (Opus medium) | 0 | 16 | 0 | 0 |
+| Sol low (reference) | 1 | 25 | 4 | 2 |
+
+## Shape matrix (cells that produced a graded Intent; sums over cells)
+
+| Arm | Cells with scenarios | Scenarios | Passing on the reference | Failing on the starting code | Wrong variants caught | Wrong variants | Cells with every scenario passing on the reference |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 22 | 588 | 578 (98.3%) | 490 (83.3%) | 138 | 148 (93.2%) | 14 |
+| L1 (checklist) | 10 | 213 | 205 (96.2%) | 169 (79.3%) | 50 | 52 (96.2%) | 7 |
+| L2 (Opus medium) | 10 | 222 | 218 (98.2%) | 214 (96.4%) | 50 | 52 (96.2%) | 8 |
+| Sol low (reference) | 23 | 406 | 366 (90.1%) | 348 (85.7%) | 124 | 152 (81.6%) | 14 |
+
+Train half only, the cases the climb rule compares:
+
+| Arm | Cells with scenarios | Scenarios | Passing on the reference | Failing on the starting code | Wrong variants caught | Wrong variants |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 10 | 341 | 340 | 277 | 47 | 52 |
+| L1 (checklist) | 10 | 213 | 205 | 169 | 50 | 52 |
+| L2 (Opus medium) | 10 | 222 | 218 | 214 | 50 | 52 |
+
+## Wall time and Claude Code tokens (shape stage; per cell)
+
+| Arm | Cells | Median cell wall, s | Median input tokens (cached included) | Median output tokens |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline (Sonnet medium) | 30 | 112 | 247,490 | 14,816 |
+| L1 (checklist) | 16 | 151 | 371,872 | 22,104 |
+| L2 (Opus medium) | 16 | 441 | 1,017,168 | 48,590 |
+| Sol low (reference) | 31 | 219 | in bundle | in bundle |
+
+## Frozen climb rule, train half (per case, pooled over repetitions)
+
+### L2 (Opus medium) against Baseline (Sonnet medium)
+
+| Case | Baseline caught | Lever caught | Difference in caught rate | new-flaw hits per cell, baseline to lever |
+| --- | ---: | ---: | ---: | --- |
+| `case-01` | 0 of 2 | 0 of 2 | +0.00 | 0.00 to 0.00 |
+| `case-02` | 1 of 2 | 2 of 2 | +0.50 | 0.00 to 0.00 |
+| `case-03` | 2 of 2 | 1 of 2 | -0.50 | 0.00 to 0.00 |
+| `case-07` | 2 of 10 | 3 of 10 | +0.10 | 0.00 to 1.00 |
+| `case-08` | 3 of 18 | 4 of 18 | +0.06 | 0.00 to 0.50 |
+| `case-10` | 0 of 2 | 0 of 2 | +0.00 | 0.00 to 0.00 |
+| `case-11` | 2 of 2 | 2 of 2 | +0.00 | 0.00 to 0.00 |
+| `case-16` | 0 of 4 | 0 of 4 | +0.00 | 1.00 to 0.50 |
+
+8 cases: 3 up, 1 down, 4 unchanged; one-sided sign test p = 0.312; mean gain in caught rate +0.019; mean change in new-flaw hits per cell +0.12; cases at zero in both arms 3. Verdict under the frozen rule: **worse**.
+
+### L1 (checklist) against Baseline (Sonnet medium)
+
+| Case | Baseline caught | Lever caught | Difference in caught rate | new-flaw hits per cell, baseline to lever |
+| --- | ---: | ---: | ---: | --- |
+| `case-01` | 0 of 2 | 0 of 2 | +0.00 | 0.00 to 0.00 |
+| `case-02` | 1 of 2 | 2 of 2 | +0.50 | 0.00 to 0.00 |
+| `case-03` | 2 of 2 | 2 of 2 | +0.00 | 0.00 to 0.00 |
+| `case-07` | 2 of 10 | 4 of 10 | +0.20 | 0.00 to 1.00 |
+| `case-08` | 3 of 18 | 5 of 18 | +0.11 | 0.00 to 0.00 |
+| `case-10` | 0 of 2 | 0 of 2 | +0.00 | 0.00 to 0.50 |
+| `case-11` | 2 of 2 | 1 of 2 | -0.50 | 0.00 to 0.00 |
+| `case-16` | 0 of 4 | 0 of 4 | +0.00 | 1.00 to 1.00 |
+
+8 cases: 3 up, 1 down, 4 unchanged; one-sided sign test p = 0.312; mean gain in caught rate +0.039; mean change in new-flaw hits per cell +0.19; cases at zero in both arms 3. Verdict under the frozen rule: **worse**.
+
+Pooled over all train cells: Baseline (Sonnet medium) caught 10 of 42, new-flaw hits 2 over 16 cells; L1 (checklist) caught 14 of 42, new-flaw hits 5 over 16 cells; L2 (Opus medium) caught 12 of 42, new-flaw hits 4 over 16 cells.
+
+## Grader agreement
+
+A second blind grader re-labelled 12 cells (29 labels): raw agreement 0.97, Cohen's kappa 0.78 over the four labels; caught against not caught: agreement 0.97, kappa 0.78. Disagreements: 1 of 29.

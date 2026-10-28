@@ -1,0 +1,94 @@
+## Cells and passes
+
+T cells graded: 49; with an S partner: 49; without: none.
+
+| Machine | Pairs | T passed | S passed | Pairs without plumbing | T passed, of those | S passed, of those |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| m2 | 25 | 25 | 25 | 25 | 25 | 25 |
+| m3 | 16 | 12 | 14 | 14 | 12 | 14 |
+| m4 | 8 | 2 | 2 | 5 | 2 | 2 |
+| all | 49 | 39 | 41 | 44 | 39 | 41 |
+
+Plumbing cells in the pairs (arm, reason: cells): S start_check_failed: 2; T provider_rejected: 3; T start_check_failed: 2. 5 of 49 pairs lose a cell to them.
+
+## Per task (pairs only)
+
+| Task | Machine | Hidden tests | Pairs | T passed | S passed | Favours | Hidden tests passed, T | Hidden tests passed, S |
+| --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| `build-01` | m2 | 19 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-02` | m2 | 11 | 1 | 1 | 1 | tie | 100.0% | 100.0% |
+| `build-03` | m2 | 10 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-04` | m2 | 10 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-05` | m2 | 11 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-06` | m2 | 7 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-07` | m2 | 10 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-08` | m3 | 11 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-09` | m2 | 7 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-10` | m3 | 962 | 2 | 0 | 0 | tie | 0.0% | 0.0% |
+| `build-11` | m3 | 12 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-12` | m2 | 11 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-13` | m2 | 9 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-14` | m2 | 15 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-15` | m3 | 389 | 2 | 0 | 2 | S | 53.0% | 100.0% |
+| `build-16` | m3 | 10 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-17` | m2 | 11 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-18` | m3 | 900 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-19` | m3 | 9 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-20` | m3 | 9 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-21` | m2 | 7 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-22` | m4 | 17 | 2 | 2 | 2 | tie | 100.0% | 100.0% |
+| `build-23` | m4 | 66 | 2 | 0 | 0 | tie | 42.4% | 92.4% |
+| `build-24` | m4 | 97 | 2 | 0 | 0 | tie | 73.2% | 73.2% |
+| `build-25` | m4 | 33 | 2 | 0 | 0 | tie | 39.4% | 90.9% |
+
+## Sign test over tasks
+
+Sign test, as run: 25 tasks, 49 pairs; T favoured on 0 tasks, S on 1, ties 24; pair passes T 39/49 = 0.796, S 41/49 = 0.837, gap (T - S) -0.041; one-sided p (T better) 1.0000, (S better) 0.5000; reading: on par (rule does not fire).
+Sign test, without the pairs with a plumbing cell: 23 tasks, 44 pairs; T favoured on 0 tasks, S on 1, ties 22; pair passes T 39/44 = 0.886, S 41/44 = 0.932, gap (T - S) -0.045; one-sided p (T better) 1.0000, (S better) 0.5000; reading: on par (rule does not fire).
+Sign test, machine m2 alone, as run: 13 tasks, 25 pairs; T favoured on 0 tasks, S on 0, ties 13; pair passes T 25/25 = 1.000, S 25/25 = 1.000, gap (T - S) +0.000; one-sided p (T better) 1.0000, (S better) 1.0000; reading: on par (rule does not fire).
+Sign test, machine m3 alone, as run: 8 tasks, 16 pairs; T favoured on 0 tasks, S on 1, ties 7; pair passes T 12/16 = 0.750, S 14/16 = 0.875, gap (T - S) -0.125; one-sided p (T better) 1.0000, (S better) 0.5000; reading: on par (rule does not fire).
+Sign test, machine m4 alone, as run: 4 tasks, 8 pairs; T favoured on 0 tasks, S on 0, ties 4; pair passes T 2/8 = 0.250, S 2/8 = 0.250, gap (T - S) +0.000; one-sided p (T better) 1.0000, (S better) 1.0000; reading: on par (rule does not fire).
+
+## Cells that did not pass every hidden test (T arm, with the S partner)
+
+| T cell | T outcome | T plumbing | T hidden tests passed | S partner outcome | S passed every test | S plumbing |
+| --- | --- | --- | ---: | --- | --- | --- |
+| `build-10/r1/terra-high-m3` | check_failing | start_check_failed | 0 of 962 | check_failing | no | start_check_failed |
+| `build-10/r2/terra-high-m3` | check_failing | start_check_failed | 0 of 962 | check_failing | no | start_check_failed |
+| `build-15/r1/terra-high-m3` | landed |  | 206 of 389 | landed | yes |  |
+| `build-15/r2/terra-high-m3` | landed |  | 206 of 389 | landed | yes |  |
+| `build-23/r1/terra-high-m4` | timeout |  | 28 of 66 | landed | no |  |
+| `build-23/r2/terra-high-m4` | refused | provider_rejected | 28 of 66 | landed | no |  |
+| `build-24/r1/terra-high-m4` | context_budget_exceeded |  | 71 of 97 | timeout | no |  |
+| `build-24/r2/terra-high-m4` | context_budget_exceeded |  | 71 of 97 | timeout | no |  |
+| `build-25/r1/terra-high-m4` | refused | provider_rejected | 13 of 33 | landed | no |  |
+| `build-25/r2/terra-high-m4` | refused | provider_rejected | 13 of 33 | landed | no |  |
+
+## Wall time (seconds per cell; build stage is the build command)
+
+| Set | Arm | Cells | Median cell | Sum, cell | Median build | Sum, build |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| all pairs | T | 49 | 178 | 22,615 | 167 | 21,238 |
+| all pairs | S | 49 | 188 | 25,135 | 175 | 23,265 |
+| pairs without plumbing | T | 44 | 177 | 19,308 | 166 | 18,159 |
+| pairs without plumbing | S | 44 | 187 | 20,037 | 174 | 18,628 |
+| machine m2, without plumbing | T | 25 | 168 | 4,643 | 159 | 4,371 |
+| machine m2, without plumbing | S | 25 | 188 | 4,982 | 175 | 4,628 |
+| machine m3, without plumbing | T | 14 | 148 | 6,518 | 135 | 6,071 |
+| machine m3, without plumbing | S | 14 | 148 | 4,999 | 142 | 4,556 |
+| machine m4, without plumbing | T | 5 | 1,800 | 8,147 | 1,696 | 7,717 |
+| machine m4, without plumbing | S | 5 | 2,165 | 10,055 | 2,090 | 9,445 |
+
+Per-task median cell wall time ratio, T over S (pairs without plumbing, 23 tasks): median 1.00, T faster on 11 tasks, slower on 12.
+
+## T build tokens (Kogen's request log for the build stage; Terra has no list price, so no cost)
+
+Input tokens include cached input and are summed over requests. S's own tokens (Claude Code's usage line) are in rounds/loop-vs-executor-1 and are measured differently, so no ratio is given.
+
+| Set | Cells | Requests | Median input | Median cached | Median output | Sum input | Sum cached | Sum output |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| all T cells with a build | 47 | 571 | 48,251 | 37,632 | 2,998 | 28,562,541 | 25,717,632 | 210,638 |
+| without plumbing | 44 | 467 | 47,188 | 36,032 | 2,977 | 22,641,421 | 20,130,048 | 176,045 |
+| machine m2, without plumbing | 25 | 141 | 40,998 | 30,208 | 2,971 | 1,336,853 | 983,040 | 81,381 |
+| machine m3, without plumbing | 14 | 130 | 47,188 | 40,384 | 3,142 | 7,515,518 | 6,938,240 | 60,366 |
+| machine m4, without plumbing | 5 | 196 | 1,020,347 | 830,336 | 2,780 | 13,789,050 | 12,208,768 | 34,298 |

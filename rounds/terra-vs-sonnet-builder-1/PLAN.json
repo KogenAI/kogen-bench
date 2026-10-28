@@ -1,0 +1,401 @@
+{
+  "experiment": {
+    "cost_cap_usd": 250,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "terra-vs-sonnet-builder-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "terra-high-m2",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra high",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "terra-high-m3",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra high",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      },
+      {
+        "name": "terra-high-m4",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "openai/gpt-6.1-terra high",
+            "review": "anthropic/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "a54aa26043aef24b889d1c4b04107983bce745a7"
+      }
+    ],
+    "phase": "build",
+    "provider_caps": {
+      "anthropic": {
+        "usd": 120
+      }
+    },
+    "reps": 2,
+    "tasks": [
+      "build-06",
+      "build-14",
+      "build-13",
+      "build-05",
+      "build-01",
+      "build-07",
+      "build-09",
+      "build-21",
+      "build-17",
+      "build-04",
+      "build-12",
+      "build-03",
+      "build-02",
+      "build-16",
+      "build-08",
+      "build-11",
+      "build-19",
+      "build-20",
+      "build-18",
+      "build-10",
+      "build-15",
+      "build-22",
+      "build-23",
+      "build-24",
+      "build-25"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "terra-high-m2": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "363dbefcdcf6278b87b274969219c92d7b5c5113d64526b0ad2f4334ae65dbb5"
+      },
+      "terra-high-m3": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "363dbefcdcf6278b87b274969219c92d7b5c5113d64526b0ad2f4334ae65dbb5"
+      },
+      "terra-high-m4": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "363dbefcdcf6278b87b274969219c92d7b5c5113d64526b0ad2f4334ae65dbb5"
+      }
+    },
+    "tasks": {
+      "build-01": {
+        "hidden_tests": "9148a81f6f0898dafc24dce0416db21726455d7eb71a78035dcfec28a88ff90a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "d58b6d8c2b3d120f4e82f84b779218a8ab4aeb1edfe6272e18128c55935b78bf",
+          "prose": "e241e020e6a9ca2050264c8c0d74a2a38cf39a31dedf3d15d318545997908c51"
+        },
+        "request": "01b8d1ce22a43cc3313c567f76dd0c0f51f39edead0ca902fb3e59ad821cc496",
+        "task": "01662c49ae1a86514290e06fa4ec66f1b72da75b7a50d7c791dd45dfe4afecec",
+        "task_toml": "4c12d5d80656013a7df90732df2bc76f1b0f19541f7b42d03ddad86b30e8fe88",
+        "tree": "d44051ad38a3f1632bbdd2340086a83431f7a478a7b6bc6c1390c5ced09dd7cc"
+      },
+      "build-02": {
+        "hidden_tests": "14f1c24a393a63f9ba3550956eb1c99b8b73b32a3c62a3913e229644f28a8d43",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "5e2962d4ddbabbe419fb2974f5a2876ff4a8d3ba1c7ebb0c94696c7d2d6c5dea",
+          "prose": "316e110f1e090dd7784587d4fbdfed22d8a8f1dc66736247bbbba5fc1f59ed9d"
+        },
+        "request": "c0b154bd06bb478198b6cd31d39f1819460a0d8b48438346fb5da30181c076a2",
+        "task": "2767ebe6a869615ef207a0f6626342f0eba2498b74230c85330871d4eed52d7d",
+        "task_toml": "f6cb81e5c432790290ed2d5cb7828d694e9bd01b66ac2e9f84380d5327cab4ae",
+        "tree": "1a1f679441e13a66a7be6924d5f315a9c691eca34d6043f55a762411e515603d"
+      },
+      "build-03": {
+        "hidden_tests": "1419bc3dcd4e82ca543b89344f7aedfb7fe501eec7e8f01b93f515fc302a8e0b",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "2d43b0b150ce19cf916cd6c0d80687916b7935f41ab94173cd275227964d94fb",
+          "prose": "15c254fc8096ee34719af5dc5902b41e75e46b1704fbd7c369b024646561de50"
+        },
+        "request": "9ee8ee2c0552283229ef897759acdc0f0180c3fa0984bf29fb599ee7ccf4dfe1",
+        "task": "30f4603fe990807af3a7e614dc77323037985f928d3c95786dba0cc115cb434c",
+        "task_toml": "7300e67a997003d958a109756b4f46e04a7d797533c0404deb6f8b2d9618a187",
+        "tree": "17e8a6bbb77f072724ed8a2cd65a7a0abfec83d741d1168211d48a4f51ea6b57"
+      },
+      "build-04": {
+        "hidden_tests": "8558e6e03a71b963d705b594a6b499e7d1417151a840e49b205302cb6846ba13",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "aaaae7f56fed330c91633426e90bb978c91bf58f009f92db0ef7761bfcfc8287",
+          "prose": "96b5907cdf0397afe1815d1d34d4ef2660ffacfaf06582b250288b2d2227d965"
+        },
+        "request": "c56df9c869fc342cb222c3fe84b1efa363c8ad74932cac5e19e584e0462948c4",
+        "task": "4c552592ee62b27a95aaea411cf6d1da6522542bfaf1e1e29add3f79d5e80209",
+        "task_toml": "be3cb2fcaa92d6a93606b9f879c616ef93bb0ffe3487ade6d9eddd152ad67665",
+        "tree": "759b19b1d5a870f4e1871819b99b1e50eb86d76ed37c9308ef1d2c5bc7d92fc0"
+      },
+      "build-05": {
+        "hidden_tests": "6ab52b9012cc1f59abb5a82c1757df912a726b3225606e0bec175d14ea1edac5",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "f6844b854f5855d34863ba7bd2784ed38dff2a57f1bc36fa8d5c51e7386ea209",
+          "prose": "8f877f442227199c144770d74a669e38b6f211e64847e6bec4ede1060fba8ebd"
+        },
+        "request": "1961ed085088353cf9c4bd12c593439784897d4f3ac7a943861abd0c310522f0",
+        "task": "522640f10384f98804c7fd6dc1896d09ad72900ac64fb7d35d0e89c670e490e2",
+        "task_toml": "a3c07f5b7b40110574fab907d52785fc655991341d7bf670add27ca398907871",
+        "tree": "bbde90af8318b75261947b5b3d3781b9fd949cfbe8579f5c613a87bffd4c8bdc"
+      },
+      "build-06": {
+        "hidden_tests": "b6b08fa07e61302a5bf74eb9b6d916a150d23713c114583abdbc27581b7beeaa",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "94aaea08cf7b4f4e83b115ecc4ab7c6a8805d355f00a6e6757c6488f9e12b782",
+          "prose": "ba3a0eb62137430a107f3c62dee3ccef837f1715db6ba5709b875d41f6ee198c"
+        },
+        "request": "0a38ab0d47a0b780c78fa47afaa42b2023b211cc2251c044003d70355c791ccb",
+        "task": "69a00cc1c61bfb66d8a6922454c03d0b2e7d5d25484b8746d1e3b714cb97810b",
+        "task_toml": "42dcab93be9d99e77e8c7f6ec5bb3c0585f70aa9d5cf728822b9c51af1dd0554",
+        "tree": "d94b091512aeea2d75b6dd8c31ed1a918c988cab9a317707c8e8a6101fffea2d"
+      },
+      "build-07": {
+        "hidden_tests": "409c150cc56a273c17b15fbeab2d9a38ba5f1ff7f3d99dd496f9fce39a24c379",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "369de3bb511ccd997c5fbe4db6133c564a3c8e61fdc9dbe4845cf45a6b8b6122",
+          "prose": "daf3e1dbe65cec3acafbbae884a8c3935a63f745f823267d080e24aa58c070f1"
+        },
+        "request": "2c321131329f15b7192c33f35bfcd755fbc239d75c22411bafa4f7e16a30342a",
+        "task": "6c49438293710e6e12babf0fbddf5d37abea30fee616774af5e2758fa2bb5539",
+        "task_toml": "abe96f6468a7a2297592c640ea79941f5ebcae2ed17edee080245d5972f1cfc2",
+        "tree": "27a3da52529f73efa216792cbe873c3f44f706db24c83e159388a95672551201"
+      },
+      "build-08": {
+        "hidden_tests": "528ece592873a687d008d95fa13d966ab765bc318cf741074bf375da26fc5a6b",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "5e709686c1dd199456b421e28d17e59c7edf50a3a3c48524100338d4d98f248c",
+          "prose": "2a06d09d4efcdab49a9b5f1acbe574c6cbac41673d2f5d764ae3f804e08522ef"
+        },
+        "request": "220761972a4530f0d000549d9213bebfa2da0f009d33e780c610265e16df2914",
+        "task": "827c59b4d057171ed8353f48cd148b01e087c478e33ddd9085ffaa3463f6a47b",
+        "task_toml": "a65269fcf48e2d68f4a3e711dbf8b1e62dbadf5adf4eb0346d6dbb625941082a",
+        "tree": "5b9b4f1e8498efd22f25213b6045923b2a4aa91348ccdec427a288abf7c54126"
+      },
+      "build-09": {
+        "hidden_tests": "73d137f7188ed91e75f8a25907ff69423becccc380640dfd4a71f7d51efe57ed",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "8b9a563a7f49a2ab25ff9a056db8ab5a27bffa939360d8b1d3ea15513529cb99",
+          "prose": "c49f8e501b298824cc55fe7292ffdd6a8d566e18d0f48902fe296cdbc20a958d"
+        },
+        "request": "c812fb224ac34d09982744a71e54c841e7be2645ea0f55f7a153e7261b4c8697",
+        "task": "a26c60aef324e1551970fa02c9dbbce1ceb014c0616c8ed04dca2b632d1cb2e8",
+        "task_toml": "b96cb051d1f0ca30673840e2fa6582058307d86b49bf2b8b13aa69cf3fce8c42",
+        "tree": "1ae6944b093655422462f0943d0069cd483871c565d7e770c74e75dd5888fee8"
+      },
+      "build-10": {
+        "hidden_tests": "4f328698ffc1ab25743d18c6186e72aaadfe86b08a4840dab3c5cf919fa4a829",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "a7edd7047a1ff68ce7ec84cef6720dc1894dfc9c629239e5bd8251daf986ed12",
+          "prose": "996dc1a558989fbdc94062cde5087317748570b17e78ced5751d34b0f1db61d9"
+        },
+        "request": "6277cb202a76f177b33e026ea8493ab1ca324396affe92b58006e5ddd5f04c36",
+        "task": "b59b17874fa86e9bc74eed4687d260775d1b3ed08b4ba7421cd00ba62076ef2e",
+        "task_toml": "9edd6857679f1f2aa8868fb821ee98157344a8985d359228f9d71e3259da3ea9",
+        "tree": "93b5143f985975c93d63d06550c18b7432ef4479fb306b661669797b1e396a5c"
+      },
+      "build-11": {
+        "hidden_tests": "de57fa7b6be3ec9265500bf8e12b67288e8c4c62c29016d22499a7baa7ccf5bf",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "206d0ca040d72e349a75a89cb3630eb6805c3cf84e2b6a05a7fb21655612b99c",
+          "prose": "d60159388e7e1fc9106b537988464a5fb873c18ca172cd241feccfc17357da7c"
+        },
+        "request": "b17aa018c583aa0d7a395e72823bb7d4fda94f66cfbf8feb36a79b5753079aa4",
+        "task": "bece54ba914df95e10906ab344052958f41108c83ab1625d331d7645cf95ac98",
+        "task_toml": "716ea0aa53f791016eb8638ec7d982b5cb66f1aa4aa28b9d8123524e801033aa",
+        "tree": "bad48d99c06c96447bf6bc7b8d7416dfd5a290b78442c9d4fcb2d9a276190329"
+      },
+      "build-12": {
+        "hidden_tests": "09f606d43dc27c55ac5c9615a330db9434feeab43c63438cabc7ad2ee115206c",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "d9333e8362563809486ee87d8425b672f661bedf68b5bf6ee7cb68e8dfbf7411",
+          "prose": "e0ca661032a620ce2fc63e98ae0ab370f7cda1428afcfdd08035a1f5b3099b8b"
+        },
+        "request": "93a861278cdd694c41ce12f05a8a068ae6b62666b35fa67609a1f75f712e0d5f",
+        "task": "c92fbbafc2d46d99f5678a6cda98e7514ddc015915c06fb4daedb092fdd7bc25",
+        "task_toml": "23a62ce81940f6a88c8fcc00076997485337bf39b8e171cc8a827b97d020217c",
+        "tree": "1afe07ce409b92f7b92cc843dd374e40d157aa0c030d8fd299ff4d3337fb103c"
+      },
+      "build-13": {
+        "hidden_tests": "faf34cc219d0bc972b622ddd87a1ce5d620880c280d3fe0a11fb68b96ae8803f",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "8c8483c584a09ebb8710e6d9619d01b07425addc5081b4edda204c1fbf99315d",
+          "prose": "37ef4095545ec032c51b6f1e123ef60f767d135bff1caf047385199ef39c5761"
+        },
+        "request": "52de3b075698038bc56b9a2d20da84f7e437a1dd275c3506da40857fca069005",
+        "task": "d1baf80875af7c6eff892f6d9316ee959eeb3f0222efdd4dbd1d0c1ddaad7de6",
+        "task_toml": "929cde15740d799d8c256e3c0e64bc1b477179ae2dc13cc5a12f6b4fa9cd19ca",
+        "tree": "673091a1af646d6f9204c3293126f11d1c8b2b24796d06add22e781706d4e1d2"
+      },
+      "build-14": {
+        "hidden_tests": "667f1f964050062d41a3cf45e8541a8877b679696f29eb1d041a7b5f4a38875b",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "20a65ef806e9e34c25e830237c514e31fe3c219d930e4eb9507a29ac4cc2fdbd",
+          "prose": "2918578c49ee77f0fff99aed046a845418f4edd61f790f0eb38c661b7a5eaa42"
+        },
+        "request": "a231d4eda1d03ddf9283c7bc8e824f71cb5982200ee2705c40ec7c6352a6d3fe",
+        "task": "d9fb8c5b011ccb34b4d94ee4a21a37d4f900b16f935aef324de4322822b1b303",
+        "task_toml": "b7abeac5f516fcf04970f82acb9fb8948def00e2916c8d82d224e6822036e6e2",
+        "tree": "c85f99c9c6816f0a94b15902426d691e0e68cf017944e4e0ffad5d9f45f90a17"
+      },
+      "build-15": {
+        "hidden_tests": "ac962e506a675da9b86874bc268f5bbc39c350fc69769ed26873832b9fee37cb",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "2f818e99e3281e72b6fa32394c4621a0cd802fc7017d95af4d7802a2a02b26f8",
+          "prose": "228089e45e8e571d502bc98f7a4db6aa871ed33c7841d7c13f1c8796c08de21a"
+        },
+        "request": "c7ac6bd42ec789beaa6812969dce0082134c73671d79d21acbc3e5c187729432",
+        "task": "dfe832afc3d68a04345bcbaf78d59d237a306fd3ae3e72845fb4be2c3f977a7a",
+        "task_toml": "51455946a5428a54679468ac5b93a7dd8cbb75eaed94159be752d95d820df521",
+        "tree": "6cb77db8d38f8bb872cdc32c8b0d97e1e50bc68db78b47a1b3597fbe4fcb85cd"
+      },
+      "build-16": {
+        "hidden_tests": "59ecdcae15063a4dbc56961b5123e6e6f8f44e9ba678555fdb47d68366aac2a9",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "90c67e90c28037b7f53bc4b2a768ddd1c3aee43f6a1af7aaa13555e79b274266",
+          "prose": "fd9986390caa7ab309edfceb2f8a0747f872c9d2b91a95df79ff6bf8c3e1470f"
+        },
+        "request": "7d8b01e3a453ca5b9aa1e0c5c8010ff5e7a5b37008867231f7c5d0b00f84e081",
+        "task": "e2395445b2e967c76915d2ac13975d0803ac8b4fbb4e3f6ca0afa13026d75e0f",
+        "task_toml": "3927246d6e0aacfbb75abc8387388a27e966c595f0ccf3c6b818c073873307a6",
+        "tree": "534f92932377aa20db7b47c59081197454372d50f38b24ccd9a3e185d215d471"
+      },
+      "build-17": {
+        "hidden_tests": "6b25ad8cafa98df3190fa20e02bb5fb83268ee901a71d1ef2eb9bbecedbf806a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "83286233cad703ad3b29e1939d8cef25237ffa6b82f6118ae6c95421954f7bbb",
+          "prose": "5b02186376c7ce4a0a5a3ac2cf87ffaca68f560b6e50e0449f19efeb1fa7dd87"
+        },
+        "request": "32d19c0a9774d764c619bb3282441dcef9191a8a41269d7039d2afa538fdf429",
+        "task": "e55ed4371cb5107a45a94345697d3006de39748f08756de8bed6ee19f3937c75",
+        "task_toml": "e069555bf792848312d5f7fdb844b27683274e7c3d44916e4ac4d4065f737c03",
+        "tree": "385e61174efdc39f700b1950ed198159b89197aa4949f9af91d2d2f579d87493"
+      },
+      "build-18": {
+        "hidden_tests": "b7447ef9f6672e991f7f424a17053323cc4180e4651c7a09c70fc9c025ea951d",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "6fc7873fe4efa5a811723ece623db278f66bea24b9f77b4f91790eb2f5010aaf",
+          "prose": "127df7433a8db750e6bb1475129656f697bbffbdd053caf42117f6ec3a97108d"
+        },
+        "request": "9c21422ca8ce594561f495eaf743d9d83cd5e1cf08afbfefa3367dd767ba586b",
+        "task": "e727aec845c9d7ae005dd1356b9f99615365148e9a23129b18ad174d5dfdd34d",
+        "task_toml": "8249d291b8bcfffdfaec22ecabb6d97ee83ec10e97f5cf83aebeadd00dd8d360",
+        "tree": "cc4fb26b870f5a27252dddd4cdfdc9e9843d7deee31165b17934d080bd1c05cf"
+      },
+      "build-19": {
+        "hidden_tests": "c89dab69f46764b7a150cef807e2dee43f453b32aa44b9dd7a2a93fedb9ad35b",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "fdd69d29fc77c548980e58fb057cc9055315056d68e069d65eb6c33eb5ac52ac",
+          "prose": "2c9629b20977c78d548cbc16f2db004e401f4f01de7f743ff402802f44cd01db"
+        },
+        "request": "9eee6f15f1c27ec55d9cd865296db5be031ff4e4171c178877dc93decc0a2850",
+        "task": "ec7eced50041af5166e2a1363c606084858b7f3f527d17efe688a58dd65bade3",
+        "task_toml": "fd0b181f246b07f4f835ecfc9a930c9a17566608fdc8e4bacf50a7ff4e680e8d",
+        "tree": "caf8e29e57c1716ec4a34c5269d40ce33fc3f5eed3783e61faac0e07ed739a32"
+      },
+      "build-20": {
+        "hidden_tests": "7dc19e1f21cc206cb31e65c3b8cfc4a0c56cb2b34020105773845645fdf0552a",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "2ee14ab7f1378c37d35ccd6f1a5da78cb46371004654efd71d6df61129458c60",
+          "prose": "913f452a0d1552ff9795f860fae3d14a7bfaf5508f22d5a46ddaa7a119baabc1"
+        },
+        "request": "5ee0340b46f5b75303ddcac518d1ece90fff3427747c3a1c74235afece5f5915",
+        "task": "fb14643b53941d98086f85ef4c49618af4e955e731914d08311769f406c69e7b",
+        "task_toml": "21d01b41fe6121feb82541b3ea788ce24aecdec16fc44aef0dcae6deb385fcc7",
+        "tree": "82006b06f8f7f61ea2da0158a166a271d2b6e30be14ee614b6ea91b47b0c02d7"
+      },
+      "build-21": {
+        "hidden_tests": "7a3b09a606e4364e583900d2a8355db88aa27a11a379682ec4d540dc08c5fa05",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "6364c331696a160545d60cc1c6f307b95652591dd39c44c1adc30b2c351a660c",
+          "prose": "a5df79266e5c07600dbad3cbbb8973e5212522eaf71300bfa8bd35528d678ea5"
+        },
+        "request": "3a93f30b008b224c97d4714e4ed85b0133e7e9d5cb5296f20017f0299f3b9741",
+        "task": "fe85ad509b07541d3e561af7ecaadb3f0bc4257994d273d1837be753dda0eb63",
+        "task_toml": "956b2d0bf3e2392d84dcf48ec06c9ff4d6b870242818515cacb85fbec6a98fcc",
+        "tree": "214a988aba96a8c7a2c3fe3a427bd52287a877ba969442dddf82b647fadfafd3"
+      },
+      "build-22": {
+        "hidden_tests": "f6721c6e2703494e89e1480b68361cef3172592fd590476d08583416de1e983c",
+        "intents": {
+          "gherkin": "62c4a6cd3066b5f14d7e9d088f06ee43d419dc70847e209d15654d2015aea94b"
+        },
+        "request": "fcb0806c81d13c8044ce1b0fe29f54b49fddc0a5c9bf42d4df15b05e7b4cabbd",
+        "task": "27bfe08f0751b25ce1e13f1260099d30f0814affc7aa1ccc6148291ed8a77a71",
+        "task_toml": "be1a2ac5c176a4722f10eada309e5662b4761821b91b05ed9b9a9698782f2b57",
+        "tree": "f5148e416da44f66dcd631578a8ac2ef313b328899757701ff7bdb52e0aef0d0"
+      },
+      "build-23": {
+        "hidden_tests": "a9a86f74e19c55d7a0721156e36e62a72f116312f6324a5aa54519bdac8550fc",
+        "intents": {
+          "gherkin": "35011c9c192af8d93c9f975f5bde47c918befbce2455aef51c49b5f5779d8518"
+        },
+        "request": "40ab614af59f829ffe8dbf716dcbee974ec59cef4e8985423f60cc7bc05e6b93",
+        "task": "4f5a775c55742cb9a532589594174452929e60c973d46761c7a64b88fe4c2e25",
+        "task_toml": "0441923ca379633fda6ae12dfc3476e5285e9117e4467796397caf8108946ba3",
+        "tree": "a45ef30a10c52eeeccb03aa5724040bb4657d89de3168db9bda1c2da3b7eb22f"
+      },
+      "build-24": {
+        "hidden_tests": "fc2dc682ea493339acd0d490a51f378c089ba6865b68427fa9974b23caf127e0",
+        "intents": {
+          "gherkin": "d4264954e7910196d410d6350830fd0808e44af9c21a633239d50e793288603a"
+        },
+        "request": "fa5136384dc9b777e4851184a12ccfe3bbc980dcfbca9782afd820a620cdd0c1",
+        "task": "83013fbfa799ddb043b657a6f9ec8c4732760b9f2cc0cf3c4a886f2fbfe55338",
+        "task_toml": "70b7dbcad97a76104b27f96afac47d9fdf2b3286c772126177396522901bddf1",
+        "tree": "168c074e56ee68e3511d2bac46e878e4c82872653874bbc49f77a7ec18b946b7"
+      },
+      "build-25": {
+        "hidden_tests": "e943e5d7e14239f1052e5833789f741282f2788989159bbd3d9a12339c1d41e0",
+        "intents": {
+          "gherkin": "2ef97143dd6a2b4eba9282da1ef22de1d60e0e522252bcbb3faa0b84bad3b264"
+        },
+        "request": "e00e9f4322feb70c95d54db2599b496d4366118d300c4f9507e068e4dae7293d",
+        "task": "f1ad36e09284f4c703a3f76ee95df812aa9dc919d998f7267ce61b1ef2e4f506",
+        "task_toml": "c4886e02b9345773e26d23a244675952aa50bc6e89e6d90d4cbbd1f8f920c83b",
+        "tree": "5b83138b5e55d00dab469208ed2b1caee83c52889bae1f2660b8baa0fc6bcf77"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "terra-high-m2": "a80089487946e24b7412906ce7e2686fec2f202770d8b7ac7b925cc1a3c14414",
+      "terra-high-m3": "1339d2a289c9b0285f00b1426228f3e49909905f2bd3da0d423f8bf2d0130544",
+      "terra-high-m4": "c5793b873b87a01c8deb3d268597d6399c0f6b1d740a4376c4cbd73b5f6f544c"
+    },
+    "sha256": "a2090f224abc94f82c9d7ffbd9b5c16a0870ea73e1f98211023dbc47e5aca32a"
+  }
+}

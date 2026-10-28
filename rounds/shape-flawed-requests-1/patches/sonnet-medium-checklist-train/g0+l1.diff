@@ -1,0 +1,98 @@
+diff --git a/cli/build/context.go b/cli/build/context.go
+index e1cfe6d..7c2da3f 100644
+--- a/cli/build/context.go
++++ b/cli/build/context.go
+@@ -407,6 +407,9 @@ func (b *Attempt) prepareContext(owner string, role project.Role, instructions s
+ 	b.WorkingContext[owner] = state
+ 	b.s.Progress(fmt.Sprintf("kogen: %s local reset %d -> %d bytes; ceiling %d; reserve %d; history %s%s",
+ 		owner, measured.RenderedBytes, next.RenderedBytes, agent.InputBudgetBytes, reservedOutputTokens, path, suffix))
++	b.Run.Event(map[string]any{
++		"event": "window_reset", "role": owner, "bytes_before": measured.RenderedBytes, "bytes_after": next.RenderedBytes,
++	})
+ 	return window.reduced, nil
+ }
+ 
+diff --git a/cli/build/context_test.go b/cli/build/context_test.go
+index 9dd342e..249f077 100644
+--- a/cli/build/context_test.go
++++ b/cli/build/context_test.go
+@@ -37,6 +37,17 @@ func TestAConversationOverTheBudgetIsResetToALocalWorkingWindow(t *testing.T) {
+ 	if len(history) == 0 {
+ 		t.Fatal("no archived window")
+ 	}
++	resets := eventsNamed(e.events(id), "window_reset")
++	if len(resets) != len(history) {
++		t.Fatalf("window_reset events %d, archives %d", len(resets), len(history))
++	}
++	for _, r := range resets {
++		before, _ := r["bytes_before"].(float64)
++		after, _ := r["bytes_after"].(float64)
++		if r["role"] != "build" || before <= after || after <= 0 || r["at"] == nil {
++			t.Fatalf("window_reset %v", r)
++		}
++	}
+ 	for i, h := range history {
+ 		ref := h.(map[string]any)
+ 		path := ref["path"].(string)
+diff --git a/cli/shape/window.go b/cli/shape/window.go
+index 9c24db2..fcc211e 100644
+--- a/cli/shape/window.go
++++ b/cli/shape/window.go
+@@ -326,6 +326,9 @@ func (w *window) prepare(p windowPrep, input []any) ([]any, error) {
+ 		"input_budget_bytes": tools.InputBudgetBytes, "output_reserve_tokens": tools.OutputReserveTokens,
+ 		"archive": archive.value(),
+ 	})
++	p.ev.Record(map[string]any{
++		"event": "window_reset", "role": w.owner, "bytes_before": before.RenderedBytes, "bytes_after": after.RenderedBytes,
++	})
+ 	p.progress(fmt.Sprintf("kogen: %s local working-window reset %d -> %d bytes; custody %s", w.title(), before.RenderedBytes, after.RenderedBytes, archive.Path))
+ 	return reduced, nil
+ }
+diff --git a/cli/shape/window_test.go b/cli/shape/window_test.go
+index d72da53..5078f31 100644
+--- a/cli/shape/window_test.go
++++ b/cli/shape/window_test.go
+@@ -225,6 +225,15 @@ func TestTheResetEventMeasuresTheRequestOfTheNewWindow(t *testing.T) {
+ 		event["input_budget_bytes"] != float64(524288) || event["output_reserve_tokens"] != float64(131072) {
+ 		t.Fatalf("event %v, request %d bytes", event, actual.RenderedBytes)
+ 	}
++	var reset map[string]any
++	for _, e := range windowEvents(t, f.root) {
++		if e["event"] == "window_reset" {
++			reset = e
++		}
++	}
++	if reset == nil || reset["role"] != "shape" || reset["bytes_after"] != float64(actual.RenderedBytes) || reset["bytes_before"] != event["before_bytes"] {
++		t.Fatalf("window_reset %v", reset)
++	}
+ }
+ 
+ func TestUnsafeAncestorCustodyRefusesBeforeWritingAnUnsentArchive(t *testing.T) {
+diff --git a/cli/agent/prompts/shaper.md b/cli/agent/prompts/shaper.md
+index e096eb1..29d654a 100644
+--- a/cli/agent/prompts/shaper.md
++++ b/cli/agent/prompts/shaper.md
+@@ -20,6 +20,8 @@ How to shape:
+ - The builder receives your Intent, not the original request. Preserve settled non-secret literal inputs (paths, commands, names and values) needed by the requested behavior or required examples. Do not substitute guessed values or refer to facts that exist only in the original request.
+ - Ask the caller (submit `questions`) only about material UI/UX choices the request leaves open, each with options (plain text; Kogen letters them) and one marked recommended. Decide technical details yourself. Never ask about things the request or the answers already settle.
+ - Read the project with read_file, list_files and search_text before writing. Follow its README and conventions.
++- Check the request for defects before you write the Intent, and check the finished Intent again before you submit. A defect is two sentences, or a sentence and an example, that give different results for one input, or an input, result, string or name the builder or a test needs that nothing defines. Checks: run every quoted example and every boundary input through every rule that mentions it; for each "always", "never", "every", "only" or "exactly when", look for an exception elsewhere; when two rules or errors can hold for one input, name the winner; give every number, setting or derived value a range and a result outside it; make sure each output format can express every value the rules allow; give empty, zero, maximum, negative, whitespace-only and unterminated inputs one result each; say which reference a value measured from a clock, cursor or offset uses; state every line, field, message and empty or zero rendering a test can observe; state every public name, arity, argument and return shape a check calls; define each domain term or tie it to one named standard; run every prefix, substring or pattern rule against one hostile input (userinfo, redirect, bad encoding); check every required change against protected files and approvals; keep acceptance code free of key-order JSON comparison, whole-stdout regular expressions and reads of files a success deletes.
++- Handle every defect you find. Either decide it in `## Decisions` as `Decision: <rule> (because <reason>)` with one exact input and its result, keeping every explicit example in the request and preferring the explicit sentence over the general one, the common convention, and rejection where security is involved; or, when the choice changes product behavior a user would see and the request names no winner, ask one question that names both statements (or the gap), gives the exposing input and recommends an option. Never carry a defect through silently, and never drop one of the conflicting sentences without saying so.
+ {{feasibility-guidance}}
+ 
+ - Use `probe` only to prove a genuinely uncertain assumption the Intent depends on (a library call's behavior, a tool's availability, a command in this project). Most Intents need no probe. A failed probe is a finding: reshape around it, or ask if it is a UI/UX matter.
+diff --git a/cli/agent/testdata/prompts_golden.json b/cli/agent/testdata/prompts_golden.json
+index f60c61e..9e847c0 100644
+--- a/cli/agent/testdata/prompts_golden.json
++++ b/cli/agent/testdata/prompts_golden.json
+@@ -24,8 +24,8 @@
+     "sha256": "39e51da233be9dd2aaaae9ef3d24aa1fcb95421ae54c04360225a5a8c1cd9419"
+   },
+   "shaper": {
+-    "bytes": 15645,
+-    "sha256": "10e53eff1834b6a852cc560f9941b7d7a109e532feab20a7cff8f028fc4d8747"
++    "bytes": 17655,
++    "sha256": "d63ffc694b6f9631274279e6861f09ada7e20dde78627ea02b322c06db853cf1"
+   },
+   "shaper-context-guidance": {
+     "bytes": 392,
