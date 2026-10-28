@@ -8519,6 +8519,41 @@
       "replay_type": "analysis-only",
       "full_execution_replayable": false,
       "availability_note": "Recomputes the published tables from the per-cell bundles, grades.json (label counts per cell from the blind grader), grader-agreement.json and shape-usage.json of this round, with no model call. The task folders and cell trees are not published yet (the tasks are still in use), so cells cannot be re-graded; model execution cannot be replayed from this bundle."
+    },
+    {
+      "round_id": "claude-code-fix-rechecks-1",
+      "script": "python3 rounds/claude-code-fix-rechecks-1/analyze.py",
+      "inputs": [
+        "rounds/claude-code-fix-rechecks-1/MEASURED.md",
+        "rounds/claude-code-fix-rechecks-1/MISSING-DECLARED.json",
+        "rounds/claude-code-fix-rechecks-1/MISSING.md",
+        "rounds/claude-code-fix-rechecks-1/PLAN.json",
+        "rounds/claude-code-fix-rechecks-1/README.md",
+        "rounds/claude-code-fix-rechecks-1/TASKS.md",
+        "rounds/claude-code-fix-rechecks-1/analyze.py",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/EXCLUDED.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r1/shape-selfcheck-66f8a0e/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r1/shape-selfcheck-66f8a0e/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r2/shape-selfcheck-66f8a0e/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r2/shape-selfcheck-66f8a0e/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r3/shape-selfcheck-66f8a0e/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r3/shape-selfcheck-66f8a0e/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r4/shape-selfcheck-66f8a0e/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16/r4/shape-selfcheck-66f8a0e/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16b/r1/stop-on-blocker-31d432f/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16b/r1/stop-on-blocker-31d432f/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16b/r1/stop-on-repeat-817ae58/a1/attempt.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/attempts/build-16b/r1/stop-on-repeat-817ae58/a1/evaluation.json",
+        "rounds/claude-code-fix-rechecks-1/bundles/claude-code-fix-rechecks-1/manifest.json",
+        "rounds/claude-code-fix-rechecks-1/cell-facts.json",
+        "rounds/claude-code-fix-rechecks-1/patches/shape-selfcheck-66f8a0e/g0.diff",
+        "rounds/claude-code-fix-rechecks-1/patches/stop-on-blocker-31d432f/g0.diff",
+        "rounds/claude-code-fix-rechecks-1/patches/stop-on-repeat-817ae58/g0.diff",
+        "rounds/claude-code-fix-rechecks-1/records.jsonl"
+      ],
+      "replay_type": "analysis-only",
+      "full_execution_replayable": false,
+      "availability_note": "Recomputes the published tables from the per-cell bundles and cell-facts.json of this round, with no model call. The task folder and cell trees are not published, so cells cannot be re-graded; model execution cannot be replayed from this bundle."
     }
   ]
 }

@@ -1,0 +1,110 @@
+{
+  "experiment": {
+    "cost_cap_usd": 1,
+    "deadline_s": 3600,
+    "decision_rule": {
+      "kind": "descriptive"
+    },
+    "id": "claude-code-fix-rechecks-1",
+    "intent_form": "gherkin",
+    "kogen": {
+      "repo": "https://github.com/KogenAI/kogen.git"
+    },
+    "lanes": [
+      {
+        "name": "stop-on-blocker-31d432f",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "claude-code/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "31d432fb03655a1e11d27f09d9169401622cd19f"
+      },
+      {
+        "name": "stop-on-repeat-817ae58",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "build": "claude-code/claude-sonnet-5-5 medium",
+            "review": "claude-code/claude-opus-5-5 medium"
+          }
+        },
+        "sha": "817ae58102bce0a4b0ee24da01dc7c1490f69062"
+      },
+      {
+        "name": "shape-selfcheck-66f8a0e",
+        "patch": "patches/g0.diff",
+        "settings": {
+          "models": {
+            "shape": "claude-code/claude-sonnet-5-5 medium"
+          }
+        },
+        "sha": "66f8a0e3952f416b55b9f414c48adedb722663c7"
+      }
+    ],
+    "phase": "build",
+    "provider_caps": {
+      "claude-code": {
+        "cells": 6
+      }
+    },
+    "reps": 4,
+    "tasks": [
+      "build-16b",
+      "build-16"
+    ]
+  },
+  "hashes": {
+    "lanes": {
+      "shape-selfcheck-66f8a0e": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "cd7a19930fa53af1a2e51bed7ac36c72bd7e35f2874a201f306d84b2aca0134e"
+      },
+      "stop-on-blocker-31d432f": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "6b5fe842e04e8a3b3f676bb62d62e47a22099295b0c6956fdde2f59ebf8a749d"
+      },
+      "stop-on-repeat-817ae58": {
+        "patch": "29fc887a05b52792c4af63a3d5c98acf9cecf856bcd3971674755aa87ec7ff2e",
+        "settings": "6b5fe842e04e8a3b3f676bb62d62e47a22099295b0c6956fdde2f59ebf8a749d"
+      }
+    },
+    "tasks": {
+      "build-16": {
+        "hidden_tests": "59ecdcae15063a4dbc56961b5123e6e6f8f44e9ba678555fdb47d68366aac2a9",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "90c67e90c28037b7f53bc4b2a768ddd1c3aee43f6a1af7aaa13555e79b274266",
+          "prose": "fd9986390caa7ab309edfceb2f8a0747f872c9d2b91a95df79ff6bf8c3e1470f"
+        },
+        "request": "7d8b01e3a453ca5b9aa1e0c5c8010ff5e7a5b37008867231f7c5d0b00f84e081",
+        "task": "e2395445b2e967c76915d2ac13975d0803ac8b4fbb4e3f6ca0afa13026d75e0f",
+        "task_toml": "3927246d6e0aacfbb75abc8387388a27e966c595f0ccf3c6b818c073873307a6",
+        "tree": "534f92932377aa20db7b47c59081197454372d50f38b24ccd9a3e185d215d471"
+      },
+      "build-16b": {
+        "hidden_tests": "59ecdcae15063a4dbc56961b5123e6e6f8f44e9ba678555fdb47d68366aac2a9",
+        "intents": {
+          "EQUIVALENCE.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gherkin": "00ff7c06b95f6a7a15c46403036d4a15a750c47c0be72304a4399158dc9f2d45",
+          "gherkin.original": "90c67e90c28037b7f53bc4b2a768ddd1c3aee43f6a1af7aaa13555e79b274266",
+          "prose": "fd9986390caa7ab309edfceb2f8a0747f872c9d2b91a95df79ff6bf8c3e1470f"
+        },
+        "request": "7d8b01e3a453ca5b9aa1e0c5c8010ff5e7a5b37008867231f7c5d0b00f84e081",
+        "task": "6a905226237c647230fa24071edff78723cef76ceaf875f8de99701ceecdb9dc",
+        "task_toml": "3927246d6e0aacfbb75abc8387388a27e966c595f0ccf3c6b818c073873307a6",
+        "tree": "534f92932377aa20db7b47c59081197454372d50f38b24ccd9a3e185d215d471"
+      }
+    }
+  },
+  "lock": {
+    "artifacts": {
+      "shape-selfcheck-66f8a0e": "f9c789c65804456a43c7eb1df8e442b519d318f439bcb89a034c553d4ed70f31",
+      "stop-on-blocker-31d432f": "d81b61c90a71fb29786588bf66323ec5d8411a00299a72f78f66357ea1d7ab5e",
+      "stop-on-repeat-817ae58": "85226d1de4c7e94adb909d1dff0b1f54ceea1cfa2728c5a7c924a2005f8a30ef"
+    },
+    "sha256": "b9c39fe5b108d4ba4f9c16cd9ba3fbd8fd4297be43fee4365ac0048c6e227933"
+  }
+}

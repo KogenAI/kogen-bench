@@ -1,0 +1,21 @@
+## Build cells (the two stop rules)
+
+| Lane | Task id | Outcome | Executor rounds | Blocker reports | Repeated-failure stops | Verification runs | Cell wall time, s | Hidden tests passed | failed | not reported |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| stop-on-blocker-31d432f | `build-16b` | build_blocked | 1 | 1 | 0 | 0 | 47 | 0 of 10 | 3 | 7 |
+| stop-on-repeat-817ae58 | `build-16b` | build_blocked | 2 | 1 | 0 | 1 | 63 | 0 of 10 | 3 | 7 |
+
+## Shape cells (the step-file self-check)
+
+| Rep | Outcome | Cell wall time, s | Self-check runs | Checks run | Checks failed | Step files | go run, npm run or npx in step files | Scenarios | Passing on the reference | Failing on the start | Wrong variants caught |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| r1 | ok | 54 | 2 | 34 | 0 | 1 | 0 | 9 | 9 | 9 | 4 of 5 |
+| r2 | ok | 60 | 2 | 34 | 0 | 1 | 0 | 12 | 11 | 10 | 5 of 5 |
+| r3 | ok | 82 | 3 | 63 | 0 | 1 | 0 | 12 | 12 | 10 | 4 of 5 |
+| r4 | ok | 61 | 2 | 34 | 0 | 1 | 0 | 8 | 8 | 8 | 4 of 5 |
+
+Shape cells: 4; ended ok: 4; self-check runs: 9 (2 to 3 per cell); checks run: 165, failed: 0; step-file matches for go run, npm run or npx: 0.
+Checks run by kind: definitions 69, exit_code 9, load 9, steps 78.
+Scenarios 41; passing on the reference 40; failing on the starting code 37; wrong variants caught 17 of 20.
+Cells where every scenario passes on the reference: 3 (r1, r3, r4). Cells where every scenario fails on the start: 2. Cells that catch every wrong variant: 1.
+Shape wall time, s: min 54, median 60.4, max 82.
