@@ -154,7 +154,7 @@ def verify_inputs(run_dir, exp, tasks_dir):
 # ---- hosts ----------------------------------------------------------------------------------
 
 def load_hosts(path, names):
-    """`{name: {target, slots, root, claude_config_dir?, claude_bin?, cell_memory_max?}}` for the experiment's hosts (all of the file when it names none)."""
+    """`{name: {target, slots, root, claude_config_dir?, claude_bin?, kogen_token_home?, cell_memory_max?}}` for the experiment's hosts (all of the file when it names none)."""
     raw = common.read_json(path)
     names = names or sorted(raw)
     out = {}
@@ -168,7 +168,7 @@ def load_hosts(path, names):
         if h["target"] != "local" and not h.get("root"):
             raise DispatchError(f"hosts file: {n}.root (a work folder on the host) is required")
         out[n] = {"target": h["target"], "slots": slots, "root": h.get("root")}
-        for key in ("claude_config_dir", "claude_bin"):  # Claude Code runs: the login folder and the executable
+        for key in ("claude_config_dir", "claude_bin", "kogen_token_home"):  # Claude Code runs: the login folder, the executable, or a Kogen home with a stored token
             if key in h:
                 if not isinstance(h[key], str) or not h[key]:
                     raise DispatchError(f"hosts file: {n}.{key} must be a non-empty string")

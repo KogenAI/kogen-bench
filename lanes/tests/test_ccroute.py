@@ -112,6 +112,32 @@ class Preflight(unittest.TestCase):
                                            out=self.lines.append, ssh=SSH), 1)
         self.assertIn("is not an existing directory", self.lines[-1])
 
+    def test_a_kogen_home_with_a_stored_token_passes_without_a_config_dir(self):
+        home = os.path.join(self.tmp, "kogen-home")
+        os.makedirs(os.path.join(home, ".kogen", "credentials"))
+        with open(os.path.join(home, ".kogen", "credentials", "claude-code.json"), "w") as f:
+            f.write("{}")
+        bad, out = self.check(kogen_token_home=home)
+        self.assertEqual((bad, "REFUSED" in out), (0, False), out)
+        self.assertIn("Kogen stored token", out)
+        self.assertFalse(os.path.exists(self.log))  # no claude auth status: the token is Kogen's
+
+    def test_a_kogen_home_without_the_token_is_refused(self):
+        home = os.path.join(self.tmp, "empty-home")
+        os.makedirs(home)
+        bad, out = self.check(kogen_token_home=home, claude_config_dir=self.config)
+        self.assertEqual(bad, 1)
+        self.assertIn("no stored Claude Code token", out)
+
+    def test_a_remote_kogen_home_is_checked_over_ssh(self):
+        home = os.path.join(self.tmp, "remote-home")
+        os.makedirs(os.path.join(home, ".kogen", "credentials"))
+        host = {"target": "far.invalid", "kogen_token_home": home}
+        self.assertEqual(ccroute.preflight(self.exp, {"far": host}, out=self.lines.append, ssh=SSH), 1)
+        with open(os.path.join(home, ".kogen", "credentials", "claude-code.json"), "w") as f:
+            f.write("{}")
+        self.assertEqual(ccroute.preflight(self.exp, {"far": host}, out=self.lines.append, ssh=SSH), 0)
+
     def test_no_claude_code_lane_means_no_check(self):
         self.assertEqual(ccroute.preflight({"lanes": [{"name": "a", "settings": {}}]}, {}, out=self.lines.append), 0)
 

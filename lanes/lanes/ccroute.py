@@ -49,7 +49,23 @@ def _logged_in(text):
 
 
 def check_host(name, cfg, ssh):
-    """`(ok, one-line message)` for one host: config dir set and present, then `claude auth status --json`."""
+    """`(ok, one-line message)` for one host: a Kogen home holding a stored Claude Code token (`kogen_token_home`), or
+    else config dir set and present, then `claude auth status --json`."""
+    token_home = cfg.get("kogen_token_home")
+    if token_home:  # `kogen provider login claude-code` (stdin) stored a token there; Kogen's cells use it, not a CC login
+        cred = os.path.join(token_home, ".kogen", "credentials", "claude-code.json")
+        if cfg["target"] != "local":
+            try:
+                p = subprocess.run([*ssh, cfg["target"], f"test -s {shlex.quote(cred)}"], capture_output=True,
+                                   timeout=TIMEOUT_S, stdin=subprocess.DEVNULL)
+            except (OSError, subprocess.TimeoutExpired) as e:
+                return False, f"{name}: cannot check the stored token ({type(e).__name__})"
+            present = p.returncode == 0
+        else:
+            present = os.path.isfile(cred) and os.path.getsize(cred) > 0
+        if present:
+            return True, f"{name}: Kogen stored token in {token_home}"
+        return False, f"{name}: no stored Claude Code token in {token_home} (run kogen provider login claude-code there)"
     config_dir = cfg.get("claude_config_dir")
     if not config_dir:
         return False, f"{name}: CLAUDE_CONFIG_DIR is not set (hosts file: claude_config_dir)"
