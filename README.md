@@ -48,6 +48,7 @@ The historical audit command can rewrite round audit documents and the validatio
 - [decisions/](decisions/README.md): analysis rulings
 - [categories/](categories/README.md): results grouped by topic
 - [Mechanism inventory](categories/mechanism-inventory.md): every changeable part of Kogen, its default, where it lives and its evidence status
+- [Head-to-head](categories/head-to-head.md): kogen-loop against Codex CLI and Claude Code on the same prompt and model, and Kogen's pipeline against bare agents (29 October)
 - [Mechanism profiles](categories/mechanism-profiles.md): model-free profiles of run logs: checkpoint cost, provider retries, build bounds, response durations, cut tool results, submit-tool endings, named tests and builder tools
 - [tasks/](tasks/README.md): task records and public-prompt coverage
 - [results/](results/README.md): official outcome export and separately captured standard records
