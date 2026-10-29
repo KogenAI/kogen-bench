@@ -382,6 +382,8 @@ In neither cell did the builder call `list_files` or `search_text`; it explored 
 
 ## Climb results, 29 October
 
+**Correction, 29 October 2026.** Recalculation keeps each task and repetition, leaves evaluator infrastructure failures ungraded, and preserves missing usage. Review times below now measure elapsed review phases, including tool work. Excluding an evaluator infrastructure failure raises the perfect-picker gain to 0.25; the decision to leave that change out is unchanged. Some historical replay totals and blind grades could not be independently verified against a fixed set of source records and should not be cited as verified measurements.
+
 **What this section is.** Unlike the sections above, this one reports comparisons in which models ran. They are "climbs": a part of Kogen was changed on its own, usually through a temporary research patch that is not in Kogen, and the changed setting was compared with the shipped one on the same tasks. The first items below come from the night of 28 to 29 October. All cells ran on Kogen commit [`e2e8196e18facc62b258b29adb6e16ab149f0cbb`](https://github.com/KogenAI/kogen/commit/e2e8196e18facc62b258b29adb6e16ab149f0cbb), the commit the [mechanism inventory](mechanism-inventory.md) pins, on the ChatGPT route, with one change per comparison. The last three items check recorded logs. Only the run-log field re-check ran cells, two small ones.
 
 **How decisions were made.** Each comparison had a rule written before its cells ran. The inference unit is the task: a sign test over per-task means, with at most three looks (after 2, 4 and 6 repetitions) and a one-sided p of 0.02 or less to stop at a look. The effect bars are stated with each item. A result described here as "decided" means it was decided under such a rule written before the cells. It is not decision-grade in the strict statistical sense: the tasks are research-made, there are a few repetitions per task, the models are single named models, and some blocks were stopped early. Where a result is labelled interim or unresolved, no rule has decided it.
@@ -396,7 +398,7 @@ In neither cell did the builder call `list_files` or `search_text`; it explored 
 | [Compact verify-failure summary](#compact-verify-failure-summary) | Yes, no change | Short tasks: build input +0.1%, pass 1.00 against 1.00. Long-session tasks: build input -11.9% at p = 0.23, wall time +8.3%. | None. |
 | [Sharing the build's cache key with review](#sharing-the-builds-cache-key-with-review) | Yes, no effect shown | Review uncached input -1.4% against a bar of -20%. | None. |
 | [Run-log field re-check](#run-log-field-re-check) | Pass criteria written before the cells | Every field the two cells exercised was present. | None. |
-| [Stall-stop threshold and step self-check](#native-stall-stop-threshold-and-shape-step-self-check) | Yes, model-free | No alternative stall threshold reaches the bar. The self-check fired in 24.9% of cells and costs 0.55% of shape time. | None. An unused step definition was ruled to become a warning. |
+| [Stall-stop threshold and step self-check](#native-stall-stop-threshold-and-shape-step-self-check) | Yes, model-free | No alternative stall threshold reaches the bar. The self-check fired in 24.9% of cells. Its measured time is at least 0.55% of shape time; full timing is missing. | None. An unused step definition was ruled to become a warning. |
 | [Response budget correction and stream timeouts](#provider-response-budget-correction-and-stream-timeouts) | Correction of an earlier replay, plus a proposal | Shape responses run longer than build and review ones: 12 completed over 600 s. | None yet. The ten-minute total is safe for build and review only. A fix restoring 30 minutes for shape, refine and init has not landed, and an idle-stream timeout is proposed, not built. |
 
 ### Default reviewer
@@ -410,15 +412,15 @@ In neither cell did the builder call `list_files` or `search_text`; it explored 
 | Set | Measure | Sol high | Terra medium |
 | --- | --- | ---: | ---: |
 | Seeded, 52 cells per arm | Escapes | 0 | 0 |
-| Seeded | Median review wall time | 150 s | 25 s |
+| Seeded | Median review wall time | 164 s | 28 s |
 | Clean, 30 cells per arm | False blocks | 0 | 0 |
-| Clean | Median review wall time | 133 s | 27 s |
+| Clean | Median review wall time | 131 s | 28 s |
 
 Terra medium had one cell with a failing hidden test among the seeded cells. That review blocked, so it is a catch: nothing was committed.
 
 **Reading of the result.** The registered rule passes: no escapes in either arm, no false blocks in either arm, and Terra medium reviews five to six times faster by median time. This agrees with the earlier round on current review code. It was decided under a rule written before the cells, and it is still observation-level evidence: 52 seeded and 30 clean cells per arm, one build model, research-made seeded faults, and no escape on either side, so the data cannot separate two reviewers that both catch every planted fault. A change of the shipped default was passed on to be built, and the registered gate is a confirmation run on the installed version, which is not reported here.
 
-**Reviews larger than the window.** This comparison covers reviews whose material fits the working window. A separate class is large reviews. In one earlier development review, with Terra medium over 133 pinned parts (797 KB), the window reset from 657 KB to 298 KB, 157 KB had to be loaded again, and the review ended without a valid verdict even when the verdict tool was forced. A follow-up was registered before any cell: Sol high against Terra medium as reviewer, Terra high building, on 4 long tasks whose review material (0.47 to 0.61 MB) overflows into parts and resets, 2 repetitions per arm, 16 cells. The primary measure is reviews that end without a verdict, together with landed and hidden-test pass. Terra medium may be the default for large reviews only if its count of reviews without a verdict is not above Sol high's by more than 1 of 8 and its landed count is not lower by more than 1. Otherwise the default change is scoped, and large reviews keep Sol high until the review fixes land. **That follow-up is still running and has no result. The default change is held for reviews larger than the context window until it reports.**
+**Reviews larger than the window.** This comparison covers reviews whose material fits the working window. A separate class is large reviews. In one earlier development review, with Terra medium over 133 pinned parts (797 KB), the window reset from 657 KB to 298 KB, 157 KB had to be loaded again, and the review ended without a valid verdict even when the verdict tool was forced. A follow-up was registered before any cell: Sol high against Terra medium as reviewer, Terra high building, on 4 long tasks whose review material (0.47 to 0.61 MB) overflows into parts and resets, 2 repetitions per arm, 16 cells. The primary measure is reviews that end without a verdict, together with landed and hidden-test pass. Terra medium may be the default for large reviews only if its count of reviews without a verdict is not above Sol high's by more than 1 of 8 and its landed count is not lower by more than 1. Otherwise the default change is scoped, and large reviews keep Sol high until the review fixes land. **This was the plan at the first look. The completed follow-up is reported under [Review on a cheaper model for large reviews](#review-on-a-cheaper-model-for-large-reviews-yes).**
 
 **Limits.** Neither arm had an escape or a false block, so the safety result rests on the upper bounds of 0 of 52 and 0 of 30, not on a measured difference. The seeded faults and tasks are research-made. The confirmation run and the large-review follow-up are not reported.
 
@@ -434,7 +436,7 @@ Terra medium had one cell with a failing hidden test among the seeded cells. Tha
 | --- | --- |
 | Hidden-test pass | 1.00 against 1.00 |
 | Build input tokens, median per task | -32.4% (13 of 13 tasks lower, p below 0.001) |
-| Build wall time | -40.2% (13 of 13 tasks lower) |
+| Whole-cell wall time | -40.2% (13 of 13 tasks lower) |
 
 **Long-session tasks (7 tasks, graded).** Hidden-test pass was 1.00 for Sol medium and 0.86 for Terra high: one task failed in both Terra repetitions, and one of those was a review that blocked. Terra high's median build input was 6.4% lower (p = 0.50) and wall time 22.8% lower (p = 0.23). No threshold was reached. Combined over the 20 tasks, the efficiency rule holds on the short tasks and fails the "no task worse" condition on that one task: a large-repository Go task whose acceptance scenarios name items, where Terra high passed 0 of 2 against 2 of 2 for Sol medium.
 
@@ -477,7 +479,7 @@ Terra medium had one cell with a failing hidden test among the seeded cells. Tha
 | Measure | Result, patch against shipped |
 | --- | --- |
 | Build input tokens, median per task | +0.1% (6 tasks lower, 7 higher, p for lower = 0.71) |
-| Build wall time | -2.7% (p = 0.50) |
+| Whole-cell wall time | -2.7% (p = 0.50) |
 | Hidden-test pass, after grading | 1.00 against 1.00 |
 
 **Result on the long-session tasks.** The second block ran the same comparison on the long-session tasks: 7 tasks, but only 27 of the 32 planned cells, because the run could not be resumed on another machine and the missing 5 cells were not repaired. The block was graded afterwards.
@@ -486,13 +488,13 @@ Terra medium had one cell with a failing hidden test among the seeded cells. Tha
 | --- | --- |
 | Hidden-test pass | 0.79 without the patch, 0.86 with it (no task worse) |
 | Build input tokens, median per task | -11.9% (5 of 7 tasks lower, p = 0.23) |
-| Build wall time | +8.3% |
+| Whole-cell wall time | +8.3% |
 
 The pass figures of the short-task block need one correction. The first reading of this block ran before grading had finished, and cells without an evaluation counted as failures. After grading, pass is 1.00 in both arms. The same grading check for the next item is reported there.
 
 **Reading of the result.** On short tasks the bar of -10% was not reached and the median change is zero. Short tasks rarely reach a failing verification pass, and that is the only place the summary acts, so the patch had almost nothing to act on: no saving and no harm. On long-session tasks the size of the change (-11.9%) clears the -10% bar, but p = 0.23 is far from the 0.02 the rule asks for, wall time went up, and pass was not lower on any task. The climb was closed as no change, because it is not being extended (the rule allows up to three looks, and none further was run). The bar written before the cells was not met, so the rule closes it as no change. That is a not-shown result, not evidence that the summary has no effect on repair-heavy tasks, where it could still help. It would be reopened only if repair-heavy tasks became a focus.
 
-**Limits.** The long-session block has 27 of 32 cells and 7 tasks, one task only partly paired, and its pass figures (0.79 and 0.86) compare unequal sets of cells. The short-task builds seldom fail verification, so the lever was barely exercised there. Neither block was extended.
+**Limits.** The long-session block has 27 of 32 cells and 7 tasks. Comparisons use the same 13 matched task-and-repetition pairs in both arms; the pass figures (0.79 and 0.86) are means of task pass rates. One control attempt has no matching patch attempt and is excluded from comparisons. The short-task builds seldom fail verification, so the lever was barely exercised there. Neither block was extended.
 
 ### Sharing the build's cache key with review
 
@@ -545,9 +547,9 @@ Two parts that had never been measured were replayed on recorded logs before any
 
 - It ran 490 times and returned problems 55 times (11.2%), in 51 of the 205 cells (24.9%). One event can carry several problems: undefined step 38, unused definition 11 (in each of the 11 nothing else was wrong), load error 3, observer mismatch 2, ambiguous step 1, exit-code wrapper 1.
 - After a failing check, the shaper's next check in the same cell was clean 37 times and showed a different problem 4 times. The same problem never came back unchanged. In 14 cells a failing check was the last submission and the cell ended refused.
-- It costs a mean 0.54 s per run, about 0.55% of shape wall time. The readiness gate that follows costs a mean 23.8 s, 10.8% of shape time. Readiness refused 6 times in these cells, all for undefined steps that the check had passed (6 of 435 clean runs, 1.4%), so the check is mostly an earlier and cheaper catch.
+- The 435 measurable clean checks averaged 0.54 s. Their known time is 0.55% of shape wall time. The other 55 checks could not be timed, so the full cost is missing. The readiness gate that follows costs a mean 23.8 s, 10.8% of shape time. Readiness refused 6 times in these cells, all for undefined steps that the check had passed (6 of 435 clean runs, 1.4%), so the check is mostly an earlier and cheaper catch.
 
-**Reading.** The check fires in a quarter of cells, the shaper acts on it every time, and its cost is small, so an off-arm would test a part that does real work for at most 0.5% of shape wall time. It was kept and no comparison was run. One ruling came out of the replay: an unused step definition, which was a refusal reason, becomes a warning, since 11 of the 55 problem events were that alone. That is a change to a rule, not a measured effect, and its effect on refusals is not measured.
+**Reading.** The check fires in a quarter of cells, the shaper acts on it every time, and its cost is small, so an off-arm would test a part that does real work for a measured lower bound of about 0.55% of shape wall time, with the full cost missing. It was kept and no comparison was run. One ruling came out of the replay: an unused step definition, which was a refusal reason, becomes a warning, since 11 of the 55 problem events were that alone. That is a change to a rule, not a measured effect, and its effect on refusals is not measured.
 
 **Limits.** The log has no submission text, so "changed in response" rests on the item sets of the next check. 15 runs and 8 tasks, mostly short and long-session tasks. The shaping lanes mix Sol low, Terra medium and Claude Code Sonnet shapers, so the 24.9% is a blend: it is about three times higher on the Sol low lanes.
 
@@ -613,7 +615,7 @@ On this corpus, such values would have ended the four Terra stalls and the two S
 
 ## Further results of 29 October
 
-Each item below was decided by its registered rule. A "no" means the change stays out of Kogen.
+Each item below records the decision at its stated look. A "no" means the change stays out of Kogen. Collection status is established from saved cells and evaluations; absence of a matching process does not establish completion.
 
 ### Prompt cache across effort and model changes
 
@@ -623,7 +625,7 @@ Each item below was decided by its registered rule. A "no" means the change stay
 
 ### Static repository map in the first request: no
 
-A 2,000-token map of the repository covered 57% of the files the change touched on large tasks; the bar was 70%. It added about 17% to input; the bar was 5%.
+A 2,000-token map of the repository covered 57% of the files the change touched on large tasks; the bar was 70%. It added about 17% to the task-input bytes; this is not the size of the full model request. The bar was 5%.
 
 ### Request-matched file retrieval: no
 
@@ -631,7 +633,7 @@ The best keyword-ranked map covered 54–57% of changed files at 2,000 tokens. I
 
 ### Best of N with Kogen's own pick: no
 
-Running several builds and letting Kogen pick one raised pass by 0.10 at 1.72 times the cost. A perfect picker would have gained 0.24.
+A replay of two builds with a pick among those that landed projects a pass gain of 0.10 at 1.72 times the cost per pass. A perfect picker projects a gain of 0.25 after an evaluator infrastructure failure is left ungraded. The cost multiplier assumes both builds consume the same expected resources as a single build; it is a projection, not a measured bill.
 
 ### Routing tasks to models by predicted difficulty: no
 
@@ -665,7 +667,7 @@ On 4 large tasks, reviewing with gpt-6.1-terra at medium effort instead of gpt-6
 - build input +0.8% (p = 0.69);
 - wall time −20% (p = 0.06).
 
-Together with the earlier result on smaller reviews, Terra at medium effort holds as reviewer up to the review sizes tested here. The largest reviews remain under test: in one later build with about 200 evidence parts, two Terra-medium reviews ended without a verdict.
+Three attempts in each arm stopped during building before review began. Neither arm passed the hidden tests in this block. The result supports the registered landing and verdict guard on this workload; it does not demonstrate equal review quality. Together with the earlier result on smaller reviews, Terra at medium effort holds as reviewer up to the review sizes tested here. The largest reviews remain under test: in one later build with about 200 evidence parts, two Terra-medium reviews ended without a verdict.
 
 ### Ten-minute build and review response budget: confirmed
 
@@ -677,7 +679,7 @@ When Kogen drives Claude Code, having the review continue the builder's session 
 
 ### First-byte timeout on the model stream: open
 
-A batch with timeouts of 90, 30 and 20 seconds saw no stalled requests, so the setting never acted. The earlier stalls (7% of requests in one batch, all before response headers) clustered in time. The question stays open until a batch catches a stall window.
+A batch with timeouts of 90, 30 and 20 seconds saw no stalled requests, so the setting never acted. The earlier stalls (11 of 153 recorded request attempts in one batch, all before response headers) clustered in time. The question stays open until a batch catches a stall window.
 
 ## Evidence level
 
