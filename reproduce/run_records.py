@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import re
-import subprocess
-import sys
 from pathlib import Path
 
 from missing_reasons import load_legend
@@ -20,14 +19,27 @@ MAX_FILE_BYTES = MAX_PARTITION_BYTES
 INDEX_SCHEMA_VERSION = "1.0"
 
 
-def safe_rows(path: Path) -> list[dict]:
-    """Load a record through the approved sanitizer before using its fields."""
+def _sanitizer():
+    """Import the approved sanitizer once; one interpreter per record file was the slow part under load."""
     helper = resolve_safe_rows_path()
     if helper is None:
         raise FileNotFoundError("approved safe_rows.py helper is unavailable")
-    result = subprocess.run([sys.executable, str(helper), str(path)], check=True,
-                            capture_output=True, text=True, timeout=30)
-    rows = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+    module = _SANITIZERS.get(helper)
+    if module is None:
+        spec = importlib.util.spec_from_file_location("approved_safe_rows", helper)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _SANITIZERS[helper] = module
+    return module
+
+
+_SANITIZERS: dict[Path, object] = {}
+
+
+def safe_rows(path: Path) -> list[dict]:
+    """Load a record through the approved sanitizer before using its fields."""
+    helper = _sanitizer()
+    rows = [helper.sanitize(row) for row in helper.load_rows(str(path))]
     if any(not isinstance(row, dict) for row in rows):
         raise ValueError(f"Non-object run record in {path.name}")
     return rows
