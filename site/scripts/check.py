@@ -152,6 +152,15 @@ def check_intent_phone_width(errors: list[str]) -> str:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(DIST), **kwargs)
 
+        def end_headers(self):
+            # Measure built local assets only. Analytics and other remote
+            # resources must never hold the frame's load event open.
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self' data: 'unsafe-inline'; connect-src 'none'",
+            )
+            super().end_headers()
+
         def log_message(self, *_args):
             return
 
@@ -161,6 +170,8 @@ def check_intent_phone_width(errors: list[str]) -> str:
     try:
         with tempfile.TemporaryDirectory(prefix="kogen-mobile-check-") as profile:
             try:
+                # --dump-dom waits for load, including the local iframe assets.
+                # A virtual-time budget can stall on pending network requests.
                 result = subprocess.run(
                     [
                         str(browser),
@@ -176,7 +187,6 @@ def check_intent_phone_width(errors: list[str]) -> str:
                         "--no-first-run",
                         "--hide-scrollbars",
                         "--window-size=390,900",
-                        "--virtual-time-budget=3500",
                         f"--user-data-dir={profile}",
                         "--dump-dom",
                         f"http://127.0.0.1:{server.server_address[1]}/__mobile-width-check.html",
