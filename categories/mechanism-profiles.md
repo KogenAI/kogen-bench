@@ -611,6 +611,52 @@ On this corpus, such values would have ended the four Terra stalls and the two S
 
 **Limits.** Duration only: all N and F values are provisional. Stalls are rare (6 of 34,800 attempts reached 300 s) and mostly Terra, so the stall sample is small. The corpus holds ChatGPT, Anthropic API and OpenCode Go calls on the native loop and shaping, and Claude Code cells have no provider attempt records. Cells are not independent: repetitions and many runs of the same tasks.
 
+## Further results of 29 October
+
+Each item below was decided by its registered rule. A "no" means the change stays out of Kogen.
+
+### Prompt cache across effort and model changes
+
+- **Anthropic:** a cached prefix survives a change of reasoning effort. It does not survive a change of thinking mode or model.
+- **OpenAI:** the first request at a new reasoning effort or a new model read 0 cached tokens; the next read about 99%. Going back to an earlier setting hit that setting's cache entry again. A cache key made no difference.
+- **Consequence:** on OpenAI, switching effort or model in the middle of a conversation costs one cold prefix per switch.
+
+### Static repository map in the first request: no
+
+A 2,000-token map of the repository covered 57% of the files the change touched on large tasks; the bar was 70%. It added about 17% to input; the bar was 5%.
+
+### Request-matched file retrieval: no
+
+The best keyword-ranked map covered 54–57% of changed files at 2,000 tokens. It reached the 70% bar on 5 of 13 large tasks; the bar was 9. It did no better than a plain keyword search of the repository.
+
+### Best of N with Kogen's own pick: no
+
+Running several builds and letting Kogen pick one raised pass by 0.10 at 1.72 times the cost. A perfect picker would have gained 0.24.
+
+### Routing tasks to models by predicted difficulty: no
+
+- **Feature routers:** no router built on task features beat a fixed model lineup.
+- **The ideal router:** its savings came only from sending tasks to a cheaper lineup.
+- **An external difficulty score:** it tracked pass (correlation −0.50 to −0.64), but no better than the length of the task description (−0.62). A router built on it lost 1.2 to 1.6 task-cells of pass against the best fixed lineup.
+
+### The shaper's conversation continuing into the build: no
+
+At hand-off, the shaper's context was a median of 56,000 tokens. The builder's whole first request was 11,000 tokens. Carrying the context forward would cost 47% of build cost against the 18.5% it replaces. Even with every uncached builder token removed for free, the net change would be −9.4%, short of the 10% bar.
+
+### Reasoning off for builder sub-steps: no
+
+Reasoning tokens are 10–11% of builder output and 2.6–4.2% of build cost. Turning reasoning off could save 2–4% at most; the bar was 20%.
+
+### Authority boundary in the build loop: no
+
+Over 7 tasks:
+- uncached review input rose 10.2%;
+- cost per cell rose 10.0%;
+- cached share fell 0.15 points;
+- sign test p = 0.50.
+
+The behaviour stays off.
+
 ## Evidence level
 
 **Observation.** Except for the climb results, the profiles describe how often a cost, a failure or a behaviour occurred in logs that were already recorded. They support statements such as "this cost or failure was below the registered threshold in these runs" or "this role ended without a submission in this share of sessions". They do not measure what a changed setting would do, and they do not show that the thresholds are the right ones. The climb results are different in kind: they compare a changed setting with the shipped one in cells that ran models. They are observation-level too. Where a rule written before the cells decided an item, the result is called decided under that rule, and it is still not decision-grade in the strict statistical sense: research-made tasks, a few repetitions per task, single named models, and some blocks stopped early. Where a section reports a statistical test, it is on observational data from builds that were not randomised, and the section says so.
