@@ -7,28 +7,31 @@ This study compares coding-agent harnesses that get the same task and the same m
 1. **Harness against harness.** The kogen-loop harness, run bare, against Codex CLI and Claude Code. Each harness receives the same single prompt.
 2. **Kogen's pipeline against a bare agent.** Kogen adds an Intent, its own checks and an independent review. Each pipeline arm is compared with a bare agent on the same model.
 
-## Scoreboard 1: kogen-loop against Codex CLI (same model, same prompt)
+## Scoreboard 1: kogen-loop against other agent harnesses (same model, same prompt)
 
-Both arms used gpt-6.1-terra with high reasoning effort and ran on the same machine. For each task the two arms ran one after the other, with 2 repetitions per task.
+All arms used gpt-6.1-terra with high reasoning effort on the same 13 tasks. Within each batch, the arms of a task ran one after the other on the same machine.
 
-| Arm | Passed | Median wall | 90th percentile wall | Uncached input per pass | Total input per pass | Cached share | Output per pass | Cost per pass* |
+### Four harnesses (2 repetitions per task)
+
+| Harness | Passed | Median wall | 90th percentile wall | Uncached input per pass | Total input per pass | Cached share | Output per pass | Cost per pass* |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| kogen-loop e5054c8 | 26/26 | 72.3 s | 116.7 s | 9,285 | 27,008 | 65.6% | 2,793 | 22,228 |
-| Codex CLI 0.165.0-alpha | 25/26 | 61.1 s | 83.8 s | 18,637 | 154,036 | 87.9% | 3,891 | 47,741 |
+| kogen-loop e5054c8 | 25/26 | 73.2 s | 408.6 s | 11,841 | 29,505 | 59.9% | 2,796 | 24,791 |
+| Codex CLI 0.165.0-alpha | 26/26 | 63.3 s | 101.0 s | 17,910 | 158,691 | 88.7% | 3,713 | 46,840 |
+| Pi 0.73.1 | 25/26 | 61.4 s | 105.0 s | 15,856 | 65,003 | 75.6% | 2,939 | 32,527 |
+| OpenCode 1.19.5 | 25/26 | 97.5 s | 164.4 s | 25,563 | 172,226 | 85.2% | 4,603 | 58,641 |
 
 \*Cost is in uncached-equivalent tokens: uncached input + 0.1 × cached input + 4 × output. This model has no list price in the study.
 
-Per task (13 tasks, comparing medians):
-- Codex was faster on 12 tasks and kogen-loop on 1.
-- kogen-loop cost less on 12 tasks and Codex on 1.
+kogen-loop had the lowest cost per pass. It was 24% below Pi and 47% below Codex CLI, and also had the lowest uncached input. Its median wall was slower than Codex CLI and Pi. Its long tail came from requests that received no response within the first-byte timeout: 7% of its model requests in one later batch, all before any response headers arrived, clustered in time. A run of the updated loop (b8a4046) with first-byte timeouts of 90, 30 and 20 seconds saw no such stalls at all. There, all three variants passed 26/26 at a median of 57–58 s.
 
-In short:
-- kogen-loop passed one more attempt.
-- It used 82% less input and 50% less uncached input, and wrote 28% less output.
-- It cost 53% less per pass.
-- It was 18% slower at the median.
+### Updated loop against Codex CLI in the same batch (1 repetition per task)
 
-Cached share is lower for kogen-loop because its total input is much smaller, not because it re-sends more. Uncached input per pass is the cache measure that matters here.
+| Arm | Passed | Median wall | 90th percentile wall | Uncached input per pass | Total input per pass | Cached share | Output per pass | Cost per pass* |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| kogen-loop b8a4046 | 13/13 | 60.4 s | 69.0 s | 9,228 | 26,351 | 65.0% | 2,627 | 21,448 |
+| Codex CLI 0.165.0 | 13/13 | 68.3 s | 79.4 s | 17,822 | 172,731 | 89.7% | 3,753 | 48,323 |
+
+In this batch, with no request stalls, the loop was faster than Codex CLI at the median and at the 90th percentile. It also used about half the uncached input, and cost 56% less per pass.
 
 ## Scoreboard 2: Kogen's pipeline against bare agents
 
@@ -65,9 +68,10 @@ In Kogen's run logs, the review step and its verification account for about 37 s
 - **Isolation:** each attempt ran in a fresh Git workspace with a 3,600-second deadline. The same hidden tests graded the final tree after the agent exited.
 - **Pairing:** for each task, the arms of a pair ran one after the other on the same machine. Wall times are comparable only within a pair.
 - **Client versions:**
-  - Codex CLI 0.165.0-alpha.1.2;
+  - Codex CLI 0.165.0-alpha.1.2 and 0.165.0;
+  - Pi 0.73.1 and OpenCode 1.19.5;
   - Claude Code 2.1.312;
-  - Kogen at commit 16102c97, vendoring kogen-loop e5054c8;
+  - Kogen at commit 16102c97, vendoring kogen-loop e5054c8, and kogen-loop b8a4046 (from Kogen 8ee463f8);
   - the lanes harness at 7a0e22ad.
 
 ## Limits

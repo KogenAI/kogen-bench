@@ -657,6 +657,28 @@ Over 7 tasks:
 
 The behaviour stays off.
 
+### Review on a cheaper model for large reviews: yes
+
+On 4 large tasks, reviewing with gpt-6.1-terra at medium effort instead of gpt-6.1-sol at high effort:
+- landed 5 of 8 attempts in both arms;
+- gave no verdict in neither arm;
+- build input +0.8% (p = 0.69);
+- wall time −20% (p = 0.06).
+
+Together with the earlier result on smaller reviews, Terra at medium effort holds as reviewer up to the review sizes tested here. The largest reviews remain under test: in one later build with about 200 evidence parts, two Terra-medium reviews ended without a verdict.
+
+### Ten-minute build and review response budget: confirmed
+
+Over 13 tasks in both arms, every attempt landed and passed. There were no provider, unavailable or budget errors. Shaping keeps the longer 30-minute budget.
+
+### Review resuming the build conversation: no
+
+When Kogen drives Claude Code, having the review continue the builder's session instead of starting a fresh one raised cost per pass by 84%. Wall time was unchanged (p = 0.71), so review keeps a fresh session.
+
+### First-byte timeout on the model stream: open
+
+A batch with timeouts of 90, 30 and 20 seconds saw no stalled requests, so the setting never acted. The earlier stalls (7% of requests in one batch, all before response headers) clustered in time. The question stays open until a batch catches a stall window.
+
 ## Evidence level
 
 **Observation.** Except for the climb results, the profiles describe how often a cost, a failure or a behaviour occurred in logs that were already recorded. They support statements such as "this cost or failure was below the registered threshold in these runs" or "this role ended without a submission in this share of sessions". They do not measure what a changed setting would do, and they do not show that the thresholds are the right ones. The climb results are different in kind: they compare a changed setting with the shipped one in cells that ran models. They are observation-level too. Where a rule written before the cells decided an item, the result is called decided under that rule, and it is still not decision-grade in the strict statistical sense: research-made tasks, a few repetitions per task, single named models, and some blocks stopped early. Where a section reports a statistical test, it is on observational data from builds that were not randomised, and the section says so.
