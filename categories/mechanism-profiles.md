@@ -1,8 +1,8 @@
 # Model-free profiles of Kogen run logs
 
-**Descriptive, model-free.** This page profiles Kogen run logs that were already recorded: checkpoint cost, provider-retry frequency, build round bounds, provider response durations, losses from cut tool results, roles that end without calling their submit tool, acceptance-named tests by builder model, and builder search tools. It also records one observation about reviewing from on-demand material. Where a question had a registered rule, the rule is stated with its result. For the first two profiles, each question was registered with a build threshold before the logs were read, and neither threshold was reached, so neither change was built. Every analysis is a replay of recorded logs: no model was run, no provider request was made and no setting was changed for any of them. The page is not a benchmark round: it has no cells of its own, no grades and no comparison of two settings, so it sits with the [mechanism inventory](mechanism-inventory.md) rather than in the [round register](../rounds/README.md).
+**Descriptive, model-free.** This page profiles Kogen run logs that were already recorded: checkpoint cost, provider-retry frequency, build round bounds, provider response durations, losses from cut tool results, roles that end without calling their submit tool, acceptance-named tests by builder model, and builder search tools. It also records one observation about reviewing from on-demand material, and a last section, [Climb results, 29 October](#climb-results-29-october), that reports eight further items. Where a question had a registered rule, the rule is stated with its result. For the first two profiles, each question was registered with a build threshold before the logs were read, and neither threshold was reached, so neither change was built. Every analysis before the last section is a replay of recorded logs: no model was run, no provider request was made and no setting was changed for any of them. The last section is the exception: it reports comparisons of two settings in which models ran, and replays of recorded logs. The page is not a benchmark round: it has no cell records of its own, so it sits with the [mechanism inventory](mechanism-inventory.md) rather than in the [round register](../rounds/README.md).
 
-The first two profiles come first and share a data description. Each later section carries its own data window, method and limits.
+The first two profiles come first and share a data description. Each later section carries its own data window, method and limits. The summary table below covers the profiles before the last section; the last section has its own summary.
 
 ## Question and scope of the checkpoint and retry profiles
 
@@ -27,12 +27,13 @@ This page reports both profiles. It uses only logs that were already recorded. I
 | Checkpoint cost | 5% of build wall time | Upper bound for all checkpoint saves plus the checks around them: 2.2% of build wall time overall, 1.9% on short builds, 2.8% on long builds. Pure file-write cost estimated at 0.1% to 0.4%. | No |
 | Retry frequency | 2% of cells | 1.03% of retained cells ended on a provider failure (33 of 3,193). 0.69% (22 cells) were of a kind a retry could change. | No |
 | [Build round bounds](#build-round-bounds) | At least 20% saving on failing cells with at most 1% false stops | Round limit: met on paper (a global limit of 32 saves 37.8% of input and 41.8% of wall time as an upper bound, with 0.98% false stops) but all the saving is on four long tasks that never passed; on tasks that passed at least once it is about 5%. Repeated-call stop: never fires (0 of 960 cells). | No. The limit Kogen shipped counts requests per verification pass, not per build, so a per-round cap of 32 almost never binds. Comparison cells were cancelled before any ran. |
-| [Provider response durations](#provider-response-durations) | A 10-minute budget goes forward if no productive response took longer than 10 minutes | Of 23,368 completed responses the longest took 274.8 s. The only attempts over 10 minutes were 3 stalls with no result. | No cells run; the rule's confirmation run has not been done. |
+| [Provider response durations](#provider-response-durations) | A 10-minute budget goes forward if no productive response took longer than 10 minutes | Of 23,368 completed responses the longest took 274.8 s. The only attempts over 10 minutes were 3 stalls with no result. Correction: that replay read build and review only. Shape responses reach 834.8 s (see [the correction](#provider-response-budget-correction-and-stream-timeouts)). | No cells run for the replay itself. Kogen's main branch applies the ten-minute total to every role, including shape, where it would cut productive responses. A fix that restores the previous 30 minutes for shape, refine and init is being built and has not landed. |
 | [Tool-result cut losses](#tool-result-cut-losses) | 5% of cut results lose needed content | 17 of 606 cut results (2.8%) are confirmed losses, a lower bound: 575 cannot be tested. | No |
 | [Roles that end without calling their submit tool](#roles-that-end-without-calling-their-submit-tool) | None (descriptive) | Shaper 38 of 970 sessions (3.9%), reviewer 3 of 1,200 (0.25%). | Not a round |
 | [Acceptance-named tests by builder model](#acceptance-named-tests-by-builder-model) | None (observational) | Terra at high effort missed a named test in 4 of 8 development builds, Sonnet in 0 of 17. Model and loop are confounded. | Not a round |
 | [Builder search tools](#builder-search-tools) | Pass and input rule, after a witness that the tools are used | In two exploratory cells the builder never called the offered list and search tools. | No. Closed before any comparison cell. |
 | [Review material on demand](#review-material-on-demand-an-observation) | Registered; the comparison is still running | Observation only: clean controls 30 of 30 landed in both arms. | Running, no verdict |
+| [Climb results, 29 October](#climb-results-29-october) | Registered per item | Eight items, each with its own result and limits; see the table at the start of that section. | See that section |
 
 Exception for the checkpoint profile: two tasks with large repositories sit far above the threshold. They are described below, and they are the one open follow-up.
 
@@ -194,6 +195,8 @@ By route: Anthropic API 7,274 responses (median 4.0 s, 99th percentile 52.6 s, l
 Counted per operation, 2 of 23,368 requests (both reviews, 906 s and 911 s) took more than 10 minutes and still ended in a result, but only through the retry after a stall of about 900 s. No productive provider response took more than 275 s.
 
 **Reading of the result.** By the registered rule, a 10-minute budget would not have cut any response that produced a result in these logs, so it is a stall guard. Those two operations would have finished about 5 minutes sooner. This is a replay: no cell ran with a shorter budget, and the confirmation run the rule asks for has not been done.
+
+**Correction, 29 October.** This replay read the build and review roles only. Calls made while shaping are logged in a different file that it did not read, and they run longer: 12 completed responses took more than 600 s, so a 10-minute total would have cut productive shape responses. The "stall guard" reading holds for build and review, not for shape. See [Provider response budget correction and stream timeouts](#provider-response-budget-correction-and-stream-timeouts).
 
 **Limits.**
 - The sample of stalls is three attempts, all from one model on one route. It shows no stall that a shorter budget would have turned into a loss, and it cannot show how a shorter budget behaves on a real stall.
@@ -377,9 +380,240 @@ In neither cell did the builder call `list_files` or `search_text`; it explored 
 
 **Limits.** An observation, not a result. The clean controls say only that the on-demand option did not block clean cells in these 30 cells. The gated-review case is one build, with a task type the benchmark does not contain.
 
+## Climb results, 29 October
+
+**What this section is.** Unlike the sections above, this one reports comparisons in which models ran. They are "climbs": a part of Kogen was changed on its own, usually through a temporary research patch that is not in Kogen, and the changed setting was compared with the shipped one on the same tasks. The first items below come from the night of 28 to 29 October. All cells ran on Kogen commit [`e2e8196e18facc62b258b29adb6e16ab149f0cbb`](https://github.com/KogenAI/kogen/commit/e2e8196e18facc62b258b29adb6e16ab149f0cbb), the commit the [mechanism inventory](mechanism-inventory.md) pins, on the ChatGPT route, with one change per comparison. The last three items check recorded logs. Only the run-log field re-check ran cells, two small ones.
+
+**How decisions were made.** Each comparison had a rule written before its cells ran. The inference unit is the task: a sign test over per-task means, with at most three looks (after 2, 4 and 6 repetitions) and a one-sided p of 0.02 or less to stop at a look. The effect bars are stated with each item. A result described here as "decided" means it was decided under such a rule written before the cells. It is not decision-grade in the strict statistical sense: the tasks are research-made, there are a few repetitions per task, the models are single named models, and some blocks were stopped early. Where a result is labelled interim or unresolved, no rule has decided it.
+
+**Records.** No cell records are added to this repository with this section. The counts below are reported, and the cell records are not in this repository yet, so none of the numbers can be recomputed from here (the same holds for the interim comparison of review material on demand above).
+
+| Item | Registered rule decided it? | Result | Change to Kogen |
+| --- | --- | --- | --- |
+| [Default reviewer](#default-reviewer) | Yes, for reviews that fit the window | Terra medium 0 of 52 seeded faults committed and 0 of 30 clean controls blocked, the same as Sol high, with a median review time five to six times shorter. | A change of the shipped default to Terra medium was passed on to be built, behind a confirmation run. Held for reviews larger than the context window until a follow-up reports. |
+| [Default builder](#default-builder) | Yes | Terra high used 32% less build input on short tasks with equal pass, but passed 2 of 6 against Sol medium's 5 of 6 on one large-repository Go task. | No change. Sol medium stays the default. |
+| [Default shaper effort, first look](#default-shaper-effort-first-look) | No, interim | Sol low shaped in 65% less wall time with the same catches on 5 of 6 tasks and fewer on one. | None yet. The next look is running. |
+| [Compact verify-failure summary](#compact-verify-failure-summary) | Yes, no change | Short tasks: build input +0.1%, pass 1.00 against 1.00. Long-session tasks: build input -11.9% at p = 0.23, wall time +8.3%. | None. |
+| [Sharing the build's cache key with review](#sharing-the-builds-cache-key-with-review) | Yes, no effect shown | Review uncached input -1.4% against a bar of -20%. | None. |
+| [Run-log field re-check](#run-log-field-re-check) | Pass criteria written before the cells | Every field the two cells exercised was present. | None. |
+| [Stall-stop threshold and step self-check](#native-stall-stop-threshold-and-shape-step-self-check) | Yes, model-free | No alternative stall threshold reaches the bar. The self-check fired in 24.9% of cells and costs 0.55% of shape time. | None. An unused step definition was ruled to become a warning. |
+| [Response budget correction and stream timeouts](#provider-response-budget-correction-and-stream-timeouts) | Correction of an earlier replay, plus a proposal | Shape responses run longer than build and review ones: 12 completed over 600 s. | None yet. The ten-minute total is safe for build and review only. A fix restoring 30 minutes for shape, refine and init has not landed, and an idle-stream timeout is proposed, not built. |
+
+### Default reviewer
+
+**Question.** A user who does not edit the configuration reviews with Sol at high effort (the shipped default). The review lineup chosen from earlier rounds uses Terra at medium effort. The earlier measurements of that choice ([reviewer-models-seeded-1](../rounds/reviewer-models-seeded-1/README.md), [reviewer-models-clean-1](../rounds/reviewer-models-clean-1/README.md) and [terra-reviewer-seeded-clean-1](../rounds/terra-reviewer-seeded-clean-1/README.md)) predate large changes to the review code. Does the result still hold on current code?
+
+**Registered rule.** Terra medium keeps its candidate status if seeded-fault escapes are no worse than Sol high's (by the Wilson interval rule registered earlier for Terra) and false blocks on clean controls are within 1. A pass sends the maintainers a change of the shipped review default.
+
+**Method.** Build at Sol medium on both arms, then review by Sol high or by Terra medium. Seeded set: 26 cases with a planted fault, 2 repetitions per case and arm. An escape is a committed tree that fails the hidden tests. Clean set: 15 controls without a fault, 2 repetitions per control and arm. A false block is a review that blocks a clean control.
+
+| Set | Measure | Sol high | Terra medium |
+| --- | --- | ---: | ---: |
+| Seeded, 52 cells per arm | Escapes | 0 | 0 |
+| Seeded | Median review wall time | 150 s | 25 s |
+| Clean, 30 cells per arm | False blocks | 0 | 0 |
+| Clean | Median review wall time | 133 s | 27 s |
+
+Terra medium had one cell with a failing hidden test among the seeded cells. That review blocked, so it is a catch: nothing was committed.
+
+**Reading of the result.** The registered rule passes: no escapes in either arm, no false blocks in either arm, and Terra medium reviews five to six times faster by median time. This agrees with the earlier round on current review code. It was decided under a rule written before the cells, and it is still observation-level evidence: 52 seeded and 30 clean cells per arm, one build model, research-made seeded faults, and no escape on either side, so the data cannot separate two reviewers that both catch every planted fault. A change of the shipped default was passed on to be built, and the registered gate is a confirmation run on the installed version, which is not reported here.
+
+**Reviews larger than the window.** This comparison covers reviews whose material fits the working window. A separate class is large reviews. In one earlier development review, with Terra medium over 133 pinned parts (797 KB), the window reset from 657 KB to 298 KB, 157 KB had to be loaded again, and the review ended without a valid verdict even when the verdict tool was forced. A follow-up was registered before any cell: Sol high against Terra medium as reviewer, Terra high building, on 4 long tasks whose review material (0.47 to 0.61 MB) overflows into parts and resets, 2 repetitions per arm, 16 cells. The primary measure is reviews that end without a verdict, together with landed and hidden-test pass. Terra medium may be the default for large reviews only if its count of reviews without a verdict is not above Sol high's by more than 1 of 8 and its landed count is not lower by more than 1. Otherwise the default change is scoped, and large reviews keep Sol high until the review fixes land. **That follow-up is still running and has no result. The default change is held for reviews larger than the context window until it reports.**
+
+**Limits.** Neither arm had an escape or a false block, so the safety result rests on the upper bounds of 0 of 52 and 0 of 30, not on a measured difference. The seeded faults and tasks are research-made. The confirmation run and the large-review follow-up are not reported.
+
+### Default builder
+
+**Question.** The shipped builder is Sol at medium effort, while the chosen lineup builds with Terra at high effort. Would Terra high be a better default?
+
+**Registered rule.** The registered builder rule: no task's hidden-test pass rate worse by more than 0.15, and build input tokens or build wall time lower by a median of 10% or more at a one-sided p of 0.02 or less. Both arms were reviewed by Terra medium. Tasks: 13 short tasks and 7 long-session tasks (an eighth was dropped before any cell because it fails its own start check in 17 of 21 recorded cells), 2 repetitions per arm. The task is the unit.
+
+**Short tasks (13 tasks, all graded).**
+
+| Measure | Result, Terra high against Sol medium |
+| --- | --- |
+| Hidden-test pass | 1.00 against 1.00 |
+| Build input tokens, median per task | -32.4% (13 of 13 tasks lower, p below 0.001) |
+| Build wall time | -40.2% (13 of 13 tasks lower) |
+
+**Long-session tasks (7 tasks, graded).** Hidden-test pass was 1.00 for Sol medium and 0.86 for Terra high: one task failed in both Terra repetitions, and one of those was a review that blocked. Terra high's median build input was 6.4% lower (p = 0.50) and wall time 22.8% lower (p = 0.23). No threshold was reached. Combined over the 20 tasks, the efficiency rule holds on the short tasks and fails the "no task worse" condition on that one task: a large-repository Go task whose acceptance scenarios name items, where Terra high passed 0 of 2 against 2 of 2 for Sol medium.
+
+**Replication, with its rule completed before any replication result.** If Terra passed 3 or more of 4 repetitions on that task, the drop counts as noise and the default changes. At 2 of 4, there is no change until more evidence arrives and the task class is logged as a Terra weakness. At 1 of 4 or fewer, no change, or a change with that class routed to another builder. The replication ran 4 repetitions on both arms on the same Kogen commit: Terra high passed 2 of 4 (one review blocked, one failed 2 hidden tests) and Sol medium 3 of 4 (one failed 2 hidden tests). Over all 6 repetitions, Terra high passed 2 of 6 and Sol medium 5 of 6.
+
+**Decision.** No change: Sol medium stays the shipped build default. The class (large-repository Go whose acceptance names items) is logged as a Terra weakness. This agrees in direction with the observation about [acceptance-named tests by builder model](#acceptance-named-tests-by-builder-model) above. A build lineup scoped by task size (Terra high for small builds, Sol medium otherwise) was considered and is parked, not tested: the short-task result favours Terra, and the one large-repository task favours Sol.
+
+**Reading of the result.** Decided under a rule written before the cells. The result is two facts on different tasks: a large input and time saving with equal pass on short tasks, and a pass difference on one large task over 6 repetitions per arm. The second is one task, not a class of tasks, and Sol medium also failed one repetition there.
+
+**Limits.** 13 and 7 tasks with 2 repetitions per task and arm, one model pair and the ChatGPT route. The replication is one task with 4 repetitions per arm. The long-session block has 7 tasks, so a single task decides its "no task worse" condition.
+
+### Default shaper effort, first look
+
+**Question.** The shipped shaper is Sol at high effort. Would Sol at low effort write Intents that catch as many flaws in a request, in less time and at lower cost? Earlier evidence, in [shaper-models-1](../rounds/shaper-models-1/README.md): Sol low gave a good Intent in 13 of 32 cells against 6 of 32 at high effort, at about a third of the cost. Shape has changed since, so the comparison was repeated on the current shaper.
+
+**Registered rule.** Better: more flaws caught under the frozen bar of the flawed-requests work, or equal catches with shape wall time or cost lower by a median of 20% or more (p of 0.10 or less) and no rise in new flaw hits. Worse: fewer catches, or new flaw hits up. Flaws are scored blind.
+
+**First look (interim).** Six of the 8 planned requests are paired so far: 24 cells (2 repetitions per arm), graded blind. The other 2 requests produced no results in their first attempt and are being run again.
+
+| Measure | Result, Sol low against Sol high |
+| --- | --- |
+| Flaws caught | Equal on 5 of 6 requests, worse on one (0 of 2 against 2 of 2). Mean change -0.167, one-sided p for worse = 0.50. |
+| New flaw hits per cell | Unchanged |
+| Shape wall time, median | -65% (p = 0.016) |
+| Shape cost | -57% (p = 0.11) |
+| Refused submissions | Sol low 0, Sol high 1 |
+
+**Reading of the result.** Unresolved, so a second look runs. The time saving is below the 0.02 bar for a look, but the efficiency rule needs equal catches, and the catches are not significantly different yet numerically lower on one request. Nothing was decided and nothing was changed.
+
+**Limits.** Interim: 6 of 8 requests, 2 repetitions each. Catch counts per request are 0 to 2, so the catch comparison cannot separate small differences. The rubric is research-made.
+
+### Compact verify-failure summary
+
+**Question.** After a failing verification pass, Kogen gives the builder a bounded excerpt of the failure output. A research patch (not in Kogen) gives it a compact summary instead: the failing test names plus the first assertion lines, capped. Earlier Kogen Lab evidence ([screen-kogen-2](../rounds/screen-kogen-2/README.md)) suggested that summaries halve input. Does the patch save input on current Kogen?
+
+**Registered rule.** Better: no task worse on hidden-test pass, and build input tokens lower by a median of 10% or more (p of 0.02 or less at a look). Worse: a pass drop of more than 0.15, or p of 0.10 or less against.
+
+**Result on the short tasks.** 13 short tasks, 2 repetitions per arm, Terra high building and Terra medium reviewing, 52 cells, all landed.
+
+| Measure | Result, patch against shipped |
+| --- | --- |
+| Build input tokens, median per task | +0.1% (6 tasks lower, 7 higher, p for lower = 0.71) |
+| Build wall time | -2.7% (p = 0.50) |
+| Hidden-test pass, after grading | 1.00 against 1.00 |
+
+**Result on the long-session tasks.** The second block ran the same comparison on the long-session tasks: 7 tasks, but only 27 of the 32 planned cells, because the run could not be resumed on another machine and the missing 5 cells were not repaired. The block was graded afterwards.
+
+| Measure | Result, patch against shipped |
+| --- | --- |
+| Hidden-test pass | 0.79 without the patch, 0.86 with it (no task worse) |
+| Build input tokens, median per task | -11.9% (5 of 7 tasks lower, p = 0.23) |
+| Build wall time | +8.3% |
+
+The pass figures of the short-task block need one correction. The first reading of this block ran before grading had finished, and cells without an evaluation counted as failures. After grading, pass is 1.00 in both arms. The same grading check for the next item is reported there.
+
+**Reading of the result.** On short tasks the bar of -10% was not reached and the median change is zero. Short tasks rarely reach a failing verification pass, and that is the only place the summary acts, so the patch had almost nothing to act on: no saving and no harm. On long-session tasks the size of the change (-11.9%) clears the -10% bar, but p = 0.23 is far from the 0.02 the rule asks for, wall time went up, and pass was not lower on any task. The climb was closed as no change, because it is not being extended (the rule allows up to three looks, and none further was run). The bar written before the cells was not met, so the rule closes it as no change. That is a not-shown result, not evidence that the summary has no effect on repair-heavy tasks, where it could still help. It would be reopened only if repair-heavy tasks became a focus.
+
+**Limits.** The long-session block has 27 of 32 cells and 7 tasks, one task only partly paired, and its pass figures (0.79 and 0.86) compare unequal sets of cells. The short-task builds seldom fail verification, so the lever was barely exercised there. Neither block was extended.
+
+### Sharing the build's cache key with review
+
+**Question.** A review starts without cached input: its first request is cold (a median of about 22,000 uncached tokens). A research patch (not in Kogen) gives review a cache routing key that continues the build's key. Does review then use less uncached input?
+
+**Registered rule.** Better: review uncached input lower by a median of 20% or more (p of 0.10 or less before the later amendment, 0.02 per look after it), with no change in review verdicts on a seeded subset. The prediction written with the patch was that the shared key would route requests but, because build and review prompts differ, review would stay mostly cold.
+
+**Result on the short tasks.** 13 short tasks, 2 repetitions per arm, Terra high building and Terra medium reviewing, 52 cells.
+
+| Measure | Result, patch against shipped |
+| --- | --- |
+| Review uncached input, median per task | -1.4% (8 tasks lower, 5 higher, p for lower = 0.29) |
+| Review verdicts | 26 of 26 approved without the patch, 25 of 26 with it |
+| Hidden-test pass, after grading | 1.00 without the patch, 0.96 with it (one task dropped one cell) |
+
+**Reading of the result.** No saving: the change is far from the bar of -20%. As predicted, build and review prompts share no cached prefix, so the shared key cannot make review warm. The one different verdict and the one lost hidden-test cell are single cells, not a pattern. Decided under a rule written before the cells: no change. The row of the inventory for the cache identity scope is now measured, with this result.
+
+**Limits.** Short tasks only, one block, one model pair. The block was not extended. A different design that makes the review prompt share a prefix with the build prompt is not tested.
+
+### Run-log field re-check
+
+**Question.** Kogen commit e2e8196 added fields to the run log. Are they present in a real run? This is a check of the records, not of a changeable part of Kogen, so it has no row in the inventory.
+
+**Registered check.** Written before any cell. Two small cells (two small Go tasks, Terra building with the native loop). Pass: request events carry the round and the request size in bytes, read tool calls carry the source kind and a content hash, any cut result carries the bytes before the cut and the bytes delivered, and any window reset carries its three size fields (input before and after, and the items carried over).
+
+**Result.** A pass for every field these cells exercised. Present: round and request bytes on request events, source kind and content hash on read calls (build and review). Not exercised by these two cells: the cut fields (no result was cut), the cache write count (the ChatGPT route has none, and an empty value is allowed) and the window reset sizes. The reset size fields were seen in a separate dry cell with a lowered window budget, which logged input before (264,161 tokens) and after (107,042) a window reset. Still open: checking the cut fields once enough cut results have accumulated.
+
+**Limits.** Two cells. A pass for the exercised fields says nothing about the fields that were not exercised.
+
+### Native stall-stop threshold and shape step self-check
+
+Two parts that had never been measured were replayed on recorded logs before any model was run. The stall rule was read at Kogen commit `16102c9`, and the replays used logs recorded up to 29 October.
+
+**Native stall-stop threshold.** Kogen's native build stops when a build round made no tool call and its verification pass is identical to the previous red pass (same failing items, same candidate). The question was whether a different threshold would save work on builds that never pass without stopping builds that would have passed. Registered rule: a variant goes to a model comparison only if it saves at least 15% of wall time on failing cells with at most 1% false stops, where a false stop is a passing cell the rule would have ended. Corpus: 997 native build cells, 845 of which passed all hidden tests and 152 of which did not.
+
+| Variant | Failing cells stopped | Wall saved on failing cells (upper bound) | False stops in 845 passing cells |
+| --- | ---: | ---: | ---: |
+| Stop at the first round without a tool call | 10 | 5.1% | 0 |
+| Today's rule | 10 | 4.7% | 0 |
+| One more identical pass | 8 | 4.5% | 0 |
+| Two identical red passes, tool use ignored | 18 | 8.2% | 2 (0.24%) |
+| Three | 15 | 6.6% | 1 |
+| Four | 14 | 6.1% | 1 |
+| Five | 11 | 5.6% | 0 |
+| Six | 10 | 5.1% | 0 |
+
+**Reading.** No variant reaches 15%. The model-only floor of the saving is 0.6% for today's rule and 1.1% at best. All the saving sits in 10 cells on two long tasks, and on failing cells of tasks that passed at least once, today's rule saves nothing. Today's rule has no false stop and is already in Kogen, so the threshold stays. The tool-blind variants carry the only false stops, which shows why the rule requires the absence of a tool call. Limits: "same candidate" is inferred from zero tool calls and no review activity between two passes, not read from a hash. Only 2 cells in the logs ended on this stop in a live run, so the other 8 are replays. The evidence is thin for any threshold.
+
+**Shape step self-check.** Before a shaper submission is accepted, Kogen loads the candidate's step files itself and returns load, ambiguity and wrapper problems as feedback. The question was whether it does enough work to keep. The logs hold 1,498 shape cells, of which 205 ran a version with the check (the rest ran older versions).
+
+- It ran 490 times and returned problems 55 times (11.2%), in 51 of the 205 cells (24.9%). One event can carry several problems: undefined step 38, unused definition 11 (in each of the 11 nothing else was wrong), load error 3, observer mismatch 2, ambiguous step 1, exit-code wrapper 1.
+- After a failing check, the shaper's next check in the same cell was clean 37 times and showed a different problem 4 times. The same problem never came back unchanged. In 14 cells a failing check was the last submission and the cell ended refused.
+- It costs a mean 0.54 s per run, about 0.55% of shape wall time. The readiness gate that follows costs a mean 23.8 s, 10.8% of shape time. Readiness refused 6 times in these cells, all for undefined steps that the check had passed (6 of 435 clean runs, 1.4%), so the check is mostly an earlier and cheaper catch.
+
+**Reading.** The check fires in a quarter of cells, the shaper acts on it every time, and its cost is small, so an off-arm would test a part that does real work for at most 0.5% of shape wall time. It was kept and no comparison was run. One ruling came out of the replay: an unused step definition, which was a refusal reason, becomes a warning, since 11 of the 55 problem events were that alone. That is a change to a rule, not a measured effect, and its effect on refusals is not measured.
+
+**Limits.** The log has no submission text, so "changed in response" rests on the item sets of the next check. 15 runs and 8 tasks, mostly short and long-session tasks. The shaping lanes mix Sol low, Terra medium and Claude Code Sonnet shapers, so the 24.9% is a blend: it is about three times higher on the Sol low lanes.
+
+### Provider response budget correction and stream timeouts
+
+**Correction.** The earlier section on [provider response durations](#provider-response-durations) read the build and review roles only. It concluded that a 10-minute total budget is a pure stall guard. Shape calls are logged in a different file that replay did not read. Read together, the logs hold 34,800 provider attempts in 3,973 cells (25,629 in build and review, 9,171 in shape), of which 34,697 completed. For shape, 9,132 responses completed, with a 99th percentile of 410 s and a longest of 834.8 s. 12 completed after more than 600 s (11 by Sol high and 1 by an OpenCode Go model). Each of them streamed 16,782 to 27,882 output tokens at 33 to 36 tokens per second: long generations, not stalls. A 10-minute total would have cut every one. So the 10-minute result is true for build and review and false for shape. As of 29 October Kogen's main branch applies the ten-minute total to every role, so it applies to shape calls too. A fix that restores the previous 30-minute budget for shape, refine and init is being built and has not landed. The confirmation run for the shorter budget covers build tasks only, not shape.
+
+**Completed response durations (seconds), by model, effort and role.**
+
+| Model | Effort | Role | Responses | Median | 99th percentile | Longest |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| Haiku 5.5 | medium | review | 478 | 4.1 | 41.8 | 57.4 |
+| Opus 5.5 | medium | review | 1,390 | 8.0 | 59.9 | 84.4 |
+| Opus 5.5 | medium | shape | 245 | 16.0 | 236.8 | 298.9 |
+| Sonnet 5.5 | low | review | 179 | 2.4 | 11.9 | 14.7 |
+| Sonnet 5.5 | medium | build | 4,679 | 3.3 | 54.3 | 160.7 |
+| Sonnet 5.5 | medium | review | 611 | 3.7 | 29.8 | 61.0 |
+| Sonnet 5.5 | medium | shape | 185 | 8.7 | 192.1 | 228.0 |
+| Sol | high | review | 8,170 | 16.5 | 144.9 | 274.8 |
+| Sol | high | shape | 2,519 | 23.1 | 565.6 | 825.0 |
+| Sol | low | shape | 2,648 | 7.8 | 172.8 | 415.5 |
+| Sol | medium | build | 4,093 | 10.9 | 84.6 | 194.5 |
+| Sol | medium | shape | 1,045 | 11.7 | 280.2 | 519.7 |
+| Terra | high | build | 2,049 | 5.4 | 48.7 | 114.8 |
+| Terra | high | review | 120 | 4.9 | 15.0 | 16.2 |
+| Terra | high | shape | 577 | 5.1 | 57.1 | 69.6 |
+| Terra | low | build | 110 | 4.5 | 35.7 | 36.2 |
+| Terra | low | review | 581 | 4.1 | 12.5 | 14.6 |
+| Terra | low | shape | 57 | 5.4 | 54.3 | 54.3 |
+| Terra | max | build | 168 | 10.9 | 81.1 | 113.4 |
+| Terra | medium | build | 494 | 4.9 | 29.6 | 39.9 |
+| Terra | medium | review | 2,443 | 4.5 | 23.2 | 44.5 |
+| Terra | medium | shape | 1,373 | 5.4 | 59.4 | 126.3 |
+| OpenCode Go model, first | high | shape | 167 | 4.8 | 237.9 | 834.8 |
+| OpenCode Go model, second | high | shape | 316 | 8.0 | 241.1 | 410.6 |
+
+By role: build 11,593 responses (median 6.5 s, 99th percentile 68.3 s, longest 194.5 s), review 13,972 (9.6, 125.0, 274.8) and shape 9,132 (9.0, 410.3, 834.8). No single total budget fits every model: the longest legitimate response is 16 s for Terra high review and 825 s for Sol high shape.
+
+**Stalls.** Of 103 failed or cancelled attempts (7,617 s of wall, against 704,488 s of completed wall), 6 lasted 300 s or more and hold 4,367 s. Four were Terra build or review attempts of 757 to 901 s that ended with no result. Two of the four were retried at once and the retry answered in 4.0 s and 8.7 s. The other two ended their cell as refused. The other two long attempts were Sol high shape calls (570 s cancelled, 391 s ended by a server-overload error). The roughly 900 s endings fit an older 15-minute budget, not today's default. Replaying total budgets on the same data:
+
+| Total budget | Completed responses cut (of 34,697) | Failed attempts over it | Their wall above the budget |
+| ---: | ---: | ---: | ---: |
+| 60 s | 2,268 | 22 | 5,278 s |
+| 120 s | 746 | 15 | 4,158 s |
+| 300 s | 183 | 6 | 2,567 s |
+| 600 s | 12 | 4 | 1,005 s |
+
+Every budget below 835 s cuts productive shape responses, and the only budget that cuts none (about 1,000 s) saves almost nothing.
+
+**What the logs do not hold.** The run logs have a field for the time to the first content, and it is empty on all 34,800 records, because Kogen writes a constant empty value. Nothing records the time to the response headers, the time to the first byte, the timing of chunks, the bytes streamed or the longest silent gap inside a stream. So the time to first byte and the gaps between bytes cannot be measured from the retained logs. The only evidence about silence is an upper bound from completed responses with at most 100 visible output tokens: the longest silent period before content is 47.9 s for Sol high review, 11.4 s for the Anthropic models and 14.5 s for the OpenCode Go models. It is a proxy, not a measurement.
+
+**Proposal: an idle-stream timeout (not built, no cell run).** Abort an attempt, to be retried by the existing 3-attempt loop, when no bytes arrive for N seconds after the first byte, or when no first byte arrives within F seconds of the request. The total budget stays as a safety ceiling above the largest legitimate generation. The argument is that the long legitimate generations are streams that deliver bytes every few hundred milliseconds, so an idle timeout does not touch them, while a total budget cuts them. The stalls were silent attempts that ran to the ceiling. Provisional values, to be replaced by measured gaps (twice the longest silent period, with a floor):
+
+| Provider | First byte, F | Idle after first byte, N |
+| --- | ---: | ---: |
+| ChatGPT route | 90 s | 120 s |
+| Anthropic API | 45 s | 60 s |
+| OpenCode Go | 45 s | 60 s |
+
+On this corpus, such values would have ended the four Terra stalls and the two Sol high shape stalls at 120 s, saving about 3,450 s of the 4,367 s, while cutting no completed response by gap. The second half of that cannot be checked until gaps are logged. The registered rule states that an idle abort that cuts any completed response is a guard failure that returns the setting for review, and that no timeout may be set or changed without per-model, per-effort and per-role percentiles. The plan has three steps: record the timing fields for a day (observation only, at least 5,000 attempts), replay the idle timeout on that data, and run a small live comparison on the cells where stalls occurred, after a fault-injection test with a server that stops sending mid-stream. Risks: a ChatGPT stream at high effort might stay silent during hidden reasoning for longer than the proxy shows; keep-alive events are documented for Anthropic and were not checked for ChatGPT; and one call path reads a whole body at once and has no idle signal.
+
+**Limits.** Duration only: all N and F values are provisional. Stalls are rare (6 of 34,800 attempts reached 300 s) and mostly Terra, so the stall sample is small. The corpus holds ChatGPT, Anthropic API and OpenCode Go calls on the native loop and shaping, and Claude Code cells have no provider attempt records. Cells are not independent: repetitions and many runs of the same tasks.
+
 ## Evidence level
 
-**Observation.** The profiles describe how often a cost, a failure or a behaviour occurred in logs that were already recorded. They support statements such as "this cost or failure was below the registered threshold in these runs" or "this role ended without a submission in this share of sessions". They do not measure what a changed setting would do, and they do not show that the thresholds are the right ones. Where a section reports a statistical test, it is on observational data from builds that were not randomised, and the section says so.
+**Observation.** Except for the climb results, the profiles describe how often a cost, a failure or a behaviour occurred in logs that were already recorded. They support statements such as "this cost or failure was below the registered threshold in these runs" or "this role ended without a submission in this share of sessions". They do not measure what a changed setting would do, and they do not show that the thresholds are the right ones. The climb results are different in kind: they compare a changed setting with the shipped one in cells that ran models. They are observation-level too. Where a rule written before the cells decided an item, the result is called decided under that rule, and it is still not decision-grade in the strict statistical sense: research-made tasks, a few repetitions per task, single named models, and some blocks stopped early. Where a section reports a statistical test, it is on observational data from builds that were not randomised, and the section says so.
 
 ## Limits of the checkpoint and retry profiles
 
@@ -396,6 +630,8 @@ In neither cell did the builder call `list_files` or `search_text`; it explored 
 
 Checkpoint and retry profiles. Measured: the share of build wall time between a turn's last tool call and the next model request (an upper bound for checkpoint cost); the number of cells that ended on a provider failure, by kind and route; and the number and duration of retries that recovered. Not measured: the time inside a checkpoint save, task success, cost in money, or any effect of changing the checkpoint frequency or the retry policy.
 
-Later sections. Measured: the distribution of build requests per cell and the projected effect of a limit; response durations of provider attempts; the share of cut tool results whose omitted part was later read again; how often roles ended without a submission; and, in Kogen's own development builds, how often named tests were missing. Not measured: any effect of changing a bound, a budget, a cut size, a tool set or a review option on pass rate, cost or time, except the two exploratory witness cells and the on-demand clean controls described above, which are observations of single behaviours.
+Later sections before the climb results. Measured: the distribution of build requests per cell and the projected effect of a limit; response durations of provider attempts; the share of cut tool results whose omitted part was later read again; how often roles ended without a submission; and, in Kogen's own development builds, how often named tests were missing. Not measured: any effect of changing a bound, a budget, a cut size, a tool set or a review option on pass rate, cost or time, except the two exploratory witness cells and the on-demand clean controls described above, which are observations of single behaviours.
 
-The run logs and the row-level outputs are not published, and the analysis scripts are not either, so the counts here, in every section, are reported and cannot be recomputed from this repository. The cells ran on 60 different uncommitted builds of Kogen, so there is no single Kogen commit to cite; the save and retry code was read from commit `323a967c`. The task `pool-go` named above appears in [the session-cache round](../rounds/chatgpt-session-cache-1/README.md); the two large-repository Go tasks are not part of the published task set. The [mechanism inventory](mechanism-inventory.md) lists the parts these profiles touch among 80 changeable parts of Kogen and its build loop.
+Climb results. Measured: for each compared setting, hidden-test pass per task, build or review input tokens, wall time and review verdicts, in paired cells on one Kogen commit; for the replays, how often a stop or a check acted in recorded logs; and for the response budget, completed and failed attempt durations by model. Not measured: any effect on cost in money, any comparison on tasks or models other than the ones named, the time to first byte and gaps between bytes of a provider stream (not logged), and the confirmation runs of the changed defaults.
+
+The run logs and the row-level outputs are not published, and the analysis scripts are not either, so the counts here, in every section, are reported and cannot be recomputed from this repository. The cell records of the climb results are not in this repository yet. The cells of the sections before the climb results ran on 60 different uncommitted builds of Kogen, so there is no single Kogen commit to cite for them; the save and retry code was read from commit `323a967c`. The climb results ran on Kogen commit `e2e8196e18facc62b258b29adb6e16ab149f0cbb`. The task `pool-go` named above appears in [the session-cache round](../rounds/chatgpt-session-cache-1/README.md); the two large-repository Go tasks are not part of the published task set. The [mechanism inventory](mechanism-inventory.md) lists the parts these profiles touch among 80 changeable parts of Kogen and its build loop.
