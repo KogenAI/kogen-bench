@@ -49,6 +49,10 @@ The shelltail copy is `lanes_bare.py` `67a1c527db1ab28b0495f2a027787018bc0e7088e
 
 `confirm-eu/confirmation_ext.py` wraps `bare/lanes_bare.py` (`9744637d…`) for runs where both tools use the same OpenAI API key — a local gateway forwards each tool's Responses requests to the one upstream with the key, records each request's usage and list price, and enforces a measured spend guard (a cell is admitted only if spend so far plus a conservative estimate stays under the round cap; an admitted cell is never cut). Tool shells run in nested bubblewrap namespaces without network. `run_confirmation.py` is the round driver; `run_replay13.py` resumes a round with a measured estimate and a one-request credit (quota) probe before each admission. Original hashes: extension `19c9755dd572750afd94f39d78b4d29dc8ec933377e77c3c7fc7fa1a79df7249`, driver `ff5bab0d0cb4a8f064f3abf8e7b51a72185c48a863f0d9d3f2bcbdf55faf86ab`, replay13 `0b4c06b14a57a8b47c6174b9252f1d0d1ad93a40ac64654ba33e3eef68647e31`. See `confirm-eu/README.md`.
 
+## First EU high and medium rounds (`confirm-eu-20261029/`)
+
+The two drivers and gateway extensions of the 29 October same-key rounds (high effort in the directory, medium effort in `medium/`), as run: `confirmation_ext.py` and `run_confirmation.py`, with `python3 run_confirmation.py preflight|dry-loop|dry-codex|counted`. They differ from the 30 October `confirm-eu/` versions (which add the replay rounds' spend admission, credit probe and lease handling) and are used by `reproduce/loop-high-reasoning-api/`. Host paths were replaced by `LANES_CONFIRM_DIR`, `CODEX_BIN_DIR`, `LANES_GOROOT`, `LANES_NODEROOT` and `LANES_USER`; the original hashes (in each round's frozen protocol) are in `releases/sanitized-files.tsv`. The grader tree of these rounds is the `7a0e22ad` `lanes/` plus the stable-binary `lanes/grading.py` of this release.
+
 ## Loop patches (`patches/loop/`)
 
 Applied with `patch -p1` to kogen-loop at `b8a4046`; `patches/loop/SHA256SUMS` lists them.

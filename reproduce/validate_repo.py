@@ -127,6 +127,10 @@ SPEC_PROTOCOL_ALLOWLIST = {
     # home inside the agent jail, a reserved .invalid commit identity and a file name, not private data.
     ('lanes/confirm-eu/confirmation_ext.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1'), re.compile(r'1\.1\.1\.1')],
     ('lanes/confirm-eu/README.md', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('lanes/confirm-eu-20261029/confirmation_ext.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1'), re.compile(r'1\.1\.1\.1')],
+    ('lanes/confirm-eu-20261029/confirmation_ext.py', 'home path'): [re.compile('/'+'home'+r'/agent/')],
+    ('lanes/confirm-eu-20261029/medium/confirmation_ext.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1'), re.compile(r'1\.1\.1\.1')],
+    ('lanes/confirm-eu-20261029/medium/confirmation_ext.py', 'home path'): [re.compile('/'+'home'+r'/agent/')],
     ('lanes/confirm-eu/confirmation_ext.py', 'home path'): [re.compile('/'+'home'+r'/agent/')],
     ('lanes/ops/day-runner.sh', 'email address'): [re.compile(r'lanes@kogen\.invalid')],
     ('lanes/ops/day-runner-v3.sh', 'email address'): [re.compile(r'lanes@kogen\.invalid')],
