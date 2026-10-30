@@ -28,7 +28,7 @@ Four Go tasks ran twice per tool (8 runs each), same model, same effort.
 | kogen-loop (shipped default) | 8/8 | 108 | 27,769 | 80,419 | $0.730 |
 | Codex CLI | 8/8 | 90 | 14,106 | 62,018 | $0.734 |
 
-Total cost was about the same, so the extra reasoning did not show up as a higher bill in this sample. At medium effort on the same tasks the gap was small (9,154 against 6,692 reasoning tokens; 84 against 85 requests).
+Total cost was about the same, so the extra reasoning did not show up as a higher bill in this sample. A later test on 14 fresh tasks at high effort, with both tools on the same OpenAI API key, found kogen-loop about 17% cheaper per pass (13 of 14 tasks, p = 0.0018); it is described on the head-to-head page. At medium effort on the same tasks the gap was small (9,154 against 6,692 reasoning tokens; 84 against 85 requests).
 
 A likely cause is that kogen-loop's chat path to the API does not carry the model's earlier reasoning back to it between turns, so the model re-derives some of it. This is a hypothesis. A later test on 8 tasks that carried reasoning back gave fewer requests and a lower cost per pass than the default loop, but more reasoning tokens, and no per-task difference was resolved (see the reasoning replay section on the head-to-head page). The question is unresolved. Eight runs from four tasks are descriptive; they do not show how large the effect is on other tasks, and the two efforts were run in separate sessions.
 

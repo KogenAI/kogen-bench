@@ -1,0 +1,194 @@
+--- /dev/null
++++ b/conformance/api_replay_test.go
+@@ -0,0 +1,52 @@
++package conformance
++
++import (
++	"context"
++	"reflect"
++	"testing"
++
++	"kogen-loop/api"
++	"kogen-loop/loop"
++	"kogen-loop/provider"
++)
++
++// Exercise real session execution and persisted replay through the local fake API.
++func TestAPIResponsesSessionPreservesReasoning(t *testing.T) {
++	for _, effort := range []string{"high", "medium"} {
++		t.Run(effort, func(t *testing.T) {
++			w := newWorld(t).seed(map[string]string{"a": "content\n"})
++			reason := map[string]any{"type": "reasoning", "id": "rs_fixture", "summary": []any{}, "encrypted_content": "opaque-fixture"}
++			f := newFakeProvider(t, []exchange{
++				{Items: []map[string]any{reason, call("read", "read_file", map[string]any{"path": "a"})}},
++				{Items: []map[string]any{message("done")}},
++				{Items: []map[string]any{message("again")}},
++			})
++			var ev []api.Event
++			cfg := sessionConfig(w, f, &ev)
++			cfg.Role = provider.Role{Provider: "openai-compatible", Model: "gpt-6.1-terra", Effort: effort, BaseURL: f.url() + "/v1"}
++			cfg.Dir = t.TempDir()
++			s, err := loop.NewSession(cfg)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if _, err := s.Round(context.Background(), "work"); err != nil {
++				t.Fatal(err)
++			}
++			in := f.requests()[1]["input"].([]any)
++			if !reflect.DeepEqual(in[1], reason) || in[3].(map[string]any)["output"] != "1\tcontent" {
++				t.Fatalf("reasoning/tool replay changed: %#v", in)
++			}
++			resumed, err := loop.ResumeSession(cfg)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if _, err := resumed.Round(context.Background(), "continue"); err != nil {
++				t.Fatal(err)
++			}
++			in = f.requests()[2]["input"].([]any)
++			if !reflect.DeepEqual(in[1], reason) {
++				t.Fatal("persisted reasoning lost")
++			}
++		})
++	}
++}
+--- /dev/null
++++ b/provider/api_replay_test.go
+@@ -0,0 +1,83 @@
++package provider
++
++import (
++	"context"
++	"reflect"
++	"testing"
++)
++
++// Exercise the actual key route, dispatch, SSE parser and second request. No
++// benchmark task or provider credential is used; these are local scripted servers.
++func TestAPIResponsesReplay(t *testing.T) {
++	for _, effort := range []string{"high", "medium"} {
++		t.Run(effort, func(t *testing.T) {
++			reason := map[string]any{"type": "reasoning", "id": "rs_fixture", "summary": []any{}, "encrypted_content": "opaque-fixture"}
++			call := map[string]any{"type": "function_call", "id": "fc_fixture", "call_id": "call_fixture", "name": "read_file", "arguments": `{"path":"a"}`}
++			e, f, role := compatibleEnv(t, "", events(itemDone(0, reason), itemDone(1, call),
++				done(map[string]any{"status": "completed", "output": []any{reason, call}})), textAnswer("done"))
++			role.Model, role.Effort = "gpt-6.1-terra", effort
++			role.BaseURL = f.srv.URL + "/tenant/v1/"
++			if effort == "high" {
++				e.saveCreds("openai-compatible", map[string]any{"provider": "openai-compatible", "api_key": testKey})
++			}
++			req := Request{Role: role, Instructions: "policy", Input: user("work"), Tools: []any{goTool("read_file")}, CacheID: "api-fixture"}
++			response, err := e.c.Respond(context.Background(), e.s, req, nil)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if len(response.Items) != 2 || !reflect.DeepEqual(response.Items[0], reason) || !reflect.DeepEqual(response.Items[1], call) {
++				t.Fatalf("native response items lost: %#v", response.Items)
++			}
++			for _, item := range response.Items {
++				req.Input = append(req.Input, item)
++			}
++			req.Input = append(req.Input, map[string]any{"type": "function_call_output", "call_id": "call_fixture", "output": "1\tcontent"})
++			if _, err := e.c.Respond(context.Background(), e.s, req, nil); err != nil {
++				t.Fatal(err)
++			}
++			requests := f.requests()
++			if len(requests) != 2 {
++				t.Fatalf("requests: %d", len(requests))
++			}
++			for _, r := range requests {
++				if r.Path != "/tenant/v1/responses" {
++					t.Fatalf("route: %s", r.Path)
++				}
++				if r.JSON["model"] != role.Model || r.JSON["reasoning"].(map[string]any)["effort"] != effort || r.JSON["store"] != false || r.JSON["stream"] != true {
++					t.Fatalf("controls changed: %#v", r.JSON)
++				}
++				if !reflect.DeepEqual(r.JSON["include"], []any{"reasoning.encrypted_content"}) || r.JSON["prompt_cache_key"] != "api-fixture" {
++					t.Fatalf("replay/cache controls: %#v", r.JSON)
++				}
++				auth := ""
++				if effort == "high" {
++					auth = "Bearer " + testKey
++				}
++				if r.Header.Get("Authorization") != auth {
++					t.Fatal("optional key behavior changed")
++				}
++				for _, h := range []string{"session_id", "conversation_id", "X-Opencode-Session"} {
++					if r.Header.Get(h) != "" {
++						t.Fatalf("vendor header %s", h)
++					}
++				}
++				if _, ok := r.JSON["messages"]; ok {
++					t.Fatal("Chat translation remains")
++				}
++			}
++			input := requests[1].JSON["input"].([]any)
++			if !reflect.DeepEqual(input[1], reason) || !reflect.DeepEqual(input[2], call) {
++				t.Fatal("replay changed")
++			}
++		})
++	}
++}
++
++func TestAPIResponsesDoesNotFallbackToChat(t *testing.T) {
++	e, f, role := compatibleEnv(t, "", httpFail(400, "invalid_request_error", "fixture refusal"))
++	role.Model, role.Effort = "gpt-6.1-terra", "medium"
++	_, err := e.c.Respond(context.Background(), e.s, Request{Role: role, Instructions: "p", Input: user("x")}, nil)
++	if err == nil || len(f.requests()) != 1 || f.requests()[0].Path != "/v1/responses" {
++		t.Fatalf("refusal/fallback: %v, %d requests", err, len(f.requests()))
++	}
++}
+--- a/provider/client.go
++++ b/provider/client.go
+@@ -149,6 +149,9 @@
+ 
+ // apiBase is the origin's Responses root, ending in /v1.
+ func (k *call) apiBase() string {
++	if k.info.compatible() {
++		return k.baseURL
++	}
+ 	if v := k.env("KOGEN_PROVIDER_URL"); v != "" {
+ 		return v + "/v1"
+ 	}
+--- a/provider/respond.go
++++ b/provider/respond.go
+@@ -204,6 +204,9 @@
+ 	if info.compatible() && req.Role.BaseURL == "" {
+ 		return nil, sys.Fail("provider", "refused", "openai-compatible needs base_url in .kogen/project.yaml", 4)
+ 	}
++	if info.compatible() && req.Role.Model == "gpt-6.1-terra" {
++		info.wire = wireResponses
++	}
+ 	k := c.newCall(ctx, s, info, budget)
+ 	defer k.cancel()
+ 	if c.ResponseBudget != 0 {
+@@ -551,10 +554,13 @@
+ 	w := r.newWatch(cancel)
+ 	defer w.stop()
+ 	header := map[string]string{"Authorization": "Bearer " + token, "Accept": "text/event-stream", "Content-Type": "application/json"}
++	if k.info.compatible() && token == "" {
++		delete(header, "Authorization")
++	}
+ 	if k.info.supergrok() {
+ 		header["User-Agent"] = k.c.userAgent()
+ 	}
+-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, k.origin()+"/v1/responses", bytes.NewReader(r.encoded))
++	req, err := http.NewRequestWithContext(ctx, http.MethodPost, k.apiBase()+"/responses", bytes.NewReader(r.encoded))
+ 	if err != nil {
+ 		return result{}, err
+ 	}
+--- a/provider/wire.go
++++ b/provider/wire.go
+@@ -79,6 +79,11 @@
+ // effectiveWire is the wire a request for the role is written in: the provider's, unless a
+ // profile overrides it.
+ func effectiveWire(info Info, role Role) wire {
++	// This known OpenAI model uses native Responses, including encrypted reasoning
++	// custody. Generic compatible models keep their existing Chat wire.
++	if info.compatible() && role.Model == "gpt-6.1-terra" {
++		return wireResponses
++	}
+ 	if p := ResolveProfile(role); p != nil {
+ 		switch p.Settings.Wire {
+ 		case "messages":

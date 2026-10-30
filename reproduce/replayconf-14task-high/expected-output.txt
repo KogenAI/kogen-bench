@@ -1,0 +1,28 @@
+Per tool, gpt-6.1-terra high, one run per task (per pass = total / passes)
+tool | pass/launched | median wall s | p90 wall s | USD/pass | requests/pass | reasoning tokens/pass | output tokens/pass | wall s/pass
+loop | 14/14 | 115.227 | 179.555 | $0.0876 | 13.2 | 2,432 | 9,652 | 159.6
+loop+reasoning-replay | 14/14 | 131.363 | 173.098 | $0.0874 | 14.0 | 2,468 | 9,743 | 164.1
+codex | 14/14 | 111.975 | 147.845 | $0.1053 | 14.1 | 2,157 | 9,136 | 129.5
+
+Paired by task, lower is better: first-tool wins / second-tool wins, ties, exact two-sided sign test p
+loop+reasoning-replay vs loop (14 tasks)
+  wall: 4/10, 0 ties, p=0.1796
+  requests: 3/9, 2 ties, p=0.1460
+  reasoning: 9/5, 0 ties, p=0.4240
+  output: 6/8, 0 ties, p=0.7905
+  usd: 4/10, 0 ties, p=0.1796
+  USD per pass ratio: 0.998
+loop+reasoning-replay vs codex (14 tasks)
+  wall: 2/12, 0 ties, p=0.0129
+  requests: 6/5, 3 ties, p=1.0000
+  reasoning: 4/10, 0 ties, p=0.1796
+  output: 4/10, 0 ties, p=0.1796
+  usd: 13/1, 0 ties, p=0.0018
+  USD per pass ratio: 0.830
+loop vs codex (14 tasks)
+  wall: 5/9, 0 ties, p=0.4240
+  requests: 8/4, 2 ties, p=0.3877
+  reasoning: 4/10, 0 ties, p=0.1796
+  output: 4/10, 0 ties, p=0.1796
+  usd: 13/1, 0 ties, p=0.0018
+  USD per pass ratio: 0.832

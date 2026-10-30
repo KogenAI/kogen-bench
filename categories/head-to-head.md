@@ -13,7 +13,7 @@ This study compares coding-agent harnesses that get the same task and the same m
 
 ## Eight tasks, both tools on the same OpenAI API key, 30 October 2026
 
-**Summary.** On eight Go tasks, kogen-loop and Codex CLI both passed 8/8 at medium effort and 8/8 at high effort. At medium effort, kogen-loop cost **40% less per pass** ($0.1020 against $0.1698) and was cheaper on all 8 tasks (two-sided sign test p = 0.0078). Its agent wall was lower on 7 of 8 tasks, which does not reach significance (p = 0.0703). At high effort, no difference in cost or wall time was resolved. This is one run per task and tool, on tasks chosen for this comparison; it is evidence about these eight tasks, not a general result.
+**Summary.** On eight Go tasks, kogen-loop and Codex CLI both passed 8/8 at medium effort and 8/8 at high effort. At medium effort, kogen-loop cost **40% less per pass** ($0.1020 against $0.1698) and was cheaper on all 8 tasks (two-sided sign test p = 0.0078). Its agent wall was lower on 7 of 8 tasks, which does not reach significance (p = 0.0703). At high effort, no difference in cost or wall time was resolved on these eight tasks; a later test on 14 fresh tasks at high effort did resolve one: kogen-loop cost **about 17% less per pass** than Codex CLI ($0.0876 against $0.1053, cheaper on 13 of 14 tasks, p = 0.0018), with wall time tied (see "Fourteen fresh tasks" below). This is one run per task and tool, on tasks chosen for this comparison; it is evidence about these eight tasks, not a general result.
 
 **Setup.** Both tools used the same OpenAI API key, the same model (gpt-6.1-terra) and the same effort within each comparison: kogen-loop b8a4046 with its shipped default instructions, and Codex CLI 0.165.0 with its own. kogen-loop reached the API through an adapter that translates its requests; Codex called the API directly. That adapter is part of what was measured. Each run had a fresh workspace, ran alone on one machine with grading included, and followed a balanced, shuffled order of tasks and tools. Every task was admitted only after its reference solution passed all hidden tests and every available wrong solution failed at least one. All responses reported the requested model and effort.
 
@@ -57,7 +57,7 @@ This study compares coding-agent harnesses that get the same task and the same m
 **Comparisons, same model and same effort.** Exact two-sided sign tests over the 8 tasks; no task tied on any of these measures.
 
 - **Medium:** kogen-loop cost less on 8/8 tasks (p = 0.0078); total cost ratio 0.600, so 39.95% lower per pass. Wall was lower on 7/8 (p = 0.0703); mean-wall ratio 0.825. Pass: no task differed (p = 1).
-- **High:** kogen-loop cost less on 5/8 tasks (p = 0.727); cost ratio 0.966. Wall was lower on 2/8 (p = 0.289); mean-wall ratio 1.087. Pass: no task differed (p = 1).
+- **High:** kogen-loop cost less on 5/8 tasks (p = 0.727); cost ratio 0.966. Wall was lower on 2/8 (p = 0.289); mean-wall ratio 1.087. Pass: no task differed (p = 1). On 14 fresh tasks at high effort, kogen-loop later cost about 17% less per pass (13 of 14 tasks, p = 0.0018); see "Fourteen fresh tasks" below.
 
 The p-values are not adjusted for the several comparisons. The tasks are inherited from earlier rounds and are not claimed fresh or representative. With one run per task and tool, variation within a task cannot be estimated. Equal pass counts do not show equal reliability. Agent wall includes API transport and tool use but excludes setup and grading; "slowest" is the largest of the eight runs. API cost prices the usage the provider reported at list prices (uncached input $1 per million tokens, cached input $0.05, cache writes $1.25, output $5, with the provider's higher rate for requests above 272,000 input tokens); it is an estimate, not an invoice. Cost per pass divides the summed cost of the eight runs in each table by their passes; the replaced runs are left out of it.
 
@@ -262,7 +262,23 @@ Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with highe
 | kogen-loop with reasoning carried back | 8/8 | 20.2 | 4,117 | $0.175 | 268 s |
 | Codex CLI | 8/8 | 28.8 | 4,152 | $0.236 | 273 s |
 
-Reasoning carried back against the shipped default, task by task: cost lower on 3 tasks and higher on 5 (two-sided sign test p = 0.727); requests lower on 3, higher on 4 and tied on 1 (p = 1.0); reasoning tokens higher on 6 of 8 tasks (p = 0.289). The lower totals come mostly from one slow run of the shipped default on one task (90 requests, $0.649, 708 s); without it the per-pass gaps shrink, which is why a larger test on fresh tasks is planned. Against Codex CLI: requests lower on 6, higher on 1 and tied on 1 (p = 0.125); cost lower on 6 and higher on 2 (p = 0.289). With 8 tasks the sign tests cannot resolve differences of this size, so the question stays open.
+Reasoning carried back against the shipped default, task by task: cost lower on 3 tasks and higher on 5 (two-sided sign test p = 0.727); requests lower on 3, higher on 4 and tied on 1 (p = 1.0); reasoning tokens higher on 6 of 8 tasks (p = 0.289). The lower totals come mostly from one slow run of the shipped default on one task (90 requests, $0.649, 708 s); without it the per-pass gaps shrink, which is why a larger test on fresh tasks followed (next section). Against Codex CLI: requests lower on 6, higher on 1 and tied on 1 (p = 0.125); cost lower on 6 and higher on 2 (p = 0.289). With 8 tasks the sign tests cannot resolve differences of this size, so the question stays open.
+
+### Fourteen fresh tasks, same OpenAI API key, gpt-6.1-terra, high effort
+
+**Summary.** We re-ran the reasoning replay question on 14 Go tasks that no earlier round had used, with the sample size fixed in advance. All 42 runs passed. At high effort, kogen-loop's shipped default cost **about 17% less per pass** than Codex CLI ($0.0876 against $0.1053) and was cheaper on 13 of the 14 tasks (two-sided sign test p = 0.0018). This replaces the eight-task result above, where no cost difference was resolved at high effort. Wall time was tied. Carrying reasoning back to the model made no difference to cost against the shipped default (ratio 0.998, cheaper on 4 of 14 tasks, p = 0.18), so that change does not advance.
+
+**Setup.** Route: both tools on the same OpenAI API key. Model: gpt-6.1-terra, high effort. Each of the 14 tasks ran once per setup, with the three setups interleaved task by task and the starting setup rotated from task to task. A short dry run on one earlier task, outside the counts, checked beforehand that all three setups ran and that reasoning was carried back. The 14 was set before any run from the spread seen in the 8-task round above; at that size the test could only resolve a large difference. Figures are per pass over the 14 tasks.
+
+| Setup (gpt-6.1-terra, high effort) | Passed | API cost per pass | Model requests per run | Reasoning tokens per pass | Median wall |
+|---|---:|---:|---:|---:|---:|
+| kogen-loop (shipped default) | 14/14 | $0.0876 | 13.2 | 2,432 | 115 s |
+| kogen-loop with reasoning carried back | 14/14 | $0.0874 | 14.0 | 2,468 | 131 s |
+| Codex CLI | 14/14 | $0.1053 | 14.1 | 2,157 | 112 s |
+
+Paired by task (exact two-sided sign tests, ties dropped; first setup lower on x tasks and higher on y). kogen-loop default against Codex CLI: cost 13 and 1 (p = 0.0018); requests 8 and 4 with 2 tied (p = 0.39); wall 5 and 9 (p = 0.42); reasoning tokens 4 and 10 (p = 0.18). Reasoning carried back against the shipped default: cost 4 and 10 (p = 0.18); requests 3 and 9 with 2 tied (p = 0.15); wall 4 and 10 (p = 0.18); reasoning tokens 9 and 5 (p = 0.42). Reasoning carried back against Codex CLI: cost 13 and 1 (p = 0.0018), but wall 2 and 12 (p = 0.013).
+
+**Limits.** One run per task and setup, so these are descriptive of these 14 tasks. The tasks are short Go tasks; one of them cost several times as much as the others. The setup order within a task was rotated, not randomised. The reasoning comparison cannot show that the two kogen-loop setups are equal, only that no advantage appeared. Reproduction pack: `reproduce/replayconf-14task-high/`.
 
 ### Batch and exec tools, same OpenAI API key, gpt-6.1-terra, high effort
 
