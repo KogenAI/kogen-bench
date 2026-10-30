@@ -4,13 +4,20 @@
 from __future__ import annotations
 
 import html
+import base64
 import hashlib
 import json
+import os
 import re
 import shutil
+import signal
+import socket
+import struct
 import subprocess
+import time
 import tempfile
 import threading
+import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -114,6 +121,197 @@ def is_numeric_id_chunk(text: str) -> bool:
     return not NUMBER.search(residue)
 
 
+class DevToolsSocket:
+    """Minimal client-side WebSocket (RFC 6455) for the Chrome DevTools protocol."""
+
+    def __init__(self, port: int, path: str):
+        self.sock = socket.create_connection(("127.0.0.1", port), timeout=30)
+        key = base64.b64encode(os.urandom(16)).decode()
+        self.sock.sendall(
+            (
+                f"GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nUpgrade: websocket\r\n"
+                f"Connection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n"
+            ).encode()
+        )
+        self.buffer = b""
+        while b"\r\n\r\n" not in self.buffer:
+            self.buffer += self._recv()
+        head, _, self.buffer = self.buffer.partition(b"\r\n\r\n")
+        if b" 101 " not in head.split(b"\r\n")[0]:
+            raise OSError("DevTools WebSocket handshake refused")
+        self.next_id = 0
+
+    def _recv(self) -> bytes:
+        chunk = self.sock.recv(65536)
+        if not chunk:
+            raise OSError("DevTools connection closed")
+        return chunk
+
+    def _read(self, size: int) -> bytes:
+        while len(self.buffer) < size:
+            self.buffer += self._recv()
+        data, self.buffer = self.buffer[:size], self.buffer[size:]
+        return data
+
+    def _send_frame(self, opcode: int, payload: bytes) -> None:
+        mask = os.urandom(4)
+        header = bytes([0x80 | opcode])
+        if len(payload) < 126:
+            header += bytes([0x80 | len(payload)])
+        elif len(payload) < 65536:
+            header += bytes([0x80 | 126]) + struct.pack(">H", len(payload))
+        else:
+            header += bytes([0x80 | 127]) + struct.pack(">Q", len(payload))
+        masked = bytes(byte ^ mask[i % 4] for i, byte in enumerate(payload))
+        self.sock.sendall(header + mask + masked)
+
+    def _read_message(self) -> dict:
+        message = b""
+        while True:
+            first, second = self._read(2)
+            length = second & 0x7F
+            if length == 126:
+                length = struct.unpack(">H", self._read(2))[0]
+            elif length == 127:
+                length = struct.unpack(">Q", self._read(8))[0]
+            payload = self._read(length)
+            opcode = first & 0x0F
+            if opcode == 0x9:
+                self._send_frame(0xA, payload)
+            elif opcode == 0x8:
+                raise OSError("DevTools connection closed")
+            elif opcode in (0x0, 0x1, 0x2):
+                message += payload
+                if first & 0x80:
+                    return json.loads(message)
+
+    def call(self, method: str, deadline: float, **params) -> dict:
+        """Send one command and return its result; protocol events are ignored."""
+        self.next_id += 1
+        self._send_frame(0x1, json.dumps({"id": self.next_id, "method": method, "params": params}).encode())
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired("devtools", 0)
+            self.sock.settimeout(remaining)
+            try:
+                msg = self._read_message()
+            except socket.timeout:
+                raise subprocess.TimeoutExpired("devtools", 0) from None
+            if msg.get("id") == self.next_id:
+                if "error" in msg:
+                    raise OSError(f"DevTools error: {msg['error']}")
+                return msg["result"]
+
+    def close(self) -> None:
+        try:
+            self.sock.close()
+        except OSError:
+            pass
+
+
+class WarmBrowser:
+    """One headless browser, started before any timed measurement and kept alive
+    in its own process group until close()."""
+
+    START_WAIT = 120  # startup is not part of any measurement; only guards a browser that never comes up
+
+    def __init__(self, browser: Path, profile: str, cwd: Path):
+        self.profile = Path(profile)
+        self.proc = subprocess.Popen(
+            [
+                str(browser),
+                "--headless=new",
+                "--disable-gpu",
+                "--no-sandbox",
+                "--use-mock-keychain",
+                "--password-store=basic",
+                "--disable-dev-shm-usage",
+                "--disable-background-networking",
+                "--disable-extensions",
+                "--disable-default-apps",
+                "--no-first-run",
+                "--hide-scrollbars",
+                "--window-size=390,900",
+                "--remote-debugging-port=0",
+                f"--user-data-dir={profile}",
+                "about:blank",
+            ],
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        self.socket: DevToolsSocket | None = None
+        try:
+            self.port = self._wait_for_port()
+            self.socket = DevToolsSocket(self.port, self._page_path())
+            deadline = time.monotonic() + self.START_WAIT
+            self.socket.call("Runtime.enable", deadline)
+            # Warm the renderer so the first timed navigation is not a cold start.
+            self.socket.call("Page.navigate", deadline, url="about:blank")
+        except BaseException:
+            self.close()
+            raise
+
+    def _wait_for_port(self) -> int:
+        marker = self.profile / "DevToolsActivePort"
+        end = time.monotonic() + self.START_WAIT
+        while time.monotonic() < end:
+            if self.proc.poll() is not None:
+                raise OSError("headless browser exited during startup")
+            try:
+                lines = marker.read_text(encoding="utf-8").splitlines()
+                if len(lines) >= 2:
+                    return int(lines[0])
+            except (OSError, ValueError):
+                pass
+            time.sleep(0.05)
+        raise OSError("headless browser did not open its DevTools port")
+
+    def _page_path(self) -> str:
+        end = time.monotonic() + self.START_WAIT
+        while time.monotonic() < end:
+            with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/json/list", timeout=30) as response:
+                for target in json.load(response):
+                    if target.get("type") == "page":
+                        return "/" + target["webSocketDebuggerUrl"].split("/", 3)[3]
+            time.sleep(0.05)
+        raise OSError("headless browser has no page target")
+
+    def dump_dom(self, url: str, timeout: float) -> str:
+        """Load url in the warm page and return its DOM; raises TimeoutExpired after `timeout` s of page work."""
+        deadline = time.monotonic() + timeout
+        assert self.socket is not None
+        self.socket.call("Page.navigate", deadline, url=url)
+        loaded = f"document.readyState==='complete'&&location.href===({json.dumps(url)})"
+        while True:
+            result = self.socket.call("Runtime.evaluate", deadline, expression=loaded, returnByValue=True)
+            if result["result"].get("value") is True:
+                break
+            if time.monotonic() >= deadline:
+                raise subprocess.TimeoutExpired("devtools", 0)
+            time.sleep(0.05)
+        result = self.socket.call(
+            "Runtime.evaluate", deadline, expression="document.documentElement.outerHTML", returnByValue=True
+        )
+        return result["result"]["value"]
+
+    def close(self) -> None:
+        if self.socket is not None:
+            self.socket.close()
+        try:
+            os.killpg(self.proc.pid, signal.SIGTERM)
+            try:
+                self.proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(self.proc.pid, signal.SIGKILL)
+                self.proc.wait(timeout=5)
+        except ProcessLookupError:
+            pass
+
+
 def check_intent_phone_width(errors: list[str]) -> str:
     css = (SITE / "src/styles/global.css").read_text(encoding="utf-8")
     if ".page-title h1{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}" not in css:
@@ -169,46 +367,20 @@ def check_intent_phone_width(errors: list[str]) -> str:
     server_thread.start()
     try:
         with tempfile.TemporaryDirectory(prefix="kogen-mobile-check-") as profile:
+            # Browser startup happens here, outside the 15 s page budget, so the
+            # limit below measures only navigation, load and evaluation.
+            warm = WarmBrowser(browser, profile, ROOT)
             try:
-                # --dump-dom waits for load, including the local iframe assets.
-                # A virtual-time budget can stall on pending network requests.
-                result = subprocess.run(
-                    [
-                        str(browser),
-                        "--headless=new",
-                        "--disable-gpu",
-                        "--no-sandbox",
-                        "--use-mock-keychain",
-                        "--password-store=basic",
-                        "--disable-dev-shm-usage",
-                        "--disable-background-networking",
-                        "--disable-extensions",
-                        "--disable-default-apps",
-                        "--no-first-run",
-                        "--hide-scrollbars",
-                        "--window-size=390,900",
-                        f"--user-data-dir={profile}",
-                        "--dump-dom",
-                        f"http://127.0.0.1:{server.server_address[1]}/__mobile-width-check.html",
-                    ],
-                    cwd=ROOT,
-                    capture_output=True,
-                    text=True,
-                    timeout=15,
-                )
-                output = result.stdout
-                completed = result.returncode == 0
-            except subprocess.TimeoutExpired as exc:
-                output = exc.stdout or ""
-                if isinstance(output, bytes):
-                    output = output.decode(errors="replace")
-                # Chrome on macOS can keep background processes alive after it
-                # has dumped the page. The DOM marker proves the measurement
-                # finished, even if Chrome does not terminate promptly.
-                completed = 'data-mobile-width="PASS"' in output
-                if not completed:
+                try:
+                    output = warm.dump_dom(
+                        f"http://127.0.0.1:{server.server_address[1]}/__mobile-width-check.html", timeout=15
+                    )
+                    completed = True
+                except subprocess.TimeoutExpired:
                     errors.append("Intent clause page measurement did not complete before the browser timeout")
                     return "failed"
+            finally:
+                warm.close()
         if not completed or 'data-mobile-width="PASS"' not in output:
             failed = re.search(r'data-mobile-width="([^"]+)"', output)
             errors.append("Intent clause page exceeds its 390px viewport" + (f" ({failed.group(1)})" if failed else "; browser measurement did not complete"))
