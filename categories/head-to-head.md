@@ -264,6 +264,25 @@ Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with highe
 
 Reasoning carried back against the shipped default, task by task: cost lower on 3 tasks and higher on 5 (two-sided sign test p = 0.727); requests lower on 3, higher on 4 and tied on 1 (p = 1.0); reasoning tokens higher on 6 of 8 tasks (p = 0.289). The lower totals come mostly from one slow run of the shipped default on one task (90 requests, $0.649, 708 s); without it the per-pass gaps shrink, which is why a larger test on fresh tasks is planned. Against Codex CLI: requests lower on 6, higher on 1 and tied on 1 (p = 0.125); cost lower on 6 and higher on 2 (p = 0.289). With 8 tasks the sign tests cannot resolve differences of this size, so the question stays open.
 
+### Batch and exec tools, same OpenAI API key, gpt-6.1-terra, high effort
+
+**Summary.** We tried two ways of letting kogen-loop do several operations in one model request: a `batch` tool (a list of reads, searches and commands, run together) and an `exec` tool (the model writes one script that calls the other tools). On 4 fresh Go tasks, `batch` was used in every run and roughly doubled operations per request (1.9 to 3.2). It cost the same per pass as the default loop and was cheaper than Codex CLI on all 4 tasks. `exec` passed 2 of 4 and cost about six times as much per pass, so it does not advance. With 4 tasks, no difference is resolved: this is descriptive, and a larger confirmation is running.
+
+**Setup.** Both tools used the same OpenAI API key; model gpt-6.1-terra, high effort; one run per task and tool, with the tools interleaved task by task. The tasks were not used in earlier rounds. The default loop was rebuilt with the same toolchain as the two patched builds.
+
+| Tool (gpt-6.1-terra, high effort) | Passed | API cost per pass | Model requests | Operations per request | Median wall |
+|---|---:|---:|---:|---:|---:|
+| kogen-loop (shipped default) | 4/4 | $0.181 | 91 | 1.9 | 274 s |
+| kogen-loop with `batch` | 4/4 | $0.185 | 83 | 3.2 | 259 s |
+| kogen-loop with `exec` | 2/4 | $1.13 | 95 | 2.5 | 1043 s |
+| Codex CLI | 4/4 | $0.239 | 114 | 1.4 | 276 s |
+
+Paired by task (exact two-sided sign tests; the smallest possible p with 4 tasks is 0.125). `batch` against the default loop: operations per request higher on 4 of 4 tasks (p = 0.125); requests lower on 3 (p = 0.625); cost higher on 3 (p = 0.625); wall lower on 3 (p = 0.625). `batch` against Codex CLI: cost lower on 4 of 4 tasks (p = 0.125); requests lower on 3 (p = 0.625). `exec` against the default loop: cost and wall higher on 4 of 4 (p = 0.125).
+
+**Why `exec` was stopped.** In two of its four runs, about five normal requests in, one model response ran to the 128,000-token output cap with only about 300 reasoning tokens, and the loop gave up after 25 to 30 minutes. No other tool had this in 12 runs. This `exec` sends its script as a JSON string argument; Codex's own tool sends raw JavaScript, and whether that difference causes the runaway was not tested. Both candidates were used (`batch` in 4 of 4 runs; `exec` is the only file and shell tool, so its use is automatic), so the stop rule did not fire.
+
+**What is not separated.** Each patch also adds one sentence about batching to the loop's default instructions, so the tool and the sentence are not separated. There is one run per task, the default loop is a same-toolchain rebuild, not the earlier recorded binary, and one `exec` run's cost is counted at its upper bound because usage was not reported. Reproduction pack: `reproduce/batch-tool-short-test/`.
+
 ### API key versus CLI sign-in, claude-sonnet-5-5, medium effort
 
 This round used 13 Go tasks and two repetitions per tool. Loop used an API key; Claude Code used its own sign-in. These routes can affect speed and token accounting.

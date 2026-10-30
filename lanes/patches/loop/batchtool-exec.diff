@@ -1,0 +1,811 @@
+diff -ruN base/conformance/library_test.go exec/conformance/library_test.go
+--- base/conformance/library_test.go	2026-10-29 13:10:37
++++ exec/conformance/library_test.go	2026-10-30 13:58:23
+@@ -690,10 +690,10 @@
+ 	for _, d := range s.Definitions() {
+ 		names = append(names, d.(map[string]any)["name"].(string))
+ 	}
+-	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "finish"}) {
++	if !reflect.DeepEqual(names, []string{"exec", "finish"}) {
+ 		t.Errorf("definitions %v", names)
+ 	}
+-	finish := s.Definitions()[5].(map[string]any)
++	finish := s.Definitions()[1].(map[string]any)
+ 	params := finish["parameters"].(map[string]any)
+ 	if !reflect.DeepEqual(params["required"], []any{"summary"}) || params["additionalProperties"] != false {
+ 		t.Errorf("finish %v", finish)
+diff -ruN base/go.mod exec/go.mod
+--- base/go.mod	2026-10-29 13:10:37
++++ exec/go.mod	2026-10-30 13:58:23
+@@ -1,3 +1,12 @@
+ module kogen-loop
+ 
+ go 1.27.2
++
++require github.com/dop251/goja v0.0.0-20261029153331-f81816846776
++
++require (
++	github.com/dlclark/regexp2/v2 v2.11.0 // indirect
++	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
++	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
++	golang.org/x/text v0.43.0 // indirect
++)
+diff -ruN base/go.sum exec/go.sum
+--- base/go.sum	1970-01-01 03:00:00
++++ exec/go.sum	2026-10-30 13:59:09
+@@ -0,0 +1,10 @@
++github.com/dlclark/regexp2/v2 v2.11.0 h1:z5uRPHav+eTVpoffDSuUP2KPS4f1ONZaPDK73S8HA0w=
++github.com/dlclark/regexp2/v2 v2.11.0/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
++github.com/dop251/goja v0.0.0-20261029153331-f81816846776 h1:O0HJzlF+gZFsUHa1XjcN6jAsfk7YpPumERu8SIvjmYA=
++github.com/dop251/goja v0.0.0-20261029153331-f81816846776/go.mod h1:L1yoLBco9M3b2Gdh1UZHg+BIePeAdV1bwknaLLxAgoc=
++github.com/go-sourcemap/sourcemap v2.1.3+incompatible h1:W1iEw64niKVGogNgBN3ePyLFfuisuzeidWPMPWmECqU=
++github.com/go-sourcemap/sourcemap v2.1.3+incompatible/go.mod h1:F8jJfvm2KbVjc5NqelyYJmf/v5J0dwNLS2mL4sNA1Jg=
++github.com/google/pprof v0.0.0-20230207041349-798e818bf904 h1:4/hN5RUoecvl+RmJRE2YxKWtnnQls6rQjjW5oV7qg2U=
++github.com/google/pprof v0.0.0-20230207041349-798e818bf904/go.mod h1:uglQLonpP8qtYCYyzA+8c/9qtqgA3qsXGYqCPKARAFg=
++golang.org/x/text v0.43.0 h1:1QivrlhwAsnMOcqgOdl9my7s9OyZl8O5/UGUTJVXoWc=
++golang.org/x/text v0.43.0/go.mod h1:hbSIYA/amXcRXTFSZqh8tWHEoqRvvbKPJ2uz/KU+a+s=
+diff -ruN base/loop/exec_session_test.go exec/loop/exec_session_test.go
+--- base/loop/exec_session_test.go	1970-01-01 03:00:00
++++ exec/loop/exec_session_test.go	2026-10-30 13:59:09
+@@ -0,0 +1,81 @@
++package loop
++
++import (
++	"context"
++	"encoding/json"
++	"fmt"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"strings"
++	"sync"
++	"testing"
++
++	"kogen-loop/api"
++	"kogen-loop/provider"
++	"kogen-loop/sys"
++	"kogen-loop/tools"
++)
++
++func TestSessionOffersToolsThroughExecAndReportsItsCalls(t *testing.T) {
++	root := t.TempDir()
++	if err := os.WriteFile(filepath.Join(root, "a.txt"), []byte("alpha\n"), 0o644); err != nil {
++		t.Fatal(err)
++	}
++	args, _ := json.Marshal(map[string]any{"code": `const [a, b] = await Promise.all([tools.shell("sleep 0.2; echo one"), tools.read_file("a.txt")]); text(a); text(b)`})
++	quoted, _ := json.Marshal(string(args))
++	answers := []string{
++		`{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c1","type":"function","function":{"name":"exec","arguments":` + string(quoted) + `}}]},"finish_reason":"tool_calls"}]}`,
++		`{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c2","type":"function","function":{"name":"finish","arguments":"{\"summary\":\"done\"}"}}]},"finish_reason":"tool_calls"}]}`,
++	}
++	var mu sync.Mutex
++	var bodies []string
++	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		b, _ := io.ReadAll(r.Body)
++		mu.Lock()
++		n := len(bodies)
++		bodies = append(bodies, string(b))
++		mu.Unlock()
++		w.Header().Set("Content-Type", "application/json")
++		fmt.Fprint(w, answers[min(n, len(answers)-1)])
++	}))
++	defer srv.Close()
++	var events []api.Event
++	session := sys.NewWith([]string{"HOME=" + t.TempDir(), "PATH=" + os.Getenv("PATH")}, root)
++	s, err := NewSession(SessionConfig{Root: root, Role: provider.Role{Provider: "openai-compatible", Model: "local", BaseURL: srv.URL},
++		Session: session, Enabled: []string{tools.ReadFileTool, tools.ShellTool, tools.ViewImageTool}, Emit: func(e api.Event) { events = append(events, e) }})
++	if err != nil {
++		t.Fatal(err)
++	}
++	var names []string
++	for _, d := range s.Definitions() {
++		names = append(names, d.(map[string]any)["name"].(string))
++	}
++	if strings.Join(names, ",") != "view_image,exec,finish" {
++		t.Fatalf("definitions %v", names)
++	}
++	res, err := s.Round(context.Background(), "go")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if res.Ending != EndTerminal || res.Requests != 2 {
++		t.Fatalf("%+v", res)
++	}
++	if !strings.Contains(bodies[1], `Output:\nexit status: 0\none\n\n1\talpha`) {
++		t.Errorf("second request lacks the script result: %s", bodies[1])
++	}
++	if !strings.Contains(bodies[0], "Promise.allSettled") {
++		t.Error("instructions lack the batching rule")
++	}
++	var ops []any
++	for _, e := range events {
++		if e.Type == api.EventToolResult {
++			ops = append(ops, e.Fields["operations"])
++		}
++	}
++	if len(ops) != 1 || ops[0] != 2 {
++		t.Errorf("operations %v", ops)
++	}
++}
+diff -ruN base/loop/session.go exec/loop/session.go
+--- base/loop/session.go	2026-10-29 13:10:37
++++ exec/loop/session.go	2026-10-30 13:58:23
+@@ -27,7 +27,9 @@
+ const DefaultInstructions = "You are a coding agent. Work in the working directory with the tools you are given. " +
+ 	"Read what you need, make the changes the task asks for and check your work with the available tools. " +
+ 	"When you are done, call the finish tool with a summary of what you did. " +
+-	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do."
++	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do. " +
++	"Batch independent searches and reads in one exec using await Promise.allSettled([...]); inspect every result. " +
++	"Keep dependencies and edits sequential. Avoid unnecessary output."
+ 
+ // FinishTool is the generic terminal tool name.
+ const FinishTool = "finish"
+@@ -202,6 +204,23 @@
+ 		seen[name] = true
+ 		defs = append(defs, d)
+ 	}
++	// Every session offers its read, write, search and shell tools only through exec scripts.
++	if !seen[tools.ExecTool] {
++		var nested []string
++		var direct []any
++		for i, name := range enabled {
++			if slices.Contains(tools.ExecNested, name) {
++				nested = append(nested, name)
++			} else {
++				direct = append(direct, defs[i])
++			}
++		}
++		if len(nested) > 0 {
++			seen[tools.ExecTool] = true
++			defs = append(direct, tools.ExecDefinition(nested))
++			enabled = append(slices.Clone(enabled), tools.ExecTool)
++		}
++	}
+ 	for _, name := range terminal {
+ 		if name == "" || seen[name] {
+ 			return nil, invalid("terminal tool names must be non-empty and unique, and differ from the enabled tools")
+@@ -336,6 +355,9 @@
+ 			}
+ 			if rule := rules[fmt.Sprint(call.CallID())]; rule != "" {
+ 				fields["rule"] = rule
++			}
++			if call.Name == tools.ExecTool {
++				fields["operations"] = out.Ops
+ 			}
+ 			s.emit(api.EventToolResult, fields)
+ 			return nil
+diff -ruN base/tools/exec.go exec/tools/exec.go
+--- base/tools/exec.go	1970-01-01 03:00:00
++++ exec/tools/exec.go	2026-10-30 13:57:55
+@@ -0,0 +1,342 @@
++package tools
++
++import (
++	"context"
++	"encoding/json"
++	"fmt"
++	"slices"
++	"strings"
++	"sync"
++	"time"
++
++	"github.com/dop251/goja"
++
++	"kogen-loop/sys"
++)
++
++// ExecTool runs a JavaScript script that calls the session's tools. A standalone session
++// offers its ExecNested tools only through exec.
++const ExecTool = "exec"
++
++// ExecNested are the tools an exec script may call, when they are enabled.
++var ExecNested = []string{ShellTool, ReadFileTool, WriteFileTool, ListFilesTool, SearchTextTool}
++
++const (
++	// execConcurrency is the most nested calls of a script that run at once.
++	execConcurrency = 8
++	// maxJoinedResults bounds a script's result to that many results' bounds.
++	maxJoinedResults = 4
++)
++
++// execShorthand is the argument a nested tool takes when the script passes a string.
++var execShorthand = map[string]string{
++	ShellTool: "command", ReadFileTool: "path", ListFilesTool: "path", SearchTextTool: "pattern",
++}
++
++const execDescription = `Run JavaScript code to orchestrate/compose tool calls
++- Evaluates the provided JavaScript code in a fresh isolate as the body of an async function: top-level ` + "`await`" + ` and ` + "`return`" + ` work.
++- All nested tools are available on the global ` + "`tools`" + ` object, for example ` + "`await tools.shell({command: \"go test ./...\"})`" + `.
++- Nested tool methods take either a string or an object as their input argument, and return a promise of the tool's text result.
++- Nested calls you start together run at the same time. Batch independent searches and reads with ` + "`await Promise.allSettled([...])`" + ` and inspect every result; keep dependencies and edits sequential.
++- Runs raw JavaScript -- no Node, no file system, no network access, no console, no require or import.
++- Put raw JavaScript source text in ` + "`code`" + `, not markdown code fences.
++- When the code is fully evaluated the script ends; nested calls it started still finish first, but their results are discarded unless awaited.
++
++- Global helpers:
++- ` + "`exit()`" + `: Immediately ends the current script successfully (like an early return from the top level).
++- ` + "`text(value: string | number | boolean | undefined | null)`" + `: Appends a text item to the result. Non-string values are stringified with ` + "`JSON.stringify(...)`" + ` when possible.
++- ` + "`ALL_TOOLS`" + `: metadata for the enabled nested tools as ` + "`{ name, description }`" + ` entries.
++Only what you append with text() is returned, with an uncaught error if the script fails.`
++
++// ExecDefinition is the model-facing definition of exec over the nested tools named (in
++// ExecNested order; others are left out).
++func ExecDefinition(nested []string) map[string]any {
++	var b strings.Builder
++	b.WriteString(execDescription)
++	b.WriteString("\n\nNested tools:\ndeclare const tools: {\n")
++	for _, name := range ExecNested {
++		if !slices.Contains(nested, name) {
++			continue
++		}
++		d, _ := Definition(name)
++		b.WriteString("  // " + d["description"].(string) + "\n")
++		b.WriteString("  " + name + "(args: " + tsArgs(d) + "): Promise<string>;\n")
++	}
++	b.WriteString("};")
++	return fun(ExecTool, b.String(), map[string]any{"code": str()}, "code")
++}
++
++// tsArgs is the TypeScript object type of a definition's parameters.
++func tsArgs(d map[string]any) string {
++	params := d["parameters"].(map[string]any)
++	props := params["properties"].(map[string]any)
++	required := params["required"].([]any)
++	var names []string
++	for k := range props {
++		names = append(names, k)
++	}
++	// Required arguments first, then the optional ones, each group in name order.
++	slices.SortFunc(names, func(a, b string) int {
++		ra, rb := slices.Contains(required, any(a)), slices.Contains(required, any(b))
++		if ra != rb {
++			if ra {
++				return -1
++			}
++			return 1
++		}
++		return strings.Compare(a, b)
++	})
++	var fields []string
++	for _, k := range names {
++		typ := "string"
++		if p, _ := props[k].(map[string]any); p["type"] == "integer" {
++			typ = "number"
++		}
++		opt := "?"
++		if slices.Contains(required, any(k)) {
++			opt = ""
++		}
++		fields = append(fields, k+opt+": "+typ)
++	}
++	return "{ " + strings.Join(fields, "; ") + " }"
++}
++
++// execNestedArgs converts a nested call's argument to tool arguments, or returns the error
++// text the script gets.
++func execNestedArgs(name string, v goja.Value) (map[string]any, string) {
++	if v == nil || goja.IsUndefined(v) || goja.IsNull(v) {
++		return map[string]any{}, ""
++	}
++	switch x := v.Export().(type) {
++	case string:
++		key, ok := execShorthand[name]
++		if !ok {
++			return nil, "error: " + name + " takes an object argument"
++		}
++		return map[string]any{key: x}, ""
++	case map[string]any:
++		// A JSON round trip gives the tool the argument types of a model call.
++		data, err := json.Marshal(x)
++		if err != nil {
++			return nil, "error: " + name + ": arguments are not JSON: " + err.Error()
++		}
++		args := DecodeArguments(string(data))
++		if args["__invalid__"] == true {
++			return nil, "error: " + name + ": arguments are not a JSON object"
++		}
++		return args, ""
++	}
++	return nil, "error: " + name + " takes a string or an object argument"
++}
++
++// execCompletion is a finished nested call.
++type execCompletion struct {
++	resolve func(any) error
++	out     Output
++	err     error
++}
++
++// exec runs a script. Nested calls run concurrently (at most execConcurrency at once,
++// write_file alone), each cut as a call of its own before the script sees it. The result
++// is the script's text items, cut to min(nested calls, maxJoinedResults) results' bounds.
++// A script error is a result. A stopping error of a nested call (an interrupt, timeout
++// observation failure) or the end of ctx stops the script, starts no further nested call,
++// terminates the process groups the script started, waits for the running calls and
++// returns the error.
++func (t *Tools) exec(ctx context.Context, args map[string]any) (Output, error) {
++	code, msg := stringArg(args, "code")
++	if msg != "" {
++		return Output{Text: msg}, nil
++	}
++	if strings.TrimSpace(code) == "" {
++		return Output{Text: "error: exec expects JavaScript source text (non-empty)"}, nil
++	}
++	parent := ctx
++	if parent == nil {
++		parent = context.Background()
++	}
++	s := t.session()
++	before := map[int]bool{}
++	for _, g := range s.Groups() {
++		before[g] = true
++	}
++	terminate := func() {
++		var mine []int
++		for _, g := range s.Groups() {
++			if !before[g] {
++				mine = append(mine, g)
++			}
++		}
++		sys.Terminate(mine)
++	}
++	run, cancel := context.WithCancel(parent)
++	defer cancel()
++	stopTerminate := context.AfterFunc(parent, terminate)
++	defer stopTerminate()
++
++	start := time.Now()
++	vm := goja.New()
++	// The script stops when the round ends or the caller interrupts, even in a busy loop.
++	stopInterrupt := context.AfterFunc(run, func() { vm.Interrupt(context.Canceled) })
++	defer stopInterrupt()
++	stopSessionInterrupt := context.AfterFunc(s.Context(), func() { vm.Interrupt(context.Canceled) })
++	defer stopSessionInterrupt()
++
++	var nested []string
++	for _, n := range ExecNested {
++		if slices.Contains(t.Enabled, n) {
++			nested = append(nested, n)
++		}
++	}
++	var (
++		texts   []string
++		calls   int
++		pending int
++		wg      sync.WaitGroup
++		writes  sync.RWMutex
++		stopErr error
++	)
++	done := make(chan execCompletion)
++	slots := make(chan struct{}, execConcurrency)
++	call := func(name string, arg goja.Value) *goja.Promise {
++		p, resolve, _ := vm.NewPromise()
++		a, msg := execNestedArgs(name, arg)
++		if msg != "" {
++			resolve(msg)
++			return p
++		}
++		if run.Err() != nil {
++			// Stopping: nothing starts; the promise never settles.
++			return p
++		}
++		calls++
++		pending++
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			c := execCompletion{resolve: resolve}
++			select {
++			case slots <- struct{}{}:
++				defer func() { <-slots }()
++				if name == WriteFileTool {
++					writes.Lock()
++					defer writes.Unlock()
++				} else {
++					writes.RLock()
++					defer writes.RUnlock()
++				}
++				if c.err = run.Err(); c.err == nil {
++					c.out, c.err = t.RunContext(run, name, a)
++				}
++			case <-run.Done():
++				c.err = run.Err()
++			}
++			done <- c
++		}()
++		return p
++	}
++
++	toolsObject := vm.NewObject()
++	var all []any
++	for _, name := range nested {
++		toolsObject.Set(name, func(fc goja.FunctionCall) goja.Value { return vm.ToValue(call(name, fc.Argument(0))) })
++		d, _ := Definition(name)
++		all = append(all, map[string]any{"name": name, "description": d["description"]})
++	}
++	vm.Set("tools", toolsObject)
++	vm.Set("ALL_TOOLS", all)
++	vm.Set("text", func(v goja.Value) { texts = append(texts, execString(vm, v)) })
++	exitSentinel := vm.NewObject()
++	vm.Set("exit", func() { panic(exitSentinel) })
++	vm.Set("__kogen_exit__", exitSentinel)
++
++	// The prefix keeps the script's line numbers.
++	wrapped := "(async () => { try { " + code + "\n} catch (e) { if (e === __kogen_exit__) return; throw e; } })()"
++	var failure string
++	v, err := vm.RunString(wrapped)
++	var promise *goja.Promise
++	if err != nil {
++		failure = execError(err)
++	} else if p, ok := v.Export().(*goja.Promise); ok {
++		promise = p
++	}
++	for pending > 0 {
++		c := <-done
++		pending--
++		if c.err != nil {
++			if stopErr == nil {
++				stopErr = c.err
++				cancel()
++				terminate()
++			}
++			continue
++		}
++		if stopErr != nil || run.Err() != nil || (promise != nil && promise.State() != goja.PromiseStatePending) {
++			continue // results of a stopped or finished script are discarded
++		}
++		if err := c.resolve(t.Cut(c.out).Text); err != nil && failure == "" {
++			failure = execError(err)
++		}
++	}
++	wg.Wait()
++	if stopErr != nil {
++		return Output{}, stopErr
++	}
++	if err := parent.Err(); err != nil {
++		return Output{}, err
++	}
++	if err := s.Err(); err != nil {
++		return Output{}, err
++	}
++	if failure == "" && promise != nil {
++		switch promise.State() {
++		case goja.PromiseStateRejected:
++			failure = execString(vm, promise.Result())
++		case goja.PromiseStatePending:
++			failure = "Error: the script awaited a promise that never settles"
++		}
++	}
++	head := "Script completed"
++	if failure != "" {
++		head = "Script failed"
++		texts = append(texts, failure)
++	}
++	text := fmt.Sprintf("%s\nWall time %.1f seconds\nOutput:\n%s", head, time.Since(start).Seconds(), strings.Join(texts, "\n"))
++	bound, cutHead := t.budgets()
++	text = cutText(text, min(max(calls, 1), maxJoinedResults)*bound, cutHead)
++	return Output{Text: text, Segments: max(calls, 1), Ops: calls}, nil
++}
++
++// execString is a value as text(): strings unchanged, errors as "Name: message", others as
++// JSON when possible.
++func execString(vm *goja.Runtime, v goja.Value) string {
++	if v == nil || goja.IsUndefined(v) {
++		return "undefined"
++	}
++	if goja.IsNull(v) {
++		return "null"
++	}
++	if s, ok := v.Export().(string); ok {
++		return s
++	}
++	if o, ok := v.(*goja.Object); ok {
++		if stack := o.Get("stack"); stack != nil && !goja.IsUndefined(stack) {
++			return stack.String()
++		}
++	}
++	if data, err := json.Marshal(v.Export()); err == nil {
++		return string(data)
++	}
++	return v.String()
++}
++
++// execError is the text of an error the runtime returned.
++func execError(err error) string {
++	switch e := err.(type) {
++	case *goja.Exception:
++		return e.String()
++	case *goja.InterruptedError:
++		return "Error: script interrupted"
++	}
++	return "Error: " + err.Error()
++}
+diff -ruN base/tools/exec_test.go exec/tools/exec_test.go
+--- base/tools/exec_test.go	1970-01-01 03:00:00
++++ exec/tools/exec_test.go	2026-10-30 13:59:26
+@@ -0,0 +1,239 @@
++package tools
++
++import (
++	"context"
++	"errors"
++	"os"
++	"path/filepath"
++	"regexp"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"kogen-loop/sys"
++)
++
++var execHead = regexp.MustCompile(`^Script (completed|failed)\nWall time \d+\.\d seconds\nOutput:\n`)
++
++// execOutput runs a script and returns its output after the header.
++func execOutput(t *testing.T, tl *Tools, ctx context.Context, code string) (string, string, Output) {
++	t.Helper()
++	out, err := tl.RunContext(ctx, ExecTool, map[string]any{"code": code})
++	if err != nil {
++		t.Fatal(err)
++	}
++	m := execHead.FindStringSubmatch(out.Text)
++	if m == nil {
++		t.Fatalf("no header: %q", out.Text)
++	}
++	return m[1], out.Text[len(m[0]):], out
++}
++
++func TestExecKeepsOrderAndRunsNestedCallsConcurrently(t *testing.T) {
++	_, root := newRepo(t)
++	write(t, root, "a.txt", "alpha\n")
++	tl := newTools(root, ReadFileTool, ShellTool, ExecTool)
++	start := time.Now()
++	status, text, out := execOutput(t, tl, context.Background(), `
++const [slow, fast, file] = await Promise.all([
++  tools.shell({command: "sleep 0.6; echo slow"}),
++  tools.shell("sleep 0.6; echo fast"),
++  tools.read_file({path: "a.txt"}),
++]);
++text(slow); text(fast); text(file);`)
++	if d := time.Since(start); d > 1100*time.Millisecond {
++		t.Errorf("nested calls ran one after another: %v", d)
++	}
++	if status != "completed" || text != "exit status: 0\nslow\n\nexit status: 0\nfast\n\n1\talpha" {
++		t.Errorf("%s %q", status, text)
++	}
++	if out.Ops != 3 {
++		t.Errorf("ops %d", out.Ops)
++	}
++}
++
++func TestExecFailuresAreResults(t *testing.T) {
++	_, root := newRepo(t)
++	write(t, root, "a.txt", "alpha\n")
++	tl := newTools(root, ReadFileTool, ShellTool, WriteFileTool, ExecTool)
++	for _, c := range []struct{ code, status, want string }{
++		{`text(await tools.read_file("missing.txt"))`, "completed", "error: missing.txt does not exist"},
++		{`const r = await Promise.allSettled([tools.shell("exit 3"), tools.read_file({})]); text(r)`, "completed",
++			`[{"status":"fulfilled","value":"exit status: 3\n"},{"status":"fulfilled","value":"error: argument path must be a string"}]`},
++		{`text("before"); throw new Error("boom")`, "failed", "before\nError: boom"},
++		{`text("x"); exit(); text("never")`, "completed", "x"},
++		{`await tools.exec_command({cmd: "ls"})`, "failed", "TypeError"},
++		{`text(await tools.write_file("b.txt"))`, "completed", "error: write_file takes an object argument"},
++		{`text(1 +)`, "failed", "SyntaxError"},
++		{`await new Promise(() => {})`, "failed", "never settles"},
++		{`text({a: 1}); text(null); text(ALL_TOOLS.map(t => t.name).join(","))`, "completed", "{\"a\":1}\nnull\nshell,read_file,write_file"},
++		{`return 5`, "completed", ""},
++	} {
++		status, text, _ := execOutput(t, tl, context.Background(), c.code)
++		if status != c.status || !strings.Contains(text, c.want) {
++			t.Errorf("%s: %s %q, want %s containing %q", c.code, status, text, c.status, c.want)
++		}
++	}
++	for _, args := range []map[string]any{{}, {"code": "  "}, {"code": 3}} {
++		out, err := tl.Run(ExecTool, args)
++		if err != nil || !strings.HasPrefix(out.Text, "error: ") {
++			t.Errorf("%v: %q %v", args, out.Text, err)
++		}
++	}
++	if out, _ := newTools(root, ShellTool).Run(ExecTool, map[string]any{"code": "text(1)"}); out.Text != "error: unknown tool exec" {
++		t.Errorf("not enabled: %q", out.Text)
++	}
++}
++
++func TestExecWritesRunAlone(t *testing.T) {
++	_, root := newRepo(t)
++	tl := newTools(root, ShellTool, WriteFileTool, ReadFileTool, ExecTool)
++	status, text, _ := execOutput(t, tl, context.Background(), `
++const r = await Promise.all([
++  tools.write_file({path: "d/x.txt", content: "one\n"}),
++  tools.write_file({path: "d/y.txt", content: "two\n"}),
++]);
++text(r.join(","));
++text(await tools.shell("cat d/x.txt d/y.txt"));`)
++	if status != "completed" || text != "ok,ok\nexit status: 0\none\ntwo\n" {
++		t.Errorf("%s %q", status, text)
++	}
++}
++
++func TestExecCutsNestedResultsAndItsOutput(t *testing.T) {
++	_, root := newRepo(t)
++	write(t, root, "big.txt", strings.Repeat("x", 20000))
++	tl := newTools(root, ShellTool, ExecTool)
++	_, text, out := execOutput(t, tl, context.Background(), `const r = await tools.shell("cat big.txt"); text(String(r.length)); text(r)`)
++	if n, _, _ := strings.Cut(text, "\n"); len(n) != 5 || n > "16384" || n < "16000" || strings.Count(text, "bytes omitted") != 1 {
++		t.Errorf("nested result not cut as a call: %.80q", text)
++	}
++	if out.Cut().Text != out.Text || tl.Cut(out).Text != out.Text {
++		t.Error("the result was cut again")
++	}
++	_, _, out = execOutput(t, tl, context.Background(), `for (let i = 0; i < 6; i++) text(await tools.shell("cat big.txt"))`)
++	if len(out.Text) > maxJoinedResults*maxResult || out.Ops != 6 || !strings.Contains(out.Text, "bytes omitted") {
++		t.Errorf("joined bound: %d bytes, ops %d", len(out.Text), out.Ops)
++	}
++	_, _, out = execOutput(t, tl, context.Background(), `text("y".repeat(40000))`)
++	if len(out.Text) > maxResult || out.Ops != 0 {
++		t.Errorf("no-call bound: %d bytes", len(out.Text))
++	}
++}
++
++func TestExecCancellationStopsItsProcessGroups(t *testing.T) {
++	_, root := newRepo(t)
++	tl := newTools(root, ShellTool, ExecTool)
++	ctx, cancel := context.WithCancel(context.Background())
++	done := make(chan error, 1)
++	go func() {
++		_, err := tl.RunContext(ctx, ExecTool, map[string]any{"code": `
++const all = [];
++for (let i = 0; i < 10; i++) all.push(tools.shell("echo $$ >> started; sleep 30; touch finished"));
++await Promise.all(all);
++text("not reached");`})
++		done <- err
++	}()
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		data, _ := os.ReadFile(filepath.Join(root, "started"))
++		if strings.Count(string(data), "\n") == execConcurrency {
++			break
++		}
++		if time.Now().After(deadline) {
++			t.Fatalf("started: %q", data)
++		}
++		time.Sleep(10 * time.Millisecond)
++	}
++	cancel()
++	select {
++	case err := <-done:
++		if !errors.Is(err, context.Canceled) {
++			t.Fatalf("err %v", err)
++		}
++	case <-time.After(10 * time.Second):
++		t.Fatal("exec did not stop")
++	}
++	groups := tl.Session.Groups()
++	if len(groups) != execConcurrency {
++		t.Errorf("%d groups started, want %d (queued calls must not start)", len(groups), execConcurrency)
++	}
++	for _, g := range groups {
++		if err := syscall.Kill(-g, 0); !errors.Is(err, syscall.ESRCH) {
++			t.Errorf("group %d still alive: %v", g, err)
++		}
++	}
++	if _, err := os.Stat(filepath.Join(root, "finished")); err == nil {
++		t.Error("a cancelled command finished")
++	}
++}
++
++func TestExecCancellationStopsABusyScript(t *testing.T) {
++	_, root := newRepo(t)
++	tl := newTools(root, ShellTool, ExecTool)
++	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
++	defer cancel()
++	start := time.Now()
++	_, err := tl.RunContext(ctx, ExecTool, map[string]any{"code": `while (true) {}`})
++	if !errors.Is(err, context.DeadlineExceeded) || time.Since(start) > 5*time.Second {
++		t.Fatalf("err %v after %v", err, time.Since(start))
++	}
++}
++
++func TestExecStopsOnAnInterrupt(t *testing.T) {
++	_, root := newRepo(t)
++	s := sys.NewWith(hermeticEnv(), root)
++	tl := &Tools{Root: root, Session: s, Enabled: []string{ShellTool, ExecTool}}
++	done := make(chan error, 1)
++	go func() {
++		_, err := tl.Run(ExecTool, map[string]any{"code": `await Promise.all([tools.shell("touch started; sleep 30"), tools.shell("sleep 30")])`})
++		done <- err
++	}()
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		if _, err := os.Stat(filepath.Join(root, "started")); err == nil && len(s.Groups()) == 2 {
++			break
++		}
++		if time.Now().After(deadline) {
++			t.Fatal("not started")
++		}
++		time.Sleep(10 * time.Millisecond)
++	}
++	s.Interrupt("SIGINT")
++	select {
++	case err := <-done:
++		var in *sys.Interrupted
++		if !errors.As(err, &in) {
++			t.Fatalf("err %v", err)
++		}
++	case <-time.After(10 * time.Second):
++		t.Fatal("exec did not stop")
++	}
++	for _, g := range s.Groups() {
++		// Teardown is asynchronous after an interrupt; a group of zombies answers EPERM on macOS.
++		for i := 0; i < 250 && !errors.Is(syscall.Kill(-g, 0), syscall.ESRCH); i++ {
++			time.Sleep(20 * time.Millisecond)
++		}
++		if err := syscall.Kill(-g, 0); !errors.Is(err, syscall.ESRCH) {
++			t.Errorf("group %d still alive: %v", g, err)
++		}
++	}
++}
++
++func TestExecDefinitionListsTheNestedTools(t *testing.T) {
++	d := ExecDefinition([]string{ReadFileTool, ShellTool})
++	desc := d["description"].(string)
++	for _, want := range []string{
++		"shell(args: { command: string }): Promise<string>;",
++		"read_file(args: { path: string; end_line?: number; start_line?: number }): Promise<string>;",
++		"Promise.allSettled",
++	} {
++		if !strings.Contains(desc, want) {
++			t.Errorf("missing %q", want)
++		}
++	}
++	if strings.Contains(desc, "write_file(") || strings.Contains(strings.ToLower(desc), "codex") {
++		t.Error("unexpected text")
++	}
++}
+diff -ruN base/tools/tools.go exec/tools/tools.go
+--- base/tools/tools.go	2026-10-29 13:10:37
++++ exec/tools/tools.go	2026-10-30 13:58:23
+@@ -28,6 +28,12 @@
+ 	Rule string
+ 	// ReadOK marks a successful built-in file or image snapshot.
+ 	ReadOK bool `json:"-"`
++	// Segments is the number of results this text joins, each already cut as a call of its
++	// own and the whole bounded by the tool that joined them (exec). Cut leaves such a text
++	// unchanged. 0: a single result.
++	Segments int `json:"-"`
++	// Ops is the number of nested calls an exec script made; 0 for any other call.
++	Ops int `json:"-"`
+ }
+ 
+ // Typed reports whether the output is typed parts.
+@@ -43,7 +49,7 @@
+ 
+ // Cut limits text output to 16 KiB (see Cut); typed parts pass unchanged.
+ func (o Output) Cut() Output {
+-	if o.Parts != nil {
++	if o.Parts != nil || o.Segments > 0 {
+ 		return o
+ 	}
+ 	return Output{Text: Cut(o.Text), ReadOK: o.ReadOK}
+@@ -52,7 +58,7 @@
+ // Cut applies this instance's configured budgets (ResultBound, ResultHead) to a text
+ // output; typed parts pass unchanged. The receiver must be valid (see Validate).
+ func (t *Tools) Cut(out Output) Output {
+-	if out.Parts != nil {
++	if out.Parts != nil || out.Segments > 0 {
+ 		return out
+ 	}
+ 	bound, head := t.budgets()
+@@ -179,6 +185,8 @@
+ 		return Output{Text: text}, err
+ 	case DocumentationTool:
+ 		return Output{Text: t.Documentation.Lookup(args)}, nil
++	case ExecTool:
++		return t.exec(ctx, args)
+ 	}
+ 	return Output{Text: "error: unknown tool " + name}, nil
+ }

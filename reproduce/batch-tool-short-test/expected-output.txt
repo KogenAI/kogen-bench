@@ -1,0 +1,17 @@
+runs: 16; passed: 14; tasks: 4
+
+| Tool | Pass | USD total | USD per pass | Requests | Operations per request | Reasoning tokens per request | Median wall s |
+| loop default | 4/4 | $0.7253 | $0.1813 | 91 | 1.88 | 154.5 | 274.3 |
+| batch | 4/4 | $0.7385 | $0.1846 | 83 | 3.23 | 145.8 | 258.9 |
+| exec | 2/4 | $2.2587 | $1.1293 | 95 | 2.47 | 87.8 | 1043.3 |
+| Codex CLI | 4/4 | $0.9552 | $0.2388 | 114 | 1.37 | 145.7 | 276.3 |
+
+Activation (a run used the new tool when one call ran 2 or more operations):
+batch: 4/4 runs; 44 calls, 44 with 2+ operations
+exec: 4/4 runs; 91 calls, 38 with 2+ operations
+
+Paired by task: runs where the first tool is lower / higher than the second; exact two-sided sign test, ties excluded.
+| Comparison | Operations per request | Requests | Reasoning per request | USD | Wall | Pass |
+| batch vs loop default | 0/4, p=0.125 | 3/1, p=0.625 | 3/1, p=0.625 | 1/3, p=0.625 | 3/1, p=0.625 | 0/0, p=1.000 |
+| batch vs Codex CLI | 0/4, p=0.125 | 3/1, p=0.625 | 2/2, p=1.000 | 4/0, p=0.125 | 3/1, p=0.625 | 0/0, p=1.000 |
+| exec vs loop default | 1/3, p=0.625 | 2/2, p=1.000 | 3/1, p=0.625 | 0/4, p=0.125 | 0/4, p=0.125 | 2/0, p=0.500 |
