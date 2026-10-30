@@ -1,0 +1,47 @@
+runs: 48; passed: 46; tasks: 12
+
+tool | pass | USD total | USD per pass | requests | mean requests | operations per request | reasoning tokens per request | median wall s | max upstream gap s
+loop default | 12/12 | $1.3211 | $0.1101 | 191 | 15.92 | 1.74 | 238.5 | 163.7 | 9.2
+sentence only | 10/12 | $1.3030 | $0.1303 | 197 | 16.42 | 2.04 | 221.9 | 177.2 | 23.7
+batch tool | 12/12 | $1.3019 | $0.1085 | 184 | 15.33 | 2.56 | 193.9 | 166.7 | 12.4
+Codex CLI | 12/12 | $1.7037 | $0.1420 | 247 | 20.58 | 1.55 | 168.6 | 176.7 | 8.7
+
+batch tool used (a call ran 2 or more operations): 12/12 runs; 89 calls, 89 with 2+ operations
+
+Paired by task: first lower / first higher, ties, exact two-sided sign test (ties dropped)
+batch tool vs sentence only (12 tasks)
+  cost per pass: 7/5, 0 ties, p=0.7744
+  requests: 6/3, 3 ties, p=0.5078
+  operations per request: 1/11, 0 ties, p=0.0063
+  wall s: 7/5, 0 ties, p=0.7744
+  pass: 0/2, 10 ties, p=0.5000
+sentence only vs loop default (12 tasks)
+  cost per pass: 5/7, 0 ties, p=0.7744
+  requests: 6/4, 2 ties, p=0.7539
+  operations per request: 2/10, 0 ties, p=0.0386
+  wall s: 4/8, 0 ties, p=0.3877
+  pass: 2/0, 10 ties, p=0.5000
+batch tool vs loop default (12 tasks)
+  cost per pass: 4/8, 0 ties, p=0.3877
+  requests: 6/5, 1 ties, p=1.0000
+  operations per request: 0/12, 0 ties, p=0.0005
+  wall s: 5/7, 0 ties, p=0.7744
+  pass: 0/0, 12 ties, p=1.0000
+loop default vs Codex CLI (12 tasks)
+  cost per pass: 11/1, 0 ties, p=0.0063
+  requests: 9/3, 0 ties, p=0.1460
+  operations per request: 5/7, 0 ties, p=0.7744
+  wall s: 6/6, 0 ties, p=1.0000
+  pass: 0/0, 12 ties, p=1.0000
+sentence only vs Codex CLI (12 tasks)
+  cost per pass: 9/3, 0 ties, p=0.1460
+  requests: 6/3, 3 ties, p=0.5078
+  operations per request: 3/8, 1 ties, p=0.2266
+  wall s: 3/9, 0 ties, p=0.1460
+  pass: 2/0, 10 ties, p=0.5000
+batch tool vs Codex CLI (12 tasks)
+  cost per pass: 11/1, 0 ties, p=0.0063
+  requests: 9/2, 1 ties, p=0.0654
+  operations per request: 0/12, 0 ties, p=0.0005
+  wall s: 4/8, 0 ties, p=0.3877
+  pass: 0/0, 12 ties, p=1.0000

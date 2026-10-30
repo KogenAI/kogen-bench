@@ -1,0 +1,32 @@
+--- a/confirmation_ext.py
++++ b/confirmation_ext.py
+@@ -104,0 +105,2 @@
++   # Stall measurement only (batchconf): time since the last upstream byte; nothing is cut.
++   t0=time.monotonic();live={'n':len(g.rows)+1,'start':t0,'last':t0,'bytes':0,'lines':0,'first':None,'max_gap':0.};g.live=live
+@@ -108 +110 @@
+-    row.update(http_status=up.status,request_id=up.headers.get('x-request-id'),client_stream=client_stream)
++    row.update(http_status=up.status,request_id=up.headers.get('x-request-id'),client_stream=client_stream,upstream_headers_s=round(time.monotonic()-t0,3))
+@@ -111,0 +114,2 @@
++     tn=time.monotonic();live['max_gap']=max(live['max_gap'],tn-live['last']);live['last']=tn;live['bytes']+=len(line);live['lines']+=1
++     if live['first'] is None:live['first']=tn-t0
+@@ -122,0 +127 @@
++    row.update(upstream_first_byte_s=None if live['first'] is None else round(live['first'],3),upstream_max_gap_s=round(live['max_gap'],3),upstream_bytes=live['bytes'],upstream_lines=live['lines'],upstream_stream_s=round(time.monotonic()-t0,3))
+@@ -149,0 +155 @@
++    g.live=None
+@@ -231 +237 @@
+-  write(pathlib.Path(out)/'namespace.json',{'command':cmd,'uid':os.getuid(),'gid':os.getgid(),'credential_source':'external tool-owned login; no credential mount','shell_network':'nested bubblewrap --unshare-net; code-mode host uses the same wrapper','shared_endpoint':UPSTREAM})
++  write(pathlib.Path(out)/'namespace.json',{'command':cmd,'uid':os.getuid(),'gid':os.getgid(),'credential_source':'external tool-owned login; no credential mount','shell_network':'nested bubblewrap --unshare-net; code-mode host uses the same wrapper','shared_endpoint':'https://api.openai.com/v1/responses'})
+@@ -249,0 +256,10 @@
++  g.live=None;watch_stop=threading.Event()
++  def stall_watch():
++   # Measurement only: every 30 s, log an open upstream request idle >= 60 s since its last byte.
++   while not watch_stop.wait(30):
++    lv=g.live
++    if lv is None:continue
++    tn=time.monotonic()
++    if tn-lv['last']>=60:
++     with (pathlib.Path(out)/'stall-watch.jsonl').open('a') as f:f.write(json.dumps({'utc':stamp(),'request_index':lv['n'],'since_last_upstream_byte_s':round(tn-lv['last'],1),'since_forward_s':round(tn-lv['start'],1),'upstream_bytes':lv['bytes'],'upstream_lines':lv['lines'],'headers_or_first_byte_seen':lv['first'] is not None})+'\n')
++  wt=threading.Thread(target=stall_watch,daemon=True);wt.start()
+@@ -253 +269 @@
+-   g.shutdown();th.join();g.server_close()
++   watch_stop.set();g.shutdown();th.join();g.server_close();wt.join()

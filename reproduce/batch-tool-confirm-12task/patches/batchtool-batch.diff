@@ -1,0 +1,608 @@
+diff -ruN base/conformance/library_test.go batch/conformance/library_test.go
+--- base/conformance/library_test.go	2026-10-29 13:10:37
++++ batch/conformance/library_test.go	2026-10-30 13:55:33
+@@ -690,10 +690,10 @@
+ 	for _, d := range s.Definitions() {
+ 		names = append(names, d.(map[string]any)["name"].(string))
+ 	}
+-	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "finish"}) {
++	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "batch", "finish"}) {
+ 		t.Errorf("definitions %v", names)
+ 	}
+-	finish := s.Definitions()[5].(map[string]any)
++	finish := s.Definitions()[6].(map[string]any)
+ 	params := finish["parameters"].(map[string]any)
+ 	if !reflect.DeepEqual(params["required"], []any{"summary"}) || params["additionalProperties"] != false {
+ 		t.Errorf("finish %v", finish)
+diff -ruN base/loop/batch_session_test.go batch/loop/batch_session_test.go
+--- base/loop/batch_session_test.go	1970-01-01 03:00:00
++++ batch/loop/batch_session_test.go	2026-10-30 13:55:33
+@@ -0,0 +1,93 @@
++package loop
++
++import (
++	"context"
++	"encoding/json"
++	"fmt"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"strings"
++	"sync"
++	"testing"
++
++	"kogen-loop/api"
++	"kogen-loop/provider"
++	"kogen-loop/sys"
++	"kogen-loop/tools"
++)
++
++func TestSessionOffersBatchAndReportsItsOperations(t *testing.T) {
++	root := t.TempDir()
++	if err := os.WriteFile(filepath.Join(root, "a.txt"), []byte("alpha\n"), 0o644); err != nil {
++		t.Fatal(err)
++	}
++	args, _ := json.Marshal(map[string]any{"operations": []any{
++		map[string]any{"tool": "shell", "command": "sleep 0.2; echo one"},
++		map[string]any{"tool": "read_file", "path": "a.txt"},
++	}})
++	answers := []string{
++		`{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c1","type":"function","function":{"name":"batch","arguments":` + strconvQuote(string(args)) + `}}]},"finish_reason":"tool_calls"}]}`,
++		`{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c2","type":"function","function":{"name":"finish","arguments":"{\"summary\":\"done\"}"}}]},"finish_reason":"tool_calls"}]}`,
++	}
++	var mu sync.Mutex
++	var bodies []string
++	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		b, _ := io.ReadAll(r.Body)
++		mu.Lock()
++		n := len(bodies)
++		bodies = append(bodies, string(b))
++		mu.Unlock()
++		w.Header().Set("Content-Type", "application/json")
++		fmt.Fprint(w, answers[min(n, len(answers)-1)])
++	}))
++	defer srv.Close()
++	var events []api.Event
++	session := sys.NewWith([]string{"HOME=" + t.TempDir(), "PATH=" + os.Getenv("PATH")}, root)
++	s, err := NewSession(SessionConfig{Root: root, Role: provider.Role{Provider: "openai-compatible", Model: "local", BaseURL: srv.URL},
++		Session: session, Enabled: []string{tools.ReadFileTool, tools.ShellTool}, Emit: func(e api.Event) { events = append(events, e) }})
++	if err != nil {
++		t.Fatal(err)
++	}
++	var names []string
++	for _, d := range s.Definitions() {
++		names = append(names, d.(map[string]any)["name"].(string))
++	}
++	if strings.Join(names, ",") != "read_file,shell,batch,finish" {
++		t.Fatalf("definitions %v", names)
++	}
++	res, err := s.Round(context.Background(), "go")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if res.Ending != EndTerminal || res.Requests != 2 {
++		t.Fatalf("%+v", res)
++	}
++	if !strings.Contains(bodies[1], `[1] shell sleep 0.2; echo one\nexit status: 0\none\n\n\n[2] read_file a.txt\n1\talpha`) {
++		t.Errorf("second request lacks the ordered batch result: %s", bodies[1])
++	}
++	if !strings.Contains(bodies[0], "Batch independent reads") {
++		t.Error("instructions lack the batching rule")
++	}
++	var ops []any
++	for _, e := range events {
++		if e.Type == api.EventToolResult {
++			ops = append(ops, e.Fields["operations"])
++		}
++	}
++	if len(ops) != 1 || ops[0] != 2 {
++		t.Errorf("operations %v", ops)
++	}
++	// No read, search or shell tool: no batch.
++	s2, err := NewSession(SessionConfig{Root: root, Role: provider.Role{Provider: "openai-compatible", Model: "local", BaseURL: srv.URL}, Enabled: []string{tools.WriteFileTool}})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if n := len(s2.Definitions()); n != 2 {
++		t.Errorf("%d definitions", n)
++	}
++}
++
++func strconvQuote(s string) string { b, _ := json.Marshal(s); return string(b) }
+diff -ruN base/loop/session.go batch/loop/session.go
+--- base/loop/session.go	2026-10-29 13:10:37
++++ batch/loop/session.go	2026-10-30 13:54:32
+@@ -27,7 +27,8 @@
+ const DefaultInstructions = "You are a coding agent. Work in the working directory with the tools you are given. " +
+ 	"Read what you need, make the changes the task asks for and check your work with the available tools. " +
+ 	"When you are done, call the finish tool with a summary of what you did. " +
+-	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do."
++	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do. " +
++	"Batch independent reads, searches and checks in one batch call and inspect every result; keep dependent steps and edits sequential."
+ 
+ // FinishTool is the generic terminal tool name.
+ const FinishTool = "finish"
+@@ -202,6 +203,12 @@
+ 		seen[name] = true
+ 		defs = append(defs, d)
+ 	}
++	// Every session offers batch over its enabled read, search and shell tools.
++	if !seen[tools.BatchTool] && slices.ContainsFunc(tools.BatchOperations, func(n string) bool { return seen[n] }) {
++		seen[tools.BatchTool] = true
++		defs = append(defs, tools.BatchDefinition())
++		enabled = append(slices.Clone(enabled), tools.BatchTool)
++	}
+ 	for _, name := range terminal {
+ 		if name == "" || seen[name] {
+ 			return nil, invalid("terminal tool names must be non-empty and unique, and differ from the enabled tools")
+@@ -336,6 +343,9 @@
+ 			}
+ 			if rule := rules[fmt.Sprint(call.CallID())]; rule != "" {
+ 				fields["rule"] = rule
++			}
++			if out.Ops > 0 {
++				fields["operations"] = out.Ops
+ 			}
+ 			s.emit(api.EventToolResult, fields)
+ 			return nil
+diff -ruN base/tools/batch.go batch/tools/batch.go
+--- base/tools/batch.go	1970-01-01 03:00:00
++++ batch/tools/batch.go	2026-10-30 13:57:12
+@@ -0,0 +1,193 @@
++package tools
++
++import (
++	"context"
++	"fmt"
++	"slices"
++	"strings"
++	"sync"
++
++	"kogen-loop/sys"
++)
++
++// BatchTool runs several independent reads, searches and commands in one call. A standalone
++// session offers it whenever one of BatchOperations is enabled.
++const BatchTool = "batch"
++
++// BatchOperations are the tools a batch operation may name, when they are enabled.
++var BatchOperations = []string{ReadFileTool, ListFilesTool, SearchTextTool, ShellTool}
++
++const (
++	// MaxBatchOperations is the most operations one batch call takes.
++	MaxBatchOperations = 16
++	// batchConcurrency is the most operations of a batch that run at once.
++	batchConcurrency = 8
++	// maxJoinedResults bounds a joined result to that many results' bounds.
++	maxJoinedResults = 4
++)
++
++// BatchDefinition is the model-facing definition of batch.
++func BatchDefinition() map[string]any {
++	ops := make([]any, len(BatchOperations))
++	for i, n := range BatchOperations {
++		ops[i] = n
++	}
++	operation := map[string]any{
++		"type": "object",
++		"properties": map[string]any{
++			"tool":       map[string]any{"type": "string", "enum": ops},
++			"path":       str(),
++			"start_line": integer(),
++			"end_line":   integer(),
++			"pattern":    str(),
++			"command":    str(),
++		},
++		"required":             []any{"tool"},
++		"additionalProperties": false,
++	}
++	return fun(BatchTool,
++		fmt.Sprintf("Run up to %d independent operations in one call: read_file (path, start_line, end_line), list_files (path), search_text (pattern, path) and shell (command), with the same arguments and results as those tools. The operations run at the same time; their results come back in the order given, each labelled with its number and operation. Batch independent reads, searches and checks here instead of calling the tools one at a time. An operation that needs an earlier result, and every edit, belongs in a later call.", MaxBatchOperations),
++		map[string]any{"operations": map[string]any{
++			"type": "array", "items": operation, "minItems": 1, "maxItems": MaxBatchOperations,
++		}}, "operations")
++}
++
++// batchOp is one operation: the tool and its arguments.
++type batchOp struct {
++	tool string
++	args map[string]any
++}
++
++// batchOps parses the operations argument, or returns the error text the model gets.
++func batchOps(args map[string]any) ([]batchOp, string) {
++	list, ok := args["operations"].([]any)
++	if !ok {
++		return nil, "error: argument operations must be a list of operations"
++	}
++	if len(list) == 0 || len(list) > MaxBatchOperations {
++		return nil, fmt.Sprintf("error: batch takes 1 to %d operations, got %d", MaxBatchOperations, len(list))
++	}
++	ops := make([]batchOp, len(list))
++	for i, v := range list {
++		m, ok := v.(map[string]any)
++		if !ok {
++			return nil, fmt.Sprintf("error: operation %d must be an object", i+1)
++		}
++		name, _ := m["tool"].(string)
++		a := map[string]any{}
++		for k, x := range m {
++			if k != "tool" {
++				a[k] = x
++			}
++		}
++		ops[i] = batchOp{tool: name, args: a}
++	}
++	return ops, ""
++}
++
++// label is the heading of an operation's result: number, tool and its main argument.
++func (op batchOp) label(i int) string {
++	l := fmt.Sprintf("[%d] %s", i+1, op.tool)
++	for _, k := range []string{"command", "pattern", "path"} {
++		if v, ok := op.args[k].(string); ok {
++			v = strings.Join(strings.Fields(v), " ")
++			if len(v) > 200 {
++				v = validPrefix(v[:200]) + "..."
++			}
++			return l + " " + v
++		}
++	}
++	return l
++}
++
++// batch runs the operations concurrently (at most batchConcurrency at once) and returns
++// their results in the order given, each cut as a call of its own; the joined text is cut
++// to maxJoinedResults results' bounds. An operation's refusal
++// or failure is its result. A stopping error of one operation (an interrupt, timeout
++// observation failure) or the end of ctx starts no further operation, terminates the
++// process groups the batch started, waits for the running ones and returns the error.
++func (t *Tools) batch(ctx context.Context, args map[string]any) (Output, error) {
++	ops, msg := batchOps(args)
++	if msg != "" {
++		return Output{Text: msg}, nil
++	}
++	parent := ctx
++	if parent == nil {
++		parent = context.Background()
++	}
++	s := t.session()
++	before := map[int]bool{}
++	for _, g := range s.Groups() {
++		before[g] = true
++	}
++	terminate := func() {
++		var mine []int
++		for _, g := range s.Groups() {
++			if !before[g] {
++				mine = append(mine, g)
++			}
++		}
++		sys.Terminate(mine)
++	}
++	run, cancel := context.WithCancel(parent)
++	defer cancel()
++	stopTerminate := context.AfterFunc(parent, terminate)
++	defer stopTerminate()
++
++	outs := make([]Output, len(ops))
++	var (
++		wg      sync.WaitGroup
++		mu      sync.Mutex
++		stopErr error
++	)
++	slots := make(chan struct{}, batchConcurrency)
++	for i, op := range ops {
++		select {
++		case slots <- struct{}{}:
++		case <-run.Done():
++		}
++		if run.Err() != nil {
++			break
++		}
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			defer func() { <-slots }()
++			var out Output
++			var err error
++			if !slices.Contains(BatchOperations, op.tool) {
++				out = Output{Text: "error: a batch operation is one of " + strings.Join(BatchOperations, ", ")}
++			} else {
++				out, err = t.RunContext(run, op.tool, op.args)
++			}
++			if err != nil {
++				mu.Lock()
++				first := stopErr == nil
++				if first {
++					stopErr = err
++				}
++				mu.Unlock()
++				if first {
++					cancel()
++					terminate()
++				}
++				return
++			}
++			outs[i] = t.Cut(out)
++		}()
++	}
++	wg.Wait()
++	if stopErr != nil {
++		return Output{}, stopErr
++	}
++	if err := parent.Err(); err != nil {
++		return Output{}, err
++	}
++	parts := make([]string, len(ops))
++	for i, op := range ops {
++		parts[i] = op.label(i) + "\n" + outs[i].Text
++	}
++	bound, head := t.budgets()
++	text := cutText(strings.Join(parts, "\n\n"), min(len(ops), maxJoinedResults)*bound, head)
++	return Output{Text: text, Segments: len(ops), Ops: len(ops)}, nil
++}
+diff -ruN base/tools/batch_test.go batch/tools/batch_test.go
+--- base/tools/batch_test.go	1970-01-01 03:00:00
++++ batch/tools/batch_test.go	2026-10-30 13:59:53
+@@ -0,0 +1,213 @@
++package tools
++
++import (
++	"context"
++	"errors"
++	"os"
++	"path/filepath"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"kogen-loop/sys"
++)
++
++func batchArgs(ops ...map[string]any) map[string]any {
++	list := make([]any, len(ops))
++	for i, op := range ops {
++		list[i] = op
++	}
++	return map[string]any{"operations": list}
++}
++
++func TestBatchKeepsTheOrderGivenAndRunsConcurrently(t *testing.T) {
++	_, root := newRepo(t)
++	write(t, root, "a.txt", "alpha\n")
++	tl := newTools(root, ReadFileTool, ShellTool, BatchTool)
++	start := time.Now()
++	out, err := tl.RunContext(context.Background(), BatchTool, batchArgs(
++		map[string]any{"tool": "shell", "command": "sleep 0.6; echo slow"},
++		map[string]any{"tool": "shell", "command": "sleep 0.6; echo second"},
++		map[string]any{"tool": "read_file", "path": "a.txt"},
++	))
++	if err != nil {
++		t.Fatal(err)
++	}
++	if d := time.Since(start); d > 1100*time.Millisecond {
++		t.Errorf("operations ran one after another: %v", d)
++	}
++	want := "[1] shell sleep 0.6; echo slow\nexit status: 0\nslow\n\n\n[2] shell sleep 0.6; echo second\nexit status: 0\nsecond\n\n\n[3] read_file a.txt\n1\talpha"
++	if out.Text != want {
++		t.Errorf("got %q\nwant %q", out.Text, want)
++	}
++	if out.Ops != 3 || out.Segments != 3 {
++		t.Errorf("ops %d segments %d", out.Ops, out.Segments)
++	}
++}
++
++func TestBatchFailuresAreResults(t *testing.T) {
++	_, root := newRepo(t)
++	write(t, root, "a.txt", "alpha\n")
++	// list_files is not enabled; write_file is never a batch operation.
++	tl := newTools(root, ReadFileTool, ShellTool, WriteFileTool, BatchTool)
++	out, err := tl.Run(BatchTool, batchArgs(
++		map[string]any{"tool": "read_file", "path": "missing.txt"},
++		map[string]any{"tool": "shell", "command": "echo bad >&2; exit 3"},
++		map[string]any{"tool": "write_file", "path": "b.txt", "content": "x"},
++		map[string]any{"tool": "list_files"},
++		map[string]any{"tool": "read_file"},
++		map[string]any{"tool": "read_file", "path": "a.txt"},
++	))
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, want := range []string{
++		"[1] read_file missing.txt\nerror: missing.txt does not exist",
++		"[2] shell echo bad >&2; exit 3\nexit status: 3\nbad",
++		"[3] write_file b.txt\nerror: a batch operation is one of read_file, list_files, search_text, shell",
++		"[4] list_files\nerror: unknown tool list_files",
++		"[5] read_file\nerror: argument path must be a string",
++		"[6] read_file a.txt\n1\talpha",
++	} {
++		if !strings.Contains(out.Text, want) {
++			t.Errorf("missing %q in\n%s", want, out.Text)
++		}
++	}
++	if _, err := os.Stat(filepath.Join(root, "b.txt")); err == nil {
++		t.Error("batch wrote a file")
++	}
++	for _, args := range []map[string]any{
++		{}, {"operations": []any{}}, {"operations": "x"}, {"operations": []any{"x"}},
++		batchArgs(make([]map[string]any, MaxBatchOperations+1)...),
++	} {
++		out, err := tl.Run(BatchTool, args)
++		if err != nil || !strings.HasPrefix(out.Text, "error: ") || out.Ops != 0 {
++			t.Errorf("%v: %q %v", args, out.Text, err)
++		}
++	}
++	if out, _ := newTools(root, ShellTool).Run(BatchTool, batchArgs(map[string]any{"tool": "shell", "command": "true"})); out.Text != "error: unknown tool batch" {
++		t.Errorf("not enabled: %q", out.Text)
++	}
++}
++
++func TestBatchCutsEachOperationAsACallOfItsOwn(t *testing.T) {
++	_, root := newRepo(t)
++	big := strings.Repeat("x", 20000)
++	write(t, root, "big.txt", big)
++	tl := newTools(root, ShellTool, BatchTool)
++	out, err := tl.Run(BatchTool, batchArgs(
++		map[string]any{"tool": "shell", "command": "cat big.txt"},
++		map[string]any{"tool": "shell", "command": "cat big.txt"},
++	))
++	if err != nil {
++		t.Fatal(err)
++	}
++	if n := strings.Count(out.Text, "bytes omitted"); n != 2 {
++		t.Errorf("%d cut markers", n)
++	}
++	if out.Cut().Text != out.Text || tl.Cut(out).Text != out.Text {
++		t.Error("the joined result was cut again")
++	}
++	if len(out.Text) > 2*(maxResult+250) {
++		t.Errorf("%d bytes", len(out.Text))
++	}
++	var many []map[string]any
++	for i := 0; i < 6; i++ {
++		many = append(many, map[string]any{"tool": "shell", "command": "cat big.txt"})
++	}
++	out, err = tl.Run(BatchTool, batchArgs(many...))
++	if err != nil || len(out.Text) > maxJoinedResults*maxResult || !strings.HasPrefix(out.Text, "[1] shell cat big.txt") || !strings.Contains(out.Text, "[6] shell cat big.txt") {
++		t.Errorf("joined bound: %d bytes, %v", len(out.Text), err)
++	}
++	if c := (Output{Text: strings.Repeat("y", 3*maxResult)}).Cut(); len(c.Text) > maxResult {
++		t.Errorf("single bound %d", len(c.Text))
++	}
++}
++
++func TestBatchCancellationStopsItsProcessGroups(t *testing.T) {
++	_, root := newRepo(t)
++	tl := newTools(root, ShellTool, BatchTool)
++	ctx, cancel := context.WithCancel(context.Background())
++	var ops []map[string]any
++	for i := 0; i < batchConcurrency+2; i++ {
++		ops = append(ops, map[string]any{"tool": "shell", "command": "echo $$ >> started; sleep 30; touch finished"})
++	}
++	done := make(chan error, 1)
++	go func() { _, err := tl.RunContext(ctx, BatchTool, batchArgs(ops...)); done <- err }()
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		data, _ := os.ReadFile(filepath.Join(root, "started"))
++		if strings.Count(string(data), "\n") == batchConcurrency {
++			break
++		}
++		if time.Now().After(deadline) {
++			t.Fatalf("started: %q", data)
++		}
++		time.Sleep(10 * time.Millisecond)
++	}
++	cancel()
++	select {
++	case err := <-done:
++		if !errors.Is(err, context.Canceled) {
++			t.Fatalf("err %v", err)
++		}
++	case <-time.After(10 * time.Second):
++		t.Fatal("batch did not stop")
++	}
++	groups := tl.Session.Groups()
++	if len(groups) != batchConcurrency {
++		t.Errorf("%d groups started, want %d (queued operations must not start)", len(groups), batchConcurrency)
++	}
++	for _, g := range groups {
++		if err := syscall.Kill(-g, 0); !errors.Is(err, syscall.ESRCH) {
++			t.Errorf("group %d still alive: %v", g, err)
++		}
++	}
++	if _, err := os.Stat(filepath.Join(root, "finished")); err == nil {
++		t.Error("a cancelled command finished")
++	}
++}
++
++func TestBatchStopsOnAnInterrupt(t *testing.T) {
++	_, root := newRepo(t)
++	s := sys.NewWith(hermeticEnv(), root)
++	tl := &Tools{Root: root, Session: s, Enabled: []string{ShellTool, BatchTool}}
++	done := make(chan error, 1)
++	go func() {
++		_, err := tl.Run(BatchTool, batchArgs(
++			map[string]any{"tool": "shell", "command": "touch started; sleep 30"},
++			map[string]any{"tool": "shell", "command": "sleep 30"},
++		))
++		done <- err
++	}()
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		if _, err := os.Stat(filepath.Join(root, "started")); err == nil && len(s.Groups()) == 2 {
++			break
++		}
++		if time.Now().After(deadline) {
++			t.Fatal("not started")
++		}
++		time.Sleep(10 * time.Millisecond)
++	}
++	s.Interrupt("SIGINT")
++	select {
++	case err := <-done:
++		var in *sys.Interrupted
++		if !errors.As(err, &in) {
++			t.Fatalf("err %v", err)
++		}
++	case <-time.After(10 * time.Second):
++		t.Fatal("batch did not stop")
++	}
++	for _, g := range s.Groups() {
++		// Teardown is asynchronous after an interrupt; a group of zombies answers EPERM on macOS.
++		for i := 0; i < 250 && !errors.Is(syscall.Kill(-g, 0), syscall.ESRCH); i++ {
++			time.Sleep(20 * time.Millisecond)
++		}
++		if err := syscall.Kill(-g, 0); !errors.Is(err, syscall.ESRCH) {
++			t.Errorf("group %d still alive: %v", g, err)
++		}
++	}
++}
+diff -ruN base/tools/tools.go batch/tools/tools.go
+--- base/tools/tools.go	2026-10-29 13:10:37
++++ batch/tools/tools.go	2026-10-30 13:57:18
+@@ -28,6 +28,12 @@
+ 	Rule string
+ 	// ReadOK marks a successful built-in file or image snapshot.
+ 	ReadOK bool `json:"-"`
++	// Segments is the number of results this text joins, each already cut as a call of its
++	// own and the whole bounded by the tool that joined them (batch). Cut leaves such a text
++	// unchanged. 0: a single result.
++	Segments int `json:"-"`
++	// Ops is the number of operations a batch call ran; 0 for any other call.
++	Ops int `json:"-"`
+ }
+ 
+ // Typed reports whether the output is typed parts.
+@@ -46,6 +52,9 @@
+ 	if o.Parts != nil {
+ 		return o
+ 	}
++	if o.Segments > 0 {
++		return o
++	}
+ 	return Output{Text: Cut(o.Text), ReadOK: o.ReadOK}
+ }
+ 
+@@ -55,6 +64,9 @@
+ 	if out.Parts != nil {
+ 		return out
+ 	}
++	if out.Segments > 0 {
++		return out
++	}
+ 	bound, head := t.budgets()
+ 	return Output{Text: cutText(out.Text, bound, head), ReadOK: out.ReadOK}
+ }
+@@ -179,6 +191,8 @@
+ 		return Output{Text: text}, err
+ 	case DocumentationTool:
+ 		return Output{Text: t.Documentation.Lookup(args)}, nil
++	case BatchTool:
++		return t.batch(ctx, args)
+ 	}
+ 	return Output{Text: "error: unknown tool " + name}, nil
+ }

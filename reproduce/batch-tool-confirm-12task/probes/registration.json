@@ -1,0 +1,30 @@
+{
+ "notes": "README.md of this pack (registration written before any model run)",
+ "n_tasks": 12,
+ "power": {
+  "basis": "batchtool per-task log(batch/loop-default requests) sd 0.2105 (n=4)",
+  "effect": "-20% requests",
+  "p_task_favours": 0.855,
+  "critical_counts": "8/8, 8/9, 9/10, 10/11, 10/12 (two-sided exact sign test p<0.05)",
+  "expected_wins_reach_critical_at": 12,
+  "power_n8": 0.287,
+  "power_n12": 0.754
+ },
+ "primary": [
+  "cost per pass (cell USD; failed worse than any passed; two failures tie)",
+  "requests per run"
+ ],
+ "primary_comparisons": [
+  "batch - sentence",
+  "sentence - loop-default",
+  "batch - loop-default"
+ ],
+ "secondary": [
+  "agent wall s",
+  "ops/request",
+  "pass"
+ ],
+ "sentence_text": "Batch independent reads, searches and checks in one call where you can and inspect every result; keep dependent steps and edits sequential.",
+ "tasks_rule": "first 12 qualifying kits of a fixed candidate order that avoids the tasks of earlier rounds",
+ "stall_detector": "measurement only; no cut"
+}
