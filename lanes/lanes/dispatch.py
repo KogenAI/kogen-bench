@@ -15,7 +15,7 @@ import tempfile
 import threading
 import time
 
-from . import ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe
+from . import approval, ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe, timeoutguard
 
 CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
 MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
@@ -513,7 +513,7 @@ class Context:
 def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
             skip_preflight=False, only_host=None, max_cells=None, claude_code_only=False):
     """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost or cell cap
-    stopped the run, 4 a provider's rate limit left cells unstarted, 130 interrupted. `only_host` runs on that
+    stopped the run, 4 a provider's rate limit left cells unstarted, 5 approval debt, 130 interrupted. `only_host` runs on that
     host alone, `max_cells` starts at most that many cells, `claude_code_only` only cells of Claude Code lanes
     (`lanes-ccdry` uses all three)."""
     run_dir = os.path.abspath(run_dir)
@@ -540,6 +540,10 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             if preflight.preflight(run_dir, tasks, out=log, claude_code_checked=True):
                 raise DispatchError("pre-flight refused a supplied Intent; no cell started")
     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
+    deferred = approval.pending(run_dir) if not probing else set()
+    if not probing:
+        timeoutguard.ingest(exp, run_dir, cells)  # timeouts of earlier attempts of this run
+    retried, approval_failures = set(), []
     artifacts = {} if probing else {
         e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
     runner = Runner()
@@ -625,7 +629,12 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
         except Exception as e:  # the spend read below fails closed on what is still unreadable
             log(f"{host.name}: cannot reap phantom cells ({e})")
         with pick:
+            if approval_failures:
+                return None
+            tdef = {} if probing else timeoutguard.deferred(exp, run_dir, cells)  # a task with 2 timeouts starts no more cells
             for c in cells:
+                if c["task"] in deferred or c["task"] in tdef:
+                    continue
                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
                 if claude_code_only and not ctx.claude_code(c["cell"]):
@@ -640,7 +649,39 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                     mine.add(c["cell"])
                     begun.add(c["cell"])
                     return c
-        return None
+            # A whole-task barrier: no retry while any admitted ordinary cell is still running,
+            # or while caps/filters/another dispatch left ordinary cells unfinished. host_gate
+            # has admitted this slot again before we reach this point.
+            if mine or runner.stopped.is_set() or hard_hit.is_set() or capped or limited:
+                return None
+            if any(c["task"] not in deferred and c["task"] not in tdef and c["cell"] not in failed and not finished(c["cell"])
+                   for c in cells):
+                return None
+            if max_cells is not None and len(begun) >= max_cells:
+                return None
+            if claude_code_only:
+                return None  # a restricted dry run must never admit an incomplete lane pair
+            for task in exp["tasks"]:
+                if task not in deferred or task in retried:
+                    continue
+                if all(finished(c["cell"]) for c in cells if c["task"] == task):
+                    continue
+                # Check the same budget before spending local approval work on this task.
+                if any(refuse(c) for c in cells if c["task"] == task and not finished(c["cell"])):
+                    return None
+                retried.add(task)
+                from . import preflight
+                log(f"{task}: retrying paired approval after other cells and host admission")
+                if preflight.preflight(run_dir, tasks, out=log, claude_code_checked=True,
+                                       task_ids=[task], stage="after_cells"):
+                    approval_failures.append(task)
+                    return None
+                if task not in approval.pending(run_dir):
+                    deferred.remove(task)
+                    break
+            else:
+                return None
+        return next_cell(host)
 
     def unlock(host):
         if unlock_cmd and host in locked:
@@ -704,6 +745,11 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 if reason:
                     log(f"rate limited: {c['lane']} cell {c['cell']} ended with {reason}; no new cell of its provider starts. "
                         f"After the limit resets, delete {costguard.RATE} in the run dir and run lanes-run again")
+                if not probing:
+                    try:
+                        timeoutguard.ingest(exp, run_dir, [c])
+                    except Exception as e:  # the guard must never fail a cell
+                        log(f"{c['cell']}: cannot record a timeout ({e})")
                 claims.release(c["cell"])
                 with pick:
                     mine.discard(c["cell"])
@@ -757,12 +803,31 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 unlock(h)
         for s, h in old.items():
             signal.signal(s, h)
+    if approval_failures:
+        raise DispatchError("pre-flight refused a supplied Intent on deferred retry")
+    if not probing:
+        left = [c for c in cells if not finished(c["cell"])]
+        tdone = timeoutguard.deferred(exp, run_dir, left)
+        timeoutguard.note(run_dir, tdone)
+        for t, info in sorted(tdone.items()):
+            log(f"{t}: {info['reason']} ({info['study']}, {info['tool']}, {info['sha'][:12]}); kept in the plan, not run. "
+                f"Override: touch {info['override']}")
+        if tdone:
+            from . import report
+            report.write(run_dir)
+    if deferred:
+        from . import report
+        report.write(run_dir)
+        log("approval infrastructure gap: " + ", ".join(sorted(deferred))
+            + "; retained in PLAN.json and plan.jsonl; resume this experiment in a later unit")
     if capped:
         return 3
     if limited:
         return 4
     if interrupted:
         return 130
+    if deferred:
+        return 5
     return 1 if failed else 0
 
 

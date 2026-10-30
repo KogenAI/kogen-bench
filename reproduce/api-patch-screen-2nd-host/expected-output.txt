@@ -1,0 +1,15 @@
+arm              passes  median wall s  median USD/pass
+speed2           4/4    142.442        $0.066458
+api-replay       4/4    166.319        $0.082623
+api-batch        4/4    143.939        $0.065811
+api-answer-end   4/4    173.418        $0.080588
+
+candidate minus speed2 (wall s / USD):
+cron-go      api-replay +29.317 s / +0.021549 | api-batch +1.335 s / -0.007428 | api-answer-end +2.679 s / -0.000971
+vm-go        api-replay +18.437 s / +0.010782 | api-batch +1.658 s / +0.006135 | api-answer-end +59.272 s / +0.029232
+artifact-go  api-replay -5.411 s / -0.001504 | api-batch -15.056 s / -0.003174 | api-answer-end -2.384 s / -0.001071
+readtime-go  api-replay -79.898 s / -0.085844 | api-batch -48.850 s / -0.038080 | api-answer-end -38.259 s / -0.016653
+
+counted cells cost  $1.52016145
+charged, excluded   $0.24331550
+total experiment    $1.76347695 of $3.00 cap

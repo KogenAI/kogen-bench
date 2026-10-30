@@ -1,0 +1,83 @@
+--- a/loop/session.go
++++ b/loop/session.go
+@@ -189,10 +189,12 @@
+ 	if len(terminal) == 0 {
+ 		terminal = DefaultTerminal
+ 	}
++	answerEnd := cfg.Role.Provider == "chatgpt" && len(terminal) == 1 &&
++		terminal[0] == FinishTool && cfg.TerminalReminders <= 0
+ 	var defs []any
+ 	seen := map[string]bool{}
+ 	for _, name := range enabled {
+-		d, ok := tools.Definition(name)
++		d, ok := (&tools.Tools{CompactDescriptions: true}).Definition(name)
+ 		if !ok {
+ 			return nil, invalid("unknown tool " + name)
+ 		}
+@@ -207,11 +209,20 @@
+ 			return nil, invalid("terminal tool names must be non-empty and unique, and differ from the enabled tools")
+ 		}
+ 		seen[name] = true
+-		defs = append(defs, TerminalDefinition(name))
++		// ChatGPT's default session ends with an assistant answer, as Codex does.
++		// Named terminal contracts and reminder-driven sessions retain their tools.
++		if !answerEnd {
++			defs = append(defs, TerminalDefinition(name))
++		}
+ 	}
+ 	instructions := cfg.Instructions
+ 	if instructions == "" {
+ 		instructions = DefaultInstructions
++		if answerEnd {
++			instructions = strings.Replace(instructions,
++				"When you are done, call the finish tool with a summary of what you did.",
++				"When you are done, answer with a summary of what you did.", 1)
++		}
+ 	}
+ 	session := cfg.Session
+ 	if session == nil {
+--- a/conformance/library_test.go
++++ b/conformance/library_test.go
+@@ -690,10 +690,17 @@
+ 	for _, d := range s.Definitions() {
+ 		names = append(names, d.(map[string]any)["name"].(string))
+ 	}
+-	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "finish"}) {
++	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell"}) {
+ 		t.Errorf("definitions %v", names)
+ 	}
+-	finish := s.Definitions()[5].(map[string]any)
++	// Reminder-driven sessions still advertise the terminal contract.
++	cfg := sessionConfig(w, nil, &events)
++	cfg.TerminalReminders = 1
++	reminded, err := loop.NewSession(cfg)
++	if err != nil {
++		t.Fatal(err)
++	}
++	finish := reminded.Definitions()[5].(map[string]any)
+ 	params := finish["parameters"].(map[string]any)
+ 	if !reflect.DeepEqual(params["required"], []any{"summary"}) || params["additionalProperties"] != false {
+ 		t.Errorf("finish %v", finish)
+--- a/conformance/session_cache_identity_test.go
++++ b/conformance/session_cache_identity_test.go
+@@ -7,6 +7,7 @@
+ 	"os"
+ 	"path/filepath"
+ 	"reflect"
++	"strings"
+ 	"testing"
+ 	"time"
+ 
+@@ -76,7 +77,11 @@
+ // session ID as cache identity.
+ func cacheReference(t *testing.T, f *fakeProvider, cfg loop.SessionConfig, s *loop.Session, index int) {
+ 	t.Helper()
+-	_, err := cfg.Client.Respond(context.Background(), cfg.Session, provider.Request{Role: cfg.Role, Instructions: loop.DefaultInstructions, Input: []any{map[string]any{"role": "user", "content": "hello"}}, Tools: s.Definitions(), CacheID: s.ID()}, nil)
++	instructions := loop.DefaultInstructions
++	if cfg.Role.Provider == "chatgpt" {
++		instructions = strings.Replace(instructions, "When you are done, call the finish tool with a summary of what you did.", "When you are done, answer with a summary of what you did.", 1)
++	}
++	_, err := cfg.Client.Respond(context.Background(), cfg.Session, provider.Request{Role: cfg.Role, Instructions: instructions, Input: []any{map[string]any{"role": "user", "content": "hello"}}, Tools: s.Definitions(), CacheID: s.ID()}, nil)
+ 	if err != nil {
+ 		t.Fatal(err)
+ 	}

@@ -22,7 +22,7 @@ import threading
 import time
 import tomllib
 
-from . import common, costguard, experiment, live, probe, usage
+from . import common, costguard, experiment, live, node_modules, probe, usage
 
 IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
@@ -78,10 +78,12 @@ def role_entry(value):
     return f"{{model: {model}, effort: {effort}{extra}}}"
 
 
-def project_yaml(task_toml, models):
+def project_yaml(task_toml, models, task=None):
     """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id, plus `provider` unless it is openai/chatgpt)."""
     def items(key, item=yq):
         vals = task_toml.get(key) or []
+        if key == "setup" and task is not None:
+            vals = node_modules.setup(task, vals)
         return [f"  {key}: []"] if not vals else [f"  {key}:"] + [f"    - {item(v)}" for v in vals]
 
     lines = ["version: 1", "commands:", *items("setup"), *items("fix")]
@@ -220,11 +222,13 @@ def make_workspace(ws, tmp, start, config):
         _git(ws, "config", key, value)
     _git(ws, "add", "-A", env=env)
     _git(ws, "commit", "-q", "-m", "Start", env=env)
+    node_modules.prepare_workspace(start, ws)
 
 
 class Cell:
-    def __init__(self, ws, kogen, out, deadline_s, abort=None):
+    def __init__(self, ws, kogen, out, deadline_s, abort=None, approval_context=None):
         self.ws, self.kogen, self.out = ws, kogen, out
+        self.approval_context = approval_context
         self.abort = abort or threading.Event()  # set by the cost guard: stop at once, record `cost_cap`
         self.deadline = time.monotonic() + deadline_s
         self.commands = []
@@ -236,18 +240,20 @@ class Cell:
                     "GIT_TERMINAL_PROMPT": "0"}
 
     def invoke(self, args, stdin_path=None):
-        """One Kogen command in its own process group; `(code, timed_out, stdout, started, ended)`."""
+        """One Kogen command in its own process group; returns code, timeout, both streams and timing."""
         started, t0 = now(), time.monotonic()
         o, e = os.path.join(self.out, "o.tmp"), os.path.join(self.out, "e.tmp")
         with open(o, "w") as fo, open(e, "w") as fe, open(stdin_path or os.devnull) as fi:
             code, timed_out = self._group([self.kogen, *args], fo, fe, fi, max(self.deadline - t0, 0.01))
-        text = open(o, encoding="utf-8", errors="replace").read()
-        for tmp, name in ((o, "stdout.txt"), (e, "stderr.txt")):
-            with open(tmp, encoding="utf-8", errors="replace") as src, \
-                    open(os.path.join(self.out, name), "a", encoding="utf-8") as dst:
-                dst.write(f"== kogen {' '.join(args)}\n{src.read()}")
-            os.remove(tmp)
-        return code, timed_out, text, started, now(), time.monotonic() - t0
+        with open(o, encoding="utf-8", errors="replace") as src:
+            stdout_text = src.read()
+        with open(e, encoding="utf-8", errors="replace") as src:
+            stderr_text = src.read()
+        for path, name, content in ((o, "stdout.txt", stdout_text), (e, "stderr.txt", stderr_text)):
+            with open(os.path.join(self.out, name), "a", encoding="utf-8") as dst:
+                dst.write(f"== kogen {' '.join(args)}\n{content}")
+            os.remove(path)
+        return code, timed_out, stdout_text, started, now(), time.monotonic() - t0, stderr_text
 
     def _group(self, cmd, stdout, stderr, stdin, deadline_s):
         """`common.run`, also stopping (its own process group only) when `abort` is set; `(code, timed_out)`."""
@@ -318,10 +324,21 @@ class Cell:
         card = self.invoke(["intent", "approve", slug])
         m = CARD_HASH.search(card[2])
         if card[0] != 5 or not m or card[1]:
-            self.record("approve", [card], self._failure(card) or ("no_card" if card[0] == 0 else None))
+            ok = self.record("approve", [card], self._failure(card) or ("no_card" if card[0] == 0 else None))
+            if not ok:
+                self._save_approval_refusal(slug, [card])
             return None
         done = self.invoke(["intent", "approve", slug, m.group(1)])
-        return m.group(1) if self.record("approve", [card, done]) else None
+        ok = self.record("approve", [card, done])
+        if not ok:
+            self._save_approval_refusal(slug, [card, done])
+        return m.group(1) if ok else None
+
+    def _save_approval_refusal(self, task, calls):
+        if self.approval_context:
+            from . import approval
+            run_dir, task_id, lane = self.approval_context
+            approval.save_refusal(run_dir, task_id, lane, calls, self.ws)
 
 
 def command_outcome(cmd, events):
@@ -371,7 +388,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     if not isinstance(slug, str) or not SLUG.match(slug) or not 3 <= len(slug) <= 48:
         raise CellError(f"{task_id}: task.toml name {slug!r} is not a Kogen slug (3-48 of a-z, 0-9, -)")
     approve_timeout(task_toml, 0)  # the key only sets lanes-preflight's deadline; a bad one is refused here too
-    config = project_yaml(task_toml, lane["settings"].get("models"))
+    config = project_yaml(task_toml, lane["settings"].get("models"), task=task)
     request = os.path.join(task, "request.md")
     supplied = os.path.join(task, "supplied", exp.get("intent_form") or "")
     if phase != "build" and not os.path.isfile(request):
@@ -483,7 +500,8 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
     common.write_json(os.path.join(out, costguard.LIVE), live.record(ws, host))  # the guard reads its logs live; the pid says who owns it
     started, t0 = now(), time.monotonic()
     with costguard.Watcher(run_dir, exp, provider=costguard.lane_providers(exp).get(lane_name)) as watch:
-        c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped)
+        c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped,
+                 approval_context=(run_dir, cell.split("/", 1)[0], lane_name))
         c.watch = watch
         version = c.version(tmp)
         intent_hash, ok = None, True

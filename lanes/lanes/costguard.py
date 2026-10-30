@@ -212,7 +212,8 @@ def cell_spend(cell_dir):
     """USD of one cell dir: finished, running (live workspace) or stopped without a result."""
     path = os.path.join(cell_dir, "result.json")
     if os.path.isfile(path):
-        cost = (common.read_json(path).get("totals") or {}).get("cost_usd")
+        totals = common.read_json(path).get("totals") or {}
+        cost = totals.get("cost_usd") if totals.get("cost_complete", True) else None  # a partial sum falls back to the log estimate
         if cost is not None:
             return float(cost)
         return log_spend(_read_saved(os.path.join(cell_dir, "run-log", "log.jsonl")),

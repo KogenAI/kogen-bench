@@ -1,0 +1,19 @@
+change,host,harness,fault,task,lane,stage,outcome,passed,elapsed_s,deadline_s,npm_calls,timed_out
+npm-stage-once,mac-a,patched,npm stalls (sleep 600),task-tags-go,,preflight,approved,true,54.485,120,0,false
+npm-stage-once,mac-a,patched,npm stalls (sleep 600),bytefmt-go,,preflight,approved,true,14.609,120,0,false
+npm-stage-once,mac-b,patched,npm stalls (sleep 600),task-tags-go,,preflight,approved,true,36.191,120,0,false
+npm-stage-once,mac-b,patched,npm stalls (sleep 600),bytefmt-go,,preflight,approved,true,5.886,120,0,false
+npm-stage-once,mac-a,unpatched,npm stalls (sleep 600),task-tags-go,,preflight,refused: approval timed out in setup-1 (npm ci),false,192.361,120,1,true
+npm-stage-once,mac-a,unpatched,npm stalls (sleep 600),bytefmt-go,,preflight,refused: approval timed out in setup-1 (npm ci),false,120.431,120,2,true
+npm-stage-once,mac-a,patched,none (normal cached preflight),goose-labels-go,,preflight,approved,true,23.659,120,0,false
+npm-stage-once,mac-a,patched,git add -A -- . stalls (sleep 600),goose-labels-go,,preflight,refused: approval timed out (no output),false,126.756,120,0,true
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,bytefmt-go,a0,initial,approved,true,8.665,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,bytefmt-go,prefix,initial,approved,true,7.775,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,a0,initial,refused: approval timed out,false,132.848,120,,true
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,prefix,initial,approved,true,53.135,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,a0,after-ordinary-cells,refused: approval timed out,false,128.133,120,,true
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,prefix,after-ordinary-cells,approved,true,45.672,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,bytefmt-go,a0,later-invocation-bytefmt-recheck,approved,true,4.829,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,bytefmt-go,prefix,later-invocation-bytefmt-recheck,approved,true,5.034,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,a0,later-invocation,approved,true,44.42,120,,false
+defer-approval-timeouts,mac-a,patched,setup stalls 125 s for task-tags-go low-effort lane,task-tags-go,prefix,later-invocation,approved,true,50.77,120,,false

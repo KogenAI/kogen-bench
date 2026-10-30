@@ -1,0 +1,1017 @@
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/approvecache.py p5/lanes/lanes/approvecache.py
+--- a/lanes/approvecache.py	1970-01-01 03:00:00
++++ b/lanes/approvecache.py	2026-10-30 14:39:08
+@@ -0,0 +1,198 @@
++"""Reuse of successful preflight approvals whose every input is identical (`LANES_APPROVAL_CACHE`).
++
++A preflight approval is a deterministic local check: Kogen `intent approve` in a scratch workspace built from
++the task's `start/`, its `task.toml` commands, the supplied Intent and the lane's settings. Its key covers all
++of that: the task inputs, the supplied Intent, the slug and Intent form, the generated `.kogen/project.yaml`
++(lane models, setup/check/acceptance commands, the npm cache entry each setup restores), each npm entry's
++manifest, the approval deadline, the Kogen executable and its whole release folder, the lane's lock entry
++(Kogen sha, patch and artifact hashes), Node, the environment Kogen inherits, and the harness code that
++builds the workspace. Only `ok` approvals with a printed SHA-256 are stored. Timeouts are never stored; a
++real refusal leaves a marker that blocks reuse for that key. Without `LANES_APPROVAL_CACHE` nothing changes.
++"""
++
++import datetime
++import hashlib
++import json
++import os
++import re
++import shutil
++import socket
++import tomllib
++
++from . import common
++
++SCHEMA = 1
++HASH = re.compile(r"^[0-9a-f]{64}$")
++CODE = ("approvecache.py", "cell.py", "common.py", "node_modules.py", "preflight.py")
++# Never reach Kogen or do not change what approve decides; everything else in the environment is keyed.
++#   KOGEN_LANES_*: Cell removes them. GIT_AUTHOR/COMMITTER_*: the workspace repo sets its own identity.
++#   SLOTS, DAYDIR, DAYCAP, LANES_*: dispatch and grading settings of the shell scripts, not read by approve.
++#   TMPDIR, LANES_ENV: per-unit scratch paths (the host's queue entry script); the workspace path is never an input.
++SKIP_ENV = {"TMPDIR", "LANES_ENV", "PWD", "OLDPWD", "SHLVL", "_", "SLOTS", "DAYDIR", "DAYCAP", "TERM", "SSH_CLIENT", "SSH_CONNECTION",
++            "SSH_TTY", "SSH_AUTH_SOCK", "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME",
++            "GIT_COMMITTER_EMAIL", "LANES_CARRY_ACTIVE", "LANES_SHARED_GOCACHE", "LANES_NM_CACHE", "LANES_DIR",
++            "LANES_NPMFIX_HARNESS", "LANES_APPROVAL_CACHE", "LANES_GUARD_LOG"}
++SKIP_PREFIX = ("KOGEN_LANES_", "XPC_", "__CF")
++SHIM_DIR = ".lanes-shim"  # the day runners' killall/pkill guards only
++TOOLS = ("node", "npm", "npx", "go", "gofmt", "git", "mix", "elixir", "erl", "python3", "make", "bash", "sh", "cargo")
++_release_memo = {}
++
++
++def root():
++    """The cache folder, or None when reuse is off."""
++    path = os.environ.get("LANES_APPROVAL_CACHE")
++    return os.path.abspath(path) if path else None
++
++
++def tree(path, exclude=()):
++    """Digest of a folder: every entry's path and type, symlink targets, executable bits and file contents."""
++    h = hashlib.sha256()
++    if not os.path.isdir(path):
++        h.update(b"absent")
++        return h.hexdigest()
++    for dirpath, dirnames, filenames in os.walk(path):
++        dirnames.sort()
++        rel_dir = os.path.relpath(dirpath, path).replace(os.sep, "/")
++        links = [d for d in dirnames if os.path.islink(os.path.join(dirpath, d))]
++        dirnames[:] = [d for d in dirnames if d not in links and not (rel_dir == "." and d in exclude)]
++        h.update(f"d {rel_dir}\n".encode())
++        for name in sorted(filenames + links):
++            if rel_dir == "." and name in exclude:
++                continue
++            full = os.path.join(dirpath, name)
++            rel = os.path.relpath(full, path).replace(os.sep, "/")
++            if os.path.islink(full):
++                h.update(f"l {os.readlink(full)} {rel}\n".encode())
++            else:
++                mode = "x" if os.stat(full).st_mode & 0o111 else "f"
++                h.update(f"{mode} {common.sha256_file(full)} {rel}\n".encode())
++    return h.hexdigest()
++
++
++def _file(path):
++    return common.sha256_file(path) if os.path.isfile(path) else "absent"
++
++
++def kogen_digest(kogen, release):
++    """The executable and, for an unpacked release, the whole release folder (its `node-path` is keyed apart)."""
++    st = os.stat(kogen)
++    memo = (os.path.realpath(kogen), st.st_ino, st.st_size, st.st_mtime_ns, release)
++    if memo not in _release_memo:
++        _release_memo[memo] = {"kogen": common.sha256_file(kogen),
++                               "release": tree(release, exclude=("node-path", "node-path.tmp")) if release else None}
++    return _release_memo[memo]
++
++
++def environment():
++    """What Kogen and the setup/check commands inherit: the environment (values hashed, never stored), the PATH
++    without the guard-shim folder and repeated entries, what each common tool resolves to, and the global mise
++    configuration that picks tool versions behind mise shims."""
++    env = {k: v for k, v in os.environ.items() if k not in SKIP_ENV and not k.startswith(SKIP_PREFIX)}
++    seen, path = set(), []
++    for entry in os.environ.get("PATH", "").split(os.pathsep):
++        if entry and os.path.basename(entry.rstrip("/")) != SHIM_DIR and entry not in seen:
++            seen.add(entry)
++            path.append(entry)
++    env["PATH"] = os.pathsep.join(path)
++    tools = {}
++    for name in TOOLS:
++        found = shutil.which(name, path=env["PATH"])
++        if found:
++            real = os.path.realpath(found)
++            st = os.stat(real)
++            tools[name] = [found, real, st.st_size, st.st_mtime_ns]
++    home = os.environ.get("HOME", "")
++    mise_dir = os.environ.get("MISE_CONFIG_DIR") or os.path.join(home, ".config", "mise")
++    configs = {p: _file(p) for p in (os.path.join(mise_dir, "config.toml"), os.path.join(home, ".tool-versions"),
++                                    os.path.join(home, ".mise.toml"))}
++    kogen_home = os.path.join(home, ".kogen")
++    kogen_config = {n: _file(os.path.join(kogen_home, n)) for n in sorted(os.listdir(kogen_home))
++                    if os.path.isfile(os.path.join(kogen_home, n))} if os.path.isdir(kogen_home) else {}
++    return {"env": hashlib.sha256(json.dumps(env, sort_keys=True).encode()).hexdigest(), "env_names": sorted(env),
++            "tools": tools, "mise_config": configs, "kogen_home_config": kogen_config}
++
++
++def lock_entry(run_dir, lane, artifact):
++    if artifact is not None:
++        return {"artifact": os.path.realpath(artifact)}
++    for entry in common.read_json(os.path.join(run_dir, "lanes.lock.json")):
++        if entry.get("name") == lane:
++            return {k: entry.get(k) for k in ("sha", "patch_sha256", "artifact_sha256", "kogen_version")}
++    return {"missing": lane}
++
++
++def npm_entries(config):
++    """Every npm cache entry the setup commands restore, by its manifest."""
++    entries = sorted(set(re.findall(r"--entry (\S+?)'?(?:\)|$|\s)", config, re.M)))
++    return {e: _file(os.path.join(e, "manifest.json")) for e in entries}
++
++
++def key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node):
++    """`(key, components)`: the digest of every approval input, and the per-input digests behind it."""
++    here = os.path.dirname(os.path.abspath(__file__))
++    with open(os.path.join(task, "task.toml"), "rb") as f:
++        tomllib.load(f)  # the same parse check_one made
++    env = environment()
++    components = {
++        "schema": SCHEMA,
++        "host": socket.gethostname(),
++        "task_toml": _file(os.path.join(task, "task.toml")),
++        "start": tree(os.path.join(task, "start")),
++        "supplied": tree(supplied),
++        "intent_form": exp["intent_form"],
++        "slug": slug,
++        "project_yaml": hashlib.sha256(config.encode()).hexdigest(),
++        "npm_entries": npm_entries(config),
++        "deadline_s": deadline_s,
++        "lane_lock": lock_entry(run_dir, lane["name"], artifact),
++        "kogen": kogen_digest(kogen, os.path.dirname(os.path.dirname(kogen))
++                              if os.path.isfile(os.path.join(os.path.dirname(os.path.dirname(kogen)), "install.sh"))
++                              else None),
++        "node": node,
++        "environment": {k: v for k, v in env.items() if k != "env_names"},
++        "harness": {n: _file(os.path.join(here, n)) for n in CODE},
++    }
++    digest = hashlib.sha256(json.dumps(components, sort_keys=True).encode()).hexdigest()
++    return digest, components
++
++
++def _paths(digest):
++    base = os.path.join(root(), digest[:2])
++    return os.path.join(base, digest + ".json"), os.path.join(base, digest + ".refused.json")
++
++
++def lookup(digest):
++    """The stored record for an identical earlier `ok` approval, or None (missing, malformed or refused once)."""
++    if root() is None:
++        return None
++    ok_path, refused_path = _paths(digest)
++    if os.path.exists(refused_path):
++        return None
++    try:
++        rec = common.read_json(ok_path)
++    except (OSError, ValueError):
++        return None
++    if rec.get("schema") != SCHEMA or rec.get("key") != digest or rec.get("ok") is not True \
++            or not HASH.match(str(rec.get("approval_hash", ""))):
++        return None
++    return rec
++
++
++def store(digest, components, ok, timeout, approval_hash, context):
++    """Record an `ok` approval with its SHA-256, or mark a real refusal; a timeout leaves no trace here."""
++    if root() is None or timeout:
++        return
++    ok_path, refused_path = _paths(digest)
++    utc = datetime.datetime.now(datetime.timezone.utc).isoformat()
++    try:
++        if ok and approval_hash and HASH.match(approval_hash):
++            common.write_json(ok_path + f".{os.getpid()}", {
++                "schema": SCHEMA, "key": digest, "ok": True, "approval_hash": approval_hash, "utc": utc,
++                "context": context, "components": components})
++            os.replace(ok_path + f".{os.getpid()}", ok_path)
++        elif not ok:
++            common.write_json(refused_path + f".{os.getpid()}", {"schema": SCHEMA, "key": digest, "utc": utc,
++                                                                  "context": context})
++            os.replace(refused_path + f".{os.getpid()}", refused_path)
++    except OSError:
++        pass  # reuse is an optimization; the approval result itself stands
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/costguard.py p5/lanes/lanes/costguard.py
+--- a/lanes/cos
++++ b/lanes/cos
+@@ -212,7 +212,8 @@
+     """USD of one cell dir: finished, running (live workspace) or stopped without a result."""
+     path = os.path.join(cell_dir, "result.json")
+     if os.path.isfile(path):
+-        cost = (common.read_json(path).get("totals") or {}).get("cost_usd")
++        totals = common.read_json(path).get("totals") or {}
++        cost = totals.get("cost_usd") if totals.get("cost_complete", True) else None  # a partial sum falls back to the log estimate
+         if cost is not None:
+             return float(cost)
+         return log_spend(_read_saved(os.path.join(cell_dir, "run-log", "log.jsonl")),
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/dispatch.py p5/lanes/lanes/dispatch.py
+--- a/lanes/dispa
++++ b/lanes/dispa
+@@ -15,7 +15,7 @@
+ import threading
+ import time
+ 
+-from . import approval, ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe
++from . import approval, ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe, timeoutguard
+ 
+ CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
+ MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
+@@ -541,6 +541,8 @@
+                 raise DispatchError("pre-flight refused a supplied Intent; no cell started")
+     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
+     deferred = approval.pending(run_dir) if not probing else set()
++    if not probing:
++        timeoutguard.ingest(exp, run_dir, cells)  # timeouts of earlier attempts of this run
+     retried, approval_failures = set(), []
+     artifacts = {} if probing else {
+         e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
+@@ -629,8 +631,9 @@
+         with pick:
+             if approval_failures:
+                 return None
++            tdef = {} if probing else timeoutguard.deferred(exp, run_dir, cells)  # a task with 2 timeouts starts no more cells
+             for c in cells:
+-                if c["task"] in deferred:
++                if c["task"] in deferred or c["task"] in tdef:
+                     continue
+                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
+                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
+@@ -651,7 +654,7 @@
+             # has admitted this slot again before we reach this point.
+             if mine or runner.stopped.is_set() or hard_hit.is_set() or capped or limited:
+                 return None
+-            if any(c["task"] not in deferred and c["cell"] not in failed and not finished(c["cell"])
++            if any(c["task"] not in deferred and c["task"] not in tdef and c["cell"] not in failed and not finished(c["cell"])
+                    for c in cells):
+                 return None
+             if max_cells is not None and len(begun) >= max_cells:
+@@ -742,6 +745,11 @@
+                 if reason:
+                     log(f"rate limited: {c['lane']} cell {c['cell']} ended with {reason}; no new cell of its provider starts. "
+                         f"After the limit resets, delete {costguard.RATE} in the run dir and run lanes-run again")
++                if not probing:
++                    try:
++                        timeoutguard.ingest(exp, run_dir, [c])
++                    except Exception as e:  # the guard must never fail a cell
++                        log(f"{c['cell']}: cannot record a timeout ({e})")
+                 claims.release(c["cell"])
+                 with pick:
+                     mine.discard(c["cell"])
+@@ -797,6 +805,16 @@
+             signal.signal(s, h)
+     if approval_failures:
+         raise DispatchError("pre-flight refused a supplied Intent on deferred retry")
++    if not probing:
++        left = [c for c in cells if not finished(c["cell"])]
++        tdone = timeoutguard.deferred(exp, run_dir, left)
++        timeoutguard.note(run_dir, tdone)
++        for t, info in sorted(tdone.items()):
++            log(f"{t}: {info['reason']} ({info['study']}, {info['tool']}, {info['sha'][:12]}); kept in the plan, not run. "
++                f"Override: touch {info['override']}")
++        if tdone:
++            from . import report
++            report.write(run_dir)
+     if deferred:
+         from . import report
+         report.write(run_dir)
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/export.py p5/lanes/lanes/export.py
+--- a/lanes/expor
++++ b/lanes/expor
+@@ -203,7 +203,7 @@
+     models = [m.split(" ")[0] for m in lane["settings"].get("models", {}).values()]
+     efforts = [m.split(" ")[1] for m in lane["settings"].get("models", {}).values() if " " in m]
+     effort = one([e.get("effort") for e in events if e.get("event") == "request"], "m73")
+-    cost = totals.get("cost_usd")
++    cost = totals.get("cost_usd") if totals.get("cost_complete", True) else None  # a partial sum is not published as the cost
+     calc = usage._cost_calc()
+     start, end = utc(res.get("started"), "m69"), utc(res.get("ended"), "m68")
+     attempts = miss("m60") if is_marker(start) or is_marker(end) else [{"attempt": 1, "start_utc": start, "end_utc": end}]
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/preflight.py p5/lanes/lanes/preflight.py
+--- a/lanes/prefligh
++++ b/lanes/prefligh
+@@ -2,7 +2,9 @@
+ 
+ For phase `build`, each task x lane gets a scratch workspace set up as `lanes-cell` does, the supplied
+ Intent installed, and `kogen intent approve <slug>` run, then again with the printed hash. Approve is
+-local: no provider is involved. Timeout deferrals are recorded in PLAN.json. The approval deadline is 120 s, or the
++local: no provider is involved. With `LANES_APPROVAL_CACHE`, an `ok` approval whose every input is identical
++(approvecache.py) is reused, so the in-run preflight after `lanes-preflight` and later units of the same Kogen
++skip repeated work; timeouts and refusals are never reused. Timeout deferrals are recorded in PLAN.json. The approval deadline is 120 s, or the
+ task's `approve_timeout_s` (readiness may run a long regression suite).
+ """
+ 
+@@ -13,7 +15,7 @@
+ import tempfile
+ import tomllib
+ 
+-from . import approval, ccroute, cell, common, experiment, leakage, probe
++from . import approval, approvecache, ccroute, cell, common, experiment, leakage, probe
+ 
+ DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
+ 
+@@ -41,17 +43,36 @@
+         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
+         config = cell.project_yaml(task_toml, lane["settings"].get("models"), task=task)
+         root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
+-        if root:
+-            cell.ensure_node_path(root)
++        node = cell.ensure_node_path(root) if root else None
+     except (OSError, ValueError, cell.CellError) as e:
+         return False, str(e)
+-    return approve_supplied(task, slug, supplied, kogen, config, deadline_s,
+-                            refusal_context=(run_dir, task_id, lane["name"]))
++    reuse = None
++    if approvecache.root():
++        try:
++            reuse = approvecache.key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node)
++        except (OSError, ValueError, KeyError, TypeError):
++            reuse = None  # an input that cannot be keyed is approved as usual
++    if reuse and (hit := approvecache.lookup(reuse[0])):
++        where = hit.get("context") or {}
++        return True, (f"approved {hit['approval_hash'][:8]} (reused: identical inputs approved "
++                      f"{hit['utc']} in {where.get('experiment')} {where.get('task')} x {where.get('lane')})")
++    ok, message, full_hash = _approve(task, slug, supplied, kogen, config, deadline_s,
++                                      refusal_context=(run_dir, task_id, lane["name"]))
++    if reuse:
++        approvecache.store(reuse[0], reuse[1], ok, isinstance(message, ApprovalTimeout), full_hash,
++                           {"experiment": os.path.basename(os.path.abspath(run_dir)), "task": task_id,
++                            "lane": lane["name"]})
++    return ok, message
+ 
+ 
+ def approve_supplied(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
+     """In a scratch workspace made from the task's `start/`: install the supplied Intent, run `kogen intent
+     approve <slug>`, then again with the printed hash. `(ok, message)`; `lanes-qualify` uses this too."""
++    return _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context)[:2]
++
++
++def _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
++    """`approve_supplied`, plus the full approval SHA-256 when approved (else None)."""
+     tmp = tempfile.mkdtemp(prefix="lanes-preflight-")
+     try:
+         ws, out = os.path.join(tmp, "ws"), os.path.join(tmp, "out")
+@@ -66,7 +87,7 @@
+             calls.append(c.invoke(["intent", "approve", slug, m.group(1)]))
+         last = calls[-1]
+         if len(calls) == 2 and last[0] == 0 and not last[1]:
+-            return True, f"approved {m.group(1)[:8]}"
++            return True, f"approved {m.group(1)[:8]}", m.group(1)
+         why = "timed out" if last[1] else f"exit {last[0]}"
+         stdout = _lines(last[2])
+         with open(os.path.join(out, "stderr.txt"), encoding="utf-8", errors="replace") as f:
+@@ -76,9 +97,9 @@
+         if refusal_context:
+             run_dir, task_id, lane_name = refusal_context
+             approval.save_refusal(run_dir, task_id, lane_name, calls, ws, preflight=True)
+-        return False, ApprovalTimeout(message) if last[1] else message
++        return False, ApprovalTimeout(message) if last[1] else message, None
+     except cell.CellError as e:
+-        return False, str(e)
++        return False, str(e), None
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+ 
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/report.py p5/lanes/lanes/report.py
+--- a/lanes/repor
++++ b/lanes/repor
+@@ -12,7 +12,7 @@
+ from fractions import Fraction
+ from math import comb, exp, lgamma, log, sqrt
+ 
+-from . import approval, common, costguard, experiment, usage
++from . import approval, common, costguard, experiment, timeoutguard, usage
+ 
+ RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
+ SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
+@@ -628,8 +628,11 @@
+         rep["verdict"] = apply_rule(exp["decision_rule"], cells, lanes)
+     rep["approval_deferrals"] = debts
+     rep["infrastructure_gaps"] = approval.gaps(run_dir)
++    rep["timeout_deferrals"] = timeoutguard.gaps(run_dir)
+     if rep["infrastructure_gaps"]:
+         rep["verdict"] = {"decision": "incomplete", "line": "incomplete: approval infrastructure gaps; planned tasks retained"}
++    elif rep["timeout_deferrals"]:
++        rep["verdict"] = {"decision": "incomplete", "line": "incomplete: " + timeoutguard.REASON + " (infrastructure gap); planned tasks retained"}
+     return rep
+ 
+ 
+@@ -726,6 +729,13 @@
+                        for t, r in sorted(rep["approval_deferrals"].items())])
+         if rep.get("infrastructure_gaps"):
+             out += ["", "Infrastructure gap: approval remains unresolved; experiment verdict is incomplete."]
++    if rep.get("timeout_deferrals"):
++        out += ["", "## Deferred after timeouts", "",
++                "Infrastructure gap: these tasks stay in the plan but start no more cells (the deadline is unchanged). "
++                "To re-admit one, create its override file.", ""]
++        out += _table(["task", "reason", "timeouts", "study", "tool", "Kogen sha", "override file"],
++                      [[g["task"], g["reason"], g["timeouts"], g["study"], g["tool"], g["sha"][:12], g["override"]]
++                       for g in rep["timeout_deferrals"]])
+     out += _render_cost(rep["cost"])
+     scope = " (train cells)" if "climb" in rep else ""
+     for l in rep["lanes"]:
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/timeoutguard.py p5/lanes/lanes/timeoutguard.py
+--- a/lanes/
++++ b/lanes/
+@@ -0,0 +1,155 @@
++"""Stop relaunching a task that keeps hitting the cell deadline (cap8: one task timed out 10 times, each in a new experiment).
++
++Timeouts are counted per (study, task, tool, Kogen sha) in a ledger shared by every experiment on the host
++(`LANES_TIMEOUT_LEDGER`; unset: the guard is off). At LIMIT timeouts dispatch starts no further cell of that task: it is
++deferred, never dropped. The cells stay in plan.jsonl, PLAN.json records `timeout_deferrals`, and the report shows an
++infrastructure gap "deferred: 2 timeouts". The deadline is never changed. A file `<ledger>/override/<key name>` clears
++the key: only timeouts after its mtime count again.
++"""
++
++import datetime
++import fcntl
++import json
++import os
++import re
++
++from . import common
++
++LIMIT = 2
++REASON = f"deferred: {LIMIT} timeouts"
++SUFFIX = re.compile(r"-[a-z]{1,2}\d*$")  # host/replicate suffix: long-fix-sol-u2, -e3, -s3, -l1, -mb
++
++
++def ledger():
++    return os.environ.get("LANES_TIMEOUT_LEDGER") or None
++
++
++def study_of(exp):
++    return exp.get("study") or SUFFIX.sub("", exp["id"])
++
++
++def tool_of(lane):
++    models = sorted(set((lane.get("settings") or {}).get("models", {}).values()))
++    return "+".join(models) or "default"
++
++
++def key(exp, lane, task):
++    return (study_of(exp), task, tool_of(lane), lane["sha"])
++
++
++def key_name(k):
++    return "__".join([re.sub(r"[^A-Za-z0-9._+-]", "_", k[0]), re.sub(r"[^A-Za-z0-9._+-]", "_", k[1]),
++                      re.sub(r"[^A-Za-z0-9._+-]", "_", k[2]), k[3][:12]])
++
++
++def _rows(root):
++    return common.read_jsonl(os.path.join(root, "timeouts.jsonl")) if os.path.isfile(os.path.join(root, "timeouts.jsonl")) else []
++
++
++def _cleared(root, k):
++    p = os.path.join(root, "override", key_name(k))
++    return os.path.getmtime(p) if os.path.isfile(p) else 0.0
++
++
++def _utc(s):
++    return datetime.datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
++
++
++def count(k, root=None):
++    root = root or ledger()
++    if not root:
++        return 0
++    since = _cleared(root, k)
++    seen = {(r["experiment"], r["cell"]) for r in _rows(root)
++            if (r["study"], r["task"], r["tool"], r["sha"]) == k and _utc(r["utc"]) > since}
++    return len(seen)
++
++
++def record(exp, lane, cell, run_dir):
++    """Add one timed-out cell to the ledger (idempotent per experiment and cell)."""
++    root = ledger()
++    if not root:
++        return
++    task = cell.split("/")[0]
++    k = key(exp, lane, task)
++    os.makedirs(root, exist_ok=True)
++    with open(os.path.join(root, ".lock"), "a") as lock:
++        fcntl.flock(lock, fcntl.LOCK_EX)
++        if any(r["experiment"] == exp["id"] and r["cell"] == cell for r in _rows(root)):
++            return
++        row = {"utc": datetime.datetime.now(datetime.timezone.utc).isoformat(), "experiment": exp["id"], "cell": cell,
++               "study": k[0], "task": k[1], "tool": k[2], "sha": k[3], "run_dir": os.path.abspath(run_dir)}
++        with open(os.path.join(root, "timeouts.jsonl"), "a") as f:
++            f.write(json.dumps(row) + "\n")
++        _publish(root)
++
++
++def ingest(exp, run_dir, cells):
++    """Count the timeouts already in this run's results (a resumed run, or a cell whose process was killed)."""
++    for c in cells:
++        p = os.path.join(common.cell_dir(run_dir, c["cell"]), "result.json")
++        try:
++            outcome = common.read_json(p).get("outcome") if os.path.isfile(p) else None
++        except (OSError, ValueError):
++            continue
++        if isinstance(outcome, str) and outcome.startswith("timeout"):
++            lane = next(l for l in exp["lanes"] if l["name"] == c["lane"])
++            record(exp, lane, c["cell"], run_dir)
++
++
++def deferred(exp, run_dir, cells):
++    """{task: info} of the tasks with an unfinished cell whose key has LIMIT timeouts."""
++    root = ledger()
++    out = {}
++    if not root:
++        return out
++    lanes = {l["name"]: l for l in exp["lanes"]}
++    for c in cells:
++        if c["task"] in out:
++            continue
++        k = key(exp, lanes[c["lane"]], c["task"])
++        n = count(k, root)
++        if n >= LIMIT:
++            out[c["task"]] = {"reason": REASON, "timeouts": n, "study": k[0], "tool": k[2], "sha": k[3],
++                              "override": os.path.join(root, "override", key_name(k))}
++    return out
++
++
++def note(run_dir, found):
++    """Keep the deferrals in PLAN.json (report and alarms read them there)."""
++    path = os.path.join(run_dir, "PLAN.json")
++    plan = common.read_json(path) if os.path.isfile(path) else {}
++    cur = plan.setdefault("timeout_deferrals", {})
++    for t, info in found.items():
++        if t not in cur:
++            cur[t] = dict(info, utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
++    for t in [t for t in cur if t not in found]:
++        del cur[t]  # cleared by an override
++    common.write_json(path, plan)
++    root = ledger()
++    if root:
++        _publish(root)
++
++
++def gaps(run_dir):
++    path = os.path.join(run_dir, "PLAN.json")
++    d = common.read_json(path).get("timeout_deferrals", {}) if os.path.isfile(path) else {}
++    return [{"task": t, "reason": r["reason"], "state": "deferred", "timeouts": r["timeouts"], "study": r["study"],
++             "tool": r["tool"], "sha": r["sha"], "override": r["override"]} for t, r in sorted(d.items())]
++
++
++def _publish(root):
++    """DEFERRED.tsv: one line per deferred key, for fleet alarms (rewritten from the ledger each time)."""
++    keys = {}
++    for r in _rows(root):
++        keys.setdefault((r["study"], r["task"], r["tool"], r["sha"]), 0)
++    lines = []
++    for k in sorted(keys):
++        n = count(k, root)
++        if n >= LIMIT:
++            lines.append("\t".join([k[0], k[1], k[2], k[3], str(n), REASON]))
++    os.makedirs(root, exist_ok=True)
++    p = os.path.join(root, "DEFERRED.tsv")
++    with open(p + ".tmp", "w") as f:
++        f.write("".join(l + "\n" for l in lines))
++    os.replace(p + ".tmp", p)
+diff -ruN -x ops -x __pycache__ p3/lanes/lanes/usage.py p5/lanes/lanes/usage.py
+--- a/lanes/usage.py	2026-10-30 08:52:44
++++ b/lanes/usage.py	2026-10-30 16:04:07
+@@ -192,8 +192,13 @@
+         t[k] = None if any(v is None for v in vals) else sum(vals)
+     walls = [s["wall_s"] for s in stages if s["stage"] in STAGES]
+     t["wall_s"] = None if not walls or any(w is None for w in walls) else round(sum(walls), 3)
+-    costs = [s["cost_usd"] for s in stages]
+-    t["cost_usd"] = None if any(c is None for c in costs) else round(sum(costs), 8)
++    # Never zero a total because one stage is unpriced: sum the priced stages, list the unpriced ones (cap7, 30 Oct).
++    priced = [s["cost_usd"] for s in stages if s["cost_usd"] is not None]
++    unpriced = [{"stage": s["stage"], "reason": s["cost_reason"]} for s in stages if s["cost_usd"] is None]
++    t["priced_usd"] = round(sum(priced), 8) if priced else None
++    t["unpriced_stages"] = unpriced
++    t["cost_complete"] = not unpriced
++    t["cost_usd"] = t["priced_usd"]  # a lower bound whenever unpriced_stages is not empty
+     t["cost_reason"] = "; ".join(sorted({s["cost_reason"] for s in stages if s["cost_reason"]})) or None
+     t["missing"] = sorted({m for s in stages for m in s["missing"] if m in TOKENS or m == "usage_zero_is_unknown"})
+     return t
+diff -ruN -x ops -x __pycache__ p3/lanes/tests/test_approval_reuse.py p5/lanes/tests/test_approval_reuse.py
+--- a/
++++ b/
+@@ -0,0 +1,254 @@
++import glob
++import os
++import shutil
++import tempfile
++import time
++import unittest
++from unittest import mock
++
++from lanes import approval, approvecache, common, dispatch, preflight
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++FAKE = os.path.join(HERE, "fake-kogen")
++TASK = os.path.join(HERE, "fixtures", "task-mini")
++SHA = "0123456789abcdef0123456789abcdef01234567"
++ART = "cd" * 32
++
++
++class ApprovalReuse(unittest.TestCase):
++    def setUp(self):
++        self._tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self._tmp.cleanup)
++        self.tmp = self._tmp.name
++        self.tasks = os.path.join(self.tmp, "tasks")
++        self.task = os.path.join(self.tasks, "task-mini")
++        shutil.copytree(TASK, self.task)
++        self.intent_md = os.path.join(self.task, "supplied", "gherkin", "intent.md")
++        self.edit(self.intent_md, lambda t: t.replace("add-numbers", "task-mini"))
++        self.home = os.path.join(self.tmp, "home")
++        self.cache = os.path.join(self.tmp, "approval-cache")
++        self.run_dir = os.path.join(self.tmp, "runs", "exp-mini")
++        self.kogen = os.path.join(self.home, "artifacts", ART)
++        os.makedirs(os.path.dirname(self.kogen))
++        shutil.copy2(FAKE, self.kogen)
++        self.lanes = [{"name": "base", "sha": SHA, "patch": None, "settings": {}},
++                      {"name": "patched", "sha": SHA, "patch": None, "settings": {}}]
++        self.write_run()
++        env = mock.patch.dict(os.environ, {"KOGEN_LANES_HOME": self.home, "FAKE_KOGEN_TASK": TASK,
++                                           "LANES_APPROVAL_CACHE": self.cache})
++        env.start()
++        self.addCleanup(env.stop)
++        approvecache._release_memo.clear()
++
++    @staticmethod
++    def edit(path, change):
++        with open(path) as f:
++            text = f.read()
++        with open(path, "w") as f:
++            f.write(change(text))
++
++    def write_run(self, lock=None):
++        exp = {"id": "exp-mini", "phase": "build", "intent_form": "gherkin", "reps": 1, "deadline_s": 60,
++               "cost_cap_usd": 100, "kogen": {"repo": "https://example.invalid/kogen.git"}, "tasks": ["task-mini"],
++               "hosts": ["local"], "decision_rule": {"kind": "paired-pass-rate"}, "lanes": self.lanes}
++        common.write_json(os.path.join(self.run_dir, "experiment.json"), exp)
++        common.write_json(os.path.join(self.run_dir, "lanes.lock.json"), lock or [
++            {"name": l["name"], "sha": SHA, "patch_sha256": None, "artifact_sha256": ART} for l in self.lanes])
++
++    def preflight(self, deadline_s=preflight.DEADLINE_S, run_dir=None, **env):
++        """In-process; `(refusals, lines, real approvals)`."""
++        lines, calls = [], []
++        real = preflight._approve
++
++        def counted(*a, **k):
++            calls.append(a[0])
++            return real(*a, **k)
++
++        with mock.patch.dict(os.environ, env), mock.patch.object(preflight, "DEADLINE_S", deadline_s), \
++             mock.patch.object(preflight, "_approve", side_effect=counted):
++            bad = preflight.preflight(run_dir or self.run_dir, self.tasks, out=lines.append)
++        return bad, lines, len(calls)
++
++    def entries(self, suffix=".json"):
++        return [p for p in glob.glob(os.path.join(self.cache, "*", "*" + suffix))
++                if suffix != ".json" or not p.endswith(".refused.json")]
++
++    # 1. reuse on identical inputs
++
++    def test_identical_inputs_reuse_the_approval(self):
++        bad, lines, calls = self.preflight()
++        self.assertEqual((bad, calls), (0, 1), lines)  # both lanes run the same Kogen with the same settings
++        self.assertIn("reused", lines[1])
++        bad, lines, calls = self.preflight()
++        self.assertEqual((bad, calls), (0, 0), lines)
++        self.assertTrue(all(": ok: approved " in l and "reused" in l for l in lines), lines)
++        rec = common.read_json(self.entries()[0])
++        self.assertRegex(rec["approval_hash"], r"^[0-9a-f]{64}$")
++        self.assertTrue(lines[0].split("approved ")[1].startswith(rec["approval_hash"][:8]))
++
++    def test_in_run_preflight_after_lanes_preflight_does_no_approval_work(self):
++        self.assertEqual(self.preflight()[:2][0], 0)
++        hosts = os.path.join(self.tmp, "hosts.json")
++        common.write_json(hosts, {"local": {"target": "local", "slots": 1}})
++        source = os.path.join(self.tmp, "experiment.json")
++        shutil.copyfile(os.path.join(self.run_dir, "experiment.json"), source)
++        self.assertEqual(dispatch.plan_main([source, "--run-dir", self.run_dir, "--tasks", self.tasks]), 0)
++        started, calls = [], []
++        real = preflight._approve
++
++        def run_cell(host, cell, artifact):
++            started.append(cell)
++            common.write_json(os.path.join(common.cell_dir(self.run_dir, cell), "result.json"),
++                              {"outcome": "landed", "totals": {}, "stages": []})
++            return True
++
++        with mock.patch.object(preflight, "_approve", side_effect=lambda *a, **k: calls.append(1) or real(*a, **k)), \
++             mock.patch.object(dispatch.Host, "run_cell", run_cell), mock.patch.object(dispatch, "verify_inputs"):
++            code = dispatch.run_all(self.run_dir, self.tasks, hosts, log=lambda m: None)
++        self.assertEqual((code, len(calls), len(started)), (0, 0, 2))
++
++    def test_a_later_unit_with_the_same_kogen_reuses_and_another_sha_does_not(self):
++        self.assertEqual(self.preflight()[2], 1)
++        later = os.path.join(self.tmp, "runs", "exp-later")
++        shutil.copytree(self.run_dir, later)
++        bad, lines, calls = self.preflight(run_dir=later)
++        self.assertEqual((bad, calls), (0, 0), lines)
++        self.assertIn("in exp-mini task-mini", lines[0])
++        common.write_json(os.path.join(later, "lanes.lock.json"), [
++            {"name": l["name"], "sha": "f" * 40, "patch_sha256": None, "artifact_sha256": ART} for l in self.lanes])
++        self.assertEqual(self.preflight(run_dir=later)[2], 1)
++
++    # 2. a miss on every changed input
++
++    def test_every_changed_input_misses(self):
++        self.assertEqual(self.preflight()[2], 1)
++        changes = {
++            "start/": lambda: self.edit(self.start_file(), lambda t: t + "\n"),
++            "start/ new file": self.new_start_file,
++            "task.toml": lambda: self.edit(os.path.join(self.task, "task.toml"), lambda t: "# changed\n" + t),
++            "supplied Intent": lambda: self.edit(self.intent_md, lambda t: t + "\n"),
++            "approval deadline": lambda: self.edit(os.path.join(self.task, "task.toml"),
++                                                   lambda t: "approve_timeout_s = 119\n" + t),
++            "lane models": lambda: (self.lanes[0]["settings"].update(models={"build": "openai/gpt-5.1 low"}),
++                                    self.lanes[1]["settings"].update(models={"build": "openai/gpt-5.1 low"}),
++                                    self.write_run()),
++            "Kogen sha": lambda: self.write_run([{"name": l["name"], "sha": "e" * 40, "patch_sha256": None,
++                                                  "artifact_sha256": ART} for l in self.lanes]),
++            "patch": lambda: self.write_run([{"name": l["name"], "sha": "e" * 40, "patch_sha256": "9" * 64,
++                                              "artifact_sha256": ART} for l in self.lanes]),
++            "Kogen executable": lambda: self.edit(self.kogen, lambda t: t + "\n# rebuilt\n"),
++            "environment": lambda: os.environ.__setitem__("GOFLAGS", "-mod=mod"),
++        }
++        for name, change in changes.items():
++            with self.subTest(name):
++                change()
++                approvecache._release_memo.clear()
++                bad, lines, calls = self.preflight()
++                self.assertEqual((bad, calls), (0, 1), lines)  # a fresh real approval, then the twin lane reuses it
++                self.assertNotIn("reused", lines[0])
++                self.assertEqual(self.preflight()[2], 0)  # and it is now reusable itself
++        os.environ.pop("GOFLAGS", None)
++
++    def start_file(self):
++        for dirpath, _, names in sorted(os.walk(os.path.join(self.task, "start"))):
++            for name in sorted(names):
++                if not os.path.islink(os.path.join(dirpath, name)):
++                    return os.path.join(dirpath, name)
++
++    def new_start_file(self):
++        with open(os.path.join(self.task, "start", f"added-{time.monotonic_ns()}.txt"), "w") as f:
++            f.write("x\n")
++
++    def test_key_covers_node_npm_entry_and_harness_code(self):
++        args = dict(exp={"intent_form": "gherkin"}, run_dir=self.run_dir, task=self.task, slug="task-mini",
++                    supplied=os.path.join(self.task, "supplied", "gherkin"), kogen=self.kogen, deadline_s=120,
++                    lane=self.lanes[0], artifact=None)
++        entry = os.path.join(self.tmp, "npm-entry")
++        os.makedirs(entry)
++        common.write_json(os.path.join(entry, "manifest.json"), {"inputs": "a"})
++        config = f"  setup:\n    - '(cd web && /py /nm.py restore --entry {entry})'\n"
++        base = approvecache.key(config=config, node={"path": "/n", "version": "22.1.0"}, **args)[0]
++        self.assertNotEqual(base, approvecache.key(config=config, node={"path": "/n", "version": "22.2.0"}, **args)[0])
++        common.write_json(os.path.join(entry, "manifest.json"), {"inputs": "b"})
++        self.assertNotEqual(base, approvecache.key(config=config, node={"path": "/n", "version": "22.1.0"}, **args)[0])
++        with mock.patch.object(approvecache, "CODE", approvecache.CODE + ("approval.py",)):
++            self.assertNotEqual(base, approvecache.key(config=config, node={"path": "/n", "version": "22.1.0"}, **args)[0])
++
++    def test_dispatch_only_environment_does_not_change_the_key(self):
++        self.assertEqual(self.preflight()[2], 1)
++        shim = os.path.join(self.tmp, ".lanes-shim")
++        os.makedirs(shim)
++        bad, lines, calls = self.preflight(PATH=shim + os.pathsep + os.environ["PATH"], SLOTS="3", DAYDIR="x",
++                                           GIT_AUTHOR_NAME="Kogen Lanes", LANES_SHARED_GOCACHE="/tmp/g",
++                                           TMPDIR=self.tmp, LANES_ENV="/x/run-u/lanes.env")
++        self.assertEqual((bad, calls), (0, 0), lines)
++
++    # 3. a deferred approval still defers
++
++    def test_timeout_is_never_stored_and_still_defers(self):
++        for attempt in range(2):
++            bad, lines, calls = self.preflight(deadline_s=1, FAKE_KOGEN_APPROVE_DELAY_S="3")
++            self.assertEqual((bad, calls), (0, 2), lines)  # no lane may borrow the other's unfinished approval
++            self.assertTrue(all("DEFERRED" in l for l in lines[:2]), lines)
++            self.assertEqual(approval.pending(self.run_dir), {"task-mini"})
++            self.assertEqual(self.entries() + self.entries(".refused.json"), [])
++            os.remove(os.path.join(self.run_dir, "PLAN.json"))  # a fresh unit, not the in-run skip of debt
++
++    def test_paired_retry_reuses_only_the_lane_that_approved(self):
++        self.lanes[1]["settings"] = {"models": {"build": "openai/gpt-5.1 high"}}  # two distinct keys
++        self.write_run()
++        real, seen = preflight._approve, []
++
++        def slow_base(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
++            seen.append(refusal_context[2])
++            if refusal_context[2] == "base" and len(seen) < 3:
++                return False, preflight.ApprovalTimeout("approve refused (timed out)"), None
++            return real(task, slug, supplied, kogen, config, deadline_s, refusal_context)
++
++        lines = []
++        with mock.patch.object(preflight, "_approve", side_effect=slow_base):
++            self.assertEqual(preflight.preflight(self.run_dir, self.tasks, out=lines.append), 0)
++            self.assertEqual(approval.pending(self.run_dir), {"task-mini"})
++            self.assertEqual(preflight.preflight(self.run_dir, self.tasks, out=lines.append, task_ids=["task-mini"],
++                                                 stage="after_cells"), 0)
++        self.assertEqual(seen, ["base", "patched", "base"])  # base retried for real; patched reused
++        self.assertEqual(approval.pending(self.run_dir), set())
++        self.assertIn("reused", lines[-1])
++
++    # 4. a refused approval is never reused
++
++    def test_refusal_is_not_stored_as_an_approval(self):
++        for attempt in range(2):
++            bad, lines, calls = self.preflight(FAKE_KOGEN_LINT="refuse")
++            self.assertEqual((bad, calls), (2, 2), lines)
++            self.assertTrue(all("REFUSED" in l for l in lines), lines)
++        self.assertEqual(self.entries(), [])
++        self.assertEqual(len(self.entries(".refused.json")), 1)
++
++    def test_a_refusal_under_the_same_key_blocks_an_earlier_approval(self):
++        self.assertEqual(self.preflight()[2], 1)
++        refused = [False]
++        real = preflight._approve
++
++        def flaky(*a, **k):
++            return (False, "approve refused (exit 1):\n    intent/lint: flaky", None) if refused[0] else real(*a, **k)
++
++        digest = common.read_json(self.entries()[0])["key"]
++        approvecache.store(digest, {}, False, False, None, {"experiment": "other"})  # as a concurrent unit refusing
++        refused[0] = True
++        lines = []
++        with mock.patch.object(preflight, "_approve", side_effect=flaky) as approve:
++            bad = preflight.preflight(self.run_dir, self.tasks, out=lines.append)
++        self.assertEqual((bad, approve.call_count), (2, 2), lines)
++        self.assertIsNone(approvecache.lookup(digest))
++
++    def test_off_without_the_cache_variable(self):
++        with mock.patch.dict(os.environ):
++            del os.environ["LANES_APPROVAL_CACHE"]
++            self.assertEqual(self.preflight()[2], 2)
++            self.assertEqual(self.preflight()[2], 2)
++        self.assertFalse(os.path.exists(self.cache))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff -ruN -x ops -x __pycache__ p3/lanes/tests/test_timeout_deferral.py p5/lanes/tests/test_timeout_deferral.py
+--- a/
++++ b/
+@@ -0,0 +1,108 @@
++import os
++import shutil
++import tempfile
++import unittest
++from unittest import mock
++
++from lanes import common, dispatch, report, timeoutguard
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++FIX = os.path.join(HERE, "fixtures")
++ART = "ab" * 32
++
++
++class TimeoutDeferral(unittest.TestCase):
++    """A stub task that always times out (the fake deadline is the stub's outcome, so the test takes seconds)."""
++
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = self.tmp.name
++        self.tasks = os.path.join(self.root, "tasks")
++        self.ledger = os.path.join(self.root, "ledger")
++        env = mock.patch.dict(os.environ, {"KOGEN_LANES_HOME": os.path.join(self.root, "home"),
++                                           "LANES_TIMEOUT_LEDGER": self.ledger})
++        env.start()
++        self.addCleanup(env.stop)
++        self.hosts = os.path.join(self.root, "hosts.json")
++        common.write_json(self.hosts, {"local": {"target": "local", "slots": 1}})
++        for t in ("good", "slow"):
++            shutil.copytree(os.path.join(FIX, "task-mini"), os.path.join(self.tasks, t))
++        self.started = []
++
++    def plan(self, exp_id, reps=3):
++        exp = common.read_json(os.path.join(FIX, "experiment-good.json"))
++        exp.update(id=exp_id, tasks=["good", "slow"], reps=reps, deadline_s=2, decision_rule={"kind": "descriptive"})
++        exp["lanes"] = exp["lanes"][:1]
++        for lane in exp["lanes"]:
++            lane["patch"] = None
++        run = os.path.join(self.root, "runs", exp_id)
++        src = os.path.join(self.root, exp_id + ".json")
++        common.write_json(src, exp)
++        common.write_json(os.path.join(run, "lanes.lock.json"),
++                          [{"name": l["name"], "sha": l["sha"], "artifact_sha256": ART} for l in exp["lanes"]])
++        self.assertEqual(dispatch.plan_main([src, "--run-dir", run, "--tasks", self.tasks]), 0)
++        return run
++
++    def run_it(self, run, outcome_slow="timeout"):
++        def run_cell(host, cell, artifact):
++            self.started.append((os.path.basename(run), cell))
++            out = outcome_slow if cell.startswith("slow/") else "landed"
++            common.write_json(os.path.join(common.cell_dir(run, cell), "result.json"),
++                              {"cell": cell, "outcome": out, "totals": {}, "stages": []})
++            return True
++
++        with mock.patch.object(dispatch.Host, "run_cell", run_cell):
++            return dispatch.run_all(run, self.tasks, self.hosts, log=lambda m: None, skip_preflight=True)
++
++    def slow_starts(self, exp_id):
++        return [c for e, c in self.started if e == exp_id and c.startswith("slow/")]
++
++    def test_two_timeouts_then_deferred_others_continue_override_readmits(self):
++        r1 = self.plan("study-a-u1")
++        self.assertEqual(self.run_it(r1), 0)
++        self.assertEqual(len(self.slow_starts("study-a-u1")), 2, "slow runs twice, the third rep is deferred")
++        self.assertEqual(len([1 for e, c in self.started if c.startswith("good/")]), 3, "other tasks continue")
++        self.assertEqual(common.read_json(os.path.join(r1, "PLAN.json"))["timeout_deferrals"]["slow"]["reason"],
++                         "deferred: 2 timeouts")
++        self.assertIn("deferred: 2 timeouts", open(os.path.join(r1, "report.md")).read())
++        self.assertEqual(report.report(r1)["verdict"]["decision"], "incomplete")
++        # another experiment of the same study (host replicate suffix): never launched
++        r2 = self.plan("study-a-e2")
++        self.assertEqual(self.run_it(r2), 0)
++        self.assertEqual(self.slow_starts("study-a-e2"), [])
++        self.assertEqual(len([1 for e, c in self.started if e == "study-a-e2" and c.startswith("good/")]), 3)
++        self.assertTrue(os.path.isfile(os.path.join(r2, "plan.jsonl")))
++        self.assertEqual(len([c for c in common.read_jsonl(os.path.join(r2, "plan.jsonl")) if c["task"] == "slow"]), 3)
++        self.assertIn("slow\t", open(os.path.join(self.ledger, "DEFERRED.tsv")).read())
++        # a different study is not affected
++        r3 = self.plan("study-b-u1")
++        self.run_it(r3)
++        self.assertEqual(len(self.slow_starts("study-b-u1")), 2)
++        # override: counts restart; the task is admitted again
++        info = timeoutguard.gaps(r2)[0]
++        os.makedirs(os.path.dirname(info["override"]), exist_ok=True)
++        open(info["override"], "w").close()
++        r4 = self.plan("study-a-s4")
++        self.run_it(r4)
++        self.assertEqual(len(self.slow_starts("study-a-s4")), 2, "re-admitted: runs twice, then deferred again")
++        self.assertEqual(timeoutguard.count(("study-a", "slow", timeoutguard.tool_of(
++            common.read_json(os.path.join(r4, "experiment.json"))["lanes"][0]), common.read_json(
++            os.path.join(r4, "experiment.json"))["lanes"][0]["sha"])), 2)
++
++    def test_guard_off_without_ledger(self):
++        os.environ.pop("LANES_TIMEOUT_LEDGER")
++        r1 = self.plan("study-c-u1", reps=3)
++        self.run_it(r1)
++        self.assertEqual(len(self.slow_starts("study-c-u1")), 3)
++        self.assertFalse(os.path.exists(self.ledger))
++
++    def test_landed_cells_never_count(self):
++        r1 = self.plan("study-d-u1", reps=3)
++        self.run_it(r1, outcome_slow="landed")
++        self.assertEqual(len(self.slow_starts("study-d-u1")), 3)
++        self.assertEqual(timeoutguard.count(("study-d", "slow", "x", "y")), 0)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff -ruN -x ops -x __pycache__ p3/lanes/tests/test_usage.py p5/lanes/tests/test_usage.py
+--- a/
++++ b/
+@@ -84,8 +84,10 @@
+         self.assertIsNone(build["cost_usd"])
+         self.assertEqual(build["cost_reason"], "usage missing")
+         self.assertEqual(build["missing"], sorted(usage.TOKENS))
+-        self.assertIsNone(r["totals"]["cost_usd"])
+-        self.assertEqual(r["totals"]["missing"], sorted(usage.TOKENS))
++        t = r["totals"]  # approve is priced at 0.0, build is not: the total is the priced sum plus a list, never a silent zero
++        self.assertEqual((t["priced_usd"], t["cost_usd"], t["cost_complete"]), (0.0, 0.0, False))
++        self.assertEqual([u["stage"] for u in t["unpriced_stages"]], ["build", "review"])
++        self.assertEqual(t["missing"], sorted(usage.TOKENS))
+ 
+     def test_zero_usage_in_a_build_log_is_flagged_not_priced(self):
+         """b45ba32b logs missing build usage as 0: not a real $0."""
+@@ -95,7 +97,8 @@
+         self.assertIsNone(build["cost_usd"])
+         self.assertIn("all zero", build["cost_reason"])
+         self.assertIn("usage_zero_is_unknown", build["missing"])
+-        self.assertIsNone(r["totals"]["cost_usd"])
++        self.assertFalse(r["totals"]["cost_complete"])
++        self.assertEqual(r["totals"]["unpriced_stages"][0]["stage"], "build")
+         self.assertIn("usage_zero_is_unknown", r["totals"]["missing"])
+ 
+     def test_shape_stage_from_shaping_events(self):
+@@ -140,9 +143,11 @@
+         build = r["stages"][1]
+         self.assertIsNone(build["cost_usd"])
+         self.assertIn("unlisted_model", build["cost_reason"])
++        self.assertEqual(r["totals"]["priced_usd"], 0.00066)  # was None: the priced review stage is no longer hidden
++        self.assertEqual([u["stage"] for u in r["totals"]["unpriced_stages"]], ["build"])
+         self.assertEqual(build["input_tokens"], 1200)  # tokens are still reported
+         self.assertEqual(r["stages"][2]["cost_usd"], 0.00066)
+-        self.assertIsNone(r["totals"]["cost_usd"])
++        self.assertFalse(r["totals"]["cost_complete"])
+ 
+     def test_provider_prefix_is_stripped_for_price(self):
+         usd, why = usage.request_cost("openai/fake-model", {"input_tokens": 1000, "cached_input_tokens": 0,
+@@ -189,7 +194,8 @@
+         self.assertIsNone(build["cost_usd"])
+         self.assertEqual(build["cost_reason"], "no request in the log")
+         self.assertEqual(build["missing"], sorted(usage.TOKENS))
+-        self.assertIsNone(r["totals"]["cost_usd"])
++        self.assertFalse(r["totals"]["cost_complete"])  # priced sum kept, the unpriced build is listed (cap7)
++        self.assertEqual([u["stage"] for u in r["totals"]["unpriced_stages"]], ["build"])
+ 
+     def test_a_seeded_build_with_requests_is_priced_from_them(self):
+         log = self.SEED_LOG[:1] + [{"event": "request", "role": "build", "model": "fake-model", "wall_ms": 5,

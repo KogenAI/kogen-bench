@@ -17682,5 +17682,3803 @@
     "base_missing": false,
     "base_provenance": "Public ts-bun base directory packaged from the registered task source; SHA-256 tree archive identifies the snapshot.",
     "exposures": []
+  },
+  {
+    "id": "logq-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "b30ad247346b5fbaf9425bad28b3f8608f2b897ac457c8fea6f87e6bb1a74a16",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task logq-go; never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "b30ad247346b5fbaf9425bad28b3f8608f2b897ac457c8fea6f87e6bb1a74a16",
+      "request_bytes": 14012,
+      "kit_sha256_tree": "e9c35cce119492bb69c4aef1fa6617742ada15e868f4f773e82845b9f703ab85",
+      "kit_files": 163,
+      "kit_bytes": 498251,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          19206
+        ],
+        "reference": [
+          39,
+          108913
+        ],
+        "start": [
+          36,
+          97613
+        ],
+        "supplied": [
+          5,
+          39790
+        ],
+        "wrong": [
+          78,
+          217941
+        ]
+      },
+      "eu_round_attested_sha256_tree": "e9c35cce119492bb69c4aef1fa6617742ada15e868f4f773e82845b9f703ab85",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "b30ad247346b5fbaf9425bad28b3f8608f2b897ac457c8fea6f87e6bb1a74a16",
+      "h2h30_kit_sha256_tree": "9b8390a0daaf80ab118affcbefbbed4382c3fb9ba0c78af043fbe871844bc6d1",
+      "h2h30_kit_same_as_primary": false
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "logq-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module logq"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/logq-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/logq-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task logq-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "sh-globopts-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "mvdan/sh (mvdan.cc/sh/v3) upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "bdc3236e0d5886a068e6cc99ad4e522c8791c183d9afcf190e2324933d04a3c8",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task sh-globopts-go (long session: mvdan.cc/sh/v3 shell parser and interpreter, ~35 KLOC of Go, multi-package change); never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)"
+      ],
+      "request_sha256": "bdc3236e0d5886a068e6cc99ad4e522c8791c183d9afcf190e2324933d04a3c8",
+      "request_bytes": 12617,
+      "kit_sha256_tree": "8bc4cc08d1fb9be8f666df31ab2efea197c160b9766a7b94f11286a249ef5914",
+      "kit_files": 775,
+      "kit_bytes": 13223446,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          5,
+          62927
+        ],
+        "reference": [
+          14,
+          249328
+        ],
+        "start": [
+          580,
+          9862710
+        ],
+        "supplied": [
+          5,
+          31924
+        ],
+        "wrong": [
+          168,
+          2991803
+        ]
+      },
+      "eu_round_attested_sha256_tree": "8bc4cc08d1fb9be8f666df31ab2efea197c160b9766a7b94f11286a249ef5914",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation"
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "mvdan/sh (mvdan.cc/sh/v3)",
+        "authors_or_organisation": [
+          "Daniel Martí"
+        ],
+        "url": "https://github.com/mvdan/sh",
+        "commit_or_release": "trimmed upstream snapshot (commit not recorded in kit notes)",
+        "licence": "BSD-3-Clause",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream mvdan/sh (mvdan.cc/sh/v3) trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/sh-globopts-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/sh-globopts-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task sh-globopts-go (long session: mvdan.cc/sh/v3 shell parser and interpreter, ~35 KLOC of Go, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "expr-match-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "expr-lang/expr upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "cb7bae2e7234a53681e36ea16061d21c068ebe6563c1bfa6d212f1c08dd25e83",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task expr-match-go (long session: expr-lang/expr, ~33 KLOC of Go excluding its vendored testify, multi-package change); never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)"
+      ],
+      "request_sha256": "cb7bae2e7234a53681e36ea16061d21c068ebe6563c1bfa6d212f1c08dd25e83",
+      "request_bytes": 15493,
+      "kit_sha256_tree": "5d9fb1437be1aee8285090d2e19651a01c39705bbb306bc498c0cae1ca510686",
+      "kit_files": 483,
+      "kit_bytes": 6089678,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          4,
+          160922
+        ],
+        "reference": [
+          22,
+          277838
+        ],
+        "start": [
+          207,
+          2522972
+        ],
+        "supplied": [
+          5,
+          39956
+        ],
+        "wrong": [
+          242,
+          3055506
+        ]
+      },
+      "eu_round_attested_sha256_tree": "5d9fb1437be1aee8285090d2e19651a01c39705bbb306bc498c0cae1ca510686",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation"
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "expr-lang/expr",
+        "authors_or_organisation": [
+          "Anton Medvedev"
+        ],
+        "url": "https://github.com/expr-lang/expr",
+        "commit_or_release": "4b31df3",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream expr-lang/expr trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/expr-match-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/expr-match-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task expr-match-go (long session: expr-lang/expr, ~33 KLOC of Go excluding its vendored testify, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "goldmark-callouts-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "yuin/goldmark upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "78a55b68472e2e7981342672961d527a04aec802f769a09160ad10d43b876138",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task goldmark-callouts-go (long session: goldmark, ~16 KLOC of Go, multi-package change); never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)"
+      ],
+      "request_sha256": "78a55b68472e2e7981342672961d527a04aec802f769a09160ad10d43b876138",
+      "request_bytes": 13053,
+      "kit_sha256_tree": "1611c53f8d964a458160573deacf9b46d05684b98dfb29005914996f95ea3d9e",
+      "kit_files": 283,
+      "kit_bytes": 2445023,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          9,
+          38984
+        ],
+        "reference": [
+          21,
+          166936
+        ],
+        "start": [
+          98,
+          1016188
+        ],
+        "supplied": [
+          5,
+          32165
+        ],
+        "wrong": [
+          147,
+          1168119
+        ]
+      },
+      "eu_round_attested_sha256_tree": "1611c53f8d964a458160573deacf9b46d05684b98dfb29005914996f95ea3d9e",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation"
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "yuin/goldmark",
+        "authors_or_organisation": [
+          "Yusuke Inuzuka"
+        ],
+        "url": "https://github.com/yuin/goldmark",
+        "commit_or_release": "v1.8.6",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream yuin/goldmark trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/goldmark-callouts-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/goldmark-callouts-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task goldmark-callouts-go (long session: goldmark, ~16 KLOC of Go, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "inventory-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "5639a41aeecaee7b5f5b64f5d37f9e8e178c87054451410401c61c861600e97e",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1",
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private benchmark task; never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "5639a41aeecaee7b5f5b64f5d37f9e8e178c87054451410401c61c861600e97e",
+      "request_bytes": 13252,
+      "kit_sha256_tree": "21c71729f5c18b404b427e7647550443f498b42164ef0f4ff2d42300afc4e30e",
+      "kit_files": 117,
+      "kit_bytes": 479704,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          4,
+          26916
+        ],
+        "reference": [
+          27,
+          101472
+        ],
+        "start": [
+          25,
+          91703
+        ],
+        "supplied": [
+          5,
+          42398
+        ],
+        "wrong": [
+          54,
+          202984
+        ]
+      },
+      "eu_round_attested_sha256_tree": "21c71729f5c18b404b427e7647550443f498b42164ef0f4ff2d42300afc4e30e",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "5639a41aeecaee7b5f5b64f5d37f9e8e178c87054451410401c61c861600e97e",
+      "h2h30_kit_sha256_tree": "a94bc03b6d24c1a97df84c71fd020ff4672c1d945b37c210c3690e94db313213",
+      "h2h30_kit_same_as_primary": false
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "inventory-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module inventory"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/inventory-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/inventory-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private benchmark task; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "ledger-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "f3ddcf1f2c4628a61744bd2433f19c521871d540fe7e591903f059de21dc42f7",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1",
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "confirmation",
+      "kit_header": "Private confirmation task ledger-go; never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "f3ddcf1f2c4628a61744bd2433f19c521871d540fe7e591903f059de21dc42f7",
+      "request_bytes": 8781,
+      "kit_sha256_tree": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+      "kit_files": 58,
+      "kit_bytes": 225608,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          10109
+        ],
+        "reference": [
+          12,
+          46488
+        ],
+        "start": [
+          12,
+          39502
+        ],
+        "supplied": [
+          5,
+          26939
+        ],
+        "wrong": [
+          24,
+          93005
+        ]
+      },
+      "eu_round_attested_sha256_tree": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "f3ddcf1f2c4628a61744bd2433f19c521871d540fe7e591903f059de21dc42f7",
+      "h2h30_kit_sha256_tree": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "ledger-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module kogen"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/ledger-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/ledger-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private confirmation task ledger-go; never publish.\"; held-out confirmation-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "heatcal-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "d6dcda27ac3e9df42c5af65e63aa9217d50d06d633d80215869ddaa8147403f3",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task heatcal-go; never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "d6dcda27ac3e9df42c5af65e63aa9217d50d06d633d80215869ddaa8147403f3",
+      "request_bytes": 3576,
+      "kit_sha256_tree": "9bab90f461014719390649f034b18017c7003cd14d6cbfbf6366a84d00ac6268",
+      "kit_files": 82,
+      "kit_bytes": 4692647,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          6,
+          25467
+        ],
+        "reference": [
+          10,
+          917480
+        ],
+        "start": [
+          17,
+          60184
+        ],
+        "supplied": [
+          5,
+          13081
+        ],
+        "wrong": [
+          41,
+          3665296
+        ]
+      },
+      "eu_round_attested_sha256_tree": "9bab90f461014719390649f034b18017c7003cd14d6cbfbf6366a84d00ac6268",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "d6dcda27ac3e9df42c5af65e63aa9217d50d06d633d80215869ddaa8147403f3",
+      "h2h30_kit_sha256_tree": "9bab90f461014719390649f034b18017c7003cd14d6cbfbf6366a84d00ac6268",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "heatcal-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/heatcal"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/heatcal-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/heatcal-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task heatcal-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "sync3-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "efbf90df0ac2de1c02cd9555861f0eed0ae79c3d542d0d65c91965b7a2888fa5",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task; never publish.",
+      "rounds": [
+        "confirm5 (EU clean route)",
+        "confirmation-eu-wide (EU)",
+        "replay13 (confirmation-eu-replay, EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "efbf90df0ac2de1c02cd9555861f0eed0ae79c3d542d0d65c91965b7a2888fa5",
+      "request_bytes": 11235,
+      "kit_sha256_tree": "d82a42f93d601240ea36eda715466a2b668d892e8279930e6bcf7b007086e547",
+      "kit_files": 119,
+      "kit_bytes": 479776,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          21940
+        ],
+        "reference": [
+          28,
+          104583
+        ],
+        "start": [
+          25,
+          92538
+        ],
+        "supplied": [
+          5,
+          39150
+        ],
+        "wrong": [
+          56,
+          209254
+        ]
+      },
+      "eu_round_attested_sha256_tree": "d82a42f93d601240ea36eda715466a2b668d892e8279930e6bcf7b007086e547",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "efbf90df0ac2de1c02cd9555861f0eed0ae79c3d542d0d65c91965b7a2888fa5",
+      "h2h30_kit_sha256_tree": "ac0ebe6d3cd358d499ac608b39121247dd0c58f6aca2e82c01c32c32717dec19",
+      "h2h30_kit_same_as_primary": false
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "sync3-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module sync3"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/sync3-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/sync3-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "cron-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1",
+      "review-off-hard-1-kogen",
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private confirmation task cron-go; do not publish.",
+      "rounds": [
+        "confirmation-eu (EU)",
+        "confirmation-eu-medium (EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+      "request_bytes": 10856,
+      "kit_sha256_tree": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "kit_files": 64,
+      "kit_bytes": 256518,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          14098
+        ],
+        "qualification": [
+          6,
+          10224
+        ],
+        "reference": [
+          12,
+          50162
+        ],
+        "start": [
+          12,
+          39502
+        ],
+        "supplied": [
+          5,
+          30572
+        ],
+        "wrong": [
+          24,
+          100324
+        ]
+      },
+      "eu_round_attested_sha256_tree": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "074b300353c04d086f90700abde6f1b1d164057fa672d14d059838e220146f65",
+      "h2h30_kit_sha256_tree": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "cron-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module kogen"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/cron-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/cron-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private confirmation task cron-go; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "readtime-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "36de64def51fcd86487203c9cc2c3d6c4b435f7a1a9b838ecf4e72ca43ef3f99",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private confirmation task readtime-go; do not publish.",
+      "rounds": [
+        "confirmation-eu (EU)",
+        "confirmation-eu-medium (EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "36de64def51fcd86487203c9cc2c3d6c4b435f7a1a9b838ecf4e72ca43ef3f99",
+      "request_bytes": 7638,
+      "kit_sha256_tree": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "kit_files": 300,
+      "kit_bytes": 2150742,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          16936
+        ],
+        "qualification": [
+          2,
+          3396
+        ],
+        "reference": [
+          72,
+          524212
+        ],
+        "start": [
+          72,
+          521581
+        ],
+        "supplied": [
+          5,
+          27593
+        ],
+        "wrong": [
+          144,
+          1048508
+        ]
+      },
+      "eu_round_attested_sha256_tree": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "36de64def51fcd86487203c9cc2c3d6c4b435f7a1a9b838ecf4e72ca43ef3f99",
+      "h2h30_kit_sha256_tree": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "readtime-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module kogen"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/readtime-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/readtime-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private confirmation task readtime-go; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "artifact-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": true,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": "public task directory/artifact-go/prompt.md",
+    "prompt_sha256_original": "5dc44ef99fd53cf90892aefebf8f273d1e57922cc609f7d85a76d70f347ce317",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Verification-policy task: the launcher executes an ignored build output that only the declared build step may produce.",
+      "rounds": [
+        "confirmation-eu (EU)",
+        "confirmation-eu-medium (EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "5dc44ef99fd53cf90892aefebf8f273d1e57922cc609f7d85a76d70f347ce317",
+      "request_bytes": 2611,
+      "kit_sha256_tree": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "kit_files": 60,
+      "kit_bytes": 202140,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          10390
+        ],
+        "qualification": [
+          4,
+          6500
+        ],
+        "reference": [
+          11,
+          42917
+        ],
+        "start": [
+          12,
+          39184
+        ],
+        "supplied": [
+          5,
+          13892
+        ],
+        "wrong": [
+          22,
+          85774
+        ]
+      },
+      "eu_round_attested_sha256_tree": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "5dc44ef99fd53cf90892aefebf8f273d1e57922cc609f7d85a76d70f347ce317",
+      "h2h30_kit_sha256_tree": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "artifact-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "Apache-2.0 (repository licence)",
+        "evidence": [
+          "kit start/go.mod: module wordfreq"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "Apache-2.0 (repository licence)",
+        "evidence": [
+          "tasks/artifact-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [
+          "hidden/evaluator/"
+        ],
+        "url": null,
+        "licence": "Apache-2.0 (repository licence)",
+        "evidence": [
+          "tasks/artifact-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Kogen-original fixture published with its hidden suite, reference and known-wrong trees under the repository licence.",
+        "required_files": [],
+        "status": "cleared"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [
+      {
+        "date": "2026-10-30",
+        "kind": "published-in-full",
+        "scope": "prompt, base, hidden suite, reference and known-wrong trees published in this catalogue",
+        "log": "tasks/CONTAMINATION-LOG.md#2026-10-30--artifact-go-published-in-full"
+      }
+    ],
+    "base_sha": "not declared (source directory snapshot)",
+    "base_bundle": "_bases/artifact-go-base.tar.gz",
+    "base_missing": false,
+    "base_provenance": "start/ tree of the lanes kit packaged as a deterministic tar.gz; lanes_kit.eu_round_attested_sha256_tree identifies the whole kit the rounds ran.",
+    "base_bundle_sha256": "bba82b445cd012ef9ba1e6fbdb9d002d94f59f752bc5674c5c0b9a1dc979f68d"
+  },
+  {
+    "id": "vm-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1",
+      "review-off-hard-1-kogen",
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private confirmation task vm-go; do not publish.",
+      "rounds": [
+        "confirmation-eu (EU)",
+        "confirmation-eu-medium (EU)",
+        "wcheck12 (12-task pool, EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+      "request_bytes": 10225,
+      "kit_sha256_tree": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+      "kit_files": 64,
+      "kit_bytes": 249476,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          11997
+        ],
+        "qualification": [
+          6,
+          10206
+        ],
+        "reference": [
+          12,
+          49217
+        ],
+        "start": [
+          12,
+          39502
+        ],
+        "supplied": [
+          5,
+          29120
+        ],
+        "wrong": [
+          24,
+          98433
+        ]
+      },
+      "eu_round_attested_sha256_tree": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+      "eu_attestation_check": "eu2 kit copy re-hashed 2026-10-30 with lanes common.sha256_tree; equals the EU round protocol attestation",
+      "h2h30_request_sha256": "29e5b47f37c70d019ba2822f00b35c07d694a7b20011e5eb70999f529e2edc7c",
+      "h2h30_kit_sha256_tree": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "vm-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module kogen"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/vm-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/vm-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private confirmation task vm-go; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "tengo-switch-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "d5/tengo (v2) upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "127f30782c422a0ae5b16db566f11448935b7402e066cefcf5ecac07c3ca94aa",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task tengo-switch-go (long session: Tengo, ~32 KLOC of Go, multi-package change); never publish.",
+      "rounds": [
+        "batchtool (EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "127f30782c422a0ae5b16db566f11448935b7402e066cefcf5ecac07c3ca94aa",
+      "request_bytes": 11265,
+      "kit_sha256_tree": "91d9b4980d882e28897dc957fa2e16c1cb6a15a9095ee6ccbe55115e58aff6bc",
+      "kit_files": 240,
+      "kit_bytes": 2161580,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          8,
+          43164
+        ],
+        "reference": [
+          13,
+          139226
+        ],
+        "start": [
+          120,
+          951181
+        ],
+        "supplied": [
+          5,
+          31414
+        ],
+        "wrong": [
+          91,
+          974865
+        ]
+      },
+      "h2h30_request_sha256": "d4dd32827bb6b9fe5fd8537eb9757c4ece449c4e329c076d968d001cbb0a2119",
+      "h2h30_kit_sha256_tree": "dcf8bfafdf02e6bc2a5810cfc2638c2fd18447c5c0282e89d02c922934d1c4fb",
+      "h2h30_kit_same_as_primary": false
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "d5/tengo (v2)",
+        "authors_or_organisation": [
+          "Daniel Kang"
+        ],
+        "url": "https://github.com/d5/tengo",
+        "commit_or_release": "upstream snapshot without .git (commit not recorded in kit notes)",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream d5/tengo (v2) trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/tengo-switch-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/tengo-switch-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task tengo-switch-go (long session: Tengo, ~32 KLOC of Go, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "tally-periodic-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "6bc203cbcb6e448e82cd407c1128a17349e7e86c9b7838bb20c4997ca1812f16",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task tally-periodic-go; never publish.",
+      "rounds": [
+        "batchtool (EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)",
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "6bc203cbcb6e448e82cd407c1128a17349e7e86c9b7838bb20c4997ca1812f16",
+      "request_bytes": 8102,
+      "kit_sha256_tree": "852cd86400ca797ff695a008fb073dc02947f76d893a85d4ebadcdd40a5ac22d",
+      "kit_files": 211,
+      "kit_bytes": 644006,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          33060
+        ],
+        "reference": [
+          35,
+          99637
+        ],
+        "start": [
+          25,
+          73274
+        ],
+        "supplied": [
+          5,
+          22908
+        ],
+        "wrong": [
+          140,
+          398655
+        ]
+      },
+      "h2h30_request_sha256": "c467163ced089621ffb420a88781be3b6a242d45a09a97cd5f0501b26637e7a6",
+      "h2h30_kit_sha256_tree": "4e62bfc97a7af5ee8166f74bd1ca9e780944850aa7aa5a97744f0a0c21c3e176",
+      "h2h30_kit_same_as_primary": false,
+      "hk_request_sha256": "83cf08ffcd34384e27a320df796af21737c61b9a1813bf946b291cd2b61e61ab",
+      "hk_kit_sha256_tree": "cb12a7ff70cd783a6d4605d4590700fd760f4d413505d9b48ca6a947cd578505"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "tally-periodic-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/tally"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/tally-periodic-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/tally-periodic-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task tally-periodic-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "toml-required-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "pelletier/go-toml (v2) upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "faff4910ee7759e16dc864f41d8aea91b01f7a18a7cc2a324de3d138ad7774d9",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task toml-required-go (large codebase: go-toml v2, ~34 KLOC of Go); never publish.",
+      "rounds": [
+        "batchtool (EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "faff4910ee7759e16dc864f41d8aea91b01f7a18a7cc2a324de3d138ad7774d9",
+      "request_bytes": 4863,
+      "kit_sha256_tree": "ba326116ff53651e07f1c282227d4767660f34984b434bae6162c7387c6b8d81",
+      "kit_files": 168,
+      "kit_bytes": 2616176,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          2,
+          17077
+        ],
+        "reference": [
+          6,
+          98868
+        ],
+        "start": [
+          115,
+          1868955
+        ],
+        "supplied": [
+          5,
+          16334
+        ],
+        "wrong": [
+          36,
+          593253
+        ]
+      },
+      "h2h30_request_sha256": "faff4910ee7759e16dc864f41d8aea91b01f7a18a7cc2a324de3d138ad7774d9",
+      "h2h30_kit_sha256_tree": "ba326116ff53651e07f1c282227d4767660f34984b434bae6162c7387c6b8d81",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "pelletier/go-toml (v2)",
+        "authors_or_organisation": [
+          "Thomas Pelletier"
+        ],
+        "url": "https://github.com/pelletier/go-toml",
+        "commit_or_release": "upstream snapshot (commit not recorded in kit notes)",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream pelletier/go-toml (v2) trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/toml-required-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/toml-required-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task toml-required-go (large codebase: go-toml v2, ~34 KLOC of Go); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "expr-seqfuncs-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "expr-lang/expr upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "cc7b4d415ea50a1fed0bbdd96095305f55fa1dadf4a18479b39df403a35c68a4",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task expr-seqfuncs-go (large codebase: Expr, ~57 KLOC of Go); never publish.",
+      "rounds": [
+        "batchtool (EU)",
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "cc7b4d415ea50a1fed0bbdd96095305f55fa1dadf4a18479b39df403a35c68a4",
+      "request_bytes": 4082,
+      "kit_sha256_tree": "edeac390d32bd5d80f9e3d55610b0bb35d0677f67ad9d81fb77b0db1399bbcad",
+      "kit_files": 290,
+      "kit_bytes": 6831280,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          2,
+          19560
+        ],
+        "reference": [
+          9,
+          171641
+        ],
+        "start": [
+          224,
+          5752196
+        ],
+        "supplied": [
+          5,
+          13707
+        ],
+        "wrong": [
+          46,
+          858996
+        ]
+      },
+      "h2h30_request_sha256": "cc7b4d415ea50a1fed0bbdd96095305f55fa1dadf4a18479b39df403a35c68a4",
+      "h2h30_kit_sha256_tree": "edeac390d32bd5d80f9e3d55610b0bb35d0677f67ad9d81fb77b0db1399bbcad",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "expr-lang/expr",
+        "authors_or_organisation": [
+          "Anton Medvedev"
+        ],
+        "url": "https://github.com/expr-lang/expr",
+        "commit_or_release": "4b31df3",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream expr-lang/expr trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/expr-seqfuncs-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/expr-seqfuncs-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task expr-seqfuncs-go (large codebase: Expr, ~57 KLOC of Go); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "cadence-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "784d0cfaddc384ebe0c6d8660b3d8651e08519cb00ae460b291cd43f3b5b8d3b",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task cadence-go; never publish.",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "784d0cfaddc384ebe0c6d8660b3d8651e08519cb00ae460b291cd43f3b5b8d3b",
+      "request_bytes": 2308,
+      "kit_sha256_tree": "0816937af2b0a382086877a2c4d4fbdcd8d635578b14c2640cb20c0f3a372939",
+      "kit_files": 29,
+      "kit_bytes": 104925,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          12401
+        ],
+        "reference": [
+          1,
+          5336
+        ],
+        "start": [
+          13,
+          50967
+        ],
+        "supplied": [
+          5,
+          9044
+        ],
+        "wrong": [
+          4,
+          19932
+        ]
+      },
+      "h2h30_request_sha256": "784d0cfaddc384ebe0c6d8660b3d8651e08519cb00ae460b291cd43f3b5b8d3b",
+      "h2h30_kit_sha256_tree": "0816937af2b0a382086877a2c4d4fbdcd8d635578b14c2640cb20c0f3a372939",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "cadence-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/cadence"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/cadence-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/cadence-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task cadence-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "deps-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "0aba2d53a5a713c303bae473d2f9e5c6f3ba40e9b01a251b82707da331a01326",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private confirmation task deps-go (never published).",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "0aba2d53a5a713c303bae473d2f9e5c6f3ba40e9b01a251b82707da331a01326",
+      "request_bytes": 5396,
+      "kit_sha256_tree": "be66782b34f2ca4cacd40c36ac424d06d99cb0707d8fdf3432714f58b2154674",
+      "kit_files": 64,
+      "kit_bytes": 259323,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          9279
+        ],
+        "reference": [
+          12,
+          45084
+        ],
+        "start": [
+          12,
+          39502
+        ],
+        "supplied": [
+          11,
+          69112
+        ],
+        "wrong": [
+          24,
+          90168
+        ]
+      },
+      "h2h30_request_sha256": "0aba2d53a5a713c303bae473d2f9e5c6f3ba40e9b01a251b82707da331a01326",
+      "h2h30_kit_sha256_tree": "be66782b34f2ca4cacd40c36ac424d06d99cb0707d8fdf3432714f58b2154674",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "deps-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module kogen"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/deps-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/deps-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private confirmation task deps-go (never published).\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "moneyledger-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "b17aa018c583aa0d7a395e72823bb7d4fda94f66cfbf8feb36a79b5753079aa4",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task moneyledger-go; never publish.",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "b17aa018c583aa0d7a395e72823bb7d4fda94f66cfbf8feb36a79b5753079aa4",
+      "request_bytes": 2560,
+      "kit_sha256_tree": "bece54ba914df95e10906ab344052958f41108c83ab1625d331d7645cf95ac98",
+      "kit_files": 41,
+      "kit_bytes": 118068,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          12390
+        ],
+        "reference": [
+          3,
+          6731
+        ],
+        "start": [
+          15,
+          53726
+        ],
+        "supplied": [
+          5,
+          9602
+        ],
+        "wrong": [
+          12,
+          26844
+        ]
+      },
+      "h2h30_request_sha256": "b17aa018c583aa0d7a395e72823bb7d4fda94f66cfbf8feb36a79b5753079aa4",
+      "h2h30_kit_sha256_tree": "bece54ba914df95e10906ab344052958f41108c83ab1625d331d7645cf95ac98",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "moneyledger-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/ledger"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/moneyledger-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/moneyledger-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task moneyledger-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "pool-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "4ded33f51bc2cacb0252cee009235f9cf06ebcbb09ec8952b3721162592b6ae9",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1",
+      "review-value-2-natural-off",
+      "review-value-2-natural-reviewed"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task pool-go; never publish.",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "4ded33f51bc2cacb0252cee009235f9cf06ebcbb09ec8952b3721162592b6ae9",
+      "request_bytes": 10507,
+      "kit_sha256_tree": "4d9df4702537260a66a7abbb553f65cbc7c0b8b6dd58fbbead303b9de70fd118",
+      "kit_files": 159,
+      "kit_bytes": 498571,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          4,
+          27007
+        ],
+        "reference": [
+          38,
+          109781
+        ],
+        "start": [
+          35,
+          100500
+        ],
+        "supplied": [
+          4,
+          29988
+        ],
+        "wrong": [
+          76,
+          219676
+        ]
+      },
+      "h2h30_request_sha256": "4ded33f51bc2cacb0252cee009235f9cf06ebcbb09ec8952b3721162592b6ae9",
+      "h2h30_kit_sha256_tree": "cb67881fb04bdf1818b97c9b25b6e7a5e48e6e0364871fd8ac55a9c5be276677",
+      "h2h30_kit_same_as_primary": false
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "pool-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/linepool"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/pool-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/pool-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task pool-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "rate-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "f56c59424f6a42a40b7fbb01494e0f5edc0b1e212f679efbd71d817845ecfebb",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [
+      "chatgpt-session-cache-1"
+    ],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Go example task (TSK-2).",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "f56c59424f6a42a40b7fbb01494e0f5edc0b1e212f679efbd71d817845ecfebb",
+      "request_bytes": 630,
+      "kit_sha256_tree": "9f9e04404ef938f10d983a823db8d0347319eb1100e0a9ec7a639fa8c9963871",
+      "kit_files": 43,
+      "kit_bytes": 155704,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          2,
+          2609
+        ],
+        "reference": [
+          8,
+          43373
+        ],
+        "start": [
+          8,
+          43294
+        ],
+        "supplied": [
+          13,
+          21705
+        ],
+        "wrong": [
+          8,
+          43382
+        ]
+      },
+      "h2h30_request_sha256": "f56c59424f6a42a40b7fbb01494e0f5edc0b1e212f679efbd71d817845ecfebb",
+      "h2h30_kit_sha256_tree": "9f9e04404ef938f10d983a823db8d0347319eb1100e0a9ec7a639fa8c9963871",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "rate-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module rate"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/rate-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/rate-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit is the Go example task (TSK-2) from the private Kogen Lab specification repository (spec/examples/tasks/rate-go); held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "splitter-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "Kogen-original lanes fixture (withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "12b4d4aca10835eb708a334789e6ec500ab01b0351115cb78426092d3109dd5c",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task splitter-go; never publish.",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "12b4d4aca10835eb708a334789e6ec500ab01b0351115cb78426092d3109dd5c",
+      "request_bytes": 3478,
+      "kit_sha256_tree": "986993277b8ea5a92c8c54a5e1ca39caa7dcdbc14579c854d9380eac1a47fcd3",
+      "kit_files": 41,
+      "kit_bytes": 119566,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          3,
+          13400
+        ],
+        "reference": [
+          3,
+          6881
+        ],
+        "start": [
+          15,
+          51565
+        ],
+        "supplied": [
+          5,
+          11033
+        ],
+        "wrong": [
+          12,
+          26837
+        ]
+      },
+      "h2h30_request_sha256": "12b4d4aca10835eb708a334789e6ec500ab01b0351115cb78426092d3109dd5c",
+      "h2h30_kit_sha256_tree": "986993277b8ea5a92c8c54a5e1ca39caa7dcdbc14579c854d9380eac1a47fcd3",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen-original fixture",
+        "project": "splitter-go",
+        "authors_or_organisation": [
+          "Optimum Tech"
+        ],
+        "url": null,
+        "commit_or_release": "source directory snapshot",
+        "licence": "not declared in the kit",
+        "evidence": [
+          "kit start/go.mod: module example.com/splitter"
+        ],
+        "provenance": "Written for the lanes task kits; no third-party base."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/splitter-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/splitter-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task splitter-go; never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "tengo-power-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "d5/tengo (v2) upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "a42b801ea741dd84ac9a82a5107f83d3f7f4567f35f39c6413f6bb376439f3a6",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task tengo-power-go (large codebase: Tengo scripting language, ~32 KLOC of Go); never publish.",
+      "rounds": [
+        "h2h-30-eu2",
+        "shelltail (h2h command-tail analysis)"
+      ],
+      "request_sha256": "a42b801ea741dd84ac9a82a5107f83d3f7f4567f35f39c6413f6bb376439f3a6",
+      "request_bytes": 3108,
+      "kit_sha256_tree": "30f1b51c96805d414f24b62ab9d58f9e6ae709c18fc0ff2ece41f4f667c30d06",
+      "kit_files": 179,
+      "kit_bytes": 1807183,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          2,
+          16513
+        ],
+        "reference": [
+          8,
+          135426
+        ],
+        "start": [
+          120,
+          951172
+        ],
+        "supplied": [
+          5,
+          12363
+        ],
+        "wrong": [
+          40,
+          677379
+        ]
+      },
+      "h2h30_request_sha256": "a42b801ea741dd84ac9a82a5107f83d3f7f4567f35f39c6413f6bb376439f3a6",
+      "h2h30_kit_sha256_tree": "30f1b51c96805d414f24b62ab9d58f9e6ae709c18fc0ff2ece41f4f667c30d06",
+      "h2h30_kit_same_as_primary": true
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "d5/tengo (v2)",
+        "authors_or_organisation": [
+          "Daniel Kang"
+        ],
+        "url": "https://github.com/d5/tengo",
+        "commit_or_release": "upstream snapshot without .git (commit not recorded in kit notes)",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream d5/tengo (v2) trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/tengo-power-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/tengo-power-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task tengo-power-go (large codebase: Tengo scripting language, ~32 KLOC of Go); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-loop-parallel-calls",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "KogenAI/kogen-loop at the parent of the task commit (private repository; withheld)",
+    "base_commit": "ca698de64c41c183d56e76ad9da121a06c762dbe",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "ec7cae64314ac3aed1487ad558c8307655159b365ac8841afdbbe2b69d69084b",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-loop-parallel-calls; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "ec7cae64314ac3aed1487ad558c8307655159b365ac8841afdbbe2b69d69084b",
+      "request_bytes": 8724,
+      "kit_sha256_tree": "58aba1b873304fc2ff89e14d81177bd04cacfcbc939bd9ff1ed9cdc281265d52",
+      "kit_files": 200,
+      "kit_bytes": 1894232,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          6,
+          61578
+        ],
+        "reference": [
+          8,
+          111053
+        ],
+        "start": [
+          163,
+          1390517
+        ],
+        "supplied": [
+          3,
+          7805
+        ],
+        "wrong": [
+          15,
+          276844
+        ]
+      },
+      "hk_request_sha256": "ec7cae64314ac3aed1487ad558c8307655159b365ac8841afdbbe2b69d69084b",
+      "hk_kit_sha256_tree": "58aba1b873304fc2ff89e14d81177bd04cacfcbc939bd9ff1ed9cdc281265d52"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen-loop",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "ca698de64c41c183d56e76ad9da121a06c762dbe",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of 02e797252ffd1cdc29d50d58615d1ab64c601cd8"
+        ],
+        "provenance": "git archive of KogenAI/kogen-loop at ca698de64c41c183d56e76ad9da121a06c762dbe; the task re-implements commit 02e797252ffd1cdc29d50d58615d1ab64c601cd8."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-parallel-calls/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-parallel-calls/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-loop-parallel-calls; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-loop-read-ledger",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "KogenAI/kogen-loop at the parent of the task commit (private repository; withheld)",
+    "base_commit": "2ed6c54d765858cf9147299fb62fd58624ee1714",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "0c17e3e72285aafebdf1ea12eaab97d9dc9f7710016cc7f7ed15138566601db7",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-loop-read-ledger; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "0c17e3e72285aafebdf1ea12eaab97d9dc9f7710016cc7f7ed15138566601db7",
+      "request_bytes": 9466,
+      "kit_sha256_tree": "d049bd87b33b5bb2a467084afa856e50fbd347b5ad358338ba8b3e29294263d1",
+      "kit_files": 252,
+      "kit_bytes": 2001415,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          5,
+          50282
+        ],
+        "reference": [
+          7,
+          103001
+        ],
+        "start": [
+          219,
+          1635585
+        ],
+        "supplied": [
+          4,
+          9240
+        ],
+        "wrong": [
+          12,
+          154474
+        ]
+      },
+      "hk_request_sha256": "0c17e3e72285aafebdf1ea12eaab97d9dc9f7710016cc7f7ed15138566601db7",
+      "hk_kit_sha256_tree": "d049bd87b33b5bb2a467084afa856e50fbd347b5ad358338ba8b3e29294263d1"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen-loop",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "2ed6c54d765858cf9147299fb62fd58624ee1714",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of b9e36b4aa26f8b56b4676fce2accc9a5840a7801"
+        ],
+        "provenance": "git archive of KogenAI/kogen-loop at 2ed6c54d765858cf9147299fb62fd58624ee1714; the task re-implements commit b9e36b4aa26f8b56b4676fce2accc9a5840a7801."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-read-ledger/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-read-ledger/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-loop-read-ledger; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-loop-tool-cut",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "KogenAI/kogen-loop at the parent of the task commit (private repository; withheld)",
+    "base_commit": "102a72f7b266218ebcd8975a17541efa1e2ff8c6",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "11c49c6386c92b95198c11a8559bdd4596a8a3b19ed43656693df13b47ce27a3",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-loop-tool-cut; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "11c49c6386c92b95198c11a8559bdd4596a8a3b19ed43656693df13b47ce27a3",
+      "request_bytes": 7988,
+      "kit_sha256_tree": "11b15135b1f8665d41cf42bd9483e6a632c426a3c11938d87a4c81f5228325bb",
+      "kit_files": 210,
+      "kit_bytes": 1837018,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          6,
+          46005
+        ],
+        "reference": [
+          6,
+          71967
+        ],
+        "start": [
+          181,
+          1475683
+        ],
+        "supplied": [
+          3,
+          7131
+        ],
+        "wrong": [
+          9,
+          192051
+        ]
+      },
+      "hk_request_sha256": "11c49c6386c92b95198c11a8559bdd4596a8a3b19ed43656693df13b47ce27a3",
+      "hk_kit_sha256_tree": "11b15135b1f8665d41cf42bd9483e6a632c426a3c11938d87a4c81f5228325bb"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen-loop",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "102a72f7b266218ebcd8975a17541efa1e2ff8c6",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of 765c4fd"
+        ],
+        "provenance": "git archive of KogenAI/kogen-loop at 102a72f7b266218ebcd8975a17541efa1e2ff8c6; the task re-implements commit 765c4fd."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-tool-cut/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-loop-tool-cut/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-loop-tool-cut; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-review-on-demand",
+    "family": "lanes-kit",
+    "stack": "go (Kogen)",
+    "base_repo": "KogenAI/kogen at the parent of the task commit (private repository; withheld)",
+    "base_commit": "e2e8196e18facc62b258b29adb6e16ab149f0cbb",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "f742e9fef4bcabacd325b9645b4573253828eaf1610ba58f71f22e4786b8a4d4",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-review-on-demand; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "f742e9fef4bcabacd325b9645b4573253828eaf1610ba58f71f22e4786b8a4d4",
+      "request_bytes": 13934,
+      "kit_sha256_tree": "d03a54b1bf94f427d279d4f00966a007f8d964e5e18d246eecb4843a6ca57b89",
+      "kit_files": 1103,
+      "kit_bytes": 13776005,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          5,
+          54924
+        ],
+        "reference": [
+          10,
+          304656
+        ],
+        "start": [
+          1064,
+          12876738
+        ],
+        "supplied": [
+          4,
+          38599
+        ],
+        "wrong": [
+          15,
+          461751
+        ]
+      },
+      "hk_request_sha256": "f742e9fef4bcabacd325b9645b4573253828eaf1610ba58f71f22e4786b8a4d4",
+      "hk_kit_sha256_tree": "d03a54b1bf94f427d279d4f00966a007f8d964e5e18d246eecb4843a6ca57b89"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "e2e8196e18facc62b258b29adb6e16ab149f0cbb",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of 3095b71"
+        ],
+        "provenance": "git archive of KogenAI/kogen at e2e8196e18facc62b258b29adb6e16ab149f0cbb; the task re-implements commit 3095b71."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-review-on-demand/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-review-on-demand/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-review-on-demand; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-review-retry",
+    "family": "lanes-kit",
+    "stack": "go (Kogen)",
+    "base_repo": "KogenAI/kogen at the parent of the task commit (private repository; withheld)",
+    "base_commit": "e2030bd3264156ea5cd7cbdc3bd24ac21bda3a1a",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "d903756949505d1444fd648178f2a6faede00ba426aa051cdc1d626b0136402b",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-review-retry; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "d903756949505d1444fd648178f2a6faede00ba426aa051cdc1d626b0136402b",
+      "request_bytes": 18500,
+      "kit_sha256_tree": "080ae9ca5f28f7614a5cf0ae9f6d56cddabef6937dcf0bf9a6c5d376c399861d",
+      "kit_files": 1259,
+      "kit_bytes": 15280710,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          4,
+          67868
+        ],
+        "reference": [
+          28,
+          523768
+        ],
+        "start": [
+          1155,
+          13510602
+        ],
+        "supplied": [
+          4,
+          20386
+        ],
+        "wrong": [
+          63,
+          1082982
+        ]
+      },
+      "hk_request_sha256": "d903756949505d1444fd648178f2a6faede00ba426aa051cdc1d626b0136402b",
+      "hk_kit_sha256_tree": "080ae9ca5f28f7614a5cf0ae9f6d56cddabef6937dcf0bf9a6c5d376c399861d"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "e2030bd3264156ea5cd7cbdc3bd24ac21bda3a1a",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of 16102c974886977665e410b76f8490ef5ea5bde4"
+        ],
+        "provenance": "git archive of KogenAI/kogen at e2030bd3264156ea5cd7cbdc3bd24ac21bda3a1a; the task re-implements commit 16102c974886977665e410b76f8490ef5ea5bde4."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-review-retry/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-review-retry/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-review-retry; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "kogen-shell-bound",
+    "family": "lanes-kit",
+    "stack": "go (Kogen)",
+    "base_repo": "KogenAI/kogen at the parent of the task commit (private repository; withheld)",
+    "base_commit": "d54a91fdee8b3111949f73c6d88089df27166587",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "46ecdb3b5966deedc3f54ad284a56904ef4f0f20eb970767a14e148978d3d49c",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private hard task kogen-shell-bound; do not publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "46ecdb3b5966deedc3f54ad284a56904ef4f0f20eb970767a14e148978d3d49c",
+      "request_bytes": 14922,
+      "kit_sha256_tree": "b7ad17563da06ac1add4fdb17c60f1eb1989ca75ec7fc06ff83959144368b714",
+      "kit_files": 1136,
+      "kit_bytes": 14392524,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          5,
+          43061
+        ],
+        "reference": [
+          16,
+          400030
+        ],
+        "start": [
+          1072,
+          12927191
+        ],
+        "supplied": [
+          5,
+          24332
+        ],
+        "wrong": [
+          33,
+          953383
+        ]
+      },
+      "hk_request_sha256": "46ecdb3b5966deedc3f54ad284a56904ef4f0f20eb970767a14e148978d3d49c",
+      "hk_kit_sha256_tree": "b7ad17563da06ac1add4fdb17c60f1eb1989ca75ec7fc06ff83959144368b714"
+    },
+    "credits": {
+      "base": {
+        "origin": "Kogen source tree",
+        "project": "KogenAI/kogen",
+        "authors_or_organisation": [
+          "Optimum Tech, LLC"
+        ],
+        "url": null,
+        "commit_or_release": "d54a91fdee8b3111949f73c6d88089df27166587",
+        "licence": "Apache-2.0",
+        "evidence": [
+          "kit AUTHOR-NOTES.md: start = parent of 8793a7f"
+        ],
+        "provenance": "git archive of KogenAI/kogen at d54a91fdee8b3111949f73c6d88089df27166587; the task re-implements commit 8793a7f."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/kogen-shell-bound/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/kogen-shell-bound/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "base is a snapshot of a private Kogen repository (private code tree under PRIVATE.md); kit author marked it \"Private hard task kogen-shell-bound; do not publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "goose-labels-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "pressly/goose (v3) upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "c7ac6bd42ec789beaa6812969dce0082134c73671d79d21acbc3e5c187729432",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task goose-labels-go (long session: pressly/goose migration tool, ~16.5 KLOC of Go, multi-package change); never publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "c7ac6bd42ec789beaa6812969dce0082134c73671d79d21acbc3e5c187729432",
+      "request_bytes": 14665,
+      "kit_sha256_tree": "b9686db495d7c7a56f430c51df3daaa5d5280b41e75a557341d020ba94b8a36d",
+      "kit_files": 2830,
+      "kit_bytes": 71946334,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          7,
+          87249
+        ],
+        "reference": [
+          20,
+          167480
+        ],
+        "start": [
+          2374,
+          68082296
+        ],
+        "supplied": [
+          5,
+          37896
+        ],
+        "wrong": [
+          420,
+          3516319
+        ]
+      },
+      "hk_request_sha256": "5e27dc05fa1116aa3e6f4f12f9f6ab3b09012d704139c69139c111ac4df3c5f0",
+      "hk_kit_sha256_tree": "e3ce5172ccabcae025219d92bea8f2d111e5b97b9b53ed12fddc14a668d40be9"
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "pressly/goose (v3)",
+        "authors_or_organisation": [
+          "Liam Staskawicz",
+          "Vojtech Vitek",
+          "Michael Fridman"
+        ],
+        "url": "https://github.com/pressly/goose",
+        "commit_or_release": "2d285d2",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream pressly/goose (v3) trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/goose-labels-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/goose-labels-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task goose-labels-go (long session: pressly/goose migration tool, ~16.5 KLOC of Go, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
+  },
+  {
+    "id": "revive-baseline-go",
+    "family": "lanes-kit",
+    "stack": "go",
+    "base_repo": "mgechev/revive upstream snapshot, trimmed for the task (lanes kit; withheld)",
+    "base_commit": "not declared (source directory snapshot)",
+    "retired": false,
+    "retired_verified": false,
+    "used_in": [],
+    "public_definition_located": false,
+    "admission": "qualified by lanes-qualify in the private rounds listed in lanes_kit.rounds; not re-derivable from the public record",
+    "prompt_source": null,
+    "prompt_sha256_original": "6277cb202a76f177b33e026ea8493ab1ca324396affe92b58006e5ddd5f04c36",
+    "documentary_mentions": [],
+    "graded_in": [],
+    "round_page_mentions": [],
+    "unverified_round_refs": [],
+    "planned_in": [],
+    "lanes_kit": {
+      "kit_format": "lanes task folder (lanes/FORMATS.md, \"Task folder (private)\")",
+      "kit_split": "development",
+      "kit_header": "Private development task revive-baseline-go (long session: mgechev/revive Go linter, ~42 KLOC of Go, multi-package change); never publish.",
+      "rounds": [
+        "hk2 (Studio, MacBook)",
+        "hk3 (Studio, MacBook, Linux staging)"
+      ],
+      "request_sha256": "6277cb202a76f177b33e026ea8493ab1ca324396affe92b58006e5ddd5f04c36",
+      "request_bytes": 13193,
+      "kit_sha256_tree": "5c4e69e591da85a3844a1b28bd633b7bc4311139371a7e3e4ecce11f613bfdf1",
+      "kit_files": 1454,
+      "kit_bytes": 14594340,
+      "kit_parts_files_bytes": {
+        "evaluator": [
+          8,
+          130566
+        ],
+        "reference": [
+          10,
+          106448
+        ],
+        "start": [
+          1278,
+          12677483
+        ],
+        "supplied": [
+          5,
+          34225
+        ],
+        "wrong": [
+          150,
+          1595889
+        ]
+      },
+      "hk_request_sha256": "040b35170043b1ada2b14fa7b92ee90f9f002a14590c4b75ae56d783c09739b9",
+      "hk_kit_sha256_tree": "40fadc0ccd510bd396805518fde679caac3416984b84229fae02d3653b7821f0"
+    },
+    "credits": {
+      "base": {
+        "origin": "third-party open-source project",
+        "project": "mgechev/revive",
+        "authors_or_organisation": [
+          "Minko Gechev"
+        ],
+        "url": "https://github.com/mgechev/revive",
+        "commit_or_release": "d454410",
+        "licence": "MIT",
+        "evidence": [
+          "kit start/LICENSE and AUTHOR-NOTES.md (private kit)"
+        ],
+        "provenance": "Upstream mgechev/revive trimmed by the task author; upstream licence file kept in the kit start tree."
+      },
+      "idea": {
+        "origin": "Kogen-original",
+        "project_or_work": "lanes task kits",
+        "authors": [],
+        "url": null,
+        "commit_or_version": "kit snapshot",
+        "licence_or_citation": "not declared",
+        "evidence": [
+          "tasks/revive-baseline-go/task.json"
+        ],
+        "provenance": "Request written by the kit author for the lanes rounds."
+      },
+      "tests_grader": {
+        "origin": "Kogen-original",
+        "authors": [],
+        "source_files": [],
+        "url": null,
+        "licence": "not declared",
+        "evidence": [
+          "tasks/revive-baseline-go/task.json"
+        ]
+      },
+      "redistribution": {
+        "terms": "Withheld: see withheld.reason. Only identifiers, digests, sizes and upstream credits are published.",
+        "required_files": [],
+        "status": "withheld"
+      },
+      "confidence": "medium",
+      "reviewed_at": "2026-10-30"
+    },
+    "exposures": [],
+    "base_missing": true,
+    "base_provenance": "Withheld; the kit digest and request digest in lanes_kit identify the exact material.",
+    "withheld": {
+      "what": [
+        "prompt (request.md)",
+        "start tree",
+        "hidden suite (evaluator)",
+        "reference",
+        "known-wrong trees",
+        "supplied Intents",
+        "author notes"
+      ],
+      "reason": "kit author marked it \"Private development task revive-baseline-go (long session: mgechev/revive Go linter, ~42 KLOC of Go, multi-package change); never publish.\"; held-out development-split kit still used by running rounds.",
+      "decided": "2026-10-30"
+    }
   }
 ]

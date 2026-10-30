@@ -9,3 +9,4 @@
 - [Mechanism inventory](mechanism-inventory.md)
 - [Mechanism profiles](mechanism-profiles.md)
 - [Head-to-head](head-to-head.md)
+- [Routes and clients](routes-and-clients.md)

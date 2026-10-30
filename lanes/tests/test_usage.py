@@ -84,8 +84,10 @@ class Usage(unittest.TestCase):
         self.assertIsNone(build["cost_usd"])
         self.assertEqual(build["cost_reason"], "usage missing")
         self.assertEqual(build["missing"], sorted(usage.TOKENS))
-        self.assertIsNone(r["totals"]["cost_usd"])
-        self.assertEqual(r["totals"]["missing"], sorted(usage.TOKENS))
+        t = r["totals"]  # approve is priced at 0.0, build is not: the total is the priced sum plus a list, never a silent zero
+        self.assertEqual((t["priced_usd"], t["cost_usd"], t["cost_complete"]), (0.0, 0.0, False))
+        self.assertEqual([u["stage"] for u in t["unpriced_stages"]], ["build", "review"])
+        self.assertEqual(t["missing"], sorted(usage.TOKENS))
 
     def test_zero_usage_in_a_build_log_is_flagged_not_priced(self):
         """b45ba32b logs missing build usage as 0: not a real $0."""
@@ -95,7 +97,8 @@ class Usage(unittest.TestCase):
         self.assertIsNone(build["cost_usd"])
         self.assertIn("all zero", build["cost_reason"])
         self.assertIn("usage_zero_is_unknown", build["missing"])
-        self.assertIsNone(r["totals"]["cost_usd"])
+        self.assertFalse(r["totals"]["cost_complete"])
+        self.assertEqual(r["totals"]["unpriced_stages"][0]["stage"], "build")
         self.assertIn("usage_zero_is_unknown", r["totals"]["missing"])
 
     def test_shape_stage_from_shaping_events(self):
@@ -140,9 +143,11 @@ class Usage(unittest.TestCase):
         build = r["stages"][1]
         self.assertIsNone(build["cost_usd"])
         self.assertIn("unlisted_model", build["cost_reason"])
+        self.assertEqual(r["totals"]["priced_usd"], 0.00066)  # was None: the priced review stage is no longer hidden
+        self.assertEqual([u["stage"] for u in r["totals"]["unpriced_stages"]], ["build"])
         self.assertEqual(build["input_tokens"], 1200)  # tokens are still reported
         self.assertEqual(r["stages"][2]["cost_usd"], 0.00066)
-        self.assertIsNone(r["totals"]["cost_usd"])
+        self.assertFalse(r["totals"]["cost_complete"])
 
     def test_provider_prefix_is_stripped_for_price(self):
         usd, why = usage.request_cost("openai/fake-model", {"input_tokens": 1000, "cached_input_tokens": 0,
@@ -189,7 +194,8 @@ class Usage(unittest.TestCase):
         self.assertIsNone(build["cost_usd"])
         self.assertEqual(build["cost_reason"], "no request in the log")
         self.assertEqual(build["missing"], sorted(usage.TOKENS))
-        self.assertIsNone(r["totals"]["cost_usd"])
+        self.assertFalse(r["totals"]["cost_complete"])  # priced sum kept, the unpriced build is listed (cap7)
+        self.assertEqual([u["stage"] for u in r["totals"]["unpriced_stages"]], ["build"])
 
     def test_a_seeded_build_with_requests_is_priced_from_them(self):
         log = self.SEED_LOG[:1] + [{"event": "request", "role": "build", "model": "fake-model", "wall_ms": 5,

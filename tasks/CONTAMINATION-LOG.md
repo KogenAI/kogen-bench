@@ -33,3 +33,14 @@ Dated record of every known exposure of hidden-suite material outside the offici
 - **Effect:** rz1's pre-registration declares author exposure to the task suites. Contestant cells never see grade rows, so rz1's held-out status for contestants is unchanged. Any later round that uses r70-1 as a held-out task must treat its suite as exposed.
 - **Catalogue marking:** the r70-1 tasks should carry `exposures[]` with `kind: grade-rows-to-author-job` and date `2026-10-08`. Pending: added in the next catalogue update.
 - **Guard:** author and operator jobs inspect grade files only through `levers/lib/safe_rows.py`. The author-job prompts get the same HIDDEN-SUITE RULE preamble as operator jobs.
+
+<a id="2026-10-30--artifact-go-published-in-full"></a>
+
+## 2026-10-30: artifact-go published in full
+
+- **What:** the whole `artifact-go` lanes kit. That is its prompt, base, `supplied/` Intents, hidden suite (`evaluate.toml` and its overlay), reference and both known-wrong trees. Its host-labelled qualification receipts were not published.
+- **Which suite:** `artifact-go`, kit digest `d4e301996a20…` (lanes `sha256_tree`). It is the same kit the EU confirmation rounds, wcheck12 and h2h-30 ran.
+- **How:** deliberate publication in [`artifact-go/`](artifact-go/task.json) and [`_bases/artifact-go-base.tar.gz`](_bases/artifact-go-base.tar.gz), so that published findings over this task can be rerun. Unlike the other 30 lanes-kit records, the kit carries no publication restriction.
+- **Who saw it:** anyone with repository access, from the release that adds this record. Every run that used the task predates the publication.
+- **Effect:** later rounds must not use `artifact-go` as a held-out task.
+- **Catalogue marking:** `artifact-go` carries `exposures[]` with `kind: published-in-full` and date `2026-10-30`.

@@ -1,0 +1,39 @@
+== common API route, gpt-6.1-terra, high effort (4 tasks x 2 reps, counted) ==
+loop    pass 8/8  median 139.76  p90 257.87  mean 150.080  USD/pass $0.091294
+codex   pass 8/8  median 117.40  p90 154.72  mean 112.480  USD/pass $0.091736
+loop/Codex mean-wall ratio 1.334, cost ratio 0.995
+loop faster on 0/4 task means, cheaper on 3/4
+repeat scatter (8 task-tool pairs): median 8.35%, range 0.34-14.72%
+  incl. dry attempts: loop USD per counted pass $0.128629
+  incl. dry attempts: codex USD per counted pass $0.128552
+
+== common API route, gpt-6.1-terra, medium effort (4 tasks x 2 reps, counted) ==
+loop    pass 8/8  median 94.03  p90 138.53  mean 92.931  USD/pass $0.056310
+codex   pass 8/8  median 98.36  p90 113.24  mean 91.211  USD/pass $0.070846
+speed2  pass 8/8  median 94.16  p90 177.64  mean 97.054  USD/pass $0.059722
+loop/Codex mean-wall ratio 1.019, cost ratio 0.795
+loop faster on 3/4 task means, cheaper on 3/4
+repeat scatter (8 task-tool pairs): median 7.23%, range 2.52-12.66%
+
+== API patch screen, high effort, 4 tasks x 1 rep (counted) ==
+loop-b8a4046    pass 4/4  median 145.55  p90 304.08  USD/pass $0.096322  mean-wall change vs loop +0.0%
+speed2          pass 4/4  median 130.45  p90 381.14  USD/pass $0.121729  mean-wall change vs loop +7.1%
+api-replay      pass 4/4  median 176.77  p90 226.34  USD/pass $0.101571  mean-wall change vs loop +0.0%
+api-batch       pass 4/4  median 129.68  p90 274.10  USD/pass $0.094654  mean-wall change vs loop -6.8%
+api-answer-end  pass 4/4  median 151.40  p90 295.19  USD/pass $0.101195  mean-wall change vs loop +2.6%
+wall-http2      pass 4/4  median 135.17  p90 251.05  USD/pass $0.090700  mean-wall change vs loop -8.6%
+wall-h1reuse    pass 4/4  median 130.44  p90 278.31  USD/pass $0.086608  mean-wall change vs loop -7.5%
+api-batch incl. its dry attempt: $0.116635 per counted pass
+
+== loop output rate (output tokens / body-stream seconds, runs with > 200 output tokens), by start window ==
+29 Oct 18-21Z
+  h2h-21  mac-b  n=96  median 105.8
+  h2h-22  mac-a  n=23  median 85.3
+  h2h-24  mac-a  n=48  median 111.1
+  h2h-25  mac-b  n=73  median 111.4
+  h2h-26  mac-b  n=13  median 105.9
+30 Oct 04-05Z
+  h2h-25  mac-b  n=49  median 46.3
+  h2h-26  mac-b  n=20  median 47.8
+  h2h-28  mac-a  n=16  median 47.0
+  h2h-29  mac-a  n=17  median 47.5

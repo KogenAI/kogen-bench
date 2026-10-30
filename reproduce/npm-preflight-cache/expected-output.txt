@@ -1,0 +1,34 @@
+== npm-stage-once: preflight under a stalled npm (the stall is 600 s; the approval deadline is 120 s) ==
+harness    host   task          preflight s  deadline s  npm calls  result
+patched    mac-a  task-tags-go  54.485       120         0          approved
+patched    mac-a  bytefmt-go    14.609       120         0          approved
+patched    mac-b  task-tags-go  36.191       120         0          approved
+patched    mac-b  bytefmt-go    5.886        120         0          approved
+unpatched  mac-a  task-tags-go  192.361      120         1          refused: approval timed out in setup-1 (npm ci)
+unpatched  mac-a  bytefmt-go    120.431      120         2          refused: approval timed out in setup-1 (npm ci)
+patched: 4/4 approved, 5.886-54.485 s, npm calls 0
+unpatched: 2/2 refused at the 120 s deadline, npm calls 3
+none (normal cached preflight): goose-labels-go, 23.659 s, approved
+git add -A -- . stalls (sleep 600): goose-labels-go, 126.756 s, refused: approval timed out (no output)
+
+== defer-approval-timeouts: setup stalled 125 s for task-tags-go (low-effort lane a0) ==
+initial                            bytefmt-go   a0     8.665     approved
+initial                            bytefmt-go   prefix 7.775     approved
+initial                            task-tags-go a0     132.848   refused: approval timed out
+initial                            task-tags-go prefix 53.135    approved
+after-ordinary-cells               task-tags-go a0     128.133   refused: approval timed out
+after-ordinary-cells               task-tags-go prefix 45.672    approved
+later-invocation-bytefmt-recheck   bytefmt-go   a0     4.829     approved
+later-invocation-bytefmt-recheck   bytefmt-go   prefix 5.034     approved
+later-invocation                   task-tags-go a0     44.42     approved
+later-invocation                   task-tags-go prefix 50.77     approved
+deadline failures: 2 (both task-tags-go a0); approved on the later invocation: task-tags-go/a0, task-tags-go/prefix
+
+== test runs ==
+npm-stage-once           mac-a  all lanes tests                                  tests=66  skipped=0 87.923 s  OK
+npm-stage-once           mac-b  all lanes tests                                  tests=66  skipped=0 71.476 s  OK
+npm-stage-once           mac-b  targeted cache/preflight tests, final source     tests=16  skipped=0 15.098 s  OK
+defer-approval-timeouts  mac-a  targeted suite                                   tests=95  skipped=0 46.761 s  OK
+defer-approval-timeouts  mac-b  targeted suite                                   tests=95  skipped=1 41.751 s  OK (1 skipped: go not on the SSH PATH; rerun in the runner e
+defer-approval-timeouts  mac-b  final 14-approval matrix test                    tests=1   skipped=0 0.276 s  OK
+defer-approval-timeouts  mac-a  real fault proof (all stages; model-free executor) tests=1   skipped=0 483.566 s  OK: first dispatch exit 5 after 2 ordinary cells; later disp

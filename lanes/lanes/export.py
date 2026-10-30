@@ -203,7 +203,7 @@ def record(round_id, plan_sha, ctx, row, res, ev, events):
     models = [m.split(" ")[0] for m in lane["settings"].get("models", {}).values()]
     efforts = [m.split(" ")[1] for m in lane["settings"].get("models", {}).values() if " " in m]
     effort = one([e.get("effort") for e in events if e.get("event") == "request"], "m73")
-    cost = totals.get("cost_usd")
+    cost = totals.get("cost_usd") if totals.get("cost_complete", True) else None  # a partial sum is not published as the cost
     calc = usage._cost_calc()
     start, end = utc(res.get("started"), "m69"), utc(res.get("ended"), "m68")
     attempts = miss("m60") if is_marker(start) or is_marker(end) else [{"attempt": 1, "start_utc": start, "end_utc": end}]

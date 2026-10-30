@@ -1,0 +1,317 @@
+--- /dev/null
++++ b/lanes/bin/lanes-stage
+@@ -0,0 +1,7 @@
++#!/usr/bin/env python3
++import os
++import sys
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
++from lanes.node_modules import main
++sys.argv.insert(1, "stage")
++main()
+--- a/lanes/lanes/cell.py
++++ b/lanes/lanes/cell.py
+@@ -22,7 +22,7 @@
+ import time
+ import tomllib
+ 
+-from . import common, costguard, experiment, live, probe, usage
++from . import common, costguard, experiment, live, node_modules, probe, usage
+ 
+ IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
+ START_DATE = "2026-01-01T00:00:00+0000"
+@@ -78,10 +78,12 @@
+     return f"{{model: {model}, effort: {effort}{extra}}}"
+ 
+ 
+-def project_yaml(task_toml, models):
++def project_yaml(task_toml, models, task=None):
+     """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id, plus `provider` unless it is openai/chatgpt)."""
+     def items(key, item=yq):
+         vals = task_toml.get(key) or []
++        if key == "setup" and task is not None:
++            vals = node_modules.setup(task, vals)
+         return [f"  {key}: []"] if not vals else [f"  {key}:"] + [f"    - {item(v)}" for v in vals]
+ 
+     lines = ["version: 1", "commands:", *items("setup"), *items("fix")]
+@@ -220,6 +222,7 @@
+         _git(ws, "config", key, value)
+     _git(ws, "add", "-A", env=env)
+     _git(ws, "commit", "-q", "-m", "Start", env=env)
++    node_modules.prepare_workspace(start, ws)
+ 
+ 
+ class Cell:
+@@ -371,7 +374,7 @@
+     if not isinstance(slug, str) or not SLUG.match(slug) or not 3 <= len(slug) <= 48:
+         raise CellError(f"{task_id}: task.toml name {slug!r} is not a Kogen slug (3-48 of a-z, 0-9, -)")
+     approve_timeout(task_toml, 0)  # the key only sets lanes-preflight's deadline; a bad one is refused here too
+-    config = project_yaml(task_toml, lane["settings"].get("models"))
++    config = project_yaml(task_toml, lane["settings"].get("models"), task=task)
+     request = os.path.join(task, "request.md")
+     supplied = os.path.join(task, "supplied", exp.get("intent_form") or "")
+     if phase != "build" and not os.path.isfile(request):
+--- /dev/null
++++ b/lanes/lanes/node_modules.py
+@@ -0,0 +1,190 @@
++"""Install locked npm dependencies at staging; restore private copies without npm."""
++import argparse
++import fcntl
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import re
++import shlex
++import shutil
++import subprocess
++import sys
++import tempfile
++import tomllib
++
++COMMAND = 'npm ci --ignore-scripts --no-audit --no-fund'
++FLAGS = ['ci', '--ignore-scripts', '--no-audit', '--no-fund']
++DEFAULT_CACHE = Path(__file__).resolve().parents[2] / 'node-cache'
++
++
++def inputs(start):
++    h = hashlib.sha256(COMMAND.encode())
++    for name in ('package.json', 'package-lock.json', '.npmrc'):
++        p = Path(start) / name
++        if not p.is_file() and name != '.npmrc':
++            raise ValueError(f'{p}: locked npm setup requires this file')
++        h.update(name.encode() + b'\0' + (p.read_bytes() if p.is_file() else b'<absent>') + b'\0')
++    return h.hexdigest()
++
++
++def recipe(command):
++    if command == COMMAND:
++        return '.'
++    match = re.fullmatch(r'\(cd ([a-zA-Z0-9_./-]+) && ' + re.escape(COMMAND) + r'\)', command)
++    if match and '..' not in Path(match[1]).parts and not Path(match[1]).is_absolute():
++        return match[1]
++    return None
++
++
++def recipes(task):
++    with open(Path(task) / 'task.toml', 'rb') as f:
++        return [rel for cmd in tomllib.load(f).get('setup', []) if (rel := recipe(cmd)) is not None]
++
++
++def cache_root():
++    return Path(os.environ.get('LANES_NPM_CACHE', DEFAULT_CACHE)).resolve()
++
++
++def entry_for(start):
++    root = cache_root()
++    digest = inputs(start)
++    index = root / 'inputs' / (digest + '.json')
++    if not index.is_file():
++        raise ValueError(f'npm dependencies not staged for {start}; run lanes-stage --tasks KIT')
++    record = json.loads(index.read_text())
++    entry = root / record['key']
++    if json.loads((entry / 'manifest.json').read_text())['inputs'] != digest:
++        raise ValueError(f'npm cache manifest mismatch: {entry}')
++    if not (entry / 'node_modules').is_dir():
++        raise ValueError(f'npm cache missing node_modules: {entry}')
++    return entry
++
++
++def setup(task, commands):
++    result = []
++    for command in commands:
++        rel = recipe(command)
++        if rel is not None:
++            entry = entry_for(Path(task) / 'start' / rel)
++            command = shlex.join([sys.executable, str(Path(__file__).resolve()), 'restore', '--entry', str(entry)])
++            if rel != '.':
++                command = '(cd ' + shlex.quote(rel) + ' && ' + command + ')'
++        result.append(command)
++    return result
++
++
++def copy_modules(source, dest):
++    # APFS clones share disk blocks, never mutable inodes. No hardlinks or symlinked cache trees.
++    if sys.platform == 'darwin':
++        p = subprocess.run(['/bin/cp', '-cR', str(source), str(dest)], capture_output=True)
++        if p.returncode == 0:
++            return
++        if Path(dest).exists():
++            shutil.rmtree(dest)
++    shutil.copytree(source, dest, symlinks=True)
++
++
++def restore(entry, workspace):
++    entry, workspace = Path(entry), Path(workspace)
++    manifest = json.loads((entry / 'manifest.json').read_text())
++    if inputs(workspace) != manifest['inputs']:
++        raise ValueError('npm install inputs changed; stage the new lockfile before running')
++    temporary = Path(tempfile.mkdtemp(prefix='.lanes-npm-', dir=workspace))
++    try:
++        copy_modules(entry / 'node_modules', temporary / 'node_modules')
++        dest = workspace / 'node_modules'
++        if dest.is_symlink():
++            dest.unlink()
++        elif dest.exists():
++            shutil.rmtree(dest)
++        os.replace(temporary / 'node_modules', dest)
++    finally:
++        shutil.rmtree(temporary)
++
++
++def prepare_workspace(start, ws):
++    task = Path(start).parent
++    if (task / 'task.toml').is_file():
++        for rel in recipes(task):
++            restore(entry_for(Path(start) / rel), Path(ws) / rel)
++
++
++def stage(task, rel):
++    start = Path(task) / 'start' / rel
++    digest, root = inputs(start), cache_root()
++    root.mkdir(parents=True, exist_ok=True)
++    (root / 'inputs').mkdir(exist_ok=True)
++    with open(root / (digest + '.lock'), 'a') as lock:
++        fcntl.flock(lock, fcntl.LOCK_EX)
++        if (root / 'inputs' / (digest + '.json')).is_file():
++            print(f'{Path(task).name}: reuse {entry_for(start).name}', flush=True)
++            return
++        npm, node = shutil.which('npm'), shutil.which('node')
++        if not npm or not node:
++            raise ValueError('npm and node must be available at staging')
++        toolchain = {name: subprocess.check_output([path, '--version'], text=True).strip()
++                     for name, path in [('npm', npm), ('node', node)]}
++        toolchain.update(platform=platform.system(), arch=platform.machine())
++        # Workspace/file dependencies need more inputs than these task kits declare.
++        package = json.loads((start / 'package.json').read_text())
++        locked = json.loads((start / 'package-lock.json').read_text())
++        if package.get('workspaces') or any(p.get('link') or str(p.get('resolved', '')).startswith('file:')
++                                            for p in locked.get('packages', {}).values()):
++            raise ValueError('local/workspace npm dependencies require an expanded staging key')
++        key = hashlib.sha256((digest + json.dumps(toolchain, sort_keys=True)).encode()).hexdigest()
++        entry = root / key
++        if not entry.exists():
++            temporary = Path(tempfile.mkdtemp(prefix='staging-', dir=root))
++            try:
++                # The same project files and npm flags as the original setup.
++                shutil.copytree(start, temporary / 'ws', symlinks=True,
++                                ignore=shutil.ignore_patterns('node_modules', '.git'))
++                subprocess.run([npm, *FLAGS], cwd=temporary / 'ws', check=True)
++                if inputs(temporary / 'ws') != digest:
++                    raise ValueError('npm ci changed its install inputs')
++                os.rename(temporary / 'ws' / 'node_modules', temporary / 'node_modules')
++                shutil.rmtree(temporary / 'ws')
++                (temporary / 'manifest.json').write_text(json.dumps({'inputs': digest, 'key': key,
++                    'toolchain': toolchain, 'command': COMMAND}, indent=2) + '\n')
++                os.rename(temporary, entry)
++            finally:
++                if temporary.exists():
++                    shutil.rmtree(temporary)
++        index = root / 'inputs' / (digest + '.json')
++        tmp_index = index.with_suffix('.tmp')
++        tmp_index.write_text(json.dumps({'key': key}) + '\n')
++        os.replace(tmp_index, index)
++        print(f'{Path(task).name}: staged {key}', flush=True)
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    sub = p.add_subparsers(dest='action', required=True)
++    s = sub.add_parser('stage')
++    s.add_argument('--tasks', required=True)
++    s.add_argument('--run-dir')
++    s.add_argument('task_ids', nargs='*')
++    r = sub.add_parser('restore')
++    r.add_argument('--entry', required=True)
++    a = p.parse_args()
++    try:
++        if a.action == 'restore':
++            restore(a.entry, Path.cwd())
++        else:
++            tasks = a.task_ids
++            if a.run_dir:
++                experiment = json.loads((Path(a.run_dir) / 'experiment.json').read_text())
++                if experiment.get('phase') == 'probe':
++                    return
++                tasks = experiment['tasks']
++            for task in tasks or sorted(p.name for p in Path(a.tasks).iterdir() if (p / 'task.toml').is_file()):
++                for rel in recipes(Path(a.tasks) / task):
++                    stage(Path(a.tasks) / task, rel)
++    except (OSError, ValueError, subprocess.CalledProcessError) as e:
++        p.exit(1, f'lanes-stage: {e}\n')
++
++
++if __name__ == '__main__':
++    main()
+--- a/lanes/lanes/preflight.py
++++ b/lanes/lanes/preflight.py
+@@ -35,7 +35,7 @@
+         cell.check_supplied(supplied, slug)
+         deadline_s = cell.approve_timeout(task_toml, DEADLINE_S)
+         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
+-        config = cell.project_yaml(task_toml, lane["settings"].get("models"))
++        config = cell.project_yaml(task_toml, lane["settings"].get("models"), task=task)
+         root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
+         if root:
+             cell.ensure_node_path(root)
+--- /dev/null
++++ b/lanes/tests/test_node_modules.py
+@@ -0,0 +1,58 @@
++import hashlib
++import json
++import os
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++from lanes import node_modules as nm
++
++
++class NodeCacheTest(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = Path(self.tmp.name)
++        self.ws = self.root / 'workspace'
++        self.ws.mkdir()
++        (self.ws / 'package.json').write_text('{"private":true}')
++        (self.ws / 'package-lock.json').write_text('{"lockfileVersion":3}')
++        self.entry = self.root / 'entry'
++        (self.entry / 'node_modules' / '.bin').mkdir(parents=True)
++        (self.entry / 'node_modules' / 'package.js').write_text('cached bytes')
++        (self.entry / 'node_modules' / '.bin' / 'tool').symlink_to('../package.js')
++        (self.entry / 'manifest.json').write_text(json.dumps({'inputs': nm.inputs(self.ws)}))
++
++    def test_restore_is_private_and_replaces_stale_files(self):
++        nm.restore(self.entry, self.ws)
++        target = self.ws / 'node_modules' / 'package.js'
++        self.assertEqual(target.read_text(), 'cached bytes')
++        self.assertNotEqual(target.stat().st_ino, (self.entry / 'node_modules' / 'package.js').stat().st_ino)
++        target.write_text('cell mutation')
++        (self.ws / 'node_modules' / 'stale').write_text('stale')
++        nm.restore(self.entry, self.ws)
++        self.assertEqual(target.read_text(), 'cached bytes')
++        self.assertFalse((self.ws / 'node_modules' / 'stale').exists())
++        self.assertEqual((self.ws / 'node_modules' / '.bin' / 'tool').readlink(), Path('../package.js'))
++
++    def test_changed_install_inputs_refuse(self):
++        for name in ('package.json', 'package-lock.json', '.npmrc'):
++            with self.subTest(name=name):
++                p=self.ws/name
++                before=p.read_bytes() if p.exists() else None
++                p.write_text('changed')
++                with self.assertRaisesRegex(ValueError, 'install inputs changed'):
++                    nm.restore(self.entry, self.ws)
++                p.unlink() if before is None else p.write_bytes(before)
++
++    def test_missing_cache_refuses_without_running_npm(self):
++        with patch.dict(os.environ, {'LANES_NPM_CACHE':str(self.root/'missing')}), patch('subprocess.run') as run:
++            with self.assertRaisesRegex(ValueError, 'not staged'):
++                nm.entry_for(self.ws)
++            run.assert_not_called()
++
++    def test_recipe_scope(self):
++        self.assertEqual(nm.recipe(nm.COMMAND), '.')
++        self.assertEqual(nm.recipe('(cd packaging/cucumber && '+nm.COMMAND+')'), 'packaging/cucumber')
++        for command in ('npm install', 'npm ci', '(cd ../other && '+nm.COMMAND+')', nm.COMMAND+' && other'):
++            self.assertIsNone(nm.recipe(command))

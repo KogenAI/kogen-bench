@@ -192,8 +192,13 @@ def totals(stages):
         t[k] = None if any(v is None for v in vals) else sum(vals)
     walls = [s["wall_s"] for s in stages if s["stage"] in STAGES]
     t["wall_s"] = None if not walls or any(w is None for w in walls) else round(sum(walls), 3)
-    costs = [s["cost_usd"] for s in stages]
-    t["cost_usd"] = None if any(c is None for c in costs) else round(sum(costs), 8)
+    # Never zero a total because one stage is unpriced: sum the priced stages, list the unpriced ones (cap7, 30 Oct).
+    priced = [s["cost_usd"] for s in stages if s["cost_usd"] is not None]
+    unpriced = [{"stage": s["stage"], "reason": s["cost_reason"]} for s in stages if s["cost_usd"] is None]
+    t["priced_usd"] = round(sum(priced), 8) if priced else None
+    t["unpriced_stages"] = unpriced
+    t["cost_complete"] = not unpriced
+    t["cost_usd"] = t["priced_usd"]  # a lower bound whenever unpriced_stages is not empty
     t["cost_reason"] = "; ".join(sorted({s["cost_reason"] for s in stages if s["cost_reason"]})) or None
     t["missing"] = sorted({m for s in stages for m in s["missing"] if m in TOKENS or m == "usage_zero_is_unknown"})
     return t

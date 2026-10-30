@@ -2,7 +2,9 @@
 
 For phase `build`, each task x lane gets a scratch workspace set up as `lanes-cell` does, the supplied
 Intent installed, and `kogen intent approve <slug>` run, then again with the printed hash. Approve is
-local: no provider is involved. Nothing is written to the run dir. The approval deadline is 120 s, or the
+local: no provider is involved. With `LANES_APPROVAL_CACHE`, an `ok` approval whose every input is identical
+(approvecache.py) is reused, so the in-run preflight after `lanes-preflight` and later units of the same Kogen
+skip repeated work; timeouts and refusals are never reused. Timeout deferrals are recorded in PLAN.json. The approval deadline is 120 s, or the
 task's `approve_timeout_s` (readiness may run a long regression suite).
 """
 
@@ -13,9 +15,13 @@ import sys
 import tempfile
 import tomllib
 
-from . import ccroute, cell, common, experiment, leakage, probe
+from . import approval, approvecache, ccroute, cell, common, experiment, leakage, probe
 
 DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
+
+
+class ApprovalTimeout(str):
+    """A deadline observed by Cell.invoke, never inferred from diagnostic text."""
 
 
 def _lines(text):
@@ -35,18 +41,38 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
         cell.check_supplied(supplied, slug)
         deadline_s = cell.approve_timeout(task_toml, DEADLINE_S)
         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
-        config = cell.project_yaml(task_toml, lane["settings"].get("models"))
+        config = cell.project_yaml(task_toml, lane["settings"].get("models"), task=task)
         root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
-        if root:
-            cell.ensure_node_path(root)
+        node = cell.ensure_node_path(root) if root else None
     except (OSError, ValueError, cell.CellError) as e:
         return False, str(e)
-    return approve_supplied(task, slug, supplied, kogen, config, deadline_s)
+    reuse = None
+    if approvecache.root():
+        try:
+            reuse = approvecache.key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node)
+        except (OSError, ValueError, KeyError, TypeError):
+            reuse = None  # an input that cannot be keyed is approved as usual
+    if reuse and (hit := approvecache.lookup(reuse[0])):
+        where = hit.get("context") or {}
+        return True, (f"approved {hit['approval_hash'][:8]} (reused: identical inputs approved "
+                      f"{hit['utc']} in {where.get('experiment')} {where.get('task')} x {where.get('lane')})")
+    ok, message, full_hash = _approve(task, slug, supplied, kogen, config, deadline_s,
+                                      refusal_context=(run_dir, task_id, lane["name"]))
+    if reuse:
+        approvecache.store(reuse[0], reuse[1], ok, isinstance(message, ApprovalTimeout), full_hash,
+                           {"experiment": os.path.basename(os.path.abspath(run_dir)), "task": task_id,
+                            "lane": lane["name"]})
+    return ok, message
 
 
-def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
+def approve_supplied(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
     """In a scratch workspace made from the task's `start/`: install the supplied Intent, run `kogen intent
     approve <slug>`, then again with the printed hash. `(ok, message)`; `lanes-qualify` uses this too."""
+    return _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context)[:2]
+
+
+def _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
+    """`approve_supplied`, plus the full approval SHA-256 when approved (else None)."""
     tmp = tempfile.mkdtemp(prefix="lanes-preflight-")
     try:
         ws, out = os.path.join(tmp, "ws"), os.path.join(tmp, "out")
@@ -61,20 +87,25 @@ def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
             calls.append(c.invoke(["intent", "approve", slug, m.group(1)]))
         last = calls[-1]
         if len(calls) == 2 and last[0] == 0 and not last[1]:
-            return True, f"approved {m.group(1)[:8]}"
+            return True, f"approved {m.group(1)[:8]}", m.group(1)
         why = "timed out" if last[1] else f"exit {last[0]}"
         stdout = _lines(last[2])
         with open(os.path.join(out, "stderr.txt"), encoding="utf-8", errors="replace") as f:
             stderr = _lines(f.read())
         detail = [l for l in stdout + stderr if not l.startswith("== kogen")] or ["no output"]
-        return False, f"approve refused ({why}):\n    " + "\n    ".join(detail[-12:])
+        message = f"approve refused ({why}):\n    " + "\n    ".join(detail[-12:])
+        if refusal_context:
+            run_dir, task_id, lane_name = refusal_context
+            approval.save_refusal(run_dir, task_id, lane_name, calls, ws, preflight=True)
+        return False, ApprovalTimeout(message) if last[1] else message, None
     except cell.CellError as e:
-        return False, str(e)
+        return False, str(e), None
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_code_checked=False):
+def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_code_checked=False,
+              task_ids=None, stage="initial"):
     """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only).
     A run with a claude-code lane also needs `hosts_file`: each host's CLAUDE_CONFIG_DIR and Claude Code login are checked
     (unless the caller already did: `claude_code_checked`, as `lanes-run` does for its own hosts)."""
@@ -106,11 +137,29 @@ def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_
         out(f"preflight: phase {exp['phase']} supplies no Intent; nothing to check")
         return leaks
     bad = leaks
-    for task_id in exp["tasks"]:
+    pending = approval.pending(run_dir)
+    plan_path = os.path.join(run_dir, "plan.jsonl")
+    planned = common.read_jsonl(plan_path) if os.path.isfile(plan_path) else []
+    for task_id in exp["tasks"] if task_ids is None else task_ids:
+        own = [c for c in planned if c["task"] == task_id]
+        if task_ids is None and own and all(os.path.isfile(os.path.join(common.cell_dir(run_dir, c["cell"]), "result.json"))
+                                           for c in own):
+            out(f"{task_id}: all planned cells finished; no new approval needed")
+            continue
+        if task_ids is None and task_id in pending:
+            out(f"{task_id}: DEFERRED for all lanes; retry after other tasks' cells")
+            continue
+        results = []
         for lane in exp["lanes"]:
             ok, message = check_one(exp, run_dir, tasks, task_id, lane, artifact)
-            bad += not ok
-            out(f"{task_id} x {lane['name']}: {'ok' if ok else 'REFUSED'}: {message}")
+            timeout = isinstance(message, ApprovalTimeout)
+            bad += not ok and not timeout
+            results.append({"lane": lane["name"], "ok": ok, "timeout": timeout, "message": str(message)})
+            out(f"{task_id} x {lane['name']}: {'ok' if ok else 'DEFERRED' if timeout else 'REFUSED'}: {message}")
+        if any(r["timeout"] for r in results) or task_id in approval.records(run_dir):
+            approval.record(run_dir, task_id, results, stage)
+            if any(r["timeout"] for r in results):
+                out(f"{task_id}: DEFERRED for all lanes; all planned cells retained")
     return bad
 
 

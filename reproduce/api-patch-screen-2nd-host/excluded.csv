@@ -1,0 +1,4 @@
+task,tool,rep,what,counted,passed,wall_s,cost_usd,reason
+cron-go,api-batch,1,setup error (missing empty Kogen home),no,,,0,zero model requests; re-run under the same protocol
+cron-go,api-batch,1,first attempt,no,true,157.251,0.07297625,graded pass but no patch-witness receipt (copied gateway extension lacked the witness instrumentation); charge stays in the cap; corrected run is the counted row
+cron-go,api-batch|api-replay,1,two cells lost in a host reboot,no,,,0.17033925,"charged, result lost, marked 'lost in reboot, not counted' in the spend ledger (sum of both charges; per-row values are not retained in this pack); both re-run"

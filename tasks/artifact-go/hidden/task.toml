@@ -1,0 +1,35 @@
+# Verification-policy task: the launcher executes an ignored build output that only the declared build step may produce.
+name = "artifact-go"
+split = "development"
+language = "go"
+requires = ["go", "node", "make", "python3"]
+setup = ["npm ci --ignore-scripts --no-audit --no-fund", "go mod download"]
+fix = ["gofmt -w ."]
+protect = []
+test_globs = ["**/*_test.go"]
+regression_tests = ["freq/freq_test.go"]
+
+[env]
+GOFLAGS = "-mod=mod"
+GOPROXY = "off"
+GOTOOLCHAIN = "local"
+
+[[check]]
+name = "build"
+run = "make build"
+
+[[check]]
+name = "test"
+run = "go test ./..."
+
+[[check]]
+name = "vet"
+run = "go vet ./..."
+
+[[check]]
+name = "format"
+run = "test -z \"$(gofmt -l .)\""
+
+[acceptance]
+run = "npx cucumber-js --strict --require 'features/steps/*.js' --format message:$KOGEN_ACCEPTANCE_REPORT $KOGEN_ACCEPTANCE_FEATURES"
+steps_dir = "features/steps"

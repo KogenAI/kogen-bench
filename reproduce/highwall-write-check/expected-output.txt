@@ -1,0 +1,14 @@
+runs counted: 8; passed: 8; tasks: 3; uncounted attempts: 1
+
+| Tool | Pass / runs | Median / p90 wall s | Median / p90 API requests | Reasoning tokens (total) | Output tokens (total) | USD total / USD per pass |
+| loop-default | 3 / 3 | 380.526 / 436.749 | 36 / 40 | 11,684 | 48,004 | $0.660953 / $0.220318 |
+| write-check | 3 / 3 | 514.038 / 536.955 | 54 / 57 | 10,951 | 60,112 | $1.044444 / $0.348148 |
+| Codex CLI | 2 / 2 | 320.940 / 426.416 | 38.5 / 55 | 9,325 | 38,563 | $0.658106 / $0.329053 |
+
+Paired by task; wins for write-check / wins for comparison (lower is better); exact two-sided sign test, ties excluded.
+| Comparison | Wall | Requests | Reasoning | Output | USD | Pass |
+| write-check vs loop-default (3 tasks) | 0/3, p=0.250 | 1/2, p=1.000 | 2/1, p=1.000 | 0/3, p=0.250 | 0/3, p=0.250 | 0/0, 3 ties, p=1.000 |
+| write-check vs Codex CLI (2 tasks) | 1/1, p=1.000 | 1/1, p=1.000 | 1/1, p=1.000 | 2/0, p=0.500 | 2/0, p=0.500 | 0/0, 2 ties, p=1.000 |
+
+activation: 0/3 write-check runs used the write_file command argument (write_file calls: 0); rate 0%
+counted spend: $2.363504 of $4 cap

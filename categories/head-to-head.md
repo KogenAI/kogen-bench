@@ -162,7 +162,9 @@ These subscription tables report pass and cost only. Cost is uncached input + 0.
 
 **Wall-time method from 30 October.** Loop-versus-Codex wall time is measured only on two dedicated cloud machines, with the tools interleaved one run at a time on the same task. Laptop and desktop runs report pass and cost only. Earlier wall-time figures from these machines are descriptive.
 
-**Route finding.** Loop and Codex reach the model through different endpoints and sign-in clients. From about 04:00 UTC on 30 October, loop's output rate on the same tasks and with similar output counts fell from about 110 to about 48 tokens per second, while Codex wall times stayed about the same. Small route probes measured about 45 versus 81 tokens per second. The evidence points to the route as the source of tonight's subscription wall-time gap, rather than a change in loop's code.
+**Route finding.** Loop and Codex reach the model through different endpoints and sign-in clients. From about 04:00 UTC on 30 October, loop's output rate on the same tasks and with similar output counts fell from about 110 to about 48 tokens per second, while Codex wall times stayed about the same. That slowdown was on loop's route at that time, not a change in loop's code. It was no longer visible at 11:59 UTC, when a same-machine test found loop's route and Codex's route streaming at the same rate, about 40–44 tokens per second on three machines ([routes and clients](routes-and-clients.md)).
+
+**Correction, 30 October 2026.** This paragraph earlier cited small route probes of about 45 against 81 tokens per second as evidence of a route speed gap. Those were three short requests per route on one machine at one time. The larger same-machine test did not reproduce them, so they are no longer cited.
 
 **Tool-use observation.** On tasks both passed, loop ran fewer shell commands and read back less tool output than Codex; it did not run more or wider tests.
 
@@ -192,7 +194,7 @@ Each loop variant had 2 task pass wins, 1 loss and 21 ties against Codex CLI (on
 
 ### Subscription route, 24 tasks, same model and effort, gpt-6.1-terra, medium and high effort
 
-**Summary.** On 24 Go tasks, kogen-loop and Codex CLI both passed every run at both efforts (24/24 each). kogen-loop used about 40% of Codex CLI's equivalent tokens per pass and used fewer on all 24 tasks at both efforts. Its wall time was 25–30% longer, but the two tools reached the model through different subscription routes, so the wall difference cannot be attributed to the tool. This is one run per task and tool, so the sign tests are descriptive.
+**Summary.** On 24 Go tasks, kogen-loop and Codex CLI both passed every run at both efforts (24/24 each). kogen-loop used about 40% of Codex CLI's equivalent tokens per pass and used fewer on all 24 tasks at both efforts. Its wall time was 25–30% longer, but the two tools reached the model through different subscription routes, so the wall difference cannot be attributed to the tool. These runs took place between 08:13 and 11:00 UTC; the two routes' speeds were not compared directly during that window. This is one run per task and tool, so the sign tests are descriptive.
 
 **Setup.** Route: subscription, with each tool using its own route. Model: gpt-6.1-terra. Each comparison pairs the two tools at the same effort (medium with medium, high with high). The tools alternated task by task on one cloud machine, one run at a time. All 96 runs were observed, with no setup failures.
 
@@ -220,7 +222,9 @@ Equivalent tokens are uncached input + 0.1 × cached input + 4 × output, divide
 
 ### Subscription route probe, gpt-6.1-terra, medium effort
 
-**Summary.** We looked for a faster route that kogen-loop could reach with its own sign-in and an honest client label, and found none. Every variant streamed at about 54 tokens per second, so the slower wall time above looks like a fixed pace on kogen-loop's route rather than something in its request handling. This is a small probe and it is descriptive.
+**Summary.** We looked for a faster route that kogen-loop could reach with its own sign-in and an honest client label, and found none: every variant streamed at about 54 tokens per second. This probe measured kogen-loop's route only. This is a small probe and it is descriptive.
+
+**Correction, 30 October 2026.** This summary earlier said the slower wall time above looked like a fixed pace on kogen-loop's route. About two hours after this probe, a same-machine test found kogen-loop's route and Codex CLI's route streaming at the same rate, so this probe does not show that kogen-loop's route is slower ([routes and clients](routes-and-clients.md)).
 
 **Setup.** Route: subscription sign-in used by kogen-loop. Model: gpt-6.1-terra, medium effort, no tools, the same prompt each time (343 output tokens, no reasoning tokens in every successful response). Each variant ran 10 paired requests against the current setup, alternating order, with a fresh session on every request. No other tool's client identity or credentials were used.
 
@@ -230,7 +234,7 @@ Equivalent tokens are uncached input + 0.1 × cached input + 4 × output, divide
 | Persistent WebSocket connection, honest client label | 54.3 [54.0, 54.9] | 53.6 [52.8, 54.3] |
 | Subscription endpoint used by Codex CLI | refused (HTTP 401) on a single check; not retried | |
 
-Rates are measured from the first generated text to the last byte. The WebSocket variant started producing text about 0.6 s sooner (1.86 s against 2.47 s median), which is a connection effect, not a faster stream. Neither variant reached the pre-set bar of 1.5× the median rate with non-overlapping interquartile ranges. The rate was nearly constant across 40 requests, which fits a fixed per-stream pace set by the provider rather than load. Whether kogen-loop's sign-in client can be given access to the faster route is a question for the provider. Until it is answered, subscription wall comparisons should be read by route and time period.
+Rates are measured from the first generated text to the last byte. The WebSocket variant started producing text about 0.6 s sooner (1.86 s against 2.47 s median), which is a connection effect, not a faster stream. Neither variant reached the pre-set bar of 1.5× the median rate with non-overlapping interquartile ranges. The rate was nearly constant across 40 requests. Subscription wall comparisons should still be read by route and time period.
 
 ### Write-check patch short test, same OpenAI API key, gpt-6.1-terra, high effort
 

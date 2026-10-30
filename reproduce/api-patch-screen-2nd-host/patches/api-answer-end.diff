@@ -1,0 +1,59 @@
+--- /dev/null
++++ b/loop/api_answer_end_test.go
+@@ -0,0 +1,44 @@
++package loop
++
++import (
++	"kogen-loop/provider"
++	"testing"
++)
++
++func TestAPIAnswerEndPreservesCallerContracts(t *testing.T) {
++	for _, tc := range []struct {
++		name, model, effort, instructions string
++		terminal                          []string
++		reminders                         int
++		wantFinish                        bool
++	}{
++		{name: "high", model: "gpt-6.1-terra", effort: "high"},
++		{name: "medium", model: "gpt-6.1-terra", effort: "medium"},
++		{name: "custom policy", model: "gpt-6.1-terra", effort: "high", instructions: "Call finish", wantFinish: true},
++		{name: "reminders", model: "gpt-6.1-terra", effort: "high", reminders: 1, wantFinish: true},
++		{name: "generic compatible", model: "other", effort: "high", wantFinish: true},
++		{name: "named terminal", model: "gpt-6.1-terra", effort: "high", terminal: []string{"submit"}},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			s, err := NewSession(SessionConfig{Root: t.TempDir(), Role: provider.Role{Provider: "openai-compatible", Model: tc.model, Effort: tc.effort}, Instructions: tc.instructions, Terminal: tc.terminal, TerminalReminders: tc.reminders})
++			if err != nil {
++				t.Fatal(err)
++			}
++			finish, submit := false, false
++			for _, v := range s.Definitions() {
++				name := v.(map[string]any)["name"]
++				finish = finish || name == "finish"
++				submit = submit || name == "submit"
++			}
++			if finish != tc.wantFinish {
++				t.Fatalf("finish=%v want=%v", finish, tc.wantFinish)
++			}
++			if len(tc.terminal) > 0 && !submit {
++				t.Fatal("named terminal removed")
++			}
++			if tc.instructions != "" && s.instructions != tc.instructions {
++				t.Fatal("custom instructions changed")
++			}
++		})
++	}
++}
+--- a/loop/session.go
++++ b/loop/session.go
+@@ -189,7 +189,8 @@
+ 	if len(terminal) == 0 {
+ 		terminal = DefaultTerminal
+ 	}
+-	answerEnd := cfg.Role.Provider == "chatgpt" && len(terminal) == 1 &&
++	answerEnd := (cfg.Role.Provider == "chatgpt" ||
++		(cfg.Role.Provider == "openai-compatible" && cfg.Role.Model == "gpt-6.1-terra" && cfg.Instructions == "")) && len(terminal) == 1 &&
+ 		terminal[0] == FinishTool && cfg.TerminalReminders <= 0
+ 	var defs []any
+ 	seen := map[string]bool{}

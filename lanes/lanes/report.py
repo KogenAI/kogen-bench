@@ -12,7 +12,7 @@ import sys
 from fractions import Fraction
 from math import comb, exp, lgamma, log, sqrt
 
-from . import common, costguard, experiment, usage
+from . import approval, common, costguard, experiment, timeoutguard, usage
 
 RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
 SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
@@ -613,6 +613,10 @@ def report(run_dir):
         from . import probe  # probe imports this module
         return probe.report_probe(run_dir, exp)
     cells = _load_cells(run_dir, exp["phase"])
+    debts = approval.records(run_dir)
+    for c in cells:
+        if c["plan"]["task"] in debts and debts[c["plan"]["task"]]["state"] != "approved" and not c["result"]:
+            c["class"] = "infrastructure"
     part = _split_of(exp) if exp.get("kind") == "climb" else None
     lanes = [_lane(l, cells, exp["phase"], part) for l in exp["lanes"]]
     rep = {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"], "lanes": lanes,
@@ -622,6 +626,13 @@ def report(run_dir):
         rep["verdict"] = _climb_verdict(rep["climb"], exp, lanes)
     else:
         rep["verdict"] = apply_rule(exp["decision_rule"], cells, lanes)
+    rep["approval_deferrals"] = debts
+    rep["infrastructure_gaps"] = approval.gaps(run_dir)
+    rep["timeout_deferrals"] = timeoutguard.gaps(run_dir)
+    if rep["infrastructure_gaps"]:
+        rep["verdict"] = {"decision": "incomplete", "line": "incomplete: approval infrastructure gaps; planned tasks retained"}
+    elif rep["timeout_deferrals"]:
+        rep["verdict"] = {"decision": "incomplete", "line": "incomplete: " + timeoutguard.REASON + " (infrastructure gap); planned tasks retained"}
     return rep
 
 
@@ -710,6 +721,21 @@ def render(rep):
                    for l in rep["lanes"]])
     if "climb" in rep:
         out += _render_climb(rep["climb"])
+    if rep.get("approval_deferrals"):
+        out += ["", "## Approval deferrals", "",
+                "Every task and lane remains in the original plan. Pending tasks carry to a later unit of this experiment.", ""]
+        out += _table(["task", "lanes", "state", "attempts"],
+                      [[t, ", ".join(r["lanes"]), r["state"], len(r["attempts"])]
+                       for t, r in sorted(rep["approval_deferrals"].items())])
+        if rep.get("infrastructure_gaps"):
+            out += ["", "Infrastructure gap: approval remains unresolved; experiment verdict is incomplete."]
+    if rep.get("timeout_deferrals"):
+        out += ["", "## Deferred after timeouts", "",
+                "Infrastructure gap: these tasks stay in the plan but start no more cells (the deadline is unchanged). "
+                "To re-admit one, create its override file.", ""]
+        out += _table(["task", "reason", "timeouts", "study", "tool", "Kogen sha", "override file"],
+                      [[g["task"], g["reason"], g["timeouts"], g["study"], g["tool"], g["sha"][:12], g["override"]]
+                       for g in rep["timeout_deferrals"]])
     out += _render_cost(rep["cost"])
     scope = " (train cells)" if "climb" in rep else ""
     for l in rep["lanes"]:

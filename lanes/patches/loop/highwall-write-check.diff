@@ -1,0 +1,168 @@
+--- a/tools/defs.go
++++ b/tools/defs.go
+@@ -83,8 +83,8 @@
+ 			map[string]any{"path": str(), "start_line": integer(), "end_line": integer()}, "path"), true
+ 	case WriteFileTool:
+ 		return fun(name,
+-			"Write the whole content of a file of the repository (created with its folders if needed).",
+-			map[string]any{"path": str(), "content": str()}, "path", "content"), true
++			"Write the whole content of a file of the repository (created with its folders if needed). When the next check is already known, include command to run it after a successful write using the shell tool's execution rules. A failed write never runs command; shell must be enabled. Inspect the returned exit status and output before finishing.",
++			map[string]any{"path": str(), "content": str(), "command": str()}, "path", "content"), true
+ 	case ListFilesTool:
+ 		return fun(name,
+ 			"List the repository's files (tracked and untracked, not ignored), optionally under a folder.",
+@@ -128,7 +128,7 @@
+ 			ShellTool:         "/bin/sh -c at root; stdin closed; status, combined output. No time limit. Finite: foreground, no polling. Persistent: background, log, read, stop.",
+ 			ViewImageTool:     "View local static non-interlaced RGB8 PNG: 1..131072 bytes, dimensions 1..2048. Read-only; may resize.",
+ 			ReadFileTool:      "Read repo-relative file, numbered lines.",
+-			WriteFileTool:     "Write repo-relative file; create folders.",
++			WriteFileTool:     "Write repo-relative file; create folders. Include known check as command; runs only on successful write, with shell enabled. Inspect status/output.",
+ 			ListFilesTool:     "List non-ignored files.",
+ 			SearchTextTool:    "Git grep regex; path:line:text.",
+ 			DocumentationTool: "Search/fetch docs; offset: byte; find: heading/line.",
+--- a/tools/tools.go
++++ b/tools/tools.go
+@@ -166,7 +166,26 @@
+ 	case ReadFileTool:
+ 		return t.readFile(args), nil
+ 	case WriteFileTool:
+-		return Output{Text: t.writeFile(args)}, nil
++		// A known check can be declared with the write, avoiding a model round
++		// whose only purpose is to dispatch it. Validate before changing disk.
++		command, check := args["command"]
++		if check {
++			if !slices.Contains(t.Enabled, ShellTool) {
++				return Output{Text: "error: write_file command requires shell to be enabled"}, nil
++			}
++			if text, ok := command.(string); !ok || strings.TrimSpace(text) == "" {
++				return Output{Text: "error: argument command must be a nonempty string"}, nil
++			}
++		}
++		text := t.writeFile(args)
++		if !check || text != "ok" {
++			return Output{Text: text}, nil
++		}
++		if ctx != nil && ctx.Err() != nil {
++			return Output{}, ctx.Err()
++		}
++		result, rule, err := t.shell(ctx, map[string]any{"command": command})
++		return Output{Text: text + "\n" + result, Rule: rule}, err
+ 	case ListFilesTool:
+ 		return Output{Text: t.listFiles(args)}, nil
+ 	case SearchTextTool:
+--- /dev/null
++++ b/tools/highwall_write_check_test.go
+@@ -0,0 +1,90 @@
++package tools
++
++import (
++	"context"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++)
++
++func TestWriteCheckRunsAfterWriteAndReportsFailure(t *testing.T) {
++	root := t.TempDir()
++	tl := newTools(root, WriteFileTool, ShellTool)
++	out, err := tl.Run(WriteFileTool, map[string]any{
++		"path": "source", "content": "new bytes", "command": "cat source; exit 7",
++	})
++	if err != nil || out.Text != "ok\nexit status: 7\nnew bytes" {
++		t.Fatalf("%q %v", out.Text, err)
++	}
++	// A subsequent ordinary write retains the exact old result.
++	out, err = tl.Run(WriteFileTool, map[string]any{"path": "source", "content": "next"})
++	if err != nil || out.Text != "ok" {
++		t.Fatalf("%q %v", out.Text, err)
++	}
++}
++
++func TestWriteCheckRejectsBeforeMutation(t *testing.T) {
++	for _, command := range []any{nil, 4, "", " \n"} {
++		root := t.TempDir()
++		tl := newTools(root, WriteFileTool, ShellTool)
++		out, err := tl.Run(WriteFileTool, map[string]any{"path": "source", "content": "new", "command": command})
++		if err != nil || !strings.HasPrefix(out.Text, "error:") {
++			t.Fatalf("%q %v", out.Text, err)
++		}
++		if _, err := os.Stat(filepath.Join(root, "source")); !os.IsNotExist(err) {
++			t.Fatal("invalid command changed disk")
++		}
++	}
++	root := t.TempDir()
++	tl := newTools(root, WriteFileTool)
++	out, err := tl.Run(WriteFileTool, map[string]any{"path": "source", "content": "new", "command": "echo bad > marker"})
++	if err != nil || !strings.Contains(out.Text, "requires shell") {
++		t.Fatalf("%q %v", out.Text, err)
++	}
++	if _, err := os.Stat(filepath.Join(root, "source")); !os.IsNotExist(err) {
++		t.Fatal("disabled shell changed disk")
++	}
++}
++
++func TestWriteCheckNeverRunsAfterFailedWrite(t *testing.T) {
++	for _, path := range []string{"protected", "folder"} {
++		root := t.TempDir()
++		write(t, root, "protected", "original")
++		if err := os.Mkdir(filepath.Join(root, "folder"), 0700); err != nil {
++			t.Fatal(err)
++		}
++		tl := newTools(root, WriteFileTool, ShellTool)
++		tl.Protected = []string{"protected"}
++		out, err := tl.Run(WriteFileTool, map[string]any{"path": path, "content": "new", "command": "echo bad > marker"})
++		if err != nil || out.Text == "ok" {
++			t.Fatalf("%q %v", out.Text, err)
++		}
++		if _, err := os.Stat(filepath.Join(root, "marker")); !os.IsNotExist(err) {
++			t.Fatal("command ran after failed write")
++		}
++		b, err := os.ReadFile(filepath.Join(root, "protected"))
++		if err != nil || string(b) != "original" {
++			t.Fatalf("protected bytes changed: %q %v", b, err)
++		}
++	}
++}
++
++func TestWriteCheckUsesShellTimeoutAndRefusal(t *testing.T) {
++	root := t.TempDir()
++	tl := newTools(root, WriteFileTool, ShellTool)
++	tl.ShellTimeout = 20 * time.Millisecond
++	out, err := tl.RunContext(context.Background(), WriteFileTool, map[string]any{
++		"path": "source", "content": "new", "command": "sleep 2",
++	})
++	if err != nil || !strings.Contains(out.Text, "timed out after 20ms") {
++		t.Fatalf("%q %v", out.Text, err)
++	}
++	out, err = tl.Run(WriteFileTool, map[string]any{
++		"path": "source", "content": "next", "command": "pkill -f nothing-at-all",
++	})
++	if err != nil || out.Rule == "" || !strings.Contains(out.Text, "refused") {
++		t.Fatalf("%q rule=%q %v", out.Text, out.Rule, err)
++	}
++}
+--- a/tools/testdata/defs_golden.json
++++ b/tools/testdata/defs_golden.json
+@@ -1 +1 @@
+-{"finish":{"description":"Say the implementation is complete. Kogen then runs the fixers and every check, and a reviewer reviews the code; failures come back to you.","name":"finish","parameters":{"additionalProperties":false,"properties":{"summary":{"type":"string"}},"required":["summary"],"type":"object"},"strict":false,"type":"function"},"list_files":{"description":"List the repository's files (tracked and untracked, not ignored), optionally under a folder.","name":"list_files","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"probe":{"description":"Run a quick throwaway command with /bin/sh -c in a scratch copy of the working tree (with its installed dependencies and builds), never in the project, to prove a risky assumption. Optional scratch files are written first. Stopped after 5 minutes. Returns the exit status, whether it timed out, the wall time and the combined output.","name":"probe","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"type":"array"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"read_file":{"description":"Read a file of the repository, with line numbers. Paths are relative to the repository root.","name":"read_file","parameters":{"additionalProperties":false,"properties":{"end_line":{"type":"integer"},"path":{"type":"string"},"start_line":{"type":"integer"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"report_blocker":{"description":"Stop with a BUILDER-REPORTED protected-baseline contradiction. Supply concrete current protected file paths, the contradiction, and observed command/step/error evidence. Ordinary implementation failures or expected missing-feature red require repair, not a blocker. This never authorizes protected writes or skips a successful gate.","name":"report_blocker","parameters":{"additionalProperties":false,"properties":{"evidence":{"type":"string"},"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason","evidence"],"type":"object"},"strict":false,"type":"function"},"search_text":{"description":"Search the repository's files for a regular expression (git grep syntax). Returns path:line:text matches.","name":"search_text","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"},"pattern":{"type":"string"}},"required":["pattern"],"type":"object"},"strict":false,"type":"function"},"shape_batch":{"description":"One blocking batch of 1\u20133 independent read/probe/draft jobs. Supply complete brief: revision {head,tree}, nonempty outcomes, interfaces, transitions, fixtures, exclusions, protected_paths array, artifacts [{path,expectation}]. Each job: unique id, role, exact scope, paths array, owns array. Read/probe own nothing; disjoint draft owns exact Intent/step files. Sequential is valid until all boundaries are known.","name":"shape_batch","parameters":{"properties":{"brief":{"type":"object"},"jobs":{"type":"array"}},"required":["brief","jobs"],"type":"object"},"type":"function"},"shell":{"description":"Run a command with /bin/sh -c in the repository root. stdin is closed. Returns the exit status and the combined stdout and stderr. Commands have no time limit. Run finite commands, including tests and browser suites, in the foreground until completion; do not poll them through repeated sleep/tail/ps calls. Only persistent commands (dev servers, watch modes) belong in the background with output to a log file; read their logs and stop them yourself.","name":"shell","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"submit":{"description":"Include nonempty ## Source comparison prose (at most 8192 UTF-8 bytes) comparing requested behaviors and settled non-secret literals against the actual complete contract, using addressed, omitted, conflicting, superseded with source/contract references. Do not expose secrets or raw private originals. Deliberate scope changes must be explicit; mappings are diagnostic aids, not semantic proof. End shaping with exactly one of questions, Intent files, or blocked. Within this run, well-formed file proposals accumulate: omitted paths retain earlier proposals; latest content wins. Submit only corrections on editing retries. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. A malformed or unsafe submission contributes no files. A blocked report is never authorization and cannot be paired with another result. Record a documentation lookup only when this conversation's documentation tool returned that status and reference. An explicit question kind other than product or handoff is rejected: decide technical questions inside shaping; only kind product or handoff may reach the caller.","name":"submit","parameters":{"properties":{"blocked":{"properties":{"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason"],"type":"object"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"},"questions":{"items":{"properties":{"kind":{"description":"Optional. Omit or product for a UI/UX or product question. handoff for a mandatory authentication or security handoff. Any other explicit kind is rejected.","type":"string"},"options":{"items":{"properties":{"label":{"type":"string"},"recommended":{"type":"boolean"}},"required":["label"],"type":"object"},"type":"array"},"question":{"type":"string"}},"required":["question"],"type":"object"},"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_configuration":{"description":"The project's setup commands, fixers, checks and protected verification configuration; dependency-only manifests and lockfiles are ineligible.","name":"submit_configuration","parameters":{"properties":{"checks":{"items":{"properties":{"name":{"type":"string"},"run":{"type":"string"}},"required":["name","run"],"type":"object"},"type":"array"},"fix":{"items":{"type":"string"},"type":"array"},"protect":{"items":{"type":"string"},"type":"array"},"setup":{"items":{"type":"string"},"type":"array"}},"required":["setup","fix","checks","protect"],"type":"object"},"strict":false,"type":"function"},"submit_refinement":{"description":"For edits, submit changed existing files; well-formed proposals accumulate in this run and omitted paths retain earlier proposed bytes. Submit original content only to intentionally revert an edit. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. Or report an explicit unsupported-work constraint.","name":"submit_refinement","parameters":{"properties":{"constraint":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_review":{"description":"Submit the review: verdict approve or changes, with findings.","name":"submit_review","parameters":{"properties":{"findings":{"items":{"properties":{"line":{"type":"integer"},"message":{"type":"string"},"path":{"type":"string"},"severity":{"enum":["blocking","note"],"type":"string"}},"required":["path","line","severity","message"],"type":"object"},"type":"array"},"verdict":{"enum":["approve","changes"],"type":"string"}},"required":["verdict","findings"],"type":"object"},"strict":false,"type":"function"},"view_image":{"description":"View one selected local static non-interlaced RGB8 PNG (1..131072 bytes, dimensions 1..2048). Read-only; no capture or provenance inference. Provider preprocessing may change resolution.","name":"view_image","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"worker_result":{"description":"Terminate with nonempty evidence and files [{path,content}]; read/probe files empty, draft only owns.","name":"worker_result","parameters":{"properties":{"evidence":{"type":"string"},"files":{"type":"array"}},"required":["evidence","files"],"type":"object"},"type":"function"},"write_file":{"description":"Write the whole content of a file of the repository (created with its folders if needed).","name":"write_file","parameters":{"additionalProperties":false,"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"strict":false,"type":"function"},"documentation":{"description":"Shape documentation lookup discovers sources and retrieves current authoritative documentation. A fetch may pass offset, a byte index into the page body, and find, text that starts the body at its first matching heading or line; the result reports body_total and next_offset for reading the rest.","name":"documentation","parameters":{"additionalProperties":false,"properties":{"base":{"description":"Optional origin. When present, every request in this call uses that origin and no other host.","type":"string"},"find":{"type":"string"},"offset":{"type":"integer"},"operation":{"enum":["search","fetch"],"type":"string"},"query":{"type":"string"},"url":{"type":"string"}},"required":["operation"],"type":"object"},"strict":false,"type":"function"}}
++{"finish":{"description":"Say the implementation is complete. Kogen then runs the fixers and every check, and a reviewer reviews the code; failures come back to you.","name":"finish","parameters":{"additionalProperties":false,"properties":{"summary":{"type":"string"}},"required":["summary"],"type":"object"},"strict":false,"type":"function"},"list_files":{"description":"List the repository's files (tracked and untracked, not ignored), optionally under a folder.","name":"list_files","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"probe":{"description":"Run a quick throwaway command with /bin/sh -c in a scratch copy of the working tree (with its installed dependencies and builds), never in the project, to prove a risky assumption. Optional scratch files are written first. Stopped after 5 minutes. Returns the exit status, whether it timed out, the wall time and the combined output.","name":"probe","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"type":"array"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"read_file":{"description":"Read a file of the repository, with line numbers. Paths are relative to the repository root.","name":"read_file","parameters":{"additionalProperties":false,"properties":{"end_line":{"type":"integer"},"path":{"type":"string"},"start_line":{"type":"integer"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"report_blocker":{"description":"Stop with a BUILDER-REPORTED protected-baseline contradiction. Supply concrete current protected file paths, the contradiction, and observed command/step/error evidence. Ordinary implementation failures or expected missing-feature red require repair, not a blocker. This never authorizes protected writes or skips a successful gate.","name":"report_blocker","parameters":{"additionalProperties":false,"properties":{"evidence":{"type":"string"},"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason","evidence"],"type":"object"},"strict":false,"type":"function"},"search_text":{"description":"Search the repository's files for a regular expression (git grep syntax). Returns path:line:text matches.","name":"search_text","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"},"pattern":{"type":"string"}},"required":["pattern"],"type":"object"},"strict":false,"type":"function"},"shape_batch":{"description":"One blocking batch of 1\u20133 independent read/probe/draft jobs. Supply complete brief: revision {head,tree}, nonempty outcomes, interfaces, transitions, fixtures, exclusions, protected_paths array, artifacts [{path,expectation}]. Each job: unique id, role, exact scope, paths array, owns array. Read/probe own nothing; disjoint draft owns exact Intent/step files. Sequential is valid until all boundaries are known.","name":"shape_batch","parameters":{"properties":{"brief":{"type":"object"},"jobs":{"type":"array"}},"required":["brief","jobs"],"type":"object"},"type":"function"},"shell":{"description":"Run a command with /bin/sh -c in the repository root. stdin is closed. Returns the exit status and the combined stdout and stderr. Commands have no time limit. Run finite commands, including tests and browser suites, in the foreground until completion; do not poll them through repeated sleep/tail/ps calls. Only persistent commands (dev servers, watch modes) belong in the background with output to a log file; read their logs and stop them yourself.","name":"shell","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"submit":{"description":"Include nonempty ## Source comparison prose (at most 8192 UTF-8 bytes) comparing requested behaviors and settled non-secret literals against the actual complete contract, using addressed, omitted, conflicting, superseded with source/contract references. Do not expose secrets or raw private originals. Deliberate scope changes must be explicit; mappings are diagnostic aids, not semantic proof. End shaping with exactly one of questions, Intent files, or blocked. Within this run, well-formed file proposals accumulate: omitted paths retain earlier proposals; latest content wins. Submit only corrections on editing retries. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. A malformed or unsafe submission contributes no files. A blocked report is never authorization and cannot be paired with another result. Record a documentation lookup only when this conversation's documentation tool returned that status and reference. An explicit question kind other than product or handoff is rejected: decide technical questions inside shaping; only kind product or handoff may reach the caller.","name":"submit","parameters":{"properties":{"blocked":{"properties":{"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason"],"type":"object"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"},"questions":{"items":{"properties":{"kind":{"description":"Optional. Omit or product for a UI/UX or product question. handoff for a mandatory authentication or security handoff. Any other explicit kind is rejected.","type":"string"},"options":{"items":{"properties":{"label":{"type":"string"},"recommended":{"type":"boolean"}},"required":["label"],"type":"object"},"type":"array"},"question":{"type":"string"}},"required":["question"],"type":"object"},"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_configuration":{"description":"The project's setup commands, fixers, checks and protected verification configuration; dependency-only manifests and lockfiles are ineligible.","name":"submit_configuration","parameters":{"properties":{"checks":{"items":{"properties":{"name":{"type":"string"},"run":{"type":"string"}},"required":["name","run"],"type":"object"},"type":"array"},"fix":{"items":{"type":"string"},"type":"array"},"protect":{"items":{"type":"string"},"type":"array"},"setup":{"items":{"type":"string"},"type":"array"}},"required":["setup","fix","checks","protect"],"type":"object"},"strict":false,"type":"function"},"submit_refinement":{"description":"For edits, submit changed existing files; well-formed proposals accumulate in this run and omitted paths retain earlier proposed bytes. Submit original content only to intentionally revert an edit. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. Or report an explicit unsupported-work constraint.","name":"submit_refinement","parameters":{"properties":{"constraint":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_review":{"description":"Submit the review: verdict approve or changes, with findings.","name":"submit_review","parameters":{"properties":{"findings":{"items":{"properties":{"line":{"type":"integer"},"message":{"type":"string"},"path":{"type":"string"},"severity":{"enum":["blocking","note"],"type":"string"}},"required":["path","line","severity","message"],"type":"object"},"type":"array"},"verdict":{"enum":["approve","changes"],"type":"string"}},"required":["verdict","findings"],"type":"object"},"strict":false,"type":"function"},"view_image":{"description":"View one selected local static non-interlaced RGB8 PNG (1..131072 bytes, dimensions 1..2048). Read-only; no capture or provenance inference. Provider preprocessing may change resolution.","name":"view_image","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"worker_result":{"description":"Terminate with nonempty evidence and files [{path,content}]; read/probe files empty, draft only owns.","name":"worker_result","parameters":{"properties":{"evidence":{"type":"string"},"files":{"type":"array"}},"required":["evidence","files"],"type":"object"},"type":"function"},"write_file":{"description":"Write the whole content of a file of the repository (created with its folders if needed). When the next check is already known, include command to run it after a successful write using the shell tool's execution rules. A failed write never runs command; shell must be enabled. Inspect the returned exit status and output before finishing.","name":"write_file","parameters":{"additionalProperties":false,"properties":{"content":{"type":"string"},"path":{"type":"string"},"command":{"type":"string"}},"required":["path","content"],"type":"object"},"strict":false,"type":"function"},"documentation":{"description":"Shape documentation lookup discovers sources and retrieves current authoritative documentation. A fetch may pass offset, a byte index into the page body, and find, text that starts the body at its first matching heading or line; the result reports body_total and next_offset for reading the rest.","name":"documentation","parameters":{"additionalProperties":false,"properties":{"base":{"description":"Optional origin. When present, every request in this call uses that origin and no other host.","type":"string"},"find":{"type":"string"},"offset":{"type":"integer"},"operation":{"enum":["search","fetch"],"type":"string"},"query":{"type":"string"},"url":{"type":"string"}},"required":["operation"],"type":"object"},"strict":false,"type":"function"}}
+--- a/tools/testdata/defs_compact_golden.json
++++ b/tools/testdata/defs_compact_golden.json
+@@ -135,11 +135,14 @@
+     "type": "function"
+   },
+   "write_file": {
+-    "description": "Write repo-relative file; create folders.",
++    "description": "Write repo-relative file; create folders. Include known check as command; runs only on successful write, with shell enabled. Inspect status/output.",
+     "name": "write_file",
+     "parameters": {
+       "additionalProperties": false,
+       "properties": {
++        "command": {
++          "type": "string"
++        },
+         "content": {
+           "type": "string"
+         },

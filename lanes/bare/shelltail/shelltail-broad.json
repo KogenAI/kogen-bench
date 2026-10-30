@@ -1,0 +1,29 @@
+{
+  "tasks_dir": "~/lanes-work/broad-tasks-1029",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home-bench",
+  "id": "shelltail-broad",
+  "tasks": [
+    "expr-seqfuncs-go"
+  ],
+  "reps": 1,
+  "arms": [
+    {
+      "name": "loop-default-high",
+      "arm": "loop",
+      "home": "~",
+      "loop_bin": "~/lanes-work/bare-agent/loopbins/b8a4046-kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "codex-terra-high",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "codex_bin": "~/.codex/packages/standalone/releases/0.166.0-aarch64-apple-darwin/bin/codex",
+      "codex_home": "~/codex-home-bench"
+    }
+  ]
+}

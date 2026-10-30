@@ -1,0 +1,36 @@
+rows within snapshot: 496
+
+== loop body-stream rate (n, median, pooled) ==
+Mac A loop medium h2h-24 -> h2h-29 {'before': (24, 110.24, 109.13), 'after': (17, 47.54, 47.7)}
+Mac B loop high h2h-26            {'before': (7, 106.49, 105.33), 'after': (9, 47.83, 47.3)}
+Mac B speed2 high h2h-26          {'before': (6, 99.58, 101.3), 'after': (11, 47.71, 45.21)}
+
+== Pi large write/edit-only turns (n turns, output tokens, seconds, tok/s lower bound) ==
+before 14 13429.0 119.258 112.6
+after 24 20506.0 195.948 104.65
+Pi summed per-cell upper bound median before 56.7745
+Pi summed per-cell upper bound median after 48.72
+
+== OpenCode large steps (cells, median proxy, pooled) and DB message-span median ==
+before 6 136.6 137.41 db span median 100.068
+after 9 139.7 127.05 db span median 96.045
+
+== Mac A matched tasks h2h-24 -> h2h-29, medium ==
+matched tasks: Codex 17 loop 17
+Codex median agent wall 51.325 -> 49.998
+Codex paired wall ratio 1.006 paired output ratio 0.996
+Codex output/agent-wall lower bound median 60.53 -> 54.19
+loop paired wall ratio 1.54 paired output ratio 1.001
+loop body-stream rate median 111.36 -> 47.54
+example r70-1-go loop medium (output, attempts, provider s, body s, agent s, tok/s):
+  h2h-24 2112 4 30.426 18.342 37.845 115.15
+  h2h-29 2012 4 52.914 41.458 60.725 48.53
+
+== direct SSE probes (3 pairs) ==
+loop pooled stream s 10.874 tok/s 44.97 median rate 45.33 median delta->last 52.27
+codex pooled stream s 6.046 tok/s 80.88 median rate 105.57 median delta->last 157.42
+
+== sub-route probes (probes/subroute-probes.jsonl), Linux host, loop credential only ==
+A n 20 first->last median 48.91 first delta->last median 53.93 time-to-first-delta median 2.38
+B n 10 first->last median 47.07 first delta->last median 53.3 time-to-first-delta median 2.89
+E n 10 first->last median 43.04 first delta->last median 54.3 time-to-first-delta median 1.86

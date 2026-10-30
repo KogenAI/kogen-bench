@@ -1,0 +1,21 @@
+tasks: 24  runs: 96
+
+== medium (loop vs Codex, same model and effort) ==
+loop  pass 24/24  wall median 81.16 s  mean 97.8 s  eq tokens/pass 32,697  uncached/pass 15,493  input total 1.85M  output total 66k
+codex pass 24/24  wall median 66.91 s  mean 78.1 s  eq tokens/pass 84,035  uncached/pass 34,826  input total 8.53M  output total 103k
+loop/codex equivalent tokens per pass 38.9%
+pass per task loop/codex wins 0/0, sign p=1.0
+wall median paired delta +29.5% (+17.4 s); task wins loop/codex 3/21, p=0.00028
+equivalent tokens: task wins loop/codex 24/0, p=1.2e-07
+uncached input: task wins loop/codex 22/2, p=3.6e-05
+equivalent tokens median paired delta -58.7%; per-task loop/codex ratio min 0.233 max 0.629; loop lower on 24/24 tasks
+
+== high (loop vs Codex, same model and effort) ==
+loop  pass 24/24  wall median 101.37 s  mean 110.5 s  eq tokens/pass 40,747  uncached/pass 19,849  input total 2.24M  output total 81k
+codex pass 24/24  wall median 77.79 s  mean 93.3 s  eq tokens/pass 96,476  uncached/pass 34,157  input total 10.63M  output total 129k
+loop/codex equivalent tokens per pass 42.2%
+pass per task loop/codex wins 0/0, sign p=1.0
+wall median paired delta +24.7% (+17.4 s); task wins loop/codex 4/20, p=0.0015
+equivalent tokens: task wins loop/codex 24/0, p=1.2e-07
+uncached input: task wins loop/codex 18/6, p=0.023
+equivalent tokens median paired delta -60.2%; per-task loop/codex ratio min 0.163 max 0.588; loop lower on 24/24 tasks

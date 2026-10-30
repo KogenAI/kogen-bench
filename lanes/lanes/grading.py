@@ -1,6 +1,7 @@
 """Hidden-test grading, shape grading and task qualification (the Lab's evaluate and qualify)."""
 
 import contextlib
+import fcntl
 import json
 import os
 import re
@@ -41,16 +42,19 @@ def grader_binary():
         return os.environ["LANES_GRADE_BIN"]
     if not _binary:
         out = os.path.join(common.cache_dir(), "bin", "lanes-grade-verdict")
-        tmp = f"{out}.{os.getpid()}"  # build aside, then rename: concurrent processes cannot race
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        try:
-            r = subprocess.run(["go", "build", "-o", tmp, "."], cwd=GRADE_DIR, capture_output=True,
-                               text=True, timeout=300)
-        except subprocess.TimeoutExpired:
-            raise GradeError("go build of the grader timed out")
-        if r.returncode:
-            raise GradeError("cannot build the grader: " + r.stderr.strip())
-        os.replace(tmp, out)
+        # Go validates source/dependency/toolchain build IDs itself. A stable output
+        # lets it reuse the existing executable, rather than relinking a new PID path.
+        # Serialize writers across processes; never cache verdicts or test results here.
+        with open(out + ".lock", "a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            try:
+                r = subprocess.run(["go", "build", "-o", out, "."], cwd=GRADE_DIR, capture_output=True,
+                                   text=True, timeout=300)
+            except subprocess.TimeoutExpired:
+                raise GradeError("go build of the grader timed out")
+            if r.returncode:
+                raise GradeError("cannot build the grader: " + r.stderr.strip())
         _binary.append(out)
     return _binary[0]
 

@@ -96,10 +96,9 @@ class PreflightTest(unittest.TestCase):
 
     def test_default_deadline_applies_without_the_key(self):
         bad, lines = self.preflight_here(FAKE_KOGEN_APPROVE_DELAY_S="2")
-        self.assertEqual(bad, 2)
-        self.assertEqual(len(lines), 2)
-        for line in lines:
-            self.assertIn("REFUSED: approve refused (timed out)", line)
+        self.assertEqual(bad, 0)
+        self.assertEqual(sum("DEFERRED: approve refused (timed out)" in line for line in lines), 2)
+        self.assertIn("task-mini", common.read_json(os.path.join(self.run_dir, "PLAN.json"))["approval_deferrals"])
 
     def test_approve_timeout_s_replaces_the_deadline(self):
         self.set_task_toml("approve_timeout_s = 20")
@@ -110,7 +109,7 @@ class PreflightTest(unittest.TestCase):
     def test_approve_timeout_s_is_still_a_deadline(self):
         self.set_task_toml("approve_timeout_s = 1")
         bad, lines = self.preflight_here(deadline_s=60, FAKE_KOGEN_APPROVE_DELAY_S="3")
-        self.assertEqual(bad, 2)
+        self.assertEqual(bad, 0)
         self.assertIn("approve refused (timed out)", lines[0])
 
     def test_invalid_approve_timeout_s_is_refused_before_kogen_runs(self):

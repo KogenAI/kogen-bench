@@ -1,0 +1,11 @@
+step,condition,host_cpu_idle_pct,rep,outcome,wall_s,cpu_s,files,megabytes,note
+tree,task start tree (copy),,1,measured,,,2374,73,vendor/ holds 2117 files / 71.7 MB (vendored Go deps)
+tree,node_modules after npm ci,,1,measured,,,2227,27.5,gitignored: 0 files staged
+git_add,fresh GIT_INDEX_FILE; no node_modules,44-74,1,ok,0.39,,2373,,no build output staged
+git_add,fresh GIT_INDEX_FILE; with node_modules,44-74,1,ok,0.26,,2373,,node_modules ignored
+go_build,cold GOCACHE; GOFLAGS=-mod=vendor GOPROXY=off,44-74,1,ok,9.66,42.1,,,cpu_s is user CPU
+go_build,warm GOCACHE,44-74,1,ok,0.66,,,,
+npm_ci,warm npm cache,44-74,1,ok,0.46,,,,the harness now stages this once per lockfile (see npm-preflight-cache)
+preflight,patched harness; normal cached preflight of the capped artifact,,1,approved,23.659,,,,end-to-end Kogen approval; deadline 120 s; 0 npm calls
+preflight,patched harness; git add -A -- . stalled for 600 s (injected),,1,refused (timed out),126.756,,,,deadline 120 s; the same step cannot finish when it is slow
+preflight,original refusal (29 Oct; unpatched harness; host under 10% idle CPU),<10,1,refused (timed out),,,,,"error text: git add -A -- . failed (status 143 = SIGTERM at the deadline); elapsed not recorded"

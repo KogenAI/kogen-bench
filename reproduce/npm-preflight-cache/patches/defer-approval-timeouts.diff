@@ -1,0 +1,622 @@
+diff --git a/lanes/bin/lanes-carry b/lanes/bin/lanes-carry
+new file mode 100755
+index 00000000..733b3088
+--- /dev/null
++++ b/lanes/bin/lanes-carry
+@@ -0,0 +1,8 @@
++#!/usr/bin/env python3
++import os
++import sys
++
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
++from lanes import carry
++
++sys.exit(carry.main())
+diff --git a/lanes/lanes/approval.py b/lanes/lanes/approval.py
+new file mode 100644
+index 00000000..016fda9b
+--- /dev/null
++++ b/lanes/lanes/approval.py
+@@ -0,0 +1,33 @@
++"""Durable, paired approval debt. The immutable experiment and cell set never shrink."""
++
++import datetime
++import os
++
++from . import common
++
++
++def records(run_dir):
++    path = os.path.join(run_dir, "PLAN.json")
++    return common.read_json(path).get("approval_deferrals", {}) if os.path.isfile(path) else {}
++
++
++def pending(run_dir):
++    return {t for t, r in records(run_dir).items() if r["state"] == "pending"}
++
++
++def record(run_dir, task, results, stage):
++    path = os.path.join(run_dir, "PLAN.json")
++    plan = common.read_json(path) if os.path.isfile(path) else {}
++    debt = plan.setdefault("approval_deferrals", {}).setdefault(task, {"attempts": []})
++    debt["state"] = ("approved" if all(r["ok"] for r in results) else
++                     "refused" if any(not r["ok"] and not r["timeout"] for r in results) else "pending")
++    debt["lanes"] = [r["lane"] for r in results]
++    debt["attempts"].append({"stage": stage, "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
++                              "results": results})
++    common.write_json(path, plan)
++
++
++def gaps(run_dir):
++    return [{"task": t, "lanes": r["lanes"], "reason": "approval_timeout" if r["state"] == "pending" else "approval_refused",
++             "state": r["state"], "attempts": r["attempts"]}
++            for t, r in sorted(records(run_dir).items()) if r["state"] != "approved"]
+diff --git a/lanes/lanes/carry.py b/lanes/lanes/carry.py
+new file mode 100644
+index 00000000..55eedd4a
+--- /dev/null
++++ b/lanes/lanes/carry.py
+@@ -0,0 +1,68 @@
++"""Carry approval debt to a later queued unit, always resuming the original experiment."""
++
++import argparse
++import fcntl
++import os
++import subprocess
++
++from . import approval, common
++
++
++def enqueue(root, run_dir, tasks, kind, slots, estimate):
++    exp_id = common.read_json(os.path.join(run_dir, "experiment.json"))["id"]
++    common.write_json(os.path.join(root, exp_id + ".json"),
++                      {"experiment": exp_id, "run_dir": os.path.abspath(run_dir), "tasks": os.path.abspath(tasks),
++                       "kind": kind, "slots": slots, "estimate": estimate})
++
++
++def drain(root, entry, exclude, out=print):
++    os.makedirs(root, exist_ok=True)
++    with open(os.path.join(root, ".lock"), "a") as lock:
++        try:
++            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            return
++        # Snapshot once: a still-timed-out task can only be retried in another unit.
++        for name in sorted(os.listdir(root)):
++            if not name.endswith(".json"):
++                continue
++            path = os.path.join(root, name)
++            row = common.read_json(path)
++            if row["experiment"] == exclude:
++                continue
++            if not approval.gaps(row["run_dir"]):
++                os.unlink(path)
++                continue
++            if not approval.pending(row["run_dir"]):
++                out(f"carry: {row['experiment']} has a real refusal; retained for repair", flush=True)
++                continue
++            out(f"carry: resume {row['experiment']} with its original plan", flush=True)
++            subprocess.run(["/bin/bash", entry, row["kind"], row["experiment"], row["tasks"],
++                            str(row["slots"]), str(row["estimate"])],
++                           env={**os.environ, "LANES_CARRY_ACTIVE": "1"}, check=False)
++            if not approval.gaps(row["run_dir"]):
++                os.unlink(path)
++
++
++def main(argv=None):
++    p = argparse.ArgumentParser(description=__doc__)
++    sub = p.add_subparsers(dest="command", required=True)
++    e = sub.add_parser("enqueue")
++    e.add_argument("root")
++    e.add_argument("run_dir")
++    e.add_argument("tasks")
++    e.add_argument("kind", choices=("cgr", "ccr"))
++    e.add_argument("slots", type=int)
++    e.add_argument("estimate")
++    d = sub.add_parser("drain")
++    d.add_argument("root")
++    d.add_argument("entry")
++    d.add_argument("exclude")
++    pending = sub.add_parser("pending")
++    pending.add_argument("run_dir")
++    a = vars(p.parse_args(argv))
++    command = a.pop("command")
++    if command == "pending":
++        return 0 if approval.pending(a["run_dir"]) else 1
++    (enqueue if command == "enqueue" else drain)(**a)
++    return 0
+diff --git a/lanes/lanes/dispatch.py b/lanes/lanes/dispatch.py
+index 1fc939c0..cd73362a 100644
+--- a/lanes/lanes/dispatch.py
++++ b/lanes/lanes/dispatch.py
+@@ -15,7 +15,7 @@ import tempfile
+ import threading
+ import time
+ 
+-from . import ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe
++from . import approval, ccroute, common, costguard, experiment, memcap, noise, plan_hashes, probe
+ 
+ CAP_GRACE_S = 3  # after the hard cap: time for each local cell to stop itself and record `cost_cap`
+ MARGIN_S = 300  # slack on top of the cell deadline for syncing and for stale claims
+@@ -513,7 +513,7 @@ class Context:
+ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_dir=LANES_DIR, log=print,
+             skip_preflight=False, only_host=None, max_cells=None, claude_code_only=False):
+     """Run every unfinished cell. Returns the exit code: 0 all done, 1 some cell failed, 3 a cost or cell cap
+-    stopped the run, 4 a provider's rate limit left cells unstarted, 130 interrupted. `only_host` runs on that
++    stopped the run, 4 a provider's rate limit left cells unstarted, 5 approval debt, 130 interrupted. `only_host` runs on that
+     host alone, `max_cells` starts at most that many cells, `claude_code_only` only cells of Claude Code lanes
+     (`lanes-ccdry` uses all three)."""
+     run_dir = os.path.abspath(run_dir)
+@@ -540,6 +540,8 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
+             if preflight.preflight(run_dir, tasks, out=log, claude_code_checked=True):
+                 raise DispatchError("pre-flight refused a supplied Intent; no cell started")
+     cells = common.read_jsonl(os.path.join(run_dir, "plan.jsonl"))
++    deferred = approval.pending(run_dir) if not probing else set()
++    retried, approval_failures = set(), []
+     artifacts = {} if probing else {
+         e["name"]: e["artifact_sha256"] for e in common.read_json(os.path.join(run_dir, "lanes.lock.json"))}
+     runner = Runner()
+@@ -625,7 +627,11 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
+         except Exception as e:  # the spend read below fails closed on what is still unreadable
+             log(f"{host.name}: cannot reap phantom cells ({e})")
+         with pick:
++            if approval_failures:
++                return None
+             for c in cells:
++                if c["task"] in deferred:
++                    continue
+                 if c["cell"] in failed or c["cell"] in mine or finished(c["cell"]):
+                     continue  # `mine`: a sibling slot is running it, whatever its claim's age
+                 if claude_code_only and not ctx.claude_code(c["cell"]):
+@@ -640,7 +646,39 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
+                     mine.add(c["cell"])
+                     begun.add(c["cell"])
+                     return c
+-        return None
++            # A whole-task barrier: no retry while any admitted ordinary cell is still running,
++            # or while caps/filters/another dispatch left ordinary cells unfinished. host_gate
++            # has admitted this slot again before we reach this point.
++            if mine or runner.stopped.is_set() or hard_hit.is_set() or capped or limited:
++                return None
++            if any(c["task"] not in deferred and c["cell"] not in failed and not finished(c["cell"])
++                   for c in cells):
++                return None
++            if max_cells is not None and len(begun) >= max_cells:
++                return None
++            if claude_code_only:
++                return None  # a restricted dry run must never admit an incomplete lane pair
++            for task in exp["tasks"]:
++                if task not in deferred or task in retried:
++                    continue
++                if all(finished(c["cell"]) for c in cells if c["task"] == task):
++                    continue
++                # Check the same budget before spending local approval work on this task.
++                if any(refuse(c) for c in cells if c["task"] == task and not finished(c["cell"])):
++                    return None
++                retried.add(task)
++                from . import preflight
++                log(f"{task}: retrying paired approval after other cells and host admission")
++                if preflight.preflight(run_dir, tasks, out=log, claude_code_checked=True,
++                                       task_ids=[task], stage="after_cells"):
++                    approval_failures.append(task)
++                    return None
++                if task not in approval.pending(run_dir):
++                    deferred.remove(task)
++                    break
++            else:
++                return None
++        return next_cell(host)
+ 
+     def unlock(host):
+         if unlock_cmd and host in locked:
+@@ -757,12 +795,21 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
+                 unlock(h)
+         for s, h in old.items():
+             signal.signal(s, h)
++    if approval_failures:
++        raise DispatchError("pre-flight refused a supplied Intent on deferred retry")
++    if deferred:
++        from . import report
++        report.write(run_dir)
++        log("approval infrastructure gap: " + ", ".join(sorted(deferred))
++            + "; retained in PLAN.json and plan.jsonl; resume this experiment in a later unit")
+     if capped:
+         return 3
+     if limited:
+         return 4
+     if interrupted:
+         return 130
++    if deferred:
++        return 5
+     return 1 if failed else 0
+ 
+ 
+diff --git a/lanes/lanes/preflight.py b/lanes/lanes/preflight.py
+index 39368ff2..e8778075 100644
+--- a/lanes/lanes/preflight.py
++++ b/lanes/lanes/preflight.py
+@@ -2,7 +2,7 @@
+ 
+ For phase `build`, each task x lane gets a scratch workspace set up as `lanes-cell` does, the supplied
+ Intent installed, and `kogen intent approve <slug>` run, then again with the printed hash. Approve is
+-local: no provider is involved. Nothing is written to the run dir. The approval deadline is 120 s, or the
++local: no provider is involved. Timeout deferrals are recorded in PLAN.json. The approval deadline is 120 s, or the
+ task's `approve_timeout_s` (readiness may run a long regression suite).
+ """
+ 
+@@ -13,11 +13,15 @@ import sys
+ import tempfile
+ import tomllib
+ 
+-from . import ccroute, cell, common, experiment, leakage, probe
++from . import approval, ccroute, cell, common, experiment, leakage, probe
+ 
+ DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
+ 
+ 
++class ApprovalTimeout(str):
++    """A deadline observed by Cell.invoke, never inferred from diagnostic text."""
++
++
+ def _lines(text):
+     return [line.strip() for line in text.splitlines() if line.strip()]
+ 
+@@ -67,14 +71,16 @@ def approve_supplied(task, slug, supplied, kogen, config, deadline_s):
+         with open(os.path.join(out, "stderr.txt"), encoding="utf-8", errors="replace") as f:
+             stderr = _lines(f.read())
+         detail = [l for l in stdout + stderr if not l.startswith("== kogen")] or ["no output"]
+-        return False, f"approve refused ({why}):\n    " + "\n    ".join(detail[-12:])
++        message = f"approve refused ({why}):\n    " + "\n    ".join(detail[-12:])
++        return False, ApprovalTimeout(message) if last[1] else message
+     except cell.CellError as e:
+         return False, str(e)
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+ 
+ 
+-def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_code_checked=False):
++def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_code_checked=False,
++              task_ids=None, stage="initial"):
+     """Check every task x lane of the run; returns the number of refusals and leaks (Intent checks: build only).
+     A run with a claude-code lane also needs `hosts_file`: each host's CLAUDE_CONFIG_DIR and Claude Code login are checked
+     (unless the caller already did: `claude_code_checked`, as `lanes-run` does for its own hosts)."""
+@@ -106,11 +112,29 @@ def preflight(run_dir, tasks, artifact=None, out=print, hosts_file=None, claude_
+         out(f"preflight: phase {exp['phase']} supplies no Intent; nothing to check")
+         return leaks
+     bad = leaks
+-    for task_id in exp["tasks"]:
++    pending = approval.pending(run_dir)
++    plan_path = os.path.join(run_dir, "plan.jsonl")
++    planned = common.read_jsonl(plan_path) if os.path.isfile(plan_path) else []
++    for task_id in exp["tasks"] if task_ids is None else task_ids:
++        own = [c for c in planned if c["task"] == task_id]
++        if task_ids is None and own and all(os.path.isfile(os.path.join(common.cell_dir(run_dir, c["cell"]), "result.json"))
++                                           for c in own):
++            out(f"{task_id}: all planned cells finished; no new approval needed")
++            continue
++        if task_ids is None and task_id in pending:
++            out(f"{task_id}: DEFERRED for all lanes; retry after other tasks' cells")
++            continue
++        results = []
+         for lane in exp["lanes"]:
+             ok, message = check_one(exp, run_dir, tasks, task_id, lane, artifact)
+-            bad += not ok
+-            out(f"{task_id} x {lane['name']}: {'ok' if ok else 'REFUSED'}: {message}")
++            timeout = isinstance(message, ApprovalTimeout)
++            bad += not ok and not timeout
++            results.append({"lane": lane["name"], "ok": ok, "timeout": timeout, "message": str(message)})
++            out(f"{task_id} x {lane['name']}: {'ok' if ok else 'DEFERRED' if timeout else 'REFUSED'}: {message}")
++        if any(r["timeout"] for r in results) or task_id in approval.records(run_dir):
++            approval.record(run_dir, task_id, results, stage)
++            if any(r["timeout"] for r in results):
++                out(f"{task_id}: DEFERRED for all lanes; all planned cells retained")
+     return bad
+ 
+ 
+diff --git a/lanes/lanes/report.py b/lanes/lanes/report.py
+index 27e9459d..4cfb967d 100644
+--- a/lanes/lanes/report.py
++++ b/lanes/lanes/report.py
+@@ -12,7 +12,7 @@ import sys
+ from fractions import Fraction
+ from math import comb, exp, lgamma, log, sqrt
+ 
+-from . import common, costguard, experiment, usage
++from . import approval, common, costguard, experiment, usage
+ 
+ RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
+ SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
+@@ -613,6 +613,10 @@ def report(run_dir):
+         from . import probe  # probe imports this module
+         return probe.report_probe(run_dir, exp)
+     cells = _load_cells(run_dir, exp["phase"])
++    debts = approval.records(run_dir)
++    for c in cells:
++        if c["plan"]["task"] in debts and debts[c["plan"]["task"]]["state"] != "approved" and not c["result"]:
++            c["class"] = "infrastructure"
+     part = _split_of(exp) if exp.get("kind") == "climb" else None
+     lanes = [_lane(l, cells, exp["phase"], part) for l in exp["lanes"]]
+     rep = {"experiment": exp["id"], "phase": exp["phase"], "decision_rule": exp["decision_rule"], "lanes": lanes,
+@@ -622,6 +626,10 @@ def report(run_dir):
+         rep["verdict"] = _climb_verdict(rep["climb"], exp, lanes)
+     else:
+         rep["verdict"] = apply_rule(exp["decision_rule"], cells, lanes)
++    rep["approval_deferrals"] = debts
++    rep["infrastructure_gaps"] = approval.gaps(run_dir)
++    if rep["infrastructure_gaps"]:
++        rep["verdict"] = {"decision": "incomplete", "line": "incomplete: approval infrastructure gaps; planned tasks retained"}
+     return rep
+ 
+ 
+@@ -710,6 +718,14 @@ def render(rep):
+                    for l in rep["lanes"]])
+     if "climb" in rep:
+         out += _render_climb(rep["climb"])
++    if rep.get("approval_deferrals"):
++        out += ["", "## Approval deferrals", "",
++                "Every task and lane remains in the original plan. Pending tasks carry to a later unit of this experiment.", ""]
++        out += _table(["task", "lanes", "state", "attempts"],
++                      [[t, ", ".join(r["lanes"]), r["state"], len(r["attempts"])]
++                       for t, r in sorted(rep["approval_deferrals"].items())])
++        if rep.get("infrastructure_gaps"):
++            out += ["", "Infrastructure gap: approval remains unresolved; experiment verdict is incomplete."]
+     out += _render_cost(rep["cost"])
+     scope = " (train cells)" if "climb" in rep else ""
+     for l in rep["lanes"]:
+diff --git a/lanes/tests/test_approval_deferrals.py b/lanes/tests/test_approval_deferrals.py
+new file mode 100644
+index 00000000..eb811ecf
+--- /dev/null
++++ b/lanes/tests/test_approval_deferrals.py
+@@ -0,0 +1,224 @@
++import json
++import os
++import shlex
++import shutil
++import subprocess
++import sys
++import tempfile
++import threading
++import time
++import unittest
++from unittest import mock
++
++from lanes import approval, carry, common, dispatch, preflight, report
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++FIX = os.path.join(HERE, "fixtures")
++ART = "ab" * 32
++
++
++class ApprovalDeferrals(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = self.tmp.name
++        self.run = os.path.join(self.root, "runs", "exp-mini")
++        self.tasks = os.path.join(self.root, "tasks")
++        self.home = os.path.join(self.root, "home")
++        self.env = mock.patch.dict(os.environ, {"KOGEN_LANES_HOME": self.home})
++        self.env.start()
++        self.addCleanup(self.env.stop)
++        self.exp = common.read_json(os.path.join(FIX, "experiment-good.json"))
++        self.exp.update(id="exp-mini", tasks=["good", "slow"], reps=2,
++                        decision_rule={"kind": "descriptive"})
++        for task in self.exp["tasks"]:
++            shutil.copytree(os.path.join(FIX, "task-mini"), os.path.join(self.tasks, task))
++        for lane in self.exp["lanes"]:
++            lane["patch"] = None
++        self.source = os.path.join(self.root, "experiment.json")
++        common.write_json(self.source, self.exp)
++        common.write_json(os.path.join(self.run, "lanes.lock.json"),
++                          [{"name": l["name"], "sha": l["sha"], "artifact_sha256": ART} for l in self.exp["lanes"]])
++        self.assertEqual(dispatch.plan_main([self.source, "--run-dir", self.run, "--tasks", self.tasks]), 0)
++        self.plan = common.read_jsonl(os.path.join(self.run, "plan.jsonl"))
++        self.hosts = os.path.join(self.root, "hosts.json")
++        common.write_json(self.hosts, {"local": {"target": "local", "slots": 2}})
++        self.events, self.checks = [], []
++
++    def execute(self, check):
++        def run_cell(host, cell, artifact):
++            self.events.append(cell)
++            time.sleep(0.01)  # make the paired retry barrier observable with two slots
++            common.write_json(os.path.join(common.cell_dir(self.run, cell), "result.json"),
++                              {"outcome": "landed", "totals": {}, "stages": []})
++            return True
++
++        with mock.patch.object(preflight, "check_one", side_effect=check), \
++             mock.patch.object(dispatch.Host, "run_cell", run_cell):
++            return dispatch.run_all(self.run, self.tasks, self.hosts, log=lambda m: None)
++
++    def check(self, recover=False, hard=False):
++        def check(exp, run, tasks, task, lane, artifact):
++            self.checks.append((task, lane["name"], len(self.events)))
++            if task == "slow" and lane["name"] == "patched":
++                if recover and self.events:
++                    # Every ordinary cell has a result before any lane of this task is admitted.
++                    for c in self.plan:
++                        if c["task"] == "good":
++                            self.assertTrue(os.path.isfile(os.path.join(common.cell_dir(run, c["cell"]), "result.json")))
++                    return True, "approved later"
++                if hard:
++                    return False, "intent/lint: a timed out string is not a deadline"
++                return False, preflight.ApprovalTimeout("approve refused (timed out): setup-1")
++            return True, "approved"
++        return check
++
++    def test_one_timeout_runs_ordinary_tasks_and_keeps_all_cells(self):
++        # Reproduce the 13-of-14 approved matrix rather than a single-task special case.
++        for n in range(5):
++            task = f"good-{n}"
++            shutil.copytree(os.path.join(FIX, "task-mini"), os.path.join(self.tasks, task))
++            self.exp["tasks"].insert(-1, task)
++        common.write_json(self.source, self.exp)
++        self.assertEqual(dispatch.plan_main([self.source, "--run-dir", self.run, "--tasks", self.tasks]), 0)
++        self.plan = common.read_jsonl(os.path.join(self.run, "plan.jsonl"))
++        self.assertEqual(self.execute(self.check()), 5)
++        self.assertEqual(len(self.events), 24)
++        self.assertTrue(all(not c.startswith("slow/") for c in self.events))
++        initial = [row for row in self.checks if row[2] == 0]
++        self.assertEqual(len(initial), 14)
++        self.assertEqual(common.read_jsonl(os.path.join(self.run, "plan.jsonl")), self.plan)
++        self.assertEqual(approval.pending(self.run), {"slow"})
++        debt = approval.records(self.run)["slow"]
++        self.assertEqual(debt["lanes"], ["base", "patched"])
++        self.assertEqual([a["stage"] for a in debt["attempts"]], ["initial", "after_cells"])
++        self.assertEqual(debt["attempts"][0]["results"][0]["ok"], True)
++
++    def test_later_attempt_runs_every_deferred_lane_after_barrier(self):
++        self.assertEqual(self.execute(self.check(recover=True)), 0)
++        self.assertEqual(len(self.events), len(self.plan))
++        self.assertTrue(all(c.startswith("good/") for c in self.events[:4]))
++        self.assertTrue(all(c.startswith("slow/") for c in self.events[4:]))
++        self.assertEqual(approval.pending(self.run), set())
++        self.assertEqual(approval.records(self.run)["slow"]["state"], "approved")
++
++    def test_final_gap_is_in_report_and_original_plan_and_resume(self):
++        self.assertEqual(self.execute(self.check()), 5)
++        rep = report.report(self.run)
++        self.assertEqual(rep["verdict"]["decision"], "incomplete")
++        self.assertEqual(rep["infrastructure_gaps"][0]["task"], "slow")
++        self.assertTrue(all(l["cells"]["planned"] == 4 for l in rep["lanes"]))
++        self.assertIn("Infrastructure gap", report.render(rep))
++        self.assertEqual(common.read_json(os.path.join(self.run, "PLAN.json"))["experiment"]["tasks"], ["good", "slow"])
++        before = len(self.events)
++        def later(*args):
++            self.assertEqual(args[3], "slow", "completed tasks must not incur new approval debt")
++            return True, "approved on later unit"
++        self.assertEqual(self.execute(later), 0)
++        self.assertEqual(len(self.events) - before, 4)
++        self.assertEqual(report.report(self.run)["infrastructure_gaps"], [])
++        self.assertEqual(len(approval.records(self.run)["slow"]["attempts"]), 3)
++
++    def test_non_timeout_refuses_before_any_cell(self):
++        with self.assertRaises(dispatch.DispatchError):
++            self.execute(self.check(hard=True))
++        self.assertEqual(self.events, [])
++
++    def test_non_timeout_on_retry_stops_with_original_refusal(self):
++        first = self.check()
++        def check(*args):
++            if self.events and args[3] == "slow":
++                return False, "intent/lint: real refusal"
++            return first(*args)
++        with self.assertRaisesRegex(dispatch.DispatchError, "deferred retry"):
++            self.execute(check)
++        self.assertTrue(all(c.startswith("good/") for c in self.events))
++
++    def test_standalone_then_in_run_does_not_retry_early(self):
++        with mock.patch.object(preflight, "check_one", side_effect=self.check()):
++            self.assertEqual(preflight.preflight(self.run, self.tasks, out=lambda m: None), 0)
++        self.checks.clear()
++        self.assertEqual(self.execute(self.check(recover=True)), 0)
++        self.assertTrue(all(n >= 4 for t, _, n in self.checks if t == "slow"))
++
++    def test_carry_queue_retries_same_experiment_once_per_later_unit(self):
++        self.assertEqual(self.execute(self.check()), 5)
++        queue = os.path.join(self.root, "approval-carry")
++        carry.enqueue(queue, self.run, self.tasks, "cgr", 2, "0.3")
++        row_path = os.path.join(queue, "exp-mini.json")
++        with mock.patch.object(carry.subprocess, "run") as invoke:
++            carry.drain(queue, "/release/run-queued.sh", "exp-mini")
++            invoke.assert_not_called()
++            carry.drain(queue, "/release/run-queued.sh", "later-unit")
++            self.assertEqual(invoke.call_count, 1)
++            self.assertEqual(invoke.call_args.args[0],
++                             ["/bin/bash", "/release/run-queued.sh", "cgr", "exp-mini", self.tasks, "2", "0.3"])
++            self.assertEqual(invoke.call_args.kwargs["env"]["LANES_CARRY_ACTIVE"], "1")
++        self.assertTrue(os.path.isfile(row_path))
++        self.assertEqual(self.execute(lambda *args: (True, "approved")), 0)
++        with mock.patch.object(carry.subprocess, "run") as invoke:
++            carry.drain(queue, "/release/run-queued.sh", "later-unit")
++            invoke.assert_not_called()
++        self.assertFalse(os.path.exists(row_path))
++
++    def test_retry_goes_through_host_admission(self):
++        with open(os.path.join(self.root, "host-cap"), "w") as f:
++            f.write("4\n")
++        admissions = []
++        original_init = dispatch.Runner.__init__
++        def initialize(runner):
++            original_init(runner)
++            runner.stopped.wait = lambda seconds: False  # only elide the gate's settle/poll sleeps
++        def admit(*args):
++            admissions.append(len(self.events))
++            return True, 0, 0, 4, 1, 4
++        check = self.check(recover=True)
++        def observed(*args):
++            if args[3] == "slow" and self.events:
++                self.assertGreaterEqual(admissions[-1], 4)
++            return check(*args)
++        with mock.patch.object(dispatch.Runner, "__init__", initialize), \
++             mock.patch.object(dispatch, "gate_admits", side_effect=admit):
++            self.assertEqual(self.execute(observed), 0)
++        self.assertTrue(any(n >= 4 for n in admissions))
++
++    def test_caps_prevent_deferred_retry_and_keep_debt(self):
++        def blocked(*args):
++            return "cost cap reached" if len(self.events) >= 4 else None
++        with mock.patch.object(dispatch.costguard, "blocked", side_effect=blocked):
++            self.assertEqual(self.execute(self.check(recover=True)), 3)
++        self.assertEqual(approval.pending(self.run), {"slow"})
++        self.assertEqual(len(approval.records(self.run)["slow"]["attempts"]), 1)
++
++    def test_both_day_runners_carry_instead_of_marking_done(self):
++        self.assertEqual(self.execute(self.check()), 5)
++        fake = os.path.join(self.root, "fake-lanes")
++        os.makedirs(os.path.join(fake, "bin"))
++        with open(os.path.join(fake, "bin", "lanes-run"), "w") as f:
++            f.write("import sys; sys.exit(5)\n")
++        shutil.copy(os.path.join(HERE, "..", "bin", "lanes-carry"), os.path.join(fake, "bin", "lanes-carry"))
++        for name, kind in (("day-runner.sh", "ccr"), ("day-runner-v3.sh", "cgr")):
++            with self.subTest(name=name):
++                with open(os.path.join(HERE, "..", "ops", name)) as f:
++                    text = f.read()
++                body = text[text.index("capped() {"):text.index("grade() {")]
++                setup = '\n'.join([
++                    'P=' + shlex.quote(self.root), 'LANES=' + shlex.quote(fake),
++                    'KH=' + shlex.quote(self.root), 'SLOTS=2; DAYCAP=100; STOP_MARGIN=1',
++                    'say() { :; }; today() { echo day; }; acc() { echo 0; }; acc_add() { :; }',
++                    'cell_est() { echo 0.3; }; run_total() { echo 0; }; live_cells() { echo 0; }',
++                    'wstate() { echo ok; }; wpct() { echo 0; }; wait_weekly() { exit 91; }; wait_next_day() { exit 92; }',
++                    'calc() { python3 -c "import sys;print(eval(sys.argv[1]))" "$1"; }',
++                    'ge() { python3 -c "import sys;sys.exit(0 if float(sys.argv[1])>=float(sys.argv[2]) else 1)" "$1" "$2"; }',
++                    'sleep() { /bin/sleep 0.01; }; grade() { echo graded > "$P/partial-graded"; }',
++                ])
++                script = setup + '\n' + body + '\ncapped exp-mini ' + shlex.quote(self.tasks) + ' 0.3\nexit $?\n'
++                p = subprocess.run(['/bin/sh', '-c', script], capture_output=True, text=True, timeout=20,
++                                   env={**os.environ, 'PYTHONPATH': os.path.dirname(HERE),
++                                        'PATH': os.path.dirname(sys.executable) + os.pathsep + os.environ['PATH']})
++                self.assertEqual(p.returncode, 5, p.stdout + p.stderr)
++                self.assertFalse(os.path.exists(os.path.join(self.run, "DONE")))
++                self.assertFalse(os.path.exists(os.path.join(self.run, "GRADED")))
++                self.assertTrue(os.path.isfile(os.path.join(self.root, "partial-graded")))
++                row = common.read_json(os.path.join(self.root, "approval-carry", "exp-mini.json"))
++                self.assertEqual((row["kind"], row["run_dir"]), (kind, self.run))
+diff --git a/lanes/tests/test_preflight.py b/lanes/tests/test_preflight.py
+index 03f54d6b..fbf9da85 100644
+--- a/lanes/tests/test_preflight.py
++++ b/lanes/tests/test_preflight.py
+@@ -96,10 +96,9 @@ class PreflightTest(unittest.TestCase):
+ 
+     def test_default_deadline_applies_without_the_key(self):
+         bad, lines = self.preflight_here(FAKE_KOGEN_APPROVE_DELAY_S="2")
+-        self.assertEqual(bad, 2)
+-        self.assertEqual(len(lines), 2)
+-        for line in lines:
+-            self.assertIn("REFUSED: approve refused (timed out)", line)
++        self.assertEqual(bad, 0)
++        self.assertEqual(sum("DEFERRED: approve refused (timed out)" in line for line in lines), 2)
++        self.assertIn("task-mini", common.read_json(os.path.join(self.run_dir, "PLAN.json"))["approval_deferrals"])
+ 
+     def test_approve_timeout_s_replaces_the_deadline(self):
+         self.set_task_toml("approve_timeout_s = 20")
+@@ -110,7 +109,7 @@ class PreflightTest(unittest.TestCase):
+     def test_approve_timeout_s_is_still_a_deadline(self):
+         self.set_task_toml("approve_timeout_s = 1")
+         bad, lines = self.preflight_here(deadline_s=60, FAKE_KOGEN_APPROVE_DELAY_S="3")
+-        self.assertEqual(bad, 2)
++        self.assertEqual(bad, 0)
+         self.assertIn("approve refused (timed out)", lines[0])
+ 
+     def test_invalid_approve_timeout_s_is_refused_before_kogen_runs(self):

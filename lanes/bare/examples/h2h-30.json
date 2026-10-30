@@ -1,0 +1,70 @@
+{
+  "tasks_dir": "~/lanes-work/broad-tasks-1029-h2h30/broad-tasks-1029",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "claude_token_home": "~/kogen-home",
+  "codex_home": "~/codex-home-bench",
+  "tasks": [
+    "artifact-go",
+    "cadence-go",
+    "cron-go",
+    "deps-go",
+    "expr-seqfuncs-go",
+    "heatcal-go",
+    "inventory-go",
+    "ledger-go",
+    "logq-go",
+    "moneyledger-go",
+    "pool-go",
+    "r70-1-go",
+    "r70-4-go",
+    "r70-5-go",
+    "r70-7-go",
+    "rate-go",
+    "readtime-go",
+    "splitter-go",
+    "sync3-go",
+    "tally-periodic-go",
+    "tengo-power-go",
+    "tengo-switch-go",
+    "toml-required-go",
+    "vm-go"
+  ],
+  "reps": 1,
+  "arms": [
+    {
+      "name": "loop-default-medium",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/lanes-work/bare-agent/loopbins/loop-b8a4046-kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "medium"
+    },
+    {
+      "name": "codex-terra-medium",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "codex_bin": "~/.codex/packages/standalone/releases/0.165.0-x86_64-unknown-linux-musl/bin/codex",
+      "codex_home": "~/codex-home-bench"
+    },
+    {
+      "name": "loop-default-high",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/lanes-work/bare-agent/loopbins/loop-b8a4046-kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "codex-terra-high",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "codex_bin": "~/.codex/packages/standalone/releases/0.165.0-x86_64-unknown-linux-musl/bin/codex",
+      "codex_home": "~/codex-home-bench"
+    }
+  ],
+  "id": "h2h-30",
+  "notes": "ROUTE-CONFOUNDED by construction: loop subscription route uses public API host with its own OAuth client; Codex uses ChatGPT Codex backend."
+}

@@ -1,0 +1,8 @@
+tree: 2374 files, 73 MB; node_modules: 2227 files, 27.5 MB (ignored)
+git add, 2,373 files staged: 0.39 s without node_modules, 0.26 s with (0.33% of the 120 s deadline)
+go build: cold 9.66 s wall / 42.1 CPU-s, warm 0.66 s (cold/warm wall 14.6x, CPU/wall 4.4x)
+npm ci from a warm npm cache: 0.46 s
+preflight: patched harness; normal cached preflight of the capped artifact        23.659 s, approved
+preflight: patched harness; git add -A -- . stalled for 600 s (injected)          126.756 s, refused (timed out)
+preflight: original refusal (29 Oct; unpatched harness; host under 10% idle CPU)  n/a s, refused (timed out)
+reading: git add is not slow (largest measured value 0.39 s); the CPU-heavy step is the cold build (42.1 CPU-s).

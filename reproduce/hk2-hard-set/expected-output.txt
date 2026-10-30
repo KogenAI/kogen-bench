@@ -1,0 +1,64 @@
+Codex records read: 413; counted high attempts: 291
+Selected tasks: 9 (medium-only fallback: 0)
+
+| Selected task | All Codex-high passes / attempts | Full round evidence (st = Studio, mb = MacBook) |
+| --- | --- | --- |
+| goose-labels-go | 1/6 | mb/h2h-12f: 0/3; mb/h2h-15: 0/1; st/h2h-12: 1/1; st/h2h-12e: 0/1 |
+| kogen-loop-parallel-calls | 0/7 | mb/h2h-13: 0/1; mb/h2h-18: 0/2; mb/h2h-6: 0/2; st/h2h-22: 0/2 |
+| kogen-loop-read-ledger | 0/7 | mb/h2h-13: 0/1; mb/h2h-18: 0/2; mb/h2h-6: 0/2; st/h2h-22: 0/2 |
+| kogen-loop-tool-cut | 0/8 | mb/h2h-13: 0/1; mb/h2h-18: 0/2; mb/h2h-6: 0/2; mb/hard-dry: 0/1; st/h2h-22: 0/2 |
+| kogen-review-on-demand | 3/7 | mb/h2h-13: 1/1; mb/h2h-18: 0/2; mb/h2h-6: 2/2; st/h2h-22: 0/2 |
+| kogen-review-retry | 0/7 | mb/h2h-13: 0/1; mb/h2h-18: 0/2; mb/h2h-6: 0/2; st/h2h-22: 0/2 |
+| kogen-shell-bound | 2/7 | mb/h2h-13: 0/1; mb/h2h-18: 1/2; mb/h2h-6: 1/2; st/h2h-22: 0/2 |
+| revive-baseline-go | 2/6 | mb/h2h-12f: 0/3; mb/h2h-15: 1/1; st/h2h-12: 1/1; st/h2h-12e: 0/1 |
+| tally-periodic-go | 0/1 | mb/h2h-21: 0/1 |
+
+| Excluded recovered task | High passes / evaluated non-infrastructure attempts | Reason |
+| --- | --- | --- |
+| argvsplit-go | 7/7 | No evaluated high coding failure |
+| artifact-go | 2/2 | No evaluated high coding failure |
+| bytefmt-go | 14/14 | No evaluated high coding failure |
+| cadence-go | 7/7 | No evaluated high coding failure |
+| cron-go | 2/2 | No evaluated high coding failure |
+| csvq-go | 15/15 | No evaluated high coding failure |
+| decround-go | 13/13 | No evaluated high coding failure |
+| deps-go | 2/2 | No high coding failure; medium failure cannot substitute because high data exists |
+| expr-seqfuncs-go | 2/2 | No evaluated high coding failure |
+| heatcal-go | 2/2 | No evaluated high coding failure |
+| inventory-go | 2/2 | No evaluated high coding failure |
+| isocal-go | 13/13 | No evaluated high coding failure |
+| jobq-go | 13/13 | No evaluated high coding failure |
+| ledger-go | 2/2 | No evaluated high coding failure |
+| logq-go | 2/2 | No evaluated high coding failure |
+| moneyledger-go | 8/8 | No evaluated high coding failure |
+| patchapply-go | 12/12 | No evaluated high coding failure |
+| pool-go | 2/2 | No evaluated high coding failure |
+| r70-1-go | 2/2 | No high coding failure; medium failure cannot substitute because high data exists |
+| r70-4-go | 2/2 | No evaluated high coding failure |
+| r70-5-go | 2/2 | No evaluated high coding failure |
+| r70-7-go | 1/1 | No evaluated high coding failure |
+| rate-go | 1/1 | No evaluated high coding failure |
+| readtime-go | 1/1 | No evaluated high coding failure |
+| semrange-go | 13/13 | No evaluated high coding failure |
+| shardpool-go | 12/12 | No evaluated high coding failure |
+| spans-go | 12/12 | No evaluated high coding failure |
+| splitter-go | 7/7 | No evaluated high coding failure |
+| sync3-go | 1/1 | No evaluated high coding failure |
+| tally-commodities-go | 12/12 | No evaluated high coding failure |
+| task-tags-go | 5/5 | No evaluated high coding failure |
+| taskorder-go | 4/4 | No evaluated high coding failure |
+| tengo-power-go | 1/1 | No evaluated high coding failure |
+| tengo-switch-go | 1/1 | No evaluated high coding failure |
+| tokenbucket-go | 12/12 | No evaluated high coding failure |
+| toml-required-go | 1/1 | No evaluated high coding failure |
+| urlnorm-go | 12/12 | No evaluated high coding failure |
+| vm-go | 1/1 | No evaluated high coding failure |
+| wrapcol-go | 12/12 | No evaluated high coding failure |
+
+Provider-capacity attempt not counted: patchapply-go mb/h2h-2 r1 (requests 0, wall 10.501 s, grade passed=False)
+
+SHA-256 order: kogen-loop-read-ledger, tally-periodic-go, kogen-loop-tool-cut, kogen-review-retry, goose-labels-go, kogen-shell-bound, kogen-review-on-demand, kogen-loop-parallel-calls, revive-baseline-go
+Bridge tasks (both hosts): kogen-loop-read-ledger, tally-periodic-go, kogen-loop-tool-cut
+hk2-st: kogen-loop-read-ledger, tally-periodic-go, kogen-loop-tool-cut, kogen-review-retry, kogen-shell-bound, kogen-loop-parallel-calls (12 main runs)
+hk2-mb: kogen-loop-read-ledger, tally-periodic-go, kogen-loop-tool-cut, goose-labels-go, kogen-review-on-demand, revive-baseline-go (12 main runs)
+Main runs total: 24; one-sided sign test p if all 9 task differences favour one tool: 1/512

@@ -18,6 +18,11 @@ A harness that compares **real Kogen** builds.
 - `bin/` — thin entry points (added by later packages).
 - `grade/` — the Go grader (added by L4).
 - `tests/` — offline tests; `tests/fake-kogen` stands in for Kogen; `tests/fixtures/task-mini` is a tiny synthetic task.
+- `ops/` — the queue and per-day spend-guard scripts that ran the Kogen experiments.
+- `bare/` — the bare harness: one coding agent on one task, no Kogen, same grader (head-to-head findings).
+- `confirm-eu/` — the same-key extension of the bare harness: local gateway, spend guard, credit probe.
+- `patches/loop/` — kogen-loop patches used by published findings.
+- `RELEASES.md`, `releases/` — which release each finding used, with file hashes.
 
 ## Commands
 

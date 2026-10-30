@@ -1,0 +1,19 @@
+{
+  "id": "h2h-1",
+  "tasks_dir": "~/lanes-work/lvcc-tasks-short",
+  "tasks": ["bytefmt-go"],
+  "reps": 1,
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "claude_token_home": "~/kogen-home-personal",
+  "codex_home": "~/codex-home-bench",
+  "arms": [
+    {"name": "kogen-terra-high", "arm": "kogen",
+     "models": {"build": "openai/gpt-6.1-terra high", "review": "openai/gpt-6.1-terra medium"}},
+    {"name": "codex-terra-high", "arm": "codex", "model": "gpt-6.1-terra", "effort": "high"},
+    {"name": "kogen-cc-sonnet-medium", "arm": "kogen", "home": "~/kogen-home-personal",
+     "claude_config_dir": "~/.claude-bench",
+     "models": {"build": "claude-code/claude-sonnet-5-5 medium", "review": "claude-code/claude-sonnet-5-5 medium"}},
+    {"name": "cc-sonnet-medium", "arm": "claude", "model": "claude-sonnet-5-5", "effort": "medium"}
+  ]
+}

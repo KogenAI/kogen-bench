@@ -123,6 +123,15 @@ SPEC_PROTOCOL_ALLOWLIST = {
     ('spec/CONFORMANCE.md', 'email address'): [
         re.compile(r'test@kogen\.invalid'),
     ],
+    # Published harness code is kept byte-faithful to what ran; these are loopback, a public resolver, the sandbox's own
+    # home inside the agent jail, a reserved .invalid commit identity and a file name, not private data.
+    ('lanes/confirm-eu/confirmation_ext.py', 'IPv4 address'): [re.compile(r'127\.0\.0\.1'), re.compile(r'1\.1\.1\.1')],
+    ('lanes/confirm-eu/README.md', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')],
+    ('lanes/confirm-eu/confirmation_ext.py', 'home path'): [re.compile('/'+'home'+r'/agent/')],
+    ('lanes/ops/day-runner.sh', 'email address'): [re.compile(r'lanes@kogen\.invalid')],
+    ('lanes/ops/day-runner-v3.sh', 'email address'): [re.compile(r'lanes@kogen\.invalid')],
+    ('lanes/bare/lanes_bare.py', 'private hostname'): [re.compile(r'AGENTS\.md\.local')],
+    ('lanes/bare/shelltail/lanes_bare_ts.py', 'private hostname'): [re.compile(r'AGENTS\.md\.local')],
 }
 
 
@@ -194,7 +203,7 @@ def publication_scan_findings(text, relative_path):
     if not task_source and not race_fixture and Path(relative_path).suffix.lower() in {'.md','.json','.jsonl','.csv','.txt'}:
         rules.extend(('editorial',label,pattern) for label,pattern in EDITORIAL_RULES)
     for family,label,pattern in rules:
-        allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith('spec/') else ()
+        allowances=SPEC_PROTOCOL_ALLOWLIST.get((relative_path,label),()) if relative_path.startswith(('spec/','lanes/')) else ()
         allowances=(*allowances, *PUBLIC_AUDIT_FIXTURE_ALLOWLIST.get((relative_path,label),()),
                     *LOOPBACK_LITERAL_ALLOWLIST.get((relative_path,label),()),
                     *RACE5_SYNTHETIC_ENDPOINT_ALLOWLIST.get((relative_path,label),()),
