@@ -246,6 +246,20 @@ Rates are measured from the first generated text to the last byte. The WebSocket
 
 Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with higher output tokens and cost on all three (two-sided sign test p = 0.25 on 3 tasks). Passes tied on every task. With three tasks the sign test cannot resolve small differences. The patch's new option was used in 0 of 3 runs, so the extra requests and cost reflect run-to-run variation, not the patch's intended mechanism.
 
+### Reasoning replay, same OpenAI API key, gpt-6.1-terra, high effort
+
+**Summary.** We tested whether carrying the model's earlier reasoning back to it between turns closes the reasoning gap described on the kogen-vs-codex page. On 8 Go tasks, all three setups passed every run. kogen-loop with reasoning carried back used the fewest requests and the lowest cost per pass in total, but more reasoning tokens than the default loop, and task by task it was cheaper than the default loop on only 3 of 8 tasks, so the hypothesis is not supported as stated. No difference is resolved by the per-task sign tests. This is one run per task and setup, so it is descriptive.
+
+**Setup.** Route: both tools on the same OpenAI API key. Model: gpt-6.1-terra, high effort. Each task ran once per setup, with the setups interleaved task by task. Figures are per pass over the 8 tasks.
+
+| Setup (gpt-6.1-terra, high effort) | Passed | Model requests | Reasoning tokens | API cost | Wall |
+|---|---:|---:|---:|---:|---:|
+| kogen-loop (shipped default) | 8/8 | 32.2 | 2,727 | $0.225 | 296 s |
+| kogen-loop with reasoning carried back | 8/8 | 20.2 | 4,117 | $0.175 | 268 s |
+| Codex CLI | 8/8 | 28.8 | 4,152 | $0.236 | 273 s |
+
+Reasoning carried back against the shipped default, task by task: cost lower on 3 tasks and higher on 5 (two-sided sign test p = 0.727); requests lower on 3, higher on 4 and tied on 1 (p = 1.0); reasoning tokens higher on 6 of 8 tasks (p = 0.289). The lower totals come mostly from one slow run of the shipped default on one task (90 requests, $0.649, 708 s); without it the per-pass gaps shrink, which is why a larger test on fresh tasks is planned. Against Codex CLI: requests lower on 6, higher on 1 and tied on 1 (p = 0.125); cost lower on 6 and higher on 2 (p = 0.289). With 8 tasks the sign tests cannot resolve differences of this size, so the question stays open.
+
 ### API key versus CLI sign-in, claude-sonnet-5-5, medium effort
 
 This round used 13 Go tasks and two repetitions per tool. Loop used an API key; Claude Code used its own sign-in. These routes can affect speed and token accounting.

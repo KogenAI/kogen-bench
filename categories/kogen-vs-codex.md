@@ -30,7 +30,7 @@ Four Go tasks ran twice per tool (8 runs each), same model, same effort.
 
 Total cost was about the same, so the extra reasoning did not show up as a higher bill in this sample. At medium effort on the same tasks the gap was small (9,154 against 6,692 reasoning tokens; 84 against 85 requests).
 
-A likely cause is that kogen-loop's chat path to the API does not carry the model's earlier reasoning back to it between turns, so the model re-derives some of it. This is a hypothesis: a test that carries reasoning back is pending, and the question is unresolved. Eight runs from four tasks are descriptive; they do not show how large the effect is on other tasks, and the two efforts were run in separate sessions.
+A likely cause is that kogen-loop's chat path to the API does not carry the model's earlier reasoning back to it between turns, so the model re-derives some of it. This is a hypothesis. A later test on 8 tasks that carried reasoning back gave fewer requests and a lower cost per pass than the default loop, but more reasoning tokens, and no per-task difference was resolved (see the reasoning replay section on the head-to-head page). The question is unresolved. Eight runs from four tasks are descriptive; they do not show how large the effect is on other tasks, and the two efforts were run in separate sessions.
 
 ### Hard-task set: Kogen against Codex CLI alone, gpt-6.1-terra, high effort
 
