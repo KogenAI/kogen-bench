@@ -25,3 +25,20 @@ Definitions: [public glossary](../rounds/GLOSSARY.md).
 
 Offline studies have separate coverage and are not pooled with online cell outcomes.
 
+
+## Approval step timeout, 30 October 2026
+
+In short: a Kogen approval step failed with a timeout on a busy machine. The time was not spent staging files. It was spent on cold setup and build checks that share one 120-second deadline with staging. The fix has been sent to Kogen's maintainers, and the error message now names the step that was running when the deadline hit.
+
+The step approves a task spec. It installs dependencies, runs a build check, and then stages the candidate files with `git add`. All three share one 120-second deadline. On a machine with almost no idle CPU, the run was stopped by the deadline during staging, and the error looked like a staging failure.
+
+Measured on a copy of the task's starting files (2,374 files, 73 MB, mostly vendored Go dependencies):
+
+| Step | Time |
+|---|---|
+| Staging about 2,400 files with `git add` | 0.26 to 0.39 s |
+| Go build, cold cache | 9.7 s wall, 42 CPU-seconds |
+| Go build, warm cache | 0.66 s |
+| npm install from a warm package cache | 0.46 s |
+
+Staging is fast. Build work on a cold cache needs about 42 CPU-seconds, and on a machine with under 10% idle CPU that alone can use up much of the deadline, along with an uncached npm install. Staging was just the step running when time ran out. Since 30 October the harness caches the npm install once per lockfile, and the error now names the step that was running at the deadline. This is a single task's measurement on one machine, not a general timing claim.

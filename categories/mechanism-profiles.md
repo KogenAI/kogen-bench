@@ -340,6 +340,8 @@ In one case the acceptance named 7 tests. The builder wrote a new test file with
 
 **Reading of the result.** The pattern is supported only as a Terra-high pattern in Kogen's own builds. It is confounded with loop and step strictness, it is not shown to be general across builders, and the benchmark cannot test it. It is a stall risk, not a certainty: Terra recovered in 2 of its 4 builds with a miss. One cheap change this data suggests, not tested: name the missing test in the failure message. With the name in the message Terra converged; without it Terra stalled twice. Testing it needs a re-run of the 7-test Intent with Terra high plus the named feedback, and with Sonnet in the native loop as the control.
 
+**Follow-up, 29 October: still open.** Two later Terra high development builds missed named items. In one, the failure message did name the 4 missing tests, and the build still stopped after 2 identical red passes; this points more toward the model than toward the wording of the feedback. In the other, the acceptance named a file the build had to produce; the builder made no edits, the file was missing at all 4 verification passes, and the build stopped. A small benchmark comparison then ran one task whose acceptance names tests. Terra high created every named test in 2 of 2 builds, and Sonnet did the same in 2 of 2 builds in the native loop and 2 of 2 through Claude Code. The comparison was set up to need at least 4 Terra builds before reading a result, so with 2 it decides nothing; it is to be re-run on more tasks. These are single builds, described as observed.
+
 **Limits.**
 - Observational, with 3 Intents behind the 4 Terra high builds that show a miss and a handful of builds per row of the table.
 - Model and loop are confounded. The missing comparison is Sonnet in the native loop on an Intent whose steps enforce named tests.
@@ -667,7 +669,7 @@ On 4 large tasks, reviewing with gpt-6.1-terra at medium effort instead of gpt-6
 - build input +0.8% (p = 0.69);
 - wall time −20% (p = 0.06).
 
-Three attempts in each arm stopped during building before review began. Neither arm passed the hidden tests in this block. The result supports the registered landing and verdict guard on this workload; it does not demonstrate equal review quality. Together with the earlier result on smaller reviews, Terra at medium effort holds as reviewer up to the review sizes tested here. The largest reviews remain under test: in one later build with about 200 evidence parts, two Terra-medium reviews ended without a verdict.
+Three attempts in each setup stopped during building before review began. Neither setup passed the hidden tests in this block. The result supports the registered landing and verdict guard on this workload; it does not demonstrate equal review quality. Together with the earlier result on smaller reviews, Terra at medium effort holds as reviewer up to the review sizes tested here. The largest reviews remain under test: in one later build with about 200 evidence parts, two Terra-medium reviews ended without a verdict. A follow-up with 30 fresh reviews of that build is [reported below](#reviewing-a-202-part-build-descriptive).
 
 ### Ten-minute build and review response budget: confirmed
 
@@ -680,6 +682,58 @@ When Kogen drives Claude Code, having the review continue the builder's session 
 ### First-byte timeout on the model stream: open
 
 A batch with timeouts of 90, 30 and 20 seconds saw no stalled requests, so the setting never acted. The earlier stalls (11 of 153 recorded request attempts in one batch, all before response headers) clustered in time. The question stays open until a batch catches a stall window.
+
+## Open results of 29 October
+
+None of the items below is decided. Each is reported as observed, with its numbers, and stays open.
+
+### Check and review changes when Kogen drives Claude Code
+
+**Summary.** Three changes shortened Kogen's per-task wall time by a median of 9% to 14% per task, with cost per pass up 1.7% to 3.1%, but each passed one fewer run than the unchanged Kogen in the same batch (24 of 26 against 25 of 26). Because that pass difference is a single run on one task, it neither confirms nor rules out a pass loss, and all three stay open until a second look. Two further changes showed no clear effect.
+
+The changes were: running the project's checks in parallel; verifying only the parts the change affects; running the independent review only when the change looks risky; deferring the baseline checks; and reusing the baseline check results.
+
+#### Kogen driving Claude Code, claude-sonnet-5-5 at medium effort, 13 tasks, two runs per task
+
+| Change | Median per-task wall change | Tasks faster / slower | One-sided p | Cost per pass change | Passed: change / unchanged Kogen |
+|---|---:|---:|---:|---:|---|
+| Parallel checks | −13.7% | 10 / 3 | 0.013 | +3.1% | 24/26 / 25/26 |
+| Verify only affected parts | −9.1% | 10 / 3 | 0.016 | +2.5% | 24/26 / 25/26 |
+| Review only when risky | −11.6% | 11 / 2 | 0.002 | +1.7% | 24/26 / 25/26 |
+| Deferred baseline checks | +0.6% | 6 / 7 | 0.32 | −0.5% | 24/26 / 24/26 |
+| Reuse of baseline check results | −5.5% | 7 / 6 | 0.21 | −1.2% | 25/26 / 25/26 |
+
+Each change was compared with unchanged Kogen in the same batch. The first batch held deferred baseline checks (and the review-resume change reported above); the second held the other four. The unit is the task: each task's wall time is the mean of its two runs, and p is an exact one-sided Wilcoxon signed-rank test for a shorter wall. The rule written before the runs asked for p of 0.02 or less, no pass loss and a cost rise of at most 5%. Cost is the Claude Code client's own list-price estimate per passing run, not a bill. The p-values are not adjusted across the five changes.
+
+### Landed builds that fail the hidden tests
+
+**Summary.** Of 723 benchmark builds with unchanged Kogen settings that Kogen landed (its checks and review accepted them), 114 (15.8%) then failed the hidden tests. In 65 of the 114 (57%), the failing requirement was not in the Intent the builder received (Kogen's written statement of what the change must do); in 34 (30%) the Intent stated it but no acceptance scenario tested it; in 15 (13%) it was a convention the Intent only implied, such as what a command's help text lists. In none of the 114 did an acceptance scenario specify the failing behaviour exactly and still let the build through. The reviewer approved all 114 at the first attempt and raised no finding at all in 77 (68%).
+
+**What the data are.** A replay of recorded runs: no model was run. The failures were grouped by the hidden test that failed and read against the Intent and acceptance scenarios each build received. The Go and Python failures were replayed against the saved final code; for the Elixir tasks the call rests on the Intent text and an earlier audit of the tasks. Most of the 65 unstated cases come from task versions that were corrected on 27 October, so on the current task versions the pool is about 52 of 723 builds (7.2%).
+
+**Concentration.** Failures sit on a few behaviours, not spread at random: on each small Go or Python task that sometimes passes, nearly every failing build fails the same one or two behaviours. Three tasks never passed in these builds and account for 59 of the 114.
+
+**What the reviewer did.** In the 3 builds where a review discussed the failing behaviour, it judged that behaviour correct, against the hidden test. Reviewers reason from the Intent, so a requirement missing from the Intent is not visible to them.
+
+**Rates by builder (descriptive).** All builds: Sonnet medium through Claude Code 13 of 177 (7.3%), Sonnet medium in the native loop 22 of 154 (14.3%), Terra high 17 of 186 (9.1%), Terra medium 9 of 51 (17.6%), Sol medium 48 of 147 (32.7%). The reviewer differs with the builder, builds of the same task are not independent, and the task mix differs by builder, so these rates do not compare models.
+
+**What would be tested next.** A candidate change is a list made during shaping (the step that writes the Intent) that maps every explicit requirement in the request to an acceptance scenario, with the reviewer checking each entry by running it. Estimated from the classes above, not measured, it could reach the 34 stated cases and remove about 20 to 27 of the 114. Implied conventions would need a separate check against how neighbouring features behave. Neither change has been run.
+
+### Reviewing a 202-part build: descriptive
+
+**Summary.** One large Kogen build, whose review material comes in 202 parts (about 1.2 MB), was reviewed 30 times from scratch, 10 times by each of three reviewers. gpt-6.1-terra at medium effort gave no verdict in any of its 10 reviews. gpt-6.1-sol at high effort and claude-opus-5-5 at high effort gave a verdict in all 10. Whether any verdict was correct was not judged.
+
+| Reviewer, model and effort | Route | Verdicts | Verdicts given | Median wall | Parts read |
+|---|---|---:|---|---:|---:|
+| gpt-6.1-terra, medium | Kogen's own loop, ChatGPT sign-in | 0/10 | none | 27.9 s | 44 to 81 of 202 |
+| gpt-6.1-sol, high | Kogen's own loop, ChatGPT sign-in | 10/10 | 8 approve, 2 request changes | 214.3 s | 202 of 202 |
+| claude-opus-5-5, high | Claude Code, its own sign-in | 10/10 | 10 approve | 38.5 s | 202 of 202 |
+
+Every Terra review ended the same way: the reviewer kept answering without using a tool to read the next parts, and the review stopped when Kogen's allowance of reminders ran out, after 44 to 81 parts. Total input over the 10 reviews was about 5.6 million tokens for Terra, 11.7 million for Sol and 36.6 million for Opus, mostly cached in Opus's case. Claude Code received the whole build as one prompt and read it with its own tools, while Kogen's own loop delivered the parts one by one, so the route differs between the reviewers as well as the model; the three rows are not a like-for-like comparison of models. Subscription charges for these reviews are not known. One build, ten repetitions each: this shows how repeatable each reviewer's outcome was on this input, not how often its verdicts are right.
+
+### Jev for task size and difficulty: blocked
+
+Jev is a hosted service that needs an API key, and none was available, so the comparison of task size and difficulty with Jev did not run.
 
 ## Evidence level
 
