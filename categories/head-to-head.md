@@ -376,6 +376,25 @@ Both setups used claude-sonnet-5-5 at medium effort and ran on the same machine,
 
 Kogen's pipeline runs two Claude Code sessions per task: one builds and an independent one reviews. It also runs the project's checks. That explains most of the extra time and cost.
 
+### Driving Claude Code on hard tasks, against Claude Code alone
+
+Result, 30 October 2026: **no difference in success, and Kogen cost more.** Kogen 8744e67b driving Claude Code and Claude Code 2.1.314 on its own each passed the same 5 of 9 hard tasks (0.56, 95% interval 0.27 to 0.81) and failed the same 4. Both used claude-sonnet-5-5 at medium effort, the same Claude Code binary, one run per task and setup, on one laptop.
+
+The nine tasks are the ones that Codex CLI at high effort had failed at least once, so they are harder than the tasks above. A task passes only when the hidden tests and the public acceptance scenarios all pass on the final tree.
+
+| Setup | Passed | Requests | Output tokens | Cost at list price† | Cost per pass† | Total wall |
+|---|---:|---:|---:|---:|---:|---:|
+| Kogen driving Claude Code | 5/9 | 278 | 326,970 | $15.30 | $3.06 | 8,471 s |
+| Claude Code alone | 5/9 | 243 | 215,009 | $6.31 | $1.26 | 4,979 s |
+
+†Token counts are read from Claude Code's own session records, the same way for both setups; dollars are those tokens at Anthropic list prices, not plan prices. The test harness recorded no requests, tokens or cost for the Kogen setup, so these figures come from that separate reading rather than the harness's tables.
+
+Paired by task, there is no task on which the two setups differ, so the exact sign test on success has nothing to count (9 ties, p = 1). On cost Kogen was higher on 8 tasks and lower on 1 (p = 0.039); on wall time the same split (p = 0.039); on requests it was higher on 6 and lower on 2, with 1 tie (p = 0.29). The one task where Kogen was cheaper and faster was `revive-baseline-go`, where its start-up check refused to build because one of the project's own tests was already failing, so it made no change; the setup alone also failed that task (99 of 962 tests passed against 0).
+
+The test harness's own report table shows 0 of 9 for Claude Code alone. That is a labelling error in the report, not a result: it counts only builds that Kogen calls "landed", and files every cell of the other setup as a workflow failure. The grades themselves are the 5 of 9 shown above.
+
+Limits: one run per task and setup, so nine pairs; an edge of a task or two could not show. The tasks were chosen because another agent failed them, and six of the nine come from Kogen's own code. One laptop, one model, one effort. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows and the script that reproduces them: [`reproduce/ccs3-lm-hard-tasks/`](../reproduce/ccs3-lm-hard-tasks/README.md).
+
 ### Native loop with checks and review, against Codex CLI
 
 Both setups used gpt-6.1-terra and ran on the same machine. Kogen built at high effort and reviewed at medium; Codex ran at high effort.
@@ -403,7 +422,7 @@ In Kogen's run logs, the review and verification phases together average about 3
 
 ## Limits
 
-- The tasks are short and pass rates are near the ceiling. These results say little about pass on harder work.
+- The tasks are short and pass rates are near the ceiling. These results say little about pass on harder work. The hard-task section above is the exception, with only nine tasks and one run each.
 - Kogen's pipeline does more than a bare agent (checks and an independent review), so its time and cost cover more work.
 - Isolation of the hidden tests was checked by scanning each agent's event stream. The scan found no suspects, but it is not a proof.
 - The Codex CLI build was an alpha bundled with a desktop app.

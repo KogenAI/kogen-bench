@@ -1,0 +1,62 @@
+{
+  "cost_cap_usd": 300,
+  "deadline_s": 3600,
+  "decision_rule": {
+    "kind": "descriptive"
+  },
+  "hk_claude_bin": "${HK_CLAUDE_BIN}",
+  "hk_repetition_block": "r2-lm",
+  "hk_study": "ccmac-r2-20261030",
+  "hosts": [
+    "local"
+  ],
+  "id": "ccs3-lm",
+  "intent_form": "gherkin",
+  "kogen": {
+    "repo": "https://github.com/KogenAI/kogen.git"
+  },
+  "lanes": [
+    {
+      "driver": "kogen-e2e",
+      "name": "kogen",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "claude-code/claude-sonnet-5-5 medium",
+          "review": "claude-code/claude-sonnet-5-5 medium",
+          "shape": "claude-code/claude-sonnet-5-5 medium"
+        }
+      },
+      "sha": "8744e67b543d5d93f65dbf67837e439c81eead24"
+    },
+    {
+      "driver": "claude-code-alone",
+      "name": "claude-code-alone",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "claude-code/claude-sonnet-5-5 medium"
+        }
+      },
+      "sha": "8744e67b543d5d93f65dbf67837e439c81eead24"
+    }
+  ],
+  "phase": "e2e",
+  "provider_caps": {
+    "claude-code": {
+      "cells": 18
+    }
+  },
+  "reps": 1,
+  "tasks": [
+    "goose-labels-go",
+    "kogen-loop-parallel-calls",
+    "kogen-loop-read-ledger",
+    "kogen-loop-tool-cut",
+    "kogen-review-on-demand",
+    "kogen-review-retry",
+    "kogen-shell-bound",
+    "revive-baseline-go",
+    "tally-periodic-go"
+  ]
+}

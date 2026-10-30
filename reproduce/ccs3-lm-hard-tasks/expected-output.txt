@@ -1,0 +1,35 @@
+cells: 18; tasks: 9; one run per task and arm
+
+task | Kogen passed (tests) | alone passed (tests)
+goose-labels-go | pass (389/389) | pass (389/389)
+kogen-loop-parallel-calls | fail (391/398) | fail (392/398)
+kogen-loop-read-ledger | fail (377/384) | fail (377/384)
+kogen-loop-tool-cut | fail (341/346) | fail (341/346)
+kogen-review-on-demand | pass (298/298) | pass (298/298)
+kogen-review-retry | pass (649/649) | pass (649/649)
+kogen-shell-bound | pass (346/346) | pass (346/346)
+revive-baseline-go | fail (0/962) | fail (99/962)
+tally-periodic-go | pass (25/25) | pass (25/25)
+
+Pass by the protected final-tree grade (evaluation all_passed):
+Kogen driving Claude Code: 5/9 = 0.56 [0.27, 0.81] (Wilson 95%)
+Claude Code alone: 5/9 = 0.56 [0.27, 0.81] (Wilson 95%)
+
+Pass as the lanes report table printed it (class "correct" only):
+Kogen driving Claude Code: 5/9 = 0.56 [0.27, 0.81]; outcomes: ['check_failing', 'landed']
+Claude Code alone: 0/9 = 0.00 [0.00, 0.30]; outcomes: ['finished']
+
+Paired by task: both pass 5, both fail 4, only Kogen 0, only alone 0
+pass sign test (Kogen lower / higher, ties, exact two-sided p; ties dropped): 0/0, 9 ties, p=1.0000
+
+Measured usage (Claude Code session records; USD at list price, not plan price)
+arm | requests | fresh input | cache write | cache read | output | USD list | USD per pass | wall s
+kogen | 278 | 586 | 2346215 | 26408210 | 326970 | 15.2966 | 3.0593 | 8471.3
+claude-code-alone | 243 | 486 | 646631 | 15699407 | 215009 | 6.3075 | 1.2615 | 4979.0
+lanes-recorded requests (Kogen lane: none recorded): {'kogen': 0, 'claude-code-alone': 252}
+
+Paired by task, Kogen against alone: Kogen lower / higher, ties, exact two-sided p
+USD list: 1/8, 0 ties, p=0.0391
+requests: 2/6, 1 ties, p=0.2891
+wall s: 1/8, 0 ties, p=0.0391
+output tokens: 1/8, 0 ties, p=0.0391
