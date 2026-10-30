@@ -190,6 +190,62 @@ The cost proxy is uncached input + 0.1 × cached input + 4 × output, summed ove
 
 Each loop variant had 2 task pass wins, 1 loss and 21 ties against Codex CLI (one-sided sign p = 0.5). The median paired wall change was −5.2% for the default loop and −5.3% for the speed patch (two-sided timing sign p = 0.541 and 0.064). These are descriptive observations within medium effort; they do not establish a pass or speed advantage.
 
+### Subscription route, 24 tasks, same model and effort, gpt-6.1-terra, medium and high effort
+
+**Summary.** On 24 Go tasks, kogen-loop and Codex CLI both passed every run at both efforts (24/24 each). kogen-loop used about 40% of Codex CLI's equivalent tokens per pass and used fewer on all 24 tasks at both efforts. Its wall time was 25–30% longer, but the two tools reached the model through different subscription routes, so the wall difference cannot be attributed to the tool. This is one run per task and tool, so the sign tests are descriptive.
+
+**Setup.** Route: subscription, with each tool using its own route. Model: gpt-6.1-terra. Each comparison pairs the two tools at the same effort (medium with medium, high with high). The tools alternated task by task on one cloud machine, one run at a time. All 96 runs were observed, with no setup failures.
+
+#### Subscription route, gpt-6.1-terra, medium and high effort: pass and wall (24 tasks, one run per task and tool)
+
+| Effort | Tool | Passed | Median wall | Median paired wall change, kogen-loop against Codex CLI | Tasks with lower wall, kogen-loop / Codex CLI (two-sided sign test) |
+|---|---|---:|---:|---:|---|
+| medium | kogen-loop (shipped default) | 24/24 | 81.2 s | +29.5% | 3 / 21 (p = 0.0003) |
+| medium | Codex CLI | 24/24 | 66.9 s | | |
+| high | kogen-loop (shipped default) | 24/24 | 101.4 s | +24.7% | 4 / 20 (p = 0.0015) |
+| high | Codex CLI | 24/24 | 77.8 s | | |
+
+**Wall time is route-confounded.** The sign-test p-values above describe the observed gap between the two route-and-tool combinations. They do not show that kogen-loop is slower.
+
+#### Subscription route, gpt-6.1-terra, medium and high effort: tokens per pass (24 tasks, one run per task and tool)
+
+| Effort | Tool | Equivalent tokens per pass | Uncached input per pass | Tasks with fewer equivalent tokens, kogen-loop / Codex CLI (two-sided sign test) |
+|---|---|---:|---:|---|
+| medium | kogen-loop (shipped default) | 32,697 | 15,493 | 24 / 0 (p < 0.0001) |
+| medium | Codex CLI | 84,035 | 34,826 | |
+| high | kogen-loop (shipped default) | 40,747 | 19,849 | 24 / 0 (p < 0.0001) |
+| high | Codex CLI | 96,476 | 34,157 | |
+
+Equivalent tokens are uncached input + 0.1 × cached input + 4 × output, divided by passes. They are a token proxy, not a dollar cost or a subscription charge; no dollar figures exist on this route. The median per-task change in equivalent tokens was −58.7% at medium and −60.2% at high. On uncached input alone, kogen-loop used fewer on 22 of 24 tasks at medium and 18 of 24 at high. Token accounting can differ by route, so treat the token comparison as less affected by the route than wall time, but still not a clean tool comparison.
+
+### Subscription route probe, gpt-6.1-terra, medium effort
+
+**Summary.** We looked for a faster route that kogen-loop could reach with its own sign-in and an honest client label, and found none. Every variant streamed at about 54 tokens per second, so the slower wall time above looks like a fixed pace on kogen-loop's route rather than something in its request handling. This is a small probe and it is descriptive.
+
+**Setup.** Route: subscription sign-in used by kogen-loop. Model: gpt-6.1-terra, medium effort, no tools, the same prompt each time (343 output tokens, no reasoning tokens in every successful response). Each variant ran 10 paired requests against the current setup, alternating order, with a fresh session on every request. No other tool's client identity or credentials were used.
+
+| Variant (gpt-6.1-terra, medium effort) | Streaming rate, median [IQR], tokens/s | Same-block current setup, tokens/s |
+|---|---:|---:|
+| Same endpoint, honest client label | 53.3 [51.6, 54.5] | 54.0 [53.7, 54.1] |
+| Persistent WebSocket connection, honest client label | 54.3 [54.0, 54.9] | 53.6 [52.8, 54.3] |
+| Subscription endpoint used by Codex CLI | refused (HTTP 401) on a single check; not retried | |
+
+Rates are measured from the first generated text to the last byte. The WebSocket variant started producing text about 0.6 s sooner (1.86 s against 2.47 s median), which is a connection effect, not a faster stream. Neither variant reached the pre-set bar of 1.5× the median rate with non-overlapping interquartile ranges. The rate was nearly constant across 40 requests, which fits a fixed per-stream pace set by the provider rather than load. Whether kogen-loop's sign-in client can be given access to the faster route is a question for the provider. Until it is answered, subscription wall comparisons should be read by route and time period.
+
+### Write-check patch short test, same OpenAI API key, gpt-6.1-terra, high effort
+
+**Summary.** A patch that lets kogen-loop's file-write tool carry a known follow-up check did not change behaviour: the model never used the new option in the first three runs where it could, so the test was stopped and the patch does not advance. Every completed run passed. The comparisons below describe these runs only and do not estimate the patch's effect when it is used.
+
+**Setup.** Route: both tools on the same OpenAI API key. Model: gpt-6.1-terra, high effort. Tasks ran one run per task and setup in a fixed order, and the test stopped after three tasks. Codex CLI had completed only the first two tasks when it stopped, so its row covers those two. The rebuilt unpatched baseline did not match the checksum recorded for the earlier build, so the baseline comparison is approximate.
+
+| Setup (gpt-6.1-terra, high effort) | Passed | Median wall | Median model requests | API cost per pass |
+|---|---:|---:|---:|---:|
+| kogen-loop (shipped default) | 3/3 | 380.5 s | 36 | $0.2203 |
+| kogen-loop with write-check patch | 3/3 | 514.0 s | 54 | $0.3481 |
+| Codex CLI (2 tasks) | 2/2 | 320.9 s | 38.5 | $0.3291 |
+
+Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with higher output tokens and cost on all three (two-sided sign test p = 0.25 on 3 tasks). Passes tied on every task. With three tasks the sign test cannot resolve small differences. The patch's new option was used in 0 of 3 runs, so the extra requests and cost reflect run-to-run variation, not the patch's intended mechanism.
+
 ### API key versus CLI sign-in, claude-sonnet-5-5, medium effort
 
 This round used 13 Go tasks and two repetitions per tool. Loop used an API key; Claude Code used its own sign-in. These routes can affect speed and token accounting.
