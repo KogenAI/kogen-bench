@@ -45,6 +45,10 @@ TTFO differences against Lc: Pi is earlier by 0.92 s on eu2 (17/20 pairs, p = 0.
 
 Exclusion: eu2 block 18, Lr: HTTP 200 but the stream ended without a completion event, so no usage; it stays in `runs.csv` (outcome `no-usage`) and is left out of the statistics (n = 19). No other request failed.
 
+## Studio set B (second run, same afternoon)
+
+Set B ran on the Studio at 14:08–14:17 UTC, about an hour after set A (13:01–13:11), with the same script and setup. Result: the same, no route gap. Loop 40.8 [39.7, 41.5] vs Codex 39.4 [38.5, 39.9] tok/s (paired Codex/loop ratio 0.966, Codex faster in 3 of 10 blocks, p = 0.34); loop's plain HTTP client 42.1 [40.1, 43.0]. Codex again started output later (about 2.5 s, 10/10 blocks, p = 0.002). During the run, one other process on the Studio overlapped some requests (3 of 10 loop, 3 of 10 plain-HTTP, 5 of 10 Codex), and CPU stayed 60–82% idle; it was not an isolated run. This only checks drift within the afternoon. It does not cover the early-morning hours when the earlier gap was seen.
+
 ## Rerun
 
 You need the loop binary, Codex 0.165.0 (and Pi 0.73.1 for eu2), each already logged in for its own account, and Python 3.10+. Nothing is read from the command line; credentials come only from each tool's own login directory (`RAB_LOOP_HOME`, `RAB_CODEX_HOME`, `RAB_PI_DIR`). The probe prints one JSON record per request to stdout.
@@ -65,13 +69,12 @@ One command per host, as above. A full eu2 run is 80 requests (about 23 minutes)
 python3 reproduce/route-same-host-throughput/analyze.py | diff - reproduce/route-same-host-throughput/expected-output.txt
 ```
 
-Verified 30 October 2026: from `runs.csv` the script reproduces every median and IQR, the pooled rates, the paired ratios and all sign tests above exactly, to the digits printed (the one sign test shown as p = 0.003 in an earlier summary is p = 0.0026 here). 140 rows: eu2 80, EU 30, Studio 30.
+Verified 30 October 2026: from `runs.csv` the script reproduces every median and IQR, the pooled rates, the paired ratios and all sign tests above exactly, to the digits printed (the one sign test shown as p = 0.003 in an earlier summary is p = 0.0026 here). 170 rows: eu2 80, EU 30, Studio set A 30, Studio set B 30.
 
-`runs.csv` columns: `host`, `block`, `position` (order in the block), `route` (L, C or P), `client` (Lc, Lr, C, P), `started_utc`, `ttfo_s`, `stream_s`, `output_tokens`, `reasoning_tokens` (empty for Pi, which does not report it), `tok_s`, `tier` (`default` for loop's requests; Codex and Pi expose none), `outcome` (loop outcome, Codex turn status, Pi stop reason, or `no-usage`).
+`runs.csv` columns: `host`, `set` (A = the first run on each host; B = the second Studio run, see below), `block`, `position` (order in the block), `route` (L, C or P), `client` (Lc, Lr, C, P), `started_utc`, `ttfo_s`, `stream_s`, `output_tokens`, `reasoning_tokens` (empty for Pi, which does not report it), `tok_s`, `tier` (`default` for loop's requests; Codex and Pi expose none), `outcome` (loop outcome, Codex turn status, Pi stop reason, or `no-usage`).
 
 ## Limits
 
 - One prose answer of about 500 tokens with no reasoning. Tool-using turns, longer outputs and high effort were not measured.
-- One account per tool per host, in a single afternoon window. It says nothing about an overnight period.
+- One account per tool per host, in a single afternoon window (Studio: two sets an hour apart). It says nothing about an overnight period.
 - Transport (WebSocket vs SSE) inside Codex and Pi was not logged. Rates include each client's own event handling.
-- Only one Studio set (10 blocks, 13:01–13:11 UTC) exists; a second set ~1 h later was not run.

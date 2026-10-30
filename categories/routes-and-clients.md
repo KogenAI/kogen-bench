@@ -35,6 +35,9 @@ On the same machine at the same time, kogen-loop's subscription route and Codex 
 | Desktop machine, 13:02–13:11 | kogen-loop, own binary | 10 | 40.7 [39.1, 41.4] | 3.88 [3.56, 4.31] | — |
 | | kogen-loop route, plain HTTP client | 10 | 41.4 [39.1, 46.0] | 4.00 [3.59, 4.40] | 1.005 (p = 1) |
 | | Codex CLI | 10 | 44.0 [41.7, 45.3] | 5.64 [5.41, 5.84] | 1.080 (8/2, p = 0.11) |
+| Desktop machine, second set, 14:08–14:17 | kogen-loop, own binary | 10 | 40.8 [39.7, 41.5] | 3.59 [3.23, 3.81] | — |
+| | kogen-loop route, plain HTTP client | 10 | 42.1 [40.1, 43.0] | 3.60 [3.27, 4.21] | 1.008 (7 faster / 3 slower, p = 0.34) |
+| | Codex CLI | 10 | 39.4 [38.5, 39.9] | 5.79 [5.26, 6.10] | 0.966 (3/7, p = 0.34) |
 
 No paired streaming-rate difference reached p < 0.05 on any machine, and every paired median ratio was within 0.99–1.08. One plain-HTTP request on cloud machine B ended without a usage record and is excluded (n = 19). Pi was installed only on cloud machine B.
 
