@@ -1,4 +1,4 @@
-# loop-high-reasoning-api
+# loop-high-reasoning-api-replay13
 
 Reasoning replay in loop on gpt-6.1-terra high, both tools on the same OpenAI API key, 8 tasks: every tool passed 8/8. Loop with reasoning replay cost $0.175 per pass against $0.225 for loop default and $0.236 for Codex, and it made 20.2 requests per pass against 32.2 and 28.8. The per-task sign tests do not resolve the difference. Verdict: **unresolved** (30 October 2026).
 
@@ -31,7 +31,7 @@ All three tools sent requests through the same gateway to the same upstream (`ht
 ## Rerun
 
 ```sh
-lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/loop-high-reasoning-api/tasks.txt --tools loop,loop+reasoning-replay,codex --model gpt-6.1-terra --effort high --reps 1 --order task-then-tool
+lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/loop-high-reasoning-api-replay13/tasks.txt --tools loop,loop+reasoning-replay,codex --model gpt-6.1-terra --effort high --reps 1 --order task-then-tool
 ```
 
 A rerun needs Linux with Bubblewrap, Go 1.27.2, your own OpenAI API key (shared by all three tools) and the three tool builds above. Build the replay tool by applying the two patches in order to kogen-loop `b8a4046`.
@@ -39,7 +39,7 @@ A rerun needs Linux with Bubblewrap, Go 1.27.2, your own OpenAI API key (shared 
 ## Reproduce the numbers
 
 ```sh
-python3 reproduce/loop-high-reasoning-api/analyze.py | diff - reproduce/loop-high-reasoning-api/expected-output.txt
+python3 reproduce/loop-high-reasoning-api-replay13/analyze.py | diff - reproduce/loop-high-reasoning-api-replay13/expected-output.txt
 ```
 
 Verified 30 Oct 2026: from `runs.csv`, `analyze.py` reproduces every published number exactly. That covers USD, requests, reasoning tokens and wall time per pass for each tool, and all the sign-test counts and p-values. The values also match the original round analysis to full precision.
