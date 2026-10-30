@@ -1,0 +1,61 @@
+{
+  "id": "hk2-mb",
+  "kogen": {
+    "repo": "https://github.com/KogenAI/kogen.git"
+  },
+  "hosts": [
+    "local"
+  ],
+  "phase": "e2e",
+  "intent_form": "gherkin",
+  "tasks": [
+    "kogen-loop-read-ledger",
+    "tally-periodic-go",
+    "kogen-loop-tool-cut",
+    "goose-labels-go",
+    "kogen-review-on-demand",
+    "revive-baseline-go"
+  ],
+  "reps": 1,
+  "deadline_s": 3600,
+  "cost_cap_usd": 100,
+  "provider_caps": {
+    "codex": {
+      "usd": 100,
+      "cells": 6
+    }
+  },
+  "decision_rule": {
+    "kind": "descriptive"
+  },
+  "lanes": [
+    {
+      "name": "kogen",
+      "driver": "kogen-e2e",
+      "sha": "221edcb60ae4351aa76112c2716020d33c4d0b0e",
+      "patch": null,
+      "settings": {
+        "models": {
+          "shape": "openai/gpt-6.1-terra high",
+          "build": "openai/gpt-6.1-terra high",
+          "review": "openai/gpt-6.1-terra high"
+        }
+      }
+    },
+    {
+      "name": "codex-alone",
+      "driver": "codex-alone",
+      "sha": "221edcb60ae4351aa76112c2716020d33c4d0b0e",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "codex/gpt-6.1-terra high"
+        }
+      }
+    }
+  ],
+  "hk_study": "hardplan2-20261030",
+  "hk_repetition_block": "mb-confirm",
+  "hk_codex_bin": "${HK_CODEX_BIN}",
+  "hk_codex_home": "${HK_CODEX_HOME}"
+}

@@ -13,18 +13,20 @@ No model is called. Real, pinned Kogen builds do the approvals (one pinned artif
 
 ## What is shipped
 
-- `patches/npm-stage-once.diff`, `patches/defer-approval-timeouts.diff`: the `lanes/` changes (new `lanes/lanes/node_modules.py`, `lanes/bin/lanes-stage`, `lanes/lanes/approval.py`, `lanes/lanes/carry.py`, `lanes/bin/lanes-carry`, edits to `cell.py`, `preflight.py`, `dispatch.py`, `report.py`, and the new tests). Both apply in order to the `lanes/` tree of this repository (checked with `git apply`). The host operations scripts that route new launches to the release (`run-queued`, `cc-prep`, `cg-prep`, the two day runners) are host-specific and are not published; the pack describes only their effect.
+- `patches/npm-stage-once.diff`, `patches/defer-approval-timeouts.diff`: the `lanes/` changes (new `lanes/lanes/node_modules.py`, `lanes/bin/lanes-stage`, `lanes/lanes/approval.py`, `lanes/lanes/carry.py`, `lanes/bin/lanes-carry`, edits to `cell.py`, `preflight.py`, `dispatch.py`, `report.py`, and the new tests). Both apply in order to the `lanes/` tree as it stood before commit `cd24859c` (its parent `cd24859c^`, the published `7a0e22ad` tree); `git apply --check` passes there for both, in order (checked 31 October 2026). The current `lanes/` already contains their result and more (the `lanes/releases/` diff and later files), so they do not apply to it and need no applying. The host operations scripts that route new launches to the release (`run-queued`, `cc-prep`, `cg-prep`, the two day runners) are host-specific and are not published; the pack describes only their effect.
 - `faulttests/`: the four fault-test drivers as run (provenance copies with the paths turned into environment variables; they need the pinned Kogen artifacts and the private task kits and run directories, so they are not runnable standalone): `npm-stall-preflight.py` (npm stalls for 600 s, old and new harness), `git-add-stall-preflight.py` (only `git add -A -- .` stalls), `approval-deferral-fault.py` (setup stalls 125 s for one lane) and `completed-resume.py` (a completed task is not re-approved).
 - `runs.csv`: one row per approval check: change, host alias, harness (patched or unpatched), fault, task, lane, stage, outcome, passed (= approved), seconds, deadline, npm calls observed, timed out. `tests.csv`: one row per test run. No logs, paths or hostnames.
 - `analyze.py`, `expected-output.txt`.
 
 ## Rerun
 
-Apply the patches and run the lane test suite offline (no model call):
+Check out the tree the patches were made against, apply them and run the lane test suite offline (no model call):
 
 ```sh
-git apply reproduce/npm-preflight-cache/patches/npm-stage-once.diff && git apply reproduce/npm-preflight-cache/patches/defer-approval-timeouts.diff && lanes/test.sh
+git worktree add ../kogen-bench-pre cd24859c^ && cd ../kogen-bench-pre && git apply --check "$OLDPWD/reproduce/npm-preflight-cache/patches/npm-stage-once.diff" && git apply "$OLDPWD/reproduce/npm-preflight-cache/patches/npm-stage-once.diff" && git apply --check "$OLDPWD/reproduce/npm-preflight-cache/patches/defer-approval-timeouts.diff" && git apply "$OLDPWD/reproduce/npm-preflight-cache/patches/defer-approval-timeouts.diff" && lanes/test.sh
 ```
+
+The `apply --check` steps and the two applications were run on 31 October 2026 and all succeed; `lanes/test.sh` was not run there. In the patched tree the new files `node_modules.py`, `carry.py`, the two `bin/` scripts and the new tests are byte-identical to the current `lanes/`; `cell.py`, `dispatch.py`, `preflight.py`, `report.py` and `approval.py` differ because later changes in `cd24859c` built on them.
 
 The fault tests need a lanes run directory with a pinned Kogen artifact for the task. With `FAULT_ROOT`, `LANES_PRIVATE`, `NPM_STAGE_CACHE` and `OLD_LANES_RELEASE` set (see the drivers' headers), the npm stall test is
 

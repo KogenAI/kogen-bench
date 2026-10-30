@@ -46,9 +46,15 @@ Tasks: [tasks.txt](tasks.txt) (the four counted API tasks plus `r70-1-go`, which
 
 ## Rerun
 
-This round cannot be rerun from this repository with one command. The driver that ran the API rounds in it (two tools, two efforts, two repetitions) is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
+The API rounds in this report were run with two published drivers: [`lanes/confirm-eu-20261029/run_confirmation.py`](../../lanes/confirm-eu-20261029/run_confirmation.py) (high effort, loop and Codex, `preflight | dry-loop | dry-codex | counted`) and [`lanes/confirm-eu-20261029/medium/run_confirmation.py`](../../lanes/confirm-eu-20261029/medium/run_confirmation.py) (medium effort, `preflight | dry-speed2 | counted`), each with its gateway extension next to it. Host paths come from `LANES_CONFIRM_DIR`, `CODEX_BIN_DIR`, `LANES_GOROOT` and `LANES_NODEROOT`; the harness is `lanes/bare/` and the release hashes are in [`lanes/RELEASES.md`](../../lanes/RELEASES.md). Run from a round directory laid out as in [`lanes/confirm-eu/README.md`](../../lanes/confirm-eu/README.md):
 
-Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). The API rounds cost about $0.73 per tool at high effort, $0.45 (loop) and $0.57 (Codex) at medium, plus dry runs, at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
+```sh
+LANES_CONFIRM_DIR=/path/to/round python3 -I lanes/confirm-eu-20261029/run_confirmation.py counted
+```
+
+Checked 31 October 2026, with a stand-in round directory and no model call, that both drivers print their modes with `--help`. A `counted` run was not tried: it needs the real task kits, builds and key. There is no single command for the whole report: the two drivers cover the first high and medium same-key rounds, and the other rounds it cites (the wide round, confirm5 and the patch screens) used further drivers that are not in this repository.
+
+Not rerunnable from the repository: the frozen protocols of the original rounds, and the task kits with their hidden graders (the kits stay private until the hill-climb ends). A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). The API rounds cost about $0.73 per tool at high effort, $0.45 (loop) and $0.57 (Codex) at medium, plus dry runs, at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

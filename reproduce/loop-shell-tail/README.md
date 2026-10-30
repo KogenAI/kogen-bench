@@ -40,7 +40,7 @@ Experimental loop variants from the same rounds (speed2 and others) are excluded
 
 ## Rerun
 
-These are historical runs. The subscription rounds were run with the patch-lanes tools in `lanes/bin/`. The experiment file of each round is not published, so these steps need an `experiment.json` you write yourself in the format in `lanes/FORMATS.md` (same tasks, lanes, repetitions and hosts as the round you want to repeat), a `hosts.json` for your own machines, and the private task folder:
+These are historical runs. The subscription rounds were run with the patch-lanes tools in `lanes/bin/`. The experiment files of these subscription rounds (h2h-21, h2h-22, h2h-24 and h2h-29) are on the runner hosts and are not published; the nearest published specification on the same route is [`h2h30-sub-route-tokens/batch.json`](../h2h30-sub-route-tokens/batch.json). So these steps need an `experiment.json` you write yourself in the format in `lanes/FORMATS.md` (same tasks, lanes, repetitions and hosts as the round you want to repeat), a `hosts.json` for your own machines, and the private task folder:
 
 ```sh
 lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-export "$RUN" --round-id "$ROUND" --out "$OUT" --tasks "$TASKS"
@@ -48,7 +48,7 @@ lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bi
 
 Checked 30 October 2026: `--help` of `lanes-plan`, `lanes-run`, `lanes-grade` and `lanes-export` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory; no cell was run. After a rerun, run the analysis below on the exported rows.
 
-The API rounds in this analysis were run with the same-key driver, which is not published; see [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/) for what can and cannot be rerun. A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
+The two API rounds in this analysis (high and medium effort, the first EU same-key rounds of 29 October) were run with the drivers published in [`lanes/confirm-eu-20261029/`](../../lanes/confirm-eu-20261029/run_confirmation.py) (high) and [`lanes/confirm-eu-20261029/medium/`](../../lanes/confirm-eu-20261029/medium/run_confirmation.py) (medium), with host paths read from `LANES_CONFIRM_DIR`, `CODEX_BIN_DIR`, `LANES_GOROOT` and `LANES_NODEROOT`. Each takes `preflight`, `dry-*` and `counted` modes; checked 31 October 2026, with a stand-in round directory and no model call, that `python3 -I lanes/confirm-eu-20261029/run_confirmation.py --help` (and the `medium/` one) prints those modes. A real run needs the round directory layout of [`lanes/confirm-eu/README.md`](../../lanes/confirm-eu/README.md), the private task kits, and a Linux host that holds the lease file the driver checks; see [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/) for what can and cannot be rerun. A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
 
 ## Reproduce the numbers
 

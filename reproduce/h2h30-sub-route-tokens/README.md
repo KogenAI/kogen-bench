@@ -17,7 +17,7 @@ Comparisons pair the same model and effort only: loop medium with Codex medium, 
 
 ## Tasks
 
-24 Go tasks, listed in [tasks.txt](tasks.txt); each task is at `tasks/<task-id>/`.
+24 Go tasks, listed in [tasks.txt](tasks.txt); each task has a record at `tasks/<task-id>/task.json`. Only 5 of the 24 have task content in the published tree: `artifact-go` (its whole kit under `hidden/`, with its base in `tasks/_bases/artifact-go-base.tar.gz`) and `r70-1-go`, `r70-4-go`, `r70-5-go` and `r70-7-go` (prompt, grader and base bundles in `tasks/_bases/`). The other 19 (`cadence-go`, `cron-go`, `deps-go`, `expr-seqfuncs-go`, `heatcal-go`, `inventory-go`, `ledger-go`, `logq-go`, `moneyledger-go`, `pool-go`, `rate-go`, `readtime-go`, `splitter-go`, `sync3-go`, `tally-periodic-go`, `tengo-power-go`, `tengo-switch-go`, `toml-required-go`, `vm-go`) are withheld: their kits are marked private, are held-out development or confirmation tasks still in use, and stay private until the hill-climb is done. Their records carry the kit digest and the reason (`withheld`). So the batch below cannot run on 24 tasks from this repository alone.
 
 ## Tools
 
