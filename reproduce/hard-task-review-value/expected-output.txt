@@ -1,0 +1,29 @@
+review attempts: 31; cohorts: ['cco-mb', 'ccs2-mb', 'ccs3-lm', 'hk3-lm', 'hk3-mb']
+
+All reviews: 31 reviews in 29 cells
+  verdict approve: 31; blocking findings: 0; note-level findings: 20 in 16 reviews
+  reviewer changed the tree (a verification pass followed): 12; that pass red (regression): 2 (hk3-mb kogen-review-on-demand attempt 1, hk3-lm kogen-review-on-demand attempt 1)
+  reviews of a cell whose final tree fails a hidden or regression test: 7, all approved: 7
+  of those, notes that cover the failing area: 3 (ccs2-mb kogen-loop-read-ledger, ccs2-mb tally-periodic-go, ccs3-lm kogen-loop-parallel-calls)
+  blocking findings in those reviews: 0
+
+discriminating (tasks that can separate the setups): 21 reviews in 19 cells
+  verdict approve: 21; blocking findings: 0; note-level findings: 12 in 10 reviews
+  reviewer changed the tree (a verification pass followed): 10; that pass red (regression): 2 (hk3-mb kogen-review-on-demand attempt 1, hk3-lm kogen-review-on-demand attempt 1)
+  reviews of a cell whose final tree fails a hidden or regression test: 4, all approved: 4
+  of those, notes that cover the failing area: 1 (ccs2-mb tally-periodic-go)
+  blocking findings in those reviews: 0
+
+instrument (three tasks whose acceptance scenarios no setup could pass): 10 reviews in 10 cells
+  verdict approve: 10; blocking findings: 0; note-level findings: 8 in 6 reviews
+  reviewer changed the tree (a verification pass followed): 2; that pass red (regression): 0
+  reviews of a cell whose final tree fails a hidden or regression test: 3, all approved: 3
+  of those, notes that cover the failing area: 2 (ccs2-mb kogen-loop-read-ledger, ccs3-lm kogen-loop-parallel-calls)
+  blocking findings in those reviews: 0
+
+Per cohort (model, effort): reviews | changed tree | regressions
+hk3-mb (gpt-6.1-terra, high): 6 | 5 | 1
+cco-mb (claude-opus-5-5, high): 4 | 0 | 0
+ccs2-mb (claude-sonnet-5-5, medium): 5 | 0 | 0
+hk3-lm (gpt-6.1-terra, high): 8 | 5 | 1
+ccs3-lm (claude-sonnet-5-5, medium): 8 | 2 | 0

@@ -439,6 +439,19 @@ The test harness's report table shows 0 of 6 for Claude Code alone in both block
 
 Limits: one run per task and setup, six pairs; one task moves a rate by 0.17. The tasks were chosen because Codex at high effort had failed them, and three of the six come from Kogen's own code. One MacBook. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/cco-mb-hard-tasks/`](../reproduce/cco-mb-hard-tasks/README.md) and [`reproduce/ccs2-mb-hard-tasks/`](../reproduce/ccs2-mb-hard-tasks/README.md).
 
+### Hard tasks: what Kogen's independent review did
+
+Result, 31 October 2026: **in these runs the review caught no defect that the grader sees, and in two cases it broke the build.** This is a count over the five hard-task blocks above, not a test of review: no setup ran without it. Across 36 Kogen cells, 29 reached a review and held 31 reviews. All 31 approved and none raised a blocking finding; 20 note-level findings in 16 reviews, none naming a defect that a failing hidden test checks.
+
+| | Reviews | Changed the tree | Verification red afterwards | Of cells that fail a hidden test (reviews) |
+|---|---:|---:|---:|---:|
+| Tasks that can separate the setups | 21 | 10 | 2 | 4, all approved |
+| Three tasks no setup could pass (acceptance never ran) | 10 | 2 | 0 | 3, all approved |
+
+The two red verifications were the first review on `kogen-review-on-demand` in the Codex blocks (`hk3-lm`, `hk3-mb`): it approved with no findings but had edited the tree, and three public acceptance scenarios then failed. A second review fixed both. On `hk3-lm` the cell passed; on `hk3-mb` the repaired tree graded 298 of 298, but the cell hit its 3,600 s deadline first and was graded on the start tree. Three reviews wrote a note clearing code in the area where a hidden subtest fails, one on a discriminating task (`tally-periodic-go`, `ccs2-mb`).
+
+Limits: a grader that sees only the final tree cannot see a defect a review fixed, and twelve reviews changed the tree; apart from `hk3-mb`'s `kogen-review-on-demand`, the tree before the review was never graded. One run per task and block, three models and two efforts, tasks chosen because another agent failed them. The confirmation, Kogen with review on against off at the same model and effort, has not been run. Counts, the per-review rows and the scripts that reproduce them: [`reproduce/hard-task-review-value/`](../reproduce/hard-task-review-value/README.md).
+
 ### Native loop with checks and review, against Codex CLI
 
 Both setups used gpt-6.1-terra and ran on the same machine. Kogen built at high effort and reviewed at medium; Codex ran at high effort.
