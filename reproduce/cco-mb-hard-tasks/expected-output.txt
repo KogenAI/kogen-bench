@@ -1,0 +1,28 @@
+cells: 12; tasks: 6; one run per task and setup
+
+task | Kogen outcome | Kogen passed (tests) | claude-code-alone outcome | claude-code-alone passed (tests)
+goose-labels-go | landed | pass (389/389) | finished | pass (389/389)
+kogen-loop-read-ledger | protocol | fail (369/384) | finished | fail (375/384)
+kogen-loop-tool-cut | landed | fail (341/346) | finished | fail (341/346)
+kogen-review-on-demand | timeout | fail (291/298) | finished | pass (298/298)
+revive-baseline-go | landed | pass (962/962) | finished | pass (962/962)
+tally-periodic-go | landed | fail (24/25) | finished | fail (24/25)
+
+Pass by the protected final-tree grade (evaluation all_passed):
+kogen: 2/6 = 0.33 [0.10, 0.70] (Wilson 95%)
+claude-code-alone: 3/6 = 0.50 [0.19, 0.81] (Wilson 95%)
+paired: both pass 2, only Kogen 0, only claude-code-alone 1, both fail 3
+exact paired test (McNemar, two-sided binomial on the 1 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Wall time as measured (s; tasks with a recorded wall for both setups)
+wall s: Kogen lower/higher 0/6, 0 ties, 6 tasks measured for both, exact two-sided p=0.0312; totals Kogen 9713.4, claude-code-alone 7015.8
+
+Measured usage (Claude Code session records read the same way for both setups; USD at list price, not plan price)
+tasks with usage for both setups: 6 of 6; left out: []
+arm | requests | fresh input | cache write | cache read | output | USD list | USD per pass
+kogen | 216 | 436 | 1597842 | 24369297 | 366407 | 24.9865 | 12.4932
+claude-code-alone | 201 | 402 | 628007 | 16712203 | 251542 | 13.3989 | 4.4663
+USD list: Kogen lower/higher 2/4, 0 ties, 6 tasks measured for both, exact two-sided p=0.6875; totals Kogen 25.0, claude-code-alone 13.4
+requests: Kogen lower/higher 2/4, 0 ties, 6 tasks measured for both, exact two-sided p=0.6875; totals Kogen 216.0, claude-code-alone 201.0
+output tokens: Kogen lower/higher 2/4, 0 ties, 6 tasks measured for both, exact two-sided p=0.6875; totals Kogen 366407.0, claude-code-alone 251542.0

@@ -395,6 +395,38 @@ The test harness's own report table shows 0 of 9 for Claude Code alone. That is 
 
 Limits: one run per task and setup, so nine pairs; an edge of a task or two could not show. The tasks were chosen because another agent failed them, and six of the nine come from Kogen's own code. One laptop, one model, one effort. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows and the script that reproduces them: [`reproduce/ccs3-lm-hard-tasks/`](../reproduce/ccs3-lm-hard-tasks/README.md).
 
+### Hard tasks: Kogen driving Codex, against Codex CLI alone
+
+Result, 30 October 2026: **no difference in success, on two machines.** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The MacBook block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
+
+| Block | Tasks | Kogen passed | Codex alone passed | Paired test | Fisher | Wall, both measured |
+|---|---:|---:|---:|---|---|---|
+| Laptop | 9 | 3 | 3 | 0 discordant tasks, p = 1 | p = 1 | Kogen 7,064 s, Codex 2,728 s (8 tasks; Kogen slower on all, p = 0.0078) |
+| MacBook | 6 | 2 | 2 | 2 against 2 discordant, p = 1 | p = 1 | Kogen 7,368 s, Codex 1,515 s (5 tasks; Kogen slower on all, p = 0.0625) |
+
+The registered analysis pools the two blocks per task: Kogen's mean pass rate is higher on 2 tasks, lower on 2 and equal on 5 (mean difference 0, one-sided sign test p = 0.69). On `goose-labels-go` Codex alone was stopped at the memory cap in both blocks before it produced a final tree, so it is counted as a fail; leaving that task out does not change the picture (laptop 3 of 8 each; MacBook Kogen 1 of 5, Codex 2 of 5, p = 1). Kogen's run on `kogen-review-on-demand` on the MacBook hit the 3,600 s deadline.
+
+The test harness's report table shows 0 correct for Codex alone in both blocks. That is a labelling error in the report, not a result: it counts only builds with the outcome `landed` or `ok` and files every finished Codex-alone cell as a workflow failure. The grades are the ones above. Usage and cost were not measured for either setup.
+
+Limits: one run per task and setup; the tasks were chosen because Codex at high effort had failed them, and six of the nine come from Kogen's own code. One laptop and one MacBook, one model and effort. Kogen's time covers shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/hk3-lm-hard-tasks/`](../reproduce/hk3-lm-hard-tasks/README.md) and [`reproduce/hk3-mb-hard-tasks/`](../reproduce/hk3-mb-hard-tasks/README.md).
+
+### Hard tasks on the MacBook: Kogen driving Claude Code, against Claude Code alone
+
+Result, 30 October 2026: **no difference in success, and Kogen cost more.** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
+
+| Block | Model, effort | Kogen | Kogen passed | Claude Code alone passed | Paired test | Fisher | Cost at list price† (Kogen / alone) | Wall (Kogen / alone) |
+|---|---|---|---:|---:|---|---|---|---|
+| `cco-mb` | claude-opus-5-5, high | 022ed9a0 | 2/6 (0.33, 0.10 to 0.70) | 3/6 (0.50, 0.19 to 0.81) | 1 discordant task, p = 1 | p = 1 | $24.99 / $13.40 | 9,713 s / 7,016 s |
+| `ccs2-mb` | claude-sonnet-5-5, medium | c8dae5a6 | 2/6 (0.33, 0.10 to 0.70) | 2/6 (0.33, 0.10 to 0.70) | 0 discordant tasks, p = 1 | p = 1 | $7.50 / $2.33 (5 tasks priced for both) | 7,023 s / 4,918 s |
+
+†Token counts are read from Claude Code's own session records, the same way for both setups; dollars are those tokens at Anthropic list prices, not plan prices. The test harness recorded no requests, tokens or cost for the Kogen setup, so these figures come from that separate reading.
+
+On the Opus block the one task that differs is `kogen-review-on-demand`: Kogen's run hit the 3,600 s deadline with 291 of 298 tests passing, while Claude Code alone passed it in 3,526 s. Kogen's wall time was higher on all 6 tasks (p = 0.031) and its cost on 4 of 6 (p = 0.69). On the Sonnet block both setups hit the deadline on that task, one test short (Kogen 291 of 298, alone 297 of 298); Kogen cost more on all 5 priced tasks (p = 0.0625, the smallest p five pairs can give) and was slower on 5 of 6 (p = 0.22). The alone run that hit the deadline wrote no final usage record, so that task is left out of the cost figures.
+
+The test harness's report table shows 0 of 6 for Claude Code alone in both blocks. That is a labelling error in the report, not a result: it counts only builds with the outcome `landed` or `ok`, and files every finished alone cell as a workflow failure. The grades are the ones above.
+
+Limits: one run per task and setup, six pairs; one task moves a rate by 0.17. The tasks were chosen because Codex at high effort had failed them, and three of the six come from Kogen's own code. One MacBook. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/cco-mb-hard-tasks/`](../reproduce/cco-mb-hard-tasks/README.md) and [`reproduce/ccs2-mb-hard-tasks/`](../reproduce/ccs2-mb-hard-tasks/README.md).
+
 ### Native loop with checks and review, against Codex CLI
 
 Both setups used gpt-6.1-terra and ran on the same machine. Kogen built at high effort and reviewed at medium; Codex ran at high effort.
@@ -422,7 +454,7 @@ In Kogen's run logs, the review and verification phases together average about 3
 
 ## Limits
 
-- The tasks are short and pass rates are near the ceiling. These results say little about pass on harder work. The hard-task section above is the exception, with only nine tasks and one run each.
+- The tasks are short and pass rates are near the ceiling. These results say little about pass on harder work. The hard-task sections above are the exception, with six to nine tasks and one run each.
 - Kogen's pipeline does more than a bare agent (checks and an independent review), so its time and cost cover more work.
 - Isolation of the hidden tests was checked by scanning each agent's event stream. The scan found no suspects, but it is not a proof.
 - The Codex CLI build was an alpha bundled with a desktop app.

@@ -1,0 +1,44 @@
+cells: 18; tasks: 9; one run per task and setup
+
+task | Kogen outcome | Kogen passed (tests) | codex-alone outcome | codex-alone passed (tests)
+goose-labels-go | landed | fail (206/389) | memory_cap | fail (-/-)
+kogen-loop-parallel-calls | landed | fail (391/398) | finished | fail (391/398)
+kogen-loop-read-ledger | landed | fail (377/384) | finished | fail (377/384)
+kogen-loop-tool-cut | landed | fail (341/346) | finished | fail (341/346)
+kogen-review-on-demand | landed | pass (298/298) | finished | pass (298/298)
+kogen-review-retry | no_progress | fail (642/649) | finished | fail (642/649)
+kogen-shell-bound | landed | pass (346/346) | finished | pass (346/346)
+revive-baseline-go | check_failing | fail (0/962) | finished | fail (863/962)
+tally-periodic-go | landed | pass (25/25) | finished | pass (25/25)
+
+Pass by the protected final-tree grade (evaluation all_passed):
+kogen: 3/9 = 0.33 [0.12, 0.65] (Wilson 95%)
+codex-alone: 3/9 = 0.33 [0.12, 0.65] (Wilson 95%)
+paired: both pass 3, only Kogen 0, only codex-alone 0, both fail 6
+exact paired test (McNemar, two-sided binomial on the 0 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Cells with no final tree to grade (infrastructure column): [('goose-labels-go', 'codex-alone', 'memory_cap', 'final-tree.tar missing')]
+Sensitivity, those tasks dropped (8 tasks):
+kogen: 3/8 = 0.38 [0.14, 0.69] (Wilson 95%)
+codex-alone: 3/8 = 0.38 [0.14, 0.69] (Wilson 95%)
+paired: both pass 3, only Kogen 0, only codex-alone 0, both fail 5
+exact paired test (McNemar, two-sided binomial on the 0 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Wall time as measured (s; tasks with a recorded wall for both setups)
+wall s: Kogen lower/higher 0/8, 0 ties, 8 tasks measured for both, exact two-sided p=0.0078; totals Kogen 7063.5, codex-alone 2727.5
+
+Usage and cost: not measured (the harness recorded none for the Kogen lane, and the session-record reader covers Claude Code only).
+
+Registered pooled analysis (hk3.md: per-task mean over the host observations at the same pins; one-sided exact sign test that Kogen wins)
+goose-labels-go | observations 2 | Kogen mean 0.50 | alone mean 0.00 | diff +0.50
+kogen-loop-parallel-calls | observations 1 | Kogen mean 0.00 | alone mean 0.00 | diff +0.00
+kogen-loop-read-ledger | observations 2 | Kogen mean 0.00 | alone mean 0.00 | diff +0.00
+kogen-loop-tool-cut | observations 2 | Kogen mean 0.00 | alone mean 0.00 | diff +0.00
+kogen-review-on-demand | observations 2 | Kogen mean 0.50 | alone mean 1.00 | diff -0.50
+kogen-review-retry | observations 1 | Kogen mean 0.00 | alone mean 0.00 | diff +0.00
+kogen-shell-bound | observations 1 | Kogen mean 1.00 | alone mean 1.00 | diff +0.00
+revive-baseline-go | observations 2 | Kogen mean 0.50 | alone mean 0.00 | diff +0.50
+tally-periodic-go | observations 2 | Kogen mean 0.50 | alone mean 1.00 | diff -0.50
+wins 2, losses 2, ties 5; mean paired difference +0.000; exact one-sided sign p=0.6875

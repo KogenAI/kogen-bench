@@ -1,0 +1,61 @@
+{
+  "cost_cap_usd": 100,
+  "deadline_s": 3600,
+  "decision_rule": {
+    "kind": "descriptive"
+  },
+  "hk_codex_bin": "${HK_CODEX_BIN}",
+  "hk_codex_home": "${HK_CODEX_HOME}",
+  "hk_repetition_block": "mb-confirm",
+  "hk_study": "hardplan3-20261030",
+  "hosts": [
+    "local"
+  ],
+  "id": "hk3-mb",
+  "intent_form": "gherkin",
+  "kogen": {
+    "repo": "https://github.com/KogenAI/kogen.git"
+  },
+  "lanes": [
+    {
+      "driver": "kogen-e2e",
+      "name": "kogen",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "openai/gpt-6.1-terra high",
+          "review": "openai/gpt-6.1-terra high",
+          "shape": "openai/gpt-6.1-terra high"
+        }
+      },
+      "sha": "18895e65cc4555b8a4e6bdf97458e51d0189b23c"
+    },
+    {
+      "driver": "codex-alone",
+      "name": "codex-alone",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "codex/gpt-6.1-terra high"
+        }
+      },
+      "sha": "18895e65cc4555b8a4e6bdf97458e51d0189b23c"
+    }
+  ],
+  "phase": "e2e",
+  "provider_caps": {
+    "codex": {
+      "cells": 6,
+      "usd": 100
+    }
+  },
+  "reps": 1,
+  "tasks": [
+    "kogen-loop-read-ledger",
+    "tally-periodic-go",
+    "kogen-loop-tool-cut",
+    "goose-labels-go",
+    "kogen-review-on-demand",
+    "revive-baseline-go"
+  ]
+}

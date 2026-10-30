@@ -1,0 +1,29 @@
+cells: 12; tasks: 6; one run per task and setup
+
+task | Kogen outcome | Kogen passed (tests) | codex-alone outcome | codex-alone passed (tests)
+goose-labels-go | landed | pass (389/389) | memory_cap | fail (-/-)
+kogen-loop-read-ledger | check_failing | fail (369/384) | finished | fail (375/384)
+kogen-loop-tool-cut | landed | fail (341/346) | finished | fail (341/346)
+kogen-review-on-demand | timeout | fail (291/298) | finished | pass (298/298)
+revive-baseline-go | landed | pass (962/962) | finished | fail (863/962)
+tally-periodic-go | landed | fail (24/25) | finished | pass (25/25)
+
+Pass by the protected final-tree grade (evaluation all_passed):
+kogen: 2/6 = 0.33 [0.10, 0.70] (Wilson 95%)
+codex-alone: 2/6 = 0.33 [0.10, 0.70] (Wilson 95%)
+paired: both pass 0, only Kogen 2, only codex-alone 2, both fail 2
+exact paired test (McNemar, two-sided binomial on the 4 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Cells with no final tree to grade (infrastructure column): [('goose-labels-go', 'codex-alone', 'memory_cap', 'final-tree.tar missing')]
+Sensitivity, those tasks dropped (5 tasks):
+kogen: 1/5 = 0.20 [0.04, 0.62] (Wilson 95%)
+codex-alone: 2/5 = 0.40 [0.12, 0.77] (Wilson 95%)
+paired: both pass 0, only Kogen 1, only codex-alone 2, both fail 2
+exact paired test (McNemar, two-sided binomial on the 3 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Wall time as measured (s; tasks with a recorded wall for both setups)
+wall s: Kogen lower/higher 0/5, 0 ties, 5 tasks measured for both, exact two-sided p=0.0625; totals Kogen 7368.3, codex-alone 1514.7
+
+Usage and cost: not measured (the harness recorded none for the Kogen lane, and the session-record reader covers Claude Code only).

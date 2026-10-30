@@ -1,0 +1,59 @@
+{
+  "cost_cap_usd": 900,
+  "deadline_s": 3600,
+  "decision_rule": {
+    "kind": "descriptive"
+  },
+  "hk_claude_bin": "${HK_CLAUDE_BIN}",
+  "hk_repetition_block": "mb-confirm",
+  "hk_study": "ccmac-20261030",
+  "hosts": [
+    "local"
+  ],
+  "id": "cco-mb",
+  "intent_form": "gherkin",
+  "kogen": {
+    "repo": "https://github.com/KogenAI/kogen.git"
+  },
+  "lanes": [
+    {
+      "driver": "kogen-e2e",
+      "name": "kogen",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "claude-code/claude-opus-5-5 high",
+          "review": "claude-code/claude-opus-5-5 high",
+          "shape": "claude-code/claude-opus-5-5 high"
+        }
+      },
+      "sha": "022ed9a0283cf8deee64d6c3ccdf44a022ac8afa"
+    },
+    {
+      "driver": "claude-code-alone",
+      "name": "claude-code-alone",
+      "patch": null,
+      "settings": {
+        "models": {
+          "build": "claude-code/claude-opus-5-5 high"
+        }
+      },
+      "sha": "022ed9a0283cf8deee64d6c3ccdf44a022ac8afa"
+    }
+  ],
+  "phase": "e2e",
+  "provider_caps": {
+    "claude-code": {
+      "cells": 12
+    }
+  },
+  "reps": 1,
+  "tasks": [
+    "kogen-loop-read-ledger",
+    "tally-periodic-go",
+    "kogen-loop-tool-cut",
+    "goose-labels-go",
+    "kogen-review-on-demand",
+    "revive-baseline-go"
+  ]
+}
