@@ -40,13 +40,15 @@ Experimental loop variants from the same rounds (speed2 and others) are excluded
 
 ## Rerun
 
-These are historical runs. To redo the measurement, rerun a round with the patch-lanes harness and then rerun this analysis over its exported rows. For example, for the 24-task medium round:
+These are historical runs. The subscription rounds were run with the patch-lanes tools in `lanes/bin/`. The experiment file of each round is not published, so these steps need an `experiment.json` you write yourself in the format in `lanes/FORMATS.md` (same tasks, lanes, repetitions and hosts as the round you want to repeat), a `hosts.json` for your own machines, and the private task folder:
 
 ```sh
-lanes/bin/lanes-plan lanes/experiments/h2h-24.json --run-dir "$RUN" && lanes/bin/lanes-run "$RUN" --hosts hosts.json && lanes/bin/lanes-export "$RUN"
+lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-export "$RUN" --round-id "$ROUND" --out "$OUT" --tasks "$TASKS"
 ```
 
-The API rounds are rerun as in [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/). A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
+Checked 30 October 2026: `--help` of `lanes-plan`, `lanes-run`, `lanes-grade` and `lanes-export` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory; no cell was run. After a rerun, run the analysis below on the exported rows.
+
+The API rounds in this analysis were run with the same-key driver, which is not published; see [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/) for what can and cannot be rerun. A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
 
 ## Reproduce the numbers
 

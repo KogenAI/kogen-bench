@@ -15,17 +15,13 @@ Four tasks, one run per tool per task, 16 counted runs, one run at a time on one
 | `api-batch` | baseline plus a batched-independent-I/O instruction | gpt-6.1-terra | high | [patches/api-batch.diff](patches/api-batch.diff) |
 | `api-answer-end` | baseline plus finish tool omitted from the default terminal tools | gpt-6.1-terra | high | [patches/api-answer-end.diff](patches/api-answer-end.diff) |
 
-Each `.diff.sha256` file holds the checksum of the patch as run; the binaries were attested by hash in the protocol file before the first run. Harness: the `lanes/` bare-agent release (`lanes_bare.py` sha256 `9744637d…`) with the confirmation driver in the loop-vs-codex release; task ids in [tasks.txt](tasks.txt) are directories under `tasks/`.
+Each `.diff.sha256` file holds the checksum of the patch as run; the binaries were attested by hash in the protocol file before the first run. Harness: the `lanes/` bare-agent release (`lanes_bare.py` sha256 `9744637d…`) with the confirmation driver in the same-key driver (not published; see Rerun); task ids in [tasks.txt](tasks.txt) are directories under `tasks/`.
 
 ## Rerun
 
-You need Linux with Bubblewrap, Go 1.27.2 and an OpenAI API key (the same key for every tool); the cost cap is part of the protocol. From the repository root, with `$ROOT` a run root prepared from the loop-vs-codex confirmation release in `lanes/` and the four patched binaries built from `patches/`:
+This round cannot be rerun from this repository with one command. The driver that ran the four patched tools is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. The four patches are published in [patches/](patches/), and the checksum files show which patch each tool ran. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
 
-```sh
-lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/api-patch-screen-2nd-host/tasks.txt --tools speed2,api-replay,api-batch,api-answer-end --model gpt-6.1-terra --effort high --reps 1 --seed 20261030 --cap-usd 3
-```
-
-The rerun path into `lanes/` was assumed when this pack was written; align it with the harness release. A rerun costs about $1.5 at list price. Wall times depend on the host and the provider that day, so expect different values.
+Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). The original round cost about $1.5 at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

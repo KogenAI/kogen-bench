@@ -28,7 +28,7 @@ Offline studies have separate coverage and are not pooled with online cell outco
 
 ## Approval step timeout, 30 October 2026
 
-In short: a Kogen approval step failed with a timeout on a busy machine. The time was not spent staging files. It was spent on cold setup and build checks that share one 120-second deadline with staging. The fix has been sent to Kogen's maintainers, and the error message now names the step that was running when the deadline hit.
+In short: a Kogen approval step failed with a timeout on a busy machine, and the error named file staging. When we timed the steps once each on a quieter machine, staging took well under a second and a cold build took much longer. That makes a slow build the likely cause, but the cause is unconfirmed: the original failure was not timed, and we did not time it under the same load. The issue has been sent to Kogen's maintainers, and the error message now names the step that was running when the deadline hit.
 
 The step approves a task spec. It installs dependencies, runs a build check, and then stages the candidate files with `git add`. All three share one 120-second deadline. On a machine with almost no idle CPU, the run was stopped by the deadline during staging, and the error looked like a staging failure.
 
@@ -41,4 +41,4 @@ Measured on a copy of the task's starting files (2,374 files, 73 MB, mostly vend
 | Go build, warm cache | 0.66 s |
 | npm install from a warm package cache | 0.46 s |
 
-Staging is fast. Build work on a cold cache needs about 42 CPU-seconds, and on a machine with under 10% idle CPU that alone can use up much of the deadline, along with an uncached npm install. Staging was just the step running when time ran out. Since 30 October the harness caches the npm install once per lockfile, and the error now names the step that was running at the deadline. This is a single task's measurement on one machine, not a general timing claim.
+Each step was timed once, on one task and one machine, while that machine had 44 to 74% of its CPU idle. The original failure happened with under 10% idle, and its elapsed time was not recorded. So these numbers show that staging is not slow in normal conditions and that a cold build needs about 42 CPU-seconds. They do not show what used up the 120 seconds in the failed run. A test that made staging stall on purpose also hit the same deadline, so a slow staging step is another possible cause. Since 30 October the harness caches the npm install once per lockfile, and the error now names the step that was running at the deadline. This is a single task's measurement on one machine, not a general timing claim.

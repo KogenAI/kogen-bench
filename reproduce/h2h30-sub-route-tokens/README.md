@@ -13,7 +13,7 @@ Comparisons pair the same model and effort only: loop medium with Codex medium, 
 - **Wall:** the whole run, in seconds (`wall_s`); `agent_wall_s` is the agent process alone.
 - **Sign tests:** two-sided exact binomial tests over the 24 tasks, ties dropped, one repetition each. They are descriptive only.
 
-**Route confound.** Both tools used the same ChatGPT account, but by different routes. Loop, on its ChatGPT login, calls the public API host with its own OAuth client; Codex calls the ChatGPT Codex backend. During this period loop's route streamed at about 48 tokens/s and Codex's at about 110 (finding `loop-sub-route-throughput`; see also [loop-sub-route-honest-probe](../loop-sub-route-honest-probe/)). The wall gap therefore mixes tool and route. Token counts are much less affected by the route, but they are still not a comparison on the same API key.
+**Route confound.** Both tools used the same ChatGPT account, but by different routes. Loop, on its ChatGPT login, calls the public API host with its own OAuth client; Codex calls the ChatGPT Codex backend. During this period loop's measured output rate was lower than Codex's (finding `loop-sub-route-throughput`; see also [loop-sub-route-honest-probe](../loop-sub-route-honest-probe/)). A later same-host test saw both routes at about the same rate (see [`superseding-same-host-test`](../loop-sub-route-throughput/superseding-same-host-test/)), and the cause of the earlier gap was not found, so the earlier rates are not quoted here. The wall gap may therefore mix tool and route and is not a tool comparison. Token counts are much less affected by the route, but they are still not a comparison on the same API key.
 
 ## Tasks
 

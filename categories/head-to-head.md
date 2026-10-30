@@ -162,7 +162,7 @@ These subscription tables report pass and cost only. Cost is uncached input + 0.
 
 **Wall-time method from 30 October.** Loop-versus-Codex wall time is measured only on two dedicated cloud machines, with the tools interleaved one run at a time on the same task. Laptop and desktop runs report pass and cost only. Earlier wall-time figures from these machines are descriptive.
 
-**Route finding.** Loop and Codex reach the model through different endpoints and sign-in clients. From about 04:00 UTC on 30 October, loop's output rate on the same tasks and with similar output counts fell from about 110 to about 48 tokens per second, while Codex wall times stayed about the same. That slowdown was on loop's route at that time, not a change in loop's code. It was no longer visible at 11:59 UTC, when a same-machine test found loop's route and Codex's route streaming at the same rate, about 40–44 tokens per second on three machines ([routes and clients](routes-and-clients.md)).
+**Route finding.** Loop and Codex reach the model through different endpoints and sign-in clients. Across 496 earlier runs on two Macs, loop's measured output rate on the same tasks and with similar output counts fell from about 110 to about 48 tokens per second from about 04:00 UTC on 30 October, while Codex wall times stayed about the same. We did not find the cause. The loop program was the same during the slowdown, so a time-of-day or provider-side effect is possible, but this is unconfirmed and cannot be separated from the tools on those machines. It was no longer visible at 11:59 UTC, when a single same-machine test found loop's route and Codex's route streaming at the same rate, about 40–44 tokens per second on three machines ([routes and clients](routes-and-clients.md)). Wall-time differences between loop and Codex from the overnight subscription runs should not be read as tool differences.
 
 **Correction, 30 October 2026.** This paragraph earlier cited small route probes of about 45 against 81 tokens per second as evidence of a route speed gap. Those were three short requests per route on one machine at one time. The larger same-machine test did not reproduce them, so they are no longer cited.
 
@@ -248,7 +248,7 @@ Rates are measured from the first generated text to the last byte. The WebSocket
 | kogen-loop with write-check patch | 3/3 | 514.0 s | 54 | $0.3481 |
 | Codex CLI (2 tasks) | 2/2 | 320.9 s | 38.5 | $0.3291 |
 
-Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with higher output tokens and cost on all three (two-sided sign test p = 0.25 on 3 tasks). Passes tied on every task. With three tasks the sign test cannot resolve small differences. The patch's new option was used in 0 of 3 runs, so the extra requests and cost reflect run-to-run variation, not the patch's intended mechanism.
+Against the unpatched loop, the patch had lower wall on 0 of 3 tasks, with higher output tokens and cost on all three (two-sided sign test p = 0.25 on 3 tasks, one run per task and tool). Passes tied on every task. With three tasks the sign test cannot resolve small differences, and the order and timing of single runs may also matter. The patch's new option was used in 0 of 3 runs. We did not test why the patched runs cost more, so the cause is unconfirmed; this table does not show that the patch helps or hurts.
 
 ### Reasoning replay, same OpenAI API key, gpt-6.1-terra, high effort
 

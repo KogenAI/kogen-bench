@@ -28,11 +28,9 @@ Both tools reached `https://api.openai.com/v1/responses` at the standard service
 
 ## Rerun
 
-```sh
-lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/confirm5-clean-route-8tasks/tasks.txt --tools loop,codex --model gpt-6.1-terra --effort medium,high --reps 1 --seed 2026102908
-```
+This round cannot be rerun from this repository with one command. The driver that ran it (two tools, two efforts, 32 runs) is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
 
-You need Linux with bubblewrap, Go 1.27.2 and an OpenAI API key; both tools log in with the same key. The harness path follows the loop-vs-codex release in `lanes/`. One full pass is 32 runs and cost about $5.74 at list price here.
+Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). One full pass is 32 runs and cost about $5.74 at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

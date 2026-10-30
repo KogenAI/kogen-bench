@@ -46,13 +46,9 @@ Tasks: [tasks.txt](tasks.txt) (the four counted API tasks plus `r70-1-go`, which
 
 ## Rerun
 
-The API rounds rerun with the loop-vs-Codex confirmation driver in `lanes/` (needs Linux, Bubblewrap, Go 1.27.2, and an OpenAI API key that both tools log in with; counted list-price cost at the original run: about $0.73 per tool at high effort, $0.45 (loop) and $0.57 (Codex) at medium, plus dry runs):
+This round cannot be rerun from this repository with one command. The driver that ran the API rounds in it (two tools, two efforts, two repetitions) is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
 
-```sh
-lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/morning-report-20261030/tasks.txt --tools loop,codex --model gpt-6.1-terra --effort high,medium --reps 2
-```
-
-The rerun path into `lanes/` was assumed when this pack was written; align it with the harness release. Wall times depend on the host and provider that day.
+Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). The API rounds cost about $0.73 per tool at high effort, $0.45 (loop) and $0.57 (Codex) at medium, plus dry runs, at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

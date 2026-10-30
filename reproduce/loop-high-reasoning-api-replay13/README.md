@@ -30,11 +30,18 @@ All three tools sent requests through the same gateway to the same upstream (`ht
 
 ## Rerun
 
+The driver is `lanes/confirm-eu/run_confirmation.py` (see `lanes/confirm-eu/README.md`). It fixes the three tools, the model, the effort and one run per task, and it takes only two commands:
+
 ```sh
-lanes/loop-vs-codex/run_confirmation.py --tasks reproduce/loop-high-reasoning-api-replay13/tasks.txt --tools loop,loop+reasoning-replay,codex --model gpt-6.1-terra --effort high --reps 1 --order task-then-tool
+LANES_CONFIRM_DIR=/path/to/round python3 -I lanes/confirm-eu/run_confirmation.py freeze
+LANES_CONFIRM_DIR=/path/to/round python3 -I lanes/confirm-eu/run_confirmation.py cell --index 0
 ```
 
-A rerun needs Linux with Bubblewrap, Go 1.27.2, your own OpenAI API key (shared by all three tools) and the three tool builds above. Build the replay tool by applying the two patches in order to kogen-loop `b8a4046`.
+`freeze` writes the protocol (24 cells in task order). Then run `cell --index N` for N = 0 to 23, in order; each cell runs one tool on one task and grades it. The round directory must hold the layout described in `lanes/confirm-eu/README.md`, an `eligibility.json` that marks the eight tasks in [tasks.txt](tasks.txt) as qualified, and the earlier round's `protocol.json` (read for its task order) one level up in `confirmation-eu-wide-20261029/`. That earlier file is not published. Write a file there with a `tasks_randomized` list in the order of `tasks.txt`; the original task order is the same list.
+
+Checked 30 October 2026: with a stand-in round directory (two placeholder tasks, placeholder builds, no key and no model call), `freeze` ran and wrote a 6-cell protocol with the three tools, the model and high effort; `--help` shows the two modes and `--index`. The cell step was not run, because it needs the real task kits, the three tool builds, a Linux host with Bubblewrap and your own OpenAI API key.
+
+A full rerun needs Linux with Bubblewrap, Go 1.27.2, the three tool builds above and your own OpenAI API key (shared by all three tools). Build the replay tool by applying the two patches in order to kogen-loop `b8a4046`.
 
 ## Reproduce the numbers
 

@@ -1,6 +1,6 @@
 # kogen-approve-deadline-load
 
-Why did the `goose-labels-go` approval fail with "approve refused (timed out): controller/internal_error: git add -A -- . failed (status 143)"? The measurements say the `git add` step is not slow (0.26–0.39 s for 2,373 files). The 120-second approval deadline is shared by task setup, the build/check step and the candidate snapshot, and the cold setup/check work is CPU-heavy (a cold `go build` costs 42 CPU-seconds, a warm one 0.66 s). On a host with under 10% idle CPU that work can use the deadline up, and the error names whichever step is running when it expires, which here was `git add`. The product decision (how Kogen should budget the deadline) was sent to delivery (the Kogen product side); this pack covers the measurements only. 30 October 2026.
+Why did the `goose-labels-go` approval fail with "approve refused (timed out): controller/internal_error: git add -A -- . failed (status 143)"? The measurements say the `git add` step is not slow (0.26–0.39 s for 2,373 files). The 120-second approval deadline is shared by task setup, the build/check step and the candidate snapshot, and the cold setup/check work is CPU-heavy (a cold `go build` costs 42 CPU-seconds, a warm one 0.66 s). On a host with under 10% idle CPU that work could use the deadline up, and the error names whichever step is running when it expires, which here was `git add`. This explanation is unconfirmed; see Limits. The product decision (how Kogen should budget the deadline) was sent to delivery (the Kogen product side); this pack covers the measurements only. 30 October 2026.
 
 ## What was measured
 
@@ -24,7 +24,7 @@ On a copy of the task's start tree (never the original), as the unprivileged ben
 reproduce/kogen-approve-deadline-load/profile.sh "$COPY_OF_TASK_START_TREE" profile.csv
 ```
 
-`profile.sh` prints one CSV row per step (wall seconds, CPU seconds, file counts) in the same steps as `runs.csv`. It was written for this pack from the measurement note, because the original ad-hoc commands were not kept, and it was **not executed** when the pack was built, so treat its output as a re-measurement, not a replay. Expect different seconds on a different host; the shape (git add well under a second, cold build tens of CPU-seconds, warm build under a second) is what to compare. To rerun the end-to-end preflight, see the fault tests in [`reproduce/npm-preflight-cache/faulttests/`](../npm-preflight-cache/faulttests/).
+`profile.sh` prints one CSV row per step (wall seconds, CPU seconds, file counts) in the same steps as `runs.csv`. It was written for this pack from the measurement note, because the original ad-hoc commands were not kept, and it was run only on a small synthetic Go and npm tree (not the real task tree, which is not published) to check that every step executes and prints a row. It has not been run on the original task, so treat its output as a re-measurement, not a replay. Expect different seconds on a different host; the shape (git add well under a second, cold build tens of CPU-seconds, warm build under a second) is what to compare. To rerun the end-to-end preflight, see the fault tests in [`reproduce/npm-preflight-cache/faulttests/`](../npm-preflight-cache/faulttests/).
 
 ## Reproduce the numbers
 

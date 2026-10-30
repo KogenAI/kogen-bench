@@ -36,13 +36,13 @@ There is one planned analysis. Each task's success mean per tool is computed, an
 
 ## Rerun
 
-To rerun the planned comparison on one host block (the other block is `hk2-mb`):
+The comparison was planned as two host blocks (`hk2-st` and `hk2-mb`) and has not been run. The experiment files for the two blocks are not published, so a rerun needs an `experiment.json` you write yourself in the format in `lanes/FORMATS.md`: the nine tasks in [tasks.txt](tasks.txt), the two arms (Kogen and Codex alone), one repetition and your own hosts. With that file, a `hosts.json` for your machines and the private task folder:
 
 ```sh
-lanes/bin/lanes-plan lanes/experiments/hk2-st.json --run-dir "$RUN" && lanes/bin/lanes-run "$RUN" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" && lanes/bin/lanes-report "$RUN"
+lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-report "$RUN"
 ```
 
-This needs the task kits with their hidden graders kept outside the agent workspace, the Kogen build above, Codex CLI, and your own ChatGPT login. The model deadline per run is 3600 s.
+Checked 30 October 2026: `--help` of `lanes-plan`, `lanes-run`, `lanes-grade` and `lanes-export` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory; no cell was run. A rerun needs the task kits with their hidden graders kept outside the agent workspace, the Kogen build above, Codex CLI, and your own ChatGPT login. The model deadline per run is 3600 s.
 
 ## Reproduce the numbers
 

@@ -4,7 +4,7 @@
 #   TASK_START_TREE  a COPY of the task's start tree (never the original); it is not modified except for a throwaway node_modules
 # Run as the unprivileged benchmark user, one heavy job at a time, with the default timeouts.
 # Needs: git, go (the version in the task's go.mod; the tree is vendored), /usr/bin/time -p style timing via python3 below, npm for the last step.
-# Written for this pack from the measurement note; the original ad-hoc commands were not kept. Not executed when the pack was built.
+# Written for this pack from the measurement note; the original ad-hoc commands were not kept. Run once end to end on a small synthetic Go and npm tree (not the real task tree) to check that it executes and prints every step.
 set -eu
 T=${1:?task start tree copy}; OUT=${2:-profile.csv}
 cd "$T"
