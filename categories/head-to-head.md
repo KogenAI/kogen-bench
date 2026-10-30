@@ -1,4 +1,4 @@
-# Head-to-head: agent harnesses on short Go tasks (29 October 2026)
+# Head-to-head: agent harnesses on short Go tasks (30 October 2026)
 
 Status: DESCRIPTIVE. These are baselines for a hill-climb, not a pre-registered test.
 
@@ -41,6 +41,80 @@ The completed medium round used the same four tasks, two repetitions, common end
 | Codex CLI | 8/8 | 98.4 s | 113.2 s | $0.0708 |
 
 All four task pass comparisons tied for each loop arm against Codex (one-sided sign p = 1). The default loop had lower task-mean agent wall on 3/4 tasks and the speed patch on 2/4 (two-sided sign p = 0.625 and 1). Each loop arm had lower task cost on 3/4 tasks (two-sided sign p = 0.625). These small-sample differences are descriptive.
+
+## Additional results, 30 October 2026
+
+### Clean common API route patch screens, gpt-6.1-terra, high effort
+
+The completed medium-effort clean-route table above was checked against its per-cell records and still matches; it is not repeated here. Two small high-effort screens also used the common API route. Each covered four tasks with one counted run per arm. Every arm passed 4/4 in both screens. The first included the unpatched loop; the second compared API changes with the speed patch.
+
+#### Common API route — gpt-6.1-terra, high effort (first screen)
+
+| Arm | Passed | API cost per pass |
+|---|---:|---:|
+| kogen-loop (shipped default) | 4/4 | $0.0963 |
+| Speed patch | 4/4 | $0.1217 |
+| Replay patch | 4/4 | $0.1016 |
+| Batch patch | 4/4 | $0.0947 |
+| Answer-end patch | 4/4 | $0.1012 |
+| HTTP/2 patch | 4/4 | $0.0907 |
+| Connection-reuse patch | 4/4 | $0.0866 |
+
+#### Common API route — gpt-6.1-terra, high effort (second screen)
+
+| Arm | Passed | Median API cost per pass |
+|---|---:|---:|
+| Speed patch | 4/4 | $0.0665 |
+| Replay patch | 4/4 | $0.0826 |
+| Batch patch | 4/4 | $0.0658 |
+| Answer-end patch | 4/4 | $0.0806 |
+
+These four-task screens are descriptive. No patch showed a reliable improvement over the unpatched loop beyond noise; the second screen compared API changes with the speed patch, and task-level results were mixed.
+
+### Subscription route, gpt-6.1-terra, medium effort (first completed run)
+
+| Arm | Passed | Cost proxy per pass, tokens |
+|---|---:|---:|
+| kogen-loop (shipped default) | 23/24 | 26,394 |
+| Speed patch | 23/24 | 27,886 |
+| Codex CLI | 24/24 | 63,968 |
+
+### Subscription route, gpt-6.1-terra, medium effort (later completed run)
+
+| Arm | Passed | Cost proxy per pass, tokens |
+|---|---:|---:|
+| kogen-loop (shipped default) | 22/23 graded | missing |
+| Codex CLI | 24/24 | 64,717 |
+
+One loop attempt was ungraded and lacked usage, so its cost proxy is missing. A keyword screen on the Codex record was traced to the task repository's ignore rule naming its protected evaluation folder; the recorded command did not open that folder.
+
+### Subscription route, gpt-6.1-terra, high effort (patch screen)
+
+| Arm | Passed | Cost proxy per pass, tokens |
+|---|---:|---:|
+| Speed patch | 23/24 | missing |
+| Replay patch | 22/24 | missing |
+| Batch patch | 23/24 | 36,703 |
+| Answer-end patch | 23/24 | 33,512 |
+| Connection-reuse patch | 23/24 | missing |
+| HTTP/2 patch | 22/24 | missing |
+
+### Subscription route, gpt-6.1-terra, high effort (harness screen)
+
+| Arm | Passed | Cost proxy per pass, tokens |
+|---|---:|---:|
+| kogen-loop (shipped default) | 22/24 | missing |
+| Speed patch | 23/24 | 34,563 |
+| Pi | 22/24 | missing |
+| OpenCode | 23/24 | missing |
+
+These subscription tables report pass and cost only. Cost is uncached input + 0.1 × cached input + 4 × output, divided by passes across all attempts. It is an uncached-equivalent token proxy, not a dollar cost or subscription charge. Missing usage stays missing. The completed same-effort pairings had few pass differences; they do not establish a harness or patch advantage.
+
+**Wall-time method from 30 October.** Loop-versus-Codex wall time is measured only on two dedicated cloud machines, with the arms interleaved one cell at a time on the same task. Laptop and desktop runs report pass and cost only. Earlier wall-time figures from these machines are descriptive.
+
+**Route finding.** Loop and Codex reach the model through different endpoints and sign-in clients. From about 04:00 UTC on 30 October, loop's output rate on the same tasks and with similar output counts fell from about 110 to about 48 tokens per second, while Codex wall times stayed about the same. Small route probes measured about 45 versus 81 tokens per second. The evidence points to the route as the source of tonight's subscription wall-time gap, rather than a change in loop's code.
+
+**Tool-use observation.** On tasks both passed, loop ran fewer shell commands and read back less tool output than Codex; it did not run more or wider tests.
 
 ### Broader corpus, different subscription routes, gpt-6.1-terra, high effort
 
