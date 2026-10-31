@@ -1,0 +1,273 @@
+{
+  "analysis": "all attempts retained, no automatic replacement; one repetition per task; descriptive patch screen; medians and nearest-rank p90 over graded launched attempts; cost/pass and tokens/pass over all launched attempts; unstarted distinct from ungraded; small descriptive screen, no non-inferiority claim",
+  "arms": [
+    "loop-b8a4046",
+    "speed2",
+    "api-replay",
+    "api-batch",
+    "api-answer-end",
+    "wall-http2",
+    "wall-h1reuse"
+  ],
+  "attestation": {
+    "binaries": {
+      "${LANES_CONFIRM_DIR}/bin/loop-b8a4046": "611cbb9d47b3fb2e8e7cd9f3575ee7bd32f31e138b046bac73812b308865a817",
+      "${LANES_CONFIRM_DIR}/bin/scr-api-answer-end-kogen-loop": "010b198642a6b862bdd524921f68c2c5314df55d0d7180378dabbf705769244a",
+      "${LANES_CONFIRM_DIR}/bin/scr-api-batch-kogen-loop": "005db43be8a3f21bba9ea3b9e734b422609d593afb92fa362a3c0509b2dec8f9",
+      "${LANES_CONFIRM_DIR}/bin/scr-api-replay-kogen-loop": "586f0314107a42736636bf30a69b3afa3eb31319de9fe837394a586046444eae",
+      "${LANES_CONFIRM_DIR}/bin/scr-speed2-kogen-loop": "d8a591294305d726cc01d8d980bd85f55241e48968ddfca454683556ab37852d",
+      "${LANES_CONFIRM_DIR}/bin/scr-wall-h1reuse-kogen-loop": "27b1aae41144efa6e8aae1c00652404d4392110fe688d662ff1726dfd9ca5798",
+      "${LANES_CONFIRM_DIR}/bin/scr-wall-http2-kogen-loop": "c75de33432722e7993eac5afce07a76b4db4cc7447196430b6e6cc7873cd59ae"
+    },
+    "cache": "9a94f2d15ab02ee54caf21b06e7cde2956682e6c9308b4280442b44795aa48df",
+    "driver": "3d7bb08538b2af6b81c5a2c36e98735c57e15cc03eceb4226e8f57a5e9e5adaf",
+    "extension": "62ae664a07edbe6f0d49390c20fd8909d67cee4ca45996c5a6aa517e14eecb23",
+    "grader_source": "209a554ca9c30135093627c6acf19a93b4116520f51447de35129551052cce30",
+    "harness": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+    "loop_source": "0907e43616d28efded8180b441a32e44c6c28087e16999fd097a634b287a455f",
+    "shell_wrapper": "3534b441c1ef5b3e6ecefac907a649a326b732610a3acd59ba7db8b8cbf9d7ae",
+    "tasks": {
+      "artifact-go": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "cron-go": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "r70-1-go": "4dfe84ccd4a6bd5ef194e208f9c5e839968adf53a0557adbf9f2427dc560ee81",
+      "readtime-go": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "vm-go": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049"
+    }
+  },
+  "cache": "identical dedicated prebuilt standard-library GOCACHE snapshot restored before every cell; no hidden-test artifacts",
+  "cap_usd": 5,
+  "cell_deadline": "default 3600s, shortened only to existing lease expiry minus 30s; no cell starts with less than 600s remaining",
+  "cells": [
+    {
+      "arm": "api-batch",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop-b8a4046",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "api-answer-end",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "wall-h1reuse",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "speed2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "wall-http2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "api-replay",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "api-replay",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop-b8a4046",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "api-batch",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "api-answer-end",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "speed2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "wall-http2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "wall-h1reuse",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "api-answer-end",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop-b8a4046",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "api-replay",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "wall-http2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "speed2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "api-batch",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "wall-h1reuse",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "wall-h1reuse",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "wall-http2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "speed2",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "api-batch",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "api-replay",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop-b8a4046",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "api-answer-end",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    }
+  ],
+  "containment": "outer bubblewrap mount/user/PID/IPC/UTS namespaces, only workspace and read-only toolchains; credentials external; generated shell tools enter nested user/PID/network namespace; Codex internal sandbox replaced by identical external boundary",
+  "dry": [
+    {
+      "arm": "api-replay",
+      "rep": 1,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    },
+    {
+      "arm": "api-batch",
+      "rep": 1,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    },
+    {
+      "arm": "api-answer-end",
+      "rep": 1,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    },
+    {
+      "arm": "wall-http2",
+      "rep": 1,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    },
+    {
+      "arm": "wall-h1reuse",
+      "rep": 1,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    }
+  ],
+  "effort": "high",
+  "exposure_limit": "current specs/results audited on Studio, MacBook, EU and EU2; prior laptop inventory reused because host unreachable; historical overwritten specs not recoverable",
+  "files_sha256": {
+    "bin/loop-b8a4046": "611cbb9d47b3fb2e8e7cd9f3575ee7bd32f31e138b046bac73812b308865a817",
+    "confirmation_ext.py": "62ae664a07edbe6f0d49390c20fd8909d67cee4ca45996c5a6aa517e14eecb23",
+    "harness/lanes_bare.py": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+    "harness/pubmetrics.py": "855caee0129e9cc856c7bedbee088032f53174546939f17499129fb93e661986",
+    "run_confirmation.py": "3d7bb08538b2af6b81c5a2c36e98735c57e15cc03eceb4226e8f57a5e9e5adaf"
+  },
+  "frozen_utc": "2026-10-29T20:01:21.772072+00:00",
+  "grading": "unchanged Studio lanes grader; final-tree.tar exported and graded outside namespace",
+  "host": "Linux host, 2 cores, unprivileged benchmark user",
+  "host_lock": "research-confirm held externally; never acquire or release",
+  "instructions": "all seven loop arms shipped defaults selected by empty instruction overrides",
+  "max_output_tokens": 128000,
+  "max_request_bytes": 524288,
+  "max_upstream_retries": 0,
+  "model": "gpt-6.1-terra",
+  "order": "seeded shuffled task blocks, independently shuffled seven-arm order inside each task; one cell including grading at a time",
+  "per_cell_hard_cap_usd": "min(2.50, remaining run budget)",
+  "reuse": "confirm3 frozen assets, containment, cache and grading reused; missing logins restored after existence checks failed",
+  "route": "same external gateway and upstream Responses; api-replay native Responses; six arms frozen Chat adapter",
+  "seed": 2026102997,
+  "tasks_randomized": [
+    "cron-go",
+    "artifact-go",
+    "vm-go",
+    "readtime-go"
+  ],
+  "upstream_endpoint": "https://api.openai.com/v1/responses"
+}

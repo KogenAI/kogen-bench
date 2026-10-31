@@ -1,0 +1,92 @@
+--- a/provider/respond.go
++++ b/provider/respond.go
+@@ -619,7 +619,11 @@
+ 			}
+ 			if acc.done || acc.failure != nil {
+ 				r.so.finish("complete")
+-				return acc.finish(k.info.supergrok()), nil
++				res := acc.finish(k.info.supergrok())
++				if res.kind == resOK && k.c.HTTP == nil && resp.ProtoMajor == 1 {
++					reuseCompletedBody(resp.Body, cancel)
++				}
++				return res, nil
+ 			}
+ 		}
+ 		if rerr == io.EOF || rerr == io.ErrUnexpectedEOF {
+@@ -979,3 +983,13 @@
+ 		r.obs.Attempt(rec)
+ 	}
+ }
++
++// reuseCompletedBody gives a completed HTTP/1 stream a bounded chance to reach EOF,
++// which net/http requires for connection reuse. Only the default transport calls it:
++// cancelling its request context interrupts a blocked read. Model output was already
++// validated; trailing bytes and drain errors do not change the accepted response.
++func reuseCompletedBody(body io.Reader, cancel context.CancelFunc) {
++ timer := time.AfterFunc(time.Millisecond, cancel)
++ defer timer.Stop()
++ io.Copy(io.Discard, io.LimitReader(body, 4096))
++}
+--- /dev/null
++++ b/provider/wall_h1reuse_test.go
+@@ -0,0 +1,60 @@
++package provider
++
++import (
++ "context"
++ "io"
++ "net/http"
++ "net/http/httptest"
++ "strings"
++ "testing"
++ "time"
++)
++
++func TestWallHTTP1CompletedBodyReusesConnection(t *testing.T) {
++ peers:=make(chan string,2)
++ srv:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
++  peers<-r.RemoteAddr
++  io.WriteString(w,"data: completed\n\n")
++  w.(http.Flusher).Flush()
++ }))
++ defer srv.Close()
++ tr:=NewClient("").http().Transport.(*http.Transport)
++ defer tr.CloseIdleConnections()
++ client:=&http.Client{Transport:tr}
++ for i:=0;i<2;i++ {
++  ctx,cancel:=context.WithCancel(context.Background())
++  req,_:=http.NewRequestWithContext(ctx,"GET",srv.URL,nil)
++  resp,err:=client.Do(req)
++  if err!=nil {cancel();t.Fatal(err)}
++  if _,err=io.ReadFull(resp.Body,make([]byte,17));err!=nil {resp.Body.Close();cancel();t.Fatal(err)}
++  reuseCompletedBody(resp.Body,cancel)
++  resp.Body.Close()
++  cancel()
++ }
++ if a,b:=<-peers,<-peers;a!=b {t.Fatalf("connection changed: %s -> %s",a,b)}
++}
++
++func TestWallHTTP1OpenStreamDrainStops(t *testing.T) {
++ srv:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
++  io.WriteString(w,"data: completed\n\n")
++  w.(http.Flusher).Flush()
++  <-r.Context().Done()
++ }))
++ defer srv.Close()
++ ctx,cancel:=context.WithCancel(context.Background())
++ defer cancel()
++ req,_:=http.NewRequestWithContext(ctx,"GET",srv.URL,nil)
++ resp,err:=http.DefaultClient.Do(req)
++ if err!=nil {t.Fatal(err)}
++ defer resp.Body.Close()
++ if _,err=io.ReadFull(resp.Body,make([]byte,17));err!=nil {t.Fatal(err)}
++ done:=make(chan struct{})
++ go func(){reuseCompletedBody(resp.Body,cancel);close(done)}()
++ select {case <-done:case <-time.After(time.Second):t.Fatal("completed open stream drain blocked")}
++}
++
++func TestWallHTTP1DrainBound(t *testing.T) {
++ body:=strings.NewReader(strings.Repeat("x",8192))
++ reuseCompletedBody(body,func(){})
++ if body.Len()!=4096 {t.Fatalf("remaining = %d",body.Len())}
++}

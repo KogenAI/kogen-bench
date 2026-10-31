@@ -1,0 +1,173 @@
+{
+  "analysis": "all attempts retained, no automatic replacement; per-task arithmetic means over two reps; repeat stratum separately; medians and nearest-rank p90 over graded launched attempts; cost/pass and tokens/pass over all launched attempts; unstarted distinct from ungraded; small descriptive confirmation, no non-inferiority claim",
+  "attestation": {
+    "binaries": {
+      "${CODEX_BIN_DIR}/codex": "c06a67fd8ac76508dc78bd99ce20c9f317b8d568beda59485f3f4134df9962d5",
+      "${CODEX_BIN_DIR}/codex-code-mode-host": "522935d4392ec9674fab60b239b5495992c6a93e4deb65113a216b6f5451ccd4",
+      "${LANES_CONFIRM_DIR}/bin/loop-b8a4046": "611cbb9d47b3fb2e8e7cd9f3575ee7bd32f31e138b046bac73812b308865a817"
+    },
+    "cache": "9a94f2d15ab02ee54caf21b06e7cde2956682e6c9308b4280442b44795aa48df",
+    "driver": "b4a92d86816445aa8885bb4dbdbabc670dff7010d9f5403d916550d3f9c5acd9",
+    "extension": "6ef0a21a68b133f8a19e358c23ce7f2f1904d26e35a17c95db8639712e0e3e1f",
+    "grader_source": "209a554ca9c30135093627c6acf19a93b4116520f51447de35129551052cce30",
+    "harness": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+    "loop_source": "0907e43616d28efded8180b441a32e44c6c28087e16999fd097a634b287a455f",
+    "shell_wrapper": "3534b441c1ef5b3e6ecefac907a649a326b732610a3acd59ba7db8b8cbf9d7ae",
+    "tasks": {
+      "artifact-go": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "cron-go": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "r70-1-go": "4dfe84ccd4a6bd5ef194e208f9c5e839968adf53a0557adbf9f2427dc560ee81",
+      "readtime-go": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "vm-go": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049"
+    }
+  },
+  "cache": "identical dedicated prebuilt standard-library GOCACHE snapshot restored before every cell; no hidden-test artifacts",
+  "cap_usd": 15,
+  "cell_deadline": "default 3600s, shortened only to existing lease expiry minus 30s; no cell starts with less than 600s remaining",
+  "cells": [
+    {
+      "arm": "loop",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "cron-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "vm-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 2,
+      "stratum": "counted",
+      "task": "vm-go"
+    }
+  ],
+  "containment": "outer bubblewrap mount/user/PID/IPC/UTS namespaces, only workspace and read-only toolchains; credentials external; generated shell tools enter nested user/PID/network namespace; Codex internal sandbox replaced by identical external boundary",
+  "dry": [
+    {
+      "arm": "loop",
+      "rep": 3,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    },
+    {
+      "arm": "codex",
+      "rep": 3,
+      "stratum": "dry",
+      "task": "r70-1-go"
+    }
+  ],
+  "effort": "high",
+  "exposure_limit": "current specs/results audited on Studio, MacBook, EU and EU2; prior laptop inventory reused because host unreachable; historical overwritten specs not recoverable",
+  "files_sha256": {
+    "bin/loop-b8a4046": "611cbb9d47b3fb2e8e7cd9f3575ee7bd32f31e138b046bac73812b308865a817",
+    "confirmation_ext.py": "6ef0a21a68b133f8a19e358c23ce7f2f1904d26e35a17c95db8639712e0e3e1f",
+    "harness/lanes_bare.py": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+    "harness/pubmetrics.py": "855caee0129e9cc856c7bedbee088032f53174546939f17499129fb93e661986",
+    "run_confirmation.py": "b4a92d86816445aa8885bb4dbdbabc670dff7010d9f5403d916550d3f9c5acd9"
+  },
+  "frozen_utc": "2026-10-29T18:04:41.182639+00:00",
+  "grading": "unchanged Studio lanes grader; final-tree.tar exported and graded outside namespace",
+  "host": "Linux host, 2 cores, unprivileged benchmark user",
+  "host_lock": "research-confirm held externally; never acquire or release",
+  "infrastructure_pilots": [
+    "dry/cells/r70-1-go/r1/loop: adapter idle and grader staging; receipts retained",
+    "dry/cells/r70-1-go/r1/codex: missing code-mode helper and gateway serialization; receipts retained",
+    "dry/cells/r70-1-go/r2/loop and codex: pre-final runtime/byte guard; both archives pass, Codex completion guard hit; receipts retained"
+  ],
+  "instructions": "loop shipped DefaultInstructions (instructions empty); Codex shipped instructions, user config and rules ignored",
+  "max_output_tokens": 128000,
+  "max_request_bytes": 524288,
+  "max_upstream_retries": 0,
+  "model": "gpt-6.1-terra",
+  "per_cell_hard_cap_usd": 2.5,
+  "route": "frozen external authentication gateway; loop shipped openai-compatible Chat wire translated to Responses; Codex Responses passthrough",
+  "seed": 20261029,
+  "tasks_randomized": [
+    "cron-go",
+    "readtime-go",
+    "artifact-go",
+    "vm-go"
+  ],
+  "upstream_endpoint": "https://api.openai.com/v1/responses"
+}

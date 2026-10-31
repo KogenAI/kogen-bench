@@ -1,0 +1,43 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home",
+  "id": "h2h-26-dry",
+  "tasks": [
+    "artifact-go"
+  ],
+  "reps": 1,
+  "arms": [
+    {
+      "name": "loop-default",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "speed2",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-speed2",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "pi-terra-high",
+      "arm": "pi",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "pi_bin": "~/bin/pi"
+    },
+    {
+      "name": "opencode-terra-high",
+      "arm": "opencode",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "opencode_bin": "~/bin/opencode"
+    }
+  ]
+}

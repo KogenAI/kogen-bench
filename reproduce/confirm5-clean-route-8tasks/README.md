@@ -28,9 +28,15 @@ Both tools reached `https://api.openai.com/v1/responses` at the standard service
 
 ## Rerun
 
-This round cannot be rerun from this repository with one command. The driver that ran it (two tools, two efforts, 32 runs) is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
+The driver that ran the 32 cells, its frozen protocol and the preparation and analysis scripts are in [`lanes/confirm-eu-wide-20261029/`](../../lanes/confirm-eu-wide-20261029/) (README there). The harness underneath is `lanes/bare/` with the same-key gateway extension of [`lanes/confirm-eu/`](../../lanes/confirm-eu/). With your own task kits (the eight in [tasks.txt](tasks.txt)), the two tool builds and an OpenAI API key, run:
 
-Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). One full pass is 32 runs and cost about $5.74 at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
+```sh
+python3 -I lanes/confirm-eu-wide-20261029/prepare_wide.py
+python3 -I lanes/confirm-eu-wide-20261029/run_confirmation.py preflight
+python3 -I lanes/confirm-eu-wide-20261029/run_confirmation.py cell --index 0
+```
+
+Run `cell --index N` for N = 0 to 31 in order. The task kits (start trees, hidden tests and scenarios) stay private until the Kogen hill-climb ends; no date is set. A rerun also needs Linux with Bubblewrap, Go 1.27.2, the host lease file the driver checks, and your own OpenAI API key (the same key for every tool). The README of the driver explains the environment variables and the budget cap to raise before running all 32. Checked 31 October 2026 with a stand-in round directory and no model call: the files compile and `--help` prints `preflight`, `counted` and `cell`; the preparation, preflight and cells were not run. One full pass is 32 runs and cost about $5.74 at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

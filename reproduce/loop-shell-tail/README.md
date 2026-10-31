@@ -40,15 +40,16 @@ Experimental loop variants from the same rounds (speed2 and others) are excluded
 
 ## Rerun
 
-These are historical runs. The subscription rounds were run with the patch-lanes tools in `lanes/bin/`. The experiment files of these subscription rounds (h2h-21, h2h-22, h2h-24 and h2h-29) are on the runner hosts and are not published; the nearest published specification on the same route is [`h2h30-sub-route-tokens/batch.json`](../h2h30-sub-route-tokens/batch.json). So these steps need an `experiment.json` you write yourself in the format in `lanes/FORMATS.md` (same tasks, lanes, repetitions and hosts as the round you want to repeat), a `hosts.json` for your own machines, and the private task folder:
+The subscription rounds were run with `lanes/bare/lanes_bare.py batch`. Their four experiment files are published in [`experiments/`](experiments/): `h2h-21.json` (MacBook runner; 24 broad tasks, high and medium effort, loop, `speed2` and Codex), `h2h-22.json` (Studio runner; the six `kogen-*` hard tasks, high), `h2h-24.json` and `h2h-29.json` (Studio runner; the 24 broad tasks, medium). The binary, home and task paths are placeholders in the style of [`h2h30-sub-route-tokens/batch.json`](../h2h30-sub-route-tokens/batch.json): `~/bin/kogen-loop` is loop `b8a4046`, `~/bin/kogen-loop-speed2` is `b8a4046` plus [`patches/speed2.diff`](../api-patch-screen-2nd-host/patches/speed2.diff), `~/bin/codex` is Codex 0.165.0, with their ChatGPT logins under `~/kogen-home` and `~/codex-home`, and `tasks_dir` is `tasks`. Run one with a task folder that holds the tasks named in the file. The task kits (start trees, hidden tests and scenarios) stay private until the Kogen hill-climb ends; no date is set. For example:
 
 ```sh
-lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-export "$RUN" --round-id "$ROUND" --out "$OUT" --tasks "$TASKS"
+python3 lanes/bare/lanes_bare.py batch reproduce/loop-shell-tail/experiments/h2h-24.json --tasks "$TASKS" --run-dir "$RUN" --slots 1
+python3 lanes/bare/lanes_bare.py summary "$RUN"
 ```
 
-Checked 30 October 2026: `--help` of `lanes-plan`, `lanes-run`, `lanes-grade` and `lanes-export` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory; no cell was run. After a rerun, run the analysis below on the exported rows.
+The tables of this pack come from the extraction in [`extract/`](extract/): `analyze.py` reads each run's `result.json`, `events.jsonl`, `final.diff` and `prompt.md` from a snapshot directory laid out as `<round>/cells/<task>/r<rep>/<arm>/` (`SHELLTAIL_SNAPSHOT`), finds loop shell commands by hashing candidate command strings (the candidate generator is in that file, lines 100 to 140) against each call's argument hash, and `report.py` writes the tables (`SHELLTAIL_OUT`). The 81 decoded loop commands are in [`extract/decoded-commands.jsonl`](extract/decoded-commands.jsonl): command text, argument hash, quantized seconds, result bytes. The event logs of the original runs hold raw tool output and are kept private ([`PRIVATE.md`](../../PRIVATE.md)); a rerun produces its own. Checked 31 October 2026: `analyze.py` and `report.py` compile, `analyze.py` runs on an empty snapshot directory, and the four experiment files load as JSON with the task and arm counts above. `lanes_bare.py batch` was not run on them. After a rerun, the analysis below runs on the rows you export.
 
-The two API rounds in this analysis (high and medium effort, the first EU same-key rounds of 29 October) were run with the drivers published in [`lanes/confirm-eu-20261029/`](../../lanes/confirm-eu-20261029/run_confirmation.py) (high) and [`lanes/confirm-eu-20261029/medium/`](../../lanes/confirm-eu-20261029/medium/run_confirmation.py) (medium), with host paths read from `LANES_CONFIRM_DIR`, `CODEX_BIN_DIR`, `LANES_GOROOT` and `LANES_NODEROOT`. Each takes `preflight`, `dry-*` and `counted` modes; checked 31 October 2026, with a stand-in round directory and no model call, that `python3 -I lanes/confirm-eu-20261029/run_confirmation.py --help` (and the `medium/` one) prints those modes. A real run needs the round directory layout of [`lanes/confirm-eu/README.md`](../../lanes/confirm-eu/README.md), the private task kits, and a Linux host that holds the lease file the driver checks; see [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/) for what can and cannot be rerun. A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
+The two API rounds in this analysis (high and medium effort, the first EU same-key rounds of 29 October) were run with the drivers published in [`lanes/confirm-eu-20261029/`](../../lanes/confirm-eu-20261029/run_confirmation.py) (high) and [`lanes/confirm-eu-20261029/medium/`](../../lanes/confirm-eu-20261029/medium/run_confirmation.py) (medium), with host paths read from `LANES_CONFIRM_DIR`, `CODEX_BIN_DIR`, `LANES_GOROOT` and `LANES_NODEROOT`. Each takes `preflight`, `dry-*` and `counted` modes; checked 31 October 2026, with a stand-in round directory and no model call, that `python3 -I lanes/confirm-eu-20261029/run_confirmation.py --help` (and the `medium/` one) prints those modes. A real run needs the round directory layout of [`lanes/confirm-eu/README.md`](../../lanes/confirm-eu/README.md), the private task kits, and a Linux host that holds the lease file the driver checks; see [`reproduce/confirm5-clean-route-8tasks/`](../confirm5-clean-route-8tasks/) for the same setup with its driver and the steps. A rerun needs Linux, Bubblewrap, the task dependencies, and your own ChatGPT login (subscription rounds) or OpenAI API key (API rounds). Fresh runs will differ run by run; only the method carries over.
 
 ## Reproduce the numbers
 
@@ -66,14 +67,16 @@ Verified 30 Oct 2026: the script reproduces every computed table in the publishe
 - Repeated identical loop shells across the 104 pairs: 7 calls, 7 s, 5,019 bytes.
 - The witness calls are visible as `results.csv` rows: the first whole-module test on expr-seqfuncs-go (h2h-21 high) took 166 s / 3,694 bytes; on toml-required-go (h2h-29) it took 47 s / 1,134 bytes.
 
-The script does not reproduce three kinds of number, because they need private material that is not shipped:
+The script does not reproduce three kinds of number, because they need the original event logs:
 
 - Policy and tool-schema fingerprints (379 bytes and 974 attempts; 2,254 bytes).
 - The count of 73 distinct recovered hashes across all 531 parsed runs, which includes runs outside these pairs.
-- The candidate list used to recover command text: that list contains raw commands, and loop argument hashes are not published.
+- The recovery of the other command text: the candidate generator is in `extract/analyze.py`, but it needs the original event logs (see Rerun), so the per-run matching can be repeated only on a rerun's own logs. The 81 matches themselves are in `extract/decoded-commands.jsonl`.
 
 ## Files
 
+- `experiments/`: the batch files of rounds h2h-21, h2h-22, h2h-24 and h2h-29 (paths are placeholders).
+- `extract/`: `analyze.py` and `report.py` (the extraction from run snapshots) and `decoded-commands.jsonl` (the 81 decoded loop commands).
 - `runs.csv`: one row per run (232 rows). The template columns come first, followed by:
   - `round`
   - `tail` (loop rows)

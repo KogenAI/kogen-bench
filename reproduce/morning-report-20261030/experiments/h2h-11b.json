@@ -1,0 +1,40 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "claude_token_home": "~/kogen-home",
+  "loop_bin": "~/bin/kogen-loop",
+  "id": "h2h-11b",
+  "tasks": [
+    "bytefmt-go",
+    "csvq-go",
+    "decround-go",
+    "isocal-go",
+    "jobq-go",
+    "patchapply-go",
+    "semrange-go",
+    "shardpool-go",
+    "spans-go",
+    "tally-commodities-go",
+    "tokenbucket-go",
+    "urlnorm-go",
+    "wrapcol-go"
+  ],
+  "reps": 2,
+  "arms": [
+    {
+      "name": "loop-sonnet-medium",
+      "arm": "loop",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "home": "~/kogen-home"
+    },
+    {
+      "name": "cc-sonnet-medium",
+      "arm": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium"
+    }
+  ]
+}

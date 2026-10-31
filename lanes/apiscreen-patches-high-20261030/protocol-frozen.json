@@ -1,0 +1,211 @@
+{
+  "arms": {
+    "api-answer-end": {
+      "binary": "${LANES_PATCHED_BIN_DIR}/scr-api-answer-end-kogen-loop",
+      "instructions": "shipped default"
+    },
+    "api-batch": {
+      "binary": "${LANES_PATCHED_BIN_DIR}/scr-api-batch-kogen-loop",
+      "instructions": "shipped default"
+    },
+    "api-replay": {
+      "binary": "${LANES_PATCHED_BIN_DIR}/scr-api-replay-kogen-loop",
+      "instructions": "shipped default"
+    },
+    "speed2": {
+      "binary": "${LANES_CONFIRM_DIR}/bin/scr-speed2-kogen-loop",
+      "instructions": "shipped default"
+    }
+  },
+  "attestation": {
+    "binaries": {
+      "api-answer-end": "010b198642a6b862bdd524921f68c2c5314df55d0d7180378dabbf705769244a",
+      "api-batch": "005db43be8a3f21bba9ea3b9e734b422609d593afb92fa362a3c0509b2dec8f9",
+      "api-replay": "586f0314107a42736636bf30a69b3afa3eb31319de9fe837394a586046444eae",
+      "speed2": "d8a591294305d726cc01d8d980bd85f55241e48968ddfca454683556ab37852d"
+    },
+    "cache": "5a319bfdaac6d1524c7a012da25f269d3d2793e11ae2aba7e8aff1ba8d3df6cc",
+    "driver": "93fe1185efec64b2939149d458ace63791cef793cbb9cc352836d4ee3705c395",
+    "extension": "d9b4b488826c4349d585abb9b98995d56b1426fdc37580efba2fde11e97d1df7",
+    "grader_source": "209a554ca9c30135093627c6acf19a93b4116520f51447de35129551052cce30",
+    "harness": {
+      "lanes-bare.sh": "1cd71c4936eaf7dffbcdb1cdb40669e63bbc62626c1885131b57ea8fc94208d7",
+      "lanes_bare.py": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+      "paired.py": "044bc35d50bb8cf2c77ec943534dd2dbcc8d13f70d078d98f30a653f9434a989",
+      "pubagg.py": "614fc8c908e5dee0d7c5f343f1cdc20966edeace2369b5e0111800599acd74ee",
+      "pubmetrics.py": "855caee0129e9cc856c7bedbee088032f53174546939f17499129fb93e661986"
+    },
+    "tasks": {
+      "artifact-go": "d4e301996a20219aff2e65a40087d12d8dedfb434f6734a5dadf9e50ad4c2fe0",
+      "cron-go": "38ec37673a4aa7e427030eae75c7ddc2b2d3877aa1d4b26215e0aed6e6d33c5c",
+      "readtime-go": "f8d6c2706efe613ee73bf373b9f77d57752e4017156476078d19df51fd9c6a46",
+      "vm-go": "cd305db723e382952504e27a9560d00f27eda010dda4a8b75528665237557049"
+    }
+  },
+  "cache": "EU standard-library Go cache snapshot, restored before each cell",
+  "cap_usd": 3.0,
+  "cell_order": "one cell at a time; arms interleaved and randomized within each task; one rep",
+  "cells": [
+    {
+      "arm": "loop",
+      "lane": "api-batch",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-replay",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "speed2",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-answer-end",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "cron-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-answer-end",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-replay",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "speed2",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-batch",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "vm-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-answer-end",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "speed2",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-replay",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-batch",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "artifact-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-answer-end",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-batch",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "speed2",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "readtime-go"
+    },
+    {
+      "arm": "loop",
+      "lane": "api-replay",
+      "rep": 1,
+      "stratum": "patches-high",
+      "task": "readtime-go"
+    }
+  ],
+  "containment": "frozen API screen bubblewrap boundary and negative probe before every cell",
+  "effort": "high",
+  "frozen_utc": "2026-10-30T04:36:35.188068+00:00",
+  "grading": "copied unchanged EU lanes grader; final-tree archive graded outside agent namespace",
+  "host": "Linux laptop, unprivileged benchmark user",
+  "host_lock": "research-apiscreen held by owner; this worker neither acquired nor released it",
+  "instructions": "shipped default for all four binaries",
+  "model": "gpt-6.1-terra",
+  "request_reservation_policy": "before every upstream request, reserve its conservative maximum against cumulative patch-pass spend and the $3 cap",
+  "route": "external gateway to OpenAI Responses; default service tier; zero upstream retries",
+  "seed": 20261030,
+  "tasks_randomized": [
+    {
+      "arms": [
+        "api-batch",
+        "api-replay",
+        "speed2",
+        "api-answer-end"
+      ],
+      "task": "cron-go"
+    },
+    {
+      "arms": [
+        "api-answer-end",
+        "api-replay",
+        "speed2",
+        "api-batch"
+      ],
+      "task": "vm-go"
+    },
+    {
+      "arms": [
+        "api-answer-end",
+        "speed2",
+        "api-replay",
+        "api-batch"
+      ],
+      "task": "artifact-go"
+    },
+    {
+      "arms": [
+        "api-answer-end",
+        "api-batch",
+        "speed2",
+        "api-replay"
+      ],
+      "task": "readtime-go"
+    }
+  ]
+}

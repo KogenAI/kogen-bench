@@ -1,0 +1,60 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home",
+  "id": "h2h-24",
+  "tasks": [
+    "artifact-go",
+    "cadence-go",
+    "cron-go",
+    "deps-go",
+    "expr-seqfuncs-go",
+    "heatcal-go",
+    "inventory-go",
+    "ledger-go",
+    "logq-go",
+    "moneyledger-go",
+    "pool-go",
+    "r70-1-go",
+    "r70-4-go",
+    "r70-5-go",
+    "r70-7-go",
+    "rate-go",
+    "readtime-go",
+    "splitter-go",
+    "sync3-go",
+    "tally-periodic-go",
+    "tengo-power-go",
+    "tengo-switch-go",
+    "toml-required-go",
+    "vm-go"
+  ],
+  "reps": 1,
+  "arms": [
+    {
+      "name": "loop-default-medium",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "medium"
+    },
+    {
+      "name": "speed2-medium",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-speed2",
+      "model": "gpt-6.1-terra",
+      "effort": "medium"
+    },
+    {
+      "name": "codex-terra-medium",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "codex_bin": "~/bin/codex",
+      "codex_home": "~/codex-home"
+    }
+  ]
+}

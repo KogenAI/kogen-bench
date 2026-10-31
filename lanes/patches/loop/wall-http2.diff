@@ -1,0 +1,53 @@
+--- a/provider/client.go
++++ b/provider/client.go
+@@ -84,6 +84,7 @@
+ 			DialContext:         (&net.Dialer{Timeout: 30 * time.Second}).DialContext,
+ 			TLSHandshakeTimeout: 30 * time.Second,
+ 			DisableCompression:  true,
++			ForceAttemptHTTP2:   true,
+ 			MaxIdleConnsPerHost: 4,
+ 			IdleConnTimeout:     90 * time.Second,
+ 		}}
+--- /dev/null
++++ b/provider/wall_http2_test.go
+@@ -0,0 +1,40 @@
++package provider
++
++import (
++ "crypto/tls"
++ "crypto/x509"
++ "io"
++ "net/http"
++ "net/http/httptest"
++ "testing"
++)
++
++// The response stays open after its terminal event, as a provider stream may.
++// Closing that stream must retain the HTTP/2 connection for the next request.
++func TestWallHTTP2ReusesOpenStreamConnection(t *testing.T) {
++ peers := make(chan string, 2)
++ srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++  if r.ProtoMajor != 2 { t.Errorf("protocol = %s", r.Proto) }
++  peers <- r.RemoteAddr
++  io.WriteString(w, "data: completed\n\n")
++  w.(http.Flusher).Flush()
++  <-r.Context().Done()
++ }))
++ srv.EnableHTTP2 = true
++ srv.StartTLS()
++ defer srv.Close()
++ tr := NewClient("").http().Transport.(*http.Transport).Clone()
++ defer tr.CloseIdleConnections()
++ roots := x509.NewCertPool()
++ roots.AddCert(srv.Certificate())
++ tr.TLSClientConfig = &tls.Config{RootCAs: roots}
++ client := &http.Client{Transport: tr}
++ for i:=0; i<2; i++ {
++  resp,err := client.Get(srv.URL)
++  if err != nil { t.Fatal(err) }
++  if resp.ProtoMajor != 2 { resp.Body.Close(); t.Fatalf("protocol = %s", resp.Proto) }
++  if _,err=io.ReadFull(resp.Body,make([]byte,17));err!=nil {resp.Body.Close();t.Fatal(err)}
++  resp.Body.Close()
++ }
++ if a,b:=<-peers,<-peers;a!=b {t.Fatalf("connection changed: %s -> %s",a,b)}
++}

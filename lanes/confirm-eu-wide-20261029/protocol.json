@@ -1,0 +1,338 @@
+{
+  "amendments": [
+    {
+      "all_eight_tasks_both_clients_preflight_passed": true,
+      "existing_four_model_cells_retained": true,
+      "incident": "positive-probe-incident.json",
+      "prior_protocol_sha256": "53f515666964c22ddc6ccb3c7455211155e6da3c2b918bd44e99a26b9da1b2d0",
+      "reason": "Inherited positive workspace probe required Makefile, absent in sh-globopts. All containment denials passed. No model process or API request started.",
+      "scope": "Positive workspace check reads nonempty go.mod; all read/network denials and actual namespace mounts unchanged. No task, evaluator, cache, prompt, arm, order, timeout, model or spend limit changed.",
+      "zero_inference_setup_abort_archived": "${LANES_CONFIRM_DIR}/infrastructure-prelaunch/cells/sh-globopts-go/r1/loop-high"
+    }
+  ],
+  "analysis": "One repetition. All counted attempts retained. Median and nearest-rank p90 over graded launched cells, failure included. U/C/O tokens and USD per pass use all counted attempts in numerators. Pair loop versus Codex within task and effort; exact two-sided sign test on nonzero wall/cost differences and discordant grades, ties removed. Descriptive selected Go task sample; no general equivalence or non-inferiority claim.",
+  "arms": [
+    "loop-medium",
+    "codex-medium",
+    "loop-high",
+    "codex-high"
+  ],
+  "attestation": {
+    "binaries": {
+      "${CODEX_BIN_DIR}/codex": "c06a67fd8ac76508dc78bd99ce20c9f317b8d568beda59485f3f4134df9962d5",
+      "${CODEX_BIN_DIR}/codex-code-mode-host": "522935d4392ec9674fab60b239b5495992c6a93e4deb65113a216b6f5451ccd4",
+      "${LANES_CONFIRM_DIR}/bin/loop-b8a4046": "611cbb9d47b3fb2e8e7cd9f3575ee7bd32f31e138b046bac73812b308865a817"
+    },
+    "cache": "9a94f2d15ab02ee54caf21b06e7cde2956682e6c9308b4280442b44795aa48df",
+    "driver": "3069ae65793a960572cc491cca2bf233e60c1c94448c85c91de544a512f7522a",
+    "extension": "d659a61af9190913c65ca38b85a229ac350a0f48c70691bbf03701046839bfb9",
+    "grader_source": "209a554ca9c30135093627c6acf19a93b4116520f51447de35129551052cce30",
+    "harness": "9744637db945c7d897918a970524087586c21e5323394bc8bf0edc417448c99a",
+    "loop_source": "0907e43616d28efded8180b441a32e44c6c28087e16999fd097a634b287a455f",
+    "shell_wrapper": "3534b441c1ef5b3e6ecefac907a649a326b732610a3acd59ba7db8b8cbf9d7ae",
+    "tasks": {
+      "expr-match-go": "5d9fb1437be1aee8285090d2e19651a01c39705bbb306bc498c0cae1ca510686",
+      "goldmark-callouts-go": "1611c53f8d964a458160573deacf9b46d05684b98dfb29005914996f95ea3d9e",
+      "heatcal-go": "9bab90f461014719390649f034b18017c7003cd14d6cbfbf6366a84d00ac6268",
+      "inventory-go": "21c71729f5c18b404b427e7647550443f498b42164ef0f4ff2d42300afc4e30e",
+      "ledger-go": "5926a0956d971698a595968a6b78556d84610b2d097a87e8acf3d271c80380ef",
+      "logq-go": "e9c35cce119492bb69c4aef1fa6617742ada15e868f4f773e82845b9f703ab85",
+      "sh-globopts-go": "8bc4cc08d1fb9be8f666df31ab2efea197c160b9766a7b94f11286a249ef5914",
+      "sync3-go": "d82a42f93d601240ea36eda715466a2b668d892e8279930e6bcf7b007086e547"
+    }
+  },
+  "cache": "identical dedicated prebuilt standard-library GOCACHE snapshot restored before every cell; no hidden-test artifacts",
+  "cap_usd": 7,
+  "cell_deadline": "default 3600s, shortened only to existing lease expiry minus 30s; no cell starts with less than 600s remaining",
+  "cells": [
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "logq-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "logq-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "logq-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "logq-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sh-globopts-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sh-globopts-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sh-globopts-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sh-globopts-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "expr-match-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "expr-match-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "expr-match-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "expr-match-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "goldmark-callouts-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "goldmark-callouts-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "goldmark-callouts-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "goldmark-callouts-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "inventory-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "inventory-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "inventory-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "inventory-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "ledger-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "ledger-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "ledger-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "ledger-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "heatcal-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "heatcal-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "heatcal-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "heatcal-go"
+    },
+    {
+      "arm": "codex-high",
+      "client": "codex",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sync3-go"
+    },
+    {
+      "arm": "loop-high",
+      "client": "loop",
+      "effort": "high",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sync3-go"
+    },
+    {
+      "arm": "loop-medium",
+      "client": "loop",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sync3-go"
+    },
+    {
+      "arm": "codex-medium",
+      "client": "codex",
+      "effort": "medium",
+      "rep": 1,
+      "stratum": "counted",
+      "task": "sync3-go"
+    }
+  ],
+  "containment": "outer bubblewrap mount/user/PID/IPC/UTS namespaces, only workspace and read-only toolchains; credentials external; generated shell tools enter nested user/PID/network namespace; Codex internal sandbox replaced by identical external boundary",
+  "dry": [],
+  "efforts": [
+    "medium",
+    "high"
+  ],
+  "exposure_limit": "Eight user-selected inherited kits, not claimed fresh or randomly sampled. One rep cannot establish within-task variance. Efforts interleaved; provider cache remains observable.",
+  "frozen_utc": "2026-10-30T05:00:22.187331+00:00",
+  "grading": "unchanged Studio lanes grader; final-tree.tar exported and graded outside namespace",
+  "host": "Linux host, 2 cores, unprivileged benchmark user",
+  "host_lock": "research-confirm held externally; never acquire or release",
+  "instructions": "loop shipped DefaultInstructions (instructions empty); Codex shipped instructions, user config and rules ignored",
+  "max_output_tokens": 128000,
+  "max_request_bytes": 524288,
+  "max_upstream_retries": 0,
+  "model": "gpt-6.1-terra",
+  "order": "seeded shuffled task blocks and Williams four-arm rows; at eight tasks every arm occupies each position twice and every directed adjacency twice; one cell including grading at a time",
+  "per_cell_hard_cap_usd": "min(2.50, remaining $7 run budget)",
+  "qualification": "Fresh reference and all wrong trees with inherited evaluator; reference must pass exact expected ids, each wrong must fail requested tests without infrastructure errors; drop failing tasks.",
+  "reuse": "Original confirmation extension, harness, binaries, source, cache and grader; run root, effort gate and budget parameterized; medium-run process ownership recorder reused; each scheduled cell is invoked separately so local ledger synchronization precedes the next cell; logins restored using each tool real stdin login if absent.",
+  "route": "frozen external authentication gateway; loop shipped openai-compatible Chat wire translated to Responses; Codex Responses passthrough",
+  "seed": 2026102908,
+  "tasks_randomized": [
+    "logq-go",
+    "sh-globopts-go",
+    "expr-match-go",
+    "goldmark-callouts-go",
+    "inventory-go",
+    "ledger-go",
+    "heatcal-go",
+    "sync3-go"
+  ],
+  "upstream_endpoint": "https://api.openai.com/v1/responses"
+}

@@ -1,0 +1,42 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home",
+  "id": "h2h-22",
+  "tasks": [
+    "kogen-loop-parallel-calls",
+    "kogen-loop-read-ledger",
+    "kogen-loop-tool-cut",
+    "kogen-review-on-demand",
+    "kogen-review-retry",
+    "kogen-shell-bound"
+  ],
+  "reps": 2,
+  "arms": [
+    {
+      "name": "loop-default",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "speed2",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-speed2",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "codex-terra-high",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "codex_bin": "~/bin/codex",
+      "codex_home": "~/codex-home"
+    }
+  ]
+}

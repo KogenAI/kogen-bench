@@ -15,13 +15,18 @@ Four tasks, one run per tool per task, 16 counted runs, one run at a time on one
 | `api-batch` | baseline plus a batched-independent-I/O instruction | gpt-6.1-terra | high | [patches/api-batch.diff](patches/api-batch.diff) |
 | `api-answer-end` | baseline plus finish tool omitted from the default terminal tools | gpt-6.1-terra | high | [patches/api-answer-end.diff](patches/api-answer-end.diff) |
 
-Each `.diff.sha256` file holds the checksum of the patch as run; the binaries were attested by hash in the protocol file before the first run. Harness: the `lanes/` bare-agent release (`lanes_bare.py` sha256 `9744637d…`) with the confirmation driver in the same-key driver (not published; see Rerun); task ids in [tasks.txt](tasks.txt) are directories under `tasks/`.
+Each `.diff.sha256` file holds the checksum of the patch as run; the binaries were attested by hash in the protocol file before the first run. Harness: the `lanes/` bare-agent release (`lanes_bare.py` sha256 `9744637d…`) with the round driver in [`lanes/apiscreen-patches-high-20261030/`](../../lanes/apiscreen-patches-high-20261030/); task ids in [tasks.txt](tasks.txt) are directories under `tasks/`.
 
 ## Rerun
 
-This round cannot be rerun from this repository with one command. The driver that ran the four patched tools is not published; the file in `lanes/confirm-eu/` is a different version, written for another round. The four patches are published in [patches/](patches/), and the checksum files show which patch each tool ran. What the repository does contain is the harness the round was built on: the bare-agent harness in `lanes/bare/`, the same-key gateway extension in `lanes/confirm-eu/confirmation_ext.py`, and `lanes/confirm-eu/run_confirmation.py`, a driver for a different round (three tools, high effort, one run per task) that shows how a round is frozen and run cell by cell: `python3 -I lanes/confirm-eu/run_confirmation.py --help`. Adapting that driver to the tools, efforts and tasks listed above is work you would have to do; no command here reproduces this round.
+The driver that ran the four patched tools and its frozen protocol are in [`lanes/apiscreen-patches-high-20261030/`](../../lanes/apiscreen-patches-high-20261030/) (`run_confirmation.py`, `confirmation_ext.py`, `protocol-frozen.json`, README with the setup). Build the four tools from kogen-loop `b8a4046` with [patches/speed2.diff](patches/speed2.diff) (the baseline) and, for each candidate, its own diff on top; then, with your own task kits (`tasks.txt`), an OpenAI API key and the variables the README names:
 
-Not rerunnable from the repository: the round driver and its frozen protocol, and the task kits with their hidden graders. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and your own OpenAI API key (the same key for every tool). The original round cost about $1.5 at list price. Wall times depend on the host and the provider on the day, so fresh values will differ.
+```sh
+python3 -I lanes/apiscreen-patches-high-20261030/run_confirmation.py prepare
+python3 -I lanes/apiscreen-patches-high-20261030/run_confirmation.py counted 0
+```
+
+`prepare` freezes the 16-cell order from seed `20261030`, and `counted N` runs cell N (0 to 15, in order) and grades it. The task kits (start trees, hidden tests and scenarios) stay private until the Kogen hill-climb ends; no date is set. A rerun also needs Linux with Bubblewrap, Go 1.27.2 and the host lease file the driver checks. Checked 31 October 2026 with a stand-in round directory and no model call: the files compile and `--help` prints the modes; `prepare` and the cells were not run. The original round cost about $1.5 at list price; wall times depend on the host and the provider on the day, so fresh values will differ.
 
 ## Reproduce the numbers
 

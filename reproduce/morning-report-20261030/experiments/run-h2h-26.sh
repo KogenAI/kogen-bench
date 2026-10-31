@@ -1,0 +1,7 @@
+#!/bin/sh
+# dry cell per arm first; the screen starts only if every dry cell reached grading
+R=${LANES_RUNS:-$HOME/bare-runs}
+sh lanes/bare/lanes-bare.sh batch h2h-26-dry.json --run-dir $R/h2h-26-dry --slots 3 > $R/h2h-26-dry.log 2>&1
+n=$(find $R/h2h-26-dry -name evaluation.json | wc -l | tr -d " ")
+[ "$n" = 4 ] || { echo "dry incomplete: $n/4 graded" >> $R/h2h-26-dry.log; exit 1; }
+exec sh lanes/bare/lanes-bare.sh batch h2h-26.json --run-dir $R/h2h-26 --slots 3 > $R/h2h-26.log 2>&1

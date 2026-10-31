@@ -1,0 +1,59 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home",
+  "id": "h2h-12f",
+  "tasks": [
+    "argvsplit-go",
+    "cadence-go",
+    "goose-labels-go",
+    "moneyledger-go",
+    "revive-baseline-go",
+    "splitter-go",
+    "task-tags-go",
+    "taskorder-go"
+  ],
+  "reps": 3,
+  "arms": [
+    {
+      "name": "loop-default",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "loop-default-medium",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "medium"
+    },
+    {
+      "name": "loop-stripped",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "loop_instructions": "stripped"
+    },
+    {
+      "name": "codex-terra-high",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "codex_home": "~/codex-home"
+    },
+    {
+      "name": "codex-terra-medium",
+      "arm": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "codex_home": "~/codex-home"
+    }
+  ]
+}

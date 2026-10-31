@@ -1,0 +1,84 @@
+{
+  "tasks_dir": "tasks",
+  "deadline_s": 3600,
+  "intent_form": "gherkin",
+  "codex_home": "~/codex-home",
+  "id": "h2h-25",
+  "tasks": [
+    "artifact-go",
+    "cadence-go",
+    "cron-go",
+    "deps-go",
+    "expr-seqfuncs-go",
+    "heatcal-go",
+    "inventory-go",
+    "ledger-go",
+    "logq-go",
+    "moneyledger-go",
+    "pool-go",
+    "r70-1-go",
+    "r70-4-go",
+    "r70-5-go",
+    "r70-7-go",
+    "rate-go",
+    "readtime-go",
+    "splitter-go",
+    "sync3-go",
+    "tally-periodic-go",
+    "tengo-power-go",
+    "tengo-switch-go",
+    "toml-required-go",
+    "vm-go"
+  ],
+  "reps": 1,
+  "arms": [
+    {
+      "name": "speed2",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-speed2",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "api-replay",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-api-replay",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "api-batch",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-api-batch",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "api-answer-end",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-api-answer-end",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "wall-http2",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-wall-http2",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    },
+    {
+      "name": "wall-h1reuse",
+      "arm": "loop",
+      "home": "~/kogen-home",
+      "loop_bin": "~/bin/kogen-loop-wall-h1reuse",
+      "model": "gpt-6.1-terra",
+      "effort": "high"
+    }
+  ]
+}

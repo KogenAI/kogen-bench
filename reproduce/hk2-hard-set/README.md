@@ -36,13 +36,20 @@ There is one planned analysis. Each task's success mean per tool is computed, an
 
 ## Rerun
 
-The comparison was planned as two host blocks (`hk2-st` and `hk2-mb`) and has not been run. The two experiment files are published, with the runner paths replaced by placeholders: [`experiments/hk2-st.experiment.json`](experiments/hk2-st.experiment.json) and [`experiments/hk2-mb.experiment.json`](experiments/hk2-mb.experiment.json). Each has six tasks (the nine tasks in [tasks.txt](tasks.txt) are split over the two blocks, three of them in both), the two arms (Kogen at `221edcb6…` and Codex alone), one repetition, a 3,600 s deadline and a $100 cap. Both load with `lanes/lanes/experiment.py` (checked 31 October 2026). The `hk_*` keys (`hk_study`, `hk_repetition_block`, `hk_codex_bin`, `hk_codex_home`) are read only by the private HK2 grading adapter, which is not published; the published `lanes/` ignores them. Set your own Codex path in the two placeholders `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}` or delete both keys. With a `hosts.json` for your machines and the private task folder (the kits stay private until the hill-climb ends), first build the two arms, then plan:
+The comparison was planned as two host blocks (`hk2-st` and `hk2-mb`) and has not been run. The two experiment files are published, with the runner paths replaced by placeholders: [`experiments/hk2-st.experiment.json`](experiments/hk2-st.experiment.json) and [`experiments/hk2-mb.experiment.json`](experiments/hk2-mb.experiment.json). Each has six tasks (the nine tasks in [tasks.txt](tasks.txt) are split over the two blocks, three of them in both), the two arms (Kogen at `221edcb6…` and Codex alone), one repetition, a 3,600 s deadline and a $100 cap. Both load with `lanes/lanes/experiment.py` (checked 31 October 2026). The `hk_*` keys (`hk_study`, `hk_repetition_block`, `hk_codex_bin`, `hk_codex_home`) are read by the alone-arm adapter and grading overlay in [`lanes/hk/`](../../lanes/hk/) (README there); the plain `lanes/` ignores them. Build the overlaid harness first, with the study id of these files, then set your own Codex path in the two placeholders `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}` (the adapter reads both from the experiment file). With a `hosts.json` for your machines and a task folder, first build the two arms, then plan and run with the overlaid tools. The task kits (start trees, hidden tests and scenarios) stay private until the Kogen hill-climb ends; no date is set.
 
 ```sh
-lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-report "$RUN"
+python3 lanes/hk/apply_overlay.py --study hardplan2-20261030 --arm codex --out "$SUPPORT"
+export HK_STUDY=hardplan2-20261030 LANES_BIN="$SUPPORT/source/lanes/bin"
 ```
 
-Checked 31 October 2026: `--help` of `lanes-build`, `lanes-plan`, `lanes-run` and `lanes-grade` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory. `lanes-plan` on the published `hk2-st` file with an empty task folder stops at "lanes.lock.json is missing in the run dir: run lanes-build first", so `lanes-build` is the first step; it was not run (it clones Kogen's public repository at `221edcb6…` and needs Go, npm and the network). No cell was run. A rerun needs the task kits with their hidden graders kept outside the agent workspace (they stay private until the hill-climb ends), Codex CLI, and your own ChatGPT login. The model deadline per run is 3600 s.
+Then:
+
+```sh
+"$LANES_BIN/lanes-build" "$EXPERIMENT" --run-dir "$RUN" && "$LANES_BIN/lanes-plan" "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && "$LANES_BIN/lanes-run" "$RUN" --tasks "$TASKS" --hosts hosts.json && "$LANES_BIN/lanes-grade" "$RUN" --tasks "$TASKS" && "$LANES_BIN/lanes-report" "$RUN"
+```
+
+Checked 31 October 2026: `lanes/hk/apply_overlay.py --study hardplan2-20261030 --arm codex` applies to the published `lanes/` and writes the overlaid tree. `--help` of `lanes-build`, `lanes-plan`, `lanes-run` and `lanes-grade` shows these arguments and exits cleanly, and `lanes-report` takes only the run directory. `lanes-plan` on the published `hk2-st` file with an empty task folder stops at "lanes.lock.json is missing in the run dir: run lanes-build first", so `lanes-build` is the first step; it was not run (it clones Kogen's public repository at `221edcb6…` and needs Go, npm and the network). No cell was run. A rerun needs the task kits with their hidden graders kept outside the agent workspace, Codex CLI, and your own ChatGPT login. The model deadline per run is 3600 s.
 
 ## Reproduce the numbers
 
