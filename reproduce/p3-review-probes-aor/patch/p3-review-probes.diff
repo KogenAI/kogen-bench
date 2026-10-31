@@ -1,0 +1,378 @@
+diff --git a/cli/build/hc_p3.go b/cli/build/hc_p3.go
+new file mode 100644
+index 0000000..039c657
+--- /dev/null
++++ b/cli/build/hc_p3.go
+@@ -0,0 +1,135 @@
++package build
++
++import (
++	"encoding/json"
++	"os"
++	"strings"
++
++	"kogen/project"
++)
++
++// Hill-climb lane patch P3 (experiment, not Kogen policy): the independent reviewer reads the
++// original request before the Intent, probes the candidate with one executed check per
++// boundary sentence of that request, and may not approve on reading alone. It is active only
++// when the approval binds a source provenance receipt (the request is known); a legacy
++// approval reviews exactly as before. Witness events: hc_p3_request_supplied,
++// hc_p3_request_missing, hc_p3_probes, hc_p3_refused.
++
++// hcP3ReviewRule is appended to the reviewer's instructions (native) and to the external
++// review task when the original request is supplied.
++const hcP3ReviewRule = "Request probes: read the original request first, before the Intent; it is the user's own text. " +
++	"Split it into boundary sentences: each sentence that sets a limit, a value, a format, an error, an ordering, a permission, " +
++	"an empty or absent case, or how the change meets existing behavior. For each boundary sentence write and run one executable " +
++	"probe against the candidate (a shell command, a focused test or a small script) and compare what you observe with the " +
++	"request's own words, not only with the Intent's restatement. Repair a demonstrated defect within the approved Intent. " +
++	"Never approve on reading alone: an approval rests on probes you ran in this review. Report each probe as a note finding " +
++	"whose message starts with \"probe: \" followed by the request sentence, the command and what you observed " +
++	"(probe: <request sentence> -> <command> -> <observed>)."
++
++// hcP3Refusal is the problem returned once for an approval without executed probes.
++const hcP3Refusal = "an approval needs probes executed in this review: for each boundary sentence of the original request run one " +
++	"probe with shell, then submit again with one note per probe whose message starts with \"probe: \""
++
++// hcP3Active reports whether P3 applies to this Build: the approval binds a source receipt.
++func (b *Attempt) hcP3Active() bool { return b.SourceProvenance != nil }
++
++// reviewInstructions are the native reviewer's instructions: the reviewer prompt, plus the
++// P3 probe rule when the original request is supplied.
++func (b *Attempt) reviewInstructions() string {
++	text := reviewerPrompt(b.onDemand())
++	if b.hcP3Active() {
++		text += "\n" + hcP3ReviewRule + "\n"
++	}
++	return text
++}
++
++// externalReviewTask is the external reviewer's task with the P3 rule when active.
++func (b *Attempt) externalReviewTask() string {
++	if b.hcP3Active() {
++		return reviewTask + "\n" + hcP3ReviewRule
++	}
++	return reviewTask
++}
++
++// hcOriginalRequest reads the exact request text from the bound receipt, after validating its
++// custody. ok is false for a legacy approval (no receipt).
++func hcOriginalRequest(ref *project.SourceRef) (text string, ok bool, err error) {
++	if ref == nil {
++		return "", false, nil
++	}
++	if err := project.ValidateSource(ref); err != nil {
++		return "", false, err
++	}
++	data, err := os.ReadFile(ref.Path)
++	if err != nil {
++		return "", false, err
++	}
++	var doc struct {
++		Request struct {
++			Text string `json:"text"`
++		} `json:"request"`
++	}
++	if err := json.Unmarshal(data, &doc); err != nil {
++		return "", false, err
++	}
++	return doc.Request.Text, true, nil
++}
++
++// hcRequestSection is the review authority's opening section: the original request, or the
++// legacy notice. It records the witness event of the review.
++func (b *Attempt) hcRequestSection() (string, error) {
++	text, ok, err := hcOriginalRequest(b.SourceProvenance)
++	if err != nil {
++		return "", err
++	}
++	if !ok {
++		b.Run.Event(map[string]any{"event": "hc_p3_request_missing", "review": b.Review})
++		return "# Original request (read this first)\n\n(unavailable: legacy approval without a source receipt)\n\n", nil
++	}
++	b.Run.Event(map[string]any{"event": "hc_p3_request_supplied", "review": b.Review, "bytes": len(text)})
++	return "# Original request (read this first)\n\n" + text + "\n\n", nil
++}
++
++// hcProbeNotes counts the findings whose message starts with "probe:".
++func hcProbeNotes(list []any) int {
++	n := 0
++	for _, item := range list {
++		f, _ := item.(map[string]any)
++		if m, _ := f["message"].(string); strings.HasPrefix(strings.ToLower(strings.TrimSpace(m)), "probe:") {
++			n++
++		}
++	}
++	return n
++}
++
++// hcP3Check records the submitted verdict's probe evidence and returns the refusal for an
++// approval on reading alone: native, no shell call in this review; external, no probe note.
++// It refuses at most once per review, and never when the rejected-verdict allowance is spent
++// (a second rejection would end the review without a verdict).
++func (r *reviewRun) hcP3Check(verdict string, list []any) []string {
++	b := r.b
++	if !b.hcP3Active() {
++		return nil
++	}
++	shell := r.sess.HCShellCalls
++	if r.external {
++		shell = -1
++	}
++	notes := hcProbeNotes(list)
++	b.Run.Event(map[string]any{"event": "hc_p3_probes", "review": b.Review, "verdict": verdict, "shell_calls": shell, "probe_notes": notes})
++	if verdict != "approve" || r.sess.HCP3Refused || r.sess.Rejected >= 1 {
++		return nil
++	}
++	reason := ""
++	switch {
++	case !r.external && shell == 0:
++		reason = "no_shell_call"
++	case r.external && notes == 0:
++		reason = "no_probe_note"
++	default:
++		return nil
++	}
++	r.sess.HCP3Refused = true
++	b.Run.Event(map[string]any{"event": "hc_p3_refused", "review": b.Review, "reason": reason})
++	return []string{hcP3Refusal}
++}
+diff --git a/cli/build/hc_p3_test.go b/cli/build/hc_p3_test.go
+new file mode 100644
+index 0000000..134001b
+--- /dev/null
++++ b/cli/build/hc_p3_test.go
+@@ -0,0 +1,142 @@
++package build
++
++import (
++	"strings"
++	"testing"
++
++	"kogen/project"
++)
++
++// bindRequest publishes a source receipt holding request and re-approves the Intent bound to it.
++func bindRequest(t *testing.T, e *env, request string) {
++	t.Helper()
++	cfg, err := project.LoadConfig(e.root)
++	if err != nil {
++		t.Fatal(err)
++	}
++	origin, err := project.CaptureOrigin(e.root, cfg)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err := project.CaptureSource(e.root, testSlug, cfg, project.ShapeSource{Request: request, Origin: origin}); err != nil {
++		t.Fatal(err)
++	}
++	ref, err := project.BindSource(e.root, testSlug)
++	if err != nil || ref == nil {
++		t.Fatalf("bind %v %v", ref, err)
++	}
++	baseline, err := project.Baseline(e.root, testSlug, cfg)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err := project.WriteApproval(e.root, project.Approval{
++		Slug: testSlug, SHA256: project.Hash(e.root, baseline), Approver: "Kogen Integration <redacted>",
++		ApprovedAt: "2026-10-22T00:00:00Z", SourceProvenance: ref.Map(),
++	}); err != nil {
++		t.Fatal(err)
++	}
++}
++
++func hcReviewRequests(f *fakeProvider) []map[string]any {
++	var out []map[string]any
++	for _, req := range f.requests() {
++		if strings.Contains(requestInstructions(req), hcP3ReviewRule) {
++			out = append(out, req)
++		}
++	}
++	return out
++}
++
++func TestHCP3ReviewerReadsTheRequestAndCannotApproveOnReadingAlone(t *testing.T) {
++	t.Parallel()
++	e := newEnv(t)
++	const request = "Keep app.txt as one line; an empty file is an error.\n"
++	bindRequest(t, e, request)
++	f := e.prov
++	f.then(landScript(f)...)
++	f.then(submit(f, "approve"))
++	f.then(f.calls("shell", map[string]any{"command": "cat app.txt"}))
++	f.then(submit(f, "approve", finding("note", "probe: Keep app.txt as one line -> cat app.txt -> candidate")))
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	id := e.onlyRun()
++	reqs := hcReviewRequests(f)
++	if len(reqs) != 3 {
++		t.Fatalf("%d reviewer requests carry the probe rule", len(reqs))
++	}
++	blocks := requestInput(reqs[0])[0].(map[string]any)["content"].([]any)
++	authority := blocks[0].(map[string]any)["text"].(string)
++	if !strings.HasPrefix(authority, "# Original request (read this first)\n\n"+request+"\n\n# Intent\n\n") {
++		t.Fatalf("authority opens %q", authority[:min(200, len(authority))])
++	}
++	events := e.events(id)
++	if got := eventsNamed(events, "hc_p3_request_supplied"); len(got) != 1 || got[0]["bytes"] != float64(len(request)) {
++		t.Fatalf("supplied %v", got)
++	}
++	if got := eventsNamed(events, "hc_p3_refused"); len(got) != 1 || got[0]["reason"] != "no_shell_call" {
++		t.Fatalf("refused %v", got)
++	}
++	probes := eventsNamed(events, "hc_p3_probes")
++	if len(probes) != 2 || probes[0]["shell_calls"] != float64(0) || probes[1]["shell_calls"] != float64(1) || probes[1]["probe_notes"] != float64(1) {
++		t.Fatalf("probes %v", probes)
++	}
++	contains(t, "refusal", strings.Join(f.toolOutputs(), "\n"), hcP3Refusal)
++}
++
++func TestHCP3LegacyApprovalReviewsAsBefore(t *testing.T) {
++	t.Parallel()
++	e := newEnv(t)
++	f := e.prov
++	f.then(landScript(f)...)
++	f.then(submit(f, "approve"))
++	a := e.reviewed()
++	if a.exit != 0 || a.err != nil {
++		t.Fatalf("exit %d err %v\n%s", a.exit, a.err, a.shown())
++	}
++	if len(hcReviewRequests(f)) != 0 || len(f.reviewRequests()) != 1 {
++		t.Fatal("a legacy review carried the probe rule")
++	}
++	for _, ev := range e.events(e.onlyRun()) {
++		if name, _ := ev["event"].(string); strings.HasPrefix(name, "hc_p3_") {
++			t.Fatalf("legacy event %v", ev)
++		}
++	}
++}
++
++func TestHCP3RefusesOnceAndOnlyApprovals(t *testing.T) {
++	t.Parallel()
++	b, _, _ := materialAttempt(t)
++	b.SourceProvenance = &project.SourceRef{Path: "receipt"}
++	note := []any{map[string]any{"path": "app.txt", "line": int64(1), "severity": "note", "message": "probe: x -> y -> z"}}
++	plain := []any{map[string]any{"path": "app.txt", "line": int64(1), "severity": "note", "message": "fine"}}
++
++	ext := &reviewRun{b: b, external: true}
++	if v, probs, err := ext.validate(map[string]any{"verdict": "approve", "findings": plain}, nil); err != nil || v != nil || len(probs) != 1 {
++		t.Fatalf("external approval without probe notes: %v %v %v", v, probs, err)
++	}
++	if v, _, _ := ext.validate(map[string]any{"verdict": "approve", "findings": plain}, nil); v == nil {
++		t.Fatal("refused twice")
++	}
++	ext2 := &reviewRun{b: b, external: true}
++	if v, _, _ := ext2.validate(map[string]any{"verdict": "approve", "findings": note}, nil); v == nil {
++		t.Fatal("approval with a probe note refused")
++	}
++	spent := &reviewRun{b: b, external: true, sess: reviewSession{Rejected: 1}}
++	if v, _, _ := spent.validate(map[string]any{"verdict": "approve", "findings": plain}, nil); v == nil {
++		t.Fatal("refused with the allowance spent")
++	}
++	native := &reviewRun{b: b, sess: reviewSession{HCShellCalls: 2}}
++	if v, _, _ := native.validate(map[string]any{"verdict": "approve", "findings": []any{}}, nil); v == nil {
++		t.Fatal("native approval after shell probes refused")
++	}
++	if n := hcProbeNotes(append(note, plain...)); n != 1 {
++		t.Fatalf("probe notes %d", n)
++	}
++	b.SourceProvenance = nil
++	legacy := &reviewRun{b: b, external: true}
++	if v, _, _ := legacy.validate(map[string]any{"verdict": "approve", "findings": plain}, nil); v == nil {
++		t.Fatal("legacy approval refused")
++	}
++}
+diff --git a/cli/build/material.go b/cli/build/material.go
+index 37d0283..71be3d6 100644
+--- a/cli/build/material.go
++++ b/cli/build/material.go
+@@ -185,7 +185,15 @@ func (b *Attempt) materialOf(pass verify.Pass) (materialSet, error) {
+ 	if b.Config.Acceptance != nil {
+ 		acceptanceRun = b.Config.Acceptance.Run
+ 	}
+-	authority := "# Intent\n\n" + b.intent.Text + "\n" +
++	// P3 (hill-climb lane patch): the original request opens the review authority.
++	request := ""
++	if b.hcP3Active() {
++		var err error
++		if request, err = b.hcRequestSection(); err != nil {
++			return materialSet{}, err
++		}
++	}
++	authority := request + "# Intent\n\n" + b.intent.Text + "\n" +
+ 		"# acceptance.feature\n\n" + string(feature) + "\n" +
+ 		modelText + "\n" +
+ 		"# Project instructions (README.md)\n\n" + readme + "\n\n" +
+diff --git a/cli/build/review.go b/cli/build/review.go
+index 8ee4da1..339a45e 100644
+--- a/cli/build/review.go
++++ b/cli/build/review.go
+@@ -84,6 +84,10 @@ type reviewSession struct {
+ 	// Repaired: a verdict of this review was already judged and sent back, so the pass it now
+ 	// works from may hold the reviewer's own verified edits rather than the builder's tree.
+ 	Repaired bool `json:"repaired,omitempty"`
++	// HCShellCalls and HCP3Refused are the P3 lane patch's evidence: shell calls this review
++	// conversation ran, and whether an approval without probes was already sent back.
++	HCShellCalls int  `json:"hc_shell_calls,omitempty"`
++	HCP3Refused  bool `json:"hc_p3_refused,omitempty"`
+ }
+ 
+ func (s reviewSession) encode() (json.RawMessage, error) {
+@@ -164,7 +168,7 @@ func (reviewIndependent) Review(ctx context.Context, b *Attempt, pass verify.Pas
+ 	if state := b.WorkingContext["review"]; state != nil {
+ 		state.Observations = []any{}
+ 	}
+-	input, err := b.materialPrepare(pass.Tree, m, role, reviewerPrompt(b.onDemand()), tools, diagnostic, false)
++	input, err := b.materialPrepare(pass.Tree, m, role, b.reviewInstructions(), tools, diagnostic, false)
+ 	if err != nil {
+ 		return Approved{}, err
+ 	}
+@@ -428,10 +432,10 @@ func (r *reviewRun) converse(ctx context.Context) (reviewVerdict, error) {
+ 			}
+ 		}
+ 		resp, active, err := b.Request(ctx, RequestSpec{
+-			Owner: "review", Role: r.sess.Role, Instructions: reviewerPrompt(b.onDemand()),
++			Owner: "review", Role: r.sess.Role, Instructions: b.reviewInstructions(),
+ 			Input: r.sess.Input, Tools: r.tools, Retain: retain, ForceTool: force,
+ 			Prefill: func(input []any) ([]any, error) {
+-				return b.prefillSource(r.sess.Role, reviewerPrompt(b.onDemand()), r.tools, input)
++				return b.prefillSource(r.sess.Role, b.reviewInstructions(), r.tools, input)
+ 			},
+ 		})
+ 		if err != nil {
+@@ -504,6 +508,7 @@ func (r *reviewRun) converse(ctx context.Context) (reviewVerdict, error) {
+ 					return reviewVerdict{}, err
+ 				}
+ 				if call.Name == "shell" {
++					r.sess.HCShellCalls++
+ 					if err := b.BaselineIntact(); err != nil {
+ 						return reviewVerdict{}, err
+ 					}
+@@ -679,6 +684,9 @@ func (r *reviewRun) validate(args map[string]any, input []any) (*reviewVerdict,
+ 	if problems != nil {
+ 		return nil, problems, nil
+ 	}
++	if probs := r.hcP3Check(verdict, list); probs != nil {
++		return nil, probs, nil
++	}
+ 	return &reviewVerdict{Verdict: verdict, Findings: findings}, nil, nil
+ }
+ 
+diff --git a/cli/build/review_external.go b/cli/build/review_external.go
+index 51a8dc7..395c542 100644
+--- a/cli/build/review_external.go
++++ b/cli/build/review_external.go
+@@ -86,7 +86,7 @@ func (x reviewExternal) Review(ctx context.Context, b *Attempt, pass verify.Pass
+ 	if nav := b.State.navigationIn(phaseReview); nav != "" {
+ 		stable += "\nStaged plan context for this independent review." + nav + "\n"
+ 	}
+-	stable += "\n" + reviewTask
++	stable += "\n" + b.externalReviewTask()
+ 	dynamic := m.Source
+ 
+ 	dir := filepath.Join(b.Run.Dir, "executor-review")

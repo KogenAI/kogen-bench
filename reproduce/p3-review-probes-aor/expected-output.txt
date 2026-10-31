@@ -1,0 +1,43 @@
+1. Go tasks (13 tasks, 1 trial per arm; hidden pass = every hidden check of the task passed)
+arm  hidden_pass  wall_s  tokens
+b0   11/13       4443   4602234
+p3    9/13       5146   4986350
+wall and tokens include cells that ended build_blocked, review_blocked or no_progress
+
+2. Go pairs where the hidden result differs
+G01: b0 pass (landed) vs p3 fail (build_blocked)
+G03: b0 pass (landed) vs p3 fail (build_blocked)
+G04: b0 fail (build_blocked) vs p3 pass (landed)
+G13: b0 pass (landed) vs p3 fail (landed)
+p3 wins 1, loses 3, wins-losses -2 (keep rule: >= +3)
+
+3. Outcome per arm
+Go b0 {'build_blocked': 1, 'landed': 11, 'review_blocked': 1}
+Go p3 {'build_blocked': 2, 'landed': 10, 'no_progress': 1}
+AoR b0 {'landed': 1, 'questions_pending': 4, 'refused': 1}
+AoR p3 {'build_blocked': 1, 'landed': 2, 'memory_cap': 1, 'questions_pending': 1, 'refused': 1}
+
+4. AoR tasks (6 tasks, 1 trial per arm); 'ungraded' = the grader had not run when this result was written
+task  arm  outcome            graded hidden_pass ids_passed/expected
+A1    b0   questions_pending  yes    0           3/17
+A1    p3   refused            yes    0           3/17
+A2    b0   landed             yes    0           4/8
+A2    p3   landed             yes    0           3/8
+A3    b0   refused            yes    0           2/9
+A3    p3   memory_cap         no     -           -/-
+A4    b0   questions_pending  no     -           -/-
+A4    p3   landed             no     -           -/-
+A5    b0   questions_pending  no     -           -/-
+A5    p3   build_blocked      no     -           -/-
+A6    b0   questions_pending  no     -           -/-
+A6    p3   questions_pending  no     -           -/-
+graded AoR cells: 5 of 12; passed: 0
+
+5. AoR pairs (a cell that did not land has no implementation and counts as no pass; a landed cell not yet graded leaves its pair open)
+A1: b0 no-pass | p3 no-pass
+A2: b0 fail | p3 fail
+A3: b0 no-pass | p3 no-pass
+A4: b0 no-pass | p3 ungraded
+A5: b0 no-pass | p3 no-pass
+A6: b0 no-pass | p3 no-pass
+AoR pairs: patch wins 0, loses 0, no difference 5, open (ungraded) 1

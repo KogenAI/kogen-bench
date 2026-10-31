@@ -384,6 +384,15 @@
       "verdict": "no",
       "finished": "2026-10-31",
       "summary": "Kogen's shaping step lets the model resubmit a refused Intent. On an older Kogen build, with gpt-6.1-sol at low effort on 8 tasks and 6 repetitions each, the default accepted 47 of 48 shapes. Limiting resubmission to one accepted only 6 of 48, because 42 ended refused or with questions. Allowing five accepted 46 of 48 and its graded numbers were within noise of the default, about two minutes quicker per paired shape. The run is descriptive (no decision rule), so neither limit changes anything; one task cannot separate the lanes at all because its reference check always fails."
+    },
+    {
+      "id": "p3-review-probes-aor",
+      "category": "categories/harness-levers.md",
+      "title": "Adding review probes to Kogen lost two net tasks on 13 Go tasks, so the patch was dropped",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "A patch adding review probes to Kogen was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 11 tasks without the patch and 9 with it: the patch gained one task and lost three, against a keep rule of at least three net wins. Cost stayed within 1.5 times. On 6 Rails feature tasks no graded pair differed and grading was incomplete, but the best case adds one win, so the verdict stands."
     }
   ]
 }
