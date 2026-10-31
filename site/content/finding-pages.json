@@ -402,6 +402,24 @@
       "verdict": "yes",
       "finished": "2026-10-31",
       "summary": "Three one-sentence additions to kogen-loop's default instructions were each tested against the unchanged loop on 12 Go tasks with the same model and effort. Telling the agent to call finish right away once its checks pass cut wall time by about 17% and cost by about 20% over two repetitions (21 of 24 pairs faster), with every run passing in both arms. Combining checks into one command did nothing measurable, and a write-each-file-once sentence cut requests by a third but did not repeat its early wall and cost gain. All runs passed, so pass could not improve; only the stand-alone loop was tested."
+    },
+    {
+      "id": "s3-audit-on-go-screen",
+      "category": "categories/harness-levers.md",
+      "title": "Switching on Kogen's request audit lost four net tasks on 13 Go tasks, so the patch was dropped",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "A patch that runs Kogen's request audit before shaping was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 11 tasks without the patch and 7 with it: no task gained and four were lost, against a keep rule of at least three net wins. Six of the 13 patched cells were refused at the shaping step, mostly because the shaped test lines were not in the required form."
+    },
+    {
+      "id": "p2-unstated-go-screen",
+      "category": "categories/harness-levers.md",
+      "title": "An unstated-requirement pass in Kogen shaping did not show a gain on the first 13 Go tasks",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "A patch adding an unstated-requirement pass to Kogen's shaping step was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 10 tasks without the patch and 9 with it: no task gained and one was lost, against a keep rule of at least three net wins. One repetition is still to finish and will be pooled with this run before the patch is kept or dropped."
     }
   ]
 }
