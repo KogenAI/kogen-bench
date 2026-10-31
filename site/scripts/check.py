@@ -301,6 +301,26 @@ class WarmBrowser:
     def close(self) -> None:
         if self.socket is not None:
             self.socket.close()
+        # Ask the browser to quit first: a killed browser leaves a full app clone
+        # in the user temp dir (com.google.Chrome.code_sign_clone) on macOS, and
+        # its clean-up helper runs in this process group after the browser exits.
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/json/version", timeout=5) as response:
+                path = "/" + json.load(response)["webSocketDebuggerUrl"].split("/", 3)[3]
+            browser = DevToolsSocket(self.port, path)
+            try:
+                browser.call("Browser.close", time.monotonic() + 5)
+            except (OSError, subprocess.TimeoutExpired):
+                pass  # the browser may drop the connection before replying
+            finally:
+                browser.close()
+            self.proc.wait(timeout=10)
+            end = time.monotonic() + 10
+            while time.monotonic() < end:
+                os.killpg(self.proc.pid, 0)
+                time.sleep(0.1)
+        except (AttributeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired):
+            pass
         try:
             os.killpg(self.proc.pid, signal.SIGTERM)
             try:
