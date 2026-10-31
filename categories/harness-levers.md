@@ -98,3 +98,7 @@ Definitions: [public glossary](../rounds/GLOSSARY.md).
 - [r8](../rounds/r8/README.md) — no new claim; use source report with its corrections.
 - [r9](../rounds/r9/README.md) — no new claim; use source report with its corrections.
 - [rails-catalogue](../rounds/rails-catalogue/README.md) — INTERIM pooled export: Plan-shell recorded 52 passes among 65 exported rows, including two unresolved grader errors; the resolved-grade subset is 52/63. Codex Sol high recorded 50/81 passes and Codex Luna max 27/64, both without unresolved rows. This pooled comparison is descriptive. Arithmetic on source-reported `usd_est` gives $0.119077, $0.680384, and $0.071076 per pass; the calculator and analysis inputs are absent, so costs are not independently re-derived and no cost-superiority claim is made. See [VERIFICATION.md](../rounds/rails-catalogue/VERIFICATION.md).
+
+## kogen-loop instruction sentences (loopnight, 31 Oct 2026)
+
+Three one-sentence additions to kogen-loop's default instructions, 12 Go tasks, same model and effort. "Call finish right away once your checks pass" cut wall time about 17% and cost about 20% over two repetitions (21 of 24 pairs faster) with all runs passing; "combine your checks in one command" and "write each file once" did not give a repeatable wall or cost gain. See [loopnight-instruction-levers](../reproduce/loopnight-instruction-levers/README.md).

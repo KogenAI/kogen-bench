@@ -1,0 +1,12 @@
+--- a/loop/session.go	2026-10-31 04:35:37.534801859 +0000
++++ b/loop/session.go	2026-10-31 16:06:38.155870897 +0000
+@@ -27,7 +27,8 @@
+ const DefaultInstructions = "You are a coding agent. Work in the working directory with the tools you are given. " +
+ 	"Read what you need, make the changes the task asks for and check your work with the available tools. " +
+ 	"When you are done, call the finish tool with a summary of what you did. " +
+-	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do."
++	"Your finish is a claim: the caller verifies the work independently, so say plainly what you did not check or could not do. "+
++	"Settle the whole change before you edit: write each file once, complete, and do not re-read a file you just wrote."
+ 
+ // FinishTool is the generic terminal tool name.
+ const FinishTool = "finish"

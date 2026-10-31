@@ -393,6 +393,15 @@
       "verdict": "no",
       "finished": "2026-10-31",
       "summary": "A patch adding review probes to Kogen was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 11 tasks without the patch and 9 with it: the patch gained one task and lost three, against a keep rule of at least three net wins. Cost stayed within 1.5 times. On 6 Rails feature tasks no graded pair differed and grading was incomplete, but the best case adds one win, so the verdict stands."
+    },
+    {
+      "id": "loopnight-instruction-levers",
+      "category": "categories/harness-levers.md",
+      "title": "One extra instruction sentence made kogen-loop about 17% faster at the same pass rate",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "yes",
+      "finished": "2026-10-31",
+      "summary": "Three one-sentence additions to kogen-loop's default instructions were each tested against the unchanged loop on 12 Go tasks with the same model and effort. Telling the agent to call finish right away once its checks pass cut wall time by about 17% and cost by about 20% over two repetitions (21 of 24 pairs faster), with every run passing in both arms. Combining checks into one command did nothing measurable, and a write-each-file-once sentence cut requests by a third but did not repeat its early wall and cost gain. All runs passed, so pass could not improve; only the stand-alone loop was tested."
     }
   ]
 }
