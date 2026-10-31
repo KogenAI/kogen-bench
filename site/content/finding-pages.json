@@ -26,6 +26,11 @@
       "id": "test-setup-and-sandboxing",
       "title": "Test setup, rules and sandboxing",
       "blurb": "Findings about how the tests themselves are run: written rules, changes to the test harness, and sandbox tools that confine the agent."
+    },
+    {
+      "id": "kogen-shaping-and-builds",
+      "title": "Kogen shaping and delivery-build speed",
+      "blurb": "Measurements of Kogen's own shaping step (turning a request into an agreed specification) and of where time goes in its delivery builds. Each result tests Kogen against itself or reads recorded logs; no other agent is compared."
     }
   ],
   "findings": [
@@ -298,6 +303,78 @@
       "verdict": "yes",
       "finished": "2026-10-15",
       "summary": "Four macOS sandbox tools and one newer Kogen release were tested on one MacBook on 15 October 2026 against what the first version of Kogen needed: writes limited to chosen folders, secret locations unreadable, an allow-list of environment variables, every build process killed at the end, and a time limit. No language model ran. This is a historical measurement of the retired earlier Kogen's sandbox and those tool versions on that day, one computer and three repetitions per case, not a measurement of today's Kogen."
+    },
+    {
+      "id": "verification-reuse-replay",
+      "category": "categories/mechanism-profiles.md",
+      "title": "Which of six ways to reuse or skip checks in Kogen builds could save time",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "Recorded logs of 44 Kogen delivery builds were replayed, with no language model involved, to see how much time six ideas for skipping or reusing the checks (test, format, compile and acceptance commands) could save. Only one has real headroom: reusing a passing check from before any change when a build restarts on the same starting files. That could save at most 7,059 seconds, about 30% of the time spent on those checks, and only if the reuse also compares the installed tools and environment, which the logs do not record. The other five show little or no headroom. Nothing was changed in Kogen; the result decided which idea to prototype next and which to drop."
+    },
+    {
+      "id": "delivery-path-timing",
+      "category": "categories/mechanism-profiles.md",
+      "title": "Where the time goes in Kogen builds and shaping sessions",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "Logs of 4,389 recorded Kogen sessions and 15 real delivery builds were read, with no new model calls, to find where wall-clock time goes. Two large pieces are not model time: the check commands take 36% of build time in the benchmark runs and 72% in the 15 real delivery builds, and the slowest 4% of shaping requests (180 seconds or more) hold 39% of all shaping request time. Repair after review, prompt growth in the builder, and builds that start with a failing check show little room. The sessions come from many Kogen versions and loads, so this ranks where a speed-up could matter and does not test any change."
+    },
+    {
+      "id": "shape-luna-medium-refusals",
+      "category": "categories/models-and-effort.md",
+      "title": "A cheaper model at medium effort could not get Kogen's shaping step accepted (7 of 78)",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "Kogen's shaping step turns a task request into a specification (an Intent) that its own checks must accept. With the cheaper gpt-6-luna model at medium effort, only 7 of 78 attempts were accepted (13 Go tasks, two repetitions, three arms). Of the 71 failures, 36 broke a fixed format rule, 12 failed on a single trailing full stop that the checks refuse, 22 were the model asking questions instead of submitting, and one was a provider refusal. The unmodified shaper already failed 21 of 26 times, so the two shaping changes tried in the other arms could not be judged. Under the current protocol this model is not usable for shaping; making the refusal messages clearer and tolerating the full stop is the next change to screen."
+    },
+    {
+      "id": "baseline-check-reuse-prototype",
+      "category": "categories/mechanism-profiles.md",
+      "title": "A prototype that skips an already-passed starting check: safe, but small headroom",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "A prototype lets Kogen skip a starting check (a test, format or compile command run before any change) when the identical check already passed on the same files, command, tool versions, dependency lock files and environment. It is off by default, and any earlier failure of the same key stops reuse. It passed all 15 controls that must not reuse and the control that must, and did not hide a failure caused by the environment. Replayed over recorded builds, it would fire on about a third of starting checks and skip up to 3,094 seconds (27% of the time of restarted builds), but only four reuses reach five minutes, and the logs lack the environment details, so real savings are lower. No language model was run."
+    },
+    {
+      "id": "loop-stream-shell-fault-fixtures",
+      "category": "categories/mechanism-profiles.md",
+      "title": "What kogen-loop does when the model stream or its shell misbehaves",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "A fake model server injected faults into kogen-loop, with no real model call, to record how it reacts. Receiving response headers does not count as a first byte, so a stalled attempt wastes 90 seconds and three stalled attempts end at about 280 seconds. The stream is stopped after 180 seconds without progress, and keep-alive comments or half-sent events do not count as progress. A 429 reply's Retry-After value is ignored (fixed waits of 2 and 8 seconds). An unreadable event gets one immediate retry. Five productive controls, including a slow shell and a silent 700-second command, were never stopped by mistake, and a hung shell runs until the task deadline and leaves nothing behind. Nothing was changed; the result decides which behaviours are worth screening."
+    },
+    {
+      "id": "overlap3-ceiling-eu2",
+      "category": "categories/head-to-head.md",
+      "title": "Starting tool calls while the model is still streaming does not make kogen-loop faster",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "Two kogen-loop builds identical except that one starts each tool call as soon as it is fully streamed and the other waits for the response to end were run on 12 Go tasks, three repetitions each, with gpt-6.1-terra at high effort. Wall time was 16 wins for the overlapping build and 20 for the other, and the average ratio was 1.004, so the ceiling for this idea is negligible: only 0.11 seconds of tool time per run was hidden behind streaming. All 108 counted runs passed grading. In the same run both builds were slower than Codex CLI at equal pass rate (wall ratio 1.11) but cheaper per passing run ($0.0877 against $0.1090)."
+    },
+    {
+      "id": "shape-screen-terra-b",
+      "category": "categories/mechanism-profiles.md",
+      "title": "Three shaping changes screened: the second-host half was invalid, the valid half shows no gain",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "Three changes to Kogen's shaping step were screened against the unchanged step on 13 Go tasks, two repetitions, 104 shapes, with gpt-6.1-terra at medium effort. Only the 40 shapes run on the Linux host are a valid measurement: specifications were accepted in 9, 10, 10 and 9 of 10 shapes (unchanged, then each change), and the share of the task's requirements they covered was .284, .285, .263 and .267, with no change showing a gain on the five tasks that could be compared per task. The other 64 shapes ran on builds missing a file the installer writes, so every one failed to start; an earlier version of this page counted them as failures, which was a test-setup fault and not a property of Kogen. A clean rerun of the unchanged shaper against one different change is in [shape-screen-s5](finding:shape-screen-s5)."
+    },
+    {
+      "id": "shape-screen-s5",
+      "category": "categories/mechanism-profiles.md",
+      "title": "A clearer refusal message for shaping changed nothing: both versions accepted 25 of 26",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "One change to Kogen's shaping step, naming a harmless cause such as an unclosed quote or a trailing full stop in a refusal message and relaxing no rule, was screened against the unchanged step on 13 Go tasks, two repetitions, 52 shapes, with gpt-6.1-terra at medium effort. The specification was accepted in 25 of 26 shapes in both versions, and the one unequal pair was the same task failing on different repetitions with no tool call, so nothing was left for the change to fix. Average time per shape was 165 against 158 seconds. This clean run also shows that the low acceptance rate in [the earlier three-change screen](finding:shape-screen-terra-b) came from a test-setup fault. The change was dropped."
     }
   ]
 }
