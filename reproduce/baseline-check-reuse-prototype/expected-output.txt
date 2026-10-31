@@ -1,0 +1,6 @@
+baseline execs 224 secs 23865 | restart-run execs 91 secs 11452
+naive any prior pass: hits 82 of 224 baseline execs (fire rate 36.6%; of restart execs 90.1%) skipped 7059s = 29.6% of baseline, 61.6% of restart baseline; stored-secs 6553; hits>=300s 10; hits where the real run FAILED 5
++poison on any prior fail (prototype): hits 76 of 224 baseline execs (fire rate 33.9%; of restart execs 83.5%) skipped 3094s = 13.0% of baseline, 27.0% of restart baseline; stored-secs 3112; hits>=300s 4; hits where the real run FAILED 0
++poison +24h max age (prototype): hits 76 of 224 baseline execs (fire rate 33.9%; of restart execs 83.5%) skipped 3094s = 13.0% of baseline, 27.0% of restart baseline; stored-secs 3112; hits>=300s 4; hits where the real run FAILED 0
+  by check {'format': (20, 14), 'compile': (20, 17), 'test': (7, 1), 'go-test': (7, 2297), 'no-home-paths': (4, 0), 'spec': (4, 185), 'cucumber': (4, 577), 'go-format': (3, 0), 'go-vet': (3, 1), 'go-build': (3, 2), 'py-test': (1, 0)}
+  hits per group: [(('h016', 'task-013'), 21), (('h007', 'task-005'), 14), (('h017', 'task-013'), 8), (('h009', 'task-007'), 7), (('h011', 'task-009'), 7), (('h005', 'task-003'), 6), (('h013', 'task-011'), 4), (('h014', 'task-011'), 4), (('h002', 'task-002'), 3), (('h019', 'task-015'), 2)]

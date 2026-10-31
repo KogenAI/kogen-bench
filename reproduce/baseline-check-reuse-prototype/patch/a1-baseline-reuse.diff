@@ -1,0 +1,584 @@
+diff --git a/cli/build/baseline.go b/cli/build/baseline.go
+index aa255cc..942ee51 100644
+--- a/cli/build/baseline.go
++++ b/cli/build/baseline.go
+@@ -51,13 +51,32 @@ func stateOf(r verify.CommandResult) checkState {
+ // the collection. Only an execution error (or an interrupt) does.
+ func (b *Attempt) recordBaseline(ctx context.Context) error {
+ 	b.CheckBaseline = nil
++	var reuse *reuseStore
++	if d := b.s.Getenv(reuseEnv); d != "" {
++		reuse = newReuseStore(d)
++	}
+ 	for _, c := range b.Config.Checks {
+-		b.s.Progress("kogen: checking " + c.Name + " before the Build changes anything")
+-		b.Run.Event(map[string]any{"event": "command", "name": c.Name, "command": c.Run, "before_change": true})
+-		r, err := verify.RunWatched(b.s, c.Name, c.Run, b.Run, func() (sys.Result, error) {
+-			return b.s.Run(c.Run, b.Root, sys.Options{KillGroupOnExit: true})
+-		})
+-		if err != nil {
++		var r sys.Result
++		exec := func() (int, error) {
++			b.s.Progress("kogen: checking " + c.Name + " before the Build changes anything")
++			b.Run.Event(map[string]any{"event": "command", "name": c.Name, "command": c.Run, "before_change": true})
++			var err error
++			r, err = verify.RunWatched(b.s, c.Name, c.Run, b.Run, func() (sys.Result, error) {
++				return b.s.Run(c.Run, b.Root, sys.Options{KillGroupOnExit: true})
++			})
++			return r.Status, err
++		}
++		if reuse != nil {
++			_, reused, key, saved, err := reuse.around(b.Root, c.Run, exec)
++			if err != nil {
++				return err
++			}
++			if reused {
++				b.Run.Event(map[string]any{"event": "baseline_reuse", "name": c.Name, "command": c.Run, "key": key, "saved_secs": saved})
++				b.CheckBaseline = append(b.CheckBaseline, verify.CommandResult{Name: c.Name, Command: c.Run, Status: 0})
++				continue
++			}
++		} else if _, err := exec(); err != nil {
+ 			return err
+ 		}
+ 		b.Run.Event(map[string]any{"event": "command_result", "name": c.Name, "status": r.Status, "output": Cap(r.Output)})
+diff --git a/cli/build/baseline_reuse.go b/cli/build/baseline_reuse.go
+new file mode 100644
+index 0000000..67db04a
+--- /dev/null
++++ b/cli/build/baseline_reuse.go
+@@ -0,0 +1,300 @@
++package build
++
++import (
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io/fs"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"runtime"
++	"sort"
++	"strconv"
++	"strings"
++	"time"
++)
++
++// A1 experiment (default OFF): reuse of a PASSING baseline check result across restarts.
++//
++// A result is reused only when every field of its key matches: the candidate tree digest (never
++// HEAD alone), the exact command, the toolchain versions, the lockfile and dependency digests,
++// the environment digest and the host class. Any field that cannot be determined makes the key
++// invalid and the check runs. Only exit-0 results are stored; a key that has ever seen a failure
++// is poisoned and never reused, so an environment-caused or flaky red stays visible. A check
++// that changed the tree it ran in (pre/post digest differ) is never stored.
++
++const reuseEnv = "KOGEN_BASELINE_REUSE_DIR"
++
++// reuseMaxAge bounds how long a stored pass may be reused.
++const reuseMaxAge = 24 * time.Hour
++
++// reuseMaxFiles / reuseMaxBytes bound the digest of ignored files; above them the key is invalid.
++const (
++	reuseMaxFiles = 50000
++	reuseMaxBytes = 256 << 20
++)
++
++var (
++	// volatileDirs are build outputs that are not inputs of a check result.
++	volatileDirs = map[string]bool{"_build": true, ".cache": true, "__pycache__": true, ".mypy_cache": true, ".elixir_ls": true}
++	// depDirs are dependency trees digested by path and size; the lockfile digests cover versions.
++	depDirs        = map[string]bool{"node_modules": true, "deps": true}
++	lockfileNames  = []string{"go.sum", "go.mod", "mix.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "poetry.lock", "Gemfile.lock"}
++	toolchainProbe = []string{"go version", "elixir --version", "erl -noshell -eval 'io:format(\"~s\",[erlang:system_info(otp_release)]),halt().'", "node --version", "npm --version", "git --version"}
++	secretName     = []string{"KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "AUTH", "COOKIE"}
++	volatileEnv    = map[string]bool{"PWD": true, "OLDPWD": true, "SHLVL": true, "_": true, "TERM_SESSION_ID": true, "SECURITYSESSIONID": true}
++)
++
++// reuseStore is one reuse cache directory.
++type reuseStore struct {
++	dir   string
++	now   func() time.Time
++	probe func(cmd, dir string) string // toolchain probe; "" when the tool is absent
++	env   func() []string
++	host  func() string
++	// Strict hashes volatile build-output directories too (qualification mode).
++	Strict bool
++	// AuditEvery makes every Nth hit run for real (0: never).
++	AuditEvery int
++}
++
++type reuseEntry struct {
++	Key    string  `json:"key"`
++	Passes int     `json:"passes"`
++	Fails  int     `json:"fails"`
++	Secs   float64 `json:"secs"`
++	At     int64   `json:"at"`
++	Hits   int     `json:"hits"`
++}
++
++func newReuseStore(dir string) *reuseStore {
++	return &reuseStore{dir: dir, now: time.Now, probe: shellProbe, env: os.Environ,
++		host: func() string { return runtime.GOOS + "/" + runtime.GOARCH + "/cpu" + strconv.Itoa(runtime.NumCPU()) }}
++}
++
++func shellProbe(cmd, dir string) string {
++	c := exec.Command("/bin/sh", "-c", cmd)
++	c.Dir = dir
++	out, err := c.CombinedOutput()
++	if err != nil {
++		return ""
++	}
++	return strings.TrimSpace(string(out))
++}
++
++func sum(parts ...string) string {
++	h := sha256.New()
++	for _, p := range parts {
++		fmt.Fprintf(h, "%d:%s|", len(p), p)
++	}
++	return hex.EncodeToString(h.Sum(nil))
++}
++
++// treeDigest digests every file under root outside .git: tracked, untracked and ignored.
++// Volatile build-output directories are skipped unless strict; dependency directories are
++// digested by relative path and size only. ok is false when a bound is exceeded or a file is
++// unreadable (the key is then invalid).
++func treeDigest(root string, strict bool) (digest string, ok bool) {
++	type ent struct{ rel, h string }
++	var ents []ent
++	files, bytes := 0, int64(0)
++	depth := func(rel string) bool {
++		for _, p := range strings.Split(rel, string(filepath.Separator)) {
++			if depDirs[p] {
++				return true
++			}
++		}
++		return false
++	}
++	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
++		if err != nil {
++			return err
++		}
++		rel, _ := filepath.Rel(root, p)
++		if rel == "." {
++			return nil
++		}
++		if d.IsDir() {
++			if d.Name() == ".git" {
++				return filepath.SkipDir
++			}
++			if !strict && volatileDirs[d.Name()] {
++				return filepath.SkipDir
++			}
++			return nil
++		}
++		files++
++		if files > reuseMaxFiles {
++			return errors.New("too many files")
++		}
++		info, err := d.Info()
++		if err != nil {
++			return err
++		}
++		if info.Mode()&fs.ModeSymlink != 0 {
++			t, err := os.Readlink(p)
++			if err != nil {
++				return err
++			}
++			ents = append(ents, ent{rel, "link:" + t})
++			return nil
++		}
++		if depth(rel) {
++			ents = append(ents, ent{rel, "size:" + strconv.FormatInt(info.Size(), 10)})
++			return nil
++		}
++		bytes += info.Size()
++		if bytes > reuseMaxBytes {
++			return errors.New("too many bytes")
++		}
++		b, err := os.ReadFile(p)
++		if err != nil {
++			return err
++		}
++		sh := sha256.Sum256(b)
++		ents = append(ents, ent{rel, fmt.Sprintf("%o:%x", info.Mode().Perm(), sh)})
++		return nil
++	})
++	if err != nil {
++		return "", false
++	}
++	sort.Slice(ents, func(i, j int) bool { return ents[i].rel < ents[j].rel })
++	h := sha256.New()
++	for _, e := range ents {
++		fmt.Fprintf(h, "%d:%s=%s\n", len(e.rel), e.rel, e.h)
++	}
++	return hex.EncodeToString(h.Sum(nil)), true
++}
++
++func (r *reuseStore) envDigest() string {
++	var kv []string
++	for _, e := range r.env() {
++		name, val, _ := strings.Cut(e, "=")
++		if volatileEnv[name] || strings.HasPrefix(name, "KOGEN_BASELINE_REUSE") {
++			continue
++		}
++		up := strings.ToUpper(name)
++		for _, s := range secretName {
++			if strings.Contains(up, s) {
++				val = "sha:" + sum(val) // changes are seen; the value is never stored
++				break
++			}
++		}
++		kv = append(kv, name+"="+val)
++	}
++	sort.Strings(kv)
++	return sum(kv...)
++}
++
++// key is the full identity of one check execution; ok false means a field is missing.
++func (r *reuseStore) key(root, command string) (key, tree string, ok bool) {
++	tree, ok = treeDigest(root, r.Strict)
++	if !ok {
++		return "", "", false
++	}
++	var tc []string
++	for _, p := range toolchainProbe {
++		tc = append(tc, p+"=>"+r.probe(p, root))
++	}
++	locks := []string{}
++	for _, n := range lockfileNames {
++		_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
++			if err != nil {
++				return nil
++			}
++			if d.IsDir() && (d.Name() == ".git" || depDirs[d.Name()] || volatileDirs[d.Name()]) {
++				return filepath.SkipDir
++			}
++			if !d.IsDir() && d.Name() == n {
++				b, _ := os.ReadFile(p)
++				rel, _ := filepath.Rel(root, p)
++				locks = append(locks, rel+":"+sum(string(b)))
++			}
++			return nil
++		})
++	}
++	sort.Strings(locks)
++	host := r.host()
++	if host == "" {
++		return "", "", false
++	}
++	return sum("a1", tree, command, strings.Join(tc, "\n"), strings.Join(locks, "\n"), r.envDigest(), host), tree, true
++}
++
++func (r *reuseStore) path(key string) string { return filepath.Join(r.dir, key+".json") }
++
++func (r *reuseStore) load(key string) (reuseEntry, bool) {
++	var e reuseEntry
++	b, err := os.ReadFile(r.path(key))
++	if err != nil || json.Unmarshal(b, &e) != nil || e.Key != key {
++		return reuseEntry{}, false
++	}
++	return e, true
++}
++
++func (r *reuseStore) save(e reuseEntry) {
++	if os.MkdirAll(r.dir, 0o700) != nil {
++		return
++	}
++	b, _ := json.Marshal(e)
++	tmp := r.path(e.Key) + ".tmp" + strconv.Itoa(os.Getpid())
++	if os.WriteFile(tmp, b, 0o600) == nil {
++		_ = os.Rename(tmp, r.path(e.Key))
++	}
++}
++
++// lookup returns the saved seconds when the check may be skipped.
++func (r *reuseStore) lookup(key string) (float64, bool) {
++	e, ok := r.load(key)
++	if !ok || e.Passes < 1 || e.Fails > 0 || r.now().Sub(time.Unix(e.At, 0)) > reuseMaxAge {
++		return 0, false
++	}
++	if r.AuditEvery > 0 && (e.Hits+1)%r.AuditEvery == 0 {
++		e.Hits++
++		r.save(e)
++		return 0, false
++	}
++	e.Hits++
++	r.save(e)
++	return e.Secs, true
++}
++
++// record keeps the outcome of a real execution. preTree/post are the tree digests around it;
++// a pass is stored only when the check left the tree unchanged. A failure poisons the key.
++func (r *reuseStore) record(key, preTree, root string, status int, secs float64) {
++	e, _ := r.load(key)
++	e.Key = key
++	if status != 0 {
++		e.Fails++
++		r.save(e)
++		return
++	}
++	post, ok := treeDigest(root, r.Strict)
++	if !ok || post != preTree {
++		return
++	}
++	e.Passes++
++	e.Secs, e.At = secs, r.now().Unix()
++	r.save(e)
++}
++
++// around runs one baseline check through the reuse cache: a valid, unpoisoned, fresh pass for
++// the identical key is returned without running; otherwise run executes for real and its
++// outcome is recorded. reused reports a skipped run and saved the seconds the stored run took.
++func (r *reuseStore) around(root, command string, run func() (int, error)) (status int, reused bool, key string, saved float64, err error) {
++	key, tree, ok := r.key(root, command)
++	if !ok {
++		key = ""
++	} else if secs, hit := r.lookup(key); hit {
++		return 0, true, key, secs, nil
++	}
++	started := time.Now()
++	status, err = run()
++	if err == nil && key != "" {
++		r.record(key, tree, root, status, time.Since(started).Seconds())
++	}
++	return status, false, key, 0, err
++}
+diff --git a/cli/build/baseline_reuse_test.go b/cli/build/baseline_reuse_test.go
+new file mode 100644
+index 0000000..7fe376a
+--- /dev/null
++++ b/cli/build/baseline_reuse_test.go
+@@ -0,0 +1,229 @@
++package build
++
++import (
++	"os"
++	"os/exec"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++)
++
++// A1 qualification: every negative control must MISS (the check runs), the positive control HITs.
++
++type reuseRig struct {
++	t     *testing.T
++	root  string
++	store *reuseStore
++	env   []string
++	host  string
++	tools map[string]string
++	runs  int
++}
++
++func newRig(t *testing.T) *reuseRig {
++	t.Helper()
++	g := &reuseRig{t: t, root: t.TempDir(), env: []string{"A=1", "HOME=/h"}, host: "darwin/arm64/cpu8", tools: map[string]string{"go version": "go1.27.2"}}
++	g.store = newReuseStore(t.TempDir())
++	g.store.env = func() []string { return g.env }
++	g.store.host = func() string { return g.host }
++	g.store.probe = func(c, _ string) string { return g.tools[c] }
++	g.write("main.go", "package main\n")
++	g.write("go.sum", "a\n")
++	g.write("mix.lock", "m\n")
++	return g
++}
++
++func (g *reuseRig) write(rel, body string) {
++	p := filepath.Join(g.root, rel)
++	_ = os.MkdirAll(filepath.Dir(p), 0o755)
++	if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
++		g.t.Fatal(err)
++	}
++}
++
++// check runs the command through the reuse cache like recordBaseline does; ran reports a real run.
++func (g *reuseRig) check(command string) (status int, ran bool) {
++	st, reused, _, _, err := g.store.around(g.root, command, func() (int, error) {
++		g.runs++
++		c := exec.Command("/bin/sh", "-c", command)
++		c.Dir = g.root
++		if err := c.Run(); err != nil {
++			if ee, ok := err.(*exec.ExitError); ok {
++				return ee.ExitCode(), nil
++			}
++			return 0, err
++		}
++		return 0, nil
++	})
++	if err != nil {
++		g.t.Fatal(err)
++	}
++	return st, !reused
++}
++
++func (g *reuseRig) mustRun(command string, why string) {
++	g.t.Helper()
++	if _, ran := g.check(command); !ran {
++		g.t.Fatalf("FALSE HIT: %s", why)
++	}
++}
++
++func (g *reuseRig) prime(command string) {
++	g.t.Helper()
++	if st, ran := g.check(command); !ran || st != 0 {
++		g.t.Fatalf("prime: ran=%v status=%d", ran, st)
++	}
++}
++
++func TestReusePositiveControl(t *testing.T) {
++	g := newRig(t)
++	g.prime("true")
++	st, ran := g.check("true")
++	if ran || st != 0 {
++		t.Fatalf("identical inputs must hit with the verdict of a real run: ran=%v st=%d", ran, st)
++	}
++	if g.runs != 1 {
++		t.Fatalf("runs=%d", g.runs)
++	}
++	// verdict equality with a fresh execution (store disabled by a new dir)
++	fresh := newRig(t)
++	if st2, _ := fresh.check("true"); st2 != st {
++		t.Fatal("hit verdict differs from fresh execution")
++	}
++}
++
++func TestReuseNegativeControls(t *testing.T) {
++	cases := []struct {
++		name   string
++		mutate func(g *reuseRig)
++		cmd    string
++	}{
++		{"changed command", func(g *reuseRig) {}, "true # other"},
++		{"changed source file", func(g *reuseRig) { g.write("main.go", "package main // x\n") }, "true"},
++		{"changed config file", func(g *reuseRig) { g.write(".kogen/config.yaml", "checks: []\n") }, "true"},
++		{"changed lockfile", func(g *reuseRig) { g.write("go.sum", "b\n") }, "true"},
++		{"changed second lockfile", func(g *reuseRig) { g.write("mix.lock", "n\n") }, "true"},
++		{"changed toolchain version", func(g *reuseRig) { g.tools["go version"] = "go1.27.3" }, "true"},
++		{"toolchain disappeared", func(g *reuseRig) { delete(g.tools, "go version") }, "true"},
++		{"generated untracked file", func(g *reuseRig) { g.write("gen/out.pb.go", "package gen\n") }, "true"},
++		{"ignored input changed", func(g *reuseRig) { g.write("local.env", "X=2\n") }, "true"},
++		{"dependency dir added file", func(g *reuseRig) { g.write("node_modules/x/index.js", "1\n") }, "true"},
++		{"env var changed", func(g *reuseRig) { g.env = []string{"A=2", "HOME=/h"} }, "true"},
++		{"secret env var changed", func(g *reuseRig) { g.env = append(g.env, "API_TOKEN=zzz") }, "true"},
++		{"env var added", func(g *reuseRig) { g.env = append(g.env, "B=1") }, "true"},
++		{"different host class", func(g *reuseRig) { g.host = "darwin/arm64/cpu16" }, "true"},
++		{"file mode changed", func(g *reuseRig) { _ = os.Chmod(filepath.Join(g.root, "main.go"), 0o755) }, "true"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			g := newRig(t)
++			g.prime("true")
++			tc.mutate(g)
++			g.mustRun(tc.cmd, tc.name)
++		})
++	}
++}
++
++func TestReuseDependencyDirContentSizeChange(t *testing.T) {
++	g := newRig(t)
++	g.write("node_modules/x/index.js", "1\n")
++	g.prime("true")
++	g.write("node_modules/x/index.js", "12\n") // size change inside a dependency dir
++	g.mustRun("true", "dependency file size change")
++}
++
++func TestReuseMissingFieldIsMiss(t *testing.T) {
++	g := newRig(t)
++	g.prime("true")
++	g.host = "" // unknown host class: key invalid, must run (and not store)
++	g.mustRun("true", "empty host")
++	g.mustRun("true", "empty host again")
++}
++
++func TestReuseFailedResultNeverReused(t *testing.T) {
++	g := newRig(t)
++	if st, ran := g.check("exit 3"); !ran || st != 3 {
++		t.Fatal("failing command must run")
++	}
++	g.mustRun("exit 3", "reuse of a prior failure")
++	g.mustRun("exit 3", "reuse of a prior failure (3rd)")
++}
++
++// An environment-caused red after a pass at the same key must be seen, and poison the key so a
++// later pass at the same key is no longer reused (the 3 mixed-outcome groups of the replay).
++func TestReuseEnvCausedRedNotHidden(t *testing.T) {
++	g := newRig(t)
++	flag := filepath.Join(t.TempDir(), "service-down")
++	cmd := "test ! -e " + flag // env: a service that is not part of the key
++	g.prime(cmd)
++	if _, ran := g.check(cmd); ran { // identical key: documented residual hit
++		t.Fatal("expected the documented identical-key hit before the fault")
++	}
++	// fault not visible in the key: the env var set in the audit run. Force a real run via audit.
++	g.store.AuditEvery = 1
++	_ = os.WriteFile(flag, nil, 0o644)
++	st, ran := g.check(cmd)
++	if !ran || st == 0 {
++		t.Fatalf("audit run must execute and see the red: ran=%v st=%d", ran, st)
++	}
++	g.store.AuditEvery = 0
++	_ = os.Remove(flag) // service back: the poisoned key must still not be reused
++	g.mustRun(cmd, "reuse after a recorded red at the same key")
++}
++
++func TestReuseSideEffectingCheckNotStored(t *testing.T) {
++	g := newRig(t)
++	cmd := "echo built > artifact.bin"
++	g.prime(cmd)
++	// the tree changed under the check; the pre-run key must not be stored, so the second
++	// run has a different tree (artifact present) and a different key -> runs, and is stable
++	// afterwards only if the check no longer changes the tree.
++	g.mustRun(cmd, "side-effecting check")
++	if _, ran := g.check(cmd); ran {
++		t.Fatal("once the tree is stable (artifact already present) the identical rerun may hit")
++	}
++}
++
++func TestReuseExpiry(t *testing.T) {
++	g := newRig(t)
++	now := time.Now()
++	g.store.now = func() time.Time { return now }
++	g.prime("true")
++	g.store.now = func() time.Time { return now.Add(reuseMaxAge + time.Minute) }
++	g.mustRun("true", "stale entry")
++}
++
++func TestReuseVolatileBuildOutputPolicy(t *testing.T) {
++	g := newRig(t)
++	g.prime("true")
++	g.write("_build/x.beam", "1")
++	if _, ran := g.check("true"); ran {
++		t.Fatal("default mode: _build is a build output, not a key field")
++	}
++	g.store.Strict = true
++	g.mustRun("true", "strict mode must see _build")
++}
++
++func TestReuseAuditEvery(t *testing.T) {
++	g := newRig(t)
++	g.store.AuditEvery = 2
++	g.prime("true")
++	if _, ran := g.check("true"); ran {
++		t.Fatal("hit 1 should reuse")
++	}
++	g.mustRun("true", "every 2nd hit is an audit run")
++}
++
++func TestReuseSecretNotStored(t *testing.T) {
++	g := newRig(t)
++	g.env = append(g.env, "API_TOKEN=supersecretvalue")
++	g.prime("true")
++	ents, _ := os.ReadDir(g.store.dir)
++	for _, e := range ents {
++		b, _ := os.ReadFile(filepath.Join(g.store.dir, e.Name()))
++		if strings.Contains(string(b), "supersecretvalue") {
++			t.Fatal("secret in store")
++		}
++	}
++}
