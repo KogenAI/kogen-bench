@@ -1,0 +1,407 @@
+diff -ruN base/loop/session.go patched/loop/session.go
+--- base/loop/session.go	2026-10-30 22:01:57
++++ patched/loop/session.go	2026-10-30 22:02:33
+@@ -33,6 +33,10 @@
+ const FinishTool = "finish"
+ 
+ // DefaultTools are the generic tools a Session enables when none are named.
++// ShellYield is the yielding-shell bound of every session's shell tool (experiment
++// shell-yield: a call returns after 30 s with a session number while the command runs on).
++var ShellYield = 30 * time.Second
++
+ var DefaultTools = []string{tools.ReadFileTool, tools.WriteFileTool, tools.ListFilesTool, tools.SearchTextTool, tools.ShellTool}
+ 
+ // TerminalDefinition is the standalone definition of a terminal tool: one required string
+@@ -189,10 +193,11 @@
+ 	if len(terminal) == 0 {
+ 		terminal = DefaultTerminal
+ 	}
++	tl := &tools.Tools{Root: cfg.Root, Enabled: slices.Clone(enabled), Protected: cfg.Protected, Excluded: cfg.Excluded, ShellYield: ShellYield}
+ 	var defs []any
+ 	seen := map[string]bool{}
+ 	for _, name := range enabled {
+-		d, ok := tools.Definition(name)
++		d, ok := tl.Definition(name)
+ 		if !ok {
+ 			return nil, invalid("unknown tool " + name)
+ 		}
+@@ -217,6 +222,7 @@
+ 	if session == nil {
+ 		session = sys.New()
+ 	}
++	tl.Session = session
+ 	client := cfg.Client
+ 	if client == nil {
+ 		client = provider.NewClient("kogen-loop dev")
+@@ -227,7 +233,7 @@
+ 	}
+ 	s := &Session{
+ 		cfg: cfg, instructions: instructions, defs: defs, terminal: slices.Clone(terminal),
+-		tools: &tools.Tools{Root: cfg.Root, Session: session, Enabled: slices.Clone(enabled), Protected: cfg.Protected, Excluded: cfg.Excluded},
++		tools: tl,
+ 	}
+ 	s.direct = &Direct{Client: client, Session: session, Observer: attempts{s}, Cache: cache}
+ 	return s, nil
+diff -ruN base/sys/job.go patched/sys/job.go
+--- base/sys/job.go	1970-01-01 03:00:00
++++ patched/sys/job.go	2026-10-30 22:02:10
+@@ -0,0 +1,112 @@
++package sys
++
++import (
++	"os/exec"
++	"strconv"
++	"syscall"
++	"time"
++)
++
++// Job is a command Start began and the caller waits for in bounded slices (the yielding
++// shell). Its process group is one of the session's groups, so round custody and Owned
++// treat it like any other command's group.
++type Job struct {
++	pgid    int
++	cmd     *exec.Cmd
++	buf     *capBuffer
++	waited  chan struct{}
++	release func()
++	seen    int // stream bytes already returned by New
++}
++
++// Start begins `/bin/sh -c command` in dir like Run, without waiting for it. A refused
++// command returns a nil Job and the refusal Result; a command that cannot start returns a
++// nil Job and status 127. Options.Timeout and KillGroupOnExit do not apply.
++func (s *Session) Start(command, dir string, opts Options) (*Job, Result, error) {
++	if opts.RefuseForeignKill {
++		if rule, refused := ForeignKill(command, s.Owned); refused {
++			return nil, Result{Status: 126, Output: RefusalText(rule), Rule: rule}, nil
++		}
++	}
++	s.Debug("command in " + dir + ": " + command)
++	cmd, release, err := supervised(command)
++	if err != nil {
++		return nil, Result{Status: 127, Output: err.Error()}, nil
++	}
++	cmd.Dir = dir
++	cmd.Env = append([]string{}, s.Env...)
++	for k, v := range opts.Env {
++		cmd.Env = append(cmd.Env, k+"="+v)
++	}
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	buf := &capBuffer{}
++	cmd.Stdout, cmd.Stderr = buf, buf
++	cmd.WaitDelay = time.Second
++
++	s.mu.Lock()
++	if s.cancelled != "" {
++		sig := s.cancelled
++		s.mu.Unlock()
++		release()
++		return nil, Result{}, &Interrupted{sig}
++	}
++	if err := cmd.Start(); err != nil {
++		s.mu.Unlock()
++		release()
++		return nil, Result{Status: 127, Output: err.Error()}, nil
++	}
++	j := &Job{pgid: cmd.Process.Pid, cmd: cmd, buf: buf, waited: make(chan struct{}), release: release}
++	s.groups[j.pgid] = true
++	s.mu.Unlock()
++	go func() { cmd.Wait(); release(); close(j.waited) }()
++	return j, Result{}, nil
++}
++
++// Wait waits up to d for the command to end and reports whether it has. An interrupt of
++// the session returns its error; the command keeps running under round custody.
++func (j *Job) Wait(s *Session, d time.Duration) (bool, error) {
++	t := time.NewTimer(d)
++	defer t.Stop()
++	select {
++	case <-j.waited:
++		return true, nil
++	case <-t.C:
++		return false, nil
++	case <-s.done:
++		return false, s.Err()
++	}
++}
++
++// Stop ends the command's process group (SIGTERM, then SIGKILL) and waits for the leader.
++func (j *Job) Stop() {
++	Terminate([]int{j.pgid})
++	<-j.waited
++}
++
++// Status is the exit status of an ended command (128+signal when killed).
++func (j *Job) Status() int { return exitStatus(j.cmd.ProcessState) }
++
++// New returns the output written since the previous New, with an omission marker when
++// part of it fell in the capped middle of the stream.
++func (j *Job) New() string {
++	text, total := j.buf.since(j.seen)
++	j.seen = total
++	return text
++}
++
++// since returns the stream from byte n on, and the stream length.
++func (b *capBuffer) since(n int) (string, int) {
++	b.mu.Lock()
++	defer b.mu.Unlock()
++	total := len(b.head) + b.dropped + len(b.tail)
++	switch tailAt := len(b.head) + b.dropped; {
++	case n >= tailAt:
++		return string(b.tail[n-tailAt:]), total
++	case n < len(b.head) && b.dropped == 0:
++		return string(b.head[n:]) + string(b.tail), total
++	case n < len(b.head):
++		return string(b.head[n:]) + "\n[... " + strconv.Itoa(b.dropped) + " bytes omitted ...]\n" + string(b.tail), total
++	default:
++		return "[... " + strconv.Itoa(tailAt-n) + " bytes omitted ...]\n" + string(b.tail), total
++	}
++}
+diff -ruN base/tools/defs.go patched/tools/defs.go
+--- base/tools/defs.go	2026-10-30 22:01:57
++++ patched/tools/defs.go	2026-10-30 22:02:33
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"strconv"
+ 	"strings"
+ )
+ 
+@@ -137,6 +138,22 @@
+ 		if name == DocumentationTool {
+ 			d["parameters"].(map[string]any)["properties"].(map[string]any)["base"].(map[string]any)["description"] = "Optional origin: requests use it, no other host."
+ 		}
++	}
++	if name == ShellTool && t.ShellYield > 0 && t.ShellTimeout <= 0 && !t.CompactDescriptions {
++		y := t.ShellYield.String()
++		d["description"] = "Run a command with /bin/sh -c in the repository root. stdin is closed. Returns the exit status and the combined stdout and stderr when the command ends within " + y + ". Otherwise the call returns after " + y + " with the output so far and a session number, and the command keeps running: call shell with that session (no command) to wait for it again (wait_seconds, default " + strconv.Itoa(int(t.ShellYield.Seconds())) + ", at most 300) and get the new output, or with session and stop true to stop it. Prefer the narrowest command that answers your question; stop a command whose result you no longer need."
++		d["parameters"] = map[string]any{
++			"type": "object",
++			"properties": map[string]any{
++				"command":      str(),
++				"session":      integer(),
++				"wait_seconds": integer(),
++				"stop":         map[string]any{"type": "boolean"},
++			},
++			"required":             []any{},
++			"additionalProperties": false,
++		}
++		return d, true
+ 	}
+ 	if name == ShellTool && t.ShellTimeout > 0 {
+ 		if t.CompactDescriptions {
+diff -ruN base/tools/shell_yield_test.go patched/tools/shell_yield_test.go
+--- base/tools/shell_yield_test.go	1970-01-01 03:00:00
++++ patched/tools/shell_yield_test.go	2026-10-30 22:02:54
+@@ -0,0 +1,117 @@
++package tools
++
++import (
++	"os"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"kogen-loop/sys"
++)
++
++func yieldTools(t *testing.T, yield time.Duration) *Tools {
++	root := t.TempDir()
++	return &Tools{Root: root, Enabled: []string{ShellTool}, Session: sys.NewWith(os.Environ(), root), ShellYield: yield}
++}
++
++func TestShellYieldFastCommandIsOrdinary(t *testing.T) {
++	tl := yieldTools(t, 2*time.Second)
++	if got := run(t, tl, ShellTool, map[string]any{"command": "echo hi; exit 3"}); got != "exit status: 3\nhi\n" {
++		t.Errorf("%q", got)
++	}
++	if len(tl.jobs) != 0 {
++		t.Errorf("ended command left a session: %v", tl.jobs)
++	}
++}
++
++func TestShellYieldReturnsWhileTheCommandRunsAndWaitsForItsEnd(t *testing.T) {
++	tl := yieldTools(t, 300*time.Millisecond)
++	start := time.Now()
++	got := run(t, tl, ShellTool, map[string]any{"command": "echo first; sleep 2; echo second"})
++	if el := time.Since(start); el > 1500*time.Millisecond {
++		t.Fatalf("first call took %v, want about the yield", el)
++	}
++	if got != "still running after 300ms as shell session 1; output so far:\nfirst\n" {
++		t.Fatalf("%q", got)
++	}
++	got = run(t, tl, ShellTool, map[string]any{"session": float64(1), "wait_seconds": float64(10)})
++	if got != "exit status: 0\nsecond\n" { // only the new output
++		t.Fatalf("%q", got)
++	}
++	if got := run(t, tl, ShellTool, map[string]any{"session": float64(1)}); !strings.HasPrefix(got, "error: no running shell session") {
++		t.Errorf("ended session still answers: %q", got)
++	}
++}
++
++func TestShellYieldStopEndsTheWholeGroup(t *testing.T) {
++	tl := yieldTools(t, 200*time.Millisecond)
++	got := run(t, tl, ShellTool, map[string]any{"command": "sleep 60 & echo child $!; wait"})
++	if !strings.Contains(got, "shell session 1") {
++		t.Fatalf("%q", got)
++	}
++	var pid int
++	for _, f := range strings.Fields(got) {
++		if n, err := parseInt(f); err == nil {
++			pid = n
++		}
++	}
++	start := time.Now()
++	got = run(t, tl, ShellTool, map[string]any{"session": float64(1), "stop": true})
++	if !strings.HasPrefix(got, "stopped session 1\nexit status: ") || time.Since(start) > 7*time.Second {
++		t.Fatalf("%q after %v", got, time.Since(start))
++	}
++	time.Sleep(100 * time.Millisecond)
++	if pid > 0 && syscall.Kill(pid, 0) == nil {
++		t.Errorf("background child %d survived stop", pid)
++	}
++}
++
++func TestShellYieldWaitIsBounded(t *testing.T) {
++	tl := yieldTools(t, 200*time.Millisecond)
++	run(t, tl, ShellTool, map[string]any{"command": "sleep 30"})
++	start := time.Now()
++	got := run(t, tl, ShellTool, map[string]any{"session": float64(1), "wait_seconds": float64(1)})
++	if el := time.Since(start); el < 900*time.Millisecond || el > 3*time.Second || got != "still running after 1s as shell session 1; output so far:\n" {
++		t.Fatalf("%q after %v", got, el)
++	}
++	run(t, tl, ShellTool, map[string]any{"session": float64(1), "stop": true})
++}
++
++func TestShellYieldDefinitionAndDefaultUnchanged(t *testing.T) {
++	plain, _ := (&Tools{}).Definition(ShellTool)
++	base, _ := Definition(ShellTool)
++	if plain["description"] != base["description"] {
++		t.Errorf("default definition changed")
++	}
++	d, _ := (&Tools{ShellYield: 30 * time.Second}).Definition(ShellTool)
++	props := d["parameters"].(map[string]any)["properties"].(map[string]any)
++	for _, k := range []string{"command", "session", "wait_seconds", "stop"} {
++		if props[k] == nil {
++			t.Errorf("missing %s", k)
++		}
++	}
++	if !strings.Contains(d["description"].(string), "within 30s") {
++		t.Errorf("%v", d["description"])
++	}
++	if u := (&Tools{ShellYield: time.Second, ShellTimeout: time.Second}); true {
++		d, _ := u.Definition(ShellTool)
++		if strings.Contains(d["description"].(string), "session") {
++			t.Errorf("a positive ShellTimeout keeps the timeout shell")
++		}
++	}
++}
++
++func parseInt(s string) (int, error) {
++	n := 0
++	if s == "" {
++		return 0, os.ErrInvalid
++	}
++	for _, c := range s {
++		if c < '0' || c > '9' {
++			return 0, os.ErrInvalid
++		}
++		n = n*10 + int(c-'0')
++	}
++	return n, nil
++}
+diff -ruN base/tools/tools.go patched/tools/tools.go
+--- base/tools/tools.go	2026-10-30 22:01:57
++++ patched/tools/tools.go	2026-10-30 22:02:33
+@@ -119,6 +119,12 @@
+ 	OmitViewImage bool
+ 	// ShellTimeout bounds each shell invocation independently. Nonpositive means no limit.
+ 	ShellTimeout time.Duration
++	// ShellYield, when positive and ShellTimeout is not, returns a shell call after this
++	// long with the output so far while the command keeps running as a numbered session;
++	// a later call with that session waits again or stops it. Nonpositive: wait until the end.
++	ShellYield time.Duration
++	jobs       map[int]*sys.Job
++	lastJob    int
+ 	// Repo runs the Git commands of list_files and search_text and the candidate tree of
+ 	// view_image. Nil: Git in Root with the Session's environment (see git.go).
+ 	Repo Git
+@@ -487,6 +493,9 @@
+ // sys.RefusalText as ordinary tool text. KillGroupOnExit stays off: background servers
+ // outlive a call, and round and engine cleanup end them with the round.
+ func (t *Tools) shell(ctx context.Context, args map[string]any) (string, string, error) {
++	if t.ShellYield > 0 && t.ShellTimeout <= 0 {
++		return t.yieldShell(args)
++	}
+ 	command, msg := stringArg(args, "command")
+ 	if msg != "" {
+ 		return msg, "", nil
+@@ -507,6 +516,65 @@
+ 		text = "timed out after " + t.ShellTimeout.String() + "\n" + text
+ 	}
+ 	return text, "", nil
++}
++
++// maxShellWait bounds the wait_seconds of a session call.
++const maxShellWait = 300 * time.Second
++
++// yieldShell is shell with ShellYield: a new command, or {session, wait_seconds, stop} for one
++// still running. Calls run one at a time (the engine is serial), so jobs needs no lock.
++func (t *Tools) yieldShell(args map[string]any) (string, string, error) {
++	if v, ok := args["session"]; ok && v != nil {
++		n, ok := v.(float64)
++		job := t.jobs[int(n)]
++		if !ok || job == nil {
++			return "error: no running shell session " + fmt.Sprint(v), "", nil
++		}
++		id := int(n)
++		if stop, _ := args["stop"].(bool); stop {
++			job.Stop()
++			delete(t.jobs, id)
++			return "stopped session " + strconv.Itoa(id) + "\nexit status: " + strconv.Itoa(job.Status()) + "\n" + job.New(), "", nil
++		}
++		wait := t.ShellYield
++		if w, ok := args["wait_seconds"].(float64); ok && w > 0 {
++			wait = min(time.Duration(w*float64(time.Second)), maxShellWait)
++		}
++		return t.await(id, job, wait)
++	}
++	command, msg := stringArg(args, "command")
++	if msg != "" {
++		return msg, "", nil
++	}
++	job, res, err := t.session().Start(command, t.Root, sys.Options{RefuseForeignKill: true})
++	if err != nil {
++		return "", "", err
++	}
++	if job == nil {
++		if res.Rule != "" {
++			return res.Output, res.Rule, nil
++		}
++		return "exit status: " + strconv.Itoa(res.Status) + "\n" + res.Output, "", nil
++	}
++	if t.jobs == nil {
++		t.jobs = map[int]*sys.Job{}
++	}
++	t.lastJob++
++	t.jobs[t.lastJob] = job
++	return t.await(t.lastJob, job, t.ShellYield)
++}
++
++// await waits up to wait for session id and reports its new output.
++func (t *Tools) await(id int, job *sys.Job, wait time.Duration) (string, string, error) {
++	done, err := job.Wait(t.session(), wait)
++	if err != nil {
++		return "", "", err
++	}
++	if done {
++		delete(t.jobs, id)
++		return "exit status: " + strconv.Itoa(job.Status()) + "\n" + job.New(), "", nil
++	}
++	return "still running after " + wait.String() + " as shell session " + strconv.Itoa(id) + "; output so far:\n" + job.New(), "", nil
+ }
+ 
+ func (t *Tools) probe(args map[string]any) (string, error) {
