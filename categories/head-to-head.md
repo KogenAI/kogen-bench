@@ -410,6 +410,18 @@ The test harness's report table shows 0 correct for Codex alone in both blocks. 
 
 Limits: one run per task and setup; the tasks were chosen because Codex at high effort had failed them, and six of the nine come from Kogen's own code. One laptop and one MacBook, one model and effort. Kogen's time covers shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/hk3-lm-hard-tasks/`](../reproduce/hk3-lm-hard-tasks/README.md) and [`reproduce/hk3-mb-hard-tasks/`](../reproduce/hk3-mb-hard-tasks/README.md).
 
+### Hard tasks, newer Kogen: Kogen driving Codex, against Codex CLI alone
+
+Result, 30 October 2026: **no difference in success.** The laptop block of the Codex comparison above was repeated at Kogen a3ca7bc (the change that stops a build from ending early), with the same 9 tasks, model, effort, machine and Codex CLI 0.166.0. Four of the nine tasks are not scored: three never ran their acceptance suite in grading and one has a fixture that only works on macOS, so 8 of 18 cells are left out for both setups. On the other 5 tasks each setup passed the same 3 (0.60, 95% interval 0.23 to 0.88) and failed the same 2.
+
+| Tasks scored | Kogen passed | Codex alone passed | Paired test | Fisher | Wall (Kogen / Codex) | Input / output tokens (Kogen / Codex) |
+|---:|---:|---:|---|---|---|---|
+| 5 | 3 | 3 | 0 discordant tasks, p = 1 | p = 1 | 7,614 s / 1,408 s (Kogen slower on all 5, p = 0.0625) | 10.95 M / 15.44 M and 75,182 / 62,722 (p = 1 and p = 0.375) |
+
+Tokens are each setup's own record, measured for both on all 5 tasks; no cost is claimed, since the model has no list price. No scored Kogen cell ended before building, so this block does not show whether the early-stop change helps; two excluded Kogen cells did end before any build request. Against the older laptop block on the same 5 tasks, Kogen has the same outcome on every task, with identical test counts; its wall time was shorter on 3 tasks and longer in total (7,614 s against 6,923 s). That comparison is descriptive: different Kogen versions, one run each. The older block scored all nine tasks, including the four that cannot be scored reliably; read its results with that in mind.
+
+Limits: one run per task and setup, five scored pairs; an edge of a task or two could not show. The tasks were chosen because Codex at high effort had failed them. One laptop, one model and effort. Kogen's time and tokens cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows (scored and excluded) and the script that reproduces them: [`reproduce/hk4-lm-hard-tasks/`](../reproduce/hk4-lm-hard-tasks/README.md).
+
 ### Hard tasks on the MacBook: Kogen driving Claude Code, against Claude Code alone
 
 Result, 30 October 2026: **no difference in success, and Kogen cost more.** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.

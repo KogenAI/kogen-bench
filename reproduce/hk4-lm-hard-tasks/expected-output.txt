@@ -1,0 +1,53 @@
+cells: 18 run, 10 counted on 5 tasks, 8 uncounted; one run per task and setup
+
+Counted cells
+task | Kogen outcome | Kogen passed (tests) | codex-alone outcome | codex-alone passed (tests)
+goose-labels-go | landed | fail (206/389) | finished | fail (206/389)
+kogen-review-on-demand | landed | pass (298/298) | finished | pass (298/298)
+kogen-review-retry | no_progress | fail (642/649) | finished | fail (642/649)
+kogen-shell-bound | landed | pass (346/346) | finished | pass (346/346)
+tally-periodic-go | landed | pass (25/25) | finished | pass (25/25)
+
+Uncounted cells (grading never ran the acceptance suite, or the Linux-only revive fixture; not scored, shown for completeness)
+task | arm | outcome | grader passed/expected | Kogen build requests
+kogen-loop-parallel-calls | codex-alone | finished | 392/398 | -
+kogen-loop-parallel-calls | kogen | landed | 392/398 | 13
+kogen-loop-read-ledger | codex-alone | finished | 377/384 | -
+kogen-loop-read-ledger | kogen | refused | 369/384 | none
+kogen-loop-tool-cut | codex-alone | finished | 341/346 | -
+kogen-loop-tool-cut | kogen | dirty_tree | 336/346 | 0
+revive-baseline-go | codex-alone | finished | 962/962 | -
+revive-baseline-go | kogen | check_failing | 0/962 | 0
+
+Pass by the protected final-tree grade and a normal ending (counted tasks):
+kogen: 3/5 = 0.60 [0.23, 0.88] (Wilson 95%)
+codex-alone: 3/5 = 0.60 [0.23, 0.88] (Wilson 95%)
+paired: both pass 3, only Kogen 0, only codex-alone 0, both fail 2
+exact paired test (McNemar, two-sided binomial on the 0 discordant tasks): p=1.0000
+Fisher exact (2x2 pass/fail by setup, two-sided): p=1.0000
+
+Wall time as measured (s; all counted tasks have a recorded wall for both setups)
+wall s: Kogen lower/higher 0/5, 0 ties, 5 tasks measured for both, exact two-sided p=0.0625; totals Kogen 7,613.5, codex-alone 1,407.8
+
+Measured usage (tokens as recorded by each setup; input includes cache reads; reasoning tokens not added; no cost: gpt-6.1-terra has no list price)
+arm | input | cached input | output
+kogen | 10,954,777 | 9,800,064 | 75,182
+codex-alone | 15,436,572 | 15,086,208 | 62,722
+input tokens: Kogen lower/higher 3/2, 0 ties, 5 tasks measured for both, exact two-sided p=1.0000; totals Kogen 10,954,777.0, codex-alone 15,436,572.0
+output tokens: Kogen lower/higher 1/4, 0 ties, 5 tasks measured for both, exact two-sided p=0.3750; totals Kogen 75,182.0, codex-alone 62,722.0
+Requests are not compared: the alone setup records completed CLI turns (1 per cell), Kogen records model requests.
+
+Kogen cells that ended before any build request (all 9 tasks): [('kogen-loop-read-ledger', 'refused'), ('kogen-loop-tool-cut', 'dirty_tree'), ('revive-baseline-go', 'check_failing')]
+of those, counted: []
+
+Descriptive comparison with hk3-lm (Kogen 18895e65, same tasks, same laptop; a different Kogen pin, one run each, no test applied)
+task | hk3-lm Kogen | hk4-lm Kogen | hk3-lm alone | hk4-lm alone | Kogen wall hk3-lm | Kogen wall hk4-lm
+goose-labels-go | landed fail (206/389) | landed fail (206/389) | memory_cap fail (-/-) | finished fail (206/389) | 1,353 | 1,802
+kogen-review-on-demand | landed pass (298/298) | landed pass (298/298) | finished pass (298/298) | finished pass (298/298) | 1,805 | 1,382
+kogen-review-retry | no_progress fail (642/649) | no_progress fail (642/649) | finished fail (642/649) | finished fail (642/649) | 1,431 | 717
+kogen-shell-bound | landed pass (346/346) | landed pass (346/346) | finished pass (346/346) | finished pass (346/346) | 1,811 | 3,247
+tally-periodic-go | landed pass (25/25) | landed pass (25/25) | finished pass (25/25) | finished pass (25/25) | 523 | 465
+kogen: hk3-lm 3/5, hk4-lm 3/5; same tasks pass: True
+codex-alone: hk3-lm 3/5, hk4-lm 3/5; same tasks pass: True
+Kogen wall over the 5 tasks: hk3-lm 6,923 s, hk4-lm 7,613 s; shorter in hk4-lm on 3 of 5 tasks
+codex-alone wall over the 4 tasks with a wall in both cohorts (goose-labels-go left out: memory_cap in hk3-lm): hk3-lm 1,819 s, hk4-lm 914 s
