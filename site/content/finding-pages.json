@@ -136,6 +136,168 @@
       "verdict": "superseded",
       "finished": "2026-10-30",
       "summary": "This analysis looked at 496 earlier runs and a few tiny probes on two Macs and found that kogen-loop's streaming speed on the subscription route fell from about 110 to about 48 tokens per second during the night, and that a direct probe pair showed loop at 45 against Codex's 81-106. A later same-computer test ([connection speed test](finding:route-same-host-throughput)) did not reproduce the probe gap, and the cause of the earlier drop was never found. Only the narrow observation that loop's speed dropped that night still stands; the page does not show it was the route."
+    },
+    {
+      "id": "confirm5-clean-route-8tasks",
+      "category": "categories/head-to-head.md",
+      "title": "kogen-loop vs Codex on 8 Go tasks: cheaper at medium effort, no clear gap at high",
+      "comparison": "loop-vs-codex",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "kogen-loop and Codex ran 8 Go tasks on one shared API key with the same model (gpt-6.1-terra), once at medium and once at high effort. Both tools passed 8 of 8 in both settings. At medium effort loop cost 39.95% less per passed task and was cheaper on all 8 tasks (sign test p=0.0078). At high effort there was no clear difference in time or cost. The larger [14-task test](finding:replayconf-14task-high) later measured the high-effort cost gap."
+    },
+    {
+      "id": "morning-report-20261030",
+      "category": "categories/head-to-head.md",
+      "title": "Report on whether kogen-loop is cheaper, as reliable and faster than Codex: goal not met",
+      "comparison": "loop-vs-codex",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "A summary of the first night of kogen-loop vs Codex testing on the same model and effort. On the clean API route at high effort loop was slower (median 139.76 s against 117.40 s) at equal pass rate and cost; at medium effort it cost 20.5% less per passed task, with a 4% lower median time but a worse slowest-tenth. On the subscription route loop's cost was 50-58% lower at tied pass rates, but the time gaps were mixed up with a speed change on the provider side and are not read as differences between the tools. The study's goal (cheaper, as reliable and faster) was therefore not met on that night's evidence."
+    },
+    {
+      "id": "api-patch-screen-2nd-host",
+      "category": "categories/head-to-head.md",
+      "title": "Three speed patches for kogen-loop: none faster or cheaper beyond noise",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "A short screening test of three changes to kogen-loop against its faster baseline build, run on a second computer with both sides on the same API key. All 16 runs passed, and no patch was faster or cheaper by more than run-to-run noise, so none was adopted. Total spend was $1.76 against a $3.00 limit."
+    },
+    {
+      "id": "highwall-write-check",
+      "category": "categories/head-to-head.md",
+      "title": "Letting kogen-loop's file-writing tool carry a follow-up check: not used by the model",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "We changed kogen-loop's write-file tool so that a write could carry a test command the agent already knew it would run next, saving one request. In a short test of 8 runs over 3 tasks, all passed, but the model used the new option in 0 of 3 runs where it could, so the saving was never exercised and the change does not advance."
+    },
+    {
+      "id": "loop-sub-route-honest-probe",
+      "category": "categories/head-to-head.md",
+      "title": "No faster route to the model was reachable with kogen-loop's own login",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "Using kogen-loop's own ChatGPT login and an honest client name, we tried plain HTTP with loop's usual blank client name, plain HTTP with an honest name, and a WebSocket. Every variant that answered streamed at about 54 tokens per second. The ChatGPT Codex backend refused loop's login outright (HTTP 401). So there is no route change to propose; the open question is one of eligibility, for OpenAI. No Codex arm and no coding tasks were involved."
+    },
+    {
+      "id": "hk2-hard-set",
+      "category": "categories/kogen-vs-codex.md",
+      "title": "Choosing hard tasks for Kogen against Codex alone",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "This result selects the hard task set for comparing the full Kogen product, driving Codex, with Codex used alone: 9 tasks on which Codex at high effort had failed at least once in earlier records (success rates from 0 of 1 up to 3 of 7). The comparison itself was set up but its short test runs were not finished when this was written, so there is no outcome yet."
+    },
+    {
+      "id": "hk3-lm-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen driving Codex vs Codex alone, 9 hard tasks, one laptop: tied on success",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "One run per task and setup on 9 hard repository tasks. Both Kogen (driving Codex) and Codex alone passed the same 3 tasks and failed the same 6, so success did not differ (3 of 9 is 0.33; the 95% interval, which is the range the true rate could plausibly be in, is 0.12 to 0.65). Kogen took 2.6 times as long where both times were recorded. Usage and cost were not measured. Note: a later [grading correction](finding:hard-tasks-grading-correction) says the grader, not the agents, decided some of these ties."
+    },
+    {
+      "id": "hk3-mb-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen driving Codex vs Codex alone, 6 hard tasks, one MacBook: tied on success",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "One run per task and setup on 6 hard repository tasks. Each setup passed 2 of 6 (0.33; 95% interval 0.10 to 0.70), but not the same two: only Kogen passed two of the tasks and only Codex alone passed the other two. Kogen took 4.9 times as long on the 5 tasks where both times were recorded. Usage and cost were not measured. See also the [grading correction](finding:hard-tasks-grading-correction)."
+    },
+    {
+      "id": "cco-mb-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen driving Claude Code vs Claude Code alone, 6 hard tasks, one MacBook",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "One run per task and setup on 6 hard repository tasks. Kogen driving Claude Code passed 2 of 6 and Claude Code alone passed 3 of 6; the one task that differed was a Kogen timeout, so success did not differ in a way we can trust. Kogen cost 1.9 times as much at list prices ($24.99 against $13.40 in total) and took 1.4 times as long. See also the [grading correction](finding:hard-tasks-grading-correction)."
+    },
+    {
+      "id": "ccs2-mb-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen driving Claude Code vs Claude Code alone, 6 hard tasks, one MacBook, second block",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "A second set of runs on 6 hard repository tasks, one run per task and setup. Both setups passed the same 2 of 6 and failed the same 4. Where both could be priced (5 tasks), Kogen cost 3.2 times as much at list prices ($7.50 against $2.33) and, over all six, took 1.4 times as long. See also the [grading correction](finding:hard-tasks-grading-correction)."
+    },
+    {
+      "id": "ccs3-lm-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen driving Claude Code vs Claude Code alone, 9 hard tasks, one laptop",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "One run per task and setup on 9 hard repository tasks. Both setups passed the same 5 and failed the same 4 (5 of 9 is 0.56; 95% interval 0.27 to 0.81), so there was no difference in success. Kogen cost 2.4 times as much at list prices ($15.30 against $6.31 in total) and took 1.7 times as long. See also the [grading correction](finding:hard-tasks-grading-correction)."
+    },
+    {
+      "id": "hk4-lm-hard-tasks",
+      "category": "categories/head-to-head.md",
+      "title": "A newer Kogen driving Codex vs Codex alone: tied on the tasks that could be graded",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "A repeat of the [earlier one-laptop test](finding:hk3-lm-hard-tasks) with a newer Kogen version, one run per task and setup. On the 5 tasks whose grading worked, both setups passed the same 3 and failed the same 2 (0.60; 95% interval 0.23 to 0.88). Kogen took 5.4 times as long (7,614 s against 1,408 s), used fewer input tokens and more output tokens. Four of the nine tasks (8 of 18 runs) are not scored because the grading was defective for them."
+    },
+    {
+      "id": "hard-task-review-value",
+      "category": "categories/head-to-head.md",
+      "title": "What Kogen's independent review step did in hard-task runs",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "We counted, from the run logs of five hard-task blocks, what Kogen's separate review step did. All 31 reviews approved the work and none raised a blocking finding; twelve changed the code, and two of those changes broke the build check that follows (both were repaired by the next review). In these runs the review caught no defect that the grader sees. This is observation, not a controlled test, so the verdict is unresolved."
+    },
+    {
+      "id": "hard-tasks-grading-correction",
+      "category": "categories/head-to-head.md",
+      "title": "Correction: how the grader affected the five hard-task results",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "yes",
+      "finished": "2026-10-31",
+      "summary": "A correction to five published hard-task results. The earlier pages and their data are unchanged; this page says what in them was decided by the grader rather than by the agents. On three of nine tasks a grader defect made every run lose the same acceptance checks, and on a fourth the task files were prepared on a Mac in a way that makes one test fail on Linux before anyone touches the code. Of 31 tied task pairs, 14 were forced ties of this kind. So these results say less than they first appeared to."
+    },
+    {
+      "id": "protocol-split-20261030",
+      "category": "categories/head-to-head.md",
+      "title": "Rule: loop-vs-Codex time and cost are measured only on the two Linux servers",
+      "comparison": "test-setup-and-sandboxing",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "A written rule, not a measurement; no runs were made. Wall time and cost for kogen-loop against Codex are measured only on the two Linux benchmark servers, one run at a time with the tools interleaved per task. The Macs instead measure Kogen against the other tool used alone, on hard tasks, by success rate, and make no wall-time claim. The page records why the rule exists."
+    },
+    {
+      "id": "npm-preflight-cache",
+      "category": "categories/head-to-head.md",
+      "title": "Test harness change: install dependencies once, retry timed-out approvals",
+      "comparison": "test-setup-and-sandboxing",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "A change to the test harness, not a model result; no model was called. It installs a task's locked package dependencies once and restores a private copy for each run, and it defers (instead of failing) a run whose approval step hit its 120-second deadline. It does not fix a stalled snapshot step: the patched harness still refuses at the deadline and only retries. The page lists the exact patches and a model-free proof."
+    },
+    {
+      "id": "kogen-approve-deadline-load",
+      "category": "categories/tools-jev-and-review.md",
+      "title": "Why a Kogen approval timed out: the shared 120-second deadline under heavy load",
+      "comparison": "test-setup-and-sandboxing",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "One test run failed with an approval timeout that named a file-staging step. Measurements show that step is quick (0.26 to 0.39 seconds for 2,373 files); the 120-second deadline is shared by task setup, build and snapshot, and a cold build alone takes 42 CPU-seconds, so on a computer with under 10% idle CPU the deadline can run out and the error names whichever step is running. This explanation is not confirmed. How Kogen should budget the deadline is a product decision outside this page."
+    },
+    {
+      "id": "containment-macos-native-20261015",
+      "category": "categories/mechanism-inventory.md",
+      "title": "Four macOS sandbox tools measured against Kogen's old containment needs (historical)",
+      "comparison": "test-setup-and-sandboxing",
+      "verdict": "yes",
+      "finished": "2026-10-15",
+      "summary": "Four macOS sandbox tools and one newer Kogen release were tested on one MacBook on 15 October 2026 against what the first version of Kogen needed: writes limited to chosen folders, secret locations unreadable, an allow-list of environment variables, every build process killed at the end, and a time limit. No language model ran. This is a historical measurement of the retired earlier Kogen's sandbox and those tool versions on that day, one computer and three repetitions per case, not a measurement of today's Kogen."
     }
   ]
 }
