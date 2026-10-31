@@ -1,0 +1,35 @@
+1. Published pairs, and the ones the grader forced
+cohort   pairs ties forced | other tasks: n kogen alone kogen-only alone-only sign-p
+hk3-lm       9    9      4 |             5     3     3          0          0   1.00
+hk3-mb       6    2      2 |             4     2     2          2          2   1.00
+cco-mb       6    5      2 |             4     2     3          0          1   1.00
+ccs2-mb      6    6      2 |             4     2     2          0          0   1.00
+ccs3-lm      9    9      4 |             5     5     5          0          0   1.00
+all         36   31     14 |            22    14    15          2          3   1.00
+
+2. Corrected verdict on the affected tasks
+cohort   task                       kogen                                       alone
+hk3-lm   kogen-loop-parallel-calls  fail: 1 hidden ids failed in the stored grade fail: regraded on the macbook (397/398)
+hk3-lm   kogen-loop-read-ledger     unknown: tree not kept                      pending: hidden results differ on the macbook
+hk3-lm   kogen-loop-tool-cut        unknown: tree not kept                      pass: regraded on the macbook (346/346)
+hk3-lm   revive-baseline-go         fail: ended check_failing                   pending: kept tree, laptop regrade not run yet
+hk3-mb   kogen-loop-read-ledger     fail: ended check_failing                   fail: regraded on the macbook (382/384)
+hk3-mb   kogen-loop-tool-cut        unknown: tree not kept                      pass: regraded on the macbook (346/346)
+cco-mb   kogen-loop-read-ledger     fail: ended protocol                        fail: regraded on the macbook (382/384)
+cco-mb   kogen-loop-tool-cut        unknown: tree not kept                      pass: regraded on the macbook (346/346)
+ccs2-mb  kogen-loop-read-ledger     fail: 2 hidden ids failed in the stored grade fail: regraded on the macbook (382/384)
+ccs2-mb  kogen-loop-tool-cut        unknown: tree not kept                      pass: regraded on the macbook (346/346)
+ccs3-lm  kogen-loop-parallel-calls  fail: regraded on the macbook (397/398)     pass: regraded on the macbook (398/398)
+ccs3-lm  kogen-loop-read-ledger     pending: hidden results differ on the macbook pending: hidden results differ on the macbook
+ccs3-lm  kogen-loop-tool-cut        pass: regraded on the macbook (346/346)     pass: regraded on the macbook (346/346)
+ccs3-lm  revive-baseline-go         fail: ended check_failing                   pending: kept tree, laptop regrade not run yet
+
+3. Corrected totals per cohort (all tasks)
+cohort   kogen pass/fail/unknown/pending  alone pass/fail/unknown/pending  pairs: kogen-only alone-only tie open  sign-p
+hk3-lm   3/4/2/0                          4/3/0/2                                          0          0   6    3  1.00
+hk3-mb   2/3/1/0                          3/3/0/0                                          2          2   1    1  1.00
+cco-mb   2/3/1/0                          4/2/0/0                                          0          1   4    1  1.00
+ccs2-mb  2/3/1/0                          3/3/0/0                                          0          0   5    1  1.00
+ccs3-lm  6/2/0/1                          7/0/0/2                                          0          1   6    2  1.00
+
+4. Regrade: 26 trees graded, 22 cells without a kept tree; pass flips 7; acceptance ids still missing 0; trees whose hidden results differ from the stored grade 3

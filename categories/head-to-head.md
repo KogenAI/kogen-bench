@@ -396,6 +396,8 @@ Kogen's pipeline runs two Claude Code sessions per task: one builds and an indep
 
 ### Driving Claude Code on hard tasks, against Claude Code alone
 
+*Corrected 31 October 2026: on some of these tasks the grader, not the agents, decided the result. See [Hard tasks: grading correction](#hard-tasks-grading-correction).*
+
 Result, 30 October 2026: **unresolved on success (9 task pairs, one run each, all 9 tied); Kogen cost more on 8 of 9 tasks (p = 0.039).** Kogen 8744e67b driving Claude Code and Claude Code 2.1.314 on its own each passed the same 5 of 9 hard tasks (0.56, 95% interval 0.27 to 0.81) and failed the same 4. Both used claude-sonnet-5-5 at medium effort, the same Claude Code binary, one run per task and setup, on one laptop.
 
 The nine tasks are the ones that Codex CLI at high effort had failed at least once, so they are harder than the tasks above. A task passes only when the hidden tests and the public acceptance scenarios all pass on the final tree.
@@ -414,6 +416,8 @@ The test harness's own report table shows 0 of 9 for Claude Code alone. That is 
 Limits: one run per task and setup, so nine pairs; an edge of a task or two could not show. The tasks were chosen because another agent failed them, and six of the nine come from Kogen's own code. One laptop, one model, one effort. Kogen's executor also ran Claude Code 2.1.314, a version that broke Kogen's executor hooks in other runs. Here every logged hook decision was a normal observation and no hook error appeared, but in two Kogen cells (`kogen-review-on-demand` and `kogen-review-retry`) the session record names one more shell call than the hook log holds (21 against 20 and 49 against 48), which is not explained. A later block pins Claude Code 2.1.312 for comparison. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows and the script that reproduces them: [`reproduce/ccs3-lm-hard-tasks/`](../reproduce/ccs3-lm-hard-tasks/README.md).
 
 ### Hard tasks: Kogen driving Codex, against Codex CLI alone
+
+*Corrected 31 October 2026: on some of these tasks the grader, not the agents, decided the result. See [Hard tasks: grading correction](#hard-tasks-grading-correction).*
 
 Result, 30 October 2026: **unresolved on success (9 task pairs on the laptop, 6 on the MacBook, one run each).** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The MacBook block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
 
@@ -442,6 +446,8 @@ Limits: one run per task and setup, five scored pairs; an edge of a task or two 
 
 ### Hard tasks on the MacBook: Kogen driving Claude Code, against Claude Code alone
 
+*Corrected 31 October 2026: on some of these tasks the grader, not the agents, decided the result. See [Hard tasks: grading correction](#hard-tasks-grading-correction).*
+
 Result, 30 October 2026: **unresolved on success and on cost (6 task pairs per block, one run each); Kogen's wall time was higher on all 6 tasks of the Opus block (p = 0.031).** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
 
 | Block | Model, effort | Kogen | Kogen passed | Claude Code alone passed | Paired test | Fisher | Cost at list price† (Kogen / alone) | Wall (Kogen / alone) |
@@ -469,6 +475,36 @@ Result, 31 October 2026: **in these runs the review caught no defect that the gr
 The two red verifications were the first review on `kogen-review-on-demand` in the Codex blocks (`hk3-lm`, `hk3-mb`): it approved with no findings but had edited the tree, and three public acceptance scenarios then failed. A second review fixed both. On `hk3-lm` the cell passed; on `hk3-mb` the repaired tree graded 298 of 298, but the cell hit its 3,600 s deadline first and was graded on the start tree. Three reviews wrote a note clearing code in the area where a hidden subtest fails, one on a discriminating task (`tally-periodic-go`, `ccs2-mb`).
 
 Limits: a grader that sees only the final tree cannot see a defect a review fixed, and twelve reviews changed the tree; apart from `hk3-mb`'s `kogen-review-on-demand`, the tree before the review was never graded. One run per task and block, three models and two efforts, tasks chosen because another agent failed them. The confirmation, Kogen with review on against off at the same model and effort, has not been run. Counts, the per-review rows and the scripts that reproduce them: [`reproduce/hard-task-review-value/`](../reproduce/hard-task-review-value/README.md).
+
+### Hard tasks: grading correction
+
+Correction, 31 October 2026: **on three of the nine hard tasks, and a fourth on the laptop, the grader could not tell the setups apart.** This covers the three sections above (five blocks: `hk3-lm`, `hk3-mb`, `cco-mb`, `ccs2-mb`, `ccs3-lm`). Their text and numbers are left as published; this section says what in them was the grader's doing.
+
+- `kogen-loop-tool-cut`, `kogen-loop-read-ledger` and `kogen-loop-parallel-calls` include public acceptance scenarios run with Cucumber. The grader never gave the scenario runner Cucumber or Node, and these task kits do not install Cucumber. The runner then reported no scenario and exited as if it had finished, so every setup in every block failed the same scenarios as "missing", whatever it built.
+- `revive-baseline-go` on the laptop: a project test needs two fixture folders whose names differ only by case. The task kit was cut on a Mac, which keeps only one of them, so on Linux that test fails before any change, for every setup. Kogen's start-up check refused to build there; the bare agents' grades lost a whole test command to it.
+
+Of the 31 tied task pairs in those sections, 14 were forced this way. The grader is repaired: it now supplies Cucumber and Node, a run that reports no scenario is an infrastructure failure rather than a set of failed tests, and on Linux it restores the lost fixture in its grading copy.
+
+Every final tree that still exists was graded again, with no model calls. Kogen kept its final trees only in `ccs3-lm`; in the other four blocks only the bare agents' changes were stored, so most Kogen cells on these tasks cannot be regraded.
+
+| Block | Kogen pass / fail / unknown / pending | Alone pass / fail / unknown / pending | Pairs: only Kogen / only alone / tie / open |
+|---|---|---|---|
+| `hk3-lm` | 3 / 4 / 2 / 0 | 4 / 3 / 0 / 2 | 0 / 0 / 6 / 3 |
+| `hk3-mb` | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 2 / 2 / 1 / 1 |
+| `cco-mb` | 2 / 3 / 1 / 0 | 4 / 2 / 0 / 0 | 0 / 1 / 4 / 1 |
+| `ccs2-mb` | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 0 / 0 / 5 / 1 |
+| `ccs3-lm` | 6 / 2 / 0 / 1 | 7 / 0 / 0 / 2 | 0 / 1 / 6 / 2 |
+
+"Unknown" is a Kogen cell whose tree was not kept and whose result depended on the scenarios. "Pending" is a kept laptop tree that still needs a regrade on the laptop.
+
+- `kogen-loop-tool-cut` passes for every tree regraded, both setups (6 trees). It was a task every setup solved, graded as one every setup failed; the four Kogen trees that were not kept passed every hidden test, so the task most likely ties everywhere. It leaves the hard set.
+- `kogen-loop-parallel-calls` now separates the setups in `ccs3-lm`: Claude Code alone passes, Kogen fails one hidden test. That block is no longer a tie on every task.
+- `kogen-loop-read-ledger`: the scenarios now pass for every tree. One hidden test fails on the MacBook for every tree graded there, including laptop trees that passed it on the laptop, so on the MacBook the task still cannot separate the setups.
+- The laptop was busy with other work, so the laptop trees of the three scenario tasks were graded on the MacBook. Their hidden-test results match the laptop's own grades, except that one test. Five laptop trees (`kogen-loop-read-ledger` and `revive-baseline-go`) still wait for the laptop.
+
+Success stays unresolved in every block (no block has more than two discordant tasks either way; every p = 1). It rests on fewer tasks than the sections above say: without the four affected tasks, 22 task pairs remain across the five blocks (Kogen 14 passes, the bare agents 15), not 36. With the corrected grades, the bare agents gained 6 passes and Kogen 1.
+
+Limits: one run per task and setup; 5 Kogen cells stay unknown and 5 laptop trees are pending. Rules, per-cell rows, the grader repair and the regrade driver: [`reproduce/hard-tasks-grading-correction/`](../reproduce/hard-tasks-grading-correction/README.md).
 
 ### Native loop with checks and review, against Codex CLI
 

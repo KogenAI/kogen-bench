@@ -1,0 +1,282 @@
+--- a/lanes/FORMATS.md
++++ b/lanes/FORMATS.md
+@@ -196,7 +196,7 @@
+ 
+ - `result.json`: `{cell, lane, phase, exit_code, outcome, started, ended, wall_s, kogen_version, node: {path, version} | null (the Node of an unpacked release's `node-path`), final_tree, pass_trees: [], first_green_tree: <tree id> | null, intent_hash, host, stages, totals}`; `stages` and `totals` are described under Stage records.
+ - `run-log/`: copy of Kogen's run folder. `final-tree.tar`: `git archive` of the final tree. `intent/`: the Intent (shape and e2e).
+-- `evaluation.json`: added by the grader (L4). Build cells also list `pass_trees: [{tree, ...}]`, one entry per tree id of `result.json`, each graded like the final tree (`all_passed`, ...), or `{tree, ungraded: "tree not available"}` when `pass-trees/<id>.tar` is missing. The entry of the first green tree has `first_green: true`; no other entry has the field.
++- `evaluation.json`: added by the grader (L4). Build cells also list `pass_trees: [{tree, ...}]`, one entry per tree id of `result.json`, each graded like the final tree (`all_passed`, ...), or `{tree, ungraded: "tree not available"}` when `pass-trees/<id>.tar` is missing. When the evaluator expects `acceptance:` ids and the acceptance run reports none of them (no Cucumber or Node reached the runner), `infrastructure` says so and `all_passed` is false: such a grade is never a set of `missing` failures. `fixture_repairs` (present only when used) lists the task-pack fixture files grading laid in its scratch tree, each with its reason (`grading.FIXTURE_REPAIRS`). The entry of the first green tree has `first_green: true`; no other entry has the field.
+ - `e2e` cells keep every build key above and add `shape`: the grade of the Intent the cell shaped, with the keys a `shape` cell's `evaluation.json` has (`phase`, `infrastructure`, `matrix`, `scenarios`, `pass_on_reference`, `fail_on_start`, `wrong_caught`, `wrong_total`), run on the cell's `intent/` as for a shape cell. When the shape stage did not finish (refused, questions pending, timed out), or the cell has no Intent or its step files are missing, `shape` is `{phase: "shape", infrastructure: <reason>}` with no counts. Its `infrastructure` never marks the cell's build grade; the top-level `infrastructure` stays the build's. A cell graded before this field existed has no `shape`. `lanes-report` adds `shape` (summed counts) and `shape_classes` (`correct`, `incorrect`, `infrastructure` per cell, by the shape rule) to an e2e lane, and `lanes-export` publishes only its existing keys.
+ - `pass-trees/<tree id>.tar`: `git archive` of each pass tree the workspace still holds, written when the cell ends.
+ 
+--- a/lanes/lanes/grading.py
++++ b/lanes/lanes/grading.py
+@@ -28,6 +28,17 @@
+ ENV_PREFIXES = ("MIX_", "HEX_", "NODE_", "NPM_CONFIG_", "npm_config_")
+ # The acceptance runner's own variables (a task's `[acceptance] run` line uses them), by exact name: no `KOGEN_` prefix.
+ RUNNER_VARS = frozenset(("KOGEN_CUCUMBER", "KOGEN_NODE"))
++CUCUMBER_JS = os.path.join("@cucumber", "cucumber", "bin", "cucumber.js")
++# Fixture defects of a task pack that grading repairs in its scratch tree, keyed by task.toml `name`, with the reason
++# recorded in `evaluation.json` (`fixture_repairs`). A repair only adds a missing file; it never replaces one.
++FIXTURE_REPAIRS = {
++    # Upstream revive has testdata api/v1 and api/V1. The pack was cut on a case-insensitive (macOS) checkout, which
++    # kept only api/V1. On macOS the test opens api/V1/api.go for api/v1/api.go and passes; on a case-sensitive
++    # host it fails at baseline for every arm and errors the whole regression command (hardwhy, 31 Oct).
++    "revive-baseline-go": [(
++        "testdata/package_directory_mismatch/api/v1/api.go", "testdata/package_directory_mismatch/api/V1/api.go",
++        "case-sensitive host: the pack lost api/v1 to a case-insensitive checkout; laid from api/V1 as macOS reads it")],
++}
+ STATUS_ORDER = ["UNKNOWN", "PASSED", "SKIPPED", "PENDING", "UNDEFINED", "AMBIGUOUS", "FAILED"]
+ _binary = []
+ 
+@@ -156,10 +167,52 @@
+     return {"status": code, "timed_out": timed_out, "wall_ms": int((time.monotonic() - t0) * 1000)}
+ 
+ 
++def runner_vars():
++    """`KOGEN_CUCUMBER` and `KOGEN_NODE` for acceptance commands: the environment's when set; else the Cucumber of the
++    Kogen release `$KOGEN_BIN` sits in (`<root>/lib/cucumber/node_modules`) and the `node` on PATH. A variable that
++    cannot be resolved is left out, and a grade whose acceptance run then reports nothing is `infrastructure`.
++    """
++    out = {k: os.environ[k] for k in sorted(RUNNER_VARS) if os.environ.get(k)}
++    if "KOGEN_CUCUMBER" not in out and os.environ.get("KOGEN_BIN"):
++        root = cell.release_root(os.path.realpath(os.environ["KOGEN_BIN"]))
++        cuc = root and os.path.join(root, "lib", "cucumber", "node_modules")
++        if cuc and os.path.isfile(os.path.join(cuc, CUCUMBER_JS)):
++            out["KOGEN_CUCUMBER"] = cuc
++    if "KOGEN_NODE" not in out and shutil.which("node"):
++        out["KOGEN_NODE"] = shutil.which("node")
++    return out
++
++
++def repair_fixtures(task, tree):
++    """Lay the `FIXTURE_REPAIRS` files of this task that the tree lacks; return `["<path>: <reason>"]`."""
++    done = []
++    for dst, src, why in FIXTURE_REPAIRS.get(task["task"].get("name"), []):
++        d, s = os.path.join(tree, dst), os.path.join(tree, src)
++        if os.path.isfile(s) and not os.path.lexists(d):  # on a case-insensitive host `d` exists: nothing to do
++            os.makedirs(os.path.dirname(d), exist_ok=True)
++            shutil.copyfile(s, d)
++            done.append(f"{dst}: {why}")
++    return done
++
++
++def acceptance_unreported(ev, rec):
++    """The infrastructure reason when the evaluator expects acceptance ids and every one is missing (the runner
++    wrote no scenario: no Cucumber, no Node, or it crashed), else None. A failed scenario is reported, not missing."""
++    exp = ev.get("expected", {})
++    wanted = [i for i in exp.get("requested", []) + exp.get("regression", []) if i.startswith("acceptance:")]
++    missing = set(rec.get("missing") or [])
++    if not wanted or not all(i in missing for i in wanted):
++        return None
++    have = runner_vars()
++    return (f"acceptance run reported none of {len(wanted)} expected scenarios (runner did not execute; "
++            + ", ".join(f"{k}={'set' if k in have else 'unset'}" for k in sorted(RUNNER_VARS)) + ")")
++
++
+ def task_env(task, tree, extra=None):
+     """The Lab's `commandEnv`: toolchain variables, the acceptance runner variables, HOME, PATH, LANG, `KOGEN_LAB_ADAPTERS`, the task `env`, and a private
+     TMPDIR next to the tree."""
+-    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k in RUNNER_VARS or k.startswith(ENV_PREFIXES)}
++    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k.startswith(ENV_PREFIXES)}
++    env.update(runner_vars())
+     env.update(HOME=os.environ.get("HOME", "/"), PATH=os.environ.get("PATH", "/usr/bin:/bin"),
+                LANG=os.environ.get("LANG", "C.UTF-8"))
+     env.update({k: str(v) for k, v in task["task"].get("env", {}).items()})
+@@ -195,6 +248,9 @@
+     if hidden:
+         lay(os.path.join(task["dir"], "evaluator", ev["overlay"]), tree)
+     rec = {"infrastructure": None}
++    repaired = repair_fixtures(task, tree)
++    if repaired:
++        rec["fixture_repairs"] = repaired
+     rec["setup"], rec["infrastructure"] = run_setup(task, tree, task["task"].get("setup", []) + ev.get("setup", []))
+     commands = []
+     for c in ev["command"] if not rec["infrastructure"] else []:
+@@ -214,6 +270,8 @@
+     if r.returncode:
+         raise GradeError("grader failed: " + r.stderr.strip())
+     rec.update(json.loads(r.stdout))
++    if not rec["infrastructure"] and commands:
++        rec["infrastructure"] = acceptance_unreported(ev, rec)
+     if rec["infrastructure"]:
+         rec["all_passed"] = False
+     rec["totals"] = {"expected": len(rec["ids"]), "passed": sum(s == "passed" for s in rec["ids"].values())}
+@@ -579,16 +637,17 @@
+     """Run the supplied Intent's scenarios on the reference as Kogen's verification does: a fresh export, the
+     task `setup`, then the task's acceptance command (the evaluator's own setup does not run, so a build
+     that only the evaluator performs is caught). Returns `(ok, detail)`; skipped, as ok, when the task has no
+-    report-writing `[acceptance]`, no supplied Gherkin Intent, or needs a `$KOGEN_*` runner variable the host lacks.
++    report-writing `[acceptance]` or no supplied Gherkin Intent. A `$KOGEN_*` runner variable the host cannot supply
++    (see `runner_vars`) is a failure, not a skip: the grade would report no scenario.
+     """
+     acc, form = task["task"].get("acceptance"), os.path.join(task["dir"], "supplied", "gherkin")
+     if not acc or "KOGEN_ACCEPTANCE_REPORT" not in acc.get("run", "") or not os.path.isfile(
+             os.path.join(form, "intent.md")) or not os.path.isfile(os.path.join(form, "acceptance.feature")):
+         return True, "skipped: no acceptance command that writes a report, or no supplied Gherkin Intent"
+     absent = sorted(v for v in set(re.findall(r"\$\{?(KOGEN_[A-Z_]+)", acc["run"]))
+-                    if not v.startswith("KOGEN_ACCEPTANCE_") and v not in os.environ)
++                    if not v.startswith("KOGEN_ACCEPTANCE_") and v not in os.environ and v not in runner_vars())
+     if absent:
+-        return True, "skipped: needs " + ", ".join(absent) + " in the environment"
++        return False, "acceptance runner unavailable: needs " + ", ".join(absent) + " (environment or $KOGEN_BIN release)"
+     intent = os.path.join(form, "intent.md")
+     try:
+         listed = intent_steps(intent)
+--- a/lanes/tests/test_acceptance_runner.py
++++ b/lanes/tests/test_acceptance_runner.py
+@@ -0,0 +1,154 @@
++"""Acceptance runner and fixture repairs in grading (hardwhy, 31 Oct 2026): a runner that reports no scenario is
++infrastructure, never a set of missing ids; grading supplies KOGEN_CUCUMBER/KOGEN_NODE; qualification fails loudly."""
++
++import os
++import stat
++import unittest
++import unittest.mock
++
++from lanes import grading
++from tests.test_grade import GradeCase, edit
++
++ID = "acceptance:L3:Adds two numbers"
++ACCEPTANCE = '''
++[[command]]
++name = "acceptance"
++run = "{run}"
++adapter = "lab_jsonl"
++results = "acceptance.jsonl"
++timeout_seconds = 60
++'''
++
++
++class Fresh(GradeCase):
++    def setUp(self):
++        super().setUp()
++        grading._binary.clear()  # the in-process grader cache would point into an earlier test's removed home
++        self.addCleanup(grading._binary.clear)
++
++
++def executable(path, text="#!/bin/sh\nexit 0\n"):
++    os.makedirs(os.path.dirname(path), exist_ok=True)
++    with open(path, "w") as f:
++        f.write(text)
++    os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR)
++    return path
++
++
++class AcceptanceRunner(Fresh):
++    def setUp(self):
++        super().setUp()
++        env = unittest.mock.patch.dict(os.environ)
++        env.start()
++        self.addCleanup(env.stop)
++        for name in ("KOGEN_CUCUMBER", "KOGEN_NODE", "KOGEN_BIN"):
++            os.environ.pop(name, None)
++
++    def acceptance_task(self, run):
++        """task-mini plus an acceptance command (lab_jsonl) and one expected acceptance id."""
++        ev = os.path.join(self.task, "evaluator", "evaluate.toml")
++        edit(ev, "[expected]", ACCEPTANCE.format(run=run.replace('"', '\\"')).lstrip() + "\n[expected]")
++        edit(ev, 'requested = ["mini/TestAddPositive", "mini/TestAddNegative"]',
++             f'requested = ["mini/TestAddPositive", "mini/TestAddNegative", "{ID}"]')
++
++    def grade(self):
++        c, d = self.cell("good", overlays=["reference"])
++        return grading.grade_cell(self.run_dir, c, self.tasks)
++
++    def test_runner_that_reports_no_scenario_is_infrastructure(self):
++        # what run_acceptance.py wrote on kogen-loop-tool-cut with no Cucumber reachable: only the end marker, exit 0
++        self.acceptance_task("""printf '{"suite":"finished"}\\n' > "$LAB_RESULTS\"""")
++        ev = self.grade()
++        self.assertFalse(ev["all_passed"])
++        self.assertIn("acceptance run reported none of 1 expected scenarios", ev["infrastructure"])
++        self.assertIn("KOGEN_CUCUMBER=unset", ev["infrastructure"])
++        self.assertEqual(ev["missing"], [ID])
++
++    def test_runner_that_writes_nothing_and_fails_is_infrastructure(self):
++        self.acceptance_task("exit 1")
++        ev = self.grade()
++        self.assertFalse(ev["all_passed"])
++        self.assertIn("runner did not execute", ev["infrastructure"])
++
++    def test_a_reported_failing_scenario_stays_a_failure(self):
++        self.acceptance_task(f"""printf '{{"id":"{ID}","state":"failed"}}\\n{{"suite":"finished"}}\\n' > "$LAB_RESULTS\"""")
++        ev = self.grade()
++        self.assertIsNone(ev["infrastructure"])
++        self.assertFalse(ev["all_passed"])
++        self.assertIn(ID, ev["failed"])
++
++    def test_no_expected_acceptance_ids_no_check(self):
++        ev = self.grade()
++        self.assertIsNone(ev["infrastructure"])
++        self.assertTrue(ev["all_passed"])
++
++    def test_grading_supplies_the_runner_from_the_kogen_release_and_path(self):
++        tmp = os.path.realpath(self.tmp)  # runner_vars resolves $KOGEN_BIN; macOS temp dirs sit behind the /var -> /private/var link
++        rel = os.path.join(tmp, "kogen-x")
++        executable(os.path.join(rel, "install.sh"))
++        kogen = executable(os.path.join(rel, "bin", "kogen"))
++        executable(os.path.join(rel, "lib", "cucumber", "node_modules", grading.CUCUMBER_JS))
++        node = executable(os.path.join(tmp, "nodebin", "node"))
++        os.environ.update(KOGEN_BIN=kogen, PATH=os.path.dirname(node) + os.pathsep + os.environ.get("PATH", ""))
++        cuc = os.path.join(rel, "lib", "cucumber", "node_modules")
++        self.assertEqual(grading.runner_vars(), {"KOGEN_CUCUMBER": cuc, "KOGEN_NODE": node})
++        # the command sees them: it reports the scenario passed only when both are the supplied paths
++        self.acceptance_task(f"""test "$KOGEN_CUCUMBER" = "{cuc}" && test "$KOGEN_NODE" = "{node}" && """
++                             f"""printf '{{"id":"{ID}","state":"passed"}}\\n{{"suite":"finished"}}\\n' > "$LAB_RESULTS\"""")
++        ev = self.grade()
++        self.assertIsNone(ev["infrastructure"])
++        self.assertTrue(ev["all_passed"], ev)
++
++    def test_environment_runner_variables_win(self):
++        rel = os.path.join(self.tmp, "kogen-y")
++        executable(os.path.join(rel, "install.sh"))
++        executable(os.path.join(rel, "lib", "cucumber", "node_modules", grading.CUCUMBER_JS))
++        os.environ.update(KOGEN_BIN=executable(os.path.join(rel, "bin", "kogen")), KOGEN_CUCUMBER="/c", KOGEN_NODE="/n")
++        self.assertEqual(grading.runner_vars(), {"KOGEN_CUCUMBER": "/c", "KOGEN_NODE": "/n"})
++
++    def test_kogen_bin_outside_a_release_supplies_no_cucumber(self):
++        os.environ["KOGEN_BIN"] = executable(os.path.join(self.tmp, "loose", "kogen"))
++        self.assertNotIn("KOGEN_CUCUMBER", grading.runner_vars())
++
++    def test_qualify_fails_when_the_runner_is_unavailable(self):
++        edit(os.path.join(self.task, "task.toml"), 'run = "go test -count=1 ./features/steps/"',
++             'run = "\\"$KOGEN_NODE\\" \\"$KOGEN_CUCUMBER/x.js\\" --format message:$KOGEN_ACCEPTANCE_REPORT"')
++        os.environ["PATH"] = os.path.join(self.tmp, "empty")
++        ok, detail = grading.qualify_acceptance(grading.load_task(self.task))
++        self.assertFalse(ok)
++        self.assertIn("acceptance runner unavailable: needs KOGEN_CUCUMBER, KOGEN_NODE", detail)
++
++
++class FixtureRepairs(Fresh):
++    def test_missing_fixture_is_laid_with_its_reason_and_graded(self):
++        repairs = {"task-mini": [("fixture/copy.go.txt", "add.go", "test reason")]}
++        with unittest.mock.patch.dict(grading.FIXTURE_REPAIRS, repairs):
++            ev = grading.grade_cell(self.run_dir, self.cell("good", overlays=["reference"])[0], self.tasks)
++        self.assertEqual(ev["fixture_repairs"], ["fixture/copy.go.txt: test reason"])
++        self.assertTrue(ev["all_passed"])
++
++    def test_present_fixture_is_left_alone(self):
++        repairs = {"task-mini": [("add_test.go", "add.go", "never used")]}
++        with unittest.mock.patch.dict(grading.FIXTURE_REPAIRS, repairs):
++            ev = grading.grade_cell(self.run_dir, self.cell("good", overlays=["reference"])[0], self.tasks)
++        self.assertNotIn("fixture_repairs", ev)
++        self.assertTrue(ev["all_passed"])
++
++    def test_revive_case_fixture(self):
++        task = {"task": {"name": "revive-baseline-go"}}
++        dst, src, _ = grading.FIXTURE_REPAIRS["revive-baseline-go"][0]
++        tree = os.path.join(self.tmp, "revive")
++        os.makedirs(os.path.dirname(os.path.join(tree, src)))
++        with open(os.path.join(tree, src), "w") as f:
++            f.write("package api\n")
++        case_insensitive = os.path.exists(os.path.join(tree, src.replace("/V1/", "/v1/")))
++        done = grading.repair_fixtures(task, tree)
++        with open(os.path.join(tree, dst)) as f:
++            self.assertEqual(f.read(), "package api\n")
++        self.assertEqual(len(done), 0 if case_insensitive else 1)
++        self.assertEqual(grading.repair_fixtures(task, tree), [])  # never twice, never over a file
++        self.assertEqual(grading.repair_fixtures({"task": {"name": "other"}}, tree), [])
++
++
++if __name__ == "__main__":
++    unittest.main()
