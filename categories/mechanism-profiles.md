@@ -34,6 +34,7 @@ This page reports both profiles. It uses only logs that were already recorded. I
 | [Builder search tools](#builder-search-tools) | Pass and input rule, after a witness that the tools are used | In two exploratory cells the builder never called the offered list and search tools. | No. Closed before any comparison cell. |
 | [Review material on demand](#review-material-on-demand-an-observation) | Registered; the comparison is still running | Observation only: clean controls 30 of 30 landed in both arms. | Running, no verdict |
 | [Climb results, 29 October](#climb-results-29-october) | Registered per item | Eight items, each with its own result and limits; see the table at the start of that section. | See that section |
+| [Check reuse and the delivery time budget](#check-reuse-and-the-delivery-time-budget-descriptive) | None (descriptive) | Reusing a passing baseline check across restarts could save up to 30% of baseline check seconds in 44 delivery builds, but only with an environment key the logs do not hold. Check commands are 36% of build wall time in benchmark cells and 72% in 15 delivery builds. | Not built; candidate ranking only |
 
 Exception for the checkpoint profile: two tasks with large repositories sit far above the threshold. They are described below, and they are the one open follow-up.
 
@@ -734,6 +735,20 @@ Every Terra review ended the same way: the reviewer kept answering without using
 ### Jev for task size and difficulty: blocked
 
 Jev is a hosted service that needs an API key, and none was available, so the comparison of task size and difficulty with Jev did not run.
+
+## Check reuse and the delivery time budget: descriptive
+
+Two replays of recorded logs, with no model call and no change to Kogen. Both are unresolved by design: they rank where time goes and which candidate changes have headroom.
+
+### Which check reuse has headroom: only baseline reuse across restarts
+
+[`reproduce/verification-reuse-replay/`](../reproduce/verification-reuse-replay/README.md) replays 2,471 recorded command executions from 44 delivery builds (30 October). Baseline checks (before any change) cost 23,865 s and verification passes 15,124 s. Reusing a **passing** baseline check when a build restarts on the same starting tree could save up to 7,059 s (30% of baseline seconds), but the logs record no toolchain, lockfile or environment, and 3 of 133 same-key groups had mixed outcomes, so reuse is safe only with a full environment key. Running checks at the same time (up to 1,821 s, with false failures at high machine load), re-running only the tests a repair touched (703 s), staged scope (165 s), a different pass cadence (tied to one Go package timeout) and reuse inside one build (no repeat without an edit observed) show no headroom or too little. The next step, a keyed baseline cache, was proposed and not built.
+
+### Where build and shaping time goes
+
+[`reproduce/delivery-path-timing/`](../reproduce/delivery-path-timing/README.md) decomposes the time of 4,389 Kogen cells (22 to 31 October) and 15 real delivery builds. Check commands (startup baseline plus verification) take 36% of build wall time in the benchmark cells and 72% in the delivery builds; the slowest shaping requests (180 s or longer) hold 39% of shaping request time. Review repair (3.3% of wall), builder prompt growth (1.4k tokens per round, 92% to 97% cached from round 2), a failing baseline at start (4 of 1,470 builds) and slow build or review requests (28 of about 28,000) show little headroom. The tables rerun from the published, anonymised rows.
+
+**Limits.** Replay estimates are upper bounds, not measurements of a change. The delivery sample is small (44 builds for the reuse replay, 15 for delivery timing), covers a few days and many Kogen builds, and the logs record neither the Kogen build behind each delivery run nor machine load.
 
 ## Evidence level
 

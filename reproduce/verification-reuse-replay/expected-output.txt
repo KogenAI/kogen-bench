@@ -1,0 +1,62 @@
+executions 2471
+Counter({('lanes', 'verify'): 852, ('lanes', 'setup'): 426, ('lanes', 'baseline'): 392, ('delivery', 'setup'): 243, ('delivery', 'baseline'): 224, ('delivery', 'verify'): 161, ('lanes', 'fix'): 123, ('delivery', 'fix'): 50})
+{('delivery', 'setup'): 1175, ('delivery', 'baseline'): 23865, ('delivery', 'fix'): 23, ('delivery', 'verify'): 15123, ('lanes', 'setup'): 173, ('lanes', 'baseline'): 363, ('lanes', 'fix'): 15, ('lanes', 'verify'): 1839}
+verify dirs 221 reused-in-run (same vdir in >1 pass): 221
+vdir spanning >1 pass 0 of 221
+delivery baseline execs 224 secs 23865 | same head+cmd earlier passed: n 78 secs 3118
+lanes baseline execs 392 secs 363 | same head+cmd earlier passed: n 315 secs 275
+=== runs ===
+secs by kind {'setup': 1176, 'baseline': 23865, 'fix': 23, 'verify': 15124}
+M2 same head+check+host: reusable-after-pass execs 82 secs 7059 ; groups w/ mixed outcome 3 of 133
+ by check {'format': (20, 14), 'compile': (20, 17), 'test': (13, 3965), 'go-test': (7, 2297), 'no-home-paths': (4, 0), 'spec': (4, 185), 'cucumber': (4, 577), 'go-format': (3, 0), 'go-vet': (3, 1), 'go-build': (3, 2), 'py-test': (1, 0)}
+verify passes with commands 42 wall 15016 sum 15016 conc ideal saving (upper, independence UNKNOWN) 1821
+M4 re-executed prev-green checks in non-final-or-red passes: n 17 secs 703 ; in final green pass (must stay) 1492
+M5 passes whose failing set == previous failing set: n 22 secs 5619 | with 0 executor rounds started between (no builder edit seen) 18 508
+passes/run [(0, 28), (1, 5), (2, 5), (3, 2), (5, 3), (6, 1)]
+outcomes Counter({'check_failing': 18, 'landed': 7, 'no_progress': 5, 'failed': 4, 'interrupted': 3, None: 3, 'protocol': 2, 'unavailable': 1, 'executor_round_limit': 1})
+executors Counter({None: 28, 'claude-code': 16})
+passes with not_run (fail-stop gating present): 32 of 42
+M6 passing checks executed inside red passes: n 23 secs 165
+verify secs in red passes 9142 in green passes 5874
+  go-test verify n 15 6687 baseline n 29 9536
+  test verify n 16 1321 baseline n 38 11476
+  acceptance verify n 44 5669 baseline n 0 0
+  cucumber verify n 6 1057 baseline n 13 2232
+  spec verify n 6 314 baseline n 13 499
+  format verify n 16 41 baseline n 38 61
+  compile verify n 16 21 baseline n 38 42
+  go-build verify n 4 3 baseline n 12 7
+  model verify n 22 8 baseline n 0 0
+  go-vet verify n 4 2 baseline n 12 5
+  go-format verify n 4 0 baseline n 12 3
+  py-test verify n 2 1 baseline n 6 2
+  no-home-paths verify n 6 1 baseline n 13 1
+--- mixed-outcome same head/check/host groups
+h005 go-test task-003 [(670, False, 'r008', ''), (345, False, 'r007', ''), (383, True, 'r006', '')]
+h016 test task-013 [(883, False, 'r025', ''), (910, False, 'r035', ''), (590, False, 'r027', ''), (594, True, 'r029', ''), (642, False, 'r032', ''), (839, False, 'r037', ''), (630, False, 'r034', ''), (686, False, 'r038', ''), (670, True, 'r031', '')]
+h017 test task-013 [(175, False, 'r033', ''), (135, False, 'r028', ''), (479, False, 'r030', ''), (470, True, 'r036', ''), (497, False, 'r026', '')]
+--- repeated failing sets
+r006  task-003 pass 2 ['acceptance'] rounds between 0 pass secs 10
+r006  task-003 pass 3 ['acceptance'] rounds between 0 pass secs 10
+r006  task-003 pass 4 ['acceptance'] rounds between 0 pass secs 12
+r006  task-003 pass 5 ['acceptance'] rounds between 0 pass secs 9
+r014  task-007 pass 2 ['acceptance'] rounds between 1 pass secs 2954
+r017  task-009 pass 3 ['go-test'] rounds between 1 pass secs 913
+r018  task-009 pass 2 ['go-test'] rounds between 1 pass secs 618
+r018  task-009 pass 3 ['go-test'] rounds between 1 pass secs 625
+r020  task-011 pass 2 ['acceptance'] rounds between 0 pass secs 6
+r020  task-011 pass 3 ['acceptance'] rounds between 0 pass secs 2
+r020  task-011 pass 4 ['acceptance'] rounds between 0 pass secs 2
+r020  task-011 pass 5 ['acceptance'] rounds between 0 pass secs 2
+r021  task-011 pass 2 ['acceptance'] rounds between 0 pass secs 2
+r029  task-013 pass 2 ['acceptance'] rounds between 0 pass secs 45
+r029  task-013 pass 3 ['acceptance'] rounds between 0 pass secs 87
+r029  task-013 pass 4 ['acceptance'] rounds between 0 pass secs 67
+r029  task-013 pass 5 ['acceptance'] rounds between 0 pass secs 72
+r029  task-013 pass 6 ['acceptance'] rounds between 0 pass secs 33
+r031  task-013 pass 2 ['acceptance'] rounds between 0 pass secs 36
+r031  task-013 pass 3 ['acceptance'] rounds between 0 pass secs 37
+r031  task-013 pass 4 ['acceptance'] rounds between 0 pass secs 36
+r031  task-013 pass 5 ['acceptance'] rounds between 0 pass secs 39
+failing checks in passes Counter({'acceptance': 26, 'go-test': 5, 'test': 1})
+baseline failing Counter({'test': 14, 'go-test': 4})

@@ -1,0 +1,418 @@
+## 1. Delivery-path timing decomposition
+
+Cells: Kogen build cells with a builder request ("real builds"), from run-log/log.jsonl `phase_duration` events. Each phase cell shows median/p90 seconds (share of summed wall). Last column = wall not inside any logged phase (process start, queue/setup outside Kogen, grading, gaps).
+
+### 1a. Real builds (builder or executor ran; not seeded), all outcomes
+
+| host class | n | wall med s | wall p90 s | startup | build | verifying | review | committing | unlogged |
+|---|---|---|---|---|---|---|---|---|---|
+| MacBook delivery | 15 | 7054 | 11654 | 2647/4985 (38%) | 613/4730 (25%) | 1345/6359 (34%) | 0/52 (0%) | 0/0 (0%) | 3% |
+| Mac desktop | 102 | 304 | 555 | 0/0 (0%) | 0/0 (9%) | 0/0 (0%) | 0/0 (1%) | 0/0 (0%) | 90% |
+| laptop | 617 | 167 | 414 | 24/57 (12%) | 54/179 (41%) | 35/97 (23%) | 24/84 (17%) | 0/0 (0%) | 7% |
+| Linux host A | 477 | 163 | 1250 | 18/105 (8%) | 70/506 (45%) | 29/287 (21%) | 22/222 (20%) | 0/0 (0%) | 5% |
+| Linux host B | 259 | 354 | 2162 | 29/157 (8%) | 125/983 (46%) | 66/429 (23%) | 30/274 (16%) | 0/0 (0%) | 6% |
+
+### 1b. Real builds, outcome = landed only
+
+| host class | n | wall med s | wall p90 s | startup | build | verifying | review | committing | unlogged |
+|---|---|---|---|---|---|---|---|---|---|
+| MacBook delivery | 3 | 11012 | 11868 | 3820/3830 (34%) | 613/747 (6%) | 6557/7237 (59%) | 20/63 (0%) | 1/1 (0%) | -0% |
+| Mac desktop | 101 | 304 | 504 | 0/0 (0%) | 0/0 (5%) | 0/0 (0%) | 0/0 (1%) | 0/0 (0%) | 94% |
+| laptop | 595 | 166 | 371 | 24/50 (13%) | 52/159 (40%) | 34/89 (23%) | 24/83 (18%) | 0/0 (0%) | 7% |
+| Linux host A | 438 | 157 | 1131 | 17/83 (8%) | 69/398 (44%) | 29/244 (21%) | 24/215 (22%) | 0/0 (0%) | 5% |
+| Linux host B | 223 | 316 | 1922 | 28/90 (7%) | 117/814 (43%) | 59/295 (19%) | 39/316 (24%) | 0/0 (0%) | 6% |
+
+### 1c. Seeded/review-only builds (no builder request; verification+review replay cells)
+
+| host class | n | wall med s | wall p90 s | startup | build | verifying | review | committing | unlogged |
+|---|---|---|---|---|---|---|---|---|---|
+| Mac desktop | 2 | 25 | 25 | 2/2 (10%) | 13/13 (51%) | 0/0 (0%) | 0/0 (0%) | 0/0 (0%) | 39% |
+| laptop | 53 | 255 | 739 | 8/499 (28%) | 0/0 (0%) | 20/47 (6%) | 175/357 (52%) | 0/0 (0%) | 14% |
+| Linux host A | 788 | 226 | 486 | 6/14 (4%) | 0/0 (0%) | 17/31 (7%) | 187/441 (85%) | 0/0 (0%) | 3% |
+| Linux host B | 428 | 68 | 198 | 8/20 (13%) | 0/0 (0%) | 20/42 (25%) | 27/124 (52%) | 0/0 (0%) | 10% |
+
+### 1d. Shape cells
+
+| host class | n | shape envelope med s | p90 s | setup | preparation | model | probe | readiness | other in envelope (tool loop / gaps) |
+|---|---|---|---|---|---|---|---|---|---|
+| MacBook delivery | 15 | 789 | 1904 | 14/54 (3%) | 0/0 (0%) | 0/43 (2%) | 8/16 (6%) | 37/156 (8%) | 82% |
+| Mac desktop | 15 | 454 | 701 | 1/2 (0%) | 1/1 (0%) | 428/665 (94%) | 13/40 (3%) | 8/15 (1%) | 1% |
+| laptop | 464 | 225 | 1094 | 4/7 (1%) | 1/1 (0%) | 133/915 (70%) | 1/31 (2%) | 16/79 (7%) | 19% |
+| Linux host A | 449 | 122 | 527 | 3/5 (1%) | 1/1 (0%) | 43/248 (56%) | 0/13 (1%) | 9/43 (9%) | 33% |
+| Linux host B | 413 | 188 | 762 | 3/6 (1%) | 1/1 (0%) | 33/467 (48%) | 0/24 (3%) | 12/81 (10%) | 38% |
+
+Shape envelope = the `shape` phase_duration (whole shaping session); sub-phases are shares of the summed envelope. Sub-phases may overlap (probe/readiness run inside the model loop), so "other" is a lower bound.
+
+### 1e. result.json stage walls (all Kogen build cells, any host; approve = exact approval/ setup stage)
+
+| host class | n | wall med | wall p90 | approve | build (incl. verify) | review |
+|---|---|---|---|---|---|---|
+| Mac desktop | 105 | 301 | 538 | 8/13 (3%) | 293/525 (97%) | 88/291 (36%) |
+| laptop | 708 | 176 | 470 | 11/24 (7%) | 155/402 (84%) | 21/111 (16%) |
+| Linux host A | 1265 | 198 | 621 | 8/23 (4%) | 189/598 (96%) | 57/396 (46%) |
+| Linux host B | 687 | 103 | 865 | 9/66 (7%) | 89/783 (93%) | 25/140 (18%) |
+
+### 1f. Outcome mix by phase
+
+| phase | outcome | n |
+|---|---|---|
+| build | landed | 2595 |
+| shape | ok | 1225 |
+| shape | refused | 210 |
+| shape | questions_pending | 124 |
+| build | finished | 37 |
+| build | check_failing | 29 |
+| build | no_progress | 23 |
+| build | timeout | 22 |
+| shape | memory_cap | 22 |
+| build | invalid_response | 17 |
+| shape | timeout | 16 |
+| build | refused | 12 |
+| build | build_blocked | 10 |
+| build | None | 7 |
+| build | unavailable | 6 |
+| build | review_blocked | 6 |
+| build | context_budget_exceeded | 6 |
+| shape | provider | 4 |
+| shape | exit_4 | 3 |
+| build | commit_failed | 3 |
+| build | review_invalid | 2 |
+| shape | internal | 2 |
+| build | cost_cap | 2 |
+| shape | environment | 1 |
+| shape | cost_cap | 1 |
+| build | agent_error | 1 |
+| build | baseline_changed | 1 |
+| build | memory_cap | 1 |
+| build | protocol | 1 |
+
+## 2. Task -> trigger index
+
+Trigger definitions: red_start = a `before_change` command (baseline/setup check) exits non-zero; long_shell_300 = a logged command (command->command_result) >300 s; review_repair = a review verdict event with non-empty findings; deadline = outcome `timeout`; no_submit_refusal = outcome refused/invalid_response/questions_pending/no_progress/review_invalid, shaping submission_refused, or builder_blocker; large_review_150 = review_source/material parts >=100 (NO log has >150; max observed 119, so strictly 0 cells); repeat_verif = same non-baseline verification command re-run with no write_file AND no builder shell call in between (strict lower bound; looser definition ignoring shell calls gives the `repeat_loose` count in 2d); provider_stall = a request with wall >=180 s, or >=2 provider attempts beyond requests.
+
+| cell class | n cells | red_start | long_shell_300 | review_repair | deadline | no_submit_refusal | large_review_150 | repeat_verif | provider_stall |
+|---|---|---|---|---|---|---|---|---|---|
+| real build | 1470 | 4 | 35 | 445 | 22 | 60 | 10 | 631 | 10 |
+| build (seeded/replay) | 1311 | 29 | 11 | 127 | 0 | 4 | 0 | 1134 | 23 |
+| shape | 1608 | 0 | 0 | 0 | 16 | 477 | 0 | 0 | 366 |
+
+### 2b. Trigger incidence by host class (real builds + shape)
+
+| host class | n | red_start | long_shell_300 | review_repair | deadline | no_submit_refusal | large_review_150 | repeat_verif | provider_stall |
+|---|---|---|---|---|---|---|---|---|---|
+| MacBook delivery | 30 | 4 | 15 | 2 | 0 | 7 | 0 | 5 | 0 |
+| Mac desktop | 251 | 0 | 0 | 1 | 3 | 19 | 0 | 46 | 103 |
+| laptop | 1089 | 0 | 3 | 235 | 15 | 151 | 0 | 244 | 111 |
+| Linux host A | 1028 | 0 | 5 | 110 | 9 | 227 | 6 | 200 | 113 |
+| Linux host B | 680 | 0 | 12 | 97 | 11 | 133 | 4 | 136 | 49 |
+
+### 2c. Task -> trigger index (tasks with each trigger; task = slug; counts are cells; up to 6 example cells each)
+
+**red_start** — 33 cells across 7 tasks
+- `t077` x17: linux-a/r083/t077/c0 [baseline cmd red at start]; linux-a/r089/t077/c1 [baseline cmd red at start]
+- `t034` x10: laptop/r034/t034/c6 [baseline cmd red at start]; laptop/r034/t034/c7 [baseline cmd red at start]
+- `t068` x2: laptop/r050/t068/c4 [baseline cmd red at start]; laptop/r050/t068/c5 [baseline cmd red at start]
+- `t116` x1: macbook-delivery/t116/c1 [baseline cmd red at start]
+- `t117` x1: macbook-delivery/t117/c0 [baseline cmd red at start]
+- `t118` x1: macbook-delivery/t118/c0 [baseline cmd red at start]
+- `t125` x1: macbook-delivery/t125/c0 [baseline cmd red at start]
+
+**long_shell_300** — 46 cells across 16 tasks
+- `t034` x26: laptop/r034/t034/c6 [test:576s]; laptop/r034/t034/c7 [test:540s]
+- `t068` x3: laptop/r050/t068/c4 [test:707s]; laptop/r050/t068/c5 [test:709s]
+- `t023` x2: laptop/r037/t023/c13 [test:304s]; laptop/r037/t023/c14 [test:308s]
+- `t116` x2: macbook-delivery/t116/c0 [format:514s,compile:752s,test:519s]; macbook-delivery/t116/c1 [test:1294s,test:1645s]
+- `t126` x2: macbook-delivery/t126/c0 [format:756s,compile:508s,go-test:787s]; macbook-delivery/t126/c1 [test:408s,go-test:439s,go-test:940s]
+- `t115` x1: macbook-delivery/t115/c0 [go-test:2160s,go-test:2568s]
+- `t117` x1: macbook-delivery/t117/c0 [test:2683s,go-test:3065s,acceptance:302s]
+- `t118` x1: macbook-delivery/t118/c0 [go-test:1016s,cucumber:426s]
+- `t119` x1: macbook-delivery/t119/c0 [compile:303s,test:570s]
+- `t120` x1: macbook-delivery/t120/c0 [test:1359s,go-format:387s,go-vet:1076s]
+- `t121` x1: macbook-delivery/t121/c0 [go-test:1279s,go-test:632s,go-test:660s]
+- `t122` x1: macbook-delivery/t122/c0 [go-test:3029s]
+- `t123` x1: macbook-delivery/t123/c0 [format:1049s,compile:645s,test:518s]
+- `t124` x1: macbook-delivery/t124/c0 [format:1047s,compile:645s,test:517s]
+- `t125` x1: macbook-delivery/t125/c0 [go-test:1157s,cucumber:419s]
+- `t127` x1: macbook-delivery/t127/c0 [go-test:3293s]
+
+**review_repair** — 572 cells across 93 tasks
+- `t032` x30: laptop/r071/t032/c28 [1/1 reviews with findings]; laptop/r071/t032/c29 [1/1 reviews with findings]
+- `t024` x24: laptop/r071/t024/c18 [1/1 reviews with findings]; laptop/r071/t024/c19 [1/1 reviews with findings]
+- `t071` x21: laptop/r071/t071/c8 [1/1 reviews with findings]; laptop/r071/t071/c9 [1/1 reviews with findings]
+- `t022` x20: laptop/r022/t022/c6 [1/1 reviews with findings]; laptop/r022/t022/c7 [1/1 reviews with findings]
+- `t067` x20: laptop/r045/t067/c1 [1/1 reviews with findings]; laptop/r045/t067/c3 [1/1 reviews with findings]
+- `t075` x19: laptop/r071/t075/c5 [1/1 reviews with findings]; laptop/r071/t075/c6 [1/1 reviews with findings]
+- `t037` x17: laptop/r022/t037/c2 [1/1 reviews with findings]; laptop/r022/t037/c3 [1/1 reviews with findings]
+- `t040` x16: laptop/r022/t040/c0 [1/1 reviews with findings]; laptop/r022/t040/c1 [1/1 reviews with findings]
+- `t062` x15: laptop/r036/t062/c3 [1/1 reviews with findings]; laptop/r081/t062/c4 [1/1 reviews with findings]
+- `t030` x15: laptop/r039/t030/c14 [1/1 reviews with findings]; laptop/r039/t030/c15 [1/1 reviews with findings]
+- `t020` x15: linux-a/r089/t020/c3 [1/1 reviews with findings]; linux-a/r089/t020/c4 [1/1 reviews with findings]
+- `t025` x14: laptop/r022/t025/c6 [1/1 reviews with findings]; laptop/r022/t025/c7 [1/1 reviews with findings]
+- `t021` x14: laptop/r039/t021/c8 [1/1 reviews with findings]; laptop/r039/t021/c9 [1/1 reviews with findings]
+- `t039` x13: laptop/r022/t039/c0 [1/1 reviews with findings]; laptop/r022/t039/c1 [1/1 reviews with findings]
+- `t019` x13: laptop/r022/t019/c6 [1/1 reviews with findings]; laptop/r022/t019/c7 [1/1 reviews with findings]
+- `t018` x12: laptop/r039/t018/c8 [1/1 reviews with findings]; laptop/r039/t018/c9 [1/1 reviews with findings]
+- `t036` x12: laptop/r066/t036/c26 [1/1 reviews with findings]; linux-a/r091/t036/c2 [1/1 reviews with findings]
+- `t023` x11: laptop/r066/t023/c17 [1/1 reviews with findings]; linux-a/r096/t023/c6 [1/1 reviews with findings]
+- `t031` x10: laptop/r039/t031/c14 [1/1 reviews with findings]; laptop/r043/t031/c16 [1/1 reviews with findings]
+- `t035` x10: laptop/r066/t035/c34 [1/1 reviews with findings]; linux-a/r096/t035/c12 [1/1 reviews with findings]
+- `t076` x9: linux-a/r089/t076/c0 [1/1 reviews with findings]; linux-a/r089/t076/c1 [1/1 reviews with findings]
+- `t092` x9: linux-a/r166/t092/c25 [1/1 reviews with findings]; linux-a/r166/t092/c26 [1/1 reviews with findings]
+- `t083` x9: linux-b/r172/t083/c0 [1/1 reviews with findings]; linux-b/r172/t083/c1 [1/1 reviews with findings]
+- `t044` x8: laptop/r030/t044/c0 [1/1 reviews with findings]; laptop/r030/t044/c1 [1/1 reviews with findings]
+- `t055` x7: laptop/r030/t055/c0 [1/1 reviews with findings]; laptop/r030/t055/c1 [1/1 reviews with findings]
+
+**deadline** — 38 cells across 11 tasks
+- `t034` x17: laptop/r066/t034/c26 [outcome=timeout wall 3601s]; linux-a/r091/t034/c2 [outcome=timeout wall 3601s]
+- `t035` x5: laptop/r034/t035/c7 [outcome=timeout wall 3600s]; linux-a/r093/t035/c10 [outcome=timeout wall 2400s]
+- `t003` x4: mac-desktop/r009/t003/c26 [outcome=timeout wall 1800s]; mac-desktop/r009/t003/c29 [outcome=timeout wall 1800s]
+- `t029` x4: laptop/r027/t029/c7 [outcome=timeout wall 1800s]; laptop/r056/t029/c25 [outcome=timeout wall 1800s]
+- `t067` x2: laptop/r072/t067/c22 [outcome=timeout wall 1800s]; laptop/r072/t067/c23 [outcome=timeout wall 1800s]
+- `t006` x1: mac-desktop/r003/t006/c4 [outcome=timeout wall 1800s]
+- `t015` x1: laptop/r027/t015/c5 [outcome=timeout wall 1800s]
+- `t016` x1: laptop/r027/t016/c7 [outcome=timeout wall 1800s]
+- `t023` x1: laptop/r066/t023/c17 [outcome=timeout wall 3600s]
+- `t024` x1: laptop/r071/t024/c21 [outcome=timeout wall 3601s]
+- `t064` x1: laptop/r072/t064/c14 [outcome=timeout wall 1800s]
+
+**no_submit_refusal** — 541 cells across 45 tasks
+- `t035` x79: laptop/r018/t035/c0 [questions_pending]; laptop/r018/t035/c1 [questions_pending]
+- `t034` x77: laptop/r018/t034/c0 [questions_pending]; laptop/r018/t034/c1 [questions_pending]
+- `t032` x59: laptop/r018/t032/c0 [refused]; laptop/r026/t032/c2 [refused]
+- `t036` x47: laptop/r060/t036/c16 [ok]; laptop/r060/t036/c17 [refused]
+- `t033` x42: laptop/r060/t033/c14 [ok]; laptop/r060/t033/c15 [refused]
+- `t031` x37: laptop/r038/t031/c6 [refused]; laptop/r038/t031/c7 [ok]
+- `t037` x33: laptop/r038/t037/c14 [refused]; laptop/r038/t037/c15 [ok]
+- `t030` x28: laptop/r038/t030/c6 [refused]; laptop/r038/t030/c7 [refused]
+- `t015` x18: mac-desktop/r012/t015/c0 [refused]; mac-desktop/r012/t015/c1 [refused]
+- `t023` x15: laptop/r018/t023/c3 [refused]; laptop/r024/t023/c8 [review_invalid]
+- `t067` x13: laptop/r045/t067/c6 [invalid_response]; laptop/r054/t067/c16 [invalid_response]
+- `t020` x10: linux-a/r087/t020/c1 [refused]; linux-a/r087/t020/c2 [refused]
+- `t003` x7: mac-desktop/r008/t003/c19 [refused]; mac-desktop/r008/t003/c20 [refused]
+- `t065` x7: laptop/r074/t065/c17 [builder_blocker]; linux-a/r143/t065/c13 [refused]
+- `t013` x6: mac-desktop/r012/t013/c0 [refused]; mac-desktop/r012/t013/c2 [refused]
+- `t026` x5: laptop/r019/t026/c3 [refused]; laptop/r027/t026/c4 [refused]
+- `t027` x5: laptop/r019/t027/c2 [refused]; laptop/r019/t027/c3 [refused]
+- `t008` x4: mac-desktop/r009/t008/c10 [refused]; mac-desktop/r009/t008/c13 [refused]
+- `t063` x4: laptop/r033/t063/c0 [refused]; laptop/r077/t063/c3 [refused]
+- `t068` x4: laptop/r034/t068/c0 [no_progress]; laptop/r034/t068/c1 [no_progress]
+- `t064` x4: laptop/r072/t064/c13 [questions_pending]; laptop/r077/t064/c15 [refused]
+- `t004` x3: mac-desktop/r009/t004/c17 [refused]; mac-desktop/r009/t004/c20 [refused]
+- `t025` x3: laptop/r016/t025/c1 [refused]; laptop/r048/t025/c22 [questions_pending]
+- `t028` x3: laptop/r019/t028/c3 [refused]; laptop/r027/t028/c7 [refused]
+- `t076` x3: laptop/r040/t076/c2 [refused]; linux-a/r099/t076/c11 [refused]
+
+**large_review_150** — 10 cells across 2 tasks
+- `t035` x6: linux-a/r128/t035/c26 [108 parts]; linux-a/r151/t035/c36 [104 parts]
+- `t034` x4: linux-a/r151/t034/c41 [119 parts]; linux-a/r153/t034/c44 [104 parts]
+
+**repeat_verif** — 1765 cells across 98 tasks
+- `t036` x45: laptop/r034/t036/c4 [4 repeats w/o edit]; laptop/r034/t036/c5 [4 repeats w/o edit]
+- `t035` x43: laptop/r034/t035/c4 [1 repeats w/o edit]; laptop/r034/t035/c5 [4 repeats w/o edit]
+- `t092` x35: linux-a/r100/t092/c0 [5 repeats w/o edit]; linux-a/r100/t092/c1 [5 repeats w/o edit]
+- `t094` x35: linux-a/r100/t094/c0 [5 repeats w/o edit]; linux-a/r100/t094/c1 [5 repeats w/o edit]
+- `t022` x33: laptop/r022/t022/c6 [5 repeats w/o edit]; laptop/r022/t022/c7 [5 repeats w/o edit]
+- `t089` x33: linux-a/r100/t089/c0 [5 repeats w/o edit]; linux-a/r100/t089/c1 [5 repeats w/o edit]
+- `t095` x33: linux-a/r100/t095/c0 [5 repeats w/o edit]; linux-a/r100/t095/c1 [5 repeats w/o edit]
+- `t096` x33: linux-a/r100/t096/c0 [5 repeats w/o edit]; linux-a/r100/t096/c1 [5 repeats w/o edit]
+- `t100` x33: linux-a/r100/t100/c0 [5 repeats w/o edit]; linux-a/r100/t100/c1 [5 repeats w/o edit]
+- `t102` x33: linux-a/r100/t102/c0 [5 repeats w/o edit]; linux-a/r100/t102/c1 [5 repeats w/o edit]
+- `t103` x33: linux-a/r100/t103/c0 [5 repeats w/o edit]; linux-a/r100/t103/c1 [5 repeats w/o edit]
+- `t106` x33: linux-a/r100/t106/c0 [5 repeats w/o edit]; linux-a/r100/t106/c1 [5 repeats w/o edit]
+- `t107` x33: linux-a/r100/t107/c0 [5 repeats w/o edit]; linux-a/r100/t107/c1 [5 repeats w/o edit]
+- `t108` x33: linux-a/r100/t108/c0 [5 repeats w/o edit]; linux-a/r100/t108/c1 [5 repeats w/o edit]
+- `t098` x32: linux-a/r100/t098/c0 [5 repeats w/o edit]; linux-a/r100/t098/c1 [5 repeats w/o edit]
+- `t104` x32: linux-a/r100/t104/c0 [5 repeats w/o edit]; linux-a/r100/t104/c1 [5 repeats w/o edit]
+- `t023` x31: laptop/r034/t023/c9 [4 repeats w/o edit]; laptop/r037/t023/c13 [5 repeats w/o edit]
+- `t030` x30: laptop/r039/t030/c14 [5 repeats w/o edit]; laptop/r039/t030/c15 [5 repeats w/o edit]
+- `t097` x30: linux-a/r100/t097/c0 [5 repeats w/o edit]; linux-a/r100/t097/c1 [5 repeats w/o edit]
+- `t093` x29: linux-a/r100/t093/c0 [5 repeats w/o edit]; linux-a/r100/t093/c1 [5 repeats w/o edit]
+- `t101` x29: linux-a/r100/t101/c0 [5 repeats w/o edit]; linux-a/r100/t101/c1 [5 repeats w/o edit]
+- `t105` x29: linux-a/r100/t105/c0 [3 repeats w/o edit]; linux-a/r100/t105/c1 [3 repeats w/o edit]
+- `t044` x27: laptop/r030/t044/c0 [5 repeats w/o edit]; laptop/r030/t044/c1 [5 repeats w/o edit]
+- `t090` x27: linux-a/r100/t090/c0 [5 repeats w/o edit]; linux-a/r100/t090/c1 [5 repeats w/o edit]
+- `t091` x26: linux-a/r100/t091/c0 [5 repeats w/o edit]; linux-a/r100/t091/c1 [5 repeats w/o edit]
+
+**provider_stall** — 399 cells across 53 tasks
+- `t003` x33: mac-desktop/r004/t003/c15 [shape req 320s]; mac-desktop/r008/t003/c18 [shape req 271s]
+- `t008` x28: mac-desktop/r004/t008/c3 [shape req 223s]; mac-desktop/r008/t008/c7 [shape req 208s]
+- `t016` x27: mac-desktop/r012/t016/c0 [shape req 213s]; mac-desktop/r012/t016/c1 [shape req 196s]
+- `t015` x26: mac-desktop/r012/t015/c0 [shape req 276s]; mac-desktop/r012/t015/c1 [shape req 292s]
+- `t029` x19: laptop/r027/t029/c4 [shape req 290s]; laptop/r027/t029/c5 [shape req 317s]
+- `t004` x18: mac-desktop/r008/t004/c13 [shape req 279s]; mac-desktop/r008/t004/c14 [shape req 234s]
+- `t026` x17: laptop/r027/t026/c5 [shape req 206s]; laptop/r027/t026/c7 [shape req 349s]
+- `t027` x17: laptop/r027/t027/c5 [shape req 410s]; laptop/r027/t027/c7 [shape req 196s]
+- `t007` x15: mac-desktop/r005/t007/c3 [shape req 231s]; mac-desktop/r005/t007/c5 [shape req 192s]
+- `t002` x14: mac-desktop/r008/t002/c12 [shape req 366s]; mac-desktop/r008/t002/c15 [shape req 216s]
+- `t028` x14: laptop/r027/t028/c5 [shape req 191s]; laptop/r027/t028/c7 [shape req 230s]
+- `t006` x13: mac-desktop/r003/t006/c3 [1 req>=180s max 511s]; mac-desktop/r003/t006/c4 [1 req>=180s max 225s]
+- `t009` x11: mac-desktop/r005/t009/c3 [shape req 190s]; mac-desktop/r005/t009/c5 [shape req 264s]
+- `t030` x11: laptop/r018/t030/c0 [shape req 287s]; laptop/r018/t030/c1 [shape req 274s]
+- `t011` x10: mac-desktop/r009/t011/c2 [shape req 525s]; mac-desktop/r009/t011/c3 [shape req 260s]
+- `t065` x9: laptop/r072/t065/c13 [shape req 347s]; laptop/r072/t065/c14 [shape req 585s]
+- `t013` x8: mac-desktop/r012/t013/c0 [shape req 215s]; mac-desktop/r012/t013/c1 [shape req 242s]
+- `t014` x8: mac-desktop/r012/t014/c0 [shape req 411s]; mac-desktop/r012/t014/c1 [shape req 348s]
+- `t067` x8: laptop/r072/t067/c22 [shape req 577s]; laptop/r072/t067/c23 [shape req 518s]
+- `t063` x7: laptop/r072/t063/c1 [shape req 360s]; laptop/r072/t063/c2 [shape req 325s]
+- `t010` x6: mac-desktop/r009/t010/c0 [shape req 211s]; mac-desktop/r009/t010/c2 [shape req 582s]
+- `t020` x6: laptop/r016/t020/c0 [shape req 239s]; laptop/r016/t020/c1 [shape req 243s]
+- `t037` x6: laptop/r026/t037/c6 [shape req 201s]; laptop/r026/t037/c7 [shape req 192s]
+- `t064` x6: laptop/r072/t064/c14 [shape req 291s]; linux-a/r148/t064/c10 [shape req 286s]
+- `t066` x6: laptop/r072/t066/c1 [shape req 243s]; linux-a/r148/t066/c4 [shape req 230s]
+
+
+## 3. D/E byte / history-growth attribution (per request)
+
+Source: `request` events (usage input/cached/output, wall_ms, role, build_round|review_round) and shaping `provider_call`; request_bytes exists only in newer builds.
+
+| role | requests | input tok med | p90 | cached share (of input) | input total | output total | req wall med s | p90 s | summed req wall | req bytes med |
+|---|---|---|---|---|---|---|---|---|---|---|
+| shape | 11186 | 19983 | 58958 | 74% | 311.8M | 17.03M | 9.6 | 83.3 | 107.2h | 103450 |
+| build | 13847 | 33702 | 105251 | 92% | 654.6M | 9.51M | 6.3 | 27.7 | 44.7h | 195704 |
+| review | 14783 | 25892 | 84447 | 79% | 557.3M | 10.33M | 9.5 | 45.9 | 77.2h | 90871 |
+
+(`input` as logged is total prompt tokens; `cached` is the cached part of it.)
+
+### 3b. Prompt growth per round (builder and reviewer): median input tokens and cached share by round index
+
+| role | round | n | input tok med | cached share | output tok med | req wall med s |
+|---|---|---|---|---|---|---|
+| build | 1 | 1191 | 29128 | 90% | 144 | 5.5 |
+| build | 2 | 396 | 52600 | 96% | 149 | 5.4 |
+| build | 3 | 149 | 58292 | 96% | 147 | 5.6 |
+| build | 4 | 145 | 71766 | 96% | 143 | 5.5 |
+| build | 5 | 57 | 65732 | 95% | 127 | 5.2 |
+| build | 6 | 75 | 69198 | 97% | 141 | 5.3 |
+| build | 7 | 35 | 48304 | 96% | 129 | 6.7 |
+| build | 8 | 25 | 37927 | 95% | 128 | 4.7 |
+| build | 9 | 17 | 47140 | 89% | 136 | 5.1 |
+| build | 10 | 4 | 37566 | 89% | 158 | 4.8 |
+| build | 11 | 7 | 39728 | 93% | 133 | 4.9 |
+| build | 12+ | 44 | 37055 | 90% | 124 | 4.7 |
+| review | 1 | 2203 | 20102 | 75% | 162 | 5.5 |
+
+### 3c. Per-cell history growth (cells with >=4 builder requests)
+
+n=122 cells; first-request input median 18789, last-request median 32372; growth per round median 1390 tok (p90 2618); builder rounds median 10 p90 42.
+
+Top 10 cells by total builder input tokens:
+
+| cell | rounds | first in | last in | growth/round | total in | cached share |
+|---|---|---|---|---|---|---|
+| linux-a/r120/t034/c26 | 134 | 19339 | 35279 | 120 | 4949334 | 91% |
+| linux-a/r120/t035/c25 | 67 | 21639 | 56629 | 530 | 4016866 | 94% |
+| linux-a/r120/t035/c22 | 61 | 21639 | 34329 | 212 | 3880233 | 96% |
+| linux-b/r230/t035/c61 | 58 | 21639 | 27364 | 100 | 3776809 | 97% |
+| laptop/r034/t023/c11 | 60 | 23685 | 26069 | 40 | 3700475 | 97% |
+| linux-a/r120/t035/c23 | 71 | 21639 | 38016 | 234 | 3691521 | 96% |
+| laptop/r034/t035/c7 | 54 | 21639 | 29500 | 148 | 3525004 | 97% |
+| laptop/r034/t035/c5 | 53 | 21639 | 33728 | 232 | 3315294 | 95% |
+| linux-b/r230/t035/c58 | 48 | 21639 | 96970 | 1603 | 3272404 | 97% |
+| laptop/r034/t023/c9 | 48 | 23685 | 92295 | 1460 | 3222366 | 97% |
+
+### 3d. Request wall vs cell wall (real builds): how much of wall is waiting on provider responses, by role
+
+| host class | n | builder request wall / cell wall | review request wall / cell wall | verification commands / wall | setup commands / wall |
+|---|---|---|---|---|---|
+| MacBook delivery | 15 | 0% | 0% | 27% | 0% |
+| Mac desktop | 102 | 45% | 36% | 5% | 0% |
+| laptop | 617 | 26% | 13% | 32% | 2% |
+| Linux host A | 477 | 26% | 15% | 27% | 1% |
+| Linux host B | 259 | 23% | 13% | 30% | 1% |
+
+### 2d. Repeated verification of an unchanged tree (real builds; strict = no write_file and no builder shell call between two runs of the same non-baseline gate command)
+
+| host class | n | cells with strict repeat | strict repeat runs | loose repeat runs (ignoring shell calls) | strict repeat time h | share of wall |
+|---|---|---|---|---|---|---|
+| MacBook delivery | 15 | 5 | 17 | 17 | 1.3 | 4.3% |
+| Mac desktop | 102 | 46 | 218 | 222 | 0.1 | 1.3% |
+| laptop | 617 | 244 | 1178 | 1233 | 2.8 | 6.0% |
+| Linux host A | 477 | 200 | 932 | 1078 | 3.3 | 5.5% |
+| Linux host B | 259 | 136 | 710 | 789 | 5.1 | 9.3% |
+
+### 3e. Top contributors to history bytes: tool result bytes by role/tool (real builds, all hosts with logs)
+
+1410 real-build cells with tool events.
+
+| role:tool | calls | result bytes | share | mean bytes/call | argument bytes |
+|---|---|---|---|---|---|
+| build:shell | 10893 | 1.7 MB | 36% | 153 | 1.11 MB |
+| review:read_file | 8618 | 1.6 MB | 34% | 184 | 0.76 MB |
+| review:shell | 3766 | 0.8 MB | 18% | 219 | 0.56 MB |
+| build:read_file | 2101 | 0.3 MB | 6% | 129 | 0.19 MB |
+| review:search_text | 431 | 0.1 MB | 3% | 273 | 0.04 MB |
+| build:write_file | 1076 | 0.1 MB | 2% | 68 | 1.16 MB |
+| review:list_files | 336 | 0.0 MB | 1% | 146 | 0.03 MB |
+| review:write_file | 128 | 0.0 MB | 0% | 76 | 0.13 MB |
+| build:finish | 1216 | 0.0 MB | 0% | 6 | 0.14 MB |
+| build:bash | 57 | 0.0 MB | 0% | 91 | 0.01 MB |
+| review:expand | 43 | 0.0 MB | 0% | 93 | 0.00 MB |
+| review:view_image | 32 | 0.0 MB | 0% | 94 | 0.00 MB |
+| build:view_image | 24 | 0.0 MB | 0% | 94 | 0.00 MB |
+| build:report_blocker | 7 | 0.0 MB | 0% | 30 | 0.00 MB |
+| build:bash_placeholder | 1 | 0.0 MB | 0% | 91 | 0.00 MB |
+
+Verification/setup command output bytes (Kogen-run gates; fed back to builder on red):
+
+| command class | runs | output bytes | share | mean bytes/run |
+|---|---|---|---|---|
+| acceptance | 2465 | 25.3 MB | 55% | 10248 |
+| test | 3484 | 13.4 MB | 29% | 3834 |
+| model | 1103 | 6.3 MB | 14% | 5702 |
+| setup | 5624 | 0.5 MB | 1% | 96 |
+| go | 538 | 0.5 MB | 1% | 954 |
+| build | 2932 | 0.2 MB | 0% | 52 |
+| format | 3418 | 0.0 MB | 0% | 13 |
+| spec | 12 | 0.0 MB | 0% | 2172 |
+| compile | 519 | 0.0 MB | 0% | 19 |
+| cucumber | 12 | 0.0 MB | 0% | 533 |
+
+### 3f. Provider liveness: slow requests by role and host (all request events)
+
+| role | host | requests | wall med s | p90 | p99 | >=180 s | >=300 s | share of request wall in >=180 s requests | errored |
+|---|---|---|---|---|---|---|---|---|---|
+| shape | MacBook delivery | 20 | 7.5 | 14.5 | 60.7 | 0 | 0 | 0% | 0 |
+| shape | Mac desktop | 1511 | 22.1 | 141.7 | 396.4 | 113 | 46 | 43% | 12 |
+| shape | laptop | 3485 | 10.8 | 96.4 | 485.0 | 160 | 84 | 41% | 26 |
+| shape | Linux host A | 3798 | 7.8 | 64.4 | 348.3 | 140 | 66 | 38% | 7 |
+| shape | Linux host B | 2425 | 7.5 | 58.2 | 330.0 | 66 | 29 | 32% | 8 |
+| build | MacBook delivery | 14 | 7.1 | 21.4 | 23.4 | 0 | 0 | 0% | 0 |
+| build | Mac desktop | 940 | 8.3 | 42.5 | 74.6 | 2 | 1 | 5% | 0 |
+| build | laptop | 3560 | 6.6 | 27.8 | 61.2 | 4 | 2 | 4% | 0 |
+| build | Linux host A | 5104 | 6.0 | 26.3 | 66.4 | 1 | 0 | 0% | 0 |
+| build | Linux host B | 4229 | 5.9 | 24.4 | 67.4 | 1 | 0 | 0% | 0 |
+| review | Mac desktop | 724 | 13.2 | 33.4 | 74.8 | 0 | 0 | 0% | 0 |
+| review | laptop | 2275 | 8.0 | 30.4 | 87.0 | 4 | 0 | 3% | 0 |
+| review | Linux host A | 8147 | 11.4 | 59.3 | 142.2 | 16 | 2 | 2% | 0 |
+| review | Linux host B | 3637 | 7.2 | 27.7 | 67.4 | 0 | 0 | 0% | 0 |
+
+## 4. Headroom arithmetic (inputs to the ranked list)
+
+- Real builds: n=1470, summed wall 201.7 h. Non-landed: n=110 (7% of cells) holding 30% of wall; timeouts alone 22 cells / 21.5 h.
+- Shape cells: n=1586, summed wall 164.8 h. outcome != ok: n=361 holding 19% of wall; refused 210, questions_pending 124, timeout 16.
+- Review: 445/1208 real builds have a findings round; review phase total 29.4 h = 20% of their wall; excess review time of finding-cells over the clean-cell median (23 s) = 4.9 h (3.3% of wall).
+  Wall median with findings 190 s vs clean 174 s.
+- Long shell (>300 s logged gate/setup command): 97 commands in 35 cells; total 23.6 h, of which beyond 300 s 15.5 h; by class: go 10.4h, test 7.5h, format 2.1h, no 1.3h, compile 1.2h, cucumber 0.5h, py 0.3h, spec 0.2h, acceptance 0.1h
+- Startup (setup + baseline gates before the first builder turn): 26.8 h = 13% of real-build wall (MacBook delivery median 2647 s).
+- Verification phase: 46.0 h = 23% of wall; strict-repeat part 12.6 h.
+- Token totals by role (input incl. cached / cached / output): build: 655M / 599M (92% cached) / 9.5M; review: 557M / 440M (79% cached) / 10.3M; shape: 312M / 230M (74% cached) / 17.0M
+
+## 5. Delivery native builds (MacBook; seconds)
+
+| build | wall | startup | builder/exec | verifying | review | outcome | executor rounds | longest gate commands (s) | strict repeat s |
+|---|---|---|---|---|---|---|---|---|---|
+| build 1 | 7054 | 2492 | 1939 | 2613 | 0 | (none logged) | 1 | go-test 2160, go-test 2568 | 0 |
+| build 2 | 8742 | 2647 | 23 | 6062 | 10 | commit_failed | 2 | format 514, compile 752 | 0 |
+| build 3 | 6617 | 1298 | 3589 | 1731 | 0 | protocol | 1 | test 1294, test 1645 | 0 |
+| build 4 | 6360 | 5754 | 237 | 0 | 0 | (none logged) | 1 | test 2683, go-test 3065 | 0 |
+| build 5 | 1826 | 1482 | 270 | 0 | 0 | (none logged) | 0 | go-test 1016, cucumber 426 | 0 |
+| build 6 | 10070 | 933 | 8390 | 186 | 0 | (none logged) | 1 | compile 303, test 570 | 0 |
+| build 7 | 16329 | 5783 | 4056 | 4566 | 0 | (none logged) | 2 | test 1359, go-format 387 | 2378 |
+| build 8 | 8697 | 1467 | 5179 | 1345 | 0 | (none logged) | 2 | go-test 1279, go-test 632 | 12 |
+| build 9 | 5231 | 3257 | 1888 | 0 | 0 | (none logged) | 1 | go-test 3029 | 0 |
+| build 10 | 11012 | 3833 | 613 | 6557 | 8 | landed | 3 | format 1049, compile 645 | 1673 |
+| build 11 | 12082 | 3820 | 781 | 7407 | 74 | landed | 2 | format 1047, compile 645 | 649 |
+| build 12 | 1819 | 1611 | 208 | 0 | 0 | build_blocked | 1 | go-test 1157, cucumber 419 | 0 |
+| build 13 | 8222 | 2825 | 75 | 5314 | 8 | commit_failed | 2 | format 756, compile 508 | 0 |
+| build 14 | 2481 | 1140 | 88 | 1232 | 20 | landed | 2 | test 408, go-test 439 | 0 |
+| build 15 | 4269 | 3295 | 526 | 328 | 120 | commit_failed | 2 | go-test 3293 | 103 |
