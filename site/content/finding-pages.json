@@ -420,6 +420,15 @@
       "verdict": "unresolved",
       "finished": "2026-10-31",
       "summary": "A patch adding an unstated-requirement pass to Kogen's shaping step was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 10 tasks without the patch and 9 with it: no task gained and one was lost, against a keep rule of at least three net wins. One repetition is still to finish and will be pooled with this run before the patch is kept or dropped."
+    },
+    {
+      "id": "p4-ledger-go-screen",
+      "category": "categories/harness-levers.md",
+      "title": "A coverage ledger in Kogen shaping did not show a gain on the first 13 Go tasks",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "A patch adding a model-free coverage ledger (a check of the request against the submitted Intent, shown to the reviewer) was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 9 tasks both without and with the patch: one task was gained, one was lost (the lost one ended with no model response during the build), against a keep rule of at least three net wins. One repetition is still to finish and will be pooled with this run before the patch is kept or dropped."
     }
   ]
 }
