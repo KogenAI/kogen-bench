@@ -1,0 +1,64 @@
+1. Outcome of the final attempt per shape (26 shapes per arm)
+arm                ACCEPTED     FORMAT STRICTNESS  REASONING   PROVIDER   total
+baseline                  5         12          4          5          0      26
+unstated-pass             2          8          4         11          1      26
+coverage-ledger           0         16          4          6          0      26
+all                       7         36         12         22          1      78
+
+2. Failed shapes by cause detail
+baseline: 21 failed of 26
+   3  FORMAT     decision source tag missing or non-standard source
+   3  FORMAT     step self-check: undefined step
+   2  FORMAT     Gherkin: unexpected text (unquoted data/continuation lines)
+   2  FORMAT     submit schema (questions/files/blocked)
+   1  FORMAT     Quint run/typecheck failure (readiness)
+   1  FORMAT     stages JSON fence
+   3  REASONING  asked questions, no Intent submitted
+   1  REASONING  asked questions, no Intent submitted (after refused submissions)
+   1  REASONING  required edits touch protected files
+   2  STRICTNESS decision line has trailing punctuation after (source: ...)
+   2  STRICTNESS tests line ends with a period after the layer tag (anchored regex)
+unstated-pass: 24 failed of 26
+   2  FORMAT     decision source tag missing or non-standard source
+   2  FORMAT     stages JSON fence
+   2  FORMAT     step self-check: undefined step
+   1  FORMAT     Quint run/typecheck failure (readiness)
+   1  FORMAT     tests line not in "- rule: test (layer)" form
+   1  PROVIDER   provider refused the request
+   8  REASONING  asked questions, no Intent submitted
+   3  REASONING  asked questions, no Intent submitted (after refused submissions)
+   2  STRICTNESS decision line has trailing punctuation after (source: ...)
+   2  STRICTNESS tests line ends with a period after the layer tag (anchored regex)
+coverage-ledger: 26 failed of 26
+   5  FORMAT     decision source tag missing or non-standard source
+   3  FORMAT     file named in Intent missing from submission
+   3  FORMAT     tests line not in "- rule: test (layer)" form
+   2  FORMAT     Gherkin: unexpected text (unquoted data/continuation lines)
+   1  FORMAT     stages JSON fence
+   1  FORMAT     submit schema (questions/files/blocked)
+   1  FORMAT     title over 50 characters
+   4  REASONING  asked questions, no Intent submitted
+   2  REASONING  asked questions, no Intent submitted (after refused submissions)
+   4  STRICTNESS tests line ends with a period after the layer tag (anchored regex)
+
+3. Shapes where at least one refused attempt (of 3) hit an end-of-line anchor check
+   (trailing punctuation after a test layer tag or after a decision source tag; fixing the punctuation alone clears that problem)
+baseline         13 of 21 failed shapes; 13 of 26 shapes overall
+unstated-pass     9 of 24 failed shapes;  9 of 26 shapes overall
+coverage-ledger  13 of 26 failed shapes; 13 of 26 shapes overall
+
+4. Refused attempts by kind (a shape can show several kinds)
+kind                                                                             baseline    unstated-pass  coverage-ledger
+tests line ends with a period after the layer tag (anchored regex)                     21               11               13
+coverage-ledger gate (S2 patch only)                                                    0                0               37
+decision line has trailing punctuation after (source: ...)                             15               11                5
+decision source tag missing or non-standard source                                     12                6                8
+stages JSON fence                                                                       7                8                6
+Gherkin: unexpected text (unquoted data/continuation lines)                             9                2                2
+tests line not in "- rule: test (layer)" form                                           5                4                4
+file named in Intent missing from submission                                            5                1                3
+submit schema (questions/files/blocked)                                                 3                3                3
+step self-check: undefined step                                                         4                3                0
+Quint run/typecheck failure (readiness)                                                 3                3                0
+title over 50 characters                                                                1                0                1
+refused attempts in total                                                              48               36               60
