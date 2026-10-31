@@ -1,0 +1,121 @@
+diff --git a/cli/shape/context.go b/cli/shape/context.go
+index d5e80ed..cb676ef 100644
+--- a/cli/shape/context.go
++++ b/cli/shape/context.go
+@@ -335,10 +335,39 @@ func contextGuidance() string { return agent.Prompt(agent.ShaperContextGuidance)
+ // nothing of it, so a passing Build's requests are unchanged.
+ const namedTestGuidance = "Named-test helpers: when a step or helper requires named tests to have run (for example a step taking a test id and a package that runs `go test -run`), every assertion message must include the required test name, so a failure says which test is missing instead of a bare count such as `0 !== 1`. Also include the command or package the helper ran and the outcome, whether the test was absent, skipped or ran zero times.\n"
+ 
+-// ShaperInstructions is the shaper's policy: its instructions, the context guidance and the
+-// named-test helper guidance.
++// unstatedRequirementPass (hill-climb lane patch P2/S1, not Kogen policy) is one general
++// shaping step, the same for every request: before acceptance is written, the shaper lists the
++// requirements a careful maintainer of this repository would hold the change to that the
++// request does not spell out, and settles each one with a concrete scenario or a stated reason.
++const unstatedRequirementPass = "Unstated-requirement pass: a request states the change, rarely everything a careful maintainer of this repository would hold the change to. " +
++	"Before you write acceptance, read the request sentence by sentence, then inspect the code the change touches and its nearest existing counterpart in the repository " +
++	"(the most similar command, endpoint, model, job, screen or test that already exists). " +
++	"For each input, output and state change the request introduces, ask: what happens at its boundaries and on its failure paths; " +
++	"whether existing callers, stored data and permissions keep working; and how the counterpart already does the same thing (its interface, names, messages and output, persistence and tests). " +
++	"Keep only the requirements that follow from a request sentence together with observed repository code or convention; do not add features, settings or speculative hardening. " +
++	"Settle every kept item: give it a scenario with concrete values, or say why it is out of scope. " +
++	"Record each kept item in `## Source comparison` as one line: `- unstated: <requirement> -> <scenario name, or out of scope: reason> (evidence: <request sentence or repository path>)`.\n"
++
++// ShaperInstructions is the shaper's policy: its instructions, the context guidance, the
++// named-test helper guidance and the unstated-requirement pass.
+ func ShaperInstructions() string {
+-	return agent.Prompt(agent.Shaper) + contextGuidance() + "\n" + namedTestGuidance
++	return agent.Prompt(agent.Shaper) + contextGuidance() + "\n" + namedTestGuidance + "\n" + unstatedRequirementPass
++}
++
++// unstatedItems counts the `- unstated:` lines of a Source comparison: all of them, and those
++// settled as out of scope rather than by a scenario.
++func unstatedItems(comparison string) (items, outOfScope int) {
++	for _, line := range strings.Split(comparison, "\n") {
++		line = strings.TrimSpace(line)
++		if !strings.HasPrefix(strings.ToLower(line), "- unstated:") {
++			continue
++		}
++		items++
++		if strings.Contains(strings.ToLower(line), "out of scope") {
++			outOfScope++
++		}
++	}
++	return items, outOfScope
+ }
+ 
+ // selectionEvent is the context_selection event of one request: what the context carried,
+diff --git a/cli/shape/hc_p2_test.go b/cli/shape/hc_p2_test.go
+new file mode 100644
+index 0000000..4d7ebae
+--- /dev/null
++++ b/cli/shape/hc_p2_test.go
+@@ -0,0 +1,50 @@
++package shape
++
++import (
++	"strings"
++	"testing"
++
++	"kogen/executor"
++)
++
++// Lane patch P2/S1: the shaper's policy carries the unstated-requirement pass, and a ready
++// Intent records the hc_p2_unstated witness with the count of its `- unstated:` lines.
++
++func TestHCP2ShaperPolicyCarriesTheUnstatedRequirementPass(t *testing.T) {
++	text := ShaperInstructions()
++	for _, want := range []string{"Unstated-requirement pass:", "nearest existing counterpart", "- unstated: <requirement> -> "} {
++		if !strings.Contains(text, want) {
++			t.Errorf("shaper policy lacks %q", want)
++		}
++	}
++	if strings.Contains(refineInstructions(), "Unstated-requirement pass:") {
++		t.Error("the pass belongs to Shape only, not Refine")
++	}
++}
++
++func TestHCP2UnstatedItemsCountsLines(t *testing.T) {
++	items, out := unstatedItems("- The request asks for x.\n- unstated: empty input -> Scenario: Empty (evidence: request)\n  - Unstated: errors keep the old text -> out of scope: no error path changes (evidence: lib/x.py)\n")
++	shpEq(t, "items", items, 2)
++	shpEq(t, "out of scope", out, 1)
++}
++
++func TestHCP2ReadyShapeRecordsTheWitness(t *testing.T) {
++	parallel(t)
++	files := shpFiles()
++	list := files["files"].([]any)
++	md := strings.Replace(shpIntentMD, "## Source comparison\n- The request asks for is_even; the feature covers it.\n",
++		"## Source comparison\n- The request asks for is_even; the feature covers it.\n- unstated: zero is even -> Scenario: Even numbers (evidence: request)\n- unstated: negative numbers -> out of scope: request names integers only (evidence: request)\n", 1)
++	list[0] = map[string]any{"path": ".kogen/intents/is-even/intent.md", "content": md}
++	f := newShpFx(t)
++	f.useExternalShape(6)
++	x := &shapeExec{t: t, rounds: []func(int, string) (executor.RoundResult, error){result(files)}}
++	if exit, err := f.shapeWith(x, "Add calc.is_even(n)."); err != nil || exit != 0 {
++		t.Fatalf("exit %d, err %v; refusals %v", exit, err, shpNamed(f.events(), "submission_refused"))
++	}
++	shpContains(t, "external brief", x.starts[0].Brief.Stable, "Unstated-requirement pass:")
++	got := shpNamed(f.events(), "hc_p2_unstated")
++	shpEq(t, "witness events", len(got), 1)
++	shpEq(t, "items", got[0]["items"], any(float64(2)))
++	shpEq(t, "scenarios", got[0]["scenarios"], any(float64(1)))
++	shpEq(t, "out of scope", got[0]["out_of_scope"], any(float64(1)))
++}
+diff --git a/cli/shape/shape.go b/cli/shape/shape.go
+index a1c3550..d1c3562 100644
+--- a/cli/shape/shape.go
++++ b/cli/shape/shape.go
+@@ -1143,6 +1143,13 @@ func (sh *shaping) submitOne(ctx context.Context, args map[string]any) (string,
+ 			"cells": sh.auditResult.cells, "defects": all, "uncovered": defects})
+ 	}
+ 	if err == nil && out.kind == outReady {
++		// Lane patch P2/S1 witness: how many unstated requirements the ready Intent records.
++		if comparison, cerr := project.SourceComparison(sh.root, sh.slug); cerr == nil {
++			items, outOfScope := unstatedItems(comparison)
++			sh.ev.Record(map[string]any{"event": "hc_p2_unstated", "items": items, "scenarios": items - outOfScope, "out_of_scope": outOfScope})
++		} else {
++			sh.ev.Record(map[string]any{"event": "hc_p2_unstated", "items": 0, "error": cerr.Error()})
++		}
+ 		rec := sh.lastUncovered
+ 		if rec == nil {
+ 			rec = []map[string]any{}

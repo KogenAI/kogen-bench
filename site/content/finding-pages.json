@@ -440,6 +440,15 @@
       "summary": "A one-sentence change to Kogen's builder prompt (call finish right away when the checks pass, with no extra re-reads or polishing) was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 9 tasks without the change and 10 with it (one gained, none lost), and the patched build used less wall time or fewer tokens on 9 of 13 tasks, meeting the rule of at least 8. It is one trial on one laptop-class host, so it is a candidate to confirm at Kogen level before shipping, not a shipped change."
     },
     {
+      "id": "p2-unstated-go-pooled",
+      "category": "categories/harness-levers.md",
+      "title": "An unstated-requirement pass in Kogen shaping lost to unpatched Kogen over two Go repetitions and is dropped",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "The patch that adds an unstated-requirement pass to Kogen's shaping step was compared with unpatched Kogen over two repetitions of the same 13 Go tasks (26 pairs), same commit and model (gpt-6.1-terra, medium effort). The hidden checks passed on 19 pairs without the patch and 17 with it: one pair gained and three lost, against a keep rule of at least three net wins, and the patched build ended build_blocked 4 times against 1. The patch is dropped. This replaces the first-repetition page."
+    },
+    {
       "id": "l3-stop-at-green-hard-kits",
       "category": "categories/harness-levers.md",
       "title": "The finish-right-away sentence caused no early stops on two hard review tasks, but only one could show it",
