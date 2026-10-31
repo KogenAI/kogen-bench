@@ -1,0 +1,740 @@
+diff -ruN kogen-loop.base/conformance/library_test.go kogen-loop/conformance/library_test.go
+--- kogen-loop.base/conformance/library_test.go	2026-10-29 11:14:19
++++ kogen-loop/conformance/library_test.go	2026-10-31 03:00:35
+@@ -690,10 +690,11 @@
+ 	for _, d := range s.Definitions() {
+ 		names = append(names, d.(map[string]any)["name"].(string))
+ 	}
+-	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "finish"}) {
++	// edit5: a session that enables write_file is also offered apply_patch
++	if !reflect.DeepEqual(names, []string{"read_file", "write_file", "list_files", "search_text", "shell", "apply_patch", "finish"}) {
+ 		t.Errorf("definitions %v", names)
+ 	}
+-	finish := s.Definitions()[5].(map[string]any)
++	finish := s.Definitions()[6].(map[string]any)
+ 	params := finish["parameters"].(map[string]any)
+ 	if !reflect.DeepEqual(params["required"], []any{"summary"}) || params["additionalProperties"] != false {
+ 		t.Errorf("finish %v", finish)
+diff -ruN kogen-loop.base/loop/session.go kogen-loop/loop/session.go
+--- kogen-loop.base/loop/session.go	2026-10-29 11:14:19
++++ kogen-loop/loop/session.go	2026-10-31 02:59:38
+@@ -202,6 +202,13 @@
+ 		seen[name] = true
+ 		defs = append(defs, d)
+ 	}
++	// edit5: a session that can write files is also offered apply_patch.
++	if seen[tools.WriteFileTool] && !seen[tools.ApplyPatchTool] {
++		d, _ := tools.Definition(tools.ApplyPatchTool)
++		enabled = append(slices.Clone(enabled), tools.ApplyPatchTool)
++		seen[tools.ApplyPatchTool] = true
++		defs = append(defs, d)
++	}
+ 	for _, name := range terminal {
+ 		if name == "" || seen[name] {
+ 			return nil, invalid("terminal tool names must be non-empty and unique, and differ from the enabled tools")
+diff -ruN kogen-loop.base/loop/terminal_reminders_test.go kogen-loop/loop/terminal_reminders_test.go
+--- kogen-loop.base/loop/terminal_reminders_test.go	2026-10-29 11:14:19
++++ kogen-loop/loop/terminal_reminders_test.go	2026-10-31 03:00:54
+@@ -8,6 +8,7 @@
+ 	"net/http"
+ 	"net/http/httptest"
+ 	"os"
++	"path/filepath"
+ 	"reflect"
+ 	"strings"
+ 	"sync/atomic"
+@@ -315,4 +316,86 @@
+ 			}
+ 		}
+ 	})
++}
++
++func TestSessionOffersApplyPatchWithWriteFile(t *testing.T) {
++	names := func(enabled []string) []string {
++		s, err := NewSession(SessionConfig{Root: t.TempDir(), Role: provider.Role{Provider: "openai-compatible", Model: "local", BaseURL: "http://localhost:1"}, Enabled: enabled})
++		if err != nil {
++			t.Fatal(err)
++		}
++		var out []string
++		for _, d := range s.Definitions() {
++			out = append(out, d.(map[string]any)["name"].(string))
++		}
++		return out
++	}
++	if got := strings.Join(names([]string{"read_file", "write_file", "list_files", "search_text", "shell"}), ","); got != "read_file,write_file,list_files,search_text,shell,apply_patch,finish" {
++		t.Errorf("with write_file: %s", got)
++	}
++	if got := strings.Join(names([]string{"read_file", "shell"}), ","); got != "read_file,shell,finish" {
++		t.Errorf("without write_file: %s", got)
++	}
++	if got := strings.Join(names([]string{"write_file", "apply_patch"}), ","); got != "write_file,apply_patch,finish" {
++		t.Errorf("named explicitly: %s", got)
++	}
++}
++
++func TestSessionRoundRunsApplyPatch(t *testing.T) {
++	root := t.TempDir()
++	if err := os.WriteFile(filepath.Join(root, "core.go"), []byte("package core\n\nfunc F() int {\n\treturn 1\n}\n"), 0o644); err != nil {
++		t.Fatal(err)
++	}
++	patch, _ := json.Marshal(map[string]string{"input": "*** Begin Patch\n*** Update File: core.go\n@@ func F() int {\n-\treturn 1\n+\treturn 2\n*** End Patch"})
++	var n atomic.Int32
++	var outputs []string
++	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		var body struct {
++			Messages []map[string]any `json:"messages"`
++		}
++		_ = json.NewDecoder(r.Body).Decode(&body)
++		for _, m := range body.Messages {
++			if m["role"] == "tool" {
++				outputs = append(outputs, fmt.Sprint(m["content"]))
++			}
++		}
++		w.Header().Set("Content-Type", "application/json")
++		if n.Add(1) == 1 {
++			args, _ := json.Marshal(string(patch))
++			fmt.Fprintf(w, `{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c1","type":"function","function":{"name":"apply_patch","arguments":%s}}]},"finish_reason":"tool_calls"}]}`, args)
++			return
++		}
++		fmt.Fprint(w, `{"choices":[{"message":{"role":"assistant","content":null,"tool_calls":[{"id":"c2","type":"function","function":{"name":"finish","arguments":"{\"summary\":\"done\"}"}}]},"finish_reason":"tool_calls"}]}`)
++	}))
++	defer srv.Close()
++	var events []api.Event
++	s, err := NewSession(SessionConfig{
++		Root: root, Role: provider.Role{Provider: "openai-compatible", Model: "local", BaseURL: srv.URL},
++		Session: sys.NewWith([]string{"HOME=" + t.TempDir(), "PATH=" + os.Getenv("PATH")}, t.TempDir()),
++		Enabled: []string{"read_file", "write_file", "list_files", "search_text", "shell"},
++		Emit:    func(e api.Event) { events = append(events, e) },
++	})
++	if err != nil {
++		t.Fatal(err)
++	}
++	res, err := s.Round(context.Background(), "go")
++	if err != nil || res.Ending != EndTerminal || res.Requests != 2 {
++		t.Fatalf("%+v %v", res, err)
++	}
++	got, _ := os.ReadFile(filepath.Join(root, "core.go"))
++	if string(got) != "package core\n\nfunc F() int {\n\treturn 2\n}\n" {
++		t.Errorf("core.go %q", got)
++	}
++	if len(outputs) != 1 || outputs[0] != "Success. Updated the following files:\nM core.go" {
++		t.Errorf("tool output %q", outputs)
++	}
++	called := false
++	for _, e := range events {
++		if e.Type == "tool.call" && e.Fields["name"] == "apply_patch" {
++			called = true
++		}
++	}
++	if !called {
++		t.Error("no tool.call event names apply_patch")
++	}
+ }
+diff -ruN kogen-loop.base/tools/apply_patch.go kogen-loop/tools/apply_patch.go
+--- kogen-loop.base/tools/apply_patch.go	1970-01-01 03:00:00
++++ kogen-loop/tools/apply_patch.go	2026-10-31 03:02:18
+@@ -0,0 +1,394 @@
++package tools
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"slices"
++	"strings"
++	"syscall"
++	"unicode"
++)
++
++// ApplyPatchTool edits files with a patch in the apply_patch format (the file-oriented diff
++// Codex gives OpenAI models). A Session that enables write_file also offers it (edit5).
++const ApplyPatchTool = "apply_patch"
++
++// applyPatchDescription is the apply_patch section of Codex's model instructions
++// (codex-rs/core/gpt_5_1_prompt.md, 0.165.0 source), as a function-tool description.
++const applyPatchDescription = "Use the `apply_patch` tool to edit files. Your patch language is a stripped-down, file-oriented diff format designed to be easy to parse and safe to apply. You can think of it as a high-level envelope:\n\n" +
++	"*** Begin Patch\n[ one or more file sections ]\n*** End Patch\n\n" +
++	"Within that envelope, you get a sequence of file operations.\nYou MUST include a header to specify the action you are taking.\nEach operation starts with one of three headers:\n\n" +
++	"*** Add File: <path> - create a new file. Every following line is a + line (the initial contents).\n" +
++	"*** Delete File: <path> - remove an existing file. Nothing follows.\n" +
++	"*** Update File: <path> - patch an existing file in place (optionally with a rename).\n\n" +
++	"Example patch:\n\n```\n*** Begin Patch\n*** Add File: hello.txt\n+Hello world\n*** Update File: src/app.py\n*** Move to: src/main.py\n@@ def greet():\n-print(\"Hi\")\n+print(\"Hello, world!\")\n*** Delete File: obsolete.txt\n*** End Patch\n```\n\n" +
++	"It is important to remember:\n\n- You must include a header with your intended action (Add/Delete/Update)\n- You must prefix new lines with `+` even when creating a new file"
++
++func applyPatchDefinition() map[string]any {
++	return fun(ApplyPatchTool, applyPatchDescription, map[string]any{
++		"input": map[string]any{"type": "string", "description": "The entire contents of the apply_patch command"},
++	}, "input")
++}
++
++type patchChunk struct {
++	context  string
++	hasCtx   bool
++	old, new []string
++	ctx      [][2]int // indices into old and new of the parsed context lines
++	eof      bool
++}
++
++type patchHunk struct {
++	kind     byte // 'A', 'D', 'U'
++	path     string
++	movePath string
++	contents string
++	chunks   []patchChunk
++}
++
++const (
++	beginPatch = "*** Begin Patch"
++	endPatch   = "*** End Patch"
++	addFile    = "*** Add File: "
++	deleteFile = "*** Delete File: "
++	updateFile = "*** Update File: "
++	moveTo     = "*** Move to: "
++	endOfFile  = "*** End of File"
++)
++
++// parsePatch parses the apply_patch format leniently, as Codex does: markers may carry
++// surrounding whitespace and a heredoc wrapper (<<'EOF' ... EOF) is removed.
++func parsePatch(text string) ([]patchHunk, error) {
++	lines := strings.Split(strings.TrimSpace(text), "\n")
++	for i, l := range lines {
++		lines[i] = strings.TrimSuffix(l, "\r")
++	}
++	if err := checkBoundaries(lines); err != nil {
++		first := strings.TrimSpace(lines[0])
++		if len(lines) >= 4 && (first == "<<EOF" || first == "<<'EOF'" || first == `<<"EOF"`) && strings.HasSuffix(lines[len(lines)-1], "EOF") {
++			inner := lines[1 : len(lines)-1]
++			if checkBoundaries(inner) != nil {
++				return nil, err
++			}
++			lines = inner
++		} else {
++			return nil, err
++		}
++	}
++	body := lines[1 : len(lines)-1]
++	var hunks []patchHunk
++	for i := 0; i < len(body); {
++		h, n, err := parseHunk(body[i:], i+2)
++		if err != nil {
++			return nil, err
++		}
++		hunks = append(hunks, h)
++		i += n
++	}
++	return hunks, nil
++}
++
++func checkBoundaries(lines []string) error {
++	if len(lines) == 0 || strings.TrimSpace(lines[0]) != beginPatch {
++		return fmt.Errorf("invalid patch: The first line of the patch must be '%s'", beginPatch)
++	}
++	if strings.TrimSpace(lines[len(lines)-1]) != endPatch || len(lines) < 2 {
++		return fmt.Errorf("invalid patch: The last line of the patch must be '%s'", endPatch)
++	}
++	return nil
++}
++
++// parseHunk parses one file section at lines[0]; it returns the hunk and the lines it used.
++func parseHunk(lines []string, lineNumber int) (patchHunk, int, error) {
++	first := strings.TrimSpace(lines[0])
++	switch {
++	case strings.HasPrefix(first, addFile):
++		h := patchHunk{kind: 'A', path: first[len(addFile):]}
++		n := 1
++		var b strings.Builder
++		for _, l := range lines[1:] {
++			if !strings.HasPrefix(l, "+") {
++				break
++			}
++			b.WriteString(l[1:] + "\n")
++			n++
++		}
++		h.contents = b.String()
++		return h, n, nil
++	case strings.HasPrefix(first, deleteFile):
++		return patchHunk{kind: 'D', path: first[len(deleteFile):]}, 1, nil
++	case strings.HasPrefix(first, updateFile):
++		h := patchHunk{kind: 'U', path: first[len(updateFile):]}
++		n := 1
++		if n < len(lines) && strings.HasPrefix(strings.TrimSpace(lines[n]), moveTo) {
++			h.movePath = strings.TrimSpace(lines[n])[len(moveTo):]
++			n++
++		}
++		for n < len(lines) {
++			if strings.TrimSpace(lines[n]) == "" {
++				n++ // blank lines between chunks
++				continue
++			}
++			if strings.HasPrefix(lines[n], "***") {
++				break
++			}
++			c, used, err := parseChunk(lines[n:], lineNumber+n, len(h.chunks) == 0)
++			if err != nil {
++				return h, 0, err
++			}
++			h.chunks = append(h.chunks, c)
++			n += used
++		}
++		if len(h.chunks) == 0 {
++			return h, 0, fmt.Errorf("invalid hunk at line %d, Update file hunk for path '%s' is empty", lineNumber, h.path)
++		}
++		return h, n, nil
++	}
++	return patchHunk{}, 0, fmt.Errorf("invalid hunk at line %d, '%s' is not a valid hunk header. Valid hunk headers: '*** Add File: {path}', '*** Delete File: {path}', '*** Update File: {path}'", lineNumber, first)
++}
++
++func parseChunk(lines []string, lineNumber int, allowMissingContext bool) (patchChunk, int, error) {
++	var c patchChunk
++	start := 0
++	switch {
++	case lines[0] == "@@":
++		start = 1
++	case strings.HasPrefix(lines[0], "@@ "):
++		c.context, c.hasCtx, start = lines[0][3:], true, 1
++	case !allowMissingContext:
++		return c, 0, fmt.Errorf("invalid hunk at line %d, Expected update hunk to start with a @@ context marker, got: '%s'", lineNumber, lines[0])
++	}
++	if start >= len(lines) {
++		return c, 0, fmt.Errorf("invalid hunk at line %d, Update hunk does not contain any lines", lineNumber+1)
++	}
++	parsed := 0
++	n := start
++	for ; n < len(lines); n++ {
++		l := lines[n]
++		if l == endOfFile {
++			if parsed == 0 {
++				return c, 0, fmt.Errorf("invalid hunk at line %d, Update hunk does not contain any lines", lineNumber+1)
++			}
++			c.eof = true
++			n++
++			break
++		}
++		if l == "" {
++			c.ctx = append(c.ctx, [2]int{len(c.old), len(c.new)})
++			c.old, c.new = append(c.old, ""), append(c.new, "")
++		} else {
++			switch l[0] {
++			case ' ':
++				c.ctx = append(c.ctx, [2]int{len(c.old), len(c.new)})
++				c.old, c.new = append(c.old, l[1:]), append(c.new, l[1:])
++			case '+':
++				c.new = append(c.new, l[1:])
++			case '-':
++				c.old = append(c.old, l[1:])
++			default:
++				if parsed == 0 {
++					return c, 0, fmt.Errorf("invalid hunk at line %d, Unexpected line found in update hunk: '%s'. Every line should start with ' ' (context line), '+' (added line), or '-' (removed line)", lineNumber+n, l)
++				}
++				return c, n, nil
++			}
++		}
++		parsed++
++	}
++	return c, n, nil
++}
++
++// seekSequence finds pattern in lines at or after start with decreasing strictness: exact,
++// trailing whitespace ignored, surrounding whitespace ignored, then common Unicode
++// punctuation folded to ASCII (Codex seek_sequence.rs). eof tries the file end first.
++func seekSequence(lines, pattern []string, start int, eof bool) int {
++	if len(pattern) == 0 {
++		return start
++	}
++	if len(pattern) > len(lines) {
++		return -1
++	}
++	from := start
++	if eof {
++		from = max(len(lines)-len(pattern), start)
++	}
++	for _, eq := range []func(a, b string) bool{
++		func(a, b string) bool { return a == b },
++		func(a, b string) bool {
++			return strings.TrimRightFunc(a, unicode.IsSpace) == strings.TrimRightFunc(b, unicode.IsSpace)
++		},
++		func(a, b string) bool { return strings.TrimSpace(a) == strings.TrimSpace(b) },
++		func(a, b string) bool { return normalisePunctuation(a) == normalisePunctuation(b) },
++	} {
++	next:
++		for i := from; i <= len(lines)-len(pattern); i++ {
++			for j, p := range pattern {
++				if !eq(lines[i+j], p) {
++					continue next
++				}
++			}
++			return i
++		}
++	}
++	return -1
++}
++
++func normalisePunctuation(s string) string {
++	return strings.Map(func(r rune) rune {
++		switch r {
++		case '\u2010', '\u2011', '\u2012', '\u2013', '\u2014', '\u2015', '\u2212':
++			return '-'
++		case '\u2018', '\u2019', '\u201A', '\u201B':
++			return '\''
++		case '\u201C', '\u201D', '\u201E', '\u201F':
++			return '"'
++		case '\u00A0', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u202F', '\u205F', '\u3000':
++			return ' '
++		}
++		return r
++	}, strings.TrimSpace(s))
++}
++
++// updatedContents applies the chunks of an update hunk to the original text.
++func updatedContents(original, path string, chunks []patchChunk) (string, error) {
++	lines := strings.Split(original, "\n")
++	if lines[len(lines)-1] == "" {
++		lines = lines[:len(lines)-1]
++	}
++	type replacement struct {
++		start, oldLen int
++		new           []string
++	}
++	var reps []replacement
++	index := 0
++	for _, c := range chunks {
++		if c.hasCtx {
++			i := seekSequence(lines, []string{c.context}, index, false)
++			if i < 0 {
++				return "", fmt.Errorf("Failed to find context '%s' in %s", c.context, path)
++			}
++			index = i + 1
++		}
++		if len(c.old) == 0 {
++			reps = append(reps, replacement{len(lines), 0, c.new})
++			continue
++		}
++		pattern, newLines := c.old, c.new
++		found := seekSequence(lines, pattern, index, c.eof)
++		if found < 0 && pattern[len(pattern)-1] == "" {
++			pattern = pattern[:len(pattern)-1]
++			if len(newLines) > 0 && newLines[len(newLines)-1] == "" {
++				newLines = newLines[:len(newLines)-1]
++			}
++			found = seekSequence(lines, pattern, index, c.eof)
++		}
++		if found < 0 {
++			return "", fmt.Errorf("Failed to find expected lines in %s:\n%s", path, strings.Join(c.old, "\n"))
++		}
++		// Context lines keep the file's own text: only the runs between them are replaced
++		// (Codex file_update.rs, context_line_indices).
++		oldStart, newStart := 0, 0
++		for _, x := range c.ctx {
++			if x[0] >= len(pattern) || x[1] >= len(newLines) {
++				break
++			}
++			if oldStart != x[0] || newStart != x[1] {
++				reps = append(reps, replacement{found + oldStart, x[0] - oldStart, newLines[newStart:x[1]]})
++			}
++			oldStart, newStart = x[0]+1, x[1]+1
++		}
++		if oldStart != len(pattern) || newStart != len(newLines) {
++			reps = append(reps, replacement{found + oldStart, len(pattern) - oldStart, newLines[newStart:]})
++		}
++		index = found + len(pattern)
++	}
++	slices.SortStableFunc(reps, func(a, b replacement) int { return a.start - b.start })
++	for i := len(reps) - 1; i >= 0; i-- {
++		r := reps[i]
++		lines = slices.Concat(lines[:r.start], r.new, lines[r.start+r.oldLen:])
++	}
++	return strings.Join(lines, "\n") + "\n", nil
++}
++
++// applyPatch parses the whole patch and computes every file's new content before it changes
++// anything; then it writes, moves and deletes in patch order. Protected paths are refused.
++func (t *Tools) applyPatch(args map[string]any) string {
++	input, msg := stringArg(args, "input")
++	if msg != "" {
++		return msg
++	}
++	hunks, err := parsePatch(input)
++	if err != nil {
++		return "error: " + err.Error()
++	}
++	if len(hunks) == 0 {
++		return "error: No files were modified."
++	}
++	type change struct {
++		code, abs, rel, removeAbs string
++		content                   *string
++	}
++	var changes []change
++	for _, h := range hunks {
++		abs, rel := t.resolve(h.path)
++		if slices.Contains(t.Protected, rel) {
++			return "refused: " + rel + " is part of the approved acceptance baseline"
++		}
++		switch h.kind {
++		case 'A':
++			content := h.contents
++			changes = append(changes, change{code: "A", abs: abs, rel: rel, content: &content})
++		case 'D':
++			if _, err := os.Stat(abs); err != nil {
++				return "error: Failed to delete file " + h.path + ": " + reason(err)
++			}
++			changes = append(changes, change{code: "D", rel: rel, removeAbs: abs})
++		case 'U':
++			data, err := readFile(abs)
++			if err != nil {
++				if isErrno(err, syscall.ENOENT) {
++					return "error: Failed to read file to update " + h.path + ": " + h.path + " does not exist"
++				}
++				return "error: Failed to read file to update " + h.path + ": " + reason(err)
++			}
++			content, err := updatedContents(string(data), h.path, h.chunks)
++			if err != nil {
++				return "error: " + err.Error()
++			}
++			c := change{code: "M", abs: abs, rel: rel, content: &content}
++			if h.movePath != "" {
++				mabs, mrel := t.resolve(h.movePath)
++				if slices.Contains(t.Protected, mrel) {
++					return "refused: " + mrel + " is part of the approved acceptance baseline"
++				}
++				c.abs, c.rel, c.removeAbs = mabs, mrel, abs
++			}
++			changes = append(changes, c)
++		}
++	}
++	var done []string
++	for _, c := range changes {
++		if c.content != nil {
++			if err := mkdirAll(filepath.Dir(c.abs)); err != nil {
++				return failedAfter(done, "error: "+c.rel+": "+reason(err))
++			}
++			if err := writeFile(c.abs, *c.content); err != nil {
++				return failedAfter(done, "error: "+c.rel+": "+reason(err))
++			}
++		}
++		if c.removeAbs != "" && c.removeAbs != c.abs {
++			if err := os.Remove(c.removeAbs); err != nil {
++				return failedAfter(done, "error: "+c.rel+": "+reason(err))
++			}
++		}
++		done = append(done, c.code+" "+c.rel)
++	}
++	return "Success. Updated the following files:\n" + strings.Join(done, "\n")
++}
++
++func failedAfter(done []string, msg string) string {
++	if len(done) == 0 {
++		return msg
++	}
++	return msg + "\nAlready applied before the failure:\n" + strings.Join(done, "\n")
++}
+diff -ruN kogen-loop.base/tools/apply_patch_test.go kogen-loop/tools/apply_patch_test.go
+--- kogen-loop.base/tools/apply_patch_test.go	1970-01-01 03:00:00
++++ kogen-loop/tools/apply_patch_test.go	2026-10-31 03:00:15
+@@ -0,0 +1,174 @@
++package tools
++
++import (
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++)
++
++func patchTools(t *testing.T) (*Tools, string) {
++	t.Helper()
++	root, err := filepath.EvalSymlinks(t.TempDir())
++	if err != nil {
++		t.Fatal(err)
++	}
++	return &Tools{Root: root, Enabled: []string{ApplyPatchTool, WriteFileTool}}, root
++}
++
++func runPatch(t *testing.T, tl *Tools, patch string) string {
++	t.Helper()
++	out, err := tl.Run(ApplyPatchTool, map[string]any{"input": patch})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return out.Text
++}
++
++func readBack(t *testing.T, root, path string) string {
++	t.Helper()
++	b, err := os.ReadFile(filepath.Join(root, path))
++	if err != nil {
++		t.Fatal(err)
++	}
++	return string(b)
++}
++
++func TestApplyPatchAddUpdateDeleteMove(t *testing.T) {
++	tl, root := patchTools(t)
++	write(t, root, "core.go", "package core\n\nfunc A() int {\n\treturn 1\n}\n\nfunc B() int {\n\treturn 2\n}\n")
++	write(t, root, "old.txt", "bye\n")
++	write(t, root, "src/app.py", "def greet():\n    print(\"Hi\")\n")
++	out := runPatch(t, tl, "*** Begin Patch\n*** Add File: pkg/new.go\n+package pkg\n+\n+const X = 1\n*** Update File: core.go\n@@ func B() int {\n-\treturn 2\n+\treturn 3\n*** Delete File: old.txt\n*** Update File: src/app.py\n*** Move to: src/main.py\n@@ def greet():\n-    print(\"Hi\")\n+    print(\"Hello, world!\")\n*** End Patch")
++	want := "Success. Updated the following files:\nA pkg/new.go\nM core.go\nD old.txt\nM src/main.py"
++	if out != want {
++		t.Fatalf("result %q", out)
++	}
++	if got := readBack(t, root, "pkg/new.go"); got != "package pkg\n\nconst X = 1\n" {
++		t.Errorf("added %q", got)
++	}
++	if got := readBack(t, root, "core.go"); got != "package core\n\nfunc A() int {\n\treturn 1\n}\n\nfunc B() int {\n\treturn 3\n}\n" {
++		t.Errorf("updated %q", got)
++	}
++	if _, err := os.Stat(filepath.Join(root, "old.txt")); !os.IsNotExist(err) {
++		t.Errorf("old.txt still there: %v", err)
++	}
++	if _, err := os.Stat(filepath.Join(root, "src/app.py")); !os.IsNotExist(err) {
++		t.Errorf("moved source still there: %v", err)
++	}
++	if got := readBack(t, root, "src/main.py"); got != "def greet():\n    print(\"Hello, world!\")\n" {
++		t.Errorf("moved %q", got)
++	}
++}
++
++func TestApplyPatchContextLinesAndSeveralChunks(t *testing.T) {
++	tl, root := patchTools(t)
++	write(t, root, "a.txt", "one\ntwo\nthree\nfour\nfive\nsix\nseven\n")
++	out := runPatch(t, tl, "*** Begin Patch\n*** Update File: a.txt\n@@\n one\n-two\n+TWO\n three\n@@\n five\n-six\n+SIX\n+six and a half\n seven\n*** End Patch\n")
++	if !strings.HasPrefix(out, "Success.") {
++		t.Fatalf("result %q", out)
++	}
++	if got := readBack(t, root, "a.txt"); got != "one\nTWO\nthree\nfour\nfive\nSIX\nsix and a half\nseven\n" {
++		t.Errorf("%q", got)
++	}
++}
++
++func TestApplyPatchFirstChunkWithoutMarkerAndFuzzyWhitespace(t *testing.T) {
++	tl, root := patchTools(t)
++	write(t, root, "b.go", "x := 1   \ny := 2\n")
++	// the first chunk may omit @@; the context line differs only by trailing spaces
++	out := runPatch(t, tl, "*** Begin Patch\n*** Update File: b.go\n x := 1\n-y := 2\n+y := 3\n*** End Patch")
++	if !strings.HasPrefix(out, "Success.") {
++		t.Fatalf("result %q", out)
++	}
++	if got := readBack(t, root, "b.go"); got != "x := 1   \ny := 3\n" {
++		t.Errorf("%q", got)
++	}
++}
++
++func TestApplyPatchEndOfFileAndHeredoc(t *testing.T) {
++	tl, root := patchTools(t)
++	write(t, root, "c.txt", "a\nb\na\nb\n")
++	out := runPatch(t, tl, "<<'EOF'\n*** Begin Patch\n*** Update File: c.txt\n@@\n a\n-b\n+B\n*** End of File\n*** End Patch\nEOF\n")
++	if !strings.HasPrefix(out, "Success.") {
++		t.Fatalf("result %q", out)
++	}
++	if got := readBack(t, root, "c.txt"); got != "a\nb\na\nB\n" {
++		t.Errorf("end-of-file chunk applied at %q", got)
++	}
++}
++
++func TestApplyPatchErrorsChangeNothing(t *testing.T) {
++	tl, root := patchTools(t)
++	write(t, root, "d.txt", "keep\n")
++	cases := map[string]string{
++		"no begin":       "*** Update File: d.txt\n-keep\n+x\n*** End Patch",
++		"no end":         "*** Begin Patch\n*** Update File: d.txt\n-keep\n+x",
++		"bad header":     "*** Begin Patch\n*** Change File: d.txt\n*** End Patch",
++		"empty update":   "*** Begin Patch\n*** Update File: d.txt\n*** End Patch",
++		"missing lines":  "*** Begin Patch\n*** Add File: e.txt\n+new\n*** Update File: d.txt\n@@\n-absent\n+x\n*** End Patch",
++		"missing file":   "*** Begin Patch\n*** Add File: e.txt\n+new\n*** Update File: nope.txt\n@@\n-a\n+b\n*** End Patch",
++		"missing delete": "*** Begin Patch\n*** Add File: e.txt\n+new\n*** Delete File: nope.txt\n*** End Patch",
++	}
++	for name, patch := range cases {
++		out := runPatch(t, tl, patch)
++		if !strings.HasPrefix(out, "error: ") {
++			t.Errorf("%s: %q", name, out)
++		}
++		if got := readBack(t, root, "d.txt"); got != "keep\n" {
++			t.Errorf("%s: d.txt became %q", name, got)
++		}
++		if _, err := os.Stat(filepath.Join(root, "e.txt")); !os.IsNotExist(err) {
++			t.Errorf("%s: e.txt was written before the patch was validated", name)
++		}
++	}
++	if out := runPatch(t, tl, "*** Begin Patch\n*** Update File: d.txt\n@@\n-absent\n+x\n*** End Patch"); !strings.Contains(out, "Failed to find expected lines in d.txt") {
++		t.Errorf("diagnostic %q", out)
++	}
++	if out, _ := tl.Run(ApplyPatchTool, map[string]any{"patch": "x"}); out.Text != "error: argument input must be a string" {
++		t.Errorf("argument error %q", out.Text)
++	}
++}
++
++func TestApplyPatchRefusesProtectedPaths(t *testing.T) {
++	tl, root := patchTools(t)
++	tl.Protected = []string{"features/a.feature"}
++	write(t, root, "features/a.feature", "Feature: a\n")
++	write(t, root, "f.txt", "f\n")
++	for _, patch := range []string{
++		"*** Begin Patch\n*** Update File: features/a.feature\n@@\n-Feature: a\n+Feature: b\n*** End Patch",
++		"*** Begin Patch\n*** Update File: f.txt\n*** Move to: features/a.feature\n@@\n-f\n+g\n*** End Patch",
++		"*** Begin Patch\n*** Delete File: features/a.feature\n*** End Patch",
++	} {
++		if out := runPatch(t, tl, patch); out != "refused: features/a.feature is part of the approved acceptance baseline" {
++			t.Errorf("%q", out)
++		}
++	}
++	if got := readBack(t, root, "features/a.feature"); got != "Feature: a\n" {
++		t.Errorf("protected file changed: %q", got)
++	}
++}
++
++func TestApplyPatchNotEnabledIsUnknown(t *testing.T) {
++	tl, _ := patchTools(t)
++	tl.Enabled = []string{WriteFileTool}
++	if out, _ := tl.Run(ApplyPatchTool, map[string]any{"input": "*** Begin Patch\n*** End Patch"}); out.Text != "error: unknown tool apply_patch" {
++		t.Errorf("%q", out.Text)
++	}
++}
++
++func TestApplyPatchDefinition(t *testing.T) {
++	d, ok := Definition(ApplyPatchTool)
++	if !ok || d["name"] != "apply_patch" || !strings.Contains(d["description"].(string), "*** Update File: <path>") {
++		t.Fatalf("%v", d)
++	}
++	params := d["parameters"].(map[string]any)
++	if _, ok := params["properties"].(map[string]any)["input"]; !ok || len(params["required"].([]any)) != 1 {
++		t.Errorf("%v", params)
++	}
++	// write_file's own definition is unchanged
++	w, _ := Definition(WriteFileTool)
++	if w["description"] != "Write the whole content of a file of the repository (created with its folders if needed)." {
++		t.Errorf("write_file description changed: %v", w["description"])
++	}
++}
+diff -ruN kogen-loop.base/tools/defs.go kogen-loop/tools/defs.go
+--- kogen-loop.base/tools/defs.go	2026-10-29 11:14:19
++++ kogen-loop/tools/defs.go	2026-10-31 02:59:38
+@@ -93,6 +93,8 @@
+ 		return fun(name,
+ 			"Search the repository's files for a regular expression (git grep syntax). Returns path:line:text matches.",
+ 			map[string]any{"pattern": str(), "path": str()}, "pattern"), true
++	case ApplyPatchTool:
++		return applyPatchDefinition(), true
+ 	case DocumentationTool:
+ 		return fun(name,
+ 			"Shape documentation lookup discovers sources and retrieves current authoritative documentation. A fetch may pass offset, a byte index into the page body, and find, text that starts the body at its first matching heading or line; the result reports body_total and next_offset for reading the rest.",
+@@ -132,6 +134,7 @@
+ 			ListFilesTool:     "List non-ignored files.",
+ 			SearchTextTool:    "Git grep regex; path:line:text.",
+ 			DocumentationTool: "Search/fetch docs; offset: byte; find: heading/line.",
++			ApplyPatchTool:    applyPatchDescription,
+ 		}
+ 		d["description"] = descriptions[name]
+ 		if name == DocumentationTool {
+diff -ruN kogen-loop.base/tools/tools.go kogen-loop/tools/tools.go
+--- kogen-loop.base/tools/tools.go	2026-10-29 11:14:19
++++ kogen-loop/tools/tools.go	2026-10-31 02:59:38
+@@ -167,6 +167,8 @@
+ 		return t.readFile(args), nil
+ 	case WriteFileTool:
+ 		return Output{Text: t.writeFile(args)}, nil
++	case ApplyPatchTool:
++		return Output{Text: t.applyPatch(args)}, nil
+ 	case ListFilesTool:
+ 		return Output{Text: t.listFiles(args)}, nil
+ 	case SearchTextTool:

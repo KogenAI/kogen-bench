@@ -356,6 +356,24 @@ Paired by block (5 complete blocks; exact two-sided sign tests, ties dropped; ea
 
 **Limits.** Five pairs over three tasks; the shell-bound tail rests on one counted pair and one dry cell; pairs on one task are not independent. Deadline cells are censored at 3,600 s, so the wall ratio is a floor. One host; cost at list prices; order rotated, not randomised. The task kits stay private until the hill-climb ends. Reproduction pack: `reproduce/shell-yield-eu2/`.
 
+### Patch edit tool, same OpenAI API key, gpt-6.1-terra, high effort
+
+**Summary.** **Does not advance: an `apply_patch` edit tool did not reduce the output kogen-loop generates on edit turns (10 blocks: 5 tasks x 2 repetitions, 30 counted cells).** With the tool added, edit-turn output was lower in 3 blocks and higher in 7 (sign test p = 0.34; geometric-mean ratio 0.999 over 9 blocks). The model used the tool in 9 of 10 cells (61 calls, no errors) but made more, smaller edits and more requests (more requests in 9 of 10 blocks, p = 0.02). **Cost per pass is unresolved (4 blocks lower, 6 higher, p = 0.75).** The arm totals favour the tool ($0.164 per pass against $0.220 for the default and $0.194 for Codex CLI), but only because one default-loop cell ran away to the 128,000-token output cap and failed; without that block the tool cost 13% more ($1.51 against $1.34 over 9 passes each, a check made after the results).
+
+**Setup.** Three setups on the same OpenAI API key, model gpt-6.1-terra, high effort, on one server, one cell at a time with grading: kogen-loop `b8a4046` with its default tools, the same source plus a patch that adds an `apply_patch` function tool (an experiment build, not a release), and Codex CLI 0.165.0. The tool takes Codex's patch format and its description is the apply_patch section of Codex's own model instructions; it is offered next to the unchanged `write_file` and shell. Primary measures, registered in advance and paired by task and repetition: output tokens on edit turns (responses with at least one edit call, reasoning included) and cost per pass. The test had power 0.79 for a 30% cut in edit-turn output and almost none for 10%. **No unused task kit was left, so the round reused five kits from earlier rounds** (the same tasks for every setup, but not fresh). 33 runs including 3 dry, $5.75 of the $9.50 cap; no run was cut, rerun or replaced.
+
+| Setup, counted cells | Passed / launched | Edit-turn output per run | Edit turns per run | Requests per run | API cost per pass |
+|---|---:|---:|---:|---:|---:|
+| loop default | 9/10 | 10,497 | 8.1 | 17.4 | $0.220 |
+| loop + apply_patch | 10/10 | 11,701 | 12.3 | 24.8 | $0.164 |
+| Codex CLI | 10/10 | 11,865 | 8.6 | 24.7 | $0.194 |
+
+Paired by block (10 blocks; exact two-sided sign tests, ties dropped; each count is blocks where the first setup was lower, then higher). Patch against default: edit-turn output 3/7 (p = 0.34), cost per pass 4/6 (p = 0.75), wall 5/5, requests 1/9 (p = 0.02), pass 1/0 with 9 ties. Patch against Codex CLI: edit-turn output 6/4 (p = 0.75), cost per pass 8/2 (p = 0.11), pass tied. Default against Codex CLI: cost per pass 9/1 (p = 0.02), requests 10/0 (p = 0.002).
+
+**What the result rests on.** loop already edits through the shell on these tasks (70 of the default's 81 edit calls); the tool moved part of that work into patch calls (61 of 123 edit calls in its arm) while `write_file` and shell edits stayed in use, so edits got smaller and more frequent: 113 edit turns against 81 and 228 requests against 172 on the 9 blocks without the failed cell, with edit-turn output the same (105,548 against 104,968 tokens). By task the edit-turn ratio was 0.98, 0.83, 1.04, 1.10 and 1.10; the tool was costlier per pass on three of the five tasks (1.10 to 1.25 times). Both loop setups tie Codex CLI on edit-turn output; the default is cheaper per pass than Codex CLI. The one failed cell was `sync3-go`, repetition 1, default loop: its second request ran to the output cap with no reasoning tokens (`agent_error`, $0.65, 1,411 s), the same failure seen twice in an earlier round's exec arm.
+
+**Limits.** Ten blocks over five tasks; repetitions of one task are not independent, and the tasks had been run before. The test could resolve only a large effect on edit-turn output, so a small effect, and the 3 to 8% cost change the lever was expected to give, cannot be ruled out or confirmed. Cost per pass hinges on one failed cell. The Codex CLI edit classification (shell-text patterns) is descriptive. One host; cost at list prices; order rotated, not randomised. The task kits stay private until the hill-climb ends. Reproduction pack: `reproduce/apply-patch-edit5/`.
+
 ### API key versus CLI sign-in, claude-sonnet-5-5, medium effort
 
 This round used 13 Go tasks and two repetitions per tool. Loop used an API key; Claude Code used its own sign-in. These routes can affect speed and token accounting.

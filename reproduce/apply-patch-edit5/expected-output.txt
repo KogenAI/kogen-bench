@@ -1,0 +1,87 @@
+Per arm, gpt-6.1-terra high, counted cells only (dry cells excluded)
+arm | pass/launched | edit-turn output total / per run | edit turns per run | edit calls write_file / apply_patch / shell | cells using apply_patch / errors | output total | wall s median / p90 | requests per run | USD total / per pass
+loop default | 9/10 | 104,968 / 10,497 | 8.1 | 11 / 0 / 70 | 0/10 / 0 | 250,732 | 189.851 / 321.260 | 17.4 | $1.983423 / $0.220380
+loop + apply_patch | 10/10 | 117,009 / 11,701 | 12.3 | 24 / 61 / 38 | 9/10 / 0 | 136,891 | 175.456 / 336.628 | 24.8 | $1.638602 / $0.163860
+Codex CLI | 10/10 | 118,654 / 11,865 | 8.6 | 0 / 0 / 86 | 0/10 / 0 | 156,151 | 198.065 / 293.982 | 24.7 | $1.938163 / $0.193816
+
+Paired by block, 10 complete blocks (lower is better): first-arm wins / second-arm wins, ties, exact two-sided sign test p
+loop + apply_patch vs loop default
+  edit-turn output: 3/7, 0 ties, p=0.3438
+  cost per pass: 4/6, 0 ties, p=0.7539
+  wall: 5/5, 0 ties, p=1.0000
+  requests: 1/9, 0 ties, p=0.0215
+  total output: 5/5, 0 ties, p=1.0000
+  pass (discordant, first-only/second-only): 1/0, 9 ties, p=1.0000
+  edit-turn output geomean ratio: 0.999 (n=9)
+  total output geomean ratio: 0.799
+  USD per pass ratio: 0.744
+  wall geomean ratio: 0.861
+loop + apply_patch vs Codex CLI
+  edit-turn output: 6/4, 0 ties, p=0.7539
+  cost per pass: 8/2, 0 ties, p=0.1094
+  wall: 6/4, 0 ties, p=0.7539
+  requests: 4/5, 1 ties, p=1.0000
+  total output: 8/2, 0 ties, p=0.1094
+  pass (discordant, first-only/second-only): 0/0, 10 ties, p=1.0000
+  edit-turn output geomean ratio: 0.981 (n=10)
+  total output geomean ratio: 0.871
+  USD per pass ratio: 0.845
+  wall geomean ratio: 0.958
+loop default vs Codex CLI
+  edit-turn output: 6/4, 0 ties, p=0.7539
+  cost per pass: 9/1, 0 ties, p=0.0215
+  wall: 7/3, 0 ties, p=0.3438
+  requests: 10/0, 0 ties, p=0.0020
+  total output: 8/2, 0 ties, p=0.1094
+  pass (discordant, first-only/second-only): 0/1, 9 ties, p=1.0000
+  edit-turn output geomean ratio: 0.970 (n=9)
+  total output geomean ratio: 1.090
+  USD per pass ratio: 1.137
+  wall geomean ratio: 1.112
+
+By task, apply_patch vs loop default (edit-turn output wins / losses; geomean ratio)
+  inventory-go: 1/1, 0 ties, p=1.0000, ratio 0.979
+  logq-go: 2/0, 0 ties, p=0.5000, ratio 0.826
+  sync3-go: 0/2, 0 ties, p=0.5000, ratio 1.037
+  heatcal-go: 0/2, 0 ties, p=0.5000, ratio 1.100
+  goldmark-callouts-go: 0/2, 0 ties, p=0.5000, ratio 1.099
+
+Without the failed block(s) [('sync3-go', 1)] (9 blocks; a check made after the results, not registered)
+  loop default: edit-turn output 104,968, edit turns 81, requests 172, USD $1.3359, per pass $0.1484
+  loop + apply_patch: edit-turn output 105,548, edit turns 113, requests 228, USD $1.5126, per pass $0.1681
+  Codex CLI: edit-turn output 108,167, edit turns 78, requests 228, USD $1.7800, per pass $0.1978
+  apply_patch vs loop default USD per pass ratio 1.132
+
+Spend: counted $5.560189, dry $0.192666 (credit probes, $0.001240, are not in runs.csv)
+
+Per cell (task rep arm: edit-turn output / total output / edit calls w,a,s / USD / wall s / requests; outcome)
+  inventory-go r1 loop-default: 11,814 / 12,830 / 0,0,5 / $0.1203 / 183.0 / 12; pass
+  inventory-go r1 apply-patch: 9,322 / 10,170 / 6,3,0 / $0.1075 / 158.8 / 17; pass
+  inventory-go r1 codex: 10,671 / 15,100 / 0,0,10 / $0.1905 / 214.2 / 27; pass
+  logq-go r1 loop-default: 12,385 / 15,140 / 0,0,10 / $0.1407 / 220.2 / 20; pass
+  logq-go r1 apply-patch: 9,914 / 10,924 / 0,9,0 / $0.1081 / 168.5 / 17; pass
+  logq-go r1 codex: 10,559 / 14,462 / 0,0,6 / $0.1648 / 196.6 / 21; pass
+  sync3-go r1 loop-default: 0 / 128,065 / 0,0,0 / $0.6476 / 1,411.0 / 2; fail (agent_error)
+  sync3-go r1 apply-patch: 11,461 / 12,765 / 6,4,0 / $0.1260 / 174.1 / 20; pass
+  sync3-go r1 codex: 10,487 / 13,215 / 0,0,8 / $0.1582 / 182.4 / 19; pass
+  heatcal-go r1 loop-default: 9,595 / 10,847 / 5,0,2 / $0.0938 / 152.2 / 16; pass
+  heatcal-go r1 apply-patch: 9,814 / 10,609 / 0,10,0 / $0.1022 / 150.0 / 18; pass
+  heatcal-go r1 codex: 9,654 / 12,572 / 0,0,7 / $0.1412 / 176.5 / 23; pass
+  goldmark-callouts-go r1 loop-default: 16,346 / 18,701 / 0,0,18 / $0.2920 / 302.4 / 35; pass
+  goldmark-callouts-go r1 apply-patch: 17,661 / 21,183 / 0,0,21 / $0.3225 / 336.6 / 42; pass
+  goldmark-callouts-go r1 codex: 14,830 / 20,731 / 0,0,13 / $0.3120 / 294.0 / 36; pass
+  inventory-go r2 loop-default: 9,826 / 11,160 / 0,0,5 / $0.1040 / 163.0 / 12; pass
+  inventory-go r2 apply-patch: 11,939 / 14,520 / 6,4,0 / $0.1400 / 217.5 / 19; pass
+  inventory-go r2 codex: 14,215 / 17,019 / 0,0,8 / $0.1902 / 235.4 / 19; pass
+  logq-go r2 loop-default: 12,408 / 13,568 / 0,0,8 / $0.1252 / 196.8 / 15; pass
+  logq-go r2 apply-patch: 10,587 / 12,437 / 0,9,1 / $0.1188 / 186.5 / 20; pass
+  logq-go r2 codex: 11,919 / 14,764 / 0,0,7 / $0.1665 / 199.6 / 22; pass
+  sync3-go r2 loop-default: 9,132 / 9,916 / 6,0,2 / $0.0958 / 130.6 / 14; pass
+  sync3-go r2 apply-patch: 9,466 / 11,081 / 6,3,0 / $0.1088 / 171.7 / 17; pass
+  sync3-go r2 codex: 10,184 / 11,773 / 0,0,6 / $0.1302 / 152.5 / 15; pass
+  heatcal-go r2 loop-default: 9,222 / 9,614 / 0,0,7 / $0.0802 / 133.8 / 12; pass
+  heatcal-go r2 apply-patch: 10,919 / 11,813 / 0,14,0 / $0.1147 / 176.8 / 24; pass
+  heatcal-go r2 codex: 9,570 / 11,633 / 0,0,9 / $0.1320 / 161.4 / 22; pass
+  goldmark-callouts-go r2 loop-default: 14,240 / 20,891 / 0,0,13 / $0.2838 / 321.3 / 36; pass
+  goldmark-callouts-go r2 apply-patch: 15,926 / 21,389 / 0,5,16 / $0.3899 / 365.3 / 54; pass
+  goldmark-callouts-go r2 codex: 16,565 / 24,882 / 0,0,12 / $0.3526 / 353.4 / 43; pass
