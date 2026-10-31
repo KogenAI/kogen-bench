@@ -1,6 +1,6 @@
 # cco-mb-hard-tasks
 
-Kogen driving Claude Code against Claude Code on its own, on 6 hard repository tasks, one run per task and setup, one MacBook. 30 October 2026: **no difference in success, unresolved**. Kogen passed 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70) and Claude Code alone passed 3 of 6 (0.50, 0.19 to 0.81); the one task that differs is a Kogen timeout. Kogen cost 1.9 times as much at list prices ($24.99 against $13.40 in total) and took 1.4 times as long (9,713 s against 7,016 s).
+Kogen driving Claude Code against Claude Code on its own, on 6 hard repository tasks, one run per task and setup, one Mac laptop. 30 October 2026: **no difference in success, unresolved**. Kogen passed 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70) and Claude Code alone passed 3 of 6 (0.50, 0.19 to 0.81); the one task that differs is a Kogen timeout. Kogen cost 1.9 times as much at list prices ($24.99 against $13.40 in total) and took 1.4 times as long (9,713 s against 7,016 s).
 
 ## What was measured
 
@@ -9,7 +9,7 @@ Two setups on each of the 6 tasks in `tasks.txt`, 12 cells, all with `claude-opu
 - **Kogen driving Claude Code:** Kogen `022ed9a0283cf8deee64d6c3ccdf44a022ac8afa` (`kogen 022ed9a0 (2026-10-30)`, vendored loop `16f89745ca6a93101b89ab8af7d20c3a85f65b69`) shapes the request into an Intent, approves it, builds, then runs an independent review; shape, build and review are all Claude Code sessions.
 - **Claude Code alone:** one fresh `claude -p` run with the same prompt, acceptance scenarios and checks.
 
-Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once. The MacBook ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
+Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once. The Mac laptop ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
 
 | Task | Kogen driving Claude Code | Claude Code alone |
 |---|---|---|

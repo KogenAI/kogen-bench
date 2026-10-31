@@ -1,6 +1,6 @@
 # CMP-MAC
 
-This harness compares macOS sandbox options natively. It runs no model and needs no privileges. It runs on the MacBook (macOS 26.7.1 arm64) from `~/Scratch.noindex/contain-cmp-mac`.
+This harness compares macOS sandbox options natively. It runs no model and needs no privileges. It runs on the Mac laptop (macOS 26.7.1 arm64) from `~/Scratch.noindex/contain-cmp-mac`.
 
 One executor, `run_cell()`, serves `check` controls, `dry`, `measure`, `resume` and the interruption control. Outcomes come only from `score()`. The scorer reads runner-owned evidence and the independent `ps` observer. Fixture semantics are in `code/FIXTURE-SEMANTICS.md`.
 
@@ -85,7 +85,7 @@ Network is open and there are no resource limits. On macOS, (3) is Kogen's dedic
 
 - No macOS arm has a resource mechanism, so `memory/pids/cpu/output` are `UNSUPPORTED`. nono's refusal of `--memory/--max-processes` on macOS is reproduced live in `check`.
 - Survivor teardown signals only the arm's runner. A `NOT-BLOCKED` survivor means the arm did not stop the survivor; it says nothing about what a separate custody layer could do.
-- Overhead is noisy because the MacBook is shared. The recorded one-minute load sits beside each arm's statistics. The timed "launch" runs from Popen to waitpid, and the tools build their policy inside it. "Plan" is runner-side preparation before the timer. For Kogen that means running LaunchPlan in a separate Go subprocess, which would be in-process in Kogen itself. Both are reported, plus their sum.
+- Overhead is noisy because the Mac laptop is shared. The recorded one-minute load sits beside each arm's statistics. The timed "launch" runs from Popen to waitpid, and the tools build their policy inside it. "Plan" is runner-side preparation before the timer. For Kogen that means running LaunchPlan in a separate Go subprocess, which would be in-process in Kogen itself. Both are reported, plus their sum.
 - The survivor rows measure one shutdown path: SIGTERM to the top process, then SIGKILL after 3 s. They say nothing about immediate SIGKILL, process-group teardown or a separate custodian.
 - Resource rows are capability assessments (`UNSUPPORTED`), not measured enforcement failures.
-- The frozen copy for review round 2 is in `~/Scratch.noindex/contain-cmp-mac-frozen4` (`SHA256SUMS`) on the Studio. Round 1 is in `contain-cmp-mac-frozen3`.
+- The frozen copy for review round 2 is in `~/Scratch.noindex/contain-cmp-mac-frozen4` (`SHA256SUMS`) on the desktop Mac. Round 1 is in `contain-cmp-mac-frozen3`.

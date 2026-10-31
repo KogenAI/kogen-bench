@@ -1,6 +1,6 @@
 # ccs2-mb-hard-tasks
 
-Kogen driving Claude Code against Claude Code on its own, on 6 hard repository tasks, one run per task and setup, one MacBook. 30 October 2026: **no difference in success, unresolved**. Both setups passed the same 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70) and failed the same 4. On the 5 tasks where both could be priced, Kogen cost 3.2 times as much at list prices ($7.50 against $2.33) and, over all six tasks, took 1.4 times as long (7,023 s against 4,918 s).
+Kogen driving Claude Code against Claude Code on its own, on 6 hard repository tasks, one run per task and setup, one Mac laptop. 30 October 2026: **no difference in success, unresolved**. Both setups passed the same 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70) and failed the same 4. On the 5 tasks where both could be priced, Kogen cost 3.2 times as much at list prices ($7.50 against $2.33) and, over all six tasks, took 1.4 times as long (7,023 s against 4,918 s).
 
 ## What was measured
 
@@ -9,7 +9,7 @@ Two setups on each of the 6 tasks in `tasks.txt`, 12 cells, all with `claude-son
 - **Kogen driving Claude Code:** Kogen `c8dae5a6f9c1fe771099a68a0c50d462582f24cf` (vendored loop `16f89745ca6a93101b89ab8af7d20c3a85f65b69`) shapes the request into an Intent, approves it, builds, then runs an independent review; shape, build and review are all Claude Code sessions.
 - **Claude Code alone:** one fresh `claude -p` run with the same prompt, acceptance scenarios and checks.
 
-Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once. The MacBook ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
+Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once. The Mac laptop ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
 
 | Task | Kogen driving Claude Code | Claude Code alone |
 |---|---|---|
@@ -81,5 +81,5 @@ python3 reproduce/ccs2-mb-hard-tasks/analyze.py | diff - reproduce/ccs2-mb-hard-
 - Kogen's wall time and cost cover more work (shaping, an independent review and checks) than a single run.
 - Withheld: the task kits stay private until the hill-climb ends (no date set), so the tasks themselves are not in this repository. The analysis, the harness and the alone-arm adapter are; with your own tasks in the same layout the whole pipeline runs.
 - Six tasks only, so one task moves a rate by 0.17.
-- This block was registered to pool only with a laptop block (`ccs2-lm`) that never ran, so it is analysed on its own. It is not pooled with the MacBook Opus block, nor with the earlier laptop Sonnet result, which used a different Kogen version.
+- This block was registered to pool only with a laptop block (`ccs2-lm`) that never ran, so it is analysed on its own. It is not pooled with the Mac laptop Opus block, nor with the earlier laptop Sonnet result, which used a different Kogen version.
 - One of the twelve cells (Claude Code alone on `kogen-review-on-demand`) has no usable usage record.

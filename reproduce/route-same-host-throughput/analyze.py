@@ -31,7 +31,7 @@ def ok(r):
     return fl(r['tok_s']) and r['output_tokens'] and int(r['output_tokens']) >= 300 and r['outcome'] in ('completed', 'stop')
 
 
-for host, st in [('eu2', 'A'), ('EU', 'A'), ('Studio', 'A'), ('Studio', 'B')]:
+for host, st in [('Linux-A', 'A'), ('Linux-B', 'A'), ('Mac', 'A'), ('Mac', 'B')]:
     H = [r for r in R if r['host'] == host and r['set'] == st]
     print('##', host if st == 'A' else '%s set %s' % (host, st), 'requests', len(H), 'blocks', len({r['block'] for r in H}))
     clients = [c for c in ['Lc', 'Lr', 'C', 'P'] if any(r['client'] == c for r in H)]

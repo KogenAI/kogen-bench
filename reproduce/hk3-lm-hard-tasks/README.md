@@ -39,7 +39,7 @@ The harness recorded no requests, tokens or cost for the Kogen lane, and the ses
 
 ### The registered pooled analysis
 
-The registered design (HK3) reduces each task's host observations to a per-arm mean and counts wins, losses and ties, with an exact one-sided sign test, at identical Kogen and loop pins. The laptop block and the MacBook block ([`hk3-mb-hard-tasks`](../hk3-mb-hard-tasks/README.md)) share the pins and the model, so they pool; the Studio block was superseded and never ran. Six tasks have two observations (laptop and MacBook), three have one (`runs-mb.csv` is the MacBook block):
+The registered design (HK3) reduces each task's host observations to a per-arm mean and counts wins, losses and ties, with an exact one-sided sign test, at identical Kogen and loop pins. The laptop block and the Mac laptop block ([`hk3-mb-hard-tasks`](../hk3-mb-hard-tasks/README.md)) share the pins and the model, so they pool; the desktop Mac block was superseded and never ran. Six tasks have two observations (laptop and Mac laptop), three have one (`runs-mb.csv` is the Mac laptop block):
 
 | Pooled over both blocks | Value |
 |---|---|
@@ -49,7 +49,7 @@ The registered design (HK3) reduces each task's host observations to a per-arm m
 | Mean paired difference | 0.000 |
 | Exact one-sided sign test that Kogen wins | p = 0.69 |
 
-The pooled result is also no difference. The two blocks are separate runs on separate machines; the same tasks can pass on one and fail on the other (`goose-labels-go` passed for Kogen on the MacBook and failed on the laptop), which is run-to-run variation that one run per task cannot separate from a difference between the setups.
+The pooled result is also no difference. The two blocks are separate runs on separate machines; the same tasks can pass on one and fail on the other (`goose-labels-go` passed for Kogen on the Mac laptop and failed on the laptop), which is run-to-run variation that one run per task cannot separate from a difference between the setups.
 
 ## Tasks
 
@@ -84,7 +84,7 @@ python3 reproduce/hk3-lm-hard-tasks/analyze.py | diff - reproduce/hk3-lm-hard-ta
 
 ## Files
 
-`runs.csv` has one row per cell (18). Columns: task, arm, `outcome` (as the harness recorded it), `passed` (protected grade), passed and expected tests (blank when there is no final tree), `wall_s` (blank when not recorded), `infrastructure` (why a cell has no grade, if so). It has no paths, hosts or transcripts. `runs-mb.csv` is the same for the MacBook block.
+`runs.csv` has one row per cell (18). Columns: task, arm, `outcome` (as the harness recorded it), `passed` (protected grade), passed and expected tests (blank when there is no final tree), `wall_s` (blank when not recorded), `infrastructure` (why a cell has no grade, if so). It has no paths, hosts or transcripts. `runs-mb.csv` is the same for the Mac laptop block.
 
 ## Limits
 
@@ -93,5 +93,5 @@ python3 reproduce/hk3-lm-hard-tasks/analyze.py | diff - reproduce/hk3-lm-hard-ta
 - One machine, one model and effort, one version of each tool. Wall times depend on that machine and its load.
 - Kogen's wall time and cost cover more work (shaping, an independent review and checks) than a single run.
 - Withheld: the task kits stay private until the hill-climb ends (no date set), so the tasks themselves are not in this repository. The analysis, the harness and the alone-arm adapter are; with your own tasks in the same layout the whole pipeline runs.
-- Three of the nine tasks (`kogen-shell-bound`, `kogen-review-retry`, `kogen-loop-parallel-calls`) were run on this laptop only; six also ran on the MacBook.
+- Three of the nine tasks (`kogen-shell-bound`, `kogen-review-retry`, `kogen-loop-parallel-calls`) were run on this laptop only; six also ran on the Mac laptop.
 - Usage and cost were not measured.

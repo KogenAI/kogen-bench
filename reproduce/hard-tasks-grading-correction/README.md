@@ -26,10 +26,10 @@ What the regrade found (`regrade.csv`, 26 trees):
 
 - **`kogen-loop-tool-cut` passes for every tree graded: 346 of 346 tests, 6 trees, both setups.** It was a task every setup solved, graded as one every setup failed. Its scenario steps also call `mise exec go@1.27.2`, a tool the task kit does not declare; with it missing they fail for every tree, so the regrade put it on the path, as the agents had it.
 - **`kogen-loop-parallel-calls` separates the setups in `ccs3-lm`:** Claude Code alone passes (398 of 398), Kogen fails one hidden test (397 of 398). In `hk3-lm` Codex alone fails the same hidden test (Kogen's tree was not kept, but its stored grade already failed it).
-- **`kogen-loop-read-ledger`:** the acceptance scenarios now pass for every tree (none missing). One hidden test, `cap_fifo`, fails on the MacBook for every tree graded there, including three laptop trees that passed it on the laptop. It depends on the host, not on the setup, so on the MacBook this task still cannot separate the setups, and the laptop trees need regrading on the laptop.
+- **`kogen-loop-read-ledger`:** the acceptance scenarios now pass for every tree (none missing). One hidden test, `cap_fifo`, fails on the Mac laptop for every tree graded there, including three laptop trees that passed it on the laptop. It depends on the host, not on the setup, so on the Mac laptop this task still cannot separate the setups, and the laptop trees need regrading on the laptop.
 - On the other tasks the regrade equals the published grade for every tree; no hidden-test result changed.
 
-The laptop was under a hold for other work during this correction, so the laptop trees of the three acceptance tasks were graded on the MacBook. Their hidden-test results equal the laptop's stored grade, except `cap_fifo`. The laptop regrade of `kogen-loop-read-ledger` and `revive-baseline-go` (5 kept trees) has not run yet. Those cells are marked **pending** below.
+The laptop was under a hold for other work during this correction, so the laptop trees of the three acceptance tasks were graded on the Mac laptop. Their hidden-test results equal the laptop's stored grade, except `cap_fifo`. The laptop regrade of `kogen-loop-read-ledger` and `revive-baseline-go` (5 kept trees) has not run yet. Those cells are marked **pending** below.
 
 ## Corrected verdicts
 
@@ -44,9 +44,9 @@ Rules, applied per cell by `analyze.py`:
 | Block | Kogen pass / fail / unknown / pending | Alone pass / fail / unknown / pending | Pairs: only Kogen passed / only alone passed / tie / open |
 |---|---|---|---|
 | `hk3-lm` (Codex, laptop) | 3 / 4 / 2 / 0 | 4 / 3 / 0 / 2 | 0 / 0 / 6 / 3 |
-| `hk3-mb` (Codex, MacBook) | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 2 / 2 / 1 / 1 |
-| `cco-mb` (Claude Code, Opus, MacBook) | 2 / 3 / 1 / 0 | 4 / 2 / 0 / 0 | 0 / 1 / 4 / 1 |
-| `ccs2-mb` (Claude Code, Sonnet, MacBook) | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 0 / 0 / 5 / 1 |
+| `hk3-mb` (Codex, Mac laptop) | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 2 / 2 / 1 / 1 |
+| `cco-mb` (Claude Code, Opus, Mac laptop) | 2 / 3 / 1 / 0 | 4 / 2 / 0 / 0 | 0 / 1 / 4 / 1 |
+| `ccs2-mb` (Claude Code, Sonnet, Mac laptop) | 2 / 3 / 1 / 0 | 3 / 3 / 0 / 0 | 0 / 0 / 5 / 1 |
 | `ccs3-lm` (Claude Code, Sonnet, laptop) | 6 / 2 / 0 / 1 | 7 / 0 / 0 / 2 | 0 / 1 / 6 / 2 |
 
 Compared with the published pages:
@@ -58,7 +58,7 @@ Compared with the published pages:
 
 ## The hard-task set
 
-`kogen-loop-tool-cut` leaves the hard set: graded correctly, every setup passes it. `kogen-loop-read-ledger` does not count on the MacBook, and `revive-baseline-go` does not count on Linux, until those defects are fixed. `kogen-loop-parallel-calls` counts, but only when graded with the repaired grader. The private task folders record this next to the tasks, so later blocks on the same set leave these tasks out of their pass and tie counts.
+`kogen-loop-tool-cut` leaves the hard set: graded correctly, every setup passes it. `kogen-loop-read-ledger` does not count on the Mac laptop, and `revive-baseline-go` does not count on Linux, until those defects are fixed. `kogen-loop-parallel-calls` counts, but only when graded with the repaired grader. The private task folders record this next to the tasks, so later blocks on the same set leave these tasks out of their pass and tie counts.
 
 ## Reproduce the numbers
 
@@ -96,4 +96,4 @@ PYTHONPATH="$SUPPORT/source/lanes" KOGEN_CUCUMBER="$KOGEN_RELEASE/lib/cucumber/n
 - One run per task and setup in every block, as in the original pages.
 - Kogen's final trees were not kept in four of the five blocks, so 5 Kogen cells stay unknown.
 - Five laptop trees wait for the laptop regrade.
-- The `cap_fifo` test was run once per tree on the MacBook. Whether it fails there every time is not known.
+- The `cap_fifo` test was run once per tree on the Mac laptop. Whether it fails there every time is not known.

@@ -17,7 +17,7 @@ One review is one `review` event in the cell's `run-log/log.jsonl`. `reviews.csv
 | `cell_passed`, `cell_hidden_or_regression_failed` | The cell's protected final-tree grade, and whether a hidden or regression test (not a public acceptance scenario) failed in it. |
 | `note_covers_failing_area` | Hand-judged, from `annotations.csv`: the review's note states the code in the area where that hidden test fails is fine. |
 
-`revive-baseline-go` on the laptop is left out of the counts: its two cells stopped before any model request, so they have no review. On the MacBook its three reviews are in the discriminating group.
+`revive-baseline-go` on the laptop is left out of the counts: its two cells stopped before any model request, so they have no review. On the Mac laptop its three reviews are in the discriminating group.
 
 ## Results
 
@@ -54,7 +54,7 @@ The counts rerun from the published rows: `analyze.py` above. To also rebuild th
 
 ## Rebuild reviews.csv from the run directories
 
-`probes/extract-reviews.py` rebuilds `reviews.csv` from lanes run directories that hold the five blocks' cells (`cells/<task>/r1/kogen/` with `evaluation.json` and `run-log/`). The runs of `hk3-mb`, `cco-mb` and `ccs2-mb` are on the MacBook, those of `hk3-lm` and `ccs3-lm` on the laptop; their cell directories hold task text and hidden-test output, so they stay private until the hill-climb ends (no date set). To rebuild the rows from your own rerun of the five packs, use the commands in those packs' Rerun sections and point `$RUNS` at the run directories.
+`probes/extract-reviews.py` rebuilds `reviews.csv` from lanes run directories that hold the five blocks' cells (`cells/<task>/r1/kogen/` with `evaluation.json` and `run-log/`). The runs of `hk3-mb`, `cco-mb` and `ccs2-mb` are on the Mac laptop, those of `hk3-lm` and `ccs3-lm` on the laptop; their cell directories hold task text and hidden-test output, so they stay private until the hill-climb ends (no date set). To rebuild the rows from your own rerun of the five packs, use the commands in those packs' Rerun sections and point `$RUNS` at the run directories.
 
 ```sh
 python3 -I reproduce/hard-task-review-value/probes/extract-reviews.py reproduce/hard-task-review-value/annotations.csv "$RUNS"/hk3-mb "$RUNS"/cco-mb "$RUNS"/ccs2-mb "$RUNS"/hk3-lm "$RUNS"/ccs3-lm | diff - reproduce/hard-task-review-value/reviews.csv

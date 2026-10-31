@@ -7,7 +7,7 @@ Routes:  Lc  kogen-loop binary (loop's ChatGPT login; api.openai.com/v1/response
          P   Pi 0.73.1 `pi --print --mode json`; first text_delta -> message_end; usage from message_end.
 Credentials are only read by their own clients, except Lr, which reads loop's token in memory (never printed)
 and sends it only to api.openai.com. Prints one JSON record per request: timings, usage, status. No content.
-usage: probe.py HOST BLOCKS ROUTES   e.g. eu2 20 Lc,C,P,Lr   (HOST is only a label written into each record)
+usage: probe.py HOST BLOCKS ROUTES   e.g. Linux-A 20 Lc,C,P,Lr   (HOST is only a label written into each record)
 Required env: RAB_JOB (empty scratch dir), RAB_LOOP_BIN, RAB_CODEX_BIN, RAB_CODEX_HOME; optional RAB_LOOP_HOME,
 RAB_LOOP_CRED, RAB_PI_BIN, RAB_PI_DIR, RAB_HOME. Never put credentials in the command line.
 """

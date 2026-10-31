@@ -1,6 +1,6 @@
 # containment-macos-native-20261015
 
-Four macOS sandbox tools and one newer Kogen release, measured natively on one MacBook on 15 October 2026 against the containment Kogen's first version needed: writes confined to chosen folders, secret locations unreadable, an environment allowlist, every Build process killed at the end, and a wall deadline. **Historical.** The result was measured on the sandbox of the retired earlier Kogen and describes those tool versions on that day; it is not a measurement of today's Kogen. No language model ran. Observation tier: one host, three repetitions per cell, named configurations, no production qualification.
+Four macOS sandbox tools and one newer Kogen release, measured natively on one Mac laptop on 15 October 2026 against the containment Kogen's first version needed: writes confined to chosen folders, secret locations unreadable, an environment allowlist, every Build process killed at the end, and a wall deadline. **Historical.** The result was measured on the sandbox of the retired earlier Kogen and describes those tool versions on that day; it is not a measurement of today's Kogen. No language model ran. Observation tier: one host, three repetitions per cell, named configurations, no production qualification.
 
 ## Finding
 
@@ -22,7 +22,7 @@ Full tables, configurations, pins, 16 stated limits and the review history are i
 ## Scope and limits
 
 - **Named configurations.** Each tool got the same intent through its own options; they are not byte-equivalent policies, and defaults are weaker (codex's `:workspace` read the planted secret in an earlier dry run; nono's default profile and codex's `:workspace` could write `/private/tmp`).
-- **One host, one run.** One MacBook (macOS 26.7.1, arm64) shared with other work, `nice 15`, three repetitions; outcomes were identical across repetitions apart from one INVALID cell (codex `exec_disallowed`, rep 1, probe timed out under load; no claim made).
+- **One host, one run.** One Mac laptop (macOS 26.7.1, arm64) shared with other work, `nice 15`, three repetitions; outcomes were identical across repetitions apart from one INVALID cell (codex `exec_disallowed`, rep 1, probe timed out under load; no claim made).
 - **Network-open evidence** is a TCP connect to loopback, the host's own LAN address and `example.com:443`. Reaching a host only through a tool's proxy is reported, not counted as open.
 - **Resource rows** (memory, pids, cpu, output) are capability reports (UNSUPPORTED), not enforcement tests.
 - **Cleanup rows** cover one shutdown path (SIGTERM, 3 s grace, SIGKILL) and say nothing about the dedicated Build user.

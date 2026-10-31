@@ -4,7 +4,7 @@ This finding picks the hard-task set for full Kogen vs Codex alone: 9 qualified 
 
 ## What was measured
 
-Nothing new was run for this finding. It selects tasks from every recovered historical Codex result on `gpt-6.1-terra`: 413 records, 291 of them counted high-effort attempts, read from the subscription rounds on two Macs. The venue aliases are `st` (Studio) and `mb` (MacBook).
+Nothing new was run for this finding. It selects tasks from every recovered historical Codex result on `gpt-6.1-terra`: 413 records, 291 of them counted high-effort attempts, read from the subscription rounds on two Macs. The venue aliases are `st` (desktop Mac) and `mb` (Mac laptop).
 
 Selection rule (registered 30 Oct 2026, 06:12 UTC):
 
@@ -18,7 +18,7 @@ Selection rule (registered 30 Oct 2026, 06:12 UTC):
    A provider "model at capacity" error excludes an attempt even when the old grader recorded `infrastructure: null`. Setup failures and set-aside run folders are not counted either.
 3. **Selection.** A task is selected when it has at least one counted high-effort failure. A medium-effort failure may substitute only when the task has no high-effort data at all; no task needed this.
 
-The selected tasks are then given a fixed host split. Sort the task ids by SHA-256. The first three run on both hosts (bridge tasks), and the other six alternate between Studio and MacBook. Each task gets one rep per tool on each of its hosts, which makes 24 main runs.
+The selected tasks are then given a fixed host split. Sort the task ids by SHA-256. The first three run on both hosts (bridge tasks), and the other six alternate between desktop Mac and Mac laptop. Each task gets one rep per tool on each of its hosts, which makes 24 main runs.
 
 There is one planned analysis. Each task's success mean per tool is computed, and the 9 task differences are weighted equally. The test is an exact one-sided sign test; a win on all 9 tasks gives p = 1/512.
 
@@ -81,8 +81,8 @@ Two published numbers do not reproduce:
 
 No main run has been launched.
 
-- **MacBook short test (dry):** finished on `kogen-loop-parallel-calls`, one run per tool. Both tools failed the protected grade, with a complete grade and no infrastructure fault. Kogen took 960.9 s and Codex alone 293.7 s. The guard's fallback-price estimates were $0.46 (Kogen) and $0.52 (Codex); these are not observed charges. This dry was graded after a grading-report repair.
-- **Studio dry:** no result is recorded.
+- **Mac laptop short test (dry):** finished on `kogen-loop-parallel-calls`, one run per tool. Both tools failed the protected grade, with a complete grade and no infrastructure fault. Kogen took 960.9 s and Codex alone 293.7 s. The guard's fallback-price estimates were $0.46 (Kogen) and $0.52 (Codex); these are not observed charges. This dry was graded after a grading-report repair.
+- **desktop Mac dry:** no result is recorded.
 - **HK3:** a same-design rerun on a newer Kogen main is staged but not launched.
 
 ## Cost

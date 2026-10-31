@@ -470,18 +470,18 @@ Limits: one run per task and setup, so nine pairs; an edge of a task or two coul
 
 *Corrected 31 October 2026: on some of these tasks the grader, not the agents, decided the result. See [Hard tasks: grading correction](#hard-tasks-grading-correction).*
 
-Result, 30 October 2026: **unresolved on success (9 task pairs on the laptop, 6 on the MacBook, one run each).** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The MacBook block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
+Result, 30 October 2026: **unresolved on success (9 task pairs on the laptop, 6 on the Mac laptop, one run each).** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The Mac laptop block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
 
 | Block | Tasks | Kogen passed | Codex alone passed | Paired test | Fisher | Wall, both measured |
 |---|---:|---:|---:|---|---|---|
 | Laptop | 9 | 3 | 3 | 0 discordant tasks, p = 1 | p = 1 | Kogen 7,064 s, Codex 2,728 s (8 tasks; Kogen slower on all, p = 0.0078) |
-| MacBook | 6 | 2 | 2 | 2 against 2 discordant, p = 1 | p = 1 | Kogen 7,368 s, Codex 1,515 s (5 tasks; Kogen slower on all, p = 0.0625) |
+| Mac laptop | 6 | 2 | 2 | 2 against 2 discordant, p = 1 | p = 1 | Kogen 7,368 s, Codex 1,515 s (5 tasks; Kogen slower on all, p = 0.0625) |
 
-The registered analysis pools the two blocks per task: Kogen's mean pass rate is higher on 2 tasks, lower on 2 and equal on 5 (mean difference 0, one-sided sign test p = 0.69). On `goose-labels-go` Codex alone was stopped at the memory cap in both blocks before it produced a final tree, so it is counted as a fail; leaving that task out does not change the picture (laptop 3 of 8 each; MacBook Kogen 1 of 5, Codex 2 of 5, p = 1). Kogen's run on `kogen-review-on-demand` on the MacBook hit the 3,600 s deadline.
+The registered analysis pools the two blocks per task: Kogen's mean pass rate is higher on 2 tasks, lower on 2 and equal on 5 (mean difference 0, one-sided sign test p = 0.69). On `goose-labels-go` Codex alone was stopped at the memory cap in both blocks before it produced a final tree, so it is counted as a fail; leaving that task out does not change the picture (laptop 3 of 8 each; Mac laptop Kogen 1 of 5, Codex 2 of 5, p = 1). Kogen's run on `kogen-review-on-demand` on the Mac laptop hit the 3,600 s deadline.
 
 The test harness's report table shows 0 correct for Codex alone in both blocks. That is a labelling error in the report, not a result: it counts only builds with the outcome `landed` or `ok` and files every finished Codex-alone cell as a workflow failure. The grades are the ones above. Usage and cost were not measured for either setup.
 
-Limits: one run per task and setup; the tasks were chosen because Codex at high effort had failed them, and six of the nine come from Kogen's own code. One laptop and one MacBook, one model and effort. Kogen's time covers shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/hk3-lm-hard-tasks/`](../reproduce/hk3-lm-hard-tasks/README.md) and [`reproduce/hk3-mb-hard-tasks/`](../reproduce/hk3-mb-hard-tasks/README.md).
+Limits: one run per task and setup; the tasks were chosen because Codex at high effort had failed them, and six of the nine come from Kogen's own code. One laptop and one Mac laptop, one model and effort. Kogen's time covers shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/hk3-lm-hard-tasks/`](../reproduce/hk3-lm-hard-tasks/README.md) and [`reproduce/hk3-mb-hard-tasks/`](../reproduce/hk3-mb-hard-tasks/README.md).
 
 ### Hard tasks, newer Kogen: Kogen driving Codex, against Codex CLI alone
 
@@ -495,11 +495,11 @@ Tokens are each setup's own record, measured for both on all 5 tasks; no cost is
 
 Limits: one run per task and setup, five scored pairs; an edge of a task or two could not show. The tasks were chosen because Codex at high effort had failed them. One laptop, one model and effort. Kogen's time and tokens cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows (scored and excluded) and the script that reproduces them: [`reproduce/hk4-lm-hard-tasks/`](../reproduce/hk4-lm-hard-tasks/README.md).
 
-### Hard tasks on the MacBook: Kogen driving Claude Code, against Claude Code alone
+### Hard tasks on the Mac laptop: Kogen driving Claude Code, against Claude Code alone
 
 *Corrected 31 October 2026: on some of these tasks the grader, not the agents, decided the result. See [Hard tasks: grading correction](#hard-tasks-grading-correction).*
 
-Result, 30 October 2026: **unresolved on success and on cost (6 task pairs per block, one run each); Kogen's wall time was higher on all 6 tasks of the Opus block (p = 0.031).** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
+Result, 30 October 2026: **unresolved on success and on cost (6 task pairs per block, one run each); Kogen's wall time was higher on all 6 tasks of the Opus block (p = 0.031).** Two Mac laptop blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
 
 | Block | Model, effort | Kogen | Kogen passed | Claude Code alone passed | Paired test | Fisher | Cost at list price† (Kogen / alone) | Wall (Kogen / alone) |
 |---|---|---|---:|---:|---|---|---|---|
@@ -512,7 +512,7 @@ On the Opus block the one task that differs is `kogen-review-on-demand`: Kogen's
 
 The test harness's report table shows 0 of 6 for Claude Code alone in both blocks. That is a labelling error in the report, not a result: it counts only builds with the outcome `landed` or `ok`, and files every finished alone cell as a workflow failure. The grades are the ones above.
 
-Limits: one run per task and setup, six pairs; one task moves a rate by 0.17. The tasks were chosen because Codex at high effort had failed them, and three of the six come from Kogen's own code. One MacBook. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/cco-mb-hard-tasks/`](../reproduce/cco-mb-hard-tasks/README.md) and [`reproduce/ccs2-mb-hard-tasks/`](../reproduce/ccs2-mb-hard-tasks/README.md).
+Limits: one run per task and setup, six pairs; one task moves a rate by 0.17. The tasks were chosen because Codex at high effort had failed them, and three of the six come from Kogen's own code. One Mac laptop. Kogen's time and cost cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task lists, per-run rows and the scripts that reproduce them: [`reproduce/cco-mb-hard-tasks/`](../reproduce/cco-mb-hard-tasks/README.md) and [`reproduce/ccs2-mb-hard-tasks/`](../reproduce/ccs2-mb-hard-tasks/README.md).
 
 ### Hard tasks: what Kogen's independent review did
 
@@ -550,8 +550,8 @@ Every final tree that still exists was graded again, with no model calls. Kogen 
 
 - `kogen-loop-tool-cut` passes for every tree regraded, both setups (6 trees). It was a task every setup solved, graded as one every setup failed; the four Kogen trees that were not kept passed every hidden test, so the task most likely ties everywhere. It leaves the hard set.
 - `kogen-loop-parallel-calls` now separates the setups in `ccs3-lm`: Claude Code alone passes, Kogen fails one hidden test. That block is no longer a tie on every task.
-- `kogen-loop-read-ledger`: the scenarios now pass for every tree. One hidden test fails on the MacBook for every tree graded there, including laptop trees that passed it on the laptop, so on the MacBook the task still cannot separate the setups.
-- The laptop was busy with other work, so the laptop trees of the three scenario tasks were graded on the MacBook. Their hidden-test results match the laptop's own grades, except that one test. Five laptop trees (`kogen-loop-read-ledger` and `revive-baseline-go`) still wait for the laptop.
+- `kogen-loop-read-ledger`: the scenarios now pass for every tree. One hidden test fails on the Mac laptop for every tree graded there, including laptop trees that passed it on the laptop, so on the Mac laptop the task still cannot separate the setups.
+- The laptop was busy with other work, so the laptop trees of the three scenario tasks were graded on the Mac laptop. Their hidden-test results match the laptop's own grades, except that one test. Five laptop trees (`kogen-loop-read-ledger` and `revive-baseline-go`) still wait for the laptop.
 
 Success stays unresolved in every block (no block has more than two discordant tasks either way; every p = 1). It rests on fewer tasks than the sections above say: without the four affected tasks, 22 task pairs remain across the five blocks (Kogen 14 passes, the bare agents 15), not 36. With the corrected grades, the bare agents gained 6 passes and Kogen 1.
 

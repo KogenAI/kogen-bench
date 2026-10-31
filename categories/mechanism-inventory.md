@@ -124,7 +124,7 @@ The results of 29 October, in [Climb results, 29 October](mechanism-profiles.md#
 
 In short: with the network open, nono 0.79.0 and codex 0.162.1 passed Kogen's first-version containment natively on macOS, sandbox-runtime 0.0.78 failed, the first pinned Kogen compiler refused the policy, and a newer Kogen release passed. No tool stopped leftover processes or had a wall deadline.
 
-This was measured on the sandbox of the retired earlier Kogen, on one MacBook, with three repetitions per cell and no model. Outside writes, writes to the shared temp folder and a planted secret read were blocked in 3 of 3 repetitions for every sandbox in its configured form. The result describes those tool versions on that day, not today's Kogen. Details, configurations, limits and the harness are in [the pack](../reproduce/containment-macos-native-20261015/README.md).
+This was measured on the sandbox of the retired earlier Kogen, on one Mac laptop, with three repetitions per cell and no model. Outside writes, writes to the shared temp folder and a planted secret read were blocked in 3 of 3 repetitions for every sandbox in its configured form. The result describes those tool versions on that day, not today's Kogen. Details, configurations, limits and the harness are in [the pack](../reproduce/containment-macos-native-20261015/README.md).
 
 ## Limits
 

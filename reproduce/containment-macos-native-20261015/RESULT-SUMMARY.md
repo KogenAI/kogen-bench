@@ -88,7 +88,7 @@ The gate controls for this run (`check-20261015T113842Z-ee33c1`) were:
 
 | Item | Value |
 |---|---|
-| Host | MacBook, macOS 26.7.1, arm64; runs unprivileged with `nice 15`; shared machine, launch loads 5–12 |
+| Host | Mac laptop, macOS 26.7.1, arm64; runs unprivileged with `nice 15`; shared machine, launch loads 5–12 |
 | Measured run | `evidence/measure-20261015T110330Z-b54eb3`: 3 reps × 5 arms × 19 fixtures = 285 cells, 8.4 min, exit 0 |
 | Gate | `evidence/check-20261015T105415Z-b3e203`: PASS (all controls listed below) |
 | Apparatus digest | `875419aa45e0aead1b4299e4990f21f2c9bdc79f0d91562d6f0d36ce1e541cb6`, identical at the start of check, at the end of check, and at the start and end of measure |
@@ -180,7 +180,7 @@ The last two points come from live manual probes, logged in `reviews/PROGRESS-09
 - Observer preflight: canary, process observer and token observer.
 - nono's resource-limit refusal reproduced.
 - Scorer controls in both directions.
-- 62 fake-backed tests, run on the Studio and the MacBook. Sol could not run them in its read-only sandbox.
+- 62 fake-backed tests, run on the desktop Mac and the Mac laptop. Sol could not run them in its read-only sandbox.
 
 ## Stated limits
 
@@ -203,10 +203,10 @@ The last two points come from live manual probes, logged in `reviews/PROGRESS-09
    - These are not end-to-end Build costs.
 9. **Exec row.** The helper is a native Mach-O copied into a read-denied folder. srt, nono and codex let it execute; Kogen's profile does not. One codex cell is INVALID because the probe timed out under load.
 10. **Positive control.** The runner creates the git repository before launch, as a supervisor hands over a checkout. sandbox-runtime denies writes to `.git/config` and `.git/hooks` by default, so `git init` inside srt would fail; `add` and `commit` work.
-11. **Single host and single run.** This is one 3-repetition measurement on one MacBook. Outcomes were identical across repetitions, apart from the one INVALID.
+11. **Single host and single run.** This is one 3-repetition measurement on one Mac laptop. Outcomes were identical across repetitions, apart from the one INVALID.
 12. **Evidence paths.** Evidence contains absolute paths under `$HOME` and synthetic tokens only. No credentials were read or written, and `~/.codex` was never touched (`CODEX_HOME` is per cell).
 13. **Network-open run.**
-    - **Targets.** Loopback and LAN use listeners the runner owns on this MacBook. "LAN" means connecting to the MacBook's own LAN address (x.x.x.x), not to another host.
+    - **Targets.** Loopback and LAN use listeners the runner owns on this Mac laptop. "LAN" means connecting to the Mac laptop's own LAN address (x.x.x.x), not to another host.
     - **Internet target.** One host, `example.com:443`, with a TCP connect only (no TLS, no HTTP). It is valid only if the connected peer is the fixture's first resolved address, and every resolved address is in the runner's own lookup.
     - **Proxies.** Reaching a host through a tool's proxy is reported, but does not count as network open.
     - **Firewall.** The application firewall was off. With it on, macOS could prompt on the LAN listener.
@@ -229,7 +229,7 @@ A gating fixture for the macOS analogue of closer-B's Linux session-bus escape w
 
 - The workload asks launchd to start a job outside the Build via `launchctl submit`, `bootstrap gui/<uid>`, and a LaunchAgent plist in the real `~/Library/LaunchAgents`; the job writes outside the allowed folders.
 - In a dry run (not in this pack's measured evidence): z was NOT-BLOCKED (job started, wrote outside, plist written, remnants after stop); stock Kogen REFUSED (network-open profile); srt, nono, codex and native3 all BLOCKED (every vector denied: submit rc 1, bootstrap I/O error, LaunchAgents write EPERM).
-- The fixture, its tests and the dry evidence are in `~/Scratch.noindex/contain-cmp-mac-frozen8/` on the Studio. It had a Sol review (SOL-REVIEW-MAC9, NO-GO with 5 P1s); the fixes were in progress when the work was stopped, so the fixture is not GO-reviewed and must not be cited as a measured result.
+- The fixture, its tests and the dry evidence are in `~/Scratch.noindex/contain-cmp-mac-frozen8/` on the desktop Mac. It had a Sol review (SOL-REVIEW-MAC9, NO-GO with 5 P1s); the fixes were in progress when the work was stopped, so the fixture is not GO-reviewed and must not be cited as a measured result.
 - Interpretation if revisited: a launchd job re-parented out of the Build is caught in v1 by the per-Build-UID custodian drain (not active here); these dry outcomes show only what each tool's sandbox alone prevents.
 
 ## Pack contents

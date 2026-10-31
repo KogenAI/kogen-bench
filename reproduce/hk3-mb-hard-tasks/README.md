@@ -1,6 +1,6 @@
 # hk3-mb-hard-tasks
 
-Kogen with Codex against Codex CLI on its own, on 6 hard repository tasks, one run per task and setup, one MacBook. 30 October 2026: **no difference in success, unresolved**. Each setup passed 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`. Kogen took 4.9 times as long on the 5 tasks where both wall times were recorded (7,368 s against 1,515 s). Usage and cost were not measured.
+Kogen with Codex against Codex CLI on its own, on 6 hard repository tasks, one run per task and setup, one Mac laptop. 30 October 2026: **no difference in success, unresolved**. Each setup passed 2 of 6 tasks (0.33, 95% interval 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`. Kogen took 4.9 times as long on the 5 tasks where both wall times were recorded (7,368 s against 1,515 s). Usage and cost were not measured.
 
 ## What was measured
 
@@ -9,7 +9,7 @@ Two setups on each of the 6 tasks in `tasks.txt`, 12 cells, all with `gpt-6.1-te
 - **Kogen driving Codex:** Kogen `18895e65cc4555b8a4e6bdf97458e51d0189b23c` (`kogen 18895e65 (2026-10-30)`, vendored loop `16f89745ca6a93101b89ab8af7d20c3a85f65b69`) shapes the request into an Intent, approves it, builds, then runs an independent review; all three use `gpt-6.1-terra` at high effort.
 - **Codex alone:** one fresh Codex CLI run with the same prompt, acceptance scenarios and checks.
 
-Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once; the other three ran on other machines. The MacBook ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
+Each cell is graded after the agent exits by the protected final-tree acceptance (hidden tests, plus the public scenarios). These are six of the nine tasks that Codex at high effort had failed at least once; the other three ran on other machines. The Mac laptop ran with a 3,600 s deadline per cell. A short test run on `kogen-loop-parallel-calls` before the main run is not in these numbers.
 
 | Task | Kogen driving Codex | Codex alone |
 |---|---|---|
