@@ -5,8 +5,18 @@ import { pageByRoute, siteData } from '../../lib/data.js';
 const page = pageByRoute.get('/findings/');
 ---
 <SiteLayout page={page}>
-  <PageHeading page={page} kicker="Source summary" lead="Fourteen family sections from FINDINGS.md, linked to the hypothesis, round, and claim records that the repository identifies." />
+  <PageHeading page={page} kicker="Source summary" lead="Published results, each with its own page and reproduction pack, followed by the fourteen family sections from FINDINGS.md." />
   <div class="source-callout"><strong>Source-reported figures stay labelled</strong>Findings are narrative summaries. A number in this source text is not a verified outcome unless a linked claim-ledger row identifies it and carries its own evidence status.</div>
+  <section>
+    <div class="section-heading"><h2>Published results</h2><p>Every published result has its own page, grouped by comparison, newest first. Verdicts: Yes means the result supports the change or claim tested; No means it does not; Unresolved means the evidence is not strong enough either way; Superseded means a later test replaced it.</p></div>
+    {siteData.result_comparisons.map((comp) => (
+      <div data-origin="source-reported">
+        <h3><a href={comp.url}>{comp.title}</a></h3>
+        <ul>{siteData.results.filter((entry) => entry.comparison === comp.id).map((entry) => <li><a href={entry.url}>{entry.title}</a> · {entry.verdict_label} · {entry.finished_display}</li>)}</ul>
+      </div>
+    ))}
+  </section>
+  <section><div class="section-heading"><h2>Source summary by family</h2></div></section>
   <div class="card-grid">
     {siteData.findings.map((item) => <a class="link-card" href={`/findings/${item.slug}/`}><span>{item.id} · {item.title}</span><small>Open source summary and related records</small></a>)}
   </div>

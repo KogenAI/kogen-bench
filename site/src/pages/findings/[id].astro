@@ -5,15 +5,26 @@ import SourceDocument from '../../components/SourceDocument.astro';
 import RelatedRecords from '../../components/RelatedRecords.astro';
 import { pageByRoute, siteData } from '../../lib/data.js';
 export function getStaticPaths() {
-  return siteData.findings.map((item) => ({ params: { id: item.slug }, props: { item } }));
+  return [
+    ...siteData.findings.map((item) => ({ params: { id: item.slug }, props: { item } })),
+    ...siteData.results.map((result) => ({ params: { id: result.id }, props: { result } })),
+  ];
 }
-const { item } = Astro.props;
-const page = pageByRoute.get(`/findings/${item.slug}/`);
-const family = siteData.families.find((entry) => entry.id === item.id);
+const { item, result } = Astro.props;
+const page = pageByRoute.get(result ? result.url : `/findings/${item.slug}/`);
+const family = item ? siteData.families.find((entry) => entry.id === item.id) : null;
+const comparison = result ? siteData.result_comparisons.find((entry) => entry.id === result.comparison) : null;
 ---
+{result ? (
+<SiteLayout page={page}>
+  <PageHeading page={page} kicker="Published result" lead="A plain-language summary comes first, followed by the full text of the result's reproduction pack." />
+  <SourceDocument markdown={page.markdown.replace(/^# .*\n+/, '')} sourcePath={page.source_path} revision={siteData.meta.revision} label="Result summary and pack text" />
+</SiteLayout>
+) : (
 <SiteLayout page={page}>
   <PageHeading page={page} kicker={item.id} lead="The source summary is shown as authored. Follow its evidence links for study-specific status and cohort limits." />
   <div class="source-callout"><strong>Source-reported narrative</strong>Values in this source section that are not tied to a claim-ledger record remain source-reported and are not promoted to verified results.</div>
   <SourceDocument markdown={item.markdown} sourcePath="FINDINGS.md" revision={siteData.meta.revision} label="Findings source section" />
   <RelatedRecords hypothesisIds={family.hypothesis_ids} roundIds={family.round_ids} claimIds={family.claim_ids} familyIds={[family.id]} />
 </SiteLayout>
+)}

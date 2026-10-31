@@ -1,0 +1,141 @@
+{
+  "comment": "Index for the published-result pages. One entry per reproduce/<id>/ pack. Titles and summaries are plain-language and written from the pack page text; the generator checks that every id has a pack and that no id repeats. finished is the date the result was finished (YYYY-MM-DD). verdict is yes, no, unresolved or superseded. [text](finding:<id>) links to another result page.",
+  "verdict_meaning": {
+    "yes": "The result supports the change or claim that was tested.",
+    "no": "The result does not support it, so nothing changes.",
+    "unresolved": "The evidence is not strong enough either way.",
+    "superseded": "A later test replaced this result."
+  },
+  "comparisons": [
+    {
+      "id": "loop-vs-codex",
+      "title": "kogen-loop vs Codex",
+      "blurb": "Head-to-head tests of kogen-loop, Kogen's small stand-alone coding agent, against OpenAI's Codex command-line agent, using the same AI model at the same effort setting."
+    },
+    {
+      "id": "kogen-vs-agents-alone",
+      "title": "Kogen vs the same agent used alone, on hard tasks",
+      "blurb": "Tests of the full Kogen product, which drives another coding agent, against that agent used on its own, on hard multi-step repository tasks."
+    },
+    {
+      "id": "loop-speed-and-routes",
+      "title": "kogen-loop speed, patches and connection routes",
+      "blurb": "Small tests of changes to kogen-loop itself, and of how fast its connection to the model streams, with no second agent being compared."
+    },
+    {
+      "id": "test-setup-and-sandboxing",
+      "title": "Test setup, rules and sandboxing",
+      "blurb": "Findings about how the tests themselves are run: written rules, changes to the test harness, and sandbox tools that confine the agent."
+    }
+  ],
+  "findings": [
+    {
+      "id": "replayconf-14task-high",
+      "category": "categories/head-to-head.md",
+      "title": "kogen-loop costs less than Codex at high effort, on 14 Go tasks",
+      "comparison": "loop-vs-codex",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "We gave kogen-loop (Kogen's small stand-alone coding agent) and OpenAI's Codex command-line agent the same 14 fresh Go programming tasks, with the same AI model (gpt-6.1-terra) at its high reasoning-effort setting and one shared API key. A third setup let loop send the model's earlier reasoning back to it on later steps ('reasoning replay'). Every one of the 42 runs passed the task's hidden tests, which are kept private so agents cannot see them. Loop cost $0.0876 per passed task against $0.1053 for Codex, and was cheaper on 13 of the 14 tasks; a sign test (it counts on how many tasks one side won and asks whether that split could be luck) gives p=0.0018, so luck is very unlikely. Speed was tied. Reasoning replay did not help. How sure we are: fairly sure of the cost gap on short Go tasks; 14 tasks are too few to see small effects, so 'replay does not help' means 'no help seen'."
+    },
+    {
+      "id": "batch-tool-confirm-12task",
+      "category": "categories/head-to-head.md",
+      "title": "A 'batch' tool for kogen-loop packs more work per request but does not cut cost",
+      "comparison": "loop-vs-codex",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "We tested a change that lets kogen-loop do several operations in one request to the model (a 'batch' tool), plus a variant that only adds a sentence asking for batching, against loop's default and against Codex. The 12 fresh Go tasks, the model (gpt-6.1-terra), the high effort setting and the API key were the same for all four setups, 48 runs in all. The batch tool did what it was built to do (2.56 operations per request against 1.74) but cost per passed task did not change ($0.1085 against $0.1101) and neither did the number of requests, so it does not advance. The sentence-only variant passed 10 of 12 tasks. Loop's default and the batch version were both cheaper than Codex on 11 of 12 tasks. How sure we are: the test could only detect large effects, so 'no change seen' is not 'identical'. This replaces an earlier four-task test ([short test](finding:batch-tool-short-test))."
+    },
+    {
+      "id": "batch-tool-short-test",
+      "category": "categories/head-to-head.md",
+      "title": "Short test of two kogen-loop 'several steps per request' tools (batch and exec)",
+      "comparison": "loop-vs-codex",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "An early four-task test of two changes that let kogen-loop do several operations per request: a 'batch' tool and an 'exec' tool that runs a small script. Loop's default, both changes and Codex ran on the same 4 fresh Go tasks with the same model (gpt-6.1-terra) at high effort. The batch version passed 4 of 4 at a similar cost to the default; the exec version passed only 2 of 4 and cost far more ($1.1293 per passed task against $0.1813), so exec does not advance. With only four tasks the batch result cannot be settled: the smallest chance level a four-task sign test can reach is 0.125. A larger test ([12-task confirmation](finding:batch-tool-confirm-12task)) replaced it."
+    },
+    {
+      "id": "verbosity-low-eu6",
+      "category": "categories/head-to-head.md",
+      "title": "Asking the model for terser text does not change kogen-loop's cost",
+      "comparison": "loop-vs-codex",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "We tested whether telling the model to write less text (a 'low verbosity' setting) lowers kogen-loop's cost. The test used 3 fresh Go tasks repeated 6 times each, comparing loop with reasoning replay, the same with low verbosity, and Codex, all on the same model (gpt-6.1-terra), high effort and API key. The setting was sent and accepted, but output size and cost per passed task did not change in any reliable way, so it does not advance. Both loop setups cost less per passed task than Codex ($0.1398 and $0.1305 against $0.1868), but only 3 tasks were involved, so the page itself says the statistics overstate the evidence. One task failed in every loop run and the cause was never found."
+    },
+    {
+      "id": "apply-patch-edit5",
+      "category": "categories/head-to-head.md",
+      "title": "Adding an 'apply_patch' editing tool to kogen-loop did not reduce its output",
+      "comparison": "loop-vs-codex",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "We added the kind of file-editing tool Codex uses (apply_patch) to kogen-loop and compared three setups, loop's default, loop with the new tool and Codex, on 5 Go tasks run twice each (30 counted runs), with the same model (gpt-6.1-terra), high effort and API key. The tool was used and caused no errors, but the amount of text loop wrote when editing did not fall, and the model made more requests, so it does not advance. Cost per passed task is unresolved: the totals favour the new tool only because one default run ran away to the output limit and failed; without it the new tool cost 13% more. Loop's default was cheaper than Codex in 9 of 10 task blocks, though its total was higher because of that one run. How sure we are: only large effects could be detected."
+    },
+    {
+      "id": "shell-yield-eu2",
+      "category": "categories/head-to-head.md",
+      "title": "A shell that hands control back during long waits: no clear effect on hard tasks",
+      "comparison": "loop-vs-codex",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "On 3 hard tasks that had long command waits in an earlier test, we compared kogen-loop's default shell, a patched shell that yields control back after a bounded wait, and Codex, using the same model (gpt-6.1-terra), high effort and API key. Only 16 of the 18 planned runs finished, giving 5 complete comparisons. The yielding shell spent about a quarter of the shell time of the default and about half the wall-clock time, with equal passes (4 of 5 each; Codex 6 of 6) and equal cost, but with so few comparisons nothing is statistically significant. The default shell sat in one command until the one-hour limit both times it ran on the shell-heavy task. Unresolved."
+    },
+    {
+      "id": "loop-high-reasoning-api-replay13",
+      "category": "categories/head-to-head.md",
+      "title": "Sending reasoning back to the model: promising cost, but unresolved on 8 tasks",
+      "comparison": "loop-vs-codex",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "Eight Go tasks, three setups on the same API key and model (gpt-6.1-terra) at high effort: kogen-loop's default, kogen-loop that sends the model's earlier reasoning back to it ('reasoning replay'), and Codex. All three passed 8 of 8. Loop with replay cost $0.175 per passed task against $0.225 for the default and $0.236 for Codex, and made fewer requests, but the per-task sign tests (how many tasks one side won) could not separate the differences from chance. A larger [14-task test](finding:replayconf-14task-high) later found that replay did not help."
+    },
+    {
+      "id": "loop-high-reasoning-api",
+      "category": "categories/kogen-vs-codex.md",
+      "title": "kogen-loop used about twice Codex's reasoning, for the same total cost",
+      "comparison": "loop-vs-codex",
+      "verdict": "unresolved",
+      "finished": "2026-10-30",
+      "summary": "Four Go tasks run twice each by kogen-loop and Codex on one API key, with the same model (gpt-6.1-terra) at high effort (and also at medium). Everything passed. At high effort loop used about twice as many reasoning tokens (27,769 against 14,106) and 1.2 times as many requests, yet the total bill was the same ($0.730 against $0.734); at medium effort loop cost $0.450 against $0.567. Why loop reasons more is not settled. Unresolved; eight runs per tool is a small sample."
+    },
+    {
+      "id": "h2h30-sub-route-tokens",
+      "category": "categories/head-to-head.md",
+      "title": "On the subscription route kogen-loop used about 40% of Codex's tokens",
+      "comparison": "loop-vs-codex",
+      "verdict": "yes",
+      "finished": "2026-10-30",
+      "summary": "24 Go tasks run by kogen-loop and Codex through the ChatGPT subscription route (a flat-fee login, so there is no per-request price), with the same model (gpt-6.1-terra) at medium and at high effort. All four sets of runs passed 24 of 24. Loop used about 40% of Codex's token-equivalent per passed task (38.9% at medium, 42.2% at high) and fewer on every one of the 24 tasks at both efforts. Loop's median time per run was 25-30% longer, but the two tools reached the model by different routes, so the page says the time difference cannot be blamed on the tools. The verdict covers the token result only."
+    },
+    {
+      "id": "loop-shell-tail",
+      "category": "categories/head-to-head.md",
+      "title": "kogen-loop runs fewer shell commands than Codex in old runs",
+      "comparison": "loop-vs-codex",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "A read-only look at 104 earlier pairs of runs in which both kogen-loop and Codex passed the same task, at the same model (gpt-6.1-terra) and effort, to see whether loop's long runs come from extra shell work such as repeated test runs. Loop issued fewer shell commands than Codex in all 7 groups of runs and read back fewer bytes in every subscription-route group; we found no extra repeat test runs. Nothing needs changing. Two questions stay open: what the long commands on hard tasks were (their text was not kept) and whether loop's one-tool-at-a-time execution costs time. No new runs were made."
+    },
+    {
+      "id": "route-same-host-throughput",
+      "category": "categories/routes-and-clients.md",
+      "title": "kogen-loop's connection to the model streams as fast as Codex's",
+      "comparison": "loop-vs-codex",
+      "verdict": "no",
+      "finished": "2026-10-30",
+      "summary": "On the ChatGPT subscription route, we timed how fast the model's answer streams back (output tokens per second) through kogen-loop's own connection, Codex's connection and a third client, using short fixed prompts on three computers (two cloud servers and a Mac). Every tool streamed at about 40-44 tokens per second and no paired difference was significant (all p-values 0.11 or higher). The earlier reading of about 45 against 105 tokens per second did not reproduce. So there is no connection speed gap in this window. Short probes only; not a task test."
+    },
+    {
+      "id": "loop-sub-route-throughput",
+      "category": "categories/head-to-head.md",
+      "title": "Did kogen-loop's connection slow down on 30 October? Earlier data, now superseded",
+      "comparison": "loop-vs-codex",
+      "verdict": "superseded",
+      "finished": "2026-10-30",
+      "summary": "This analysis looked at 496 earlier runs and a few tiny probes on two Macs and found that kogen-loop's streaming speed on the subscription route fell from about 110 to about 48 tokens per second during the night, and that a direct probe pair showed loop at 45 against Codex's 81-106. A later same-computer test ([connection speed test](finding:route-same-host-throughput)) did not reproduce the probe gap, and the cause of the earlier drop was never found. Only the narrow observation that loop's speed dropped that night still stands; the page does not show it was the route."
+    }
+  ]
+}

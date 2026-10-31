@@ -8,6 +8,10 @@ const comparisons = siteData.claims.filter((claim) => claim.comparison !== null 
 ---
 <SiteLayout page={page}>
   <PageHeading page={page} kicker="Claim-ledger comparisons" lead="This page surfaces only claims with an explicit comparison field. It does not pool cohorts, rank configurations, or synthesize a winner." />
+  <section>
+    <div class="section-heading"><h2>Published comparisons</h2><p>Each page lists the published results for one comparison, newest first, with links to their reproduction packs.</p></div>
+    <div class="card-grid">{siteData.result_comparisons.map((comp) => <a class="link-card" href={comp.url}><span>{comp.title}</span><small>{comp.blurb}</small></a>)}</div>
+  </section>
   <div class="status-callout"><strong>No automatic pooling</strong>Round, task, venue, model, effort, and analysis differences remain attached to each claim. Follow every included and excluded record before drawing a comparison.</div>
   {comparisons.length ? <div class="record-table-wrap" role="region" aria-label="Data table" tabindex="0"><table class="record-table" data-origin="claim-ledger">
     <thead><tr><th scope="col">Claim</th><th scope="col">Status</th><th scope="col">Comparison field</th><th scope="col">Round</th><th scope="col">Evidence</th></tr></thead>

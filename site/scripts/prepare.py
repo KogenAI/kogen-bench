@@ -45,6 +45,10 @@ def read_text(rel: str) -> str:
             "/tmp/claude-501/cx/logs/KRS-INT6.last.md",
         ):
             text = text.replace(locator, "[unpublished local artifact] " + locator.rsplit("/", 1)[-1])
+    # Result-pack READMEs may name system folders (for example a sandbox test's temp folder). The privacy scan
+    # rejects absolute paths in generated pages, so show those with the leading slash dropped; source bytes stay unchanged.
+    if re.fullmatch(r"reproduce/[^/]+/README\.md", rel):
+        text = PRIVATE_PATH.sub(lambda m: m.group(0)[1:] if m.group(0).startswith("/") else m.group(0), text)
     return text
 
 
@@ -253,6 +257,54 @@ def related_markdown(hypotheses: list[str], rounds: list[str], claims: list[str]
         lines += [f"- [{cid}](/claims/{cid.lower()}/)" for cid in claims]
         lines.append("")
     return "\n".join(lines)
+
+
+VERDICT_LABELS = {"yes": "Yes", "no": "No", "unresolved": "Unresolved", "superseded": "Superseded"}
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+
+def display_date(iso: str) -> str:
+    year, month, day = (int(part) for part in iso.split("-"))
+    return f"{day} {MONTHS[month - 1]} {year}"
+
+
+def load_result_index(tracked: list[str], family_slugs: set[str]) -> dict:
+    """Per-result page index (site/content/finding-pages.json): one entry per reproduce/<id>/ pack."""
+    index = json.loads(read_text("site/content/finding-pages.json"))
+    comparisons = {item["id"]: item for item in index["comparisons"]}
+    if len(comparisons) != len(index["comparisons"]):
+        raise ValueError("finding-pages.json repeats a comparison id")
+    seen: set[str] = set()
+    for entry in index["findings"]:
+        rid = entry["id"]
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", rid) or rid in family_slugs or rid in seen:
+            raise ValueError(f"finding-pages.json: bad, reused or colliding id {rid!r}")
+        seen.add(rid)
+        for key in ("title", "summary", "verdict", "comparison", "finished", "category"):
+            if not str(entry.get(key, "")).strip():
+                raise ValueError(f"finding-pages.json: {rid} has no {key}")
+        if entry["verdict"] not in VERDICT_LABELS or entry["comparison"] not in comparisons:
+            raise ValueError(f"finding-pages.json: {rid} has an unknown verdict or comparison")
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["finished"]):
+            raise ValueError(f"finding-pages.json: {rid} finished must be YYYY-MM-DD")
+        for rel in (f"reproduce/{rid}/README.md", entry["category"]):
+            if rel not in tracked:
+                raise ValueError(f"finding-pages.json: {rid} names {rel}, which is not tracked")
+    packs = {PurePosixPath(path).parts[1] for path in tracked if re.fullmatch(r"reproduce/[^/]+/README\.md", path)}
+    for rid in sorted(packs - seen):
+        print(f"WARNING: reproduce/{rid}/ has no entry in site/content/finding-pages.json, so it has no result page on the site.")
+    return index
+
+
+def result_link_targets(text: str, ids: set[str]) -> str:
+    """Point README links to other packs at their result pages; resolve [x](finding:<id>) links."""
+    text = re.sub(r"\]\(finding:([a-z0-9-]+)\)", lambda m: f"](/findings/{m.group(1)}/)", text)
+    return re.sub(
+        r"\]\((?:\.\./|(?:\./)?reproduce/)([a-z0-9][a-z0-9-]*)/?(?:README\.md)?(?:#[^)]*)?\)",
+        lambda m: f"](/findings/{m.group(1)}/)" if m.group(1) in ids else m.group(0),
+        text,
+    )
+
 
 
 def main() -> None:
@@ -596,6 +648,13 @@ def main() -> None:
         "site/content/about.md",
         "site/content/contact.md",
         "site/content/privacy.md",
+        "site/content/finding-pages.json",
+        "site/content/comparison-loop-vs-codex.md",
+        *[
+            rel
+            for entry in json.loads(read_text("site/content/finding-pages.json"))["findings"]
+            for rel in (f"reproduce/{entry['id']}/README.md", entry["category"])
+        ],
         "FINDINGS.md",
         "hypotheses/README.md",
         *family_sources,
@@ -705,16 +764,96 @@ The findings pages summarize the source record. A status such as INTERIM, CONFOU
         )
     )
 
+    # Per-result pages (one for every published reproduce/<id>/ pack) and per-comparison pages.
+    result_index = load_result_index(tracked, {item["slug"] for item in findings})
+    result_ids = {entry["id"] for entry in result_index["findings"]}
+    results = sorted(result_index["findings"], key=lambda entry: (entry["finished"], entry["id"]), reverse=True)
+    result_comparisons = []
+    for comp in result_index["comparisons"]:
+        members = [entry for entry in results if entry["comparison"] == comp["id"]]
+        if not members:
+            continue
+        result_comparisons.append({**comp, "url": f"/comparisons/{comp['id']}/", "result_ids": [entry["id"] for entry in members]})
+    result_pages: list[dict] = []
+    for entry in results:
+        rid = entry["id"]
+        comp = next(item for item in result_comparisons if item["id"] == entry["comparison"])
+        readme = read_text(f"reproduce/{rid}/README.md")
+        readme = re.sub(r"\A# .*\n+", "", readme)
+        readme = result_link_targets(readme, result_ids)
+        body = (
+            f"# {entry['title']}\n\n"
+            f"- **Finding id:** `{rid}`\n"
+            f"- **Verdict:** {VERDICT_LABELS[entry['verdict']]}\n"
+            f"- **Finished:** {display_date(entry['finished'])}\n"
+            f"- **Comparison:** [{comp['title']}]({comp['url']})\n"
+            f"- **Reproduction pack:** [reproduce/{rid}/]({GITHUB}/tree/{revision}/reproduce/{rid}) (data, analysis script and rerun steps)\n"
+            f"- **Category page:** [{entry['category']}]({source_url(entry['category'], revision)})\n\n"
+            f"## In plain terms\n\n{result_link_targets(entry['summary'], result_ids)}\n\n"
+            f"Verdict key: {' '.join(f'**{VERDICT_LABELS[k]}**, {v}' for k, v in result_index['verdict_meaning'].items())}\n\n"
+            f"## Full text of the reproduction pack\n\nThe text below is the pack's README as published in the repository (a system folder name may show without its leading slash, so that the site's privacy scan passes).\n\n"
+            + readme
+        )
+        result_pages.append(
+            page_record(
+                f"/findings/{rid}/",
+                entry["title"],
+                body,
+                [f"reproduce/{rid}/README.md", entry["category"], "site/content/finding-pages.json"],
+                VERDICT_LABELS[entry["verdict"]].upper(),
+            )
+        )
+    for comp in result_comparisons:
+        members = [entry for entry in results if entry["comparison"] == comp["id"]]
+        listing = "| Result | Verdict | Finished |\n| --- | --- | --- |\n" + "\n".join(
+            f"| [{entry['title']}](/findings/{entry['id']}/) | {VERDICT_LABELS[entry['verdict']]} | {display_date(entry['finished'])} |" for entry in members
+        )
+        extra_sources: list[str] = []
+        if comp["id"] == "loop-vs-codex":
+            table_md = read_text("site/content/comparison-loop-vs-codex.md")
+            # a link to a result that has no page yet stays plain text
+            table_md = re.sub(
+                r"\[([^\]]+)\]\(/findings/([a-z0-9-]+)/\)",
+                lambda m: m.group(0) if m.group(2) in result_ids else m.group(1),
+                table_md,
+            )
+            extra_sources.append("site/content/comparison-loop-vs-codex.md")
+            others = [entry for entry in members if f"/findings/{entry['id']}/" not in table_md]
+            body = (
+                table_md.strip()
+                + "\n\n## Other published results in this comparison\n\nThese results are not rows of the table above (it was written from the first twelve). Each has its own page.\n\n"
+                + "\n".join(f"- [{entry['title']}](/findings/{entry['id']}/) ({VERDICT_LABELS[entry['verdict']]}, {display_date(entry['finished'])})" for entry in others)
+                + "\n\n## All results in this comparison\n\n" + listing + "\n"
+            )
+        else:
+            body = f"# {comp['title']}\n\n{comp['blurb']}\n\n## Results, newest first\n\n{listing}\n"
+        result_pages.append(
+            page_record(
+                comp["url"],
+                comp["title"],
+                body,
+                ["site/content/finding-pages.json", *extra_sources, *[f"reproduce/{entry['id']}/README.md" for entry in members]],
+            )
+        )
+    results_listing = "\n\n".join(
+        f"### [{comp['title']}]({comp['url']})\n\n" + "\n".join(
+            f"- [{entry['title']}](/findings/{entry['id']}/) ({VERDICT_LABELS[entry['verdict']]}, {display_date(entry['finished'])})"
+            for entry in results if entry["comparison"] == comp["id"]
+        )
+        for comp in result_comparisons
+    )
+
     pages.append(
         page_record(
             "/findings/",
             "Findings",
-            "# Findings\n\nThe family-by-family source summary is reproduced below. Figures that are not reconciled to a claim ledger remain source-reported; follow the source and related claim records for the limits.\n\n" + "\n".join(
+            "# Findings\n\n## Published results\n\nEvery published result has its own page, grouped by comparison, newest first.\n\n" + results_listing + "\n\n## Source summary by family\n\nThe family-by-family source summary is reproduced below. Figures that are not reconciled to a claim ledger remain source-reported; follow the source and related claim records for the limits.\n\n" + "\n".join(
                 f"- [{item['id']} — {item['title']}](/findings/{item['slug']}/)" for item in findings
             ),
-            ["FINDINGS.md"],
+            ["FINDINGS.md", "site/content/finding-pages.json"],
         )
     )
+    pages.extend(result_pages)
     for item in findings:
         family = families_by_id[item["id"]]
         body = (
@@ -1128,6 +1267,12 @@ The findings pages summarize the source record. A status such as INTERIM, CONFOU
             "glossary": read_text("rounds/GLOSSARY.md"),
         },
         "findings": findings,
+        "results": [
+            {**entry, "url": f"/findings/{entry['id']}/", "verdict_label": VERDICT_LABELS[entry["verdict"]], "finished_display": display_date(entry["finished"]),
+             "pack_url": f"{GITHUB}/tree/{revision}/reproduce/{entry['id']}", "summary": result_link_targets(entry["summary"], result_ids)}
+            for entry in results
+        ],
+        "result_comparisons": result_comparisons,
         "families": family_data,
         "hypotheses": hypothesis_rows,
         "rounds": round_records,
