@@ -35,7 +35,7 @@ This page reports both profiles. It uses only logs that were already recorded. I
 | [Review material on demand](#review-material-on-demand-an-observation) | Registered; the comparison is still running | Observation only: clean controls 30 of 30 landed in both arms. | Running, no verdict |
 | [Climb results, 29 October](#climb-results-29-october) | Registered per item | Eight items, each with its own result and limits; see the table at the start of that section. | See that section |
 | [Check reuse and the delivery time budget](#check-reuse-and-the-delivery-time-budget-descriptive) | None (descriptive) | Reusing a passing baseline check across restarts could save up to 30% of baseline check seconds in 44 delivery builds, but only with an environment key the logs do not hold. Check commands are 36% of build wall time in benchmark cells and 72% in 15 delivery builds. | Not built; candidate ranking only |
-
+| [Loop stream and shell faults](#loop-stream-and-shell-faults-descriptive) | None (descriptive) | Against a fake model server, Loop never stopped a productive stream or a 700 s silent shell. Response headers do not count as a first byte (90 s wasted per stalled attempt), idle stop is 180 s and ignores comment pings and unfinished events, a 429 `Retry-After` is ignored (fixed 2 s), and a hung shell runs until the task deadline. | Not changed; candidate ranking only |
 Exception for the checkpoint profile: two tasks with large repositories sit far above the threshold. They are described below, and they are the one open follow-up.
 
 ## Data for the checkpoint and retry profiles
@@ -749,6 +749,12 @@ Two replays of recorded logs, with no model call and no change to Kogen. Both ar
 [`reproduce/delivery-path-timing/`](../reproduce/delivery-path-timing/README.md) decomposes the time of 4,389 Kogen cells (22 to 31 October) and 15 real delivery builds. Check commands (startup baseline plus verification) take 36% of build wall time in the benchmark cells and 72% in the delivery builds; the slowest shaping requests (180 s or longer) hold 39% of shaping request time. Review repair (3.3% of wall), builder prompt growth (1.4k tokens per round, 92% to 97% cached from round 2), a failing baseline at start (4 of 1,470 builds) and slow build or review requests (28 of about 28,000) show little headroom. The tables rerun from the published, anonymised rows.
 
 **Limits.** Replay estimates are upper bounds, not measurements of a change. The delivery sample is small (44 builds for the reuse replay, 15 for delivery timing), covers a few days and many Kogen builds, and the logs record neither the Kogen build behind each delivery run nor machine load.
+
+## Loop stream and shell faults: descriptive
+
+[`reproduce/loop-stream-shell-fault-fixtures/`](../reproduce/loop-stream-shell-fault-fixtures/README.md) drives Kogen Loop (Kogen `3e759e88`, vendored Loop pin `89467b8b`) against a fake model server that injects stream and shell faults. It makes no model call and changes nothing, so it is unresolved by design: it decides which candidate changes to screen.
+
+Productive runs were never stopped by mistake: a 60 s wait for the first byte, a 120 s gap, 20 events spread over 200 s and a shell that was silent for 700 s all finished. The waste that exists is bounded by fixed limits. Response headers do not count as a first byte, so a stalled attempt costs 90 s before the retry (280 s if all three attempts stall). The idle stop is 180 s; `: ping` comment lines and the bytes of an unfinished event are not progress. A 429 `Retry-After` is ignored (fixed 2 s then 8 s waits). An unreadable event gets one immediate retry. Loop's shell has no time limit and no silence detection, so a hung command runs until the task deadline; Kogen's 60 s dead-command stop for check commands fires at about 62 s, and the removed 10-minute silent-shell stop behaves as described. Only the Responses wire was driven, each fixture once; the pack lists three issue drafts.
 
 ## Evidence level
 

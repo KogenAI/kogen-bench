@@ -1,0 +1,48 @@
+scenario          exit   wall_s  attempts                   end
+trunc_mid3           1    10.02  failed,failed,failed       error provider/unavailable
+trunc_json1          0     2.02  failed,completed           ok (no_call)
+reset1               0     2.02  failed,completed           ok (no_call)
+empty200_1           0     2.02  failed,completed           ok (no_call)
+badjson1             0     0.01  failed,completed           ok (no_call)
+badjson2             1     0.02  failed,failed              error provider/invalid_response
+h429_ra              0     2.01  failed,completed           ok (no_call)
+h429x3               1    10.02  failed,failed,failed       error provider/unavailable
+h500_1               0     2.02  failed,completed           ok (no_call)
+h503x3               1    10.02  failed,failed,failed       error provider/unavailable
+h400                 1     0.01  failed                     error provider/refused
+h401                 1     0.23  failed                     error provider/login
+sse_rl               0     2.02  failed,completed           ok (no_call)
+sse_srv              0     2.01  failed,completed           ok (no_call)
+sse_ctx              1     0.01  failed                     error provider/context_too_long
+incomplete           1     0.01  failed                     error provider/refused
+overflow             0     0.58  failed,completed           ok (no_call)
+sh_ctrl              0     0.04  completed,completed        ok (no_call)
+sh_binary            0     0.04  completed,completed        ok (no_call)
+sh_oneline50m        0     0.15  completed,completed        ok (no_call)
+sh_big200m           0     0.19  completed,completed        ok (no_call)
+sh_bg_holder         0     1.12  completed,completed        ok (no_call)
+sh_infinite          1    40.11  completed                  error loop/deadline
+sh_hang_silent       1    90.20  completed                  error loop/deadline
+sh_hang_trapterm     1    95.10  completed                  error loop/deadline
+sh_slow_stream       0    60.06  completed,completed        ok (no_call)
+fb60                 0    60.07  completed                  ok (no_call)
+gap120               0   120.11  completed                  ok (no_call)
+fb_hdr1              0    92.02  failed,completed           ok (no_call)
+gap200               0   182.01  failed,completed           ok (no_call)
+keepalive            0   182.02  failed,completed           ok (no_call)
+trickle              0   182.02  failed,completed           ok (no_call)
+slow200              0   200.18  completed                  ok (no_call)
+fb_hang3             1   280.03  failed,failed,failed       error provider/unavailable
+sh_silent700         0   700.04  completed,completed        ok (no_call)
+
+PASS productive controls never stopped (fb60, gap120, slow200, sh_slow_stream, sh_silent700)
+PASS headers alone are not a first byte: fb_hdr1 retried after 90 s (wall 92 s)
+PASS no byte on 3 attempts fails at 280 s
+PASS idle stop at 180 s: gap200, keepalive, trickle all 182 s with one retry
+PASS limit is per gap, not total: slow200 (200 s of 10 s gaps) not stopped
+PASS 429 Retry-After 30 ignored: retry after the fixed 2 s
+PASS waits are 2 s then 8 s: h429x3, h503x3, trunc_mid3 end at 10 s
+PASS unreadable event: one immediate retry (badjson1 ok in 0.01 s; badjson2 invalid_response after 2 attempts)
+PASS no retry for h400, sse_ctx, incomplete
+PASS shell hang: only the task deadline stops it; nothing left behind
+PASS silent 700 s shell not stopped at 600 s
