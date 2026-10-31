@@ -1,0 +1,61 @@
+diff -ruN ctl/src/provider/api_verbosity_test.go vlo/src/provider/api_verbosity_test.go
+--- ctl/src/provider/api_verbosity_test.go	1970-01-01 03:00:00
++++ vlo/src/provider/api_verbosity_test.go	2026-10-30 22:55:01
+@@ -0,0 +1,27 @@
++package provider
++
++import "testing"
++
++func TestAPIVerbosityLow(t *testing.T) {
++	cases := []struct {
++		provider, model string
++		low             bool
++	}{{"openai-compatible", "gpt-6.1-terra", true}, {"openai-compatible", "other-model", false}, {"chatgpt", "gpt-6.1-terra", false}}
++	for _, c := range cases {
++		info, ok := Lookup(c.provider)
++		if !ok {
++			t.Fatal(c.provider)
++		}
++		r, err := render(info, Request{Role: Role{Provider: c.provider, Model: c.model, Effort: "high", BaseURL: "http://fixture/v1"}}, "session", false)
++		if err != nil {
++			t.Fatal(err)
++		}
++		text, exists := r.body["text"].(map[string]any)
++		if c.low != (exists && text["verbosity"] == "low") {
++			t.Fatalf("%s %s: text %v", c.provider, c.model, r.body["text"])
++		}
++		if c.low && (r.body["reasoning"].(map[string]any)["effort"] != "high" || r.body["store"] != false) {
++			t.Fatal("reasoning effort or store changed")
++		}
++	}
++}
+diff -ruN ctl/src/provider/respond.go vlo/src/provider/respond.go
+--- ctl/src/provider/respond.go	2026-10-30 22:54:42
++++ vlo/src/provider/respond.go	2026-10-30 22:55:01
+@@ -919,6 +919,12 @@
+ 	for k, v := range r.ev.meta {
+ 		rec[k] = v
+ 	}
++	if text, ok := r.rend.body["text"].(map[string]any); ok {
++		rec["requested_text_verbosity"] = text["verbosity"]
++	}
++	if text, ok := meta["text"].(map[string]any); ok {
++		rec["effective_text_verbosity"] = text["verbosity"]
++	}
+ 	for k, v := range r.req.Context {
+ 		rec[k] = v
+ 	}
+diff -ruN ctl/src/provider/wire.go vlo/src/provider/wire.go
+--- ctl/src/provider/wire.go	2026-10-30 22:54:42
++++ vlo/src/provider/wire.go	2026-10-30 22:55:01
+@@ -63,6 +63,10 @@
+ 	if req.DisableParallelToolCalls {
+ 		body["parallel_tool_calls"] = false
+ 	}
++	// Codex sends low text verbosity for this model; only the Responses wire carries it.
++	if info.compatible() && req.Role.Model == "gpt-6.1-terra" {
++		body["text"] = map[string]any{"verbosity": "low"}
++	}
+ 	r := rendered{body: body, mode: "implicit"}
+ 	switch {
+ 	case info.chatgpt():

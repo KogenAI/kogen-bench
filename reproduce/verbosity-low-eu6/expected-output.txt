@@ -1,0 +1,45 @@
+Per arm, gpt-6.1-terra high, 3 fresh tasks x 6 reps, dry run excluded (per pass = total / passes)
+arm | pass/launched | non-reasoning output total | per run | final answer bytes/run | median wall s | p90 wall s | requests/run | USD total | USD/pass
+api-replay | 12/18 | 126,284 | 7,016 | 0 | 125.129 | 271.977 | 15.2 | $1.677473 | $0.139789
+api-replay + verbosity low | 12/18 | 120,388 | 6,688 | 0 | 128.555 | 241.269 | 13.9 | $1.566142 | $0.130512
+Codex CLI | 13/18 | 152,230 | 8,457 | 193 | 121.106 | 336.535 | 18.6 | $2.428912 | $0.186839
+
+Paired by block (task, rep), lower is better: first-arm wins / second-arm wins, ties, exact two-sided sign test p
+api-replay + verbosity low vs api-replay (18 blocks)
+  nonreasoning: 9/9, 0 ties, p=1.0000
+  usd_per_pass: 4/8, 6 ties, p=0.3877
+  wall: 9/9, 0 ties, p=1.0000
+  requests: 8/8, 2 ties, p=1.0000
+  final_text_bytes: 0/0, 18 ties, p=1.0000
+  pass (discordant, first-only/second-only): 0/0, 18 ties, p=1.0000
+  nonreasoning geomean ratio: 0.976
+  usd geomean ratio: 0.990
+  wall geomean ratio: 0.979
+  USD per pass ratio: 0.934
+api-replay + verbosity low vs Codex CLI (18 blocks)
+  nonreasoning: 14/4, 0 ties, p=0.0309
+  usd_per_pass: 11/2, 5 ties, p=0.0225
+  wall: 11/7, 0 ties, p=0.4807
+  requests: 12/4, 2 ties, p=0.0768
+  final_text_bytes: 18/0, 0 ties, p=0.0000
+  pass (discordant, first-only/second-only): 0/1, 17 ties, p=1.0000
+  nonreasoning geomean ratio: 0.861
+  usd geomean ratio: 0.680
+  wall geomean ratio: 0.918
+  USD per pass ratio: 0.699
+api-replay vs Codex CLI (18 blocks)
+  nonreasoning: 14/3, 1 ties, p=0.0127
+  usd_per_pass: 12/1, 5 ties, p=0.0034
+  wall: 11/7, 0 ties, p=0.4807
+  requests: 12/3, 3 ties, p=0.0352
+  final_text_bytes: 18/0, 0 ties, p=0.0000
+  pass (discordant, first-only/second-only): 0/1, 17 ties, p=1.0000
+  nonreasoning geomean ratio: 0.883
+  usd geomean ratio: 0.687
+  wall geomean ratio: 0.938
+  USD per pass ratio: 0.748
+
+By task, api-replay + verbosity low vs api-replay
+taskorder-go: non-reasoning 3/3, 0 ties, p=1.0000, ratio 0.969; USD ratio 1.044; passes: api-replay 6/6 api-replay + verbosity low 6/6 Codex CLI 6/6
+urlnorm-go: non-reasoning 1/5, 0 ties, p=0.2188, ratio 1.078; USD ratio 1.107; passes: api-replay 6/6 api-replay + verbosity low 6/6 Codex CLI 6/6
+revive-baseline-go: non-reasoning 5/1, 0 ties, p=0.2188, ratio 0.889; USD ratio 0.839; passes: api-replay 0/6 api-replay + verbosity low 0/6 Codex CLI 1/6

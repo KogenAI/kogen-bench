@@ -1,0 +1,18 @@
+--- a/lanes/confirm-eu/confirmation_ext.py
++++ b/lanes/confirm-eu/confirmation_ext.py
+@@ -86,6 +86,7 @@
+    inputs=body.get('input') or []
+    reasons=[x for x in inputs if isinstance(x,dict) and x.get('type')=='reasoning']
+    row.update(client_stream_requested=bool(body.get('stream')),tool_names=raw_tools,batch_instruction_present='Batch independent reads and writes in one response.' in instruction,encrypted_include_requested='reasoning.encrypted_content' in body.get('include',[]),input_reasoning_items=len(reasons),input_encrypted_sha256=[hashlib.sha256(x['encrypted_content'].encode()).hexdigest() for x in reasons if x.get('encrypted_content')])
++   row['text_requested']=body.get('text')
+    body=chat_to_responses(body) if self.path.endswith('chat/completions') else body
+    if body.get('model')!=MODEL or (body.get('reasoning') or {}).get('effort')!=STATE.get('effort','high'):return self.error(403,'frozen model or effort mismatch')
+    # Both arms receive the same limits, service tier and retry ceiling.
+@@ -120,6 +121,7 @@
+      try:self.wfile.write(line if client_stream else b' \n');self.wfile.flush()
+      except (BrokenPipeError,ConnectionResetError):row['client_disconnected']=True
+     row['response_models']=models
++    if final is not None:row.update(text_returned=final.get('text'),output_text_bytes=sum(len(y.get('text','').encode()) for x in final.get('output',[]) if x.get('type')=='message' for y in x.get('content',[]) if y.get('type')=='output_text'))
+     if final is not None:row['output_encrypted_sha256']=[hashlib.sha256(x['encrypted_content'].encode()).hexdigest() for x in final.get('output',[]) if x.get('type')=='reasoning' and x.get('encrypted_content')]
+     if final is not None:row.update(response_id=final.get('id'),model=final.get('model'),reasoning=final.get('reasoning'),usage=final.get('usage'),status=final.get('status'))
+     if not client_stream and final is not None:
