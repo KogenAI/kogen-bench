@@ -375,6 +375,15 @@
       "verdict": "no",
       "finished": "2026-10-31",
       "summary": "One change to Kogen's shaping step, naming a harmless cause such as an unclosed quote or a trailing full stop in a refusal message and relaxing no rule, was screened against the unchanged step on 13 Go tasks, two repetitions, 52 shapes, with gpt-6.1-terra at medium effort. The specification was accepted in 25 of 26 shapes in both versions, and the one unequal pair was the same task failing on different repetitions with no tool call, so nothing was left for the change to fix. Average time per shape was 165 against 158 seconds. This clean run also shows that the low acceptance rate in [the earlier three-change screen](finding:shape-screen-terra-b) came from a test-setup fault. The change was dropped."
+    },
+    {
+      "id": "shape-retry-levers-k11",
+      "category": "categories/harness-levers.md",
+      "title": "Allowing only one resubmission broke Kogen's shaping step; allowing five matched the default",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-10-31",
+      "summary": "Kogen's shaping step lets the model resubmit a refused Intent. On an older Kogen build, with gpt-6.1-sol at low effort on 8 tasks and 6 repetitions each, the default accepted 47 of 48 shapes. Limiting resubmission to one accepted only 6 of 48, because 42 ended refused or with questions. Allowing five accepted 46 of 48 and its graded numbers were within noise of the default, about two minutes quicker per paired shape. The run is descriptive (no decision rule), so neither limit changes anything; one task cannot separate the lanes at all because its reference check always fails."
     }
   ]
 }

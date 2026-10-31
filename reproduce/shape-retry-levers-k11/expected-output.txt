@@ -1,0 +1,32 @@
+1. Per lane (48 cells each: 8 tasks x 6 repetitions; 'valid' = accepted Intent that was graded)
+lane     valid  no-Intent scenarios pass_on_ref fail_on_start wrong_caught/total requests wall_s cost_usd
+a0       47/48          1       641         465           535      281/303           505  21861     6.26
+retry1    6/48         42        67           0            67       88/88            332  11453     3.79
+retry5   46/48          2       551         425           465      292/320           472  16399     5.67
+
+2. Outcome per lane (all cells, including those with no accepted Intent)
+a0 {'ok': 47, 'questions_pending': 1}
+retry1 {'ok': 6, 'questions_pending': 5, 'refused': 37}
+retry5 {'ok': 46, 'questions_pending': 2}
+
+3. Valid Intents per task (of 6 repetitions)
+task  a0 retry1 retry5
+T1     6   0   6
+T2     5   4   6
+T3     6   0   6
+T4     6   0   6
+T5     6   0   6
+T6     6   2   4
+T7     6   0   6
+T8     6   0   6
+
+4. Same task and repetition as a0 (wall and requests include refused or questioning attempts)
+retry1: both valid 5, a0 only 42, retry1 only 1, neither 0
+   on the 5 both-valid pairs, mean change vs a0: wall -11.7 s, requests -3.20, cost -0.0285 USD, pass_on_reference rate -0.0320
+retry5: both valid 45, a0 only 2, retry5 only 1, neither 0
+   on the 45 both-valid pairs, mean change vs a0: wall -116.1 s, requests -0.80, cost -0.0147 USD, pass_on_reference rate -0.0072
+
+5. Without task T6 (pass_on_reference is 0 for every graded cell of T6, in every lane)
+a0       valid 41 scenarios 615 pass_on_ref 465 fail_on_start 509 wrong_caught/total 269/291
+retry1   valid 4 scenarios 62 pass_on_ref 0 fail_on_start 62 wrong_caught/total 84/84
+retry5   valid 42 scenarios 542 pass_on_ref 425 fail_on_start 456 wrong_caught/total 284/312

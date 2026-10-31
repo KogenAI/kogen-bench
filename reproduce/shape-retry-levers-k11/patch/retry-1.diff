@@ -1,0 +1,10 @@
+--- a/cli/shape/shape.go
++++ b/cli/shape/shape.go
+@@ -73,6 +73,7 @@
+ }
+ 
+ func shapeRun(ctx context.Context, s *sys.Session, in ShapeInput) (exit int, err error) {
++	in.SubmissionRetryLimit = 1
+ 	if err := research.Validate(ctx, s); err != nil {
+ 		return 0, err
+ 	}
