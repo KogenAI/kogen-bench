@@ -102,3 +102,7 @@ Definitions: [public glossary](../rounds/GLOSSARY.md).
 ## kogen-loop instruction sentences (loopnight, 31 Oct 2026)
 
 Three one-sentence additions to kogen-loop's default instructions, 12 Go tasks, same model and effort. "Call finish right away once your checks pass" cut wall time about 17% and cost about 20% over two repetitions (21 of 24 pairs faster) with all runs passing; "combine your checks in one command" and "write each file once" did not give a repeatable wall or cost gain. See [loopnight-instruction-levers](../reproduce/loopnight-instruction-levers/README.md).
+
+## kogen-loop stop-at-green sentence on hard review tasks (l3hard, 31 Oct 2026)
+
+The finish-right-away sentence, tested on two hard Kogen review tasks (4 paired runs each, same model and effort): no run with the sentence failed where its paired baseline passed (4 failures in each arm), wall was lower in 6 of 8 pairs. One task passed 4/4 in both arms; the other failed 4/4 in both, so only one task could show an early stop. See [l3-stop-at-green-hard-kits](../reproduce/l3-stop-at-green-hard-kits/README.md).

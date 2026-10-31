@@ -438,6 +438,15 @@
       "verdict": "yes",
       "finished": "2026-10-31",
       "summary": "A one-sentence change to Kogen's builder prompt (call finish right away when the checks pass, with no extra re-reads or polishing) was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 9 tasks without the change and 10 with it (one gained, none lost), and the patched build used less wall time or fewer tokens on 9 of 13 tasks, meeting the rule of at least 8. It is one trial on one laptop-class host, so it is a candidate to confirm at Kogen level before shipping, not a shipped change."
+    },
+    {
+      "id": "l3-stop-at-green-hard-kits",
+      "category": "categories/harness-levers.md",
+      "title": "The finish-right-away sentence caused no early stops on two hard review tasks, but only one could show it",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "unresolved",
+      "finished": "2026-10-31",
+      "summary": "The kogen-loop sentence that tells the agent to call finish right away once its checks pass was tested against the unchanged loop on two hard Kogen review tasks, four paired runs each, same model and effort. On the first task both arms passed all four runs. On the second both arms failed all four runs on the same acceptance checks, so it could not separate them. Failures were four in each arm and no run with the sentence failed where its paired baseline run passed. Wall time was lower with the sentence in 6 of 8 pairs and cost in 4 of 8. Only one task could show an early stop, so the evidence is limited; only the stand-alone loop was tested."
     }
   ]
 }

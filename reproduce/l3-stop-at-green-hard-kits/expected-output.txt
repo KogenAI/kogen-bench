@@ -1,0 +1,21 @@
+l3hard: base vs l3 (stop-at-green sentence), gpt-6.1-terra high, 4 reps x 2 kits, paired blocks run at the same time
+
+kogen-review-on-demand
+  rep 1: base pass=1 (finished, failed checks 0/298, wall 688s, $0.303, 35 req) | l3 pass=1 (finished, failed checks 0/298, wall 429s, $0.330, 34 req)
+  rep 2: base pass=1 (finished, failed checks 0/298, wall 337s, $0.242, 24 req) | l3 pass=1 (finished, failed checks 0/298, wall 460s, $0.255, 25 req)
+  rep 3: base pass=1 (finished, failed checks 0/298, wall 640s, $0.361, 39 req) | l3 pass=1 (finished, failed checks 0/298, wall 134s, $0.163, 13 req)
+  rep 4: base pass=1 (finished, failed checks 0/298, wall 543s, $0.344, 32 req) | l3 pass=1 (finished, failed checks 0/298, wall 447s, $0.265, 29 req)
+  base: pass 4/4, median wall 591s, median cost $0.323, median requests 33.5
+  l3: pass 4/4, median wall 438s, median cost $0.260, median requests 27.0
+
+kogen-review-retry
+  rep 1: base pass=0 (finished, failed checks 7/649, wall 566s, $0.364, 40 req) | l3 pass=0 (finished, failed checks 6/649, wall 399s, $0.302, 35 req)
+  rep 2: base pass=0 (agent_error, failed checks 7/649, wall 510s, $0.311, 26 req) | l3 pass=0 (finished, failed checks 7/649, wall 183s, $0.173, 16 req)
+  rep 3: base pass=0 (finished, failed checks 7/649, wall 582s, $0.250, 30 req) | l3 pass=0 (finished, failed checks 7/649, wall 359s, $0.283, 26 req)
+  rep 4: base pass=0 (agent_error, failed checks 7/649, wall 279s, $0.324, 31 req) | l3 pass=0 (agent_error, failed checks 6/649, wall 504s, $0.338, 32 req)
+  base: pass 0/4, median wall 538s, median cost $0.318, median requests 30.5
+  l3: pass 0/4, median wall 379s, median cost $0.293, median requests 29.0
+
+all 8 blocks: failures base 4, l3 4; false stops (l3 fails where its paired base passes) 0
+l3 lower in: wall 6/8, cost 4/8, requests 6/8 (descriptive, 8 blocks of 2 kits)
+total wall base 4145 s, l3 2916 s; total cost base $2.499, l3 $2.109; requests base 257, l3 210
