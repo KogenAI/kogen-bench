@@ -48,9 +48,13 @@ python3 -I reproduce/hard-task-review-value/analyze.py | diff - reproduce/hard-t
 
 Verified 31 Oct 2026: `analyze.py` reproduces every count above from `reviews.csv` (standard library only).
 
+## Rerun
+
+The counts rerun from the published rows: `analyze.py` above. To also rebuild the rows from run directories, see the next section.
+
 ## Rebuild reviews.csv from the run directories
 
-`probes/extract-reviews.py` rebuilds `reviews.csv` from lanes run directories that hold the five blocks' cells (`cells/<task>/r1/kogen/` with `evaluation.json` and `run-log/`). The runs of `hk3-mb`, `cco-mb` and `ccs2-mb` are on the MacBook, those of `hk3-lm` and `ccs3-lm` on the laptop; they are not part of this repository.
+`probes/extract-reviews.py` rebuilds `reviews.csv` from lanes run directories that hold the five blocks' cells (`cells/<task>/r1/kogen/` with `evaluation.json` and `run-log/`). The runs of `hk3-mb`, `cco-mb` and `ccs2-mb` are on the MacBook, those of `hk3-lm` and `ccs3-lm` on the laptop; their cell directories hold task text and hidden-test output, so they stay private until the hill-climb ends (no date set). To rebuild the rows from your own rerun of the five packs, use the commands in those packs' Rerun sections and point `$RUNS` at the run directories.
 
 ```sh
 python3 -I reproduce/hard-task-review-value/probes/extract-reviews.py reproduce/hard-task-review-value/annotations.csv "$RUNS"/hk3-mb "$RUNS"/cco-mb "$RUNS"/ccs2-mb "$RUNS"/hk3-lm "$RUNS"/ccs3-lm | diff - reproduce/hard-task-review-value/reviews.csv

@@ -50,14 +50,16 @@ Paired by task (Kogen lower / higher, exact two-sided sign test): cost 0/5, p = 
 
 ## Rerun
 
-[`experiments/ccs2-mb.experiment.json`](experiments/ccs2-mb.experiment.json) is the experiment file with the binary path replaced by `${HK_CLAUDE_BIN}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read only by the private grading adapter, which is not published, and the published `lanes/` ignores them. The alone driver belongs to that adapter too, so the published `lanes/` alone cannot run the second setup. With the private adapter, a `hosts.json` for your machine, the private task folder and your own login:
+[`experiments/ccs2-mb.experiment.json`](experiments/ccs2-mb.experiment.json) is the experiment file with the binary path replaced by `${HK_CLAUDE_BIN}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read by the alone-arm adapter and the public-scenario grader in [`lanes/hk/`](../../lanes/hk/README.md), which add them to the published `lanes/`; plain `lanes/` ignores them. You need a `hosts.json` for your machine, your own login, and the task folder (the kits are withheld until the hill-climb ends; see Limits). Build the snapshot, then run it:
 
 ```sh
-lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-report "$RUN"
+python3 lanes/hk/apply_overlay.py --study ccmac-r2-20261030 --arm claude --out "$SUPPORT"
+export HK_STUDY=ccmac-r2-20261030
+"$SUPPORT"/source/lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && "$SUPPORT"/source/lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && "$SUPPORT"/source/lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-report "$RUN"
 python3 -I reproduce/ccs2-mb-hard-tasks/probes/ccmac-cost.py --claude-projects "$CLAUDE_PROJECTS" "$RUN"
 ```
 
-`lanes-build` clones the private Kogen repository at the pinned commit and needs Go, npm and the network; it was not rerun for this page. `ccmac-cost.py` reads only run directories and changes nothing; `--claude-projects` is the Claude Code projects directory the cells used (it holds the shape transcripts). The model deadline per cell is 3,600 s.
+`lanes-build` clones Kogen from its public repository (github.com/KogenAI/kogen) at the pinned commit and builds it, which needs Go, npm and the network. It was not rerun for this page. `ccmac-cost.py` reads only run directories and changes nothing; `--claude-projects` is the Claude Code projects directory the cells used (it holds the shape transcripts). The model deadline per cell is 3,600 s.
 
 ## Reproduce the numbers
 
@@ -77,7 +79,7 @@ python3 reproduce/ccs2-mb-hard-tasks/analyze.py | diff - reproduce/ccs2-mb-hard-
 - The tasks were picked because another agent had failed them, and three of the six come from Kogen's own code, so they are related. Easier tasks may behave differently.
 - One machine, one model and effort, one version of each tool. Wall times depend on that machine and its load.
 - Kogen's wall time and cost cover more work (shaping, an independent review and checks) than a single run.
-- The task kits stay private until the hill-climb ends, so the tasks cannot be rerun from this repository alone.
+- Withheld: the task kits stay private until the hill-climb ends (no date set), so the tasks themselves are not in this repository. The analysis, the harness and the alone-arm adapter are; with your own tasks in the same layout the whole pipeline runs.
 - Six tasks only, so one task moves a rate by 0.17.
 - This block was registered to pool only with a laptop block (`ccs2-lm`) that never ran, so it is analysed on its own. It is not pooled with the MacBook Opus block, nor with the earlier laptop Sonnet result, which used a different Kogen version.
 - One of the twelve cells (Claude Code alone on `kogen-review-on-demand`) has no usable usage record.

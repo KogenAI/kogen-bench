@@ -51,13 +51,15 @@ The registered design pools this block with the laptop block at identical pins; 
 
 ## Rerun
 
-[`experiments/hk3-mb.experiment.json`](experiments/hk3-mb.experiment.json) is the experiment file with the binary path and Codex home replaced by `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read only by the private grading adapter, which is not published, and the published `lanes/` ignores them. The alone driver belongs to that adapter too, so the published `lanes/` alone cannot run the second setup. With the private adapter, a `hosts.json` for your machine, the private task folder and your own login:
+[`experiments/hk3-mb.experiment.json`](experiments/hk3-mb.experiment.json) is the experiment file with the binary path and Codex home replaced by `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read by the alone-arm adapter and the public-scenario grader in [`lanes/hk/`](../../lanes/hk/README.md), which add them to the published `lanes/`; plain `lanes/` ignores them. You need a `hosts.json` for your machine, your own login, and the task folder (the kits are withheld until the hill-climb ends; see Limits). Build the snapshot, then run it:
 
 ```sh
-lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-report "$RUN"
+python3 lanes/hk/apply_overlay.py --study hardplan3-20261030 --arm codex --out "$SUPPORT"
+export HK_STUDY=hardplan3-20261030
+"$SUPPORT"/source/lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && "$SUPPORT"/source/lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && "$SUPPORT"/source/lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-report "$RUN"
 ```
 
-`lanes-build` clones the private Kogen repository at the pinned commit and needs Go, npm and the network; it was not rerun for this page. The model deadline per cell is 3,600 s.
+`lanes-build` clones Kogen from its public repository (github.com/KogenAI/kogen) at the pinned commit and builds it, which needs Go, npm and the network. It was not rerun for this page. The model deadline per cell is 3,600 s.
 
 ## Reproduce the numbers
 
@@ -77,6 +79,6 @@ python3 reproduce/hk3-mb-hard-tasks/analyze.py | diff - reproduce/hk3-mb-hard-ta
 - The tasks were picked because another agent had failed them, and three of the six come from Kogen's own code, so they are related. Easier tasks may behave differently.
 - One machine, one model and effort, one version of each tool. Wall times depend on that machine and its load.
 - Kogen's wall time and cost cover more work (shaping, an independent review and checks) than a single run.
-- The task kits stay private until the hill-climb ends, so the tasks cannot be rerun from this repository alone.
+- Withheld: the task kits stay private until the hill-climb ends (no date set), so the tasks themselves are not in this repository. The analysis, the harness and the alone-arm adapter are; with your own tasks in the same layout the whole pipeline runs.
 - Six tasks only, so one task moves a rate by 0.17.
 - Usage and cost were not measured.

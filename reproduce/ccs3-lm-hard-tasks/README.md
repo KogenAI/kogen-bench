@@ -53,14 +53,16 @@ Paired by task (Kogen lower / higher, exact two-sided sign test): cost 1/8, p = 
 
 ## Rerun
 
-[`experiments/ccs3-lm.experiment.json`](experiments/ccs3-lm.experiment.json) is the experiment file with the binary path replaced by `${HK_CLAUDE_BIN}`; it loads with `lanes/lanes/experiment.py` (checked 31 October 2026). The `hk_*` keys are read only by the private grading adapter, which is not published, and the published `lanes/` ignores them. The `claude-code-alone` driver belongs to that adapter too, so the published `lanes/` alone cannot run the second setup. With the private adapter, a `hosts.json` for your machine, the private task folder and your own Claude Code login:
+[`experiments/ccs3-lm.experiment.json`](experiments/ccs3-lm.experiment.json) is the experiment file with the binary path replaced by `${HK_CLAUDE_BIN}`; it loads with `lanes/lanes/experiment.py` (checked 31 October 2026). The `hk_*` keys are read by the alone-arm adapter and the public-scenario grader in [`lanes/hk/`](../../lanes/hk/README.md), which add them to the published `lanes/`; plain `lanes/` ignores them. You need a `hosts.json` for your machine, your own login, and the task folder (the kits are withheld until the hill-climb ends; see Limits). Build the snapshot, then run it:
 
 ```sh
-lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && lanes/bin/lanes-report "$RUN"
+python3 lanes/hk/apply_overlay.py --study ccmac-r2-20261030 --arm claude --out "$SUPPORT"
+export HK_STUDY=ccmac-r2-20261030
+"$SUPPORT"/source/lanes/bin/lanes-build "$EXPERIMENT" --run-dir "$RUN" && "$SUPPORT"/source/lanes/bin/lanes-plan "$EXPERIMENT" --run-dir "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-run "$RUN" --tasks "$TASKS" --hosts hosts.json && "$SUPPORT"/source/lanes/bin/lanes-grade "$RUN" --tasks "$TASKS" && "$SUPPORT"/source/lanes/bin/lanes-report "$RUN"
 python3 -I reproduce/ccs3-lm-hard-tasks/probes/ccmac-cost.py --claude-projects "$CLAUDE_PROJECTS" "$RUN"
 ```
 
-`lanes-build` clones the private Kogen repository at the pinned commit and needs Go, npm and the network; it was not rerun for this page. `ccmac-cost.py` reads only run directories and changes nothing; `--claude-projects` is the Claude Code projects directory the cells used (it holds the shape transcripts). The model deadline per cell is 3,600 s.
+`lanes-build` clones Kogen from its public repository (github.com/KogenAI/kogen) at the pinned commit and builds it, which needs Go, npm and the network. It was not rerun for this page. `ccmac-cost.py` reads only run directories and changes nothing; `--claude-projects` is the Claude Code projects directory the cells used (it holds the shape transcripts). The model deadline per cell is 3,600 s.
 
 ## Reproduce the numbers
 
@@ -80,5 +82,5 @@ Verified 31 Oct 2026: `analyze.py` reproduces every number above from `runs.csv`
 - The tasks were picked because another agent had failed them, and six of the nine come from Kogen's own code, so they are related. Easier tasks may behave differently.
 - One laptop, one model and effort, one Claude Code version; wall times depend on that machine and on its load.
 - Kogen's wall time and cost cover more work (shaping, independent review and checks) than a single run.
-- The task kits stay private until the hill-climb ends, so the tasks cannot be rerun from this repository alone.
+- Withheld: the task kits stay private until the hill-climb ends (no date set), so the tasks themselves are not in this repository. The analysis, the harness and the alone-arm adapter are; with your own tasks in the same layout the whole pipeline runs.
 - Usage for the Kogen lane is read from Claude Code's session records, not from the harness; it was cross-checked against Kogen's own executor totals by the reader (a mismatch would be flagged, none was).

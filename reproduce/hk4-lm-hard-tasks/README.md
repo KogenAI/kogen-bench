@@ -61,7 +61,7 @@ On the same 5 tasks the older cohort ([`hk3-lm`](../hk3-lm-hard-tasks/README.md)
 
 ## Rerun
 
-[`experiments/hk4-lm.experiment.json`](experiments/hk4-lm.experiment.json) is the experiment file with the binary path and Codex home replaced by `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read only by the private grading adapter, which is not published, and the published `lanes/` ignores them. The alone driver belongs to that adapter too, so the published `lanes/` alone cannot run the second setup. The command sequence is the one in the [`hk3-lm` pack](../hk3-lm-hard-tasks/README.md#rerun); it was not rerun for this page.
+[`experiments/hk4-lm.experiment.json`](experiments/hk4-lm.experiment.json) is the experiment file with the binary path and Codex home replaced by `${HK_CODEX_BIN}` and `${HK_CODEX_HOME}`; it loads with `lanes/lanes/experiment.py`. The `hk_*` keys are read by the alone-arm adapter and the public-scenario grader in [`lanes/hk/`](../../lanes/hk/README.md); plain `lanes/` ignores them. The command sequence is the one in the [`hk3-lm` pack](../hk3-lm-hard-tasks/README.md#rerun), with this experiment file and `--study hardplan3-20261030 --arm codex`; it was not rerun for this page. Its task kits are withheld until the hill-climb ends (no date set).
 
 ## Reproduce the numbers
 

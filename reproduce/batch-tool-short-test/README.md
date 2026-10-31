@@ -1,6 +1,6 @@
 # batch-tool-short-test
 
-Two loop patches that let kogen-loop do several operations per model request: a `batch` tool and an `exec` script tool. Short test, 30 October 2026: **unresolved** for `batch` (descriptive, n=4; a larger confirmation is running), **does not advance** for `exec`.
+Two loop patches that let kogen-loop do several operations per model request: a `batch` tool and an `exec` script tool. Short test, 30 October 2026: **unresolved** for `batch` (descriptive, n=4; the larger confirmation has since finished: [`batch-tool-confirm-12task`](../batch-tool-confirm-12task/README.md)), **does not advance** for `exec`.
 
 ## What was measured
 
