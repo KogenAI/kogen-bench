@@ -1,0 +1,79 @@
+{
+ "arm": "d-codex-seatbelt-0.162.1-netopen",
+ "evidence": {
+  "cleanup": {
+   "marker": "ac2b2b7dcb7c4fbab5031109d32668f8",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "git_files": [
+   "f"
+  ],
+  "git_head_matches": true,
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/codex-0.162.1/codex",
+    "sandbox",
+    "-c",
+    "permissions.cmpmac.extends=\":workspace\"",
+    "-c",
+    "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+    "-c",
+    "shell_environment_policy.inherit=\"all\"",
+    "-c",
+    "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\",\"CMPMAC_NET_WITNESS\",\"CMPMAC_NET_LOOPBACK_PORT\",\"CMPMAC_NET_LAN_ADDR\",\"CMPMAC_NET_LAN_PORT\",\"CMPMAC_NET_HOST\",\"CMPMAC_NET_HOST_PORT\"]",
+    "-c",
+    "permissions.cmpmac.network.enabled=true",
+    "-P",
+    "cmpmac",
+    "-C",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/allowed",
+    "--",
+    "/bin/bash",
+    "-c",
+    "set -eu; printf \"%s\\n\" \"$CMPMAC_ALLOWED_TOKEN\" > pc-token; printf \"%s\\n\" \"$TMPDIR\" > pc-tmpdir; cd repo; printf \"x\\n\" > f; git add f; git -c user.name=cmpmac -c user.email=cmpmac@invalid -c commit.gpgsign=false commit -q -m pc; git rev-parse HEAD > ../pc-head",
+    "CMPMAC_RUN_MARKER=ac2b2b7dcb7c4fbab5031109d32668f8"
+   ],
+   "config": {
+    "overrides": [
+     "permissions.cmpmac.extends=\":workspace\"",
+     "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+     "shell_environment_policy.inherit=\"all\"",
+     "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\",\"CMPMAC_NET_WITNESS\",\"CMPMAC_NET_LOOPBACK_PORT\",\"CMPMAC_NET_LAN_ADDR\",\"CMPMAC_NET_LAN_PORT\",\"CMPMAC_NET_HOST\",\"CMPMAC_NET_HOST_PORT\"]",
+     "permissions.cmpmac.network.enabled=true"
+    ],
+    "permission_profile": {
+     "$HOME": "none",
+     "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures": "read",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/allowed": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/home": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/tmp": "write",
+     ":slash_tmp": "none"
+    }
+   }
+  },
+  "load_before": 11.2,
+  "log": "",
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 69322,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "tmpdir_run_local": true,
+  "tmpdir_seen": "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cac2b2b7dcb/tmp/",
+  "token_ok": true,
+  "valid": true
+ },
+ "fixture": "allowed_work",
+ "key": "d-codex-seatbelt-0.162.1-netopen/allowed_work/2",
+ "marker": "ac2b2b7dcb7c4fbab5031109d32668f8",
+ "outcome": "PASS",
+ "reason": "bash/git work in the workspace",
+ "rep": 2
+}

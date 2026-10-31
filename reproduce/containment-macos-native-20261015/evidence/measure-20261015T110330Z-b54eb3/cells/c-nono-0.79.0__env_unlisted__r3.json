@@ -1,0 +1,113 @@
+{
+ "arm": "c-nono-0.79.0",
+ "evidence": {
+  "cleanup": {
+   "marker": "7936487a1ee24acf99f60310b1ec4467",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "environment_checked": true,
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/nono-v0.79.0/nono",
+    "run",
+    "-s",
+    "--no-rollback",
+    "--profile",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c7936487a1e/apparatus/nono-profile.json",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c7936487a1e/allowed",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c7936487a1e/tmp",
+    "--allow-file",
+    "/dev/null",
+    "--read",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures",
+    "--block-net",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "env_unlisted",
+    "CMPMAC_RUN_MARKER=7936487a1ee24acf99f60310b1ec4467"
+   ],
+   "config": {
+    "profile": {
+     "environment": {
+      "allow_vars": [
+       "PATH",
+       "HOME",
+       "TMPDIR",
+       "LANG",
+       "DEVELOPER_DIR",
+       "CMPMAC_RUN_MARKER",
+       "CMPMAC_MARKER_TOKEN",
+       "CMPMAC_RECEIPT",
+       "CMPMAC_READ_WITNESS",
+       "CMPMAC_SECRET_WITNESS",
+       "CMPMAC_ENV_WITNESS",
+       "CMPMAC_ENVLIST_WITNESS",
+       "CMPMAC_HELPER_WITNESS",
+       "CMPMAC_SURVIVOR_READY",
+       "CMPMAC_LEADER_RELEASE",
+       "CMPMAC_OUTSIDE_READ",
+       "CMPMAC_OUTSIDE_WRITE",
+       "CMPMAC_WRITE_TOKEN",
+       "CMPMAC_SECRET_FILE",
+       "CMPMAC_DISALLOWED_BINARY",
+       "CMPMAC_CANARY_PORT",
+       "CMPMAC_ALLOWED_TOKEN",
+       "CMPMAC_SACRIFICIAL_PID",
+       "CMPMAC_GTMP_TARGET",
+       "CMPMAC_GTMP_CLAUDE_TARGET"
+      ],
+      "deny_vars": [
+       "CMPMAC_SECRET_ENV_TOKEN"
+      ]
+     },
+     "extends": "default",
+     "groups": {
+      "exclude": [
+       "system_write_macos"
+      ]
+     },
+     "meta": {
+      "description": "CMP-MAC v1 named configuration",
+      "name": "cmpmac-v1"
+     }
+    }
+   }
+  },
+  "load_before": 9.46,
+  "log": "FIXTURE=env_unlisted OUTCOME=CHECKED\n",
+  "receipts": [
+   "environment_checked",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "secret_env_present": false,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 89120,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "unlisted_name": "CMPMAC_UNLISTED_0d11e85b",
+  "valid": true,
+  "value_empty": true,
+  "value_matches": false,
+  "witness_present": true
+ },
+ "fixture": "env_unlisted",
+ "key": "c-nono-0.79.0/env_unlisted/3",
+ "marker": "7936487a1ee24acf99f60310b1ec4467",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

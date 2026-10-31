@@ -1,0 +1,156 @@
+{
+ "arm": "kogen-native3-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "27968902ac434e30a90fc1e0d05e36c0",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "/usr/bin/sandbox-exec",
+    "-p",
+    "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow file-read-data (literal \"/\"))\n(allow sysctl-read (sysctl-name \"hw.pagesize_compat\" \"kern.ostype\" \"kern.osrelease\" \"kern.version\" \"kern.hostname\" \"hw.machine\"))\n(allow file-read*)\n(allow process-exec)\n(allow signal (target same-sandbox))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/home\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/tmp\"))\n(allow file-write* (subpath \"/dev/null\"))\n(allow network*)\n(deny file-read* file-write* process-exec (subpath \"/Library/Keychains\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.aws\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.config/gcloud\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.config/gh\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.docker\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.gnupg\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/accounts\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/accounts.yaml\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/approvals\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/credentials\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/engine\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/journal\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/journals\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/logins\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/provider-tests.jsonl\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/providers\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/receipts\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/state\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kube\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.netrc\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.password-store\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.ssh\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Arc\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/BraveSoftware\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Chromium\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Firefox\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Google/Chrome\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Microsoft Edge\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Containers/com.apple.Safari\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Cookies\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Keychains\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Safari\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/results\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/run\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/state\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/planted-outside\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-native3/dist/kogen-contain-darwin-arm64\"))\n",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_outside",
+    "CMPMAC_RUN_MARKER=27968902ac434e30a90fc1e0d05e36c0"
+   ],
+   "config": {
+    "custodian_supervision": "not applied (root custodian needs the admin install); harness teardown only",
+    "profile": "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow file-read-data (literal \"/\"))\n(allow sysctl-read (sysctl-name \"hw.pagesize_compat\" \"kern.ostype\" \"kern.osrelease\" \"kern.version\" \"kern.hostname\" \"hw.machine\"))\n(allow file-read*)\n(allow process-exec)\n(allow signal (target same-sandbox))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/home\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/tmp\"))\n(allow file-write* (subpath \"/dev/null\"))\n(allow network*)\n(deny file-read* file-write* process-exec (subpath \"/Library/Keychains\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.aws\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.config/gcloud\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.config/gh\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.docker\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.gnupg\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/accounts\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/accounts.yaml\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/approvals\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/credentials\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/engine\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/journal\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/journals\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/logins\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/provider-tests.jsonl\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/providers\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/receipts\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kogen/state\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.kube\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.netrc\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.password-store\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/.ssh\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Arc\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/BraveSoftware\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Chromium\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Firefox\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Google/Chrome\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Application Support/Microsoft Edge\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Containers/com.apple.Safari\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Cookies\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Keychains\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Library/Safari\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/results\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/run\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/state\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/planted-outside\"))\n(deny file-read* file-write* process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-native3/dist/kogen-contain-darwin-arm64\"))\n",
+    "profile_sha256": "c3bc0c9732116226181f44d11e274783d002a284dbdfb506452fa2c2b4efa0c0",
+    "protected": [
+     "/Library/Keychains",
+     "$HOME/.aws",
+     "$HOME/.config/gcloud",
+     "$HOME/.config/gh",
+     "$HOME/.docker",
+     "$HOME/.gnupg",
+     "$HOME/.kogen/accounts",
+     "$HOME/.kogen/accounts.yaml",
+     "$HOME/.kogen/approvals",
+     "$HOME/.kogen/credentials",
+     "$HOME/.kogen/engine",
+     "$HOME/.kogen/journal",
+     "$HOME/.kogen/journals",
+     "$HOME/.kogen/logins",
+     "$HOME/.kogen/provider-tests.jsonl",
+     "$HOME/.kogen/providers",
+     "$HOME/.kogen/receipts",
+     "$HOME/.kogen/state",
+     "$HOME/.kube",
+     "$HOME/.netrc",
+     "$HOME/.password-store",
+     "$HOME/.ssh",
+     "$HOME/Library/Application Support/Arc",
+     "$HOME/Library/Application Support/BraveSoftware",
+     "$HOME/Library/Application Support/Chromium",
+     "$HOME/Library/Application Support/Firefox",
+     "$HOME/Library/Application Support/Google/Chrome",
+     "$HOME/Library/Application Support/Microsoft Edge",
+     "$HOME/Library/Containers/com.apple.Safari",
+     "$HOME/Library/Cookies",
+     "$HOME/Library/Keychains",
+     "$HOME/Library/Safari",
+     "$HOME/Scratch.noindex/contain-cmp-mac/results",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/run",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/state",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/planted-outside",
+     "$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-native3/dist/kogen-contain-darwin-arm64"
+    ],
+    "request": {
+     "helper": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-native3/dist/kogen-contain-darwin-arm64",
+     "home": "$HOME",
+     "policy": {
+      "argv": [
+       "-I",
+       "-S",
+       "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+       "fs_write_outside",
+       "CMPMAC_RUN_MARKER=27968902ac434e30a90fc1e0d05e36c0"
+      ],
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "cwd": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed",
+      "env": {
+       "CMPMAC_ALLOWED_TOKEN": "TOKEN-198862a01c9e48428ea197d8d16a7ebf-ALLOWED",
+       "CMPMAC_CANARY_PORT": "1",
+       "CMPMAC_DISALLOWED_BINARY": "../planted-outside/exec-probe",
+       "CMPMAC_ENVLIST_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/unlisted-witness-615a44b87ae6",
+       "CMPMAC_ENV_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/env-witness-fcb0069adc19",
+       "CMPMAC_GTMP_CLAUDE_TARGET": "/private/tmp/claude/cmpmac-27968902ac434e30a90fc1e0d05e36c0-c",
+       "CMPMAC_GTMP_TARGET": "/private/tmp/cmpmac-27968902ac434e30a90fc1e0d05e36c0-g",
+       "CMPMAC_HELPER_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/helper-witness-ec7961717026",
+       "CMPMAC_LEADER_RELEASE": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/leader-release-ebb4fe871962",
+       "CMPMAC_MARKER_TOKEN": "CMPMAC_RUN_MARKER=27968902ac434e30a90fc1e0d05e36c0",
+       "CMPMAC_NET_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/net-witness-eb7972744a70",
+       "CMPMAC_OUTSIDE_READ": "../planted-outside/read-canary",
+       "CMPMAC_OUTSIDE_WRITE": "../planted-outside/write-canary",
+       "CMPMAC_READ_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/read-witness-ee1b5fe46abc",
+       "CMPMAC_RECEIPT": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/receipt-6261fc6fb2b6",
+       "CMPMAC_RUN_MARKER": "27968902ac434e30a90fc1e0d05e36c0",
+       "CMPMAC_SECRET_FILE": "../planted-outside/secret-canary",
+       "CMPMAC_SECRET_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/secret-witness-7cd42ca54f5c",
+       "CMPMAC_SURVIVOR_READY": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed/survivor-ready-44173bd583bf",
+       "CMPMAC_WRITE_TOKEN": "TOKEN-198862a01c9e48428ea197d8d16a7ebf-WRITE",
+       "DEVELOPER_DIR": "/Library/Developer/CommandLineTools",
+       "HOME": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/home",
+       "LANG": "C",
+       "PATH": "/usr/bin:/bin",
+       "TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/tmp/"
+      },
+      "protected": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/results"
+      ],
+      "read": [],
+      "read_broad": true,
+      "write": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/tmp",
+       "/dev/null"
+      ]
+     },
+     "protected_paths": [
+      "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/planted-outside"
+     ],
+     "socket": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/run/control.sock",
+     "state": "$HOME/Scratch.noindex/contain-cmp-mac/runs/83e8c2d7/c27968902ac/apparatus/native3/state"
+    },
+    "uid_drop": "not applied (reserved Build UID needs the admin install)"
+   }
+  },
+  "load_before": 8.84,
+  "log": "FIXTURE=fs_write_outside OUTCOME=ERROR error=PermissionError\n",
+  "outside_target_exists": false,
+  "outside_token_seen": false,
+  "receipts": [
+   "fs_write_attempt",
+   "fs_write_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 24754,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_outside",
+ "key": "kogen-native3-netopen/fs_write_outside/2",
+ "marker": "27968902ac434e30a90fc1e0d05e36c0",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 2
+}

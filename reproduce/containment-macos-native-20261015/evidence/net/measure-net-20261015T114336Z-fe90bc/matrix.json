@@ -1,0 +1,666 @@
+{
+ "run_id": "measure-net-20261015T114336Z-fe90bc",
+ "kind": "measure-net",
+ "apparatus_digest": "2bcedfcf3134cd55d7738e4da2b496ba16a4bdf352d9cb29eb046fbd8734be70",
+ "apparatus_digest_end": "2bcedfcf3134cd55d7738e4da2b496ba16a4bdf352d9cb29eb046fbd8734be70",
+ "apparatus_unchanged": true,
+ "cells": [
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 1,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 1,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "secret_file",
+   "rep": 1,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "FAIL",
+   "reason": "not reached: internet_direct; example.com reachable only via the tool proxy (CONNECT 200)"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "secret_file",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "secret_file",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "secret_file",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "allowed_work",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "net_open",
+   "rep": 1,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_outside",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_global_tmp",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "secret_file",
+   "rep": 1,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 2,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 2,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "secret_file",
+   "rep": 2,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "FAIL",
+   "reason": "not reached: internet_direct; example.com reachable only via the tool proxy (CONNECT 200)"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "secret_file",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "secret_file",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "secret_file",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "allowed_work",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "net_open",
+   "rep": 2,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_outside",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_global_tmp",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "secret_file",
+   "rep": 2,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "z-unsandboxed",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 3,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 3,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "a-kogen-seatbelt-netopen",
+   "fixture": "secret_file",
+   "rep": 3,
+   "outcome": "REFUSED",
+   "reason": "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "FAIL",
+   "reason": "not reached: internet_direct; example.com reachable only via the tool proxy (CONNECT 200)"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "b-sandbox-runtime-0.0.78-netopen",
+   "fixture": "secret_file",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "c-nono-0.79.0-netopen",
+   "fixture": "secret_file",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_outside",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "fs_write_global_tmp",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "d-codex-seatbelt-0.162.1-netopen",
+   "fixture": "secret_file",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "allowed_work",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "bash/git work in the workspace"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "net_open",
+   "rep": 3,
+   "outcome": "PASS",
+   "reason": "loopback, LAN and example.com:443 reached directly"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_outside",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "fs_write_global_tmp",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  },
+  {
+   "arm": "kogen-patched-netopen-reported",
+   "fixture": "secret_file",
+   "rep": 3,
+   "outcome": "BLOCKED",
+   "reason": "observer evidence"
+  }
+ ],
+ "verdict_fixtures": [
+  "fs_write_outside",
+  "fs_write_global_tmp",
+  "secret_file"
+ ],
+ "reported_notes": {
+  "env_secret": "reported: allowlist is Kogen launcher",
+  "env_unlisted": "reported: allowlist is Kogen launcher",
+  "double_fork": "reported: Kogen dedicated Build user",
+  "setsid": "reported: Kogen dedicated Build user",
+  "term_ignoring": "reported: Kogen dedicated Build user",
+  "leader_exit_first": "reported: Kogen dedicated Build user",
+  "reparent_to_init": "reported: Kogen dedicated Build user"
+ },
+ "v1_netopen_verdict": {
+  "a-kogen-seatbelt-netopen": {
+   "v1_netopen_verdict": "REFUSED",
+   "failing": [],
+   "invalid": [],
+   "positive_controls": [
+    "REFUSED",
+    "REFUSED",
+    "REFUSED"
+   ],
+   "net_open": [
+    "REFUSED",
+    "REFUSED",
+    "REFUSED"
+   ],
+   "net_reasons": [
+    "Kogen CompileSeatbelt refuses this policy (Unsupported): launch plan: destination/DNS/HTTPS mediation is unimplemented"
+   ]
+  },
+  "b-sandbox-runtime-0.0.78-netopen": {
+   "v1_netopen_verdict": "FAIL",
+   "failing": [
+    "net_open"
+   ],
+   "invalid": [],
+   "positive_controls": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "net_open": [
+    "FAIL",
+    "FAIL",
+    "FAIL"
+   ],
+   "net_reasons": [
+    "not reached: internet_direct; example.com reachable only via the tool proxy (CONNECT 200)"
+   ]
+  },
+  "c-nono-0.79.0-netopen": {
+   "v1_netopen_verdict": "PASS",
+   "failing": [],
+   "invalid": [],
+   "positive_controls": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "net_open": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "net_reasons": [
+    "loopback, LAN and example.com:443 reached directly"
+   ]
+  },
+  "d-codex-seatbelt-0.162.1-netopen": {
+   "v1_netopen_verdict": "PASS",
+   "failing": [],
+   "invalid": [],
+   "positive_controls": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "net_open": [
+    "PASS",
+    "PASS",
+    "PASS"
+   ],
+   "net_reasons": [
+    "loopback, LAN and example.com:443 reached directly"
+   ]
+  }
+ }
+}

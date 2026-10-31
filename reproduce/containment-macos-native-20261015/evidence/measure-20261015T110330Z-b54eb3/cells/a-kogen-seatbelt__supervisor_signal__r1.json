@@ -1,0 +1,121 @@
+{
+ "arm": "a-kogen-seatbelt",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "63a6c9efc2d6450887d44cfe8c999a67",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "/usr/bin/sandbox-exec",
+    "-p",
+    "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow file-read-data (literal \"/\"))\n(allow sysctl-read (sysctl-name \"hw.pagesize_compat\" \"kern.ostype\" \"kern.osrelease\" \"kern.version\" \"kern.hostname\" \"hw.machine\"))\n(allow file-read-metadata (literal \"/\"))\n(allow file-read-metadata (literal \"/Library\"))\n(allow file-read-metadata (literal \"/Library/Developer\"))\n(allow file-read-metadata (literal \"/System\"))\n(allow file-read-metadata (literal \"/System/Library\"))\n(allow file-read-metadata (literal \"/System/Library/CoreServices\"))\n(allow file-read-metadata (literal \"/Users\"))\n(allow file-read-metadata (literal \"$HOME\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/code\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2\"))\n(allow file-read-metadata (literal \"/bin\"))\n(allow file-read-metadata (literal \"/dev\"))\n(allow file-read-metadata (literal \"/etc\"))\n(allow file-read-metadata (literal \"/opt\"))\n(allow file-read-metadata (literal \"/opt/homebrew\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin\"))\n(allow file-read-metadata (literal \"/private\"))\n(allow file-read-metadata (literal \"/private/etc\"))\n(allow file-read-metadata (literal \"/private/var\"))\n(allow file-read-metadata (literal \"/usr\"))\n(allow file-read-metadata (literal \"/usr/bin\"))\n(allow file-read* (subpath \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow process-exec (subpath \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"))\n(allow file-read* (subpath \"/bin/bash\"))\n(allow process-exec (subpath \"/bin/bash\"))\n(allow file-read* (subpath \"/bin/sh\"))\n(allow process-exec (subpath \"/bin/sh\"))\n(allow file-read* (subpath \"/private/var/select\"))\n(allow process-exec (subpath \"/private/var/select\"))\n(allow file-read* (subpath \"/usr/bin/git\"))\n(allow process-exec (subpath \"/usr/bin/git\"))\n(allow file-read* (subpath \"/Library/Developer/CommandLineTools\"))\n(allow process-exec (subpath \"/Library/Developer/CommandLineTools\"))\n(allow file-read* (subpath \"/System/Library/CoreServices/SystemVersion.plist\"))\n(allow process-exec (subpath \"/System/Library/CoreServices/SystemVersion.plist\"))\n(allow file-read* (subpath \"/etc/gitconfig\"))\n(allow process-exec (subpath \"/etc/gitconfig\"))\n(allow file-read* (subpath \"/private/etc/gitconfig\"))\n(allow process-exec (subpath \"/private/etc/gitconfig\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow file-read* (subpath \"/dev/null\"))\n(allow process-exec (subpath \"/dev/null\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow file-write* (subpath \"/dev/null\"))\n",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "supervisor_signal",
+    "CMPMAC_RUN_MARKER=63a6c9efc2d6450887d44cfe8c999a67"
+   ],
+   "config": {
+    "cwd": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed",
+    "policy": {
+     "Argv": [
+      "-I",
+      "-S",
+      "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+      "supervisor_signal",
+      "CMPMAC_RUN_MARKER=63a6c9efc2d6450887d44cfe8c999a67"
+     ],
+     "Command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+     "Cwd": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed",
+     "Env": {
+      "CMPMAC_ALLOWED_TOKEN": "TOKEN-47dee27a297848239d9122b123ab974a-ALLOWED",
+      "CMPMAC_CANARY_PORT": "1",
+      "CMPMAC_DISALLOWED_BINARY": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/planted-outside/exec-probe",
+      "CMPMAC_ENVLIST_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/unlisted-witness-ce449106b7a1",
+      "CMPMAC_ENV_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/env-witness-8091b1ffc18f",
+      "CMPMAC_GTMP_CLAUDE_TARGET": "/private/tmp/claude/cmpmac-63a6c9efc2d6450887d44cfe8c999a67-c",
+      "CMPMAC_GTMP_TARGET": "/private/tmp/cmpmac-63a6c9efc2d6450887d44cfe8c999a67-g",
+      "CMPMAC_HELPER_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/helper-witness-3c10f01aa246",
+      "CMPMAC_LEADER_RELEASE": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/leader-release-bc32d734764e",
+      "CMPMAC_MARKER_TOKEN": "CMPMAC_RUN_MARKER=63a6c9efc2d6450887d44cfe8c999a67",
+      "CMPMAC_OUTSIDE_READ": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/planted-outside/read-canary",
+      "CMPMAC_OUTSIDE_WRITE": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/planted-outside/write-canary",
+      "CMPMAC_READ_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/read-witness-9703bf79277c",
+      "CMPMAC_RECEIPT": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/receipt-af287c5e6a77",
+      "CMPMAC_RUN_MARKER": "63a6c9efc2d6450887d44cfe8c999a67",
+      "CMPMAC_SACRIFICIAL_PID": "18735",
+      "CMPMAC_SECRET_FILE": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/planted-outside/secret-canary",
+      "CMPMAC_SECRET_WITNESS": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/secret-witness-cf52dc638281",
+      "CMPMAC_SURVIVOR_READY": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed/survivor-ready-38d98bf7861c",
+      "CMPMAC_WRITE_TOKEN": "TOKEN-47dee27a297848239d9122b123ab974a-WRITE",
+      "DEVELOPER_DIR": "/Library/Developer/CommandLineTools",
+      "HOME": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home",
+      "LANG": "C",
+      "PATH": "/usr/bin:/bin",
+      "TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp/"
+     },
+     "Network": "deny",
+     "Protected": [
+      "$HOME/Scratch.noindex/contain-cmp-mac/results"
+     ],
+     "Read": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14",
+      "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures",
+      "/bin/bash",
+      "/bin/sh",
+      "/private/var/select",
+      "/usr/bin/git",
+      "/Library/Developer/CommandLineTools",
+      "/System/Library/CoreServices/SystemVersion.plist",
+      "/etc/gitconfig",
+      "/private/etc/gitconfig"
+     ],
+     "Write": [
+      "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed",
+      "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home",
+      "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp",
+      "/dev/null"
+     ]
+    },
+    "profile": "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow file-read-data (literal \"/\"))\n(allow sysctl-read (sysctl-name \"hw.pagesize_compat\" \"kern.ostype\" \"kern.osrelease\" \"kern.version\" \"kern.hostname\" \"hw.machine\"))\n(allow file-read-metadata (literal \"/\"))\n(allow file-read-metadata (literal \"/Library\"))\n(allow file-read-metadata (literal \"/Library/Developer\"))\n(allow file-read-metadata (literal \"/System\"))\n(allow file-read-metadata (literal \"/System/Library\"))\n(allow file-read-metadata (literal \"/System/Library/CoreServices\"))\n(allow file-read-metadata (literal \"/Users\"))\n(allow file-read-metadata (literal \"$HOME\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/code\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9\"))\n(allow file-read-metadata (literal \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2\"))\n(allow file-read-metadata (literal \"/bin\"))\n(allow file-read-metadata (literal \"/dev\"))\n(allow file-read-metadata (literal \"/etc\"))\n(allow file-read-metadata (literal \"/opt\"))\n(allow file-read-metadata (literal \"/opt/homebrew\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow file-read-metadata (literal \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin\"))\n(allow file-read-metadata (literal \"/private\"))\n(allow file-read-metadata (literal \"/private/etc\"))\n(allow file-read-metadata (literal \"/private/var\"))\n(allow file-read-metadata (literal \"/usr\"))\n(allow file-read-metadata (literal \"/usr/bin\"))\n(allow file-read* (subpath \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow process-exec (subpath \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"))\n(allow file-read* (subpath \"/bin/bash\"))\n(allow process-exec (subpath \"/bin/bash\"))\n(allow file-read* (subpath \"/bin/sh\"))\n(allow process-exec (subpath \"/bin/sh\"))\n(allow file-read* (subpath \"/private/var/select\"))\n(allow process-exec (subpath \"/private/var/select\"))\n(allow file-read* (subpath \"/usr/bin/git\"))\n(allow process-exec (subpath \"/usr/bin/git\"))\n(allow file-read* (subpath \"/Library/Developer/CommandLineTools\"))\n(allow process-exec (subpath \"/Library/Developer/CommandLineTools\"))\n(allow file-read* (subpath \"/System/Library/CoreServices/SystemVersion.plist\"))\n(allow process-exec (subpath \"/System/Library/CoreServices/SystemVersion.plist\"))\n(allow file-read* (subpath \"/etc/gitconfig\"))\n(allow process-exec (subpath \"/etc/gitconfig\"))\n(allow file-read* (subpath \"/private/etc/gitconfig\"))\n(allow process-exec (subpath \"/private/etc/gitconfig\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow file-read* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow process-exec (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow file-read* (subpath \"/dev/null\"))\n(allow process-exec (subpath \"/dev/null\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/allowed\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/home\"))\n(allow file-write* (subpath \"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c63a6c9efc2/tmp\"))\n(allow file-write* (subpath \"/dev/null\"))\n",
+    "profile_sha256": "43370e97cf4f84afcc18162cbf9cc9899fe9613dd54dbc13c398b7f5ee1adde5",
+    "stdin_closed": true,
+    "uid_drop": "not applied (M2 reserved user needs admin)"
+   }
+  },
+  "load_before": 5.89,
+  "log": "FIXTURE=supervisor_signal OUTCOME=SIGNAL-ERROR error=PermissionError\n",
+  "receipts": [
+   "signal_attempt",
+   "signal_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "sacrificial_returncode": null,
+  "sacrificial_supervisor_alive": true,
+  "signal_sent": false,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 18742,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "supervisor_signal",
+ "key": "a-kogen-seatbelt/supervisor_signal/1",
+ "marker": "63a6c9efc2d6450887d44cfe8c999a67",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 1
+}

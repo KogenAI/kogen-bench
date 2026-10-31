@@ -1,0 +1,90 @@
+{
+ "arm": "b-sandbox-runtime-0.0.78",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "32551eca1492419c8abc2cb7338440d8",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": false,
+  "launch": {
+   "argv": [
+    "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/sandbox-runtime-0.0.78/node_modules/@anthropic-ai/sandbox-runtime/dist/cli.js",
+    "--settings",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/apparatus/srt-settings.json",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "exec_disallowed",
+    "CMPMAC_RUN_MARKER=32551eca1492419c8abc2cb7338440d8"
+   ],
+   "config": {
+    "CLAUDE_CODE_TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/tmp",
+    "settings": {
+     "credentials": {
+      "envVars": [
+       {
+        "mode": "deny",
+        "name": "CMPMAC_SECRET_ENV_TOKEN"
+       }
+      ]
+     },
+     "filesystem": {
+      "allowRead": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/tmp",
+       "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures"
+      ],
+      "allowWrite": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c32551eca14/tmp"
+      ],
+      "denyRead": [
+       "$HOME"
+      ],
+      "denyWrite": [
+       "/tmp/claude",
+       "/private/tmp/claude"
+      ]
+     },
+     "network": {
+      "allowedDomains": [],
+      "deniedDomains": []
+     }
+    }
+   }
+  },
+  "load_before": 9.16,
+  "log": "FIXTURE=exec_disallowed OUTCOME=EXECUTED returncode=0\n",
+  "receipts": [
+   "exec_attempt",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "start_witness": true,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 88568,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "exec_disallowed",
+ "key": "b-sandbox-runtime-0.0.78/exec_disallowed/3",
+ "marker": "32551eca1492419c8abc2cb7338440d8",
+ "outcome": "NOT-BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

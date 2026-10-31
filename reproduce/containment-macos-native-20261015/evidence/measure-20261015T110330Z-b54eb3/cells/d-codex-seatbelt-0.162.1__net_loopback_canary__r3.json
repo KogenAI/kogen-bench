@@ -1,0 +1,80 @@
+{
+ "arm": "d-codex-seatbelt-0.162.1",
+ "evidence": {
+  "attempted": true,
+  "canary_connections": 0,
+  "cleanup": {
+   "marker": "6fdfa1cff7034c12ac6cdac6dae29b50",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/codex-0.162.1/codex",
+    "sandbox",
+    "-c",
+    "permissions.cmpmac.extends=\":workspace\"",
+    "-c",
+    "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+    "-c",
+    "shell_environment_policy.inherit=\"all\"",
+    "-c",
+    "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\"]",
+    "-P",
+    "cmpmac",
+    "-C",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/allowed",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "net_loopback_canary",
+    "CMPMAC_RUN_MARKER=6fdfa1cff7034c12ac6cdac6dae29b50"
+   ],
+   "config": {
+    "overrides": [
+     "permissions.cmpmac.extends=\":workspace\"",
+     "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+     "shell_environment_policy.inherit=\"all\"",
+     "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\"]"
+    ],
+    "permission_profile": {
+     "$HOME": "none",
+     "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures": "read",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/allowed": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/home": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/c6fdfa1cff7/tmp": "write",
+     ":slash_tmp": "none"
+    }
+   }
+  },
+  "load_before": 8.83,
+  "log": "FIXTURE=net_loopback_canary OUTCOME=CONNECT-ERROR error=PermissionError\n",
+  "receipts": [
+   "network_attempt",
+   "network_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 89688,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "net_loopback_canary",
+ "key": "d-codex-seatbelt-0.162.1/net_loopback_canary/3",
+ "marker": "6fdfa1cff7034c12ac6cdac6dae29b50",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

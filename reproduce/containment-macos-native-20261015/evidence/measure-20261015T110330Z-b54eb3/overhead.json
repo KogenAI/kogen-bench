@@ -1,0 +1,67 @@
+{
+ "z-unsandboxed": {
+  "outcome": "MEASURED",
+  "n": 30,
+  "median_s": 0.014348145996336825,
+  "p95_s": 0.018327417026739568,
+  "min_s": 0.013237457984359935,
+  "max_s": 0.02438720900681801,
+  "plan_median_s": 0.0005216665012994781,
+  "plan_plus_launch_median_s": 0.01486889598891139,
+  "plan_note": "harness-side config file write only; the tool builds its policy inside the timed launch",
+  "load_median": 7.46,
+  "timing": "perf_counter before Popen to waiter-thread waitpid return; nice 15; warmups excluded; load checked after each sample"
+ },
+ "a-kogen-seatbelt": {
+  "outcome": "MEASURED",
+  "n": 30,
+  "median_s": 0.019728582992684096,
+  "p95_s": 0.024223250016802922,
+  "min_s": 0.017885499983094633,
+  "max_s": 0.05139866701210849,
+  "plan_median_s": 0.0036950625071767718,
+  "plan_plus_launch_median_s": 0.023685229010879993,
+  "plan_note": "Kogen: separate Go subprocess runs macuid.LaunchPlan before the timed launch (in-process in Kogen)",
+  "load_median": 6.69,
+  "timing": "perf_counter before Popen to waiter-thread waitpid return; nice 15; warmups excluded; load checked after each sample"
+ },
+ "b-sandbox-runtime-0.0.78": {
+  "outcome": "MEASURED",
+  "n": 30,
+  "median_s": 0.10812452100799419,
+  "p95_s": 0.1136558750004042,
+  "min_s": 0.09946529200533405,
+  "max_s": 0.12095250000129454,
+  "plan_median_s": 0.0007390415121335536,
+  "plan_plus_launch_median_s": 0.10889875001157634,
+  "plan_note": "harness-side config file write only; the tool builds its policy inside the timed launch",
+  "load_median": 6.35,
+  "timing": "perf_counter before Popen to waiter-thread waitpid return; nice 15; warmups excluded; load checked after each sample"
+ },
+ "c-nono-0.79.0": {
+  "outcome": "MEASURED",
+  "n": 30,
+  "median_s": 0.10067958300351165,
+  "p95_s": 0.31761774999904446,
+  "min_s": 0.08946275000926107,
+  "max_s": 0.32090925000375137,
+  "plan_median_s": 0.0007445205119438469,
+  "plan_plus_launch_median_s": 0.1014103749912465,
+  "plan_note": "harness-side config file write only; the tool builds its policy inside the timed launch",
+  "load_median": 5.84,
+  "timing": "perf_counter before Popen to waiter-thread waitpid return; nice 15; warmups excluded; load checked after each sample"
+ },
+ "d-codex-seatbelt-0.162.1": {
+  "outcome": "MEASURED",
+  "n": 30,
+  "median_s": 0.03402247901249211,
+  "p95_s": 0.03902166700572707,
+  "min_s": 0.03202979199704714,
+  "max_s": 0.03974916599690914,
+  "plan_median_s": 0.0006142289785202593,
+  "plan_plus_launch_median_s": 0.034675833012443036,
+  "plan_note": "harness-side config file write only; the tool builds its policy inside the timed launch",
+  "load_median": 5.42,
+  "timing": "perf_counter before Popen to waiter-thread waitpid return; nice 15; warmups excluded; load checked after each sample"
+ }
+}

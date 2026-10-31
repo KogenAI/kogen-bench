@@ -1,0 +1,111 @@
+{
+ "arm": "b-sandbox-runtime-0.0.78-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "9687f91a532f43fbbe35903c3663b11d",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "gtmp_c": {
+   "denied_receipt": true,
+   "error_receipt": false,
+   "exists": false,
+   "token_seen": false,
+   "written_receipt": false
+  },
+  "gtmp_cleanup": {
+   "c": "absent",
+   "g": "absent"
+  },
+  "gtmp_g": {
+   "denied_receipt": true,
+   "error_receipt": false,
+   "exists": false,
+   "token_seen": false,
+   "written_receipt": false
+  },
+  "launch": {
+   "argv": [
+    "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/sandbox-runtime-0.0.78/node_modules/@anthropic-ai/sandbox-runtime/dist/cli.js",
+    "--settings",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/apparatus/srt-settings.json",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_global_tmp",
+    "CMPMAC_RUN_MARKER=9687f91a532f43fbbe35903c3663b11d"
+   ],
+   "config": {
+    "CLAUDE_CODE_TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/tmp",
+    "settings": {
+     "credentials": {
+      "envVars": [
+       {
+        "mode": "deny",
+        "name": "CMPMAC_SECRET_ENV_TOKEN"
+       }
+      ]
+     },
+     "filesystem": {
+      "allowRead": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/tmp",
+       "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures"
+      ],
+      "allowWrite": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c9687f91a53/tmp"
+      ],
+      "denyRead": [
+       "$HOME"
+      ],
+      "denyWrite": [
+       "/tmp/claude",
+       "/private/tmp/claude"
+      ]
+     },
+     "network": {
+      "allowLocalBinding": true,
+      "allowedDomains": [
+       "example.com"
+      ],
+      "deniedDomains": []
+     }
+    }
+   }
+  },
+  "load_before": 10.56,
+  "log": "FIXTURE=fs_write_global_tmp OUTCOME=CHECKED\n",
+  "receipts": [
+   "gtmp_attempt",
+   "gtmp_g_denied",
+   "gtmp_c_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 73744,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_global_tmp",
+ "key": "b-sandbox-runtime-0.0.78-netopen/fs_write_global_tmp/3",
+ "marker": "9687f91a532f43fbbe35903c3663b11d",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

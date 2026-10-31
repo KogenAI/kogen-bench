@@ -1,0 +1,136 @@
+{
+ "arms": [
+  "z-unsandboxed",
+  "a-kogen-seatbelt",
+  "b-sandbox-runtime-0.0.78",
+  "c-nono-0.79.0",
+  "d-codex-seatbelt-0.162.1"
+ ],
+ "code": {
+  "code/FIXTURE-SEMANTICS.md": "a6a89d7910bd45c3bc6153c1458ac40608e16454ba4a19326205bdbf9f799e76",
+  "code/cmp_mac.py": "0a4085fc056f69629ecd55f5dd01e3394b5eef4cfe35657e7667b07aa530e003",
+  "code/fixtures/exec-probe.c": "19b7a5e8016680d3965781b9ca4e38ed6765e03513e43a1bb714b10f5e58cff3",
+  "code/fixtures/mac-fixtures.py": "d29cd376a17e21197b9a8a21f90f62cd3a02d63d85fff22285f36010db9c53c3",
+  "code/test_cmp_mac.py": "c30265a749f75511faecf1a9435818ae9ae10e536980faecce658f009da63f12"
+ },
+ "digest": "875419aa45e0aead1b4299e4990f21f2c9bdc79f0d91562d6f0d36ce1e541cb6",
+ "fixtures": [
+  "allowed_work",
+  "fs_read_outside",
+  "fs_write_outside",
+  "fs_write_global_tmp",
+  "secret_file",
+  "env_secret",
+  "env_unlisted",
+  "net_loopback_canary",
+  "exec_disallowed",
+  "supervisor_signal",
+  "double_fork",
+  "setsid",
+  "term_ignoring",
+  "leader_exit_first",
+  "reparent_to_init",
+  "memory",
+  "pids",
+  "cpu",
+  "output"
+ ],
+ "kogen_sbpl_source": {
+  "go.mod": "19d2f216e4c083b939eae935c3425614fd6f80e1cb0e83551476d0ea4e4bf333",
+  "main.go": "88ee93a9359cba19509c754c4a1e2769053a011c6345e1783bb5fb164fc29309"
+ },
+ "pins": {
+  "codex": {
+   "path": "vendor/codex-0.162.1/codex",
+   "sha256": "74c6a6d263f40d65f99c27a815275f5b4ed0bcc2baecc396b4cf3255498bdfc0"
+  },
+  "kogen_policy_go": {
+   "path": "vendor/kogen-sbpl/macuid/policy.go",
+   "sha256": "7b304a00a8ac79ef3a58d381d62862c1a1dd75a99a101b4f550ee5b590057531"
+  },
+  "nono": {
+   "path": "vendor/nono-v0.79.0/nono",
+   "sha256": "1b69c6b3190c612d843d212b04a1d8285cfd0800e37af49fd2a14f252a3385c6"
+  },
+  "nono_tarball": {
+   "path": "vendor/nono-v0.79.0-aarch64-apple-darwin.tar.gz",
+   "sha256": "e46365b08aecff0acc9c7b86f5d4b1745c385034189d50822156e43881479168"
+  },
+  "srt_tarball": {
+   "path": "vendor/sandbox-runtime-0.0.78/sandbox-runtime-0.0.78.tgz",
+   "sha256": "a9cf9e35068a4c71d2d94de8b0abe8de51c7d44daef537cc92906848ccc67240"
+  }
+ },
+ "python_prefix": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14",
+ "srt_package": {
+  "files": 848,
+  "sha256": "deaa715cf92c8189e29eeaefa403d75f29f7da16a32518b33a8a4985961fcf76"
+ },
+ "tools": {
+  "bash": {
+   "path": "/bin/bash",
+   "resolved": "/bin/bash",
+   "sha256": "67e853b740606c0cb92fc8b7186a98d327d783f7e7cd911773bb83f73f3d6583"
+  },
+  "cc": {
+   "path": "/usr/bin/cc",
+   "resolved": "/usr/bin/cc",
+   "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a"
+  },
+  "codex": {
+   "path": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/codex-0.162.1/codex",
+   "resolved": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/codex-0.162.1/codex",
+   "sha256": "74c6a6d263f40d65f99c27a815275f5b4ed0bcc2baecc396b4cf3255498bdfc0"
+  },
+  "exec-probe": {
+   "path": "$HOME/Scratch.noindex/contain-cmp-mac/build/exec-probe",
+   "resolved": "$HOME/Scratch.noindex/contain-cmp-mac/build/exec-probe",
+   "sha256": "8a8f18e3bac15b595484669c4957ae51f148a43843560b92c6ed03329b3cc293"
+  },
+  "git": {
+   "path": "/usr/bin/git",
+   "resolved": "/usr/bin/git",
+   "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a"
+  },
+  "git-clt": {
+   "path": "/Library/Developer/CommandLineTools/usr/bin/git",
+   "resolved": "/Library/Developer/CommandLineTools/usr/bin/git",
+   "sha256": "a73bf622a2e470d5d57a4b1d5aef1e8680e67278018d4858a2f93825b7d595c7"
+  },
+  "kogen-sbpl": {
+   "path": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-sbpl/cmpmac-sbpl",
+   "resolved": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/kogen-sbpl/cmpmac-sbpl",
+   "sha256": "3f138afa183a0f20ffb88308b2834ca8c276627a82a3b9a39f41d1bd6608523c"
+  },
+  "node": {
+   "path": "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+   "resolved": "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+   "sha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b"
+  },
+  "nono": {
+   "path": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/nono-v0.79.0/nono",
+   "resolved": "$HOME/Scratch.noindex/contain-cmp-mac/vendor/nono-v0.79.0/nono",
+   "sha256": "1b69c6b3190c612d843d212b04a1d8285cfd0800e37af49fd2a14f252a3385c6"
+  },
+  "ps": {
+   "path": "/bin/ps",
+   "resolved": "/bin/ps",
+   "sha256": "16d273739778797145fd22cba76113d2aaa99c759313d56ef87ed56a16bca083"
+  },
+  "python": {
+   "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+   "resolved": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+   "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "sandbox-exec": {
+   "path": "/usr/bin/sandbox-exec",
+   "resolved": "/usr/bin/sandbox-exec",
+   "sha256": "c7d6609ce2b87a538ffd0d92b6be7de64dbc919b6845cc16b92f7c57e2658fdf"
+  },
+  "sysctl": {
+   "path": "/usr/sbin/sysctl",
+   "resolved": "/usr/sbin/sysctl",
+   "sha256": "c2d7425bd2c3c5da1d4db370b1a4930a1300608f861e1b4e7e5fc425f423b946"
+  }
+ }
+}

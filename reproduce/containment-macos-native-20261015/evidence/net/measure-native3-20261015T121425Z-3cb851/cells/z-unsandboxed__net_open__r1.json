@@ -1,0 +1,88 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "50266974bacb406f8862ea62a7e05f2d",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "lan_address": "x.x.x.x",
+  "lan_peers": [
+   "x.x.x.x"
+  ],
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "net_open",
+    "CMPMAC_RUN_MARKER=50266974bacb406f8862ea62a7e05f2d"
+   ],
+   "config": {}
+  },
+  "load_before": 8.57,
+  "log": "FIXTURE=net_open OUTCOME=CHECKED\n",
+  "loopback_peers": [
+   "x.x.x.x"
+  ],
+  "receipts": [
+   "net_attempt",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "runner_resolved": [
+   "x.x.x.x",
+   "x.x.x.x"
+  ],
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 23059,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true,
+  "witness": {
+   "internet": {
+    "error": null,
+    "ok": true,
+    "peer": "x.x.x.x"
+   },
+   "lan": {
+    "error": null,
+    "ok": true,
+    "peer": "x.x.x.x"
+   },
+   "loopback": {
+    "error": null,
+    "ok": true,
+    "peer": "x.x.x.x"
+   },
+   "proxy": {
+    "env": false,
+    "error": null,
+    "status": null
+   },
+   "resolve": {
+    "addrs": [
+     "x.x.x.x",
+     "x.x.x.x"
+    ],
+    "error": null,
+    "ok": true
+   }
+  }
+ },
+ "fixture": "net_open",
+ "key": "z-unsandboxed/net_open/1",
+ "marker": "50266974bacb406f8862ea62a7e05f2d",
+ "outcome": "PASS",
+ "reason": "loopback, LAN and example.com:443 reached directly",
+ "rep": 1
+}

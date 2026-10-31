@@ -1,0 +1,49 @@
+{
+  "comment": "Shared AuthenticationAuthority vectors for directory.go disabledAuthentication and setup/common.sh check_account_settings. value null = attribute absent.",
+  "cases": [
+    {
+      "value": null,
+      "accept": true
+    },
+    {
+      "value": ";DisabledUser;",
+      "accept": true
+    },
+    {
+      "value": "",
+      "accept": false
+    },
+    {
+      "value": ";DisabledUser; ;ShadowHash;",
+      "accept": false
+    },
+    {
+      "value": ";DisabledUser;;ShadowHash;",
+      "accept": false
+    },
+    {
+      "value": ";ShadowHash; ;DisabledUser;",
+      "accept": false
+    },
+    {
+      "value": ";DisabledUser; ;DisabledUser;",
+      "accept": false
+    },
+    {
+      "value": ";ShadowHash;",
+      "accept": false
+    },
+    {
+      "value": ";DisabledUser;x",
+      "accept": false
+    },
+    {
+      "value": "x;DisabledUser;",
+      "accept": false
+    },
+    {
+      "value": ";Kerberosv5;;user@LKDC:SHA1;",
+      "accept": false
+    }
+  ]
+}

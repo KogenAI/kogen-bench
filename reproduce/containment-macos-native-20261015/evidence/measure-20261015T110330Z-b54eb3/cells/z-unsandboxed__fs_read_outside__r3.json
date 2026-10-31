@@ -1,0 +1,51 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "08bc9ccf90604a13864cc05988d59c96",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": false,
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_read_outside",
+    "CMPMAC_RUN_MARKER=08bc9ccf90604a13864cc05988d59c96"
+   ],
+   "config": {}
+  },
+  "load_before": 9.17,
+  "log": "FIXTURE=fs_read_outside OUTCOME=READ bytes=39\n",
+  "read_success": true,
+  "receipts": [
+   "fs_read_attempt",
+   "fs_read_success",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 79695,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "token_match": true,
+  "valid": true
+ },
+ "fixture": "fs_read_outside",
+ "key": "z-unsandboxed/fs_read_outside/3",
+ "marker": "08bc9ccf90604a13864cc05988d59c96",
+ "outcome": "NOT-BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

@@ -1,0 +1,84 @@
+{
+ "arm": "d-codex-seatbelt-0.162.1-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "3c47231fbd8b4e56a737d70033a4457f",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/codex-0.162.1/codex",
+    "sandbox",
+    "-c",
+    "permissions.cmpmac.extends=\":workspace\"",
+    "-c",
+    "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+    "-c",
+    "shell_environment_policy.inherit=\"all\"",
+    "-c",
+    "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\",\"CMPMAC_NET_WITNESS\",\"CMPMAC_NET_LOOPBACK_PORT\",\"CMPMAC_NET_LAN_ADDR\",\"CMPMAC_NET_LAN_PORT\",\"CMPMAC_NET_HOST\",\"CMPMAC_NET_HOST_PORT\"]",
+    "-c",
+    "permissions.cmpmac.network.enabled=true",
+    "-P",
+    "cmpmac",
+    "-C",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/allowed",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_outside",
+    "CMPMAC_RUN_MARKER=3c47231fbd8b4e56a737d70033a4457f"
+   ],
+   "config": {
+    "overrides": [
+     "permissions.cmpmac.extends=\":workspace\"",
+     "permissions.cmpmac.filesystem={\":slash_tmp\"=\"none\",\"$HOME\"=\"none\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/allowed\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/tmp\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/home\"=\"write\",\"$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures\"=\"read\"}",
+     "shell_environment_policy.inherit=\"all\"",
+     "shell_environment_policy.include_only=[\"PATH\",\"HOME\",\"TMPDIR\",\"LANG\",\"DEVELOPER_DIR\",\"CMPMAC_RUN_MARKER\",\"CMPMAC_MARKER_TOKEN\",\"CMPMAC_RECEIPT\",\"CMPMAC_READ_WITNESS\",\"CMPMAC_SECRET_WITNESS\",\"CMPMAC_ENV_WITNESS\",\"CMPMAC_ENVLIST_WITNESS\",\"CMPMAC_HELPER_WITNESS\",\"CMPMAC_SURVIVOR_READY\",\"CMPMAC_LEADER_RELEASE\",\"CMPMAC_OUTSIDE_READ\",\"CMPMAC_OUTSIDE_WRITE\",\"CMPMAC_WRITE_TOKEN\",\"CMPMAC_SECRET_FILE\",\"CMPMAC_DISALLOWED_BINARY\",\"CMPMAC_CANARY_PORT\",\"CMPMAC_ALLOWED_TOKEN\",\"CMPMAC_SACRIFICIAL_PID\",\"CMPMAC_GTMP_TARGET\",\"CMPMAC_GTMP_CLAUDE_TARGET\",\"CMPMAC_NET_WITNESS\",\"CMPMAC_NET_LOOPBACK_PORT\",\"CMPMAC_NET_LAN_ADDR\",\"CMPMAC_NET_LAN_PORT\",\"CMPMAC_NET_HOST\",\"CMPMAC_NET_HOST_PORT\"]",
+     "permissions.cmpmac.network.enabled=true"
+    ],
+    "permission_profile": {
+     "$HOME": "none",
+     "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures": "read",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/allowed": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/home": "write",
+     "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c3c47231fbd/tmp": "write",
+     ":slash_tmp": "none"
+    }
+   }
+  },
+  "load_before": 11.2,
+  "log": "FIXTURE=fs_write_outside OUTCOME=ERROR error=PermissionError\n",
+  "outside_target_exists": false,
+  "outside_token_seen": false,
+  "receipts": [
+   "fs_write_attempt",
+   "fs_write_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 69356,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_outside",
+ "key": "d-codex-seatbelt-0.162.1-netopen/fs_write_outside/2",
+ "marker": "3c47231fbd8b4e56a737d70033a4457f",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 2
+}

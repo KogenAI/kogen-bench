@@ -1,0 +1,95 @@
+{
+ "arm": "b-sandbox-runtime-0.0.78-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "b96b14c342e945e886e739cde2d50847",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/sandbox-runtime-0.0.78/node_modules/@anthropic-ai/sandbox-runtime/dist/cli.js",
+    "--settings",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/apparatus/srt-settings.json",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_outside",
+    "CMPMAC_RUN_MARKER=b96b14c342e945e886e739cde2d50847"
+   ],
+   "config": {
+    "CLAUDE_CODE_TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/tmp",
+    "settings": {
+     "credentials": {
+      "envVars": [
+       {
+        "mode": "deny",
+        "name": "CMPMAC_SECRET_ENV_TOKEN"
+       }
+      ]
+     },
+     "filesystem": {
+      "allowRead": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/tmp",
+       "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures"
+      ],
+      "allowWrite": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/cb96b14c342/tmp"
+      ],
+      "denyRead": [
+       "$HOME"
+      ],
+      "denyWrite": [
+       "/tmp/claude",
+       "/private/tmp/claude"
+      ]
+     },
+     "network": {
+      "allowLocalBinding": true,
+      "allowedDomains": [
+       "example.com"
+      ],
+      "deniedDomains": []
+     }
+    }
+   }
+  },
+  "load_before": 11.83,
+  "log": "FIXTURE=fs_write_outside OUTCOME=ERROR error=PermissionError\n",
+  "outside_target_exists": false,
+  "outside_token_seen": false,
+  "receipts": [
+   "fs_write_attempt",
+   "fs_write_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 68511,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_outside",
+ "key": "b-sandbox-runtime-0.0.78-netopen/fs_write_outside/1",
+ "marker": "b96b14c342e945e886e739cde2d50847",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 1
+}

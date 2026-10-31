@@ -1,0 +1,52 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "f4c3f2481cf44599958ce3e70a60cf58",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": false,
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "supervisor_signal",
+    "CMPMAC_RUN_MARKER=f4c3f2481cf44599958ce3e70a60cf58"
+   ],
+   "config": {}
+  },
+  "load_before": 11.17,
+  "log": "FIXTURE=supervisor_signal OUTCOME=SIGNAL-SENT\n",
+  "receipts": [
+   "signal_attempt",
+   "signal_sent",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "sacrificial_returncode": -15,
+  "sacrificial_supervisor_alive": false,
+  "signal_sent": true,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 45136,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "supervisor_signal",
+ "key": "z-unsandboxed/supervisor_signal/2",
+ "marker": "f4c3f2481cf44599958ce3e70a60cf58",
+ "outcome": "NOT-BLOCKED",
+ "reason": "observer evidence",
+ "rep": 2
+}

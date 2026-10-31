@@ -1,0 +1,68 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "d53eb057ecf84d039987106a66f61b26",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "gtmp_c": {
+   "denied_receipt": false,
+   "error_receipt": false,
+   "exists": true,
+   "token_seen": true,
+   "written_receipt": true
+  },
+  "gtmp_cleanup": {
+   "c": "removed",
+   "claude_dir": "removed (created during cell)",
+   "g": "removed"
+  },
+  "gtmp_g": {
+   "denied_receipt": false,
+   "error_receipt": false,
+   "exists": true,
+   "token_seen": true,
+   "written_receipt": true
+  },
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_global_tmp",
+    "CMPMAC_RUN_MARKER=d53eb057ecf84d039987106a66f61b26"
+   ],
+   "config": {}
+  },
+  "load_before": 5.71,
+  "log": "FIXTURE=fs_write_global_tmp OUTCOME=CHECKED\n",
+  "receipts": [
+   "gtmp_attempt",
+   "gtmp_g_written",
+   "gtmp_c_written",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 16131,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_global_tmp",
+ "key": "z-unsandboxed/fs_write_global_tmp/1",
+ "marker": "d53eb057ecf84d039987106a66f61b26",
+ "outcome": "NOT-BLOCKED",
+ "reason": "observer evidence",
+ "rep": 1
+}

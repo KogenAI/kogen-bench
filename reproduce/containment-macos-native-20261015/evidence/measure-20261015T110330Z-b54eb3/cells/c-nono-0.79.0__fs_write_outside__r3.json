@@ -1,0 +1,112 @@
+{
+ "arm": "c-nono-0.79.0",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "deec2ad9eab84e678b911290f3c21703",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": true,
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/nono-v0.79.0/nono",
+    "run",
+    "-s",
+    "--no-rollback",
+    "--profile",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/cdeec2ad9ea/apparatus/nono-profile.json",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/cdeec2ad9ea/allowed",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/cdeec2ad9ea/tmp",
+    "--allow-file",
+    "/dev/null",
+    "--read",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures",
+    "--block-net",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_outside",
+    "CMPMAC_RUN_MARKER=deec2ad9eab84e678b911290f3c21703"
+   ],
+   "config": {
+    "profile": {
+     "environment": {
+      "allow_vars": [
+       "PATH",
+       "HOME",
+       "TMPDIR",
+       "LANG",
+       "DEVELOPER_DIR",
+       "CMPMAC_RUN_MARKER",
+       "CMPMAC_MARKER_TOKEN",
+       "CMPMAC_RECEIPT",
+       "CMPMAC_READ_WITNESS",
+       "CMPMAC_SECRET_WITNESS",
+       "CMPMAC_ENV_WITNESS",
+       "CMPMAC_ENVLIST_WITNESS",
+       "CMPMAC_HELPER_WITNESS",
+       "CMPMAC_SURVIVOR_READY",
+       "CMPMAC_LEADER_RELEASE",
+       "CMPMAC_OUTSIDE_READ",
+       "CMPMAC_OUTSIDE_WRITE",
+       "CMPMAC_WRITE_TOKEN",
+       "CMPMAC_SECRET_FILE",
+       "CMPMAC_DISALLOWED_BINARY",
+       "CMPMAC_CANARY_PORT",
+       "CMPMAC_ALLOWED_TOKEN",
+       "CMPMAC_SACRIFICIAL_PID",
+       "CMPMAC_GTMP_TARGET",
+       "CMPMAC_GTMP_CLAUDE_TARGET"
+      ],
+      "deny_vars": [
+       "CMPMAC_SECRET_ENV_TOKEN"
+      ]
+     },
+     "extends": "default",
+     "groups": {
+      "exclude": [
+       "system_write_macos"
+      ]
+     },
+     "meta": {
+      "description": "CMP-MAC v1 named configuration",
+      "name": "cmpmac-v1"
+     }
+    }
+   }
+  },
+  "load_before": 8.37,
+  "log": "FIXTURE=fs_write_outside OUTCOME=ERROR error=PermissionError\n",
+  "outside_target_exists": false,
+  "outside_token_seen": false,
+  "receipts": [
+   "fs_write_attempt",
+   "fs_write_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 89058,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_outside",
+ "key": "c-nono-0.79.0/fs_write_outside/3",
+ "marker": "deec2ad9eab84e678b911290f3c21703",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 3
+}

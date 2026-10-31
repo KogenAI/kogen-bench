@@ -1,0 +1,140 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "cleanup": {
+   "marker": "fb1e8d2888c240cd806a2165b1029fd0",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [
+    {
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pid": 17967,
+     "result": "sent",
+     "signal": "SIGKILL"
+    }
+   ],
+   "tracked": [
+    {
+     "pid": 17967,
+     "result": "gone"
+    }
+   ]
+  },
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "leader_exit_first",
+    "CMPMAC_RUN_MARKER=fb1e8d2888c240cd806a2165b1029fd0"
+   ],
+   "config": {}
+  },
+  "load_before": 5.97,
+  "log": "FIXTURE=leader_exit_first OUTCOME=LEADER-EXIT PID=17958\nFIXTURE=leader_exit_first OUTCOME=READY PID=17967 PPID=1\n",
+  "post_scan_complete": true,
+  "property_verified": true,
+  "protocol": {
+   "post_image_changed": false,
+   "post_marked_rows": [
+    {
+     "argv0": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+     "fixture_tokens": [
+      "survivor-child",
+      "leader_exit_first"
+     ],
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pgid": 17958,
+     "pid": 17967,
+     "ppid": 1,
+     "survivor_role": true,
+     "uid": 501
+    }
+   ],
+   "post_rows": [
+    {
+     "argv0": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+     "fixture_tokens": [
+      "survivor-child",
+      "leader_exit_first"
+     ],
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pgid": 17958,
+     "pid": 17967,
+     "ppid": 1,
+     "survivor_role": true,
+     "uid": 501
+    }
+   ],
+   "post_scan_age_s": 0.968,
+   "post_scan_complete": true,
+   "pre_rows": [
+    {
+     "argv0": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+     "fixture_tokens": [
+      "survivor-child",
+      "leader_exit_first"
+     ],
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pgid": 17958,
+     "pid": 17967,
+     "ppid": 1,
+     "survivor_role": true,
+     "uid": 501
+    },
+    {
+     "argv0": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+     "fixture_tokens": [
+      "survivor-child",
+      "leader_exit_first"
+     ],
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pgid": 17958,
+     "pid": 17967,
+     "ppid": 1,
+     "survivor_role": true,
+     "uid": 501
+    },
+    {
+     "argv0": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+     "fixture_tokens": [
+      "survivor-child",
+      "leader_exit_first"
+     ],
+     "lstart": "Thu Oct 15 14:03:38 2026",
+     "pgid": 17958,
+     "pid": 17967,
+     "ppid": 1,
+     "survivor_role": true,
+     "uid": 501
+    }
+   ],
+   "property_verified": true,
+   "ready_established": true,
+   "ready_witness": {
+    "mode": "leader_exit_first",
+    "pid": 17967
+   },
+   "runner_pgid": 17958,
+   "teardown": {
+    "returncode": 0,
+    "runner_pid": 17958,
+    "steps": [
+     "already-exited"
+    ]
+   },
+   "transitions": []
+  },
+  "ready_established": true,
+  "survivor_present": true,
+  "teardown_performed": true,
+  "valid": true
+ },
+ "fixture": "leader_exit_first",
+ "key": "z-unsandboxed/leader_exit_first/1",
+ "marker": "fb1e8d2888c240cd806a2165b1029fd0",
+ "outcome": "NOT-BLOCKED",
+ "reason": "post-teardown observer",
+ "rep": 1
+}

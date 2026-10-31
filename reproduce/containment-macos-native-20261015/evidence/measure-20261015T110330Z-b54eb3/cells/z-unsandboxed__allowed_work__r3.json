@@ -1,0 +1,46 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "cleanup": {
+   "marker": "cf944d0de33143f7b74416e4f95b087b",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "git_files": [
+   "f"
+  ],
+  "git_head_matches": true,
+  "launch": {
+   "argv": [
+    "/bin/bash",
+    "-c",
+    "set -eu; printf \"%s\\n\" \"$CMPMAC_ALLOWED_TOKEN\" > pc-token; printf \"%s\\n\" \"$TMPDIR\" > pc-tmpdir; cd repo; printf \"x\\n\" > f; git add f; git -c user.name=cmpmac -c user.email=cmpmac@invalid -c commit.gpgsign=false commit -q -m pc; git rev-parse HEAD > ../pc-head",
+    "CMPMAC_RUN_MARKER=cf944d0de33143f7b74416e4f95b087b"
+   ],
+   "config": {}
+  },
+  "load_before": 9.17,
+  "log": "",
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 79636,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "tmpdir_run_local": true,
+  "tmpdir_seen": "$HOME/Scratch.noindex/contain-cmp-mac/runs/d0681df9/ccf944d0de3/tmp/",
+  "token_ok": true,
+  "valid": true
+ },
+ "fixture": "allowed_work",
+ "key": "z-unsandboxed/allowed_work/3",
+ "marker": "cf944d0de33143f7b74416e4f95b087b",
+ "outcome": "PASS",
+ "reason": "bash/git work in the workspace",
+ "rep": 3
+}

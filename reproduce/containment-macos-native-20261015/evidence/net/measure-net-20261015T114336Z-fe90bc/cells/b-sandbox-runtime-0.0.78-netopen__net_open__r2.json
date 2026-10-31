@@ -1,0 +1,129 @@
+{
+ "arm": "b-sandbox-runtime-0.0.78-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "32f4eee59ce34746ba3c6184444fda94",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "lan_address": "x.x.x.x",
+  "lan_peers": [
+   "x.x.x.x"
+  ],
+  "launch": {
+   "argv": [
+    "$HOME/.local/share/mise/installs/node/24.21.0/bin/node",
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/sandbox-runtime-0.0.78/node_modules/@anthropic-ai/sandbox-runtime/dist/cli.js",
+    "--settings",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/apparatus/srt-settings.json",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "net_open",
+    "CMPMAC_RUN_MARKER=32f4eee59ce34746ba3c6184444fda94"
+   ],
+   "config": {
+    "CLAUDE_CODE_TMPDIR": "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/tmp",
+    "settings": {
+     "credentials": {
+      "envVars": [
+       {
+        "mode": "deny",
+        "name": "CMPMAC_SECRET_ENV_TOKEN"
+       }
+      ]
+     },
+     "filesystem": {
+      "allowRead": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/tmp",
+       "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures"
+      ],
+      "allowWrite": [
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/allowed",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/home",
+       "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c32f4eee59c/tmp"
+      ],
+      "denyRead": [
+       "$HOME"
+      ],
+      "denyWrite": [
+       "/tmp/claude",
+       "/private/tmp/claude"
+      ]
+     },
+     "network": {
+      "allowLocalBinding": true,
+      "allowedDomains": [
+       "example.com"
+      ],
+      "deniedDomains": []
+     }
+    }
+   }
+  },
+  "load_before": 10.87,
+  "log": "FIXTURE=net_open OUTCOME=CHECKED\n",
+  "loopback_peers": [
+   "x.x.x.x"
+  ],
+  "receipts": [
+   "net_attempt",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "runner_resolved": [
+   "x.x.x.x",
+   "x.x.x.x"
+  ],
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 69215,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true,
+  "witness": {
+   "internet": {
+    "error": "not resolved",
+    "ok": false,
+    "peer": null
+   },
+   "lan": {
+    "error": null,
+    "ok": true,
+    "peer": "x.x.x.x"
+   },
+   "loopback": {
+    "error": null,
+    "ok": true,
+    "peer": "x.x.x.x"
+   },
+   "proxy": {
+    "env": true,
+    "error": null,
+    "status": "HTTP/1.1 200 Connection Established"
+   },
+   "resolve": {
+    "addrs": [],
+    "error": "gaierror errno=8",
+    "ok": false
+   }
+  }
+ },
+ "fixture": "net_open",
+ "key": "b-sandbox-runtime-0.0.78-netopen/net_open/2",
+ "marker": "32f4eee59ce34746ba3c6184444fda94",
+ "outcome": "FAIL",
+ "reason": "not reached: internet_direct; example.com reachable only via the tool proxy (CONNECT 200)",
+ "rep": 2
+}

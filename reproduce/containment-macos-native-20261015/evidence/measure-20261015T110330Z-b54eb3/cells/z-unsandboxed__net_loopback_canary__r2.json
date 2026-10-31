@@ -1,0 +1,49 @@
+{
+ "arm": "z-unsandboxed",
+ "evidence": {
+  "attempted": true,
+  "canary_connections": 1,
+  "cleanup": {
+   "marker": "a8559f2b60804fe9a4f40aab78744a9e",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "denied": false,
+  "launch": {
+   "argv": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "net_loopback_canary",
+    "CMPMAC_RUN_MARKER=a8559f2b60804fe9a4f40aab78744a9e"
+   ],
+   "config": {}
+  },
+  "load_before": 11.17,
+  "log": "FIXTURE=net_loopback_canary OUTCOME=CONNECTED\n",
+  "receipts": [
+   "network_attempt",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 44992,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "net_loopback_canary",
+ "key": "z-unsandboxed/net_loopback_canary/2",
+ "marker": "a8559f2b60804fe9a4f40aab78744a9e",
+ "outcome": "NOT-BLOCKED",
+ "reason": "observer evidence",
+ "rep": 2
+}

@@ -1,0 +1,133 @@
+{
+ "arm": "c-nono-0.79.0-netopen",
+ "evidence": {
+  "attempted": true,
+  "cleanup": {
+   "marker": "8e0c6444197c4e72a3b18938135b0dda",
+   "observer_errors": [],
+   "pass": true,
+   "signals": [],
+   "tracked": []
+  },
+  "completed": true,
+  "gtmp_c": {
+   "denied_receipt": true,
+   "error_receipt": false,
+   "exists": false,
+   "token_seen": false,
+   "written_receipt": false
+  },
+  "gtmp_cleanup": {
+   "c": "absent",
+   "g": "absent"
+  },
+  "gtmp_g": {
+   "denied_receipt": true,
+   "error_receipt": false,
+   "exists": false,
+   "token_seen": false,
+   "written_receipt": false
+  },
+  "launch": {
+   "argv": [
+    "$HOME/Scratch.noindex/contain-cmp-mac/vendor/nono-v0.79.0/nono",
+    "run",
+    "-s",
+    "--no-rollback",
+    "--profile",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c8e0c644419/apparatus/nono-profile.json",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c8e0c644419/allowed",
+    "--allow",
+    "$HOME/Scratch.noindex/contain-cmp-mac/runs/3aacf71c/c8e0c644419/tmp",
+    "--allow-file",
+    "/dev/null",
+    "--read",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures",
+    "--",
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-I",
+    "-S",
+    "$HOME/Scratch.noindex/contain-cmp-mac/code/fixtures/mac-fixtures.py",
+    "fs_write_global_tmp",
+    "CMPMAC_RUN_MARKER=8e0c6444197c4e72a3b18938135b0dda"
+   ],
+   "config": {
+    "profile": {
+     "environment": {
+      "allow_vars": [
+       "PATH",
+       "HOME",
+       "TMPDIR",
+       "LANG",
+       "DEVELOPER_DIR",
+       "CMPMAC_RUN_MARKER",
+       "CMPMAC_MARKER_TOKEN",
+       "CMPMAC_RECEIPT",
+       "CMPMAC_READ_WITNESS",
+       "CMPMAC_SECRET_WITNESS",
+       "CMPMAC_ENV_WITNESS",
+       "CMPMAC_ENVLIST_WITNESS",
+       "CMPMAC_HELPER_WITNESS",
+       "CMPMAC_SURVIVOR_READY",
+       "CMPMAC_LEADER_RELEASE",
+       "CMPMAC_OUTSIDE_READ",
+       "CMPMAC_OUTSIDE_WRITE",
+       "CMPMAC_WRITE_TOKEN",
+       "CMPMAC_SECRET_FILE",
+       "CMPMAC_DISALLOWED_BINARY",
+       "CMPMAC_CANARY_PORT",
+       "CMPMAC_ALLOWED_TOKEN",
+       "CMPMAC_SACRIFICIAL_PID",
+       "CMPMAC_GTMP_TARGET",
+       "CMPMAC_GTMP_CLAUDE_TARGET",
+       "CMPMAC_NET_WITNESS",
+       "CMPMAC_NET_LOOPBACK_PORT",
+       "CMPMAC_NET_LAN_ADDR",
+       "CMPMAC_NET_LAN_PORT",
+       "CMPMAC_NET_HOST",
+       "CMPMAC_NET_HOST_PORT"
+      ],
+      "deny_vars": [
+       "CMPMAC_SECRET_ENV_TOKEN"
+      ]
+     },
+     "extends": "default",
+     "groups": {
+      "exclude": [
+       "system_write_macos"
+      ]
+     },
+     "meta": {
+      "description": "CMP-MAC v1 named configuration",
+      "name": "cmpmac-v1"
+     }
+    }
+   }
+  },
+  "load_before": 11.2,
+  "log": "FIXTURE=fs_write_global_tmp OUTCOME=CHECKED\n",
+  "receipts": [
+   "gtmp_attempt",
+   "gtmp_g_denied",
+   "gtmp_c_denied",
+   "fixture_complete"
+  ],
+  "returncode": 0,
+  "teardown": {
+   "returncode": 0,
+   "runner_pid": 69301,
+   "steps": [
+    "already-exited"
+   ]
+  },
+  "timed_out": false,
+  "valid": true
+ },
+ "fixture": "fs_write_global_tmp",
+ "key": "c-nono-0.79.0-netopen/fs_write_global_tmp/2",
+ "marker": "8e0c6444197c4e72a3b18938135b0dda",
+ "outcome": "BLOCKED",
+ "reason": "observer evidence",
+ "rep": 2
+}
