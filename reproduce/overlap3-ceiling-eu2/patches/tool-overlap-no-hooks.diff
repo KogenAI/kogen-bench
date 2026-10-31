@@ -1,0 +1,192 @@
+diff --git a/internal/otrace/otrace.go b/internal/otrace/otrace.go
+new file mode 100644
+index 0000000..bee2211
+--- /dev/null
++++ b/internal/otrace/otrace.go
+@@ -0,0 +1,36 @@
++// Package otrace writes timing lines for the tool-overlap measurement. It is off unless
++// NODE_OVERLAP3_TRACE names a file (or is 1: $TMPDIR/overlap3-trace.jsonl); it never records arguments or output.
++package otrace
++
++import (
++	"encoding/json"
++	"os"
++	"time"
++)
++
++var path = func() string {
++	v := os.Getenv("NODE_OVERLAP3_TRACE")
++	if v == "1" {
++		// The sandboxed loop can write only below its TMPDIR; the harness copies the file out.
++		return os.Getenv("TMPDIR") + "/overlap3-trace.jsonl"
++	}
++	return v
++}()
++
++// Event appends one line: kind, wall-clock nanoseconds and the given fields.
++func Event(kind string, fields map[string]any) {
++	if path == "" {
++		return
++	}
++	fields["k"], fields["t"] = kind, time.Now().UnixNano()
++	line, err := json.Marshal(fields)
++	if err != nil {
++		return
++	}
++	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
++	if err != nil {
++		return
++	}
++	f.Write(append(line, '\n'))
++	f.Close()
++}
+diff --git a/loop/nohook.go b/loop/nohook.go
+new file mode 100644
+index 0000000..758f403
+--- /dev/null
++++ b/loop/nohook.go
+@@ -0,0 +1,42 @@
++package loop
++
++import (
++	"context"
++
++	"kogen-loop/api"
++	"kogen-loop/internal/otrace"
++	"kogen-loop/provider"
++	"kogen-loop/tools"
++)
++
++// observedRequester forwards a Session's requests to its Direct and does what the Session's
++// AfterResponse and BeforeCall hooks did, once the response has arrived: it records the usage,
++// emits the response event, and emits one tool.call event per call of the response. With
++// those hooks gone the engine is free to run tool calls while the response streams.
++type observedRequester struct {
++	s      *Session
++	usages *[]api.Usage
++}
++
++func (o observedRequester) Request(ctx context.Context, r Request) (*provider.Response, []any, error) {
++	otrace.Event("request", map[string]any{"n": o.s.requests})
++	resp, sent, err := o.s.direct.Request(ctx, r)
++	if err != nil {
++		otrace.Event("request_failed", map[string]any{"n": o.s.requests})
++		return resp, sent, err
++	}
++	otrace.Event("response", map[string]any{"n": o.s.requests})
++	u := UsageOf(resp)
++	*o.usages = append(*o.usages, u)
++	var id any
++	if resp.ID != "" {
++		id = resp.ID
++	}
++	o.s.emit(api.EventResponse, map[string]any{"n": o.s.requests, "response_id": id, "usage": u})
++	for _, call := range tools.Calls(resp.Items) {
++		o.s.emit(api.EventToolCall, map[string]any{
++			"call_id": call.CallID(), "name": call.Name, "arguments_sha256": digest(call.Arguments),
++		})
++	}
++	return resp, sent, nil
++}
+diff --git a/loop/session.go b/loop/session.go
+index 4b17b19..4ab7c85 100644
+--- a/loop/session.go
++++ b/loop/session.go
+@@ -270,13 +270,14 @@ func (s *Session) Round(ctx context.Context, text string) (Result, error) {
+ 	input := s.next(text)
+ 
+ 	var usages []api.Usage
+-	cutCalls := map[string]bool{}
+-	rules := map[string]string{}
+ 	s.requests = 0
+ 	rd := Round{
+ 		Owner: "loop", Role: s.cfg.Role, Instructions: s.instructions, Definitions: s.defs,
+ 		Tools: s.tools, Terminal: s.terminal,
+ 	}
++	// Experiment build (no-hook): BeforeRequest is the only hook, so the engine may overlap tool calls
++	// (loop.Run: without AfterResponse, BeforeCall, HandleCall and AfterCall it stages streamed calls). The
++	// response and tool.call events and the usage sum come from observedRequester; tool.result events are not emitted.
+ 	hooks := Hooks{
+ 		BeforeRequest: func(ctx context.Context, in []any) error {
+ 			s.requests++
+@@ -285,57 +286,8 @@ func (s *Session) Round(ctx context.Context, text string) (Result, error) {
+ 			})
+ 			return nil
+ 		},
+-		AfterResponse: func(ctx context.Context, resp *provider.Response, sent []any) error {
+-			u := UsageOf(resp)
+-			usages = append(usages, u)
+-			var id any
+-			if resp.ID != "" {
+-				id = resp.ID
+-			}
+-			s.emit(api.EventResponse, map[string]any{"n": s.requests, "response_id": id, "usage": u})
+-			return nil
+-		},
+-		BeforeCall: func(ctx context.Context, call tools.Call, in []any) error {
+-			s.emit(api.EventToolCall, map[string]any{
+-				"call_id": call.CallID(), "name": call.Name, "arguments_sha256": digest(call.Arguments),
+-			})
+-			return nil
+-		},
+-		// The engine cuts what it runs itself; the session runs the call here to learn
+-		// whether the cut applied, which the engine's order does not report.
+-		HandleCall: func(ctx context.Context, call tools.Call) (Handled, error) {
+-			out, err := s.tools.CallContext(ctx, call)
+-			if err != nil {
+-				return Handled{}, err
+-			}
+-			cut := out.Cut()
+-			cutCalls[fmt.Sprint(call.CallID())] = cut.Text != out.Text
+-			if out.Rule != "" {
+-				rules[fmt.Sprint(call.CallID())] = out.Rule
+-			}
+-			return Handled{Handled: true, Output: cut}, nil
+-		},
+-		AfterCall: func(ctx context.Context, call tools.Call, out tools.Output, terminal bool, in []any) error {
+-			if terminal {
+-				return nil
+-			}
+-			var sum any
+-			size := 0
+-			if d := provider.Fingerprint(out.Value()); d != nil {
+-				sum, size = d.SHA256, d.Bytes
+-			}
+-			fields := map[string]any{
+-				"call_id": call.CallID(), "name": call.Name, "result_sha256": sum, "bytes": size,
+-				"cut": cutCalls[fmt.Sprint(call.CallID())],
+-			}
+-			if rule := rules[fmt.Sprint(call.CallID())]; rule != "" {
+-				fields["rule"] = rule
+-			}
+-			s.emit(api.EventToolResult, fields)
+-			return nil
+-		},
+ 	}
+-	res, err := Run(ctx, rd, input, s.direct, hooks)
++	res, err := Run(ctx, rd, input, observedRequester{s: s, usages: &usages}, hooks)
+ 	if err != nil {
+ 		return Result{}, err
+ 	}
+diff --git a/tools/tools.go b/tools/tools.go
+index 87292ab..b67b5ca 100644
+--- a/tools/tools.go
++++ b/tools/tools.go
+@@ -6,6 +6,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"io/fs"
++	"kogen-loop/internal/otrace"
+ 	"math/rand/v2"
+ 	"os"
+ 	"path/filepath"
+@@ -120,6 +121,9 @@ func (t *Tools) Call(c Call) (Output, error) { return t.CallContext(nil, c) }
+ 
+ // CallContext runs a response call like RunContext.
+ func (t *Tools) CallContext(ctx context.Context, c Call) (Output, error) {
++	fields := map[string]any{"name": c.Name, "call_id": c.CallID()}
++	otrace.Event("tool_start", fields)
++	defer otrace.Event("tool_end", map[string]any{"name": c.Name, "call_id": c.CallID()})
+ 	return t.RunContext(ctx, c.Name, c.Args())
+ }
+ 

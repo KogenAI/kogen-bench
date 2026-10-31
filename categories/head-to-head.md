@@ -413,6 +413,21 @@ kogen-loop had the lowest cost per pass among the harnesses with complete record
 
 In this batch, with no request stalls, the loop was faster than Codex CLI at the median and at the 90th percentile. It also used about half the uncached input, and cost 56% less per pass.
 
+### Overlapping tool calls, and kogen-loop against Codex CLI on equal passes (31 October 2026)
+
+In short: starting each tool call while the model is still streaming its response did not make kogen-loop faster, and in the same run kogen-loop was slower than Codex CLI at equal pass rate, though cheaper per pass. Reproduction pack: [overlap3-ceiling-eu2](../reproduce/overlap3-ceiling-eu2/README.md).
+
+We compared kogen-loop `733b50d` (which starts a tool call as soon as it is fully streamed) with its parent (which runs tool calls after the response ends), identical otherwise, and with Codex CLI 0.165.0. All used gpt-6.1-terra at high effort on the same OpenAI API key, on 12 Go tasks run 3 times each. The 36 blocks are repeated sessions of 12 tasks, not 36 independent tasks. To let the overlap code run through the command-line tool, both loop builds carry a patch that removes event hooks which otherwise switch it off; the shipped tool is serial at both commits.
+
+| Setup | Passed | Median wall | Mean wall | Cost per pass |
+|---|---:|---:|---:|---:|
+| kogen-loop with overlap | 36/36 | 111.6 s | 149.8 s | $0.0877 |
+| kogen-loop serial (parent) | 36/36 | 106.6 s | 145.0 s | $0.0877 |
+| Codex CLI 0.165.0 | 36/36 | 99.9 s | 129.3 s | $0.1090 |
+
+- **Overlap against serial:** wall was lower for overlap in 16 blocks and for serial in 20 (sign test p = 0.6177); geometric-mean wall ratio 1.004 (95% interval 0.970 to 1.039). Overlap started about 20 tool calls per run early but hid only 0.11 s of tool time per run behind streaming. The overlap ceiling through the command-line tool is negligible. Only a difference of about 10% or more could be resolved.
+- **kogen-loop against Codex CLI:** kogen-loop was slower, wall ratio 1.11 (95% interval 1.06 to 1.17; overlap build 9 blocks faster and 27 slower, p = 0.0039; serial build 6 and 30, p = 0.0001) and cheaper per pass (lower in 34 of 36 blocks against 2, p < 0.0001). Passes were equal.
+
 ## Scoreboard 2: Kogen's pipeline against bare agents
 
 ### Driving Claude Code, against bare Claude Code

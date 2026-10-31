@@ -1,0 +1,25 @@
+Counted cells 108, complete blocks 36 (12 tasks x 3 repetitions)
+
+Per arm (counted cells):
+A overlap: pass 36/36, wall median 111.6 p90 169.2 mean 149.8, requests/run 13.6, tool calls/run 26.3, USD 3.1575, per pass 0.0877, cells with an early tool start 36/36, early starts/run 19.78, tool s hidden behind streaming/run 0.11
+B serial: pass 36/36, wall median 106.6 p90 161.5 mean 145.0, requests/run 13.9, tool calls/run 25.9, USD 3.1558, per pass 0.0877, cells with an early tool start 0/36, early starts/run 0.00, tool s hidden behind streaming/run 0.00
+C Codex CLI: pass 36/36, wall median 99.9 p90 159.5 mean 129.3, requests/run 15.0, tool calls/run 14.0, USD 3.9232, per pass 0.1090
+
+Paired by block (first wins / second wins; exact two-sided sign test; geometric-mean wall ratio, first over second, with normal 95% CI):
+A overlap vs B serial (36 blocks): wall 16/20, 0 ties, p=0.6177; ratio 1.004 [0.970, 1.039]; requests 16/15, 5 ties, p=1.0000; cost per pass 19/17, 0 ties, p=0.8679; pass 0/0, 36 ties, p=1.0000
+A overlap vs C Codex CLI (36 blocks): wall 9/27, 0 ties, p=0.0039; ratio 1.112 [1.059, 1.169]; requests 18/13, 5 ties, p=0.4731; cost per pass 34/2, 0 ties, p=0.0000; pass 0/0, 36 ties, p=1.0000
+B serial vs C Codex CLI (36 blocks): wall 6/30, 0 ties, p=0.0001; ratio 1.108 [1.065, 1.152]; requests 18/15, 3 ties, p=0.7283; cost per pass 33/3, 0 ties, p=0.0000; pass 0/0, 36 ties, p=1.0000
+
+By task, A overlap vs B serial (wall wins / losses, geometric-mean wall ratio):
+bytefmt-go: 1/2, 0 ties, p=1.0000, ratio 0.997
+deps-go: 1/2, 0 ties, p=1.0000, ratio 1.009
+argvsplit-go: 1/2, 0 ties, p=1.0000, ratio 0.978
+semrange-go: 2/1, 0 ties, p=1.0000, ratio 0.988
+r70-5-go: 0/3, 0 ties, p=0.2500, ratio 1.130
+splitter-go: 2/1, 0 ties, p=1.0000, ratio 0.999
+jobq-go: 1/2, 0 ties, p=1.0000, ratio 1.002
+wrapcol-go: 2/1, 0 ties, p=1.0000, ratio 0.945
+r70-7-go: 2/1, 0 ties, p=1.0000, ratio 0.944
+patchapply-go: 2/1, 0 ties, p=1.0000, ratio 0.909
+task-tags-go: 1/2, 0 ties, p=1.0000, ratio 1.147
+csvq-go: 1/2, 0 ties, p=1.0000, ratio 1.023
