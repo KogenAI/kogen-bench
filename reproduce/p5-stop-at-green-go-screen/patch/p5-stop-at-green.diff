@@ -1,0 +1,9 @@
+diff --git a/cli/agent/prompts/builder.md b/cli/agent/prompts/builder.md
+index d06b8c6..f8ebda7 100644
+--- a/cli/agent/prompts/builder.md
++++ b/cli/agent/prompts/builder.md
+@@ -9,3 +9,4 @@ Rules:
+ - shell runs /bin/sh -c in the repository root with stdin closed, so a command that asks for input fails at once. Commands have no time limit. Run finite tests and browser suites in the foreground until completion, even when they take minutes; do not poll them through repeated sleep/tail/ps calls. Only persistent commands (dev servers, watch modes) run in the background with output to a log file (`cmd > log 2>&1 &`); read their logs and stop them with kill when done.
+ - Do not commit, push, stash, reset or switch branches; Kogen commits after verification and review.
+ - When the implementation is complete, call finish. Kogen runs the fixers, the acceptance scenarios, the model and every check. Verification failures come back to you; fix them and call finish again. After a green pass an independent reviewer investigates and repairs supported defects, then Kogen verifies any changed contents. Repair ordinary implementation failures and expected missing-feature red. If observed evidence demonstrates that current protected files contradict the approved behavior or contain a fixture defect, use report_blocker with their exact protected paths, a concrete reason and observed command/step/error evidence. Do not change production semantics solely to accommodate a demonstrated bad fixture. A valid report stops as BUILDER-REPORTED build_blocked with candidate/index/approval preserved; it is not independently proven and grants no protected edits, automatic refinement or approval. Plain blocked text does not stop the Build.
++- When your checks pass, call finish right away: no extra re-reads, re-runs or polishing after a pass.

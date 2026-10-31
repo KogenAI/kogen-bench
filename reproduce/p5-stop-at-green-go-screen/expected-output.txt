@@ -1,0 +1,16 @@
+1. Go tasks (13 tasks, 1 trial per arm; hidden pass = every hidden check of the task passed)
+arm  hidden_pass  wall_s  tokens  requests
+b0    9/13       3585   4234114    218
+p5   10/13       2864   2972023    194
+wall, tokens and requests include cells that ended refused, build_blocked or review_blocked
+
+2. Pairs where the hidden result differs
+G10: b0 fail (build_blocked) vs p5 pass (landed)
+p5 wins 1, loses 0, wins-losses +1
+
+3. Wall and tokens per pair (tokens stand in for cost: the model has no listed price)
+p5 lower wall in 7/13, lower tokens in 7/13, either in 9/13 (keep rule: hidden pass not lower and either lower in >= 8/13)
+
+4. Outcome per arm
+b0 {'build_blocked': 1, 'landed': 11, 'review_blocked': 1}
+p5 {'landed': 12, 'refused': 1}
