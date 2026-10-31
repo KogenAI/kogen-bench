@@ -89,7 +89,7 @@ print()
 print('Wall time as measured (s; all counted tasks have a recorded wall for both setups)')
 paired('wall s', num('wall_s'), TASKS)
 print()
-print('Measured usage (tokens as recorded by each setup; input includes cache reads; reasoning tokens not added; no cost: gpt-6.1-terra has no list price)')
+print('Measured usage (tokens as recorded by each setup; input includes cache reads; reasoning tokens not added; no cost computed for this block)')
 print('arm | input | cached input | output')
 for arm in ARMS:
     rs = [run[(t, arm)] for t in TASKS]

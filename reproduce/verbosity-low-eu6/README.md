@@ -1,6 +1,6 @@
 # verbosity-low-eu6
 
-kogen-loop with low text verbosity against kogen-loop without it and against Codex CLI, on the same OpenAI API key, gpt-6.1-terra high effort, 3 fresh Go tasks with 6 repetitions each (18 blocks, 54 counted runs, plus 3 dry runs). Low verbosity was sent on every request and the provider returned it, but it did not change non-reasoning output (lower in 9 blocks, higher in 9, sign test p=1.0) or cost per pass (lower in 4, higher in 8, 6 ties, p=0.39). Verdict: **does not advance** (30 October 2026). The +10% output gap to Codex CLI seen in an earlier round did not reproduce: both loop arms cost 0.70 to 0.75 times Codex CLI per pass (p<=0.023) and produced less non-reasoning output.
+kogen-loop with low text verbosity against kogen-loop without it and against Codex CLI, on the same OpenAI API key, gpt-6.1-terra high effort, 3 fresh Go tasks with 6 repetitions each (18 blocks, 54 counted runs, plus 3 dry runs). Low verbosity was sent on every request and the provider returned it, but it did not change non-reasoning output (lower in 9 blocks, higher in 9, sign test p=1.0, treating the 18 blocks as independent) or cost per pass (lower in 4, higher in 8, 6 ties, p=0.39). Unresolved: the effective sample is 3 tasks, so these p-values overstate the evidence. Verdict: **does not advance** (30 October 2026). The +10% output gap to Codex CLI seen in an earlier round did not reproduce: both loop arms cost 0.70 to 0.75 times Codex CLI per pass (p<=0.023) and produced less non-reasoning output.
 
 ## What was measured
 

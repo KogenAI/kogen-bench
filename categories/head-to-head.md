@@ -322,7 +322,7 @@ Paired by task (exact two-sided sign tests, ties dropped; each count is tasks wh
 
 ### Low text verbosity, same OpenAI API key, gpt-6.1-terra, high effort
 
-**Summary.** We tested whether asking the model for low text verbosity makes kogen-loop write less. The setting was sent on every request and the provider returned it, but it changed nothing we could resolve: non-reasoning output was lower with it in 9 of 18 blocks and higher in 9 (p = 1.0), and cost per pass was lower in 4 and higher in 8 with 6 ties (p = 0.39). **Does not advance.** The earlier +10% output gap against Codex CLI did not reproduce: on these tasks both kogen-loop setups wrote less non-reasoning output than Codex CLI (14 blocks to 4 and 14 to 3, p = 0.031 and 0.013) and cost 0.70 and 0.75 times as much per pass (p = 0.023 and 0.003), even though Codex CLI also sends low verbosity.
+**Summary.** **Unresolved: 3 tasks, repeated 6 times each (18 blocks); the effective sample is 3 tasks.** We tested whether asking the model for low text verbosity makes kogen-loop write less. The setting was sent on every request and the provider returned it, but it changed nothing we could resolve: non-reasoning output was lower with it in 9 of 18 blocks and higher in 9 (p = 1.0), and cost per pass was lower in 4 and higher in 8 with 6 ties (p = 0.39). **Does not advance.** The earlier +10% output gap against Codex CLI did not reproduce: on these tasks both kogen-loop setups wrote less non-reasoning output than Codex CLI (14 blocks to 4 and 14 to 3, p = 0.031 and 0.013) and cost 0.70 and 0.75 times as much per pass (p = 0.023 and 0.003), even though Codex CLI also sends low verbosity. These p-values treat the 18 blocks as independent; because the blocks are repeats of 3 tasks, they overstate the evidence.
 
 **Setup.** Three setups on the same OpenAI API key, model gpt-6.1-terra, high effort: kogen-loop with reasoning replay (the control), the same build plus one patch that sends low verbosity, and Codex CLI. There were three fresh Go tasks with 6 repetitions each, 18 blocks and 54 counted runs, after a dry run that checked the setting reached the provider. The count was fixed before any run; only three fresh task kits were left, so the blocks are repeated sessions on the same tasks, not 18 tasks. Inside each block the order of the setups was rotated and one run went at a time, including grading by the task's hidden tests. All 57 runs finished and none was cut or replaced.
 
@@ -396,7 +396,7 @@ Kogen's pipeline runs two Claude Code sessions per task: one builds and an indep
 
 ### Driving Claude Code on hard tasks, against Claude Code alone
 
-Result, 30 October 2026: **no difference in success, and Kogen cost more.** Kogen 8744e67b driving Claude Code and Claude Code 2.1.314 on its own each passed the same 5 of 9 hard tasks (0.56, 95% interval 0.27 to 0.81) and failed the same 4. Both used claude-sonnet-5-5 at medium effort, the same Claude Code binary, one run per task and setup, on one laptop.
+Result, 30 October 2026: **unresolved on success (9 task pairs, one run each, all 9 tied); Kogen cost more on 8 of 9 tasks (p = 0.039).** Kogen 8744e67b driving Claude Code and Claude Code 2.1.314 on its own each passed the same 5 of 9 hard tasks (0.56, 95% interval 0.27 to 0.81) and failed the same 4. Both used claude-sonnet-5-5 at medium effort, the same Claude Code binary, one run per task and setup, on one laptop.
 
 The nine tasks are the ones that Codex CLI at high effort had failed at least once, so they are harder than the tasks above. A task passes only when the hidden tests and the public acceptance scenarios all pass on the final tree.
 
@@ -415,7 +415,7 @@ Limits: one run per task and setup, so nine pairs; an edge of a task or two coul
 
 ### Hard tasks: Kogen driving Codex, against Codex CLI alone
 
-Result, 30 October 2026: **no difference in success, on two machines.** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The MacBook block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
+Result, 30 October 2026: **unresolved on success (9 task pairs on the laptop, 6 on the MacBook, one run each).** Kogen 18895e65 driving Codex and Codex CLI 0.166.0 on its own, both with gpt-6.1-terra at high effort, one run per task and setup. The laptop block ran 9 hard tasks and each setup passed the same 3 (0.33, 95% interval 0.12 to 0.65). The MacBook block ran 6 of those tasks and each setup passed 2 (0.33, 0.10 to 0.70), but not the same two: only Kogen passed `goose-labels-go` and `revive-baseline-go`, and only Codex alone passed `kogen-review-on-demand` and `tally-periodic-go`.
 
 | Block | Tasks | Kogen passed | Codex alone passed | Paired test | Fisher | Wall, both measured |
 |---|---:|---:|---:|---|---|---|
@@ -430,19 +430,19 @@ Limits: one run per task and setup; the tasks were chosen because Codex at high 
 
 ### Hard tasks, newer Kogen: Kogen driving Codex, against Codex CLI alone
 
-Result, 30 October 2026: **no difference in success.** The laptop block of the Codex comparison above was repeated at Kogen a3ca7bc (the change that stops a build from ending early), with the same 9 tasks, model, effort, machine and Codex CLI 0.166.0. Four of the nine tasks are not scored: three never ran their acceptance suite in grading and one has a fixture that only works on macOS, so 8 of 18 cells are left out for both setups. On the other 5 tasks each setup passed the same 3 (0.60, 95% interval 0.23 to 0.88) and failed the same 2.
+Result, 30 October 2026: **unresolved on success (5 scored task pairs, one run each).** The laptop block of the Codex comparison above was repeated at Kogen a3ca7bc (the change that stops a build from ending early), with the same 9 tasks, model, effort, machine and Codex CLI 0.166.0. Four of the nine tasks are not scored: three never ran their acceptance suite in grading and one has a fixture that only works on macOS, so 8 of 18 cells are left out for both setups. On the other 5 tasks each setup passed the same 3 (0.60, 95% interval 0.23 to 0.88) and failed the same 2.
 
 | Tasks scored | Kogen passed | Codex alone passed | Paired test | Fisher | Wall (Kogen / Codex) | Input / output tokens (Kogen / Codex) |
 |---:|---:|---:|---|---|---|---|
 | 5 | 3 | 3 | 0 discordant tasks, p = 1 | p = 1 | 7,614 s / 1,408 s (Kogen slower on all 5, p = 0.0625) | 10.95 M / 15.44 M and 75,182 / 62,722 (p = 1 and p = 0.375) |
 
-Tokens are each setup's own record, measured for both on all 5 tasks; no cost is claimed, since the model has no list price. No scored Kogen cell ended before building, so this block does not show whether the early-stop change helps; two excluded Kogen cells did end before any build request. Against the older laptop block on the same 5 tasks, Kogen has the same outcome on every task, with identical test counts; its wall time was shorter on 3 tasks and longer in total (7,614 s against 6,923 s). That comparison is descriptive: different Kogen versions, one run each. The older block scored all nine tasks, including the four that cannot be scored reliably; read its results with that in mind.
+Tokens are each setup's own record, measured for both on all 5 tasks; no cost is computed for this block (its tokens were not priced). No scored Kogen cell ended before building, so this block does not show whether the early-stop change helps; two excluded Kogen cells did end before any build request. Against the older laptop block on the same 5 tasks, Kogen has the same outcome on every task, with identical test counts; its wall time was shorter on 3 tasks and longer in total (7,614 s against 6,923 s). That comparison is descriptive: different Kogen versions, one run each. The older block scored all nine tasks, including the four that cannot be scored reliably; read its results with that in mind.
 
 Limits: one run per task and setup, five scored pairs; an edge of a task or two could not show. The tasks were chosen because Codex at high effort had failed them. One laptop, one model and effort. Kogen's time and tokens cover shaping, an independent review and checks that a single run does not do. The task kits stay private until the hill-climb is done. Numbers, task list, per-run rows (scored and excluded) and the script that reproduces them: [`reproduce/hk4-lm-hard-tasks/`](../reproduce/hk4-lm-hard-tasks/README.md).
 
 ### Hard tasks on the MacBook: Kogen driving Claude Code, against Claude Code alone
 
-Result, 30 October 2026: **no difference in success, and Kogen cost more.** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
+Result, 30 October 2026: **unresolved on success and on cost (6 task pairs per block, one run each); Kogen's wall time was higher on all 6 tasks of the Opus block (p = 0.031).** Two MacBook blocks, each on 6 hard tasks, one run per task and setup, with the same fixed Claude Code 2.1.312 binary for both setups. They differ in model, effort and Kogen version, so they are not pooled.
 
 | Block | Model, effort | Kogen | Kogen passed | Claude Code alone passed | Paired test | Fisher | Cost at list price† (Kogen / alone) | Wall (Kogen / alone) |
 |---|---|---|---:|---:|---|---|---|---|
