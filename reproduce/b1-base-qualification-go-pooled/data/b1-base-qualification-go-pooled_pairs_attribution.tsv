@@ -1,0 +1,9 @@
+run	task	arm_failing	failing_stage	cause_class	cause
+e1	G04	b0	review	b	Review blocked on a protected acceptance step written at shaping time that raised the default step timeout from 5 s to 120 s; the step could not be repaired in the Build
+e1	G12	b0	build	b	Builder blocked: the first acceptance scenario supplies plain text as pack input but expects the frame for the hex line, contradicting the approved rule that pack rejects an odd-length hex line
+e1	G02	b1	hidden check	e	Landed after green verification; two hidden checks about invalid operators and syntax-error ordering failed; the Intent encodes one reading of an end-of-input case the request leaves open
+l1	G10	b0	shape	b	Refused at shaping: the Intent was not ready, acceptance steps for the layout error messages were undefined
+l1	G02	b1	hidden check	e	Landed after green verification; one hidden check about syntax-error ordering failed (same ambiguity)
+e1	G06	b0	build	d	Provider stop (build stopped after 610 s); both cells fail the hidden checks, pair excluded
+l1	G13	b0,b1	shape/build	d	Provider and availability stops in both cells; both fail, pair excluded
+l2	G02	b1	build	b	Builder blocked: the acceptance scenario expects byte position 9 for a dollar that is the eighth byte of its input (checked with a hex dump), contradicting the approved one-based byte offsets; the previous build landed the same task but failed the same hidden syntax-order check as in e1/l1

@@ -1,0 +1,43 @@
+1. Per repetition (13 Go tasks, 1 trial per arm; hidden pass = every hidden check passed)
+run  arm  hidden_pass  wall_s  tokens  requests
+e1   b0   8/13      3769   4251084    219
+e1   b1   9/13      3652   5679995    248
+l1   b0   9/13      2823   2612623    179
+l1   b1   9/13      3251   2970955    202
+l2   b0  10/13      3159   3057958    198
+l2   b1  10/13      4257   6066241    248
+all  b0  27/39      9751   9921665    596
+all  b1  28/39     11160  14717191    698
+wall, tokens and requests include cells that ended refused, build_blocked, review_blocked or unavailable
+
+2. Pairs where the hidden result differs
+e1 G02: b0 pass (landed) vs b1 fail (landed)
+e1 G04: b0 fail (review_blocked) vs b1 pass (landed)
+e1 G12: b0 fail (build_blocked) vs b1 pass (landed)
+l1 G02: b0 pass (landed) vs b1 fail (landed)
+l1 G10: b0 fail (refused) vs b1 pass (landed)
+b1 wins 3, loses 2, wins-losses +1 over 39 pairs
+pairs with a provider/availability stop in either cell (both cells failed the hidden checks): 2 (e1 G06, l1 G13)
+
+3. Hidden passes per task over the 3 repetitions (b0 / b1)
+G01 3 3
+G02 2 0
+G03 3 3
+G04 2 3
+G05 0 0
+G06 2 2
+G07 3 3
+G08 0 0
+G09 3 3
+G10 2 3
+G11 3 3
+G12 2 3
+G13 2 2
+
+4. Outcome per arm
+b0 {'build_blocked': 1, 'landed': 31, 'refused': 3, 'review_blocked': 2, 'unavailable': 2}
+b1 {'build_blocked': 2, 'landed': 33, 'provider': 1, 'refused': 1, 'review_blocked': 2}
+
+5. Without task G08 (the task that ends review_blocked or refused in both arms)
+b0  wall_s 9094 requests 557 tokens 8275071
+b1  wall_s 9175 requests 597 tokens 8873261
