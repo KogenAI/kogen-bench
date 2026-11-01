@@ -557,6 +557,12 @@ Success stays unresolved in every block (no block has more than two discordant t
 
 Limits: one run per task and setup; 5 Kogen cells stay unknown and 5 laptop trees are pending. Rules, per-cell rows, the grader repair and the regrade driver: [`reproduce/hard-tasks-grading-correction/`](../reproduce/hard-tasks-grading-correction/README.md).
 
+### Hard tasks: grading correction for the task selection
+
+Correction, 1 November 2026, to the task selection `hk2-hard-set` (its text is left as published). That selection chose tasks on which Codex at high effort had failed at least once. For three of them, `kogen-loop-tool-cut`, `kogen-loop-read-ledger` and `kogen-loop-parallel-calls`, the recorded failures (0 of 8, 0 of 7 and 0 of 7) came from the same grader defect as in the section above: the acceptance runner had no Cucumber or Node, so every acceptance id was graded as missing.
+
+In the one earlier round whose run folders still exist, 18 of 36 cells lost every acceptance id this way: exactly these three tasks, in every arm. Codex alone, graded again with the repaired grader, passes `kogen-loop-tool-cut` (346 of 346 tests) and fails one hidden test of `kogen-loop-parallel-calls`. So 6 tasks qualify on the selection's own records, 1 more on later evidence, and 2 (`kogen-loop-tool-cut`, `kogen-loop-read-ledger`) are not supported. The 16 Mac laptop records could not be read and are unknown, not failed. Rules, per-cell rows and the numbers: [`reproduce/hk2-hard-set-grading-correction/`](../reproduce/hk2-hard-set-grading-correction/README.md).
+
 ### Native loop with checks and review, against Codex CLI
 
 Both setups used gpt-6.1-terra and ran on the same machine. Kogen built at high effort and reviewed at medium; Codex ran at high effort.
