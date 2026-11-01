@@ -1,10 +1,12 @@
 """Per-stage cost, token and time records from a Kogen run log (`result.json` `stages`, `totals`).
 
 Sources: the build run log (`request` events) and the shaping events
-(`.kogen/local/shaping/<slug>/events.ndjson`, `provider_call` events).
+(`.kogen/local/shaping/<slug>/events.ndjson`, `provider_call` events). When Kogen drives an executor
+(claude-code) it logs neither; a stage without them takes its executor's `executor_round_ended` events.
 Fields the logs lack are None with the field named in `missing`; nothing is invented.
 """
 
+import datetime
 import importlib.util
 import os
 
@@ -80,7 +82,7 @@ def _record(stage, command, requests, table, calc, zero_ok=False):
     """One record from a command-level `command` (or None for an inner stage) and its requests."""
     missing = []
     rec = {"stage": stage, "started": None, "ended": None, "wall_s": None, "exit_code": None,
-           "outcome": None, "requests": len(requests),
+           "outcome": None, "requests": sum(r.get("count", 1) for r in requests),
            "models": sorted({r["model"] for r in requests if r.get("model")}),
            "model_sources": sorted({r["model_source"] for r in requests if r.get("model_source")})}
     if command:
@@ -102,8 +104,9 @@ def _record(stage, command, requests, table, calc, zero_ok=False):
         missing.append("usage_zero_is_unknown")
     if stage == "approve" and not requests:
         rec["cost_usd"], rec["cost_reason"] = 0.0, None
-    elif zero_ok and not requests:  # a declared seed replaced the builder: no request is known, not missing
-        rec["cost_usd"], rec["cost_reason"] = 0.0, "seeded: no builder request by design"
+    elif zero_ok and not requests:  # a declared seed replaced the builder, or Kogen stopped before its executor
+        rec["cost_usd"], rec["cost_reason"] = 0.0, (zero_ok if isinstance(zero_ok, str) else
+                                                     "seeded: no builder request by design")
     elif not requests:
         rec["cost_usd"], rec["cost_reason"] = None, "no request in the log"
     elif any(c[0] is None for c in costs):
@@ -112,6 +115,8 @@ def _record(stage, command, requests, table, calc, zero_ok=False):
     else:
         rec["cost_usd"] = round(sum(c[0] for c in costs), 8)
         rec["cost_reason"] = "; ".join(sorted({c[1] for c in costs if c[1]})) or None
+    if requests and all(r.get("client_cost_usd") is not None for r in requests):  # the executor's own figure
+        rec["client_cost_usd"] = round(sum(r["client_cost_usd"] for r in requests), 8)
     rec["missing"] = sorted(set(missing))
     return rec
 
@@ -128,6 +133,38 @@ def shape_requests(events):
     return out
 
 
+def _ms(start, end):
+    try:
+        t0, t1 = (datetime.datetime.fromisoformat(t.replace("Z", "+00:00")) for t in (start, end))
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return round((t1 - t0).total_seconds() * 1000)
+
+
+def executor_requests(events):
+    """Requests of an executor Kogen drives (claude-code), counted the way the agent-alone lane counts Claude
+    Code's: one record per `executor_round_ended`, worth its `num_turns` requests, its usage as Kogen logs it
+    (input with cache reads and writes, cached = cache reads), the executor's `cost_usd` as `client_cost_usd`.
+    Kogen logs no `request` or `provider_call` events for these executors (ccs3-lm, rpfix 31 Oct)."""
+    out, started = [], {}
+    for e in events or []:
+        key = (e.get("role"), e.get("session_id"), e.get("round"))
+        if e.get("event") == "executor_round_started":
+            started[key] = e.get("at")
+        if e.get("event") != "executor_round_ended":
+            continue
+        u = e.get("usage") or {}
+        usage = {k: u.get(v) for k, v in USAGE_KEYS.items()}
+        model, source = model_of({"model": u.get("model") or e.get("model")})
+        turns = e.get("num_turns")
+        out.append({"role": e.get("role"), "model": model, "model_source": source,
+                    "wall_ms": _ms(started.get(key), e.get("at")), "usage": usage,
+                    "count": turns if isinstance(turns, int) and not isinstance(turns, bool) else 1,
+                    "client_cost_usd": u.get("cost_usd"),
+                    "zero_is_unknown": all(v == 0 for v in usage.values())})
+    return out
+
+
 def parse_run_log(events, commands, table=None, shape_events=None):
     """Stage records and totals.
 
@@ -137,7 +174,9 @@ def parse_run_log(events, commands, table=None, shape_events=None):
     `commands`: one dict per Kogen command the cell ran, in order: `stage` (shape | approve |
     build), `started`, `ended`, `wall_s`, `exit_code`, and optionally `timed_out`.
     A build stage with no request counts as zero, not as missing, when the log has a `seeded` event: a
-    declared seed replaced the builder, so it has no builder request by design.
+    declared seed replaced the builder, so it has no builder request by design. It also counts as zero when Kogen
+    drives an executor (its shaping or build events show one) and the build log ended with an `outcome` before
+    any executor round started: Kogen stopped before building (ccs3-lm revive-baseline-go, check_failing).
     Requests with role verify, review or repair become an inner record after their command's;
     every other request belongs to its command's stage (a `shape` request to shape).
     Returns `{"stages": [...], "totals": {...}}`.
@@ -153,18 +192,25 @@ def parse_run_log(events, commands, table=None, shape_events=None):
             model, source = model_of(e)
             reqs.append({"role": e.get("role"), "model": model, "model_source": source, "wall_ms": e.get("wall_ms"),
                          "usage": usage, "zero_is_unknown": all(v == 0 for v in usage.values())})
+    if not reqs:  # Kogen driving an executor: its rounds are the requests
+        reqs = executor_requests(events)
     outcomes = [e.get("outcome") for e in events if e.get("event") == "outcome"]
     seeded = any(e.get("event") == "seeded" for e in events)
+    executor = any(str(e.get("event", "")).startswith("executor_") for e in events + (shape_events or []))
+    unstarted = bool(executor and not reqs and outcomes
+                     and not any(e.get("event") == "executor_round_started" for e in events))
     stages = []
     for c in commands:
         name = c["stage"]
         if name == "shape":
-            own = shape_requests(shape_events)
+            own = shape_requests(shape_events) or executor_requests(shape_events)
         elif name == "build":
             own = [r for r in reqs if r["role"] not in INNER]
         else:
             own = []
-        rec = _record(name, c, own, table, calc, zero_ok=(name == "build" and seeded))
+        zero = (name == "build" and seeded) or (
+            name == "build" and unstarted and "no executor round: Kogen stopped before building")
+        rec = _record(name, c, own, table, calc, zero_ok=zero)
         if c.get("timed_out"):
             rec["outcome"] = "timeout"
         elif name == "build":

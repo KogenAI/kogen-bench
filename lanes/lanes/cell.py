@@ -22,7 +22,7 @@ import threading
 import time
 import tomllib
 
-from . import common, costguard, experiment, live, node_modules, probe, usage
+from . import common, costguard, experiment, gocache, live, node_modules, probe, usage
 
 IDENTITY = {"name": "Kogen Lanes", "email": "lanes@" + "example.invalid"}
 START_DATE = "2026-01-01T00:00:00+0000"
@@ -201,7 +201,10 @@ def _git(ws, *args, env=None, check=True):
 
 
 def make_workspace(ws, tmp, start, config):
-    """Copy `start/`, add the fixed configuration and commit it, with stable author, date and config."""
+    """Copy `start/`, add the fixed configuration and commit it, with stable author, date and config.
+
+    Returns `(go_env, go_info)` from `gocache.prepare`: the run's own copy of the task's staged Go build cache,
+    outside the work tree in `tmp`, for its `Cell`."""
     shutil.copytree(start, ws, symlinks=True)
     os.makedirs(os.path.join(ws, ".kogen"), exist_ok=True)
     with open(os.path.join(ws, ".kogen", "project.yaml"), "w", encoding="utf-8") as f:
@@ -223,10 +226,11 @@ def make_workspace(ws, tmp, start, config):
     _git(ws, "add", "-A", env=env)
     _git(ws, "commit", "-q", "-m", "Start", env=env)
     node_modules.prepare_workspace(start, ws)
+    return gocache.prepare(start, tmp)
 
 
 class Cell:
-    def __init__(self, ws, kogen, out, deadline_s, abort=None, approval_context=None):
+    def __init__(self, ws, kogen, out, deadline_s, abort=None, approval_context=None, go_env=None):
         self.ws, self.kogen, self.out = ws, kogen, out
         self.approval_context = approval_context
         self.abort = abort or threading.Event()  # set by the cost guard: stop at once, record `cost_cap`
@@ -237,7 +241,7 @@ class Cell:
         # Kogen's shaper can run shell commands: keep the paths of private data out of its environment.
         self.env = {**{k: v for k, v in os.environ.items() if not k.startswith("KOGEN_LANES_")},
                     "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
-                    "GIT_TERMINAL_PROMPT": "0"}
+                    "GIT_TERMINAL_PROMPT": "0", **(go_env or {})}
 
     def invoke(self, args, stdin_path=None):
         """One Kogen command in its own process group; returns code, timeout, both streams and timing."""
@@ -490,7 +494,8 @@ def save_intent(ws, slug, dest):
 def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
     phase = exp["phase"]
     ws = os.path.join(tmp, "ws")
-    make_workspace(ws, tmp, os.path.join(task, "start"), config)
+    go_env, go_info = make_workspace(ws, tmp, os.path.join(task, "start"), config)
+    common.write_json(os.path.join(out, gocache.INFO), go_info)  # every lane starts from the same staged entry
     inputs = os.path.join(tmp, "inputs")  # the brief and answers, outside the work tree and the task folder
     os.makedirs(inputs)
     request, answers = os.path.join(inputs, "request.md"), os.path.join(inputs, "answers.txt")
@@ -501,7 +506,7 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
     started, t0 = now(), time.monotonic()
     with costguard.Watcher(run_dir, exp, provider=costguard.lane_providers(exp).get(lane_name)) as watch:
         c = Cell(ws, kogen, out, exp["deadline_s"], watch.tripped,
-                 approval_context=(run_dir, cell.split("/", 1)[0], lane_name))
+                 approval_context=(run_dir, cell.split("/", 1)[0], lane_name), go_env=go_env)
         c.watch = watch
         version = c.version(tmp)
         intent_hash, ok = None, True

@@ -165,6 +165,65 @@ class Usage(unittest.TestCase):
         self.assertNotIn("models", shape["missing"])
         self.assertEqual(r["totals"]["wall_s"], 1.5)
 
+    def test_executor_rounds_when_kogen_drives_claude_code(self):
+        """rpfix, 31 Oct 2026: Kogen driving Claude Code logs executor_round_ended, no request or provider_call;
+        lanes recorded 0 requests and null tokens (ccs3-lm). Each round counts its num_turns, as the
+        agent-alone lane counts Claude Code's."""
+        def rnd(role, n, turns, inp, cached, out, usd, t0=None, t1=None):
+            ev = [{"event": "executor_round_started", "role": role, "round": n, "session_id": role, "at": t0},
+                  {"event": "executor_round_ended", "role": role, "round": n, "session_id": role, "at": t1,
+                   "model": "fake-model", "num_turns": turns,
+                   "usage": {"input": inp, "cached": cached, "output": out, "reasoning": None, "cost_usd": usd,
+                             "model": "fake-model", "state": "complete"}},
+                  {"event": "executor_round", "role": role, "round": n,  # the same usage again: not counted twice
+                   "usage": {"input": inp, "cached": cached, "output": out, "model": "fake-model"}}]
+            return ev
+        shaping = rnd("shape", 1, 4, 1000, 600, 100, 0.25) + rnd("shape", 2, 2, 500, 400, 50, 0.5)
+        build = (rnd("build", 1, 28, 2000, 1500, 300, 1.25, "2026-10-30T17:08:16.500000Z", "2026-10-30T17:13:36.500000Z")
+                 + rnd("review", 1, 4, 3000, 1000, 20, 0.75, "2026-10-30T17:15:08Z", "2026-10-30T17:15:36Z")
+                 + [{"event": "outcome", "outcome": "landed"}])
+        commands = [{"stage": "shape", "started": "t0", "ended": "t1", "wall_s": 5.0, "exit_code": 0}] + COMMANDS
+        r = usage.parse_run_log(build, commands, TABLE, shape_events=shaping)
+        shape, approve, b, review = r["stages"]
+        self.assertEqual([s["stage"] for s in r["stages"]], ["shape", "approve", "build", "review"])
+        self.assertEqual((shape["requests"], shape["input_tokens"], shape["cached_input_tokens"], shape["output_tokens"]),
+                         (6, 1500, 1000, 150))
+        self.assertEqual(shape["client_cost_usd"], 0.75)
+        self.assertEqual((b["requests"], b["input_tokens"], b["cached_input_tokens"], b["output_tokens"]),
+                         (28, 2000, 1500, 300))
+        self.assertEqual((b["models"], b["model_sources"], b["outcome"]), (["fake-model"], ["effective"], "landed"))
+        self.assertEqual(b["cost_usd"], round((500 * 1.0 + 1500 * 0.1 + 300 * 2.0) / 1e6, 8))
+        self.assertEqual((review["requests"], review["input_tokens"], review["wall_s"]), (4, 3000, 28.0))
+        self.assertIsNone(b["reasoning_tokens"])  # Claude Code reports none: null, as for the agent-alone lane
+        self.assertEqual(r["totals"]["requests"], 38)
+        self.assertEqual(r["totals"]["input_tokens"], 6500)
+        self.assertEqual(r["totals"]["wall_s"], 7.5)
+
+    def test_build_kogen_stopped_before_its_executor_is_zero(self):
+        shaping = [{"event": "executor_round_ended", "role": "shape", "num_turns": 4, "model": "fake-model",
+                    "usage": {"input": 1000, "cached": 600, "output": 100, "cost_usd": 0.25}}]
+        log = [{"event": "start"}, {"event": "outcome", "outcome": "check_failing"}]
+        commands = [{"stage": "shape", "started": "t0", "ended": "t1", "wall_s": 5.0, "exit_code": 0}] + COMMANDS
+        r = usage.parse_run_log(log, commands, TABLE, shape_events=shaping)
+        b = r["stages"][2]
+        self.assertEqual((b["requests"], b["input_tokens"], b["cost_usd"], b["outcome"]), (0, 0, 0.0, "check_failing"))
+        self.assertEqual(b["cost_reason"], "no executor round: Kogen stopped before building")
+        self.assertEqual((r["totals"]["requests"], r["totals"]["input_tokens"]), (4, 1000))
+        # a round that started and never ended is unknown, not zero
+        r = usage.parse_run_log(log[:1] + [{"event": "executor_round_started", "role": "build"}] + log[1:],
+                                commands, TABLE, shape_events=shaping)
+        self.assertIsNone(r["stages"][2]["input_tokens"])
+        # without an executor anywhere, a build log with no request stays unknown, as before
+        self.assertIsNone(usage.parse_run_log(log, COMMANDS, TABLE)["stages"][1]["input_tokens"])
+
+    def test_request_events_win_over_executor_rounds(self):
+        log = [{"event": "request", "role": "builder", "model": "fake-model",
+                "usage": {"input": 100, "cached": 0, "output": 10, "reasoning": 0}},
+               {"event": "executor_round_ended", "role": "build", "num_turns": 9, "model": "fake-model",
+                "usage": {"input": 5000, "cached": 0, "output": 500}}]
+        b = usage.parse_run_log(log, COMMANDS, TABLE)["stages"][1]
+        self.assertEqual((b["requests"], b["input_tokens"]), (1, 100))
+
     def test_failed_build_outcome_from_log(self):
         r = usage.parse_run_log([{"event": "request", "role": "build", "model": "fake-model", "wall_ms": 5,
                                   "usage": {"input": 10, "cached": 0, "output": 5, "reasoning": 0}},

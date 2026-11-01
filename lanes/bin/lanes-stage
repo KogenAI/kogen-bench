@@ -2,6 +2,9 @@
 import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from lanes import gocache
 from lanes.node_modules import main
+args = sys.argv[1:]
 sys.argv.insert(1, "stage")
 main()
+gocache.main(args)  # never fails staging: a task it cannot stage builds cold

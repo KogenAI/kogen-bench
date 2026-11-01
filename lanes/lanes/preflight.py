@@ -15,7 +15,7 @@ import sys
 import tempfile
 import tomllib
 
-from . import approval, approvecache, ccroute, cell, common, experiment, leakage, probe
+from . import approval, approvecache, ccroute, cell, common, experiment, gocache, leakage, probe
 
 DEADLINE_S = 120  # the approval deadline; a task's `approve_timeout_s` replaces it
 
@@ -77,9 +77,9 @@ def _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context=No
     try:
         ws, out = os.path.join(tmp, "ws"), os.path.join(tmp, "out")
         os.makedirs(out)
-        cell.make_workspace(ws, tmp, os.path.join(task, "start"), config)
+        go_env, _ = cell.make_workspace(ws, tmp, os.path.join(task, "start"), config)
         cell.install_supplied(ws, supplied, slug)
-        c = cell.Cell(ws, kogen, out, deadline_s)
+        c = cell.Cell(ws, kogen, out, deadline_s, go_env=go_env)
         card = c.invoke(["intent", "approve", slug])
         m = cell.CARD_HASH.search(card[2])
         calls = [card]

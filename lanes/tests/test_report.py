@@ -276,6 +276,78 @@ class OutcomeClasses(unittest.TestCase):
         self.assertEqual((r["verdict"]["decision"], r["verdict"]["ungraded"]), ("incomplete", ["t1/r1", "t1/r2"]))
 
 
+class PassFromGrade(unittest.TestCase):
+    """rpfix, 31 Oct 2026: pass comes from evaluation.json all_passed for a normal ending (landed, ok, finished); any other non-harness ending is a workflow failure (research owner, 30 Oct). ccs3-lm's
+    claude-code-alone lane ends "finished" and its report read 0/9 against 5/9 graded."""
+
+    def test_landed_finished_failed(self):
+        ok, bad, infra = {"all_passed": True}, {"all_passed": False}, {"all_passed": True, "infrastructure": "x"}
+        want = [("landed", ok, "correct"), ("landed", bad, "incorrect"), ("landed", None, "infrastructure"),
+                ("finished", ok, "correct"), ("finished", bad, "incorrect"), ("finished", None, "infrastructure"),
+                ("finished", infra, "infrastructure"), ("ok", ok, "correct"),
+                ("failed", ok, "workflow_failure"), ("failed", bad, "workflow_failure"), ("failed", None, "workflow_failure"),
+                ("check_failing", bad, "workflow_failure"), ("check_failing", ok, "workflow_failure"),
+                ("timeout", ok, "workflow_failure"), ("refused", ok, "workflow_failure"),
+                ("provider", ok, "workflow_failure"), ("provider", bad, "workflow_failure"),
+                ("agent_error", ok, "workflow_failure"), ("agent_error", bad, "workflow_failure"),
+                ("signal", ok, "incomplete"), ("interrupted:sigterm", ok, "incomplete"),
+                ("cost_cap", ok, "incomplete"), ("provider_failure", ok, "infrastructure"),
+                ("host_lost", ok, "infrastructure")]
+        for ending, ev, cls in want:
+            with self.subTest(ending=ending, evaluation=ev):
+                self.assertEqual(report.classify({"outcome": ending}, [], ev, "build"), cls)
+
+    def test_agent_alone_lane_rates_come_from_grades(self):
+        cells = [f"{t}/r{r}/alone" for t in ("t1", "t2") for r in (1, 2)]
+        run = Run(self, passes={"kogen": [T, T, F, F], "alone": [T, F, T, F]},
+                  outcomes={c: "finished" for c in cells})
+        path = os.path.join(run.tmp.name, "experiment.json")
+        exp = common.read_json(path)
+        exp["lanes"][1]["driver"] = "claude-code-alone"
+        common.write_json(path, exp)
+        kogen, alone = run.report()["lanes"]
+        self.assertEqual((kogen["pass_rate"], alone["pass_rate"]), (0.5, 0.5))
+        self.assertEqual(alone["classes"], {"correct": 2, "incorrect": 2})
+        self.assertEqual(alone["outcomes"], {"finished": 4})  # the ending stays its own column
+        self.assertIsNone(alone["first_green_pass_rate"])  # one handed-in tree, no pass trees
+        self.assertEqual(kogen["first_green_pass_rate"], 0.5)
+        md = report.render(run.report())
+        self.assertIn("| alone | yes | 4/4/4 | 0.5 [", md)
+
+
+class Rereport(unittest.TestCase):
+    """bin/lanes-rereport: a finished run's report from stored grades and logs (rpfix, 31 Oct 2026)."""
+    BIN = os.path.join(os.path.dirname(BIN), "lanes-rereport")
+
+    def test_backs_up_rereads_executor_usage_and_refuses_unfinished_runs(self):
+        run = Run(self, passes={"kogen": [T, T, F, F], "alone": [T, F, T, F]},
+                  outcomes={f"{t}/r{r}/alone": "finished" for t in ("t1", "t2") for r in (1, 2)})
+        root, cid = run.tmp.name, "t1/r1/kogen"
+        d = common.cell_dir(root, cid)
+        res = common.read_json(os.path.join(d, "result.json"))  # as Kogen driving Claude Code left it: no request
+        res["stages"] = [{"stage": "build", "requests": 0, "input_tokens": None, "cached_input_tokens": None,
+                          "output_tokens": None, "reasoning_tokens": None, "cost_usd": None, "wall_s": 10.0,
+                          "outcome": "landed", "exit_code": 0, "models": [], "model_sources": []}]
+        common.write_json(os.path.join(d, "result.json"), res)
+        with open(os.path.join(d, "run-log", "log.jsonl"), "w") as f:
+            f.write('{"event": "executor_round_ended", "role": "build", "num_turns": 7, "model": "m", '
+                    '"usage": {"input": 900, "cached": 500, "output": 50}}\n{"event": "outcome", "outcome": "landed"}\n')
+        before = open(os.path.join(d, "result.json")).read()
+        p = subprocess.run([sys.executable, self.BIN, root], capture_output=True, text=True)
+        self.assertEqual(p.returncode, 2)  # no DONE: refused, nothing written
+        self.assertFalse(os.path.exists(os.path.join(root, "report.json")))
+        open(os.path.join(root, "DONE"), "w").close()
+        common.write_json(os.path.join(root, "report.json"), {"old": True})
+        p = subprocess.run([sys.executable, self.BIN, root], capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("alone: pass 2/4", p.stdout)
+        self.assertEqual(len([n for n in os.listdir(root) if n.startswith("report.json.bak-rpfix-")]), 1)
+        rep = common.read_json(os.path.join(root, "report.json"))
+        kogen = rep["lanes"][0]
+        self.assertEqual(kogen["stages"][0]["requests"], 7 + 2 * 3)  # the re-read cell and three stored ones
+        self.assertEqual(open(os.path.join(d, "result.json")).read(), before)  # stored files are never written
+
+
 class Robustness(unittest.TestCase):
     def cli(self, mutate=None, plan=True, **kw):
         tmp = tempfile.TemporaryDirectory()

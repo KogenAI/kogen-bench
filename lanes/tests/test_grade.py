@@ -453,3 +453,31 @@ class SharedGoCache(unittest.TestCase):
             grading.sh('GOCACHE=$PWD/.cache/go ; printf %s "$GOCACHE" > got', d, {"PATH": os.environ["PATH"]}, 10)
             with open(os.path.join(d, "got")) as f:
                 self.assertEqual(f.read(), "/shared/go")
+
+
+class HeavyLock(unittest.TestCase):
+    """`sh` holds the host's heavy lock (delivery's heavy.sh) for its command; the wait is outside wall time and deadline."""
+
+    def test_sh_waits_for_a_held_lock_outside_its_wall_time(self):
+        with tempfile.TemporaryDirectory() as d:
+            lock = os.path.join(d, "kogen-heavy.lock")
+            open(lock, "w").close()
+            holder = subprocess.Popen([sys.executable, "-c", "import fcntl, os, sys, time\n"
+                                       "fd = os.open(sys.argv[1], os.O_RDONLY); fcntl.flock(fd, fcntl.LOCK_EX)\n"
+                                       "print(flush=True); time.sleep(1.5)", lock], stdout=subprocess.PIPE)
+            holder.stdout.readline()
+            with unittest.mock.patch.dict(os.environ, {"LANES_HEAVY_LOCK": lock}):
+                row = grading.sh("true", d, {"PATH": os.environ["PATH"]}, 1)
+            holder.wait()
+            with open(os.path.join(d, "kogen-heavy.log")) as f:
+                self.assertIn("wait lanes-grade: true", f.read())
+        self.assertEqual((row["status"], row["timed_out"]), (0, False))
+        self.assertGreaterEqual(row["lock_wait_s"], 1.0)
+        self.assertLess(row["wall_ms"], 1000)
+
+    def test_no_lock_file_or_off_runs_without_a_lock(self):
+        with tempfile.TemporaryDirectory() as d:
+            for path in (os.path.join(d, "missing.lock"), "off"):
+                with unittest.mock.patch.dict(os.environ, {"LANES_HEAVY_LOCK": path}):
+                    row = grading.sh("true", d, {"PATH": os.environ["PATH"]}, 5)
+                self.assertEqual((row["status"], row["lock_wait_s"]), (0, 0.0))

@@ -241,13 +241,15 @@ class FreshExport(GradeCase):
         self.assertEqual(code, 1)
         self.assertIn("FAIL task-mini acceptance: reference does not pass supplied scenarios at line", out)
 
-    def test_acceptance_needing_a_missing_runner_variable_is_skipped(self):
+    def test_acceptance_needing_a_missing_runner_variable_fails(self):  # hardwhy, 31 Oct: was skipped, as ok
         self.accepting('run = \'"$KOGEN_NODE" cucumber.js --format "message:$KOGEN_ACCEPTANCE_REPORT"\'')
-        env = {k: v for k, v in os.environ.items() if k != "KOGEN_NODE"}
+        env = {k: v for k, v in os.environ.items() if k not in ("KOGEN_NODE", "KOGEN_BIN")}
+        env["PATH"] = os.pathsep.join(d for d in env.get("PATH", "").split(os.pathsep)
+                                      if d and not os.path.exists(os.path.join(d, "node")))
         with unittest.mock.patch.dict(os.environ, env, clear=True):
             code, out = self.qualify()
-        self.assertEqual(code, 0, out)
-        self.assertIn("ok   task-mini acceptance: skipped: needs KOGEN_NODE in the environment", out)
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL task-mini acceptance: acceptance runner unavailable: needs KOGEN_NODE", out)
 
     def test_task_without_a_report_writing_acceptance_is_skipped(self):
         code, out = self.qualify()

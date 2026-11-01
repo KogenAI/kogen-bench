@@ -21,6 +21,8 @@ if [ -f lanes/grade/go.mod ]; then
   PATH=$(dirname "$go"):$PATH
   export PATH
 fi
+# A host's heavy lock (/var/tmp/kogen-heavy.lock) must not stall the offline tests; the lock tests set their own.
+export LANES_HEAVY_LOCK="${LANES_HEAVY_LOCK:-off}"
 status=0
 python3 -m unittest discover -s lanes/tests -t lanes || status=1
 if [ -n "$go" ]; then

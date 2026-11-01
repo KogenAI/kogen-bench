@@ -22,6 +22,11 @@ DAYCAP=${DAYCAP:-1000}; SLOTS=${SLOTS:-3}; STOP_MARGIN=1.0   # v3 (25 Oct ~17:05
 WEEKLY=$P/weekly-usage.json; W_PAUSE=100; W_STOP=100; W_STALE=1800   # fed every 10 min by the coordinating host (weekly-feed.sh); stale -> local estimate (OPS-AUTONOMY, see wstate)
 DD=$P/${DAYDIR:-dayspend}; mkdir -p $DD
 say() { echo "$(date -u +%FT%TZ) $*" >> $LOG; }
+# GUARD_HOLD (30 Oct; a weekly stop held 10 units 2 h 20 min unseen): every guard wait, pause or stop of this runner is one line in
+# $P/holds.tsv (holds.py; tied to this pid, removed on dispatch, resume or exit); fleet-check alarms when one is older than 15 min
+hold() { python3 -I ${HOLDS_PY:-$P/holds.py} set "$1" "day-runner:$2" "$3" --pid $$ >/dev/null 2>&1 || :; }
+unhold() { [ -n "$1" ] && python3 -I ${HOLDS_PY:-$P/holds.py} clear "$1" --guard day-runner: >/dev/null 2>&1 || :; }
+trap 'unhold "$e"' EXIT
 today() { date -u +%F; }
 acc() { cat $DD/$1 2>/dev/null || echo 0; }
 acc_add() { python3 -c "import sys;print(round(float(sys.argv[1])+float(sys.argv[2]),4))" "$(acc $1)" "$2" > $DD/$1.tmp && mv $DD/$1.tmp $DD/$1; }
@@ -82,9 +87,9 @@ print("stop" if est >= limit else "ok")
 PY
 }
 wpct() { python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('used_pct'))" $WEEKLY 2>/dev/null || echo "?"; }
-wait_weekly() { while :; do w=$(wstate); [ "$w" = ok ] && return 0; say "weekly guard: $w (used $(wpct)%), waiting"; sleep 300; done; }
+wait_weekly() { while :; do w=$(wstate); [ "$w" = ok ] && { unhold $e; return 0; }; hold $e weekly "weekly guard: $w (used $(wpct)%), waiting"; say "weekly guard: $w (used $(wpct)%), waiting"; sleep 300; done; }
 live_cells() { ls $P/runs/$1/cells/*/*/*/live.json 2>/dev/null | wc -l; }
-wait_next_day() { d=$(today); while [ "$(today)" = "$d" ]; do sleep 60; done; }
+wait_next_day() { hold $e daily "daily guard: waits for the next UTC day (day spend \$$(acc $(today)), cap \$$DAYCAP)"; d=$(today); while [ "$(today)" = "$d" ]; do sleep 60; done; unhold $e; }
 # run one experiment to completion under the daily guard: capped <id> <tasks dir> <default cell estimate>
 capped() { e=$1; tasks=$2; est0=$3
   [ -f $P/runs/$e/DONE ] && return 0
@@ -95,21 +100,21 @@ capped() { e=$1; tasks=$2; est0=$3
     if ! ge $rem $est; then say "$e waits for the next UTC day (day spend \$$(acc $day), remainder \$$rem < cell estimate \$$est)"; wait_next_day; continue; fi
     base=$(run_total $e); [ "$base" = FAIL ] && { say "STOP $e: cost estimate failed (see $P/$e/run-logs/guard.err)"; return 1; }
     HOME=$KH python3 $LANES/bin/lanes-run $P/runs/$e --tasks $tasks --hosts $P/runs/$e/hosts.json >> $P/$e/run-logs/run.out 2>&1 &
-    D=$!; paused=0; stopped=0; why=day; say "$e dispatch started (day spend \$$(acc $day), cell estimate \$$est)"
+    D=$!; paused=0; stopped=0; why=day; unhold $e; say "$e dispatch started (day spend \$$(acc $day), cell estimate \$$est)"
     while kill -0 $D 2>/dev/null; do
       sleep 60
-      t=$(run_total $e); [ "$t" = FAIL ] && { kill -TERM $D; kill -CONT $D; stopped=1; say "$e stopped: cost estimate failed"; continue; }
+      t=$(run_total $e); [ "$t" = FAIL ] && { kill -TERM $D; kill -CONT $D; stopped=1; hold $e daily "stopped: cost estimate failed"; say "$e stopped: cost estimate failed"; continue; }
       if [ "$(today)" != "$day" ]; then acc_add $day $(calc "$t-$base"); day=$(today); base=$t
-        [ $paused = 1 ] && [ $stopped = 0 ] && { kill -CONT $D; paused=0; say "new day: $e resumed"; }; fi
+        [ $paused = 1 ] && [ $stopped = 0 ] && { kill -CONT $D; paused=0; unhold $e; say "new day: $e resumed"; }; fi
       live=$(calc "$(acc $day)+$t-$base"); w=$(wstate)
       if [ $stopped = 0 ] && { [ "$w" = stop ] || [ "$w" = stale ]; }; then
-        kill -TERM $D; kill -CONT $D; stopped=1; why=weekly; say "weekly guard: $e stopped ($w, used $(wpct)%)"; continue
+        kill -TERM $D; kill -CONT $D; stopped=1; why=weekly; hold $e weekly "weekly guard: stopped ($w, used $(wpct)%)"; say "weekly guard: $e stopped ($w, used $(wpct)%)"; continue
       fi
-      if [ $paused = 0 ] && [ $stopped = 0 ] && { [ "$w" = pause ] || [ "$w" = pace ]; }; then kill -STOP $D; paused=1; why=weekly; say "weekly guard: $e paused new cells (used $(wpct)%)"; continue; fi
+      if [ $paused = 0 ] && [ $stopped = 0 ] && { [ "$w" = pause ] || [ "$w" = pace ]; }; then kill -STOP $D; paused=1; why=weekly; hold $e weekly "weekly guard: paused new cells (used $(wpct)%)"; say "weekly guard: $e paused new cells (used $(wpct)%)"; continue; fi
       if [ $stopped = 0 ] && { ge $live $(calc "$DAYCAP-$STOP_MARGIN") || { [ $paused = 1 ] && [ $(live_cells $e) = 0 ]; }; }; then
-        kill -TERM $D; kill -CONT $D; stopped=1; say "daily guard: $e stopped (day spend \$$live, live cells $(live_cells $e))"
+        kill -TERM $D; kill -CONT $D; stopped=1; hold $e daily "daily guard: stopped (day spend \$$live, cap \$$DAYCAP)"; say "daily guard: $e stopped (day spend \$$live, live cells $(live_cells $e))"
       elif [ $paused = 0 ] && [ $stopped = 0 ] && ge $live $(calc "$DAYCAP-$SLOTS*$est"); then
-        kill -STOP $D; paused=1; say "daily guard: $e paused new cells (day spend \$$live)"
+        kill -STOP $D; paused=1; hold $e daily "daily guard: paused new cells (day spend \$$live, cap \$$DAYCAP)"; say "daily guard: $e paused new cells (day spend \$$live)"
       fi
     done
     wait $D 2>/dev/null; dispatch_rc=$?; t=$(run_total $e); [ "$t" != FAIL ] && acc_add $day $(calc "$t-$base")

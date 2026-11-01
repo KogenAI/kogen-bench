@@ -28,8 +28,23 @@ GO_VARS = frozenset(("GOPATH", "GOCACHE", "GOFLAGS", "GOMODCACHE", "GOPROXY", "G
 ENV_PREFIXES = ("MIX_", "HEX_", "NODE_", "NPM_CONFIG_", "npm_config_")
 # The acceptance runner's own variables (a task's `[acceptance] run` line uses them), by exact name: no `KOGEN_` prefix.
 RUNNER_VARS = frozenset(("KOGEN_CUCUMBER", "KOGEN_NODE"))
+CUCUMBER_JS = os.path.join("@cucumber", "cucumber", "bin", "cucumber.js")
+# Fixture defects of a task pack that grading repairs in its scratch tree, keyed by task.toml `name`, with the reason
+# recorded in `evaluation.json` (`fixture_repairs`). A repair only adds a missing file; it never replaces one.
+FIXTURE_REPAIRS = {
+    # Upstream revive has testdata api/v1 and api/V1. The pack was cut on a case-insensitive (macOS) checkout, which
+    # kept only api/V1. On macOS the test opens api/V1/api.go for api/v1/api.go and passes; on a case-sensitive
+    # host it fails at baseline for every arm and errors the whole regression command (hardwhy, 31 Oct).
+    "revive-baseline-go": [(
+        "testdata/package_directory_mismatch/api/v1/api.go", "testdata/package_directory_mismatch/api/V1/api.go",
+        "case-sensitive host: the pack lost api/v1 to a case-insensitive checkout; laid from api/V1 as macOS reads it")],
+}
 STATUS_ORDER = ["UNKNOWN", "PASSED", "SKIPPED", "PENDING", "UNDEFINED", "AMBIGUOUS", "FAILED"]
+# The host's heavy lock (delivery's `heavy.sh`, 30 Oct): each test command of a grade holds it, so a grade never overlaps
+# delivery's heavy check. `LANES_HEAVY_LOCK` names another file, or `off`; no lock file means no lock.
+HEAVY_LOCK = "/var/tmp/kogen-heavy.lock"
 _binary = []
+_lock_waits = []  # seconds each `sh` waited for the heavy lock, since `grade_cell` started
 
 
 class GradeError(ValueError):
@@ -137,8 +152,36 @@ def scratch(task_dir=None, *overlays, export=False):
         shutil.rmtree(root, ignore_errors=True)
 
 
+@contextlib.contextmanager
+def heavy_lock(cmd):
+    """Hold the host's heavy lock (exclusive flock(2) on `HEAVY_LOCK`, as `heavy.sh` takes it with lockf/flock) for
+    the block; yields the seconds spent waiting (also added to `_lock_waits`). Each attempt is logged to
+    `kogen-heavy.log` next to the lock (`/var/tmp/kogen-heavy.log`), as heavy.sh logs its own."""
+    path = os.environ.get("LANES_HEAVY_LOCK", HEAVY_LOCK)
+    try:
+        fd = os.open(path, os.O_RDONLY) if path != "off" else None  # read-only, no O_CREAT: see heavy-held.py
+    except OSError:
+        fd = None
+    if fd is None:
+        yield 0.0
+        return
+    t0 = time.monotonic()
+    try:
+        with contextlib.suppress(OSError), open(os.path.join(os.path.dirname(path), "kogen-heavy.log"), "a") as log:
+            log.write(f"{time.strftime('%H:%M:%SZ', time.gmtime())} {os.getpid()} wait lanes-grade: "
+                      f"{' '.join(cmd.split())[:100]}\n")
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        waited = time.monotonic() - t0
+        _lock_waits.append(waited)
+        yield waited
+    finally:
+        os.close(fd)
+
+
 def sh(cmd, cwd, env, deadline_s):
-    """Run a shell line in its own group; return `{status, timed_out, wall_ms}`.
+    """Run a shell line in its own group under the heavy lock; return `{status, timed_out, wall_ms, lock_wait_s}`.
+
+    The lock wait is outside `wall_ms` and the deadline.
 
     With `LANES_SHARED_GOCACHE` set, any inline `GOCACHE=<word>` in the line is pointed at that shared cache and
     `GOCACHE` is set in the environment too: a per-tree Go build cache makes every grade recompile the whole
@@ -149,17 +192,60 @@ def sh(cmd, cwd, env, deadline_s):
     if shared:
         cmd = re.sub(r"\bGOCACHE=\S+", lambda _: "GOCACHE=" + shared, cmd)
         env = dict(env, GOCACHE=shared)
-    t0 = time.monotonic()
-    with open(os.devnull, "wb") as null:
+    with heavy_lock(cmd) as waited, open(os.devnull, "wb") as null:
+        t0 = time.monotonic()
         code, timed_out = common.run(["sh", "-c", cmd], cwd=cwd, env=env, deadline_s=deadline_s,
                                      stdout=null, stderr=null, stdin=subprocess.DEVNULL)
-    return {"status": code, "timed_out": timed_out, "wall_ms": int((time.monotonic() - t0) * 1000)}
+        wall_ms = int((time.monotonic() - t0) * 1000)
+    return {"status": code, "timed_out": timed_out, "wall_ms": wall_ms, "lock_wait_s": round(waited, 1)}
+
+
+def runner_vars():
+    """`KOGEN_CUCUMBER` and `KOGEN_NODE` for acceptance commands: the environment's when set; else the Cucumber of the
+    Kogen release `$KOGEN_BIN` sits in (`<root>/lib/cucumber/node_modules`) and the `node` on PATH. A variable that
+    cannot be resolved is left out, and a grade whose acceptance run then reports nothing is `infrastructure`.
+    """
+    out = {k: os.environ[k] for k in sorted(RUNNER_VARS) if os.environ.get(k)}
+    if "KOGEN_CUCUMBER" not in out and os.environ.get("KOGEN_BIN"):
+        root = cell.release_root(os.path.realpath(os.environ["KOGEN_BIN"]))
+        cuc = root and os.path.join(root, "lib", "cucumber", "node_modules")
+        if cuc and os.path.isfile(os.path.join(cuc, CUCUMBER_JS)):
+            out["KOGEN_CUCUMBER"] = cuc
+    if "KOGEN_NODE" not in out and shutil.which("node"):
+        out["KOGEN_NODE"] = shutil.which("node")
+    return out
+
+
+def repair_fixtures(task, tree):
+    """Lay the `FIXTURE_REPAIRS` files of this task that the tree lacks; return `["<path>: <reason>"]`."""
+    done = []
+    for dst, src, why in FIXTURE_REPAIRS.get(task["task"].get("name"), []):
+        d, s = os.path.join(tree, dst), os.path.join(tree, src)
+        if os.path.isfile(s) and not os.path.lexists(d):  # on a case-insensitive host `d` exists: nothing to do
+            os.makedirs(os.path.dirname(d), exist_ok=True)
+            shutil.copyfile(s, d)
+            done.append(f"{dst}: {why}")
+    return done
+
+
+def acceptance_unreported(ev, rec):
+    """The infrastructure reason when the evaluator expects acceptance ids and every one is missing (the runner
+    wrote no scenario: no Cucumber, no Node, or it crashed), else None. A failed scenario is reported, not missing."""
+    exp = ev.get("expected", {})
+    wanted = [i for i in exp.get("requested", []) + exp.get("regression", []) if i.startswith("acceptance:")]
+    missing = set(rec.get("missing") or [])
+    if not wanted or not all(i in missing for i in wanted):
+        return None
+    have = runner_vars()
+    return (f"acceptance run reported none of {len(wanted)} expected scenarios (runner did not execute; "
+            + ", ".join(f"{k}={'set' if k in have else 'unset'}" for k in sorted(RUNNER_VARS)) + ")")
 
 
 def task_env(task, tree, extra=None):
     """The Lab's `commandEnv`: toolchain variables, the acceptance runner variables, HOME, PATH, LANG, `KOGEN_LAB_ADAPTERS`, the task `env`, and a private
     TMPDIR next to the tree."""
-    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k in RUNNER_VARS or k.startswith(ENV_PREFIXES)}
+    env = {k: v for k, v in os.environ.items() if k in GO_VARS or k.startswith(ENV_PREFIXES)}
+    env.update(runner_vars())
     env.update(HOME=os.environ.get("HOME", "/"), PATH=os.environ.get("PATH", "/usr/bin:/bin"),
                LANG=os.environ.get("LANG", "C.UTF-8"))
     env.update({k: str(v) for k, v in task["task"].get("env", {}).items()})
@@ -195,6 +281,9 @@ def evaluate_tree(task, tree, hidden=True, deadline_s=None):
     if hidden:
         lay(os.path.join(task["dir"], "evaluator", ev["overlay"]), tree)
     rec = {"infrastructure": None}
+    repaired = repair_fixtures(task, tree)
+    if repaired:
+        rec["fixture_repairs"] = repaired
     rec["setup"], rec["infrastructure"] = run_setup(task, tree, task["task"].get("setup", []) + ev.get("setup", []))
     commands = []
     for c in ev["command"] if not rec["infrastructure"] else []:
@@ -214,6 +303,8 @@ def evaluate_tree(task, tree, hidden=True, deadline_s=None):
     if r.returncode:
         raise GradeError("grader failed: " + r.stderr.strip())
     rec.update(json.loads(r.stdout))
+    if not rec["infrastructure"] and commands:
+        rec["infrastructure"] = acceptance_unreported(ev, rec)
     if rec["infrastructure"]:
         rec["all_passed"] = False
     rec["totals"] = {"expected": len(rec["ids"]), "passed": sum(s == "passed" for s in rec["ids"].values())}
@@ -431,7 +522,10 @@ def shaped_intent_grade(task, d, result, deadline_s=None):
 
 
 def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
-    """Grade one finished cell and write its `evaluation.json`; return the record."""
+    """Grade one finished cell and write its `evaluation.json`; return the record.
+
+    `heavy_lock_wait_s` is the cell's total wait for the heavy lock over all its grading commands (not test time)."""
+    _lock_waits.clear()
     d = common.cell_dir(run_dir, cell)
     result = common.read_json(os.path.join(d, "result.json"))
     task = load_task(os.path.join(tasks_dir, cell.split("/")[0]))
@@ -454,6 +548,7 @@ def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
             p = os.path.join(d, "pass-trees", str(tree) + ".tar")
             sub = grade_archive(task, p, deadline_s) if os.path.isfile(p) else {"ungraded": "tree not available"}
             rec["pass_trees"].append(dict(sub, tree=tree, **({"first_green": True} if first and tree == first else {})))
+    rec["heavy_lock_wait_s"] = round(sum(_lock_waits), 1)
     common.write_json(os.path.join(d, "evaluation.json"), rec)
     return rec
 
@@ -544,16 +639,17 @@ def qualify_acceptance(task):
     """Run the supplied Intent's scenarios on the reference as Kogen's verification does: a fresh export, the
     task `setup`, then the task's acceptance command (the evaluator's own setup does not run, so a build
     that only the evaluator performs is caught). Returns `(ok, detail)`; skipped, as ok, when the task has no
-    report-writing `[acceptance]`, no supplied Gherkin Intent, or needs a `$KOGEN_*` runner variable the host lacks.
+    report-writing `[acceptance]` or no supplied Gherkin Intent. A `$KOGEN_*` runner variable the host cannot supply
+    (see `runner_vars`) is a failure, not a skip: the grade would report no scenario.
     """
     acc, form = task["task"].get("acceptance"), os.path.join(task["dir"], "supplied", "gherkin")
     if not acc or "KOGEN_ACCEPTANCE_REPORT" not in acc.get("run", "") or not os.path.isfile(
             os.path.join(form, "intent.md")) or not os.path.isfile(os.path.join(form, "acceptance.feature")):
         return True, "skipped: no acceptance command that writes a report, or no supplied Gherkin Intent"
     absent = sorted(v for v in set(re.findall(r"\$\{?(KOGEN_[A-Z_]+)", acc["run"]))
-                    if not v.startswith("KOGEN_ACCEPTANCE_") and v not in os.environ)
+                    if not v.startswith("KOGEN_ACCEPTANCE_") and v not in os.environ and v not in runner_vars())
     if absent:
-        return True, "skipped: needs " + ", ".join(absent) + " in the environment"
+        return False, "acceptance runner unavailable: needs " + ", ".join(absent) + " (environment or $KOGEN_BIN release)"
     intent = os.path.join(form, "intent.md")
     try:
         listed = intent_steps(intent)

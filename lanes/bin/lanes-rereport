@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""lanes-rereport [--check] <run dir>...: regenerate report.json and report.md of finished runs with this tree's
+report code (rpfix, 31 Oct 2026), from what the run stored. No model call, no grading: result.json,
+evaluation.json and the logs are read, never written.
+
+A Kogen cell whose result.json recorded no request (Kogen driving Claude Code) gets its stage usage re-read
+from its stored run log and shaping events (usage.parse_run_log, in memory only). A stage of any lane stored
+with tokens but no price is priced with this tree's table, so every lane's cost uses one table (cost reason
+"repriced by lanes-rereport"). The old report files are kept
+as report.json.bak-rpfix-<UTC> and report.md.bak-rpfix-<UTC>. A run dir without DONE is refused.
+--check: print each lane's pass rate and requests; write nothing.
+"""
+
+import argparse
+import os
+import shutil
+import sys
+import time
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
+from lanes import common, report, usage  # noqa: E402
+
+
+def reprice(result):
+    """`result` with its unpriced stages priced from their stored tokens (one model each), totals summed again."""
+    stages = [dict(s) for s in result.get("stages") or []]
+    changed = False
+    for s in stages:
+        tokens = {k: s.get(k) for k in ("input_tokens", "cached_input_tokens", "output_tokens")}
+        if s.get("cost_usd") is None and None not in tokens.values() and len(s.get("models") or []) == 1:
+            usd, _ = usage.request_cost(s["models"][0], tokens)
+            if usd is not None:
+                s.update(cost_usd=round(usd, 8), cost_reason="repriced by lanes-rereport")
+                changed = True
+    if not changed:
+        return result
+    costs = [s.get("cost_usd") for s in stages]
+    totals = dict(result.get("totals") or {}, cost_usd=None if None in costs else round(sum(costs), 8),
+                  cost_reason="; ".join(sorted({s["cost_reason"] for s in stages if s.get("cost_reason")})) or None)
+    return dict(result, stages=stages, totals=totals)
+
+
+def reparse(result, cell_dir):
+    """`result` with stages and totals from the stored logs when it recorded no request and the logs have some."""
+    stages = result.get("stages") or []
+    if not stages or any(s.get("requests") for s in stages):
+        return reprice(result)
+    events = usage.read_log(os.path.join(cell_dir, "run-log", "log.jsonl"))
+    shaping = usage.read_log(os.path.join(cell_dir, "shaping-events.ndjson"))
+    if events is None and shaping is None:
+        return result
+    commands = [{"stage": s["stage"], "started": s.get("started"), "ended": s.get("ended"), "wall_s": s.get("wall_s"),
+                 "exit_code": s.get("exit_code"), "timed_out": s.get("outcome") == "timeout"}
+                for s in stages if s["stage"] in usage.STAGES]
+    new = usage.parse_run_log(events, commands, shape_events=shaping)
+    if not new["totals"]["requests"]:
+        return reprice(result)
+    outcomes = {s["stage"]: s.get("outcome") for s in stages}
+    for s in new["stages"]:
+        if s["stage"] in usage.STAGES:
+            s["outcome"] = outcomes.get(s["stage"])  # the stored outcome, as cell.py set it
+    return reprice(dict(result, stages=new["stages"], totals=new["totals"], usage_reread="rpfix"))
+
+
+def _load_cells(run_dir, phase, load=report._load_cells):
+    cells = load(run_dir, phase)
+    for c in cells:
+        if c["result"]:
+            c["result"] = reparse(c["result"], common.cell_dir(run_dir, c["plan"]["cell"]))
+    return cells
+
+
+report._load_cells = _load_cells
+
+
+def main(argv):
+    ap = argparse.ArgumentParser(prog="lanes-rereport", description=__doc__.split("\n")[0])
+    ap.add_argument("--check", action="store_true", help="print the lanes' numbers; write nothing")
+    ap.add_argument("run_dirs", nargs="+")
+    a = ap.parse_args(argv)
+    stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    status = 0
+    for run_dir in a.run_dirs:
+        if not os.path.isfile(os.path.join(run_dir, "DONE")):
+            print(f"lanes-rereport: {run_dir}: no DONE (the run is not finished); skipped", file=sys.stderr)
+            status = 2
+            continue
+        try:
+            if a.check:
+                rep = report.report(run_dir)
+            else:
+                for name in ("report.json", "report.md"):
+                    if os.path.isfile(os.path.join(run_dir, name)):
+                        shutil.copy2(os.path.join(run_dir, name), os.path.join(run_dir, f"{name}.bak-rpfix-{stamp}"))
+                rep = report.write(run_dir)
+        except (report.ReportError, OSError, KeyError, ValueError) as e:
+            print(f"lanes-rereport: {run_dir}: {e}", file=sys.stderr)
+            status = 2
+            continue
+        print(f"{run_dir}: {rep['verdict']['line']}")
+        for l in rep.get("lanes") or []:
+            classes = l.get("classes") or {}
+            counted = sum(v for k, v in classes.items() if k in report.COUNTED)
+            print(f"  {l.get('name')}: pass {classes.get('correct', 0)}/{counted} ({l.get('pass_rate')}), "
+                  f"requests {(l.get('totals') or {}).get('requests')}, outcomes {l.get('outcomes')}, classes {classes}")
+    return status
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -8,14 +8,16 @@ Common fields for every kind except `descriptive` and `keep_revert`: `baseline` 
 
 Each cell gets the Lab's class (`internal/scoring` `classify`) from `result.json` `outcome`, the `provider_failure` flag of the run log's last `outcome` event and the evaluation state (`evaluation.json`: `all_passed` true is `all_passed`, false is `failed`; a set `infrastructure` key or `state` `infrastructure` or `incomplete`; no file is `incomplete`):
 
-| Kogen ending | class |
+| ending | class |
 |---|---|
-| `landed` or `ok`, evaluation `all_passed` | `correct` |
-| `landed` or `ok`, evaluation `failed` | `incorrect` |
-| `landed` or `ok`, evaluation with `infrastructure` set (any value but null or false, e.g. a reason string; checked before `all_passed`, as the Lab's `evaluationState`), `state` infrastructure or incomplete, or no `evaluation.json` | `infrastructure` |
+| `landed`, `ok` or `finished` (the agent-alone drivers' normal end), evaluation `all_passed` | `correct` |
+| `landed`, `ok` or `finished`, evaluation `failed` | `incorrect` |
+| `landed`, `ok` or `finished`, evaluation with `infrastructure` set (any value but null or false, e.g. a reason string; checked before `all_passed`, as the Lab's `evaluationState`), `state` infrastructure or incomplete, or no `evaluation.json` | `infrastructure` |
 | `provider_failure*`, `host_lost`, `environment` (exit 3: host or setup), `usage` (exit 2: invalid harness input), or the `provider_failure` flag | `infrastructure` |
-| `signal` (exit 129/130/143), `interrupted*`, `controller_lost`, no `result.json`, a `result.json` without `outcome` | `incomplete` |
-| anything else: `refused`, `internal`, `timeout`, `questions_pending`, `build_blocked`, `no_outcome`, ... | `workflow_failure` (needs no grade) |
+| `signal` (exit 129/130/143), `interrupted*`, `controller_lost`, `cost_cap`, `memory_cap`, no `result.json`, a `result.json` without `outcome` | `incomplete` |
+| anything else (`refused`, `internal`, `timeout`, `questions_pending`, `build_blocked`, `check_failing`, `agent_error`, `no_outcome`, ...), whatever the evaluation (even `all_passed`) | `workflow_failure` (needs no grade) |
+
+A cell passes only when its run ended normally (`landed`, `ok`, `finished`) and its evaluation is `all_passed` (research owner, 30 Oct 2026; rpfix, 31 Oct 2026 had filed every `finished` cell of an agent-alone lane as a workflow failure). Any other non-harness ending is a workflow failure even when its tree passes the grade; only the endings that say the harness stopped the cell (the `infrastructure` and `incomplete` rows) keep a cell out of the counted cells. The report lists the endings (`outcomes`) apart from the classes. An agent-alone lane (a lane `driver` that does not start with `kogen`) records no pass trees, so its first-green pass rate is n/a.
 
 For `shape` cells the ending is `ok` and a cell is `correct` when its Intent's matrix holds: `scenarios` > 0, `pass_on_reference` = `fail_on_start` = `scenarios`, and `wrong_caught` = `wrong_total` (or `all_passed` when `evaluation.json` carries it).
 

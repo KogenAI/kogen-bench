@@ -17,6 +17,7 @@ from . import approval, common, costguard, experiment, timeoutguard, usage
 RULE_KINDS = ("paired_sign", "task_sign", "cost_at_quality", "keep_revert", "descriptive")
 SHAPE_KEYS = ("scenarios", "pass_on_reference", "fail_on_start", "wrong_caught", "wrong_total")
 COUNTED = ("correct", "incorrect", "workflow_failure")  # the Lab's Outcome.counted?
+SUBMITTED = ("landed", "ok", "finished")  # a tree was handed in: Kogen's landed, a stage's ok, the agent-alone drivers' finished
 THRESHOLDS = ("min_gain_points", "max_p", "max_loss_points", "min_saving_pct")
 STAGE_ORDER = ("shape", "approve", "build") + usage.INNER  # other stages follow in first-seen order
 SUMS = ("requests",) + usage.TOKENS + ("cost_usd", "wall_s")
@@ -28,6 +29,8 @@ DECIMAL = re.compile(r"[+-]?\d+(\.\d+)?([eE][+-]?\d+)?")
 #   "n/d" and `decimalBound` treats inf as beyond every ratio and nan as always false; `check_rule`
 #   admits only numbers and decimal strings, so neither case reaches a rule;
 # - Kogen's endings are not the Lab's workflow-end strings: `classify` maps them;
+# - pass comes from the grade: a cell the harness did not stop is correct when its evaluation is all_passed,
+#   whatever its ending (rpfix, 31 Oct: agent-alone lanes end "finished" and were all filed as workflow failures);
 # - climb reports leave plumbing cells (timeouts, truncations, provider and harness failures) out of the
 #   quality rates, where the Lab counts timeouts and context exhaustion as `workflow_failure`.
 
@@ -232,12 +235,15 @@ def _shape_class(shape):
 
 
 def classify(result, log, evaluation, phase):
-    """The Lab's outcome class (Outcome.classify) for a Kogen cell; the table is in DECISION-RULES.md."""
+    """The Lab's outcome class (Outcome.classify) of a cell of any lane; the table is in DECISION-RULES.md.
+    A cell passes only when its run ended normally (landed, ok, finished) and its evaluation is all_passed
+    (research owner, 30 Oct 2026): any other non-harness ending is a workflow failure even when its tree passes
+    the grade; the endings that say the harness stopped the cell stay infrastructure or incomplete."""
     ending = (result or {}).get("outcome")
     if not isinstance(ending, str):  # never ran, or a result without an ending: a harness fault
         return "incomplete"
-    if ending in ("landed", "ok"):  # submitted
-        state = _eval_state(evaluation, phase)
+    state = _eval_state(evaluation, phase)
+    if ending in SUBMITTED:
         if state in ("infrastructure", "incomplete"):
             return "infrastructure"
         return "correct" if state == "all_passed" else "incorrect"
@@ -246,7 +252,7 @@ def classify(result, log, evaluation, phase):
         return "infrastructure"
     if ending.startswith("interrupted") or ending in ("controller_lost", "signal", "cost_cap", "memory_cap"):
         return "incomplete"
-    return "workflow_failure"  # build_blocked, no_outcome, refused, internal, timeout, questions_pending, ...
+    return "workflow_failure"  # whatever the grade: build_blocked, no_outcome, refused, internal, timeout, questions_pending, ...
 
 
 def _load_cells(run_dir, phase):
@@ -316,6 +322,9 @@ def _lane(lane, cells, phase, part=None):
     if phase == "e2e":  # an e2e cell's evaluation holds the grade of the Intent it shaped under `shape`
         shaped = [e for e in shapes if all(isinstance(e.get(k), int) for k in SHAPE_KEYS)]
     rate = lambda n: round(n / len(counted), 4) if counted else None
+    green = None  # an agent-alone lane hands in one tree and records no pass trees: n/a, not 0
+    if (lane.get("driver") or "kogen").startswith("kogen"):
+        green = sum(1 for c in counted if _green_pass(c["evaluation"]))
     return {
         "name": lane["name"], "sha": lane.get("sha"), "patch": lane.get("patch"),
         "valid": not found, "witness_failures": witness, "witness_failures_test": hidden,
@@ -324,8 +333,8 @@ def _lane(lane, cells, phase, part=None):
         "classes": dict(sorted(collections.Counter(c["class"] for c in shown).items())),
         "pass_rate": rate(sum(1 for c in counted if c["class"] == "correct")),
         "pass_rate_ci": wilson(sum(1 for c in counted if c["class"] == "correct"), len(counted)),
-        "first_green_pass_rate": rate(sum(1 for c in counted if _green_pass(c["evaluation"]))),
-        "first_green_pass_rate_ci": wilson(sum(1 for c in counted if _green_pass(c["evaluation"])), len(counted)),
+        "first_green_pass_rate": None if green is None else rate(green),
+        "first_green_pass_rate_ci": None if green is None else wilson(green, len(counted)),
         "plumbing": dict(sorted(collections.Counter(p for p in map(plumbing, shown) if p).items())),
         # usage.py read totals.models from the run log
         "models": sorted({m for t in totals for m in t.get("models") or []}),
@@ -418,7 +427,7 @@ TRUNCATION = re.compile(r"truncat\w*|context_exhausted")  # Kogen's endings (bui
 def plumbing(cell):
     """The plumbing category of a cell (not a task failure), or None."""
     ending = (cell["result"] or {}).get("outcome")
-    if isinstance(ending, str) and ending not in ("landed", "ok"):
+    if isinstance(ending, str) and ending not in SUBMITTED:
         if ending == "cost_cap":  # the cost guard stopped the cell: not a task failure
             return "cost_cap"
         if ending == "memory_cap":  # the host's per-cell memory cap stopped the cell
