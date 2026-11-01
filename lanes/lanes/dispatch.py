@@ -28,21 +28,103 @@ class DispatchError(RuntimeError):
 
 # ---- host gate ------------------------------------------------------------------------------
 
-def host_live(runs, host_name, log):
-    """Live cells on this machine: every `<runs>/*/cells/*/*/*/live.json` plus each running `lanes-grade` (grading runs
-    test suites outside the cells). First reaps the phantoms of every run dir under `runs`, not only this run's, so
-    a cell that died hard in another run does not hold a place."""
+ADMIT_DIR = "host-admit"  # `<runs>/../host-admit/<token>.json`: admissions the gate has granted that are not live cells yet
+ADMIT_SETTLE_S = 20  # stagger after an admission: workspace copies of cells admitted together hit the disk together
+ADMIT_MAX_S = 1800  # a reservation older than this is dropped (its cell never went live, or its owner is gone)
+
+
+class Admission:
+    """A place the host gate has granted: a token file written while the gate lock is held, so the next look at the
+    gate already counts it. A cell token counts from admission until its cell has a `live.json` (then the live cell
+    counts) or a `result.json`; a grade token (kind "grade") counts while its owner lives. Before this, a cell was
+    uncounted from admission until it wrote `live.json` (workspace copy, minutes on a loaded host); the 20 s settle
+    was the only cover and the gate admitted past the cap."""
+
+    def __init__(self, capf, kind="cell", run_dir=None, pid=None):
+        self.dir = os.path.join(os.path.dirname(os.path.abspath(capf)), ADMIT_DIR)
+        os.makedirs(self.dir, exist_ok=True)
+        self.pid = pid or os.getpid()
+        self.path = os.path.join(self.dir, f"{kind}-{self.pid}-{threading.get_ident()}-{time.time_ns()}.json")
+        self.rec = {"kind": kind, "pid": self.pid, "time": time.time(), "run_dir": run_dir, "cell": None}
+        self._write()
+
+    def _write(self):
+        tmp = self.path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(self.rec, f)
+        os.replace(tmp, self.path)
+
+    def bind(self, cell):
+        """The slot picked its cell: from now on the token stops counting once that cell is live or finished."""
+        self.rec["cell"] = cell
+        self.rec["time"] = time.time()  # a runner stopped (SIGSTOP) during the stagger wakes with a fresh token, not an expired one
+        self._write()
+
+    def release(self):
+        for p in (self.path, self.path + ".tmp"):
+            try:
+                os.unlink(p)
+            except FileNotFoundError:
+                pass
+
+
+def admissions(capf, exclude=None):
+    """`(cells, grades)` held by admission tokens: cell tokens whose cell is not live or finished yet, and grade tokens.
+    Drops tokens of dead owners and tokens older than ADMIT_MAX_S."""
+    d = os.path.join(os.path.dirname(os.path.abspath(capf)), ADMIT_DIR)
+    cells = grades = 0
+    for path in glob.glob(os.path.join(d, "*.json")):
+        if path == exclude:
+            continue
+        try:
+            rec = common.read_json(path)
+            pid, at = rec["pid"], rec["time"]
+        except (OSError, ValueError, KeyError, TypeError):
+            try:
+                if time.time() - os.path.getmtime(path) > ADMIT_MAX_S:
+                    os.unlink(path)
+            except OSError:
+                pass
+            continue
+        if not _alive(pid) or time.time() - at > ADMIT_MAX_S:
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+            continue
+        if rec.get("kind") == "grade":
+            grades += 1
+        elif not rec.get("cell") or not rec.get("run_dir"):
+            cells += 1
+        else:
+            cdir = os.path.join(rec["run_dir"], "cells", rec["cell"])
+            if not (os.path.isfile(os.path.join(cdir, costguard.LIVE)) or os.path.isfile(os.path.join(cdir, "result.json"))):
+                cells += 1
+    return cells, grades
+
+
+def host_live(runs, host_name, log, capf=None, exclude=None):
+    """Live cells on this machine: every `<runs>/*/cells/*/*/*/live.json`, the admitted cells that are not live yet and
+    each running `lanes-grade` (grading runs test suites outside the cells; a grade waiting at `lanes-gate` counts
+    from the moment it asks, once, with its process). First reaps the phantoms of every run dir under `runs`, not
+    only this run's, so a cell that died hard in another run does not hold a place."""
     for run in sorted({p.split(os.sep + "cells" + os.sep)[0] for p in glob.glob(os.path.join(runs, "*", "cells", "*", "*", "*", "live.json"))}):
         try:
             costguard.reap_phantoms(run, host_name, log)
         except Exception as e:  # what is still unreadable counts as live
             log(f"{host_name}: cannot reap phantom cells of {os.path.basename(run)} ({e})")
+    cells = tokens = 0
+    if capf:  # read first: a cell going live meanwhile is then counted twice (safe), never missed
+        cells, tokens = admissions(capf, exclude)
     live = len(glob.glob(os.path.join(runs, "*", "cells", "*", "*", "*", "live.json")))
+    grades = 0
     try:
-        live += len(subprocess.run(["pgrep", "-f", "bin/lanes-grade"], capture_output=True, text=True).stdout.split())
+        grades = len(subprocess.run(["pgrep", "-f", "bin/lanes-grade"], capture_output=True, text=True).stdout.split())
     except OSError:
         pass
-    return live
+    live += cells
+    grades = max(grades, tokens)
+    return live + grades
 
 
 def read_host_cap(capf):
@@ -54,14 +136,53 @@ def read_host_cap(capf):
         return 0, 1.0
 
 
-def gate_admits(runs, capf, host_name, log):
+def gate_admits(runs, capf, host_name, log, exclude=None):
     """`(admit, live, load, ncpu, factor, cap)`: one look at the gate. Admit while live < cap (cap 0: no cap) and the
-    1-minute load is at most CPUs x factor."""
+    1-minute load is at most CPUs x factor. `live` includes admissions not live yet and grades (`exclude`: one token
+    file that is the caller's own)."""
     ncpu = os.cpu_count() or 1
     cap, factor = read_host_cap(capf)
-    live = host_live(runs, host_name, log)
+    live = host_live(runs, host_name, log, capf, exclude)
     load = os.getloadavg()[0]
     return ((not cap or live < cap) and load <= ncpu * factor), live, load, ncpu, factor, cap
+
+
+def wait_grade(runs, capf, host_name, log, stop=None, poll=30, max_wait=None, pid=None):
+    """A grade's place under the host cap. Writes a grade token first (so no new cell is admitted into the place it is
+    waiting for), then waits until the others, without its own token, leave room. Returns the token (`release()` it
+    when the grade ends; a token whose owner pid is gone is dropped), or None when `stop` is set or `max_wait` seconds pass. No host-cap file: no gate."""
+    if not os.path.exists(capf):
+        return _NullAdmission()
+    tok = Admission(capf, kind="grade", pid=pid)  # pid: the owner that keeps the place (a shell's $$), not this helper
+    t0, said = time.monotonic(), False
+    while True:
+        with open(capf + ".lock", "a") as lockf:  # the cells' lock: no cell is between its look and its token meanwhile
+            fcntl.flock(lockf, fcntl.LOCK_EX)
+            ok, live, load, ncpu, factor, cap = gate_admits(runs, capf, host_name, log, exclude=tok.path)
+        if ok:
+            return tok
+        if not said:
+            log(f"{host_name}: holding the grade (load {load:.1f} > {ncpu} cpus x {factor}, or live {live} >= cap {cap or 'none'})")
+            said = True
+        if max_wait is not None and time.monotonic() - t0 >= max_wait:
+            tok.release()
+            return None
+        if stop is not None:
+            if stop.wait(poll):
+                tok.release()
+                return None
+        else:
+            time.sleep(poll)
+
+
+class _NullAdmission:
+    path = None
+
+    def bind(self, cell):
+        pass
+
+    def release(self):
+        pass
 
 
 # ---- plan -----------------------------------------------------------------------------------
@@ -701,61 +822,70 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
 
     def host_gate(host):
         """Host gate: before a local slot takes its next cell, wait while this machine's 1-minute load exceeds its CPU
-        count x the factor, or while its live cells across all runs reach the cap in `<runs>/../host-cap` (see
-        FORMATS.md; no file: no gate). One admission at a time, then a short settle so the new cell's live.json is
-        counted by the next sibling."""
+        count x the factor, or while its live cells, admitted cells not live yet and grades, across all runs, reach the cap
+        in `<runs>/../host-cap` (see FORMATS.md; no file: no gate). One admission at a time. Returns the slot's Admission
+        (a token file written under the gate lock, counted by every later look at the gate until the cell is live), or
+        None when the host is not gated or the run stopped."""
         if host.target != "local":
-            return
+            return _NullAdmission()
         runs = os.path.dirname(os.path.abspath(run_dir))
         capf = os.path.join(os.path.dirname(runs), "host-cap")
         if not os.path.exists(capf):  # opt-in: only hosts with a host-cap file are gated
-            return
+            return _NullAdmission()
         said = False
         with gate_lock, open(capf + ".lock", "a") as lockf:  # host-wide: one admission at a time across all runs
             fcntl.flock(lockf, fcntl.LOCK_EX)
             while not runner.stopped.is_set():
                 ok, live, load, ncpu, factor, cap = gate_admits(runs, capf, host.name, log)
                 if ok:
-                    runner.stopped.wait(20)
-                    return
+                    tok = Admission(capf, run_dir=os.path.abspath(run_dir))  # counted from here, not from live.json
+                    runner.stopped.wait(ADMIT_SETTLE_S)
+                    return tok
                 if not said:
                     log(f"{host.name}: holding the next cell (load {load:.1f} > {ncpu} cpus x {factor}, or live {live} >= cap {cap or 'none'})")
                     said = True
                 runner.stopped.wait(30)
+        return None
 
     def cell_loop(host):
         while not runner.stopped.is_set():
-            host_gate(host)
-            if runner.stopped.is_set():
+            tok = host_gate(host)
+            if tok is None or runner.stopped.is_set():
+                if tok:
+                    tok.release()
                 return
-            c = next_cell(host)
-            if c is None:
-                return
-            ok = False
             try:
-                ok = host.run_cell(c["cell"], artifacts.get(c["lane"]))
-            except DispatchError as e:
-                log(f"{host.name}: {c['cell']}: {e}")
+                c = next_cell(host)
+                if c is None:
+                    return
+                tok.bind(c["cell"])
+                ok = False
+                try:
+                    ok = host.run_cell(c["cell"], artifacts.get(c["lane"]))
+                except DispatchError as e:
+                    log(f"{host.name}: {c['cell']}: {e}")
+                finally:
+                    try:  # before the cell is released, so no sibling slot starts another of this provider first
+                        reason = costguard.note_rate_limit(run_dir, exp, c["cell"])
+                    except Exception as e:
+                        reason = None
+                        log(f"{c['cell']}: cannot read its logs for a rate limit ({e})")
+                    if reason:
+                        log(f"rate limited: {c['lane']} cell {c['cell']} ended with {reason}; no new cell of its provider starts. "
+                            f"After the limit resets, delete {costguard.RATE} in the run dir and run lanes-run again")
+                    if not probing:
+                        try:
+                            timeoutguard.ingest(exp, run_dir, [c])
+                        except Exception as e:  # the guard must never fail a cell
+                            log(f"{c['cell']}: cannot record a timeout ({e})")
+                    claims.release(c["cell"])
+                    with pick:
+                        mine.discard(c["cell"])
+                if not ok and not runner.stopped.is_set():
+                    failed.add(c["cell"])
+                    log(f"{host.name}: {c['cell']}: no result.json")
             finally:
-                try:  # before the cell is released, so no sibling slot starts another of this provider first
-                    reason = costguard.note_rate_limit(run_dir, exp, c["cell"])
-                except Exception as e:
-                    reason = None
-                    log(f"{c['cell']}: cannot read its logs for a rate limit ({e})")
-                if reason:
-                    log(f"rate limited: {c['lane']} cell {c['cell']} ended with {reason}; no new cell of its provider starts. "
-                        f"After the limit resets, delete {costguard.RATE} in the run dir and run lanes-run again")
-                if not probing:
-                    try:
-                        timeoutguard.ingest(exp, run_dir, [c])
-                    except Exception as e:  # the guard must never fail a cell
-                        log(f"{c['cell']}: cannot record a timeout ({e})")
-                claims.release(c["cell"])
-                with pick:
-                    mine.discard(c["cell"])
-            if not ok and not runner.stopped.is_set():
-                failed.add(c["cell"])
-                log(f"{host.name}: {c['cell']}: no result.json")
+                tok.release()
 
     costguard.clear_stop(run_dir)
     old = {s: signal.signal(s, lambda *_: runner.stop()) for s in (signal.SIGINT, signal.SIGTERM)}
@@ -861,3 +991,34 @@ def run_main(argv=None):
     except (experiment.ExperimentError, DispatchError, plan_hashes.PlanError, OSError, ValueError) as e:
         print(f"run: {e}", file=sys.stderr)
         return 2
+
+
+def gate_main(argv=None):
+    """lanes-gate acquire <runs dir> --pid N [--max-wait S] | release <token>: a grade's place under the host cap."""
+    ap = argparse.ArgumentParser(prog="lanes-gate")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    a = sub.add_parser("acquire")
+    a.add_argument("runs")
+    a.add_argument("--pid", type=int, required=True, help="the process that holds the place (its death frees it)")
+    a.add_argument("--max-wait", type=float, default=None)
+    a.add_argument("--poll", type=float, default=30)
+    r = sub.add_parser("release")
+    r.add_argument("token")
+    args = ap.parse_args(argv)
+    if args.cmd == "release":
+        if os.path.basename(os.path.dirname(os.path.abspath(args.token))) == ADMIT_DIR and args.token.endswith(".json"):
+            try:
+                os.unlink(args.token)
+            except FileNotFoundError:
+                pass
+        return 0
+    runs = os.path.abspath(args.runs)
+    capf = os.path.join(os.path.dirname(runs), "host-cap")
+    if not _alive(args.pid):
+        print("lanes-gate: --pid is not running", file=sys.stderr)
+        return 2
+    tok = wait_grade(runs, capf, "local", lambda m: print(m, file=sys.stderr, flush=True), poll=args.poll, max_wait=args.max_wait, pid=args.pid)
+    if tok is None:
+        return 75
+    print(tok.path or "-")
+    return 0

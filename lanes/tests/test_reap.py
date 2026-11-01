@@ -156,6 +156,7 @@ class Reap(unittest.TestCase):
         self.assertEqual(costguard.phantom_estimate(self.run_dir, None), 25.0)
 
 
+
 if __name__ == "__main__":
     unittest.main()
 
@@ -236,3 +237,121 @@ class HostGate(unittest.TestCase):
         self.assertEqual((ok, live_n), (False, 2))
         self.assertEqual(sorted(os.listdir(d)), ["live.json"])  # not reaped
         self.assertEqual(self.log, [])
+
+class HostGateAdmission(HostGate):
+    """An admitted cell counts from admission, not from its live.json; a grade takes a place like a cell."""
+
+    def token(self, **kw):
+        return dispatch.Admission(self.capf, **kw)
+
+    def test_admitted_cell_without_live_json_counts_then_hands_over_to_its_live_json(self):
+        self.cell("run-a")
+        tok = self.token(run_dir=os.path.join(self.runs, "run-b"))  # picked nothing yet: counts
+        ok, live_n, *_ = self.gate("2")
+        self.assertEqual((ok, live_n), (False, 2))
+        tok.bind("task-mini/r1/base")  # picked its cell, no live.json yet: still counts
+        self.assertEqual(self.gate("2")[:2], (False, 2))
+        d = self.cell("run-b")  # live.json appears: counted once, by the cell
+        self.assertEqual(self.gate("3")[:2], (True, 2))
+        os.remove(os.path.join(d, "live.json"))  # finished: result.json, no live.json
+        common.write_json(os.path.join(d, "result.json"), {})
+        self.assertEqual(self.gate("2")[:2], (True, 1))
+        tok.release()
+        self.assertFalse(os.path.exists(tok.path))
+
+    def test_tokens_of_dead_owners_and_old_tokens_are_dropped(self):
+        child = subprocess.Popen([sys.executable, "-c", "pass"])
+        child.wait()
+        dead = self.token(pid=child.pid)
+        old = self.token()
+        old.rec["time"] = time.time() - dispatch.ADMIT_MAX_S - 5
+        old._write()
+        self.assertEqual(self.gate("1")[:2], (True, 0))
+        self.assertFalse(os.path.exists(dead.path) or os.path.exists(old.path))
+
+    def test_grade_token_and_a_lanes_grade_process_count_once(self):
+        self.cell("run-a")
+        tok = self.token(kind="grade")
+        self.assertEqual(self.gate("4")[:2], (True, 2))
+        dispatch.subprocess.run.return_value = subprocess.CompletedProcess([], 0, stdout="123\n", stderr="")  # its lanes-grade
+        self.assertEqual(self.gate("4")[:2], (True, 2))
+        dispatch.subprocess.run.return_value = subprocess.CompletedProcess([], 0, stdout="123\n456\n", stderr="")  # an ungated one too
+        self.assertEqual(self.gate("4")[:2], (True, 3))
+        tok.release()
+
+    def test_wait_grade_waits_for_room_and_blocks_cells_meanwhile(self):
+        self.cell("run-a")
+        self.cell("run-b")
+        with open(self.capf, "w") as f:
+            f.write("2")
+        got = []
+        with mock.patch.object(dispatch.os, "getloadavg", return_value=(0.5, 0, 0)):
+            self.assertIsNone(dispatch.wait_grade(self.runs, self.capf, "local", self.log.append, poll=0.05, max_wait=0.2))
+            self.assertEqual(os.listdir(os.path.join(self.tmp, dispatch.ADMIT_DIR)), [])  # gave its place up
+            import threading
+            t = threading.Thread(target=lambda: got.append(dispatch.wait_grade(self.runs, self.capf, "local", self.log.append, poll=0.05)))
+            t.start()
+            time.sleep(0.3)  # waiting: its token already holds a place, so a cell is not admitted into it
+            self.assertEqual(os.listdir(os.path.join(self.tmp, dispatch.ADMIT_DIR)) != [], True)
+            os.remove(os.path.join(self.runs, "run-a", "cells", "task-mini", "r1", "base", "live.json"))
+            t.join(5)
+            self.assertFalse(t.is_alive())
+        self.assertEqual(len(got), 1)
+        self.assertIsNotNone(got[0])
+        self.assertEqual(self.gate("2")[:2], (False, 2))  # one cell + the grade
+        got[0].release()
+        self.assertEqual([l for l in self.log if "holding the grade" in l][:1] != [], True)
+
+    def test_bind_refreshes_a_token_that_aged_while_its_runner_was_stopped(self):
+        tok = self.token(run_dir=os.path.join(self.runs, "run-b"))
+        tok.rec["time"] = time.time() - dispatch.ADMIT_MAX_S + 1  # about to expire
+        tok._write()
+        tok.rec["time"] = time.time() - dispatch.ADMIT_MAX_S - 100  # the runner slept past it, then wakes and binds
+        tok.bind("task-mini/r1/base")
+        self.assertEqual(self.gate("2")[:2], (True, 1))  # counted, not dropped as old
+
+    def test_no_host_cap_file_no_grade_wait(self):
+        tok = dispatch.wait_grade(self.runs, self.capf, "local", self.log.append, poll=0.05, max_wait=0.1)
+        self.assertIsNotNone(tok)
+        tok.release()
+
+
+class HostGateRace(unittest.TestCase):
+    """Four slots, host cap 2, cells whose workspace copy takes longer than the settle: never more than 2 at work."""
+
+    setUp, write_lock, set_exp, plan, events_lines, read, results = (
+        test_dispatch.Dispatch.setUp, test_dispatch.Dispatch.write_lock, test_dispatch.Dispatch.set_exp, test_dispatch.Dispatch.plan, test_dispatch.Dispatch.events_lines,
+        test_dispatch.Dispatch.read, test_dispatch.Dispatch.results)
+
+    def spans(self, path):
+        starts, ends = {}, {}
+        for line in open(path).read().splitlines():
+            k, cell, t = line.split()
+            (starts if k == "s" else ends)[cell] = float(t)
+        pts = sorted([(t, 1) for t in starts.values()] + [(t, -1) for t in ends.values()])
+        cur = peak = 0
+        for _, d in pts:
+            cur += d
+            peak = max(peak, cur)
+        return peak, len(starts)
+
+    def run_capped(self, cap):
+        root = os.path.join(self.tmp, "root")
+        self.run_dir = os.path.join(root, "runs", "run1")
+        with open(os.path.join(root, "host-cap") if os.makedirs(root) is None else "", "w") as f:
+            f.write(f"{cap} 1000")
+        common.write_json(self.hosts, {"local": {"target": "local", "slots": 4}})
+        self.set_exp(reps=2)
+        self.assertEqual(self.plan().returncode, 0)
+        span = os.path.join(self.tmp, "span.txt")
+        env = dict(self.env, FAKE_LIVE=REAL_LANES, FAKE_PREP="1.2", FAKE_SLEEP="0.6", FAKE_SPAN=span)
+        with mock.patch.dict(os.environ, env), mock.patch.object(dispatch, "ADMIT_SETTLE_S", 0.0):
+            code = dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True, log=lambda m: None)
+        self.assertEqual(code, 0)
+        return self.spans(span)
+
+    def test_admitted_cells_never_exceed_the_cap_while_they_prepare(self):
+        peak, n = self.run_capped(2)
+        self.assertEqual(n, 4)
+        self.assertLessEqual(peak, 2)
+        self.assertEqual(os.listdir(os.path.join(self.tmp, "root", dispatch.ADMIT_DIR)), [])  # every token released
