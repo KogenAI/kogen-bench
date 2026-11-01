@@ -474,6 +474,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "The patch that turns on a request audit before Kogen's shaping step was compared with unpatched Kogen over two repetitions of the same 13 Go tasks (26 pairs), same commit and model (gpt-6.1-terra, medium effort). The hidden checks passed on 21 pairs without the patch and 13 with it: one pair gained and nine lost, against a keep rule of at least three net wins, and the patched build was refused at shaping in 9 cells against 1. The patch stays dropped. This confirms the first-repetition page."
+    },
+    {
+      "id": "p4-ledger-go-pooled",
+      "category": "categories/harness-levers.md",
+      "title": "A coverage ledger in Kogen shaping did not earn its keep over two Go repetitions and is dropped",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "The patch that adds a model-free coverage ledger to Kogen's shaping step was compared with unpatched Kogen over two repetitions of the same 13 Go tasks (26 pairs), same commit and model (gpt-6.1-terra, medium effort). The hidden checks passed on 20 pairs without the patch and 17 with it: one pair gained and four lost, against a keep rule of at least three net wins. The patch is dropped. This replaces the first-repetition page."
     }
   ]
 }

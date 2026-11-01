@@ -1,0 +1,540 @@
+diff --git a/cli/shape/ledger.go b/cli/shape/ledger.go
+new file mode 100644
+index 0000000..e02596d
+--- /dev/null
++++ b/cli/shape/ledger.go
+@@ -0,0 +1,410 @@
++package shape
++
++// research lane: NE-1 coverage ledger. A model-free lint of the request against the submitted Intent.
++
++import (
++	"encoding/json"
++	"fmt"
++	"os"
++	"path/filepath"
++	"regexp"
++	"strings"
++	"unicode"
++
++	"kogen/project"
++)
++
++// research lane: files of the ledger in the shaping evidence dir; the Build's reviewer reads the text one.
++const (
++	ledgerFile     = "coverage-ledger.json"
++	ledgerTextFile = "coverage-ledger.md"
++)
++
++// research lane: one request item and the scenarios or Decisions that cover it.
++type ledgerItem struct {
++	Kind   string   `json:"kind"` // identifier, number, string or sentence
++	Text   string   `json:"text"`
++	Mapped bool     `json:"mapped"`
++	Where  []string `json:"where"`
++}
++
++type ledger struct {
++	Items    []ledgerItem `json:"items"`
++	Mapped   int          `json:"mapped"`
++	Unmapped int          `json:"unmapped"`
++}
++
++// research lane: a unit is one scenario (with its steps, tables and examples), the Background or one Decision line.
++type ledgerUnit struct {
++	name string
++	text string
++}
++
++var (
++	ledgerFenceRe = regexp.MustCompile("(?s)```.*?```")
++	ledgerSpanRe  = regexp.MustCompile("`([^`\n]{2,120})`")
++	ledgerQuoteRe = regexp.MustCompile(`"([^"\n]{3,200})"|“([^”\n]{3,200})”`)
++	ledgerModalRe = regexp.MustCompile(`(?i)\b(must|should|never|always)\b`)
++	ledgerWordRe  = regexp.MustCompile(`[a-z][a-z0-9_]{3,}`)
++	ledgerNumRe   = regexp.MustCompile(`(?i)[$€£]\s?\d[\d,]*(?:\.\d+)?|\b\d[\d,]*(?:\.\d+)?\s?(?:%|(?:milliseconds?|seconds?|minutes?|hours?|days?|weeks?|ms|ns|us|µs|secs?|mins?|hrs?|[kmgt]i?b|bytes?|percent|chars?|characters?|lines?|rows?|columns?|requests?|tokens?|times|attempts?|retries|items?|entries|files?|workers?|bits?|[smhd])\b)`)
++	ledgerUnitRe  = regexp.MustCompile(`(?i)^(\d[\d,]*(?:\.\d+)?)\s?([a-zµ%]*)$`)
++	ledgerCommaRe = regexp.MustCompile(`(\d),(\d)`)
++)
++
++// research lane: words that carry no requirement in a sentence.
++var ledgerStop = map[string]bool{}
++
++func init() {
++	for _, w := range strings.Fields("must should never always with that this from when then than have will into only each every which their there these those about other being does done also same such more most been were what where they them your because while after before once using used uses would could shall very just like") {
++		ledgerStop[w] = true
++	}
++}
++
++var ledgerUnitName = map[string]string{
++	"milliseconds": "ms", "millisecond": "ms", "seconds": "s", "second": "s", "secs": "s", "sec": "s",
++	"minutes": "m", "minute": "m", "mins": "m", "min": "m", "hours": "h", "hour": "h", "hrs": "h", "hr": "h",
++	"days": "d", "day": "d", "percent": "%", "bytes": "b", "byte": "b", "chars": "char", "characters": "char",
++	"character": "char", "lines": "line", "rows": "row", "columns": "column", "requests": "request",
++	"tokens": "token", "attempts": "attempt", "items": "item", "files": "file", "workers": "worker", "bits": "bit",
++}
++
++// research lane: canonNumber is a number with its unit in one spelling, "750 Milliseconds" and "750ms" alike.
++func canonNumber(s string) string {
++	s = strings.ToLower(strings.TrimSpace(s))
++	if s != "" && (s[0] == '$' || strings.HasPrefix(s, "€") || strings.HasPrefix(s, "£")) {
++		return ledgerCommaRe.ReplaceAllString(strings.Join(strings.Fields(s), ""), "$1$2")
++	}
++	m := ledgerUnitRe.FindStringSubmatch(s)
++	if m == nil {
++		return s
++	}
++	unit := m[2]
++	if c, ok := ledgerUnitName[unit]; ok {
++		unit = c
++	}
++	return ledgerCommaRe.ReplaceAllString(m[1], "$1$2") + unit
++}
++
++// research lane: ledgerNorm lowercases and collapses whitespace, with numbers in their canonical spelling.
++func ledgerNorm(s string) string {
++	s = strings.ToLower(s)
++	s = ledgerNumRe.ReplaceAllStringFunc(s, canonNumber)
++	s = strings.NewReplacer("“", `"`, "”", `"`, "‘", "'", "’", "'").Replace(s)
++	return strings.Join(strings.Fields(s), " ")
++}
++
++func ledgerWordRune(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_' }
++
++// research lane: ledgerContains is a whole-token substring test on normalised text.
++func ledgerContains(hay, needle string) bool {
++	if needle == "" {
++		return false
++	}
++	nr := []rune(needle)
++	for from := 0; from < len(hay); {
++		i := strings.Index(hay[from:], needle)
++		if i < 0 {
++			return false
++		}
++		start, end := from+i, from+i+len(needle)
++		okBefore, okAfter := true, true
++		if ledgerWordRune(nr[0]) && start > 0 {
++			r := []rune(hay[:start])
++			last := r[len(r)-1]
++			okBefore = !ledgerWordRune(last) && !(last == '.' && unicode.IsDigit(nr[0]))
++		}
++		if ledgerWordRune(nr[len(nr)-1]) && end < len(hay) {
++			r := []rune(hay[end:])
++			okAfter = !ledgerWordRune(r[0])
++		}
++		if okBefore && okAfter {
++			return true
++		}
++		from = start + 1
++	}
++	return false
++}
++
++// research lane: identifierOf is the identifier of a backticked span: the name before a call's parenthesis,
++// without trailing punctuation.
++func identifierOf(span string) string {
++	span = strings.TrimSpace(span)
++	if i := strings.Index(span, "("); i > 0 {
++		span = span[:i]
++	}
++	return strings.TrimRight(strings.TrimSpace(span), ".,;:!?")
++}
++
++// research lane: requestItems are the backticked identifiers, numbers with units, quoted strings and
++// must/should/never/always sentences of the request, once each. A sentence that holds one of the others is
++// carried by those, so it is not listed twice.
++func requestItems(request string) []ledgerItem {
++	var out []ledgerItem
++	seen := map[string]bool{}
++	add := func(kind, text string) {
++		key := kind + "\x00" + ledgerNorm(text)
++		if text == "" || seen[key] {
++			return
++		}
++		seen[key] = true
++		out = append(out, ledgerItem{Kind: kind, Text: text, Where: []string{}})
++	}
++	prose := ledgerFenceRe.ReplaceAllString(request, "\n")
++	for _, line := range strings.Split(request, "\n") {
++		if strings.HasPrefix(strings.TrimSpace(line), "```") {
++			continue
++		}
++		for _, m := range ledgerNumRe.FindAllString(line, -1) {
++			add("number", strings.TrimSpace(m))
++		}
++	}
++	for _, m := range ledgerSpanRe.FindAllStringSubmatch(prose, -1) {
++		// A span that starts or ends in a space, or reads like a sentence, is the text between two spans.
++		if m[1] != strings.TrimSpace(m[1]) || len(strings.Fields(m[1])) > 8 {
++			continue
++		}
++		add("identifier", identifierOf(m[1]))
++	}
++	for _, m := range ledgerQuoteRe.FindAllStringSubmatch(request, -1) {
++		add("string", strings.TrimSpace(m[1]+m[2]))
++	}
++	for _, line := range strings.Split(prose, "\n") {
++		line = strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(line), "-*>#0123456789. "))
++		for _, s := range sentences(line) {
++			if !ledgerModalRe.MatchString(s) || ledgerNumRe.MatchString(s) || ledgerSpanRe.MatchString(s) || ledgerQuoteRe.MatchString(s) {
++				continue
++			}
++			if len(ledgerStems(s)) > 0 {
++				add("sentence", s)
++			}
++		}
++	}
++	return out
++}
++
++// research lane: sentences splits a line after ".", "!" or "?" that is followed by a space.
++func sentences(line string) []string {
++	var out []string
++	start := 0
++	r := []rune(line)
++	for i, c := range r {
++		if (c == '.' || c == '!' || c == '?') && (i+1 == len(r) || r[i+1] == ' ') {
++			out = append(out, strings.TrimSpace(string(r[start:i+1])))
++			start = i + 1
++		}
++	}
++	if start < len(r) {
++		out = append(out, strings.TrimSpace(string(r[start:])))
++	}
++	return out
++}
++
++// research lane: ledgerStems are the first six letters of each content word.
++func ledgerStems(s string) map[string]bool {
++	out := map[string]bool{}
++	for _, w := range ledgerWordRe.FindAllString(strings.ToLower(s), -1) {
++		if ledgerStop[w] {
++			continue
++		}
++		if len(w) > 6 {
++			w = w[:6]
++		}
++		out[w] = true
++	}
++	return out
++}
++
++// research lane: featureUnits are the scenarios (and the Background) of a feature text, comments dropped.
++func featureUnits(text string) []ledgerUnit {
++	var units []ledgerUnit
++	var cur *ledgerUnit
++	flush := func() {
++		if cur != nil {
++			cur.text = cur.name + "\n" + cur.text
++			units = append(units, *cur)
++			cur = nil
++		}
++	}
++	for _, l := range strings.Split(text, "\n") {
++		t := strings.TrimSpace(l)
++		if strings.HasPrefix(t, "#") {
++			continue
++		}
++		low := strings.ToLower(t)
++		switch {
++		case strings.HasPrefix(low, "scenario outline:"), strings.HasPrefix(low, "scenario template:"), strings.HasPrefix(low, "scenario:"), strings.HasPrefix(low, "example:"), strings.HasPrefix(low, "background:"):
++			flush()
++			name := t
++			if i := strings.Index(t, ":"); i >= 0 {
++				name = strings.ToLower(t[:i]) + ": " + strings.TrimSpace(t[i+1:])
++			}
++			cur = &ledgerUnit{name: strings.TrimSpace(name)}
++		case strings.HasPrefix(low, "feature:"), strings.HasPrefix(low, "rule:"):
++			flush()
++		default:
++			if cur != nil {
++				cur.text += l + "\n"
++			}
++		}
++	}
++	flush()
++	return units
++}
++
++// research lane: checkLedger maps each request item to the units that hold it. A literal item (identifier,
++// number, string) is mapped when its normalised text is in a unit; a sentence is mapped when at least 60%
++// of its content words are in one unit.
++func checkLedger(request string, units []ledgerUnit) ledger {
++	norm := make([]string, len(units))
++	stems := make([]map[string]bool, len(units))
++	for i, u := range units {
++		norm[i] = ledgerNorm(u.text)
++		stems[i] = ledgerStems(u.text)
++	}
++	l := ledger{Items: requestItems(request)}
++	for i := range l.Items {
++		it := &l.Items[i]
++		for j, u := range units {
++			hit := false
++			if it.Kind == "sentence" {
++				want := ledgerStems(it.Text)
++				n := 0
++				for w := range want {
++					if stems[j][w] {
++						n++
++					}
++				}
++				hit = len(want) > 0 && float64(n) >= 0.6*float64(len(want))
++			} else {
++				hit = ledgerContains(norm[j], ledgerNorm(it.Text))
++			}
++			if hit {
++				it.Where = append(it.Where, u.name)
++			}
++		}
++		if len(it.Where) > 3 {
++			it.Where = it.Where[:3]
++		}
++		it.Mapped = len(it.Where) > 0
++		if it.Mapped {
++			l.Mapped++
++		} else {
++			l.Unmapped++
++		}
++	}
++	return l
++}
++
++// research lane: ledgerUnits reads the Intent's scenarios and Decision lines as the candidate would stand;
++// false when there is no readable Intent or feature yet.
++func (sh *shaping) ledgerUnits(overlay map[string][]byte) ([]ledgerUnit, bool) {
++	intent, err := project.ReadIntent(sh.root, sh.slug, overlay)
++	if err != nil {
++		return nil, false
++	}
++	var units []ledgerUnit
++	paths := []string{}
++	for _, p := range intent.Acceptance {
++		if strings.HasSuffix(p, ".feature") {
++			paths = append(paths, p)
++		}
++	}
++	if len(paths) == 0 {
++		paths = []string{project.FeaturePath(sh.slug)}
++	}
++	found := false
++	for _, p := range paths {
++		b, err := project.Fetch(sh.root, overlay, p)
++		if err != nil {
++			continue
++		}
++		found = true
++		units = append(units, featureUnits(string(b))...)
++	}
++	for _, d := range intent.Decisions {
++		d = strings.TrimSpace(strings.TrimPrefix(d, "- "))
++		name := d
++		if r := []rune(name); len(r) > 70 {
++			name = string(r[:70]) + "..."
++		}
++		units = append(units, ledgerUnit{name: "Decision: " + name, text: d})
++	}
++	return units, found
++}
++
++// research lane: unmappedLines is the submission feedback for the unmapped items, at most 60 of them.
++func (l ledger) unmappedLines() []string {
++	lines := []string{"These request items are not covered by any scenario or Decision:"}
++	n := 0
++	for _, it := range l.Items {
++		if it.Mapped {
++			continue
++		}
++		if n++; n > 60 {
++			lines = append(lines, fmt.Sprintf("- ... and %d more", l.Unmapped-60))
++			break
++		}
++		lines = append(lines, fmt.Sprintf("- %s: %s", it.Kind, it.Text))
++	}
++	return append(lines, "Add a scenario that uses the item, or state why it is out of scope in a Decision that quotes it (source: request).")
++}
++
++// research lane: text is the ledger as the reviewer reads it: request item to scenario or Decision.
++func (l ledger) text() string {
++	var b strings.Builder
++	b.WriteString("| request item | kind | covered by |\n|---|---|---|\n")
++	for _, it := range l.Items {
++		where := "NOT COVERED"
++		if it.Mapped {
++			where = strings.Join(it.Where, "; ")
++		}
++		fmt.Fprintf(&b, "| %s | %s | %s |\n", strings.ReplaceAll(it.Text, "|", "/"), it.Kind, strings.ReplaceAll(where, "|", "/"))
++	}
++	return b.String()
++}
++
++// research lane: coverageLint checks the request against the candidate Intent that a files submission would
++// leave. It returns the feedback lines for unmapped items (nil when covered or when no complete Intent exists
++// yet) and keeps the ledger for the evidence dir.
++func (sh *shaping) coverageLint(sub submission) []string {
++	sh.ledger = nil
++	if sh.request == "" || sub.files == nil {
++		return nil
++	}
++	overlay := sh.overlay()
++	for _, f := range sub.files {
++		overlay[f.path] = []byte(f.content)
++	}
++	units, ok := sh.ledgerUnits(overlay)
++	if !ok {
++		return nil
++	}
++	l := checkLedger(sh.request, units)
++	sh.ledger = &l
++	unmapped := []string{}
++	for _, it := range l.Items {
++		if !it.Mapped && len(unmapped) < 20 {
++			unmapped = append(unmapped, it.Text)
++		}
++	}
++	sh.ev.Record(map[string]any{"event": "coverage_ledger", "attempt": sh.submissions, "items": len(l.Items), "mapped": l.Mapped, "unmapped": l.Unmapped, "unmapped_items": unmapped})
++	if l.Unmapped == 0 {
++		return nil
++	}
++	return l.unmappedLines()
++}
++
++// research lane: writeLedger keeps the accepted submission's ledger beside the other shaping evidence.
++func (sh *shaping) writeLedger() error {
++	if sh.ledger == nil {
++		return nil
++	}
++	b, err := json.Marshal(sh.ledger)
++	if err != nil {
++		return err
++	}
++	if err := os.WriteFile(filepath.Join(sh.ev.Dir, ledgerFile), b, 0o600); err != nil {
++		return err
++	}
++	return os.WriteFile(filepath.Join(sh.ev.Dir, ledgerTextFile), []byte(sh.ledger.text()), 0o600)
++}
+diff --git a/cli/shape/ledger_test.go b/cli/shape/ledger_test.go
+new file mode 100644
+index 0000000..360520a
+--- /dev/null
++++ b/cli/shape/ledger_test.go
+@@ -0,0 +1,80 @@
++package shape
++
++// research lane: tests of the NE-1 coverage ledger.
++
++import (
++	"strings"
++	"testing"
++)
++
++const ledgerRequest = "Add `calc.is_even(n)` with a `--strict` flag. A call that takes longer than 750 ms must fail with \"timeout exceeded\". " +
++	"The wait counts from the latest reading, never from the first. Set `CALC_LIMIT` to 1,024 bytes.\n\n```\nexample: 2 s\n```\n"
++
++const ledgerFeature = "Feature: Is even\n  # a comment with --strict\n  Scenario: Slow call\n    Given a call that takes 750 milliseconds\n    Then it fails with \"Timeout exceeded\"\n  Scenario: Wait\n    Then the wait counts from the latest reading\n"
++
++func TestRequestItems(t *testing.T) {
++	var got []string
++	for _, it := range requestItems(ledgerRequest) {
++		got = append(got, it.Kind+": "+it.Text)
++	}
++	want := []string{"number: 750 ms", "number: 1,024 bytes", "number: 2 s", "identifier: calc.is_even", "identifier: --strict", "identifier: CALC_LIMIT", "string: timeout exceeded", "sentence: The wait counts from the latest reading, never from the first."}
++	if strings.Join(got, "\n") != strings.Join(want, "\n") {
++		t.Fatalf("items:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
++	}
++}
++
++func TestCheckLedger(t *testing.T) {
++	units := featureUnits(ledgerFeature)
++	if len(units) != 2 || units[0].name != "scenario: Slow call" {
++		t.Fatalf("units: %+v", units)
++	}
++	l := checkLedger(ledgerRequest, units)
++	mapped := map[string]bool{}
++	for _, it := range l.Items {
++		mapped[it.Text] = it.Mapped
++	}
++	// 750 ms is "750 milliseconds" in the scenario; the string differs by case only; the sentence shares its words.
++	for _, text := range []string{"750 ms", "timeout exceeded", "The wait counts from the latest reading, never from the first."} {
++		if !mapped[text] {
++			t.Errorf("%q is unmapped: %+v", text, l)
++		}
++	}
++	// The comment line does not cover --strict; nothing mentions the rest.
++	for _, text := range []string{"--strict", "calc.is_even", "CALC_LIMIT", "1,024 bytes", "2 s"} {
++		if mapped[text] {
++			t.Errorf("%q is mapped: %+v", text, l)
++		}
++	}
++	if l.Mapped != 3 || l.Unmapped != 5 {
++		t.Errorf("counts %d/%d", l.Mapped, l.Unmapped)
++	}
++	// A Decision that quotes an item maps it, and a longer token does not.
++	units = append(units, ledgerUnit{name: "Decision: x", text: "`--strict` is out of scope; CALC_LIMIT_MAX is 1024 bytes (source: request)"})
++	l = checkLedger(ledgerRequest, units)
++	for _, it := range l.Items {
++		if (it.Text == "--strict" || it.Text == "1,024 bytes") && !it.Mapped || it.Text == "CALC_LIMIT" && it.Mapped {
++			t.Errorf("%q mapped=%v", it.Text, it.Mapped)
++		}
++	}
++}
++
++// research lane: the witness. An unmapped request item comes back as submission feedback, a
++// coverage_ledger event records it, and the resubmission that quotes it in a Decision is accepted.
++func TestCoverageLedgerReturnsUnmappedItems(t *testing.T) {
++	covered := shpFilesWithDecisions("- Non-integers raise TypeError. (source: request)", "- `calc.is_even` takes one argument and the 750ms limit is out of scope here. (source: request)")
++	f := newShpFx(t, shpSubmit("c1", shpFiles()), shpSubmit("c2", covered), shpAck("c3"))
++	exit, err := f.shape("Add `calc.is_even(n)`. It must finish in 750ms.")
++	if err != nil || exit != 0 {
++		t.Fatalf("exit %d, err %v\n%s", exit, err, f.Stderr)
++	}
++	reqs := f.Prov.requests()
++	shpEq(t, "requests", len(reqs), 3)
++	shpContains(t, "feedback", shpOutputs(reqs[1])["c1"], "These request items are not covered by any scenario or Decision:\n- number: 750ms\n- identifier: calc.is_even\nAdd a scenario")
++	ev := shpNamed(f.events(), "coverage_ledger")
++	// the acknowledgment submission is linted again, unchanged
++	if len(ev) != 3 || ev[0]["unmapped"] != any(float64(2)) || ev[1]["unmapped"] != any(float64(0)) || ev[2]["unmapped"] != any(float64(0)) {
++		t.Fatalf("coverage_ledger events: %v", ev)
++	}
++	shpEq(t, "refusals", len(shpNamed(f.events(), "submission_refused")), 1)
++	shpContains(t, "ledger text", f.read(".kogen/local/shaping/"+shpSlug+"/coverage-ledger.md"), "| calc.is_even | identifier | Decision:")
++}
+diff --git a/cli/shape/shape.go b/cli/shape/shape.go
+index a1c3550..e408828 100644
+--- a/cli/shape/shape.go
++++ b/cli/shape/shape.go
+@@ -466,6 +466,7 @@ type shaping struct {
+ 	auditResult   *auditResult     // the request audit; nil when disabled
+ 	auditUsage    provider.Usage   // the native audit call's tokens
+ 	auditRounds   int              // the external audit session's rounds
++	ledger        *ledger          // research lane: the coverage ledger of the last files submission
+ 
+ 	request        string         // the request text of this shaping
+ 	decisionChecks int            // decision check calls made
+@@ -1122,6 +1123,15 @@ func (sh *shaping) submitOne(ctx context.Context, args map[string]any) (string,
+ 	case sub.blocked:
+ 		return "blocked: required protected edits reported", outcome{kind: outBlocked, paths: sub.paths, reason: sub.reason}, nil
+ 	}
++	// research lane: unmapped request items go back as submission feedback, counted like any invalid submission.
++	if lines := sh.coverageLint(sub); lines != nil && !lastAttempt {
++		sh.refused("coverage_ledger", lines)
++		// research lane: keep the proposals, as the audit gate does.
++		for _, f := range sub.files {
++			sh.proposed[f.path] = f.content
++		}
++		return strings.Join(lines, "\n"), outcome{kind: outInvalid, problems: lines}, nil
++	}
+ 
+ 	if problems := sh.publicationProblems(sub.files); len(problems) > 0 {
+ 		sh.refused("publication", problems)
+@@ -1151,6 +1161,9 @@ func (sh *shaping) submitOne(ctx context.Context, args map[string]any) (string,
+ 		if werr := os.WriteFile(filepath.Join(sh.ev.Dir, unresolvedFile), b, 0o600); werr != nil {
+ 			return "", outcome{}, werr
+ 		}
++		if werr := sh.writeLedger(); werr != nil { // research lane: the ledger of the accepted Intent, for the reviewer
++			return "", outcome{}, werr
++		}
+ 	}
+ 	sh.lastUncovered = nil
+ 	return text, out, err

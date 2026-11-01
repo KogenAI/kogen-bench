@@ -1,0 +1,17 @@
+1. Go task pairs (13 tasks x 2 repetitions, 1 trial per arm per pair; hidden pass = every hidden check passed)
+arm  hidden_pass  wall_s  tokens  requests
+b0   20/26       6657   7202278    408
+p4   17/26       6759   6123158    395
+wall, tokens and requests include cells that ended refused, build_blocked or review_blocked
+
+2. Pairs where the hidden result differs
+G01r2: b0 pass (landed) vs p4 fail (build_blocked)
+G04r2: b0 pass (landed) vs p4 fail (refused)
+G07r2: b0 pass (landed) vs p4 fail (build_blocked)
+G10r1: b0 fail (build_blocked) vs p4 pass (landed)
+G12r1: b0 pass (landed) vs p4 fail (unavailable)
+p4 wins 1, loses 4, wins-losses -3 (keep rule: >= +3)
+
+3. Outcome per arm
+b0 {'build_blocked': 2, 'landed': 22, 'refused': 1, 'review_blocked': 1}
+p4 {'build_blocked': 2, 'landed': 20, 'questions_pending': 1, 'refused': 2, 'unavailable': 1}
