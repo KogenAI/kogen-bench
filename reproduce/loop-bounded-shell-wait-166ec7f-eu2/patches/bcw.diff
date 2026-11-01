@@ -1,0 +1,418 @@
+diff --git a/README.md b/README.md
+index 7622ec4..dffadce 100644
+--- a/README.md
++++ b/README.md
+@@ -28,7 +28,7 @@ The CLI supports private atomic transcript resume (`session_resume: "transcript"
+ 
+ Without response or call hooks the engine overlaps independent tool calls: a complete streamed call starts before the response ends, native reads and writes to provably distinct files run concurrently, and shell, probe and unknown calls are ordered against everything. History keeps the original call order and nothing is published until the validated response has all its results; see the [contract](docs/contract/loop-v1.md). It is the default, not an option.
+ 
+-Shell calls yield after one second with a handle for a still-running command; retrieval waits at most 30 seconds, returns immediately on completion and returns cumulative output. Yielding does not kill the command; round cleanup still stops it. The lower-level `sys.Options.Timeout` and its custody observation are independent `sys` options. See the [caller contract](docs/contract/loop-v1.md#shell-time-limit). The standalone whole-round `deadline_seconds` is a context deadline. Native membership observation includes zombies on Darwin (numeric `KERN_PROC_PGRP`) and Linux. Linux first uses `kill(-pgid, 0)` as a monotone presence witness: success or `EPERM` means the group is present, with no readable `/proc` needed, and `pgid <= 1` is rejected before any kill. `ESRCH` alone never proves absence: Linux then enumerates `/proc` (zombies, state Z, included) and reads the group after the final `)` of each `stat`. Entries that vanish (`ENOENT`/`ESRCH`) are skipped; unreadable entries (`EPERM`/`EACCES`) and malformed `stat` are remembered, and a later membership witness wins over them. Without a witness, any remembered error or listing failure is an observation failure; only `ESRCH` plus a complete error-free scan with no member is absent. A `hidepid=1`/noaccess mount makes final confirmation fail rather than report absence; with `hidepid=2` (invisible) a hidden live member still cannot become absent because kill is a presence witness. Status as of 27 October 2026 (history): research had reproduced the `ESRCH` defect on Linux; this correction was source-qualified on Darwin and cross-built, with Linux runtime proof pending at delivery. A cross-build does not prove lifecycle behavior. Commit `c7e8331` fixed two Linux test flakes; both tests passed 50/50 on eu2. Other platforms return `sys.ErrTimeoutObservation` after timeout signalling/teardown. Failed observation returns an empty result and that stopping error even without a context, never tool feedback.
++Shell calls wait up to 45 seconds for a new command to complete and then yield a handle for a still-running command; retrieval waits at most 30 seconds, returns immediately on completion and returns cumulative output. Yielding does not kill the command; round cleanup still stops it. The lower-level `sys.Options.Timeout` and its custody observation are independent `sys` options. See the [caller contract](docs/contract/loop-v1.md#shell-time-limit). The standalone whole-round `deadline_seconds` is a context deadline. Native membership observation includes zombies on Darwin (numeric `KERN_PROC_PGRP`) and Linux. Linux first uses `kill(-pgid, 0)` as a monotone presence witness: success or `EPERM` means the group is present, with no readable `/proc` needed, and `pgid <= 1` is rejected before any kill. `ESRCH` alone never proves absence: Linux then enumerates `/proc` (zombies, state Z, included) and reads the group after the final `)` of each `stat`. Entries that vanish (`ENOENT`/`ESRCH`) are skipped; unreadable entries (`EPERM`/`EACCES`) and malformed `stat` are remembered, and a later membership witness wins over them. Without a witness, any remembered error or listing failure is an observation failure; only `ESRCH` plus a complete error-free scan with no member is absent. A `hidepid=1`/noaccess mount makes final confirmation fail rather than report absence; with `hidepid=2` (invisible) a hidden live member still cannot become absent because kill is a presence witness. Status as of 27 October 2026 (history): research had reproduced the `ESRCH` defect on Linux; this correction was source-qualified on Darwin and cross-built, with Linux runtime proof pending at delivery. A cross-build does not prove lifecycle behavior. Commit `c7e8331` fixed two Linux test flakes; both tests passed 50/50 on eu2. Other platforms return `sys.ErrTimeoutObservation` after timeout signalling/teardown. Failed observation returns an empty result and that stopping error even without a context, never tool feedback.
+ 
+ Reads are root-contained: `read_file`, `view_image` and the `path` of `list_files`/`search_text` refuse `~`, absolute paths outside `Tools.Root`, `..` escapes and symlinks leaving the root (see the [contract](docs/contract/loop-v1.md#root-contained-reads)); this is not a shell sandbox.
+ 
+diff --git a/conformance/shell_completion_wait_test.go b/conformance/shell_completion_wait_test.go
+new file mode 100644
+index 0000000..4aa077a
+--- /dev/null
++++ b/conformance/shell_completion_wait_test.go
+@@ -0,0 +1,53 @@
++package conformance
++
++import (
++	"context"
++	"path/filepath"
++	"syscall"
++	"testing"
++
++	"kogen-loop/loop"
++	"kogen-loop/provider"
++)
++
++type completionRequester struct {
++	scripted
++	t     *testing.T
++	root  string
++	child owned
++	seen  bool
++}
++
++func (c *completionRequester) Request(ctx context.Context, r loop.Request) (*provider.Response, []any, error) {
++	if len(c.asked) == 1 {
++		if got := shellResult(c.t, r, "c1"); got != "exit status: 0\ndone\n" {
++			c.t.Fatalf("completed command did not return its result in the same response: %q", got)
++		}
++		c.child = own(c.t, filepath.Join(c.root, "child.pid"))
++		pid := c.child.pid
++		c.t.Cleanup(func() { syscall.Kill(pid, syscall.SIGKILL) })
++		c.seen = c.child.live(c.t)
++	}
++	return c.scripted.Request(ctx, r)
++}
++
++// A command that completes inside the bounded completion wait returns without a handle; a
++// background child it left keeps running within the round (as after any fast command) and
++// round custody stops it before loop.Run returns.
++func TestShellCompletionWaitDescendantCustody(t *testing.T) {
++	t.Parallel()
++	l := newLifecycleRun(t)
++	l.rd.Tools.CommandWait = 0 // production default, 45 s
++	command := `sleep 600 >/dev/null 2>&1 & echo $! > child.pid; sleep 2; echo done`
++	rq := &completionRequester{t: t, root: l.w.root, scripted: scripted{responses: []*provider.Response{respond("r1", shellItem("c1", command)), respond("r2", message("done"))}}}
++	res, err := loop.Run(context.Background(), l.rd, []any{userMessage("go")}, rq, loop.Hooks{})
++	if err != nil || res.Ending != loop.EndNoCall {
++		t.Fatalf("round: %+v %v", res, err)
++	}
++	if !rq.seen {
++		t.Fatal("background child was not alive after its leader completed")
++	}
++	if rq.child.live(t) {
++		t.Fatal("background child of a completed command outlived the round")
++	}
++}
+diff --git a/conformance/shell_lifecycle_test.go b/conformance/shell_lifecycle_test.go
+index ecea6b5..186b39e 100644
+--- a/conformance/shell_lifecycle_test.go
++++ b/conformance/shell_lifecycle_test.go
+@@ -176,7 +176,7 @@ func newLifecycleRun(t *testing.T) *lifecycleRun {
+ 	return &lifecycleRun{w: w, sess: sess, rd: loop.Round{
+ 		Owner: "test", Role: provider.Role{Provider: "chatgpt", Model: "m", Effort: "e"},
+ 		Instructions: "inst", Definitions: []any{"def"},
+-		Tools: &tools.Tools{Root: w.root, Session: sess, Enabled: []string{"shell"}},
++		Tools: &tools.Tools{Root: w.root, Session: sess, Enabled: []string{"shell"}, CommandWait: time.Second},
+ 	}}
+ }
+ 
+diff --git a/docs/contract/loop-v1.md b/docs/contract/loop-v1.md
+index c098fce..0866879 100644
+--- a/docs/contract/loop-v1.md
++++ b/docs/contract/loop-v1.md
+@@ -205,7 +205,7 @@ stop what `claude` runs between hooks, or processes that leave the group.
+ 
+ ### Shell time limit
+ 
+-A shell call supplies exactly one string `command` or `handle`. A new command waits at most one second; retrieval waits at most 30 seconds. Both return
++A shell call supplies exactly one string `command` or `handle`. A new command waits at most 45 seconds; retrieval waits at most 30 seconds. Both return
+ immediately on completion without imposing an execution timeout. Fast commands return `exit status: <n>\n<combined output>`.
+ Running commands return JSON with `status: "running"`, an opaque `handle` and cumulative
+ `output`. Retrieval returns that shape or `status: "completed"` with the same handle,
+diff --git a/loop/shell_attempt_test.go b/loop/shell_attempt_test.go
+index ca9840a..33d8572 100644
+--- a/loop/shell_attempt_test.go
++++ b/loop/shell_attempt_test.go
+@@ -10,6 +10,7 @@ import (
+ 	"strings"
+ 
+ 	"testing"
++	"time"
+ 
+ 	"kogen-loop/sys"
+ 	"kogen-loop/tools"
+@@ -18,7 +19,7 @@ import (
+ func TestDiscardedAttemptStopsYieldedShell(t *testing.T) {
+ 	t.Parallel()
+ 	root := t.TempDir()
+-	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}}
++	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}, CommandWait: time.Second}
+ 	defer tl.EndShellRound()
+ 	st := newStage(context.Background(), tl, nil)
+ 	st.Done(0, olShell("c", "while :; do sleep 1; done"))
+@@ -46,7 +47,7 @@ func TestDiscardedAttemptStopsYieldedShell(t *testing.T) {
+ // A yielded leader may finish before its attempt is discarded, leaving a child.
+ func TestDiscardedAttemptStopsCompletedYieldedShell(t *testing.T) {
+ 	root := t.TempDir()
+-	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}}
++	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}, CommandWait: time.Second}
+ 	defer tl.EndShellRound()
+ 	st := newStage(context.Background(), tl, nil)
+ 	st.Done(0, olShell("c", `sleep 600 >/dev/null 2>&1 & echo $! > child.pid; sleep 2`))
+@@ -99,7 +100,7 @@ func TestDiscardedAttemptStopsCompletedYieldedShell(t *testing.T) {
+ // A command can finish before yielding while leaving work in its group.
+ func TestDiscardedAttemptStopsFastShellChild(t *testing.T) {
+ 	root := t.TempDir()
+-	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}}
++	tl := &tools.Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{tools.ShellTool}, CommandWait: time.Second}
+ 	defer tl.EndShellRound()
+ 	st := newStage(context.Background(), tl, nil)
+ 	st.Done(0, olShell("c", `sleep 600 >/dev/null 2>&1 & echo $! > child.pid`))
+diff --git a/loop/tool_overlap_compat_test.go b/loop/tool_overlap_compat_test.go
+index e410af0..ee7130c 100644
+--- a/loop/tool_overlap_compat_test.go
++++ b/loop/tool_overlap_compat_test.go
+@@ -172,7 +172,7 @@ func TestToolOverlapCompatibility(t *testing.T) {
+ 			{provider.Request{}, []string{"Role", "Instructions", "Input", "Tools", "ToolChoice", "Single", "CacheID", "Scope", "Cache", "Context"}},
+ 			{provider.Response{}, []string{"Items", "Usage", "Known", "UsageState", "ID", "Model", "Effort", "CacheStatus", "OperationID", "Metadata"}},
+ 			{provider.Client{}, []string{"HTTP", "Now", "Sleep", "Cache", "Locker", "Input", "Version", "ResponseBudget", "httpOnce", "defHTTP"}},
+-			{tools.Tools{}, []string{"Root", "Session", "Repo", "Enabled", "Protected", "Excluded", "Probe", "Documentation", "shells"}},
++			{tools.Tools{}, []string{"Root", "Session", "Repo", "Enabled", "Protected", "Excluded", "Probe", "Documentation", "CommandWait", "shells"}},
+ 			{tools.Output{}, []string{"Text", "Parts", "Rule"}},
+ 		} {
+ 			if got := fields(c.v); !reflect.DeepEqual(got, c.want) {
+diff --git a/loop/tool_overlap_helpers_test.go b/loop/tool_overlap_helpers_test.go
+index a1b6174..dbbbce6 100644
+--- a/loop/tool_overlap_helpers_test.go
++++ b/loop/tool_overlap_helpers_test.go
+@@ -462,7 +462,7 @@ func olDefs() []any {
+ // olTools are real tools over root with the fake Git.
+ func olTools(root string, repo tools.Git, sess *sys.Session) *tools.Tools {
+ 	return &tools.Tools{Root: root, Repo: repo, Session: sess,
+-		Enabled: []string{tools.ReadFileTool, tools.WriteFileTool, tools.ListFilesTool, tools.SearchTextTool, tools.ViewImageTool, tools.ShellTool}}
++		Enabled: []string{tools.ReadFileTool, tools.WriteFileTool, tools.ListFilesTool, tools.SearchTextTool, tools.ViewImageTool, tools.ShellTool}, CommandWait: time.Second}
+ }
+ 
+ func olSearch(id, pattern string) map[string]any {
+diff --git a/tools/defs.go b/tools/defs.go
+index 8e17495..0f8b8a6 100644
+--- a/tools/defs.go
++++ b/tools/defs.go
+@@ -70,7 +70,7 @@ func Definition(name string) (map[string]any, bool) {
+ 	switch name {
+ 	case ShellTool:
+ 		return fun(name,
+-			"Run a command with /bin/sh -c in the repository root, or retrieve it using its handle. Supply exactly one of command or handle. A new command waits up to one second; retrieval waits up to 30 seconds. Both return immediately on completion; running commands continue and return JSON with status, handle and cumulative output. Retrieval returns running or completed JSON with exit_status and cumulative output. Commands are stopped at round end. stdin is closed; stdout and stderr are combined.",
++			"Run a command with /bin/sh -c in the repository root, or retrieve it using its handle. Supply exactly one of command or handle. A new command waits up to 45 seconds; retrieval waits up to 30 seconds. Both return immediately on completion; running commands continue and return JSON with status, handle and cumulative output. Retrieval returns running or completed JSON with exit_status and cumulative output. Commands are stopped at round end. stdin is closed; stdout and stderr are combined.",
+ 			map[string]any{"command": str(), "handle": str()}), true
+ 	case ViewImageTool:
+ 		return fun(name,
+diff --git a/tools/shell_completion_wait_test.go b/tools/shell_completion_wait_test.go
+new file mode 100644
+index 0000000..b2c0429
+--- /dev/null
++++ b/tools/shell_completion_wait_test.go
+@@ -0,0 +1,153 @@
++package tools
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"os"
++	"path/filepath"
++	"strconv"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"kogen-loop/sys"
++)
++
++// A new command that finishes within the bounded completion wait returns its exit status
++// and complete output in the same call: no handle, nothing left registered.
++func TestShellCommandWaitReturnsCompletedResult(t *testing.T) {
++	t.Parallel()
++	if DefaultCommandWait != 45*time.Second {
++		t.Fatalf("default command wait %v", DefaultCommandWait)
++	}
++	root := t.TempDir()
++	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++	defer tl.EndShellRound()
++	start := time.Now()
++	got := run(t, tl, ShellTool, map[string]any{"command": "printf one; sleep 3; printf two >&2; exit 5"})
++	if got != "exit status: 5\nonetwo" {
++		t.Fatalf("completed result: %q", got)
++	}
++	if d := time.Since(start); d < 2500*time.Millisecond || d > 15*time.Second {
++		t.Fatalf("returned after %v", d)
++	}
++	r := tl.registry()
++	r.mu.Lock()
++	n := len(r.jobs)
++	r.mu.Unlock()
++	if n != 0 {
++		t.Fatalf("%d jobs registered after a completed command", n)
++	}
++}
++
++// A command longer than the bound yields a handle with cumulative output and keeps running;
++// the handle path delivers its later output and exit status.
++func TestShellCommandWaitYieldsAtBound(t *testing.T) {
++	t.Parallel()
++	root := t.TempDir()
++	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}, CommandWait: 2 * time.Second}
++	defer tl.EndShellRound()
++	start := time.Now()
++	text := run(t, tl, ShellTool, map[string]any{"command": "printf one; while [ ! -f release ]; do date +%s%N > alive; sleep .05; done; printf two; exit 7"})
++	var v map[string]any
++	if err := json.Unmarshal([]byte(text), &v); err != nil {
++		t.Fatalf("%q: %v", text, err)
++	}
++	if d := time.Since(start); v["status"] != "running" || v["output"] != "one" || d < 1800*time.Millisecond || d > 8*time.Second {
++		t.Fatalf("yield after %v: %v", d, v)
++	}
++	id, _ := v["handle"].(string)
++	if id == "" {
++		t.Fatal(v)
++	}
++	before, _ := os.ReadFile(filepath.Join(root, "alive"))
++	time.Sleep(300 * time.Millisecond)
++	after, _ := os.ReadFile(filepath.Join(root, "alive"))
++	if len(before) == 0 || string(before) == string(after) {
++		t.Fatal("yielded command is not running")
++	}
++	if err := os.WriteFile(filepath.Join(root, "release"), nil, 0600); err != nil {
++		t.Fatal(err)
++	}
++	if err := json.Unmarshal([]byte(run(t, tl, ShellTool, map[string]any{"handle": id})), &v); err != nil {
++		t.Fatal(err)
++	}
++	if v["status"] != "completed" || v["exit_status"] != float64(7) || v["output"] != "onetwo" {
++		t.Fatal(v)
++	}
++}
++
++// The default bound itself: a command running past 45 seconds yields a handle near the
++// bound, still running, and round end stops it.
++func TestShellCommandWaitDefaultBound(t *testing.T) {
++	t.Parallel()
++	root := t.TempDir()
++	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++	defer tl.EndShellRound()
++	start := time.Now()
++	text := run(t, tl, ShellTool, map[string]any{"command": "echo $$ > actor.pid; exec sleep 600"})
++	d := time.Since(start)
++	var v map[string]any
++	if err := json.Unmarshal([]byte(text), &v); err != nil || v["status"] != "running" || v["handle"] == "" {
++		t.Fatalf("%q: %v", text, err)
++	}
++	if d < 44*time.Second || d > 52*time.Second {
++		t.Fatalf("yielded after %v", d)
++	}
++	pid := readPID(t, root)
++	if err := syscall.Kill(pid, 0); err != nil {
++		t.Fatalf("yielded command not alive: %v", err)
++	}
++	tl.EndShellRound()
++	if err := syscall.Kill(pid, 0); !errors.Is(err, syscall.ESRCH) {
++		t.Fatalf("command survived round end: %v", err)
++	}
++}
++
++// Cancellation and the round deadline end the bounded wait at once and stop the command
++// before the call returns.
++func TestShellCommandWaitCancellationStopsCommand(t *testing.T) {
++	for _, mode := range []string{"cancel", "deadline"} {
++		t.Run(mode, func(t *testing.T) {
++			t.Parallel()
++			root := t.TempDir()
++			tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++			defer tl.EndShellRound()
++			var ctx context.Context
++			var cancel context.CancelFunc
++			want := context.Canceled
++			if mode == "deadline" {
++				ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
++				want = context.DeadlineExceeded
++			} else {
++				ctx, cancel = context.WithCancel(context.Background())
++				timer := time.AfterFunc(2*time.Second, cancel)
++				defer timer.Stop()
++			}
++			defer cancel()
++			start := time.Now()
++			_, err := tl.RunContext(ctx, ShellTool, map[string]any{"command": "echo $$ > actor.pid; exec sleep 600"})
++			if !errors.Is(err, want) || time.Since(start) > 8*time.Second {
++				t.Fatalf("cancellation: %v after %v", err, time.Since(start))
++			}
++			if err := syscall.Kill(readPID(t, root), 0); !errors.Is(err, syscall.ESRCH) {
++				t.Fatalf("command still exists: %v", err)
++			}
++		})
++	}
++}
++
++func readPID(t *testing.T, root string) int {
++	t.Helper()
++	data, err := os.ReadFile(filepath.Join(root, "actor.pid"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	pid, err := strconv.Atoi(strings.TrimSpace(string(data)))
++	if err != nil || pid <= 1 {
++		t.Fatalf("pid: %q", data)
++	}
++	return pid
++}
+diff --git a/tools/shell_yield_test.go b/tools/shell_yield_test.go
+index 0bd888b..bcb6e8b 100644
+--- a/tools/shell_yield_test.go
++++ b/tools/shell_yield_test.go
+@@ -17,7 +17,7 @@ import (
+ func TestShellYieldRetrievalScope(t *testing.T) {
+ 	t.Parallel()
+ 	root := t.TempDir()
+-	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}, CommandWait: time.Second}
+ 	defer tl.EndShellRound()
+ 	decode := func(s string) map[string]any {
+ 		t.Helper()
+@@ -79,7 +79,7 @@ func TestShellYieldLargeJSON(t *testing.T) {
+ 		t.Run(n, func(t *testing.T) {
+ 			t.Parallel()
+ 			root := t.TempDir()
+-			tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++			tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}, CommandWait: time.Second}
+ 			defer tl.EndShellRound()
+ 			parse := func(s string) map[string]any {
+ 				t.Helper()
+@@ -108,7 +108,7 @@ func TestShellYieldLargeJSON(t *testing.T) {
+ func TestShellYieldLargeMalformedOutput(t *testing.T) {
+ 	t.Parallel()
+ 	root := t.TempDir()
+-	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++	tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}, CommandWait: time.Second}
+ 	defer tl.EndShellRound()
+ 	command := `printf '\377'; head -c 20000 /dev/zero | tr '\000' x; printf '\376'; while [ ! -f release ]; do sleep .05; done`
+ 	check := func(s string, status string) {
+@@ -139,7 +139,7 @@ func TestShellRetrievalCancellationStopsCommand(t *testing.T) {
+ 		t.Run(mode, func(t *testing.T) {
+ 			t.Parallel()
+ 			root := t.TempDir()
+-			tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}}
++			tl := &Tools{Root: root, Session: sys.NewWith(os.Environ(), root), Enabled: []string{ShellTool}, CommandWait: time.Second}
+ 			defer tl.EndShellRound()
+ 			var v struct {
+ 				Status string `json:"status"`
+diff --git a/tools/testdata/defs_golden.json b/tools/testdata/defs_golden.json
+index c90d4c5..0fbe588 100644
+--- a/tools/testdata/defs_golden.json
++++ b/tools/testdata/defs_golden.json
+@@ -1 +1 @@
+-{"finish":{"description":"Say the implementation is complete. Kogen then runs the fixers and every check, and a reviewer reviews the code; failures come back to you.","name":"finish","parameters":{"additionalProperties":false,"properties":{"summary":{"type":"string"}},"required":["summary"],"type":"object"},"strict":false,"type":"function"},"list_files":{"description":"List the repository's files (tracked and untracked, not ignored), optionally under a folder inside the repository root; paths outside it, symlinks leaving it and ~ are refused.","name":"list_files","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"probe":{"description":"Run a quick throwaway command with /bin/sh -c in a scratch copy of the working tree (with its installed dependencies and builds), never in the project, to prove a risky assumption. Optional scratch files are written first. Stopped after 5 minutes. Returns the exit status, whether it timed out, the wall time and the combined output.","name":"probe","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"type":"array"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"read_file":{"description":"Read a file of the repository, with line numbers. Paths are relative to the repository root; absolute paths and symlinks must stay inside the root, and ~ is refused.","name":"read_file","parameters":{"additionalProperties":false,"properties":{"end_line":{"type":"integer"},"path":{"type":"string"},"start_line":{"type":"integer"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"report_blocker":{"description":"Stop with a BUILDER-REPORTED protected-baseline contradiction. Supply concrete current protected file paths, the contradiction, and observed command/step/error evidence. Ordinary implementation failures or expected missing-feature red require repair, not a blocker. This never authorizes protected writes or skips a successful gate.","name":"report_blocker","parameters":{"additionalProperties":false,"properties":{"evidence":{"type":"string"},"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason","evidence"],"type":"object"},"strict":false,"type":"function"},"search_text":{"description":"Search the repository's files for a regular expression (git grep syntax), optionally under a path inside the repository root; paths outside it, symlinks leaving it and ~ are refused. Returns path:line:text matches.","name":"search_text","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"},"pattern":{"type":"string"}},"required":["pattern"],"type":"object"},"strict":false,"type":"function"},"shape_batch":{"description":"One blocking batch of 1\u20133 independent read/probe/draft jobs. Supply complete brief: revision {head,tree}, nonempty outcomes, interfaces, transitions, fixtures, exclusions, protected_paths array, artifacts [{path,expectation}]. Each job: unique id, role, exact scope, paths array, owns array. Read/probe own nothing; disjoint draft owns exact Intent/step files. Sequential is valid until all boundaries are known.","name":"shape_batch","parameters":{"properties":{"brief":{"type":"object"},"jobs":{"type":"array"}},"required":["brief","jobs"],"type":"object"},"type":"function"},"shell":{"description":"Run a command with /bin/sh -c in the repository root, or retrieve it using its handle. Supply exactly one of command or handle. A new command waits up to one second; retrieval waits up to 30 seconds. Both return immediately on completion; running commands continue and return JSON with status, handle and cumulative output. Retrieval returns running or completed JSON with exit_status and cumulative output. Commands are stopped at round end. stdin is closed; stdout and stderr are combined.","name":"shell","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"handle":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"submit":{"description":"Include nonempty ## Source comparison prose (at most 8192 UTF-8 bytes) comparing requested behaviors and settled non-secret literals against the actual complete contract, using addressed, omitted, conflicting, superseded with source/contract references. Do not expose secrets or raw private originals. Deliberate scope changes must be explicit; mappings are diagnostic aids, not semantic proof. End shaping with exactly one of questions, Intent files, or blocked. Within this run, well-formed file proposals accumulate: omitted paths retain earlier proposals; latest content wins. Submit only corrections on editing retries. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. A malformed or unsafe submission contributes no files. A blocked report is never authorization and cannot be paired with another result. Record a documentation lookup only when this conversation's documentation tool returned that status and reference. An explicit question kind other than product or handoff is rejected: decide technical questions inside shaping; only kind product or handoff may reach the caller.","name":"submit","parameters":{"properties":{"blocked":{"properties":{"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason"],"type":"object"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"},"questions":{"items":{"properties":{"kind":{"description":"Optional. Omit or product for a UI/UX or product question. handoff for a mandatory authentication or security handoff. Any other explicit kind is rejected.","type":"string"},"options":{"items":{"properties":{"label":{"type":"string"},"recommended":{"type":"boolean"}},"required":["label"],"type":"object"},"type":"array"},"question":{"type":"string"}},"required":["question"],"type":"object"},"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_configuration":{"description":"The project's setup commands, fixers, checks and protected verification configuration; dependency-only manifests and lockfiles are ineligible.","name":"submit_configuration","parameters":{"properties":{"checks":{"items":{"properties":{"name":{"type":"string"},"run":{"type":"string"}},"required":["name","run"],"type":"object"},"type":"array"},"fix":{"items":{"type":"string"},"type":"array"},"protect":{"items":{"type":"string"},"type":"array"},"setup":{"items":{"type":"string"},"type":"array"}},"required":["setup","fix","checks","protect"],"type":"object"},"strict":false,"type":"function"},"submit_refinement":{"description":"For edits, submit changed existing files; well-formed proposals accumulate in this run and omitted paths retain earlier proposed bytes. Submit original content only to intentionally revert an edit. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. Or report an explicit unsupported-work constraint.","name":"submit_refinement","parameters":{"properties":{"constraint":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_review":{"description":"Submit the review: verdict approve or changes, with findings.","name":"submit_review","parameters":{"properties":{"findings":{"items":{"properties":{"line":{"type":"integer"},"message":{"type":"string"},"path":{"type":"string"},"severity":{"enum":["blocking","note"],"type":"string"}},"required":["path","line","severity","message"],"type":"object"},"type":"array"},"verdict":{"enum":["approve","changes"],"type":"string"}},"required":["verdict","findings"],"type":"object"},"strict":false,"type":"function"},"view_image":{"description":"View one selected local static non-interlaced RGB8 PNG (1..131072 bytes, dimensions 1..2048) inside the repository root; paths outside it, symlinks leaving it and ~ are refused. Read-only; no capture or provenance inference. Provider preprocessing may change resolution.","name":"view_image","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"worker_result":{"description":"Terminate with nonempty evidence and files [{path,content}]; read/probe files empty, draft only owns.","name":"worker_result","parameters":{"properties":{"evidence":{"type":"string"},"files":{"type":"array"}},"required":["evidence","files"],"type":"object"},"type":"function"},"write_file":{"description":"Write the whole content of a file of the repository (created with its folders if needed).","name":"write_file","parameters":{"additionalProperties":false,"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"strict":false,"type":"function"},"documentation":{"description":"Shape documentation lookup discovers sources and retrieves current authoritative documentation. A fetch may pass offset, a byte index into the page body, and find, text that starts the body at its first matching heading or line; the result reports body_total and next_offset for reading the rest.","name":"documentation","parameters":{"additionalProperties":false,"properties":{"base":{"description":"Optional origin. When present, every request in this call uses that origin and no other host.","type":"string"},"find":{"type":"string"},"offset":{"type":"integer"},"operation":{"enum":["search","fetch"],"type":"string"},"query":{"type":"string"},"url":{"type":"string"}},"required":["operation"],"type":"object"},"strict":false,"type":"function"}}
++{"finish":{"description":"Say the implementation is complete. Kogen then runs the fixers and every check, and a reviewer reviews the code; failures come back to you.","name":"finish","parameters":{"additionalProperties":false,"properties":{"summary":{"type":"string"}},"required":["summary"],"type":"object"},"strict":false,"type":"function"},"list_files":{"description":"List the repository's files (tracked and untracked, not ignored), optionally under a folder inside the repository root; paths outside it, symlinks leaving it and ~ are refused.","name":"list_files","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"probe":{"description":"Run a quick throwaway command with /bin/sh -c in a scratch copy of the working tree (with its installed dependencies and builds), never in the project, to prove a risky assumption. Optional scratch files are written first. Stopped after 5 minutes. Returns the exit status, whether it timed out, the wall time and the combined output.","name":"probe","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"type":"array"}},"required":["command"],"type":"object"},"strict":false,"type":"function"},"read_file":{"description":"Read a file of the repository, with line numbers. Paths are relative to the repository root; absolute paths and symlinks must stay inside the root, and ~ is refused.","name":"read_file","parameters":{"additionalProperties":false,"properties":{"end_line":{"type":"integer"},"path":{"type":"string"},"start_line":{"type":"integer"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"report_blocker":{"description":"Stop with a BUILDER-REPORTED protected-baseline contradiction. Supply concrete current protected file paths, the contradiction, and observed command/step/error evidence. Ordinary implementation failures or expected missing-feature red require repair, not a blocker. This never authorizes protected writes or skips a successful gate.","name":"report_blocker","parameters":{"additionalProperties":false,"properties":{"evidence":{"type":"string"},"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason","evidence"],"type":"object"},"strict":false,"type":"function"},"search_text":{"description":"Search the repository's files for a regular expression (git grep syntax), optionally under a path inside the repository root; paths outside it, symlinks leaving it and ~ are refused. Returns path:line:text matches.","name":"search_text","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"},"pattern":{"type":"string"}},"required":["pattern"],"type":"object"},"strict":false,"type":"function"},"shape_batch":{"description":"One blocking batch of 1\u20133 independent read/probe/draft jobs. Supply complete brief: revision {head,tree}, nonempty outcomes, interfaces, transitions, fixtures, exclusions, protected_paths array, artifacts [{path,expectation}]. Each job: unique id, role, exact scope, paths array, owns array. Read/probe own nothing; disjoint draft owns exact Intent/step files. Sequential is valid until all boundaries are known.","name":"shape_batch","parameters":{"properties":{"brief":{"type":"object"},"jobs":{"type":"array"}},"required":["brief","jobs"],"type":"object"},"type":"function"},"shell":{"description":"Run a command with /bin/sh -c in the repository root, or retrieve it using its handle. Supply exactly one of command or handle. A new command waits up to 45 seconds; retrieval waits up to 30 seconds. Both return immediately on completion; running commands continue and return JSON with status, handle and cumulative output. Retrieval returns running or completed JSON with exit_status and cumulative output. Commands are stopped at round end. stdin is closed; stdout and stderr are combined.","name":"shell","parameters":{"additionalProperties":false,"properties":{"command":{"type":"string"},"handle":{"type":"string"}},"required":[],"type":"object"},"strict":false,"type":"function"},"submit":{"description":"Include nonempty ## Source comparison prose (at most 8192 UTF-8 bytes) comparing requested behaviors and settled non-secret literals against the actual complete contract, using addressed, omitted, conflicting, superseded with source/contract references. Do not expose secrets or raw private originals. Deliberate scope changes must be explicit; mappings are diagnostic aids, not semantic proof. End shaping with exactly one of questions, Intent files, or blocked. Within this run, well-formed file proposals accumulate: omitted paths retain earlier proposals; latest content wins. Submit only corrections on editing retries. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. A malformed or unsafe submission contributes no files. A blocked report is never authorization and cannot be paired with another result. Record a documentation lookup only when this conversation's documentation tool returned that status and reference. An explicit question kind other than product or handoff is rejected: decide technical questions inside shaping; only kind product or handoff may reach the caller.","name":"submit","parameters":{"properties":{"blocked":{"properties":{"paths":{"items":{"type":"string"},"type":"array"},"reason":{"type":"string"}},"required":["paths","reason"],"type":"object"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"},"questions":{"items":{"properties":{"kind":{"description":"Optional. Omit or product for a UI/UX or product question. handoff for a mandatory authentication or security handoff. Any other explicit kind is rejected.","type":"string"},"options":{"items":{"properties":{"label":{"type":"string"},"recommended":{"type":"boolean"}},"required":["label"],"type":"object"},"type":"array"},"question":{"type":"string"}},"required":["question"],"type":"object"},"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_configuration":{"description":"The project's setup commands, fixers, checks and protected verification configuration; dependency-only manifests and lockfiles are ineligible.","name":"submit_configuration","parameters":{"properties":{"checks":{"items":{"properties":{"name":{"type":"string"},"run":{"type":"string"}},"required":["name","run"],"type":"object"},"type":"array"},"fix":{"items":{"type":"string"},"type":"array"},"protect":{"items":{"type":"string"},"type":"array"},"setup":{"items":{"type":"string"},"type":"array"}},"required":["setup","fix","checks","protect"],"type":"object"},"strict":false,"type":"function"},"submit_refinement":{"description":"For edits, submit changed existing files; well-formed proposals accumulate in this run and omitted paths retain earlier proposed bytes. Submit original content only to intentionally revert an edit. After inspecting legitimate missing-feature red, resubmit the smallest eligible owned artifact with its exact current candidate whole body, including previously proposed corrections. The files array must be nonempty; if only one eligible large artifact exists, submit its entire body. Omitted well-formed proposals remain retained; do not retransmit large unchanged prose/helpers or restore original disk bytes for acknowledgment. Publication and acknowledgment concern the exact complete package; unchanged inputs reuse readiness, while changed candidates receive fresh checks. Or report an explicit unsupported-work constraint.","name":"submit_refinement","parameters":{"properties":{"constraint":{"type":"string"},"files":{"items":{"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"minItems":1,"type":"array"}},"type":"object"},"strict":false,"type":"function"},"submit_review":{"description":"Submit the review: verdict approve or changes, with findings.","name":"submit_review","parameters":{"properties":{"findings":{"items":{"properties":{"line":{"type":"integer"},"message":{"type":"string"},"path":{"type":"string"},"severity":{"enum":["blocking","note"],"type":"string"}},"required":["path","line","severity","message"],"type":"object"},"type":"array"},"verdict":{"enum":["approve","changes"],"type":"string"}},"required":["verdict","findings"],"type":"object"},"strict":false,"type":"function"},"view_image":{"description":"View one selected local static non-interlaced RGB8 PNG (1..131072 bytes, dimensions 1..2048) inside the repository root; paths outside it, symlinks leaving it and ~ are refused. Read-only; no capture or provenance inference. Provider preprocessing may change resolution.","name":"view_image","parameters":{"additionalProperties":false,"properties":{"path":{"type":"string"}},"required":["path"],"type":"object"},"strict":false,"type":"function"},"worker_result":{"description":"Terminate with nonempty evidence and files [{path,content}]; read/probe files empty, draft only owns.","name":"worker_result","parameters":{"properties":{"evidence":{"type":"string"},"files":{"type":"array"}},"required":["evidence","files"],"type":"object"},"type":"function"},"write_file":{"description":"Write the whole content of a file of the repository (created with its folders if needed).","name":"write_file","parameters":{"additionalProperties":false,"properties":{"content":{"type":"string"},"path":{"type":"string"}},"required":["path","content"],"type":"object"},"strict":false,"type":"function"},"documentation":{"description":"Shape documentation lookup discovers sources and retrieves current authoritative documentation. A fetch may pass offset, a byte index into the page body, and find, text that starts the body at its first matching heading or line; the result reports body_total and next_offset for reading the rest.","name":"documentation","parameters":{"additionalProperties":false,"properties":{"base":{"description":"Optional origin. When present, every request in this call uses that origin and no other host.","type":"string"},"find":{"type":"string"},"offset":{"type":"integer"},"operation":{"enum":["search","fetch"],"type":"string"},"query":{"type":"string"},"url":{"type":"string"}},"required":["operation"],"type":"object"},"strict":false,"type":"function"}}
+diff --git a/tools/tools.go b/tools/tools.go
+index d1140c6..af56941 100644
+--- a/tools/tools.go
++++ b/tools/tools.go
+@@ -76,9 +76,18 @@ type Tools struct {
+ 	Probe func(command string, files any) (string, error)
+ 	// Documentation is the shaper's documentation tool (user-agent, timeout).
+ 	Documentation Documentation
+-	shells        *shellRegistry
++	// CommandWait bounds how long a new shell command is awaited for completion before a
++	// handle is returned. Zero: DefaultCommandWait.
++	CommandWait time.Duration
++	shells      *shellRegistry
+ }
+ 
++// DefaultCommandWait is the bounded completion wait of a new shell command: a command that
++// finishes within it returns its exit status and output in the same tool response; a longer
++// one returns a handle and keeps running. Waiting never kills a command; cancellation and the
++// round deadline end the wait at once.
++const DefaultCommandWait = 45 * time.Second
++
+ const (
+ 	maxResult         = 16_384
+ 	defaultResultHead = 4096
+@@ -624,7 +633,10 @@ func (t *Tools) shell(ctx context.Context, args map[string]any) (string, string,
+ 		r.jobs[id] = j
+ 		r.mu.Unlock()
+ 	}
+-	wait := time.Second
++	wait := t.CommandWait
++	if wait <= 0 {
++		wait = DefaultCommandWait
++	}
+ 	if hasHandle {
+ 		wait = 30 * time.Second
+ 	}

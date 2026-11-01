@@ -609,6 +609,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "We ran Kogen's current main twice per task, once with the shaper at high reasoning effort and once at medium, same model, with build and review at medium in both. Across 13 Go tasks and 78 paired runs, hidden-test passes were 57 of 78 on both sides, with 7 wins and 7 losses for high effort. Six of the 14 differing pairs came from the shaping stage (3 won, 3 lost); the other eight were runs that landed in both arms where one hidden test flipped (4 won, 4 lost). Fewer runs ended on a contradicted acceptance with high effort (3 against 6), but those cases split evenly and did not change the pass rate, and no new kind of refusal appeared. High effort made shaping a little slower and used more reasoning tokens, which we report only as description. Thirteen tasks repeated six times are not 78 independent tasks, so we read this as no measurable gain and keep medium."
+    },
+    {
+      "id": "loop-bounded-shell-wait-166ec7f-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "kogen-loop waiting up to 45 seconds for a shell command removes result-fetching requests on hard tasks",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "yes",
+      "finished": "2026-11-01",
+      "summary": "We let kogen-loop wait up to 45 seconds for a new shell command to finish (instead of 1 second) before handing back a handle, and compared it with unchanged kogen-loop main (166ec7f) on two hard Kogen review tasks, three runs each, the two runs side by side on one server. Requests that only fetch a shell result fell from 16 to 0, all requests fell 30% (fewer in 5 of 5 complete pairs) and wall time fell 24%; no pair changed its hidden result (one task passes 3 of 3 on both sides, the other fails on both for a task-side reason). One pair was lost to a provider error on the unchanged side and is left out. A screen on two tasks, not a confirmation."
     }
   ]
 }

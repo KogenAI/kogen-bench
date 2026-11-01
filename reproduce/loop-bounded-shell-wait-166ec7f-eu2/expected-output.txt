@@ -1,0 +1,22 @@
+pair | retrieval-only main->bcw | requests | wall s | output tokens | hidden pass main/bcw | handles main/bcw
+kogen-review-on-demand r1 | 4->0 | 16->11 | 167->124 | 3638->3094 | True/True | 4/0
+kogen-review-on-demand r2 | 4->0 | 21->14 | 207->186 | 4775->3828 | True/True | 5/0
+kogen-review-on-demand r3 | 1->0 | 14->9 | 125->119 | 3637->3186 | True/True | 2/0
+kogen-review-retry r1 | 2->0 | 7->6 | 72->72 | 1095->1026 | False/False | 1/0
+kogen-review-retry r2 | 5->0 | 12->9 | 220->102 | 2068->1794 | False/False | 3/0
+kogen-review-retry r3 (censored: agent_error on main) | 0->0 | 7->8 | 779->101 | -->1718 | False/False | 0/0
+
+pooled over 5 complete pairs (censored left out: 1)
+retrieval_only_requests: main 16 bcw 0 (-100.0%)
+requests: main 70 bcw 49 (-30.0%)
+wall_s: main 791.9 bcw 603.6 (-23.8%)
+output_tokens: main 1.521e+04 bcw 1.293e+04 (-15.0%)
+usd_list: main 1.1 bcw 0.8572 (-22.1%)
+shell_commands: main 44 bcw 30 (-31.8%)
+handles_issued: main 15 bcw 0 (-100.0%)
+handle_retrievals: main 21 bcw 0 (-100.0%)
+pairs with more retrieval-only requests on bcw: 0 of 6
+pairs with fewer requests on bcw: 5 of 5
+pairs passing on main and failing on bcw: 0
+kogen-review-on-demand hidden pass main 3 bcw 3 of 3
+kogen-review-retry hidden pass main 0 bcw 0 of 3

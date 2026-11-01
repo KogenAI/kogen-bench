@@ -134,3 +134,7 @@ Kogen's current main (`e6f69a1`) against the build before its last nine commits 
 ## Kogen shaper at high effort (2 Nov 2026)
 
 Kogen's shaper at high reasoning effort against medium, same model, build and review at medium in both, 13 Go tasks, 78 paired runs over six repetitions: hidden passes were 57 of 78 on both sides (7 wins, 7 losses). Six of the 14 differing pairs came from the shaping stage (3 won, 3 lost) and eight were landed builds where one hidden test flipped (4 and 4). Contradicted acceptances fell from 6 to 3 but the pairs behind them split evenly, and no new refusal class appeared. High effort gains nothing measurable, so the shaper stays at medium. See [kogen-shaper-high-effort-e6f69a1](../reproduce/kogen-shaper-high-effort-e6f69a1/README.md).
+
+## kogen-loop waiting for shell commands to finish (1 Nov 2026)
+
+kogen-loop with a new shell command waiting up to 45 seconds to finish (instead of 1 second) before it hands back a handle, against unchanged kogen-loop main (`166ec7f`), same model and effort, the two hard Kogen review tasks, three runs each, the two runs side by side on one server: requests that only fetch a shell result fell from 16 to 0, all requests fell 30% (fewer in 5 of 5 complete pairs) and wall time fell 24%. No pair changed its hidden result; one pair was lost to a provider error on the unchanged side and is left out. A screen on two tasks, not a confirmation. See [loop-bounded-shell-wait-166ec7f-eu2](../reproduce/loop-bounded-shell-wait-166ec7f-eu2/README.md).
