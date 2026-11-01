@@ -13,7 +13,7 @@ import time
 
 from . import common
 
-SAMPLE_S = 2.0  # watchdog: time between two sums of the tree's resident set
+SAMPLE_S = 10.0  # watchdog: time between two sums of the tree's resident set (10 s: one `ps -A` per cell every 2 s overloaded a 10-core host)
 TERM_GRACE_S = 3.0  # watchdog: TERM first, KILL after this
 CGROUP_ROOT = "/sys/fs/cgroup"
 RECORD = "memory-cap.json"
