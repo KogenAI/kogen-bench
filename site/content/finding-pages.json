@@ -564,6 +564,15 @@
       "verdict": "yes",
       "finished": "2026-11-01",
       "summary": "We ran kogen-loop with tonight's fixes (version 9e90bf5) against the version before them (1a3eb18) on the same 14 tasks, once each, with the two runs of a task side by side on one server. Requests that only check on a running shell command fell from 78 to 35 (-55%) and their cost by 34%; no shell call was refused (6 were before); no task that passed before failed, and the one failing task fails the same way in both for a task-side reason. Not shown: the new wait for a provider connection never triggered because no request met a network error. Also: on the three long tasks wall time rose by about 60%, because checking a command now waits up to 30 seconds instead of one, and one of those tasks took a longer path. One run per task, so small differences are noise."
+    },
+    {
+      "id": "shape-example-check-3ea2e23-screen",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's new shaping example check refuses good specifications and loses 7 hidden passes in 65 shapes",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "Kogen's shaping step was given an example check (a model reads each acceptance example, derives its value from the written rules, and the gate refuses the specification if one contradicts) and compared with the version before it, same model (gpt-6.1-terra, medium effort), 13 Go tasks, 65 paired runs on three servers. The check did cut builds that stopped on a contradicting acceptance (9 to 3), but hidden passes fell from 47 to 40 of 65: in 15 shapes it ended shaping with a refusal or questions (1 before). Of the 12 pairs that lost a pass, 8 were shaping stopped by the check itself, most often because it called two equal values contradictory when they were only written in a different format (braced or unbraced JSON). The test was stopped early for that reason and the check is dropped until that fault is fixed; the other discordant pairs balance out (5 wins, 4 losses) and are ordinary run-to-run flipping."
     }
   ]
 }

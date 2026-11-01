@@ -1,0 +1,43 @@
+pairs 65 in 5 runs, 13 tasks
+contradiction cells: base 9, lever 3
+hidden pass: base 47/65, lever 40/65; wins 5 losses 12 net -7
+lever shaping ended refused/questions: 15 of 65; base: 1
+lever outcomes: {'build_blocked': 3, 'landed': 46, 'questions_pending': 2, 'refused': 13, 'review_blocked': 1}
+base outcomes: {'build_blocked': 9, 'landed': 52, 'questions_pending': 1, 'review_blocked': 3}
+
+Discordant pairs by class (a = example-check refusal ended shaping; b = other shape-stage cause; e = no stage cause, build/hidden variance or no lever event)
+class	pairs	wins	losses	hidden-unchanged
+a	9	0	8	1
+b	7	0	2	5
+e	10	5	2	3
+
+class a: 9 pairs, 8 hidden losses, 0 wins
+base contradiction cells 9: lever landed 5 (example-check refusals in those cells 0), refused/questions 3, still contradiction 1
+
+run	task	base hidden	lever hidden	class
+shc2-eu-r1	T01	False	True	e
+shc2-eu-r1	T03	False	False	b
+shc2-eu-r1	T08	False	False	b
+shc2-eu-r1	T11	True	False	b
+shc2-eu-r1	T12	False	True	e
+shc2-eu-r1	T13	False	True	e
+shc2-eu-r2	T03	False	False	e
+shc2-eu-r2	T07	True	False	a
+shc2-eu-r2	T08	False	False	b
+shc2-eu2-r1	T03	False	False	b
+shc2-eu2-r1	T07	True	False	a
+shc2-eu2-r1	T13	False	True	e
+shc2-eu2-r2	T02	True	False	a
+shc2-eu2-r2	T03	False	False	e
+shc2-eu2-r2	T04	True	False	a
+shc2-eu2-r2	T05	False	True	e
+shc2-eu2-r2	T07	False	False	a
+shc2-eu2-r2	T08	False	False	b
+shc2-eu2-r2	T12	True	False	e
+shc2-eu2-r2	T13	True	False	a
+shc2-lm-r1	T01	True	False	a
+shc2-lm-r1	T02	True	False	a
+shc2-lm-r1	T03	False	False	e
+shc2-lm-r1	T07	True	False	a
+shc2-lm-r1	T10	True	False	b
+shc2-lm-r1	T13	True	False	e

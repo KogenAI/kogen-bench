@@ -1,0 +1,66 @@
+run	task	g0_outcome	g0_hidden_pass	g0_contradiction	g1_outcome	g1_hidden_pass	g1_contradiction	g1_example_check_events	g1_example_check_refusals	hidden_change	class	cause
+shc2-eu-r1	T01	build_blocked	False	True	landed	True	False	2	0	win	e	g0 builder blocked on a wrong protected scenario; g1 landed and passed; example check ran with 0 items judged, no refusal; no lever event in the outcome
+shc2-eu-r1	T02	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r1	T03	build_blocked	False	True	refused	False	False	2	1	same	b	g1: example check refused once (attempt 2, 12 contradicts) then step self-check refused (undefined steps) and ended shaping; hidden fails in both arms
+shc2-eu-r1	T04	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r1	T05	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r1	T06	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r1	T07	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r1	T08	review_blocked	False	False	refused	False	False	1	1	same	b	g1: example check refused once (3 contradicts), shaper then answered without a tool 3 times (shape/invalid_output); hidden fails in both arms
+shc2-eu-r1	T09	landed	True	False	landed	True	False	2	1	same		
+shc2-eu-r1	T10	landed	True	False	landed	True	False	2	1	same		
+shc2-eu-r1	T11	landed	True	False	build_blocked	False	True	1	0	loss	b	g1 builder blocked on a protected scenario that omits a trailing dropped sequence; example check judged 0 items, so it did not catch it; g0 landed and passed
+shc2-eu-r1	T12	landed	False	False	landed	True	False	1	0	win	e	both landed; g1 passes the hidden test g0 fails; example check 16 follows, 0 contradicts, no refusal
+shc2-eu-r1	T13	landed	False	False	landed	True	False	1	0	win	e	both landed; g1 passes the hidden test g0 fails (same test flips in other reps both ways); no refusal
+shc2-eu-r2	T01	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T02	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T03	build_blocked	False	True	landed	False	False	1	0	same	e	g0 builder blocked on an escaped-newline fixture; g1 landed (hidden fails in both); example check 1 follows, no refusal
+shc2-eu-r2	T04	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T05	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T06	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T07	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 26 contradicts at attempts 1 and 2 on equal values written in another format (expected unbraced `"status":0,"out":".."`, derived braced JSON or key:value text), gate refused twice, intent/not_ready; g0 landed and passed
+shc2-eu-r2	T08	build_blocked	False	True	refused	False	False	0	0	same	b	g1 shaper answered without a tool 3 times (shape/invalid_output), no example check ran; g0 builder blocked on an incomplete Intent; hidden fails in both arms
+shc2-eu-r2	T09	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T10	build_blocked	False	True	build_blocked	False	True	2	1	same		
+shc2-eu-r2	T11	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T12	landed	True	False	landed	True	False	1	0	same		
+shc2-eu-r2	T13	landed	False	False	landed	False	False	1	0	same		
+shc2-eu2-r1	T01	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T02	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T03	landed	False	False	refused	False	False	1	0	same	b	g1 example check 29 follows 0 contradicts; step self-check refused (exit code via go run, then a SyntaxError in the step file) and ended shaping; hidden fails in both arms
+shc2-eu2-r1	T04	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T05	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T06	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T07	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 31 of 31 items contradicts at attempts 1 and 2 with derived == expected in value, only the format differs (unbraced member list vs braced JSON / key:value text); gate refused, intent/not_ready; g0 landed and passed (this is issue 002072a5)
+shc2-eu2-r1	T08	questions_pending	False	False	questions_pending	False	False	0	0	same		
+shc2-eu2-r1	T09	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T10	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T11	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T12	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r1	T13	landed	False	False	landed	True	False	1	0	win	e	both landed; g1 passes the hidden test g0 fails; no refusal
+shc2-eu2-r2	T01	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r2	T02	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 23 then 17 contradicts, items equal in value and different in format (braced vs unbraced), last attempt also a help text 'not independently supplied'; refused twice, intent/not_ready; g0 landed and passed
+shc2-eu2-r2	T03	build_blocked	False	True	landed	False	False	1	0	same	e	g0 builder blocked on a scenario omitting 2021-01-01; g1 landed (hidden fails in both); example check 1 follows, no refusal
+shc2-eu2-r2	T04	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 1 then 33 contradicts, values equal after removing the JSON braces; refused twice, intent/not_ready; g0 landed and passed
+shc2-eu2-r2	T05	build_blocked	False	True	landed	True	False	1	0	win	e	g0 builder blocked on a protected fixture with an extra zero; g1 landed and passed; example check 29 follows, no refusal
+shc2-eu2-r2	T06	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r2	T07	build_blocked	False	True	refused	False	False	2	2	same	a	g1 example check refused twice (1 then 2 contradicts: one value difference and an unspecified diagnostic text); intent/not_ready; g0 builder blocked on a protected scenario; hidden fails in both arms
+shc2-eu2-r2	T08	review_blocked	False	False	questions_pending	False	False	0	0	same	b	g1 shaper stopped with questions pending (no example check ran); g0 review_blocked; hidden fails in both arms
+shc2-eu2-r2	T09	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r2	T10	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r2	T11	landed	True	False	landed	True	False	1	0	same		
+shc2-eu2-r2	T12	landed	True	False	landed	False	False	1	0	loss	e	both landed; g0 passes, g1 fails the hidden test g0 fails in eu-r1; example check judged 0 items, no refusal
+shc2-eu2-r2	T13	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 6 then 10 contradicts on values equal after removing the JSON braces; refused twice, intent/not_ready; g0 landed and passed
+shc2-lm-r1	T01	landed	True	False	refused	False	False	3	3	loss	a	g1 example check: 9, 11, 4 contradicts at attempts 1-3 (derived braced JSON equals the unbraced expected value), refused 3 times, intent/not_ready; g0 landed and passed
+shc2-lm-r1	T02	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 13 contradicts (expected carries the arguments, derived does not), then 1: a default wait 'not derivable from stated rules'; refused twice, intent/not_ready; g0 landed and passed
+shc2-lm-r1	T03	build_blocked	False	True	landed	False	False	1	0	same	e	g0 builder blocked on a scenario omitting 2021-12-31; g1 landed (hidden fails in both); example check 4 follows, no refusal
+shc2-lm-r1	T04	landed	True	False	landed	True	False	1	0	same		
+shc2-lm-r1	T05	landed	True	False	landed	True	False	3	1	same		
+shc2-lm-r1	T06	landed	True	False	landed	True	False	1	0	same		
+shc2-lm-r1	T07	landed	True	False	refused	False	False	2	2	loss	a	g1 example check: 29 contradicts (format only), then 2 on stderr text 'not specified by the stated rules'; refused twice, intent/not_ready; g0 landed and passed
+shc2-lm-r1	T08	review_blocked	False	False	review_blocked	False	False	1	0	same		
+shc2-lm-r1	T09	landed	True	False	landed	True	False	1	0	same		
+shc2-lm-r1	T10	landed	True	False	build_blocked	False	True	1	0	loss	b	g1 builder blocked: protected scenario orders /a~1b/~0x before /a~1b/z against the Intent's bytewise order; the example check said follows 11, contradicts 0, so it missed the defect; g0 landed and passed
+shc2-lm-r1	T11	landed	True	False	landed	True	False	1	0	same		
+shc2-lm-r1	T12	landed	True	False	landed	True	False	1	0	same		
+shc2-lm-r1	T13	landed	True	False	landed	False	False	1	0	loss	e	both landed; g1 fails the hidden test that g0 failed in other reps; example check judged 0 items, no refusal
