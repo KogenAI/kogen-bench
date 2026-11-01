@@ -1,0 +1,89 @@
+diff --git a/cli/shape/hc_s3_test.go b/cli/shape/hc_s3_test.go
+new file mode 100644
+index 0000000..9b62e4a
+--- /dev/null
++++ b/cli/shape/hc_s3_test.go
+@@ -0,0 +1,51 @@
++package shape
++
++import (
++	"testing"
++
++	"kogen/executor"
++)
++
++// Lane patch S3: package tests keep B0's default (shpEnv sets KOGEN_HC_S3_AUDIT=off); these
++// fixtures drop the opt-out, as a lanes cell runs.
++func hcS3On(f *shpFx) {
++	env := f.Env[:0:0]
++	for _, kv := range f.Env {
++		if kv != "KOGEN_HC_S3_AUDIT=off" {
++			env = append(env, kv)
++		}
++	}
++	f.Env = env
++}
++
++func TestHCS3AuditRunsWithoutTheConfigKey(t *testing.T) {
++	f := newShpFx(t)
++	hcS3On(f)
++	f.useExternalShape(6)
++	audit := map[string]any{"examples": []any{}, "rules": []any{}, "cells": []any{}, "defects": []any{}}
++	x := &shapeExec{t: t, rounds: []func(int, string) (executor.RoundResult, error){result(audit), result(shpFiles())}}
++	f.shapeWith(x, "Add calc.is_even(n).")
++	if len(x.starts) != 2 {
++		t.Fatalf("%d sessions, want the audit session and the shaping session", len(x.starts))
++	}
++	shpContains(t, "audit schema", string(x.starts[0].Schema), "exposing_input")
++	shpEq(t, "witness events", len(shpNamed(f.events(), "hc_s3_audit_on")), 1)
++	shpEq(t, "audit events", len(shpNamed(f.events(), "request_audit")), 1)
++	if !f.exists(".kogen/intents/is-even") {
++		t.Error("the Intent was not published")
++	}
++}
++
++func TestHCS3ConfiguredAuditHasNoWitness(t *testing.T) {
++	f := newShpFx(t)
++	hcS3On(f)
++	f.useExternalShape(6)
++	f.write(".kogen/project.yaml", f.read(".kogen/project.yaml")+"shape_audit:\n  enabled: true\n")
++	f.git("add", ".kogen/project.yaml")
++	f.git("commit", "-qm", "audit")
++	audit := map[string]any{"examples": []any{}, "rules": []any{}, "cells": []any{}, "defects": []any{}}
++	x := &shapeExec{t: t, rounds: []func(int, string) (executor.RoundResult, error){result(audit), result(shpFiles())}}
++	f.shapeWith(x, "Add calc.is_even(n).")
++	shpEq(t, "witness events", len(shpNamed(f.events(), "hc_s3_audit_on")), 0)
++	shpEq(t, "audit events", len(shpNamed(f.events(), "request_audit")), 1)
++}
+diff --git a/cli/shape/helper_test.go b/cli/shape/helper_test.go
+index 11d136c..128477c 100644
+--- a/cli/shape/helper_test.go
++++ b/cli/shape/helper_test.go
+@@ -242,6 +242,7 @@ func shpEnv(extra ...string) []string {
+ 		}
+ 	}
+ 	env = append(env, "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_NOSYSTEM=1", "GIT_TERMINAL_PROMPT=0")
++	env = append(env, "KOGEN_HC_S3_AUDIT=off") // lane patch S3: package tests keep B0's audit default
+ 	return append(env, extra...)
+ }
+ 
+diff --git a/cli/shape/shape.go b/cli/shape/shape.go
+index a1c3550..eea32ab 100644
+--- a/cli/shape/shape.go
++++ b/cli/shape/shape.go
+@@ -537,7 +537,14 @@ func (sh *shaping) shape(ctx context.Context, st *state) (int, error) {
+ 		return 0, err
+ 	}
+ 	sh.request = st.Request
+-	if sh.cfg.ShapeAudit.Enabled {
++	// Lane patch S3: the request audit runs on every Shape, as if shape_audit.enabled were set.
++	// Lanes writes project.yaml without the key, so the patch cannot be a lane setting. Package
++	// tests opt out with KOGEN_HC_S3_AUDIT=off to keep B0's behaviour.
++	hcS3AuditOn := sh.s.Getenv("KOGEN_HC_S3_AUDIT") != "off"
++	if hcS3AuditOn && !sh.cfg.ShapeAudit.Enabled {
++		sh.ev.Record(map[string]any{"event": "hc_s3_audit_on", "configured": false})
++	}
++	if sh.cfg.ShapeAudit.Enabled || hcS3AuditOn {
+ 		if err := sh.audit(ctx, st.Request); err != nil {
+ 			return 0, err
+ 		}

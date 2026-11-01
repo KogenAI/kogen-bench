@@ -465,6 +465,15 @@
       "verdict": "unresolved",
       "finished": "2026-10-31",
       "summary": "The kogen-loop sentence that tells the agent to call finish right away once its checks pass was tested against the unchanged loop on two hard Kogen review tasks, four paired runs each, same model and effort. On the first task both arms passed all four runs. On the second both arms failed all four runs on the same acceptance checks, so it could not separate them. Failures were four in each arm and no run with the sentence failed where its paired baseline run passed. Wall time was lower with the sentence in 6 of 8 pairs and cost in 4 of 8. Only one task could show an early stop, so the evidence is limited; only the stand-alone loop was tested."
+    },
+    {
+      "id": "s3-audit-on-go-pooled",
+      "category": "categories/harness-levers.md",
+      "title": "Turning on the request audit in Kogen shaping lost badly to unpatched Kogen over two Go repetitions and stays dropped",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "The patch that turns on a request audit before Kogen's shaping step was compared with unpatched Kogen over two repetitions of the same 13 Go tasks (26 pairs), same commit and model (gpt-6.1-terra, medium effort). The hidden checks passed on 21 pairs without the patch and 13 with it: one pair gained and nine lost, against a keep rule of at least three net wins, and the patched build was refused at shaping in 9 cells against 1. The patch stays dropped. This confirms the first-repetition page."
     }
   ]
 }
