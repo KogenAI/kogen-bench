@@ -582,6 +582,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-01",
       "summary": "We gave Kogen's built-in loop (kogen-loop) tonight's fixes (version 9e90bf5: shell calls with an empty or unusable handle are accepted, and a request waits for the provider to accept connections instead of ending a stage after three quick network failures) and compared Kogen with and without them on the same 13 Go tasks, same model (gpt-6.1-terra, medium effort) for every role, 52 paired runs over four repetitions on one server. The refused shell calls disappeared: 18 refusals in 17 builds before, none after, and no new kind of refusal appeared. Hidden-test passes did not change measurably: 32 of 52 before, 31 of 52 after (7 wins, 8 losses). All 15 pairs that changed are shaping refusals or ordinary build variance; three of the wins had a refused call in the other build but the logs cannot show that it caused the failure. The network wait was not tested because no request met a network error. About 29% of pairs flip between arms here, so a gain of a few passes would need about ten repetitions to show."
+    },
+    {
+      "id": "kogen-prompt-cache-cold-starts",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's cold prompt-cache requests are conversation starts, and putting the testing rules first does not warm them",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "About a quarter of Kogen's model requests get no prompt-cache discount. Reading 184 earlier cells, we found they are the first request of each build and review conversation (9% of all input); every later request in a conversation reuses the one before it. The shaper's first request always reuses 4,096 tokens from other conversations because its unchanging instructions and tool definitions are long enough; the builder's and reviewer's are not. We moved the unchanging testing rules (15.7 KB) from the middle to the front of each conversation's first message and compared Kogen with and without that change on the same 13 Go tasks, same model (gpt-6.1-terra, medium effort) for every role, 32 paired runs on three servers. It did nothing for caching: none of 58 lever first requests reused anything, even right after another conversation had sent the same front, and shaping stayed at exactly 4,096 tokens. Hidden-test passes were 19 and 17 of 26 graded pairs, all differences shaping defects or ordinary variance. A shared cache key per role is the remaining option, but Kogen gives every conversation its own key on purpose so a reviewer never inherits builder state; that is an owner decision."
     }
   ]
 }

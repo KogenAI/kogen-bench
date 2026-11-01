@@ -1,0 +1,35 @@
+== Conversation starts (first request of each model conversation)
+baseline g0 build: n=80 cached 0:80 1-4095:0 4096:0 >4096:0 | median input 7064 | instructions+tools bytes [('3246', '2866')]
+baseline g0 review: n=72 cached 0:72 1-4095:0 4096:0 >4096:0 | median input 17734 | instructions+tools bytes [('6451', '3227')]
+baseline g0 shape:example_check: n=75 cached 0:74 1-4095:1 4096:0 >4096:0 | median input 3503 | instructions+tools bytes [('959', '611')]
+baseline g0 shape:main: n=92 cached 0:0 1-4095:0 4096:59 >4096:33 | median input 8895 | instructions+tools bytes [('16792', '6668')]
+baseline g1 build: n=67 cached 0:67 1-4095:0 4096:0 >4096:0 | median input 7039 | instructions+tools bytes [('3246', '2866')]
+baseline g1 review: n=64 cached 0:64 1-4095:0 4096:0 >4096:0 | median input 17015 | instructions+tools bytes [('6451', '3227')]
+baseline g1 shape:example_check: n=115 cached 0:115 1-4095:0 4096:0 >4096:0 | median input 3460 | instructions+tools bytes [('959', '611')]
+baseline g1 shape:main: n=92 cached 0:1 1-4095:0 4096:52 >4096:39 | median input 8895 | instructions+tools bytes [('16792', '6668')]
+screen g0 build: n=32 cached 0:32 1-4095:0 4096:0 >4096:0 | median input 7107 | instructions+tools bytes [('3246', '2866')]
+screen g0 review: n=30 cached 0:30 1-4095:0 4096:0 >4096:0 | median input 17435 | instructions+tools bytes [('6451', '3227')]
+screen g0 shape:main: n=32 cached 0:0 1-4095:0 4096:27 >4096:5 | median input 8906 | instructions+tools bytes [('16792', '6668')]
+screen g1 build: n=30 cached 0:30 1-4095:0 4096:0 >4096:0 | median input 6855 | instructions+tools bytes [('3246', '2866')]
+screen g1 review: n=28 cached 0:28 1-4095:0 4096:0 >4096:0 | median input 16415 | instructions+tools bytes [('6451', '3227')]
+screen g1 shape:main: n=32 cached 0:0 1-4095:0 4096:32 >4096:0 | median input 8906 | instructions+tools bytes [('16792', '6668')]
+
+== Cells
+baseline: cells 184, requests 2951, conversation starts 657 (cold 473), later requests 2294 (cold 11)
+baseline: cached share of input 82.6%, input of cold conversation starts 9.2% of all input
+screen: cells 64, requests 1071, conversation starts 184 (cold 120), later requests 887 (cold 4)
+screen: cached share of input 83.1%, input of cold conversation starts 8.7% of all input
+
+== Screen pairs (same run, same task, g1 - g0)
+pairs 32 runs ['lcache-eu-r1', 'lcache-eu2-r1', 'lcache-st-r1']
+cached share difference, percentage points: -0.826 (95% CI -2.137 to +0.486, n=32)
+cost index ratio g1/g0 (uncached 1, cached 0.1, output 8): +0.919 (95% CI +0.825 to +1.013, n=32)
+requests difference: -1.781 (95% CI -4.023 to +0.460, n=32)
+graded pairs (hidden grader ran on both cells): 26
+g0: cached share 84.2%, hidden pass 19/26 graded, outcomes {'landed': 29, 'build_blocked': 2, 'review_blocked': 1}, wall s median 230
+g1: cached share 81.5%, hidden pass 17/26 graded, outcomes {'build_blocked': 2, 'landed': 28, 'refused': 2}, wall s median 204
+hidden pass discordant pairs: lever wins 1, lever losses 3
+  lcache-eu-r1 T01: g0 landed pass=1 | g1 build_blocked pass=0
+  lcache-eu-r1 T12: g0 landed pass=0 | g1 landed pass=1
+  lcache-eu2-r1 T10: g0 landed pass=1 | g1 build_blocked pass=0
+  lcache-eu2-r1 T12: g0 landed pass=1 | g1 landed pass=0
