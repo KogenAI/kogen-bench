@@ -1,0 +1,40 @@
+run	task	base_outcome	release_outcome	base_hidden_pass	release_hidden_pass	change	class	fix	evidence
+rel-eu2-r1	T01	landed	landed	1	1				
+rel-eu2-r1	T02	landed	landed	1	1				
+rel-eu2-r1	T03	landed	landed	0	0				
+rel-eu2-r1	T04	refused	landed	0	1	win	a	093ff1f	base shaping ended at the approval-time example check (refused twice, final check marked contradictions); release has no such check
+rel-eu2-r1	T05	landed	landed	1	1				
+rel-eu2-r1	T06	landed	landed	1	1				
+rel-eu2-r1	T07	landed	landed	1	1				
+rel-eu2-r1	T08	refused	refused	0	0				
+rel-eu2-r1	T09	landed	landed	1	1				
+rel-eu2-r1	T10	landed	landed	1	1				
+rel-eu2-r1	T11	build_blocked	landed	0	1	win	unattributed	none	base build blocked on a builder-reported acceptance contradiction; the example check ran and passed; nothing in the build stage changed
+rel-eu2-r1	T12	landed	landed	1	1				
+rel-eu2-r1	T13	refused	landed	0	1	win	a	093ff1f	base shaping ended at the example check (refused twice)
+rel-eu2-r2	T01	refused	landed	0	1	win	a	093ff1f	base shaping ended at the example check (refused twice)
+rel-eu2-r2	T02	landed	landed	1	1				
+rel-eu2-r2	T03	landed	landed	0	0				
+rel-eu2-r2	T04	landed	landed	1	1				
+rel-eu2-r2	T05	refused	landed	0	1	win	a-partial	093ff1f	example check refused 2 of the 3 shaping attempts; the final refusal was the step self-check (assertion obtains the exit code through go run), which no listed commit touches
+rel-eu2-r2	T06	landed	landed	1	1				
+rel-eu2-r2	T07	refused	landed	0	1	win	a	093ff1f	base shaping ended at the example check (examples called under-specified)
+rel-eu2-r2	T08	refused	build_blocked	0	0				
+rel-eu2-r2	T09	landed	landed	1	1				
+rel-eu2-r2	T10	landed	landed	1	1				
+rel-eu2-r2	T11	landed	landed	1	1				
+rel-eu2-r2	T12	landed	landed	1	1				
+rel-eu2-r2	T13	landed	landed	0	0				
+rel-lm-r1	T01	landed	landed	1	1				
+rel-lm-r1	T02	landed	landed	1	1				
+rel-lm-r1	T03	landed	landed	0	0				
+rel-lm-r1	T04	landed	landed	1	1				
+rel-lm-r1	T05	landed	landed	1	1				
+rel-lm-r1	T06	landed	landed	1	1				
+rel-lm-r1	T07	refused	landed	0	1	win	unattributed	none	base readiness refused undefined steps (step text with embedded quotes); example check passed (0 contradictions); 3ea2e23 only changes the example check input
+rel-lm-r1	T08	review_blocked	review_blocked	0	0				
+rel-lm-r1	T09	unavailable	landed	0	1	win	unattributed	none	base build: one provider response wait of 10 minutes elapsed with no answer; the loop connection wait (7e1b082) acts only on dial failures
+rel-lm-r1	T10	landed	landed	1	1				
+rel-lm-r1	T11	landed	build_blocked	1	0	loss	unattributed	none	release loss: builder-reported acceptance contradiction at build (mirror image of the eu2-r1 win); no changed commit explains it
+rel-lm-r1	T12	landed	landed	0	1	win	unattributed	none	both landed; base failed one hidden test and the 19 others in its package errored; no infrastructure fault or timeout recorded
+rel-lm-r1	T13	landed	landed	1	1				

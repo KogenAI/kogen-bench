@@ -591,6 +591,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "About a quarter of Kogen's model requests get no prompt-cache discount. Reading 184 earlier cells, we found they are the first request of each build and review conversation (9% of all input); every later request in a conversation reuses the one before it. The shaper's first request always reuses 4,096 tokens from other conversations because its unchanging instructions and tool definitions are long enough; the builder's and reviewer's are not. We moved the unchanging testing rules (15.7 KB) from the middle to the front of each conversation's first message and compared Kogen with and without that change on the same 13 Go tasks, same model (gpt-6.1-terra, medium effort) for every role, 32 paired runs on three servers. It did nothing for caching: none of 58 lever first requests reused anything, even right after another conversation had sent the same front, and shaping stayed at exactly 4,096 tokens. Hidden-test passes were 19 and 17 of 26 graded pairs, all differences shaping defects or ordinary variance. A shared cache key per role is the remaining option, but Kogen gives every conversation its own key on purpose so a reviewer never inherits builder state; that is an owner decision."
+    },
+    {
+      "id": "kogen-release-e6f69a1-vs-69d09e1",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's current main passes more hidden tests than the build before its last nine commits (31 vs 23 of 39), mostly because the example check was removed",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "yes",
+      "finished": "2026-11-01",
+      "summary": "We compared Kogen's current main (e6f69a1) with the build before its last nine commits (69d09e1), same model (gpt-6.1-terra, medium effort) for every role, 13 Go tasks, 39 paired runs over three repetitions on two servers, no patch on either side. The current main is not worse: hidden-test passes were 31 of 39 against 23 of 39 (9 wins, 1 loss), and shaping refusals fell from 8 to 1. Reading each older run's own logs, five of the nine wins are cells where shaping ended at the approval-time example check that the newer build removed (one of them only partly: the check used two of three attempts). The probe, loop and test changes explain none of the pairs, which only says these 39 runs rarely met the faults they fix. The other four wins and the one loss match no listed change and are ordinary run-to-run flipping. 13 tasks repeated three times are not 39 independent tasks, so the sign test (p = 0.021) is descriptive."
     }
   ]
 }

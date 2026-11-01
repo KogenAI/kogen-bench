@@ -1,0 +1,23 @@
+pairs 39 in 3 runs, 13 tasks
+hidden pass: base 23/39, release 31/39; wins 9 losses 1 net 8; discordant 10
+base outcomes: {'build_blocked': 1, 'landed': 28, 'refused': 8, 'review_blocked': 1, 'unavailable': 1}
+release outcomes: {'build_blocked': 2, 'landed': 35, 'refused': 1, 'review_blocked': 1}
+
+Attribution of discordant pairs (class a = base ended at the example check removed by 093ff1f; a-partial = it consumed shaping attempts; unattributed = no listed fix maps)
+fix	class	wins	losses
+093ff1f	a	4	0
+093ff1f	a-partial	1	0
+none	unattributed	4	1
+08ae506, e6f69a1, 7e1b082, 3ea2e23, e7d7d73, 24a5a17: 0 pairs
+
+run	task	base	release	change	fix	class
+rel-eu2-r1	T04	0	1	win	093ff1f	a
+rel-eu2-r1	T11	0	1	win	none	unattributed
+rel-eu2-r1	T13	0	1	win	093ff1f	a
+rel-eu2-r2	T01	0	1	win	093ff1f	a
+rel-eu2-r2	T05	0	1	win	093ff1f	a-partial
+rel-eu2-r2	T07	0	1	win	093ff1f	a
+rel-lm-r1	T07	0	1	win	none	unattributed
+rel-lm-r1	T09	0	1	win	none	unattributed
+rel-lm-r1	T11	1	0	loss	none	unattributed
+rel-lm-r1	T12	0	1	win	none	unattributed
