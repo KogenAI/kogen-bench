@@ -440,6 +440,15 @@
       "summary": "A one-sentence change to Kogen's builder prompt (call finish right away when the checks pass, with no extra re-reads or polishing) was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 9 tasks without the change and 10 with it (one gained, none lost), and the patched build used less wall time or fewer tokens on 9 of 13 tasks, meeting the rule of at least 8. It is one trial on one laptop-class host, so it is a candidate to confirm at Kogen level before shipping, not a shipped change."
     },
     {
+      "id": "b1-base-qualification-go-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's newer build with the delivered fixes did no worse than the previous build on 13 Go tasks",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-01",
+      "summary": "Two Kogen builds, the previous one (3e759e88) and the newer one that carries the delivered fixes and an updated Loop library (6a65bf3e), were run on the same 13 Go tasks with the same model (gpt-6.1-terra, medium effort), one trial per task, nothing else changed. The hidden checks passed on 9 tasks with the newer build and 8 with the previous one (two gained, one lost), which is inside the noise of repeated identical runs, so it shows no gain and no regression. The newer build used about 13 percent more requests, mostly from one task that ended in a review block in both builds, and about the same wall time. It is one trial on one host; the newer build is used as the starting point for later experiments."
+    },
+    {
       "id": "p5-stop-at-green-go-pooled-eu2",
       "category": "categories/harness-levers.md",
       "title": "The stop-when-checks-pass sentence in Kogen's builder prompt lost to unpatched Kogen over two Go repetitions",
