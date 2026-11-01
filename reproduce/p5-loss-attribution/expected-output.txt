@@ -1,0 +1,26 @@
+1. Recorded figure: every pair except the one lost to a service timeout (class d)
+pairs 38, patched wins 1, losses 7, net -6
+
+2. Cause of each patched loss
+class b: 6  (G01r3, G04r3, G05r3, G10r3, G10r4, G12r4)
+class e: 1  (G13r3)
+class a (builder stopped with its own work wrong or unchecked): 0
+
+3. Recount: pairs where both arms reached Build with a sound Intent
+r1: 11 pairs, wins 0, losses 0
+r3: 8 pairs, wins 0, losses 1
+r4: 9 pairs, wins 0, losses 0
+pooled: 28 pairs, wins 0, losses 1, net -1
+net 0 if the one ambiguous-request loss (class e) is also left out
+
+4. Shape-time defects by arm (identical shaping in both arms)
+patched arm 6, unpatched arm 1
+chance of a split at least this lopsided with 7 defects (two-sided): 12.5%
+
+5. How often the patched and unpatched arms differ on the hidden result
+patched against unpatched: 8 of 38 pairs (21%)
+unpatched against unpatched (partial, 11 finished pairs): outcome differs in 3, hidden result flips in 2 to 3 (18% to 27%)
+rows in the unpatched-against-unpatched file: 3, all build_blocked: True
+
+6. Shape-time acceptance contradicting the Intent or the request
+9 of 100 cells (6 of 78 patched-test cells, 3 of 22 finished unpatched-pair cells)

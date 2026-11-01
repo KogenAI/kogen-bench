@@ -446,7 +446,7 @@
       "comparison": "kogen-shaping-and-builds",
       "verdict": "no",
       "finished": "2026-11-01",
-      "summary": "The one-sentence change to Kogen's builder prompt (call finish right away when the checks pass) was repeated on the same 13 Go tasks on a second host and pooled with the first run. Across 26 task pairs unpatched Kogen passed the hidden checks on 20 and the patched build on 16 (one gained, five lost, net -4, against a keep rule of at least +3). In the second run alone the patched build lost three tasks to build_blocked, where the builder ended the attempt while Kogen's acceptance check was still failing, and one to a refusal at shaping. Further repetitions are still running, so this can change; it is one trial per pair on two different hosts."
+      "summary": "The one-sentence change to Kogen's builder prompt (call finish right away when the checks pass) was repeated on the same 13 Go tasks on a second host and pooled with the first run. Across 26 task pairs unpatched Kogen passed the hidden checks on 20 and the patched build on 16 (one gained, five lost, net -4, against a keep rule of at least +3). In the second run alone the patched build lost three tasks to build_blocked and one to a refusal at shaping. A later reading (see the correction on this page and p5-loss-attribution) found these were caused by shaping defects that both arms share, not by the builder finishing early. Further repetitions are still running, so this can change; it is one trial per pair on two different hosts."
     },
     {
       "id": "p2-unstated-go-pooled",
@@ -483,6 +483,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "The patch that adds a model-free coverage ledger to Kogen's shaping step was compared with unpatched Kogen over two repetitions of the same 13 Go tasks (26 pairs), same commit and model (gpt-6.1-terra, medium effort). The hidden checks passed on 20 pairs without the patch and 17 with it: one pair gained and four lost, against a keep rule of at least three net wins. The patch is dropped. This replaces the first-repetition page."
+    },
+    {
+      "id": "p5-loss-attribution",
+      "category": "categories/harness-levers.md",
+      "title": "The patched builder's losses were caused by defects written before it started, not by finishing early",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-01",
+      "summary": "This corrects the cause given for the stop-when-checks-pass result. We read every task where unpatched Kogen and the patched build differed on the hidden checks, and every build that stopped or was refused, across three repetitions of the same 13 Go tasks. All 7 patched losses trace to a defect written at the shaping step, which both arms run identically before the changed sentence is read: an acceptance example that contradicts the task's own Intent (checked by hand in each case), a refusal at shaping, a wrong test fixture, or an ambiguous request. Counting only the 28 pairs where both arms reached the build with a sound Intent, the patch has 0 wins and 1 loss (net -1) instead of the recorded net -6 over 38. Unpatched Kogen run against itself differed on the hidden result in 18% to 27% of pairs on a partial run, about the same as the patched build's 21%. Separately, the shaping step's acceptance example contradicted the Intent or request in 9 of 100 cells read. No gain from the patch is shown, and no early-finish problem either; one reader classified the cells, and the unpatched-against-itself run was partial."
     }
   ]
 }

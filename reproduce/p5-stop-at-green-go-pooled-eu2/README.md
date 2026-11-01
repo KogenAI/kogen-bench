@@ -1,5 +1,7 @@
 # p5-stop-at-green-go-pooled-eu2
 
+**Correction (1 November 2026).** The section "The build_blocked mechanism" below says the patched builder finished while Kogen's acceptance check was still failing; that cause is wrong. Reading each cell shows all the patched losses trace to defects written at the shaping step, before the patched builder sentence is read: an acceptance example that contradicts the task's own Intent, a refusal at shaping, a wrong test fixture or an ambiguous request. The builder stopped because the acceptance check could not be satisfied, not because it finished early. The counts below are unchanged, but they do not show that the patch hurts; see `p5-loss-attribution` (`reproduce/p5-loss-attribution/README.md`), which recounts the pairs where both arms reached the build with a sound Intent and puts the verdict at unresolved.
+
 The one-sentence stop-when-checks-pass change to Kogen's builder prompt did not hold up on a second Go repetition. **Across 26 task pairs (13 Go tasks, two repetitions on two hosts) unpatched Kogen passed the hidden checks on 20 and the patched build on 16**: one pair gained, five lost, net -4, against a keep rule of at least +3. The second repetition alone was 11 of 13 unpatched against 6 of 13 patched. Verdict: **no** for now: the first-repetition candidate (`p5-stop-at-green-go-screen`, yes) is withdrawn as a delivery candidate unless the remaining Studio repetitions reverse this. Finished 1 November 2026.
 
 ## What was run
