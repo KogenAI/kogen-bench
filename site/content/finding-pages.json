@@ -537,6 +537,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "A patch adding a coverage ledger in shaping was compared with unpatched Kogen on six hard Ruby on Rails tasks, two repetitions pooled, same commit and model (gpt-6.1-terra, medium effort). No run in either arm passed its hidden checks, so no pair differed (0 wins, 0 losses of 9 complete pairs) against a keep rule of at least three net wins; several runs stopped early or hit infrastructure limits. The patch is dropped on these tasks, and the tasks leave no room to show a gain at this model setting."
+    },
+    {
+      "id": "test-authoring-go-screen",
+      "category": "categories/harness-levers.md",
+      "title": "A test-authoring paragraph in Kogen's builder prompt did not shorten builds on four Go tasks",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "A paragraph of test-authoring guidance (fast, deterministic tests that wait for readiness rather than sleep) was added to Kogen's builder prompt and compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On four Go tasks the hidden checks passed on 3 tasks in both arms, but the patched build stage was at least 15% shorter on none of the four tasks (one 12% shorter, three longer), against a bar of at least 15% on at least 3 of 5. The run was on a heavily loaded host and did not measure the authored tests themselves, so it is a no-gain result, not a finding about test quality."
     }
   ]
 }
