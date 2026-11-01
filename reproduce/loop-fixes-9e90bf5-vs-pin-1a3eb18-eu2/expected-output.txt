@@ -1,0 +1,22 @@
+cells 14 per arm
+task                     pass_p pass_m po_req_p po_req_m  po$_p  po$_m   req_p   req_m  wall_p  wall_m
+argvsplit-go                 1     1       4       2  0.003  0.002      14      10      69      66
+bytefmt-go                   1     1       4       2  0.004  0.002      13      12      85      91
+csvq-go                      1     1       5       1  0.008  0.001      12       8     106      82
+deps-go                      1     1       3       1  0.003  0.001      11       8      88      89
+jobq-go                      1     1       8       1  0.009  0.001      17      10     123     137
+kogen-review-on-demand       1     1      17       6  0.078  0.034      39      35     214     350
+kogen-review-retry           0     0       5       6  0.020  0.041      25      42     116     348
+patchapply-go                1     1       4       2  0.006  0.003      14      13     116     130
+r70-5-go                     1     1       5       1  0.005  0.001      13       9     102      91
+r70-7-go                     1     1       5       1  0.005  0.001      12       9      92      94
+semrange-go                  1     1       4       1  0.008  0.001      13      11     148     116
+splitter-go                  1     1       3       1  0.003  0.001      12      13     103     114
+task-tags-go                 1     1      10       8  0.059  0.049      49      32     393     455
+wrapcol-go                   1     1       1       2  0.002  0.002       9      10      68      90
+
+pin: pass 13/14, requests 253, poll-only requests 78 (31%), poll-only usd 0.212 of 1.493 (14%), poll-only model s 169 of wall 1825, shell commands 132, yielded 45, handle polls 147 (1.11 per command), refused 6, mean wall 130, total usd 1.493
+main: pass 13/14, requests 222, poll-only requests 35 (16%), poll-only usd 0.141 of 1.588 (9%), poll-only model s 83 of wall 2252, shell commands 124, yielded 59, handle polls 65 (0.52 per command), refused 0, mean wall 161, total usd 1.588
+poll-only requests change -55%, poll-only usd change -34%, tasks with more poll-only requests on main 2 of 14
+hidden pass: tasks passing on pin and failing on main: []
+total usd change +6.4%, wall change +23.4%, requests change -12.3%

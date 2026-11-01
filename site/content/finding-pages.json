@@ -555,6 +555,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "A paragraph of test-authoring guidance (fast, deterministic tests that wait for readiness rather than sleep) was added to Kogen's builder prompt and compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On four Go tasks the hidden checks passed on 3 tasks in both arms, but the patched build stage was at least 15% shorter on none of the four tasks (one 12% shorter, three longer), against a bar of at least 15% on at least 3 of 5. The run was on a heavily loaded host and did not measure the authored tests themselves, so it is a no-gain result, not a finding about test quality."
+    },
+    {
+      "id": "loop-fixes-9e90bf5-vs-pin-1a3eb18-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "kogen-loop's polling and refused-call fixes work: half the polling requests, no refused calls, no task broken",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "yes",
+      "finished": "2026-11-01",
+      "summary": "We ran kogen-loop with tonight's fixes (version 9e90bf5) against the version before them (1a3eb18) on the same 14 tasks, once each, with the two runs of a task side by side on one server. Requests that only check on a running shell command fell from 78 to 35 (-55%) and their cost by 34%; no shell call was refused (6 were before); no task that passed before failed, and the one failing task fails the same way in both for a task-side reason. Not shown: the new wait for a provider connection never triggered because no request met a network error. Also: on the three long tasks wall time rose by about 60%, because checking a command now waits up to 30 seconds instead of one, and one of those tasks took a longer path. One run per task, so small differences are noise."
     }
   ]
 }
