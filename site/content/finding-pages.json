@@ -510,6 +510,24 @@
       "verdict": "unresolved",
       "finished": "2026-11-01",
       "summary": "We ran kogen-loop at its newest version inside Kogen (pin 1a3eb18) on 14 earlier tasks, once each, and compared every run with the same tasks at the previous version (8a2fcda). 13 of 14 passed; the one failure, a Kogen review task, fails the same way at both versions because the task's acceptance command needs environment variables the standalone sandbox does not set, so it is a task problem, not a loop one. The two long review tasks no longer hit the request-size refusal that stopped 2 of 8 earlier runs: the loop condenses older exchanges once. The new cost is polling: shell commands now return after one second with a handle, and one third of all requests (22% of cost) only check on a handle; the two review tasks cost about 80% more per run ($0.56 against $0.31) while their wall time fell by a quarter to a half. On the 12 short tasks the new version was about 9% cheaper and 24% faster. One run per task, so small differences are noise."
+    },
+    {
+      "id": "p2-unstated-aor-screen",
+      "category": "categories/harness-levers.md",
+      "title": "An unstated-requirement-pass patch for Kogen showed no gain on six hard Rails tasks, where no run passed",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "A patch adding a unstated-requirement pass in shaping was compared with unpatched Kogen on six hard Ruby on Rails tasks, two repetitions pooled, same commit and model (gpt-6.1-terra, medium effort). No run in either arm passed its hidden checks, so no pair differed (0 wins, 0 losses of 8 complete pairs) against a keep rule of at least three net wins; several runs stopped early or hit infrastructure limits. The patch is dropped on these tasks, and the tasks leave no room to show a gain at this model setting."
+    },
+    {
+      "id": "p4-ledger-aor-screen",
+      "category": "categories/harness-levers.md",
+      "title": "A coverage-ledger patch for Kogen showed no gain on six hard Rails tasks, where no run passed",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "A patch adding a coverage ledger in shaping was compared with unpatched Kogen on six hard Ruby on Rails tasks, two repetitions pooled, same commit and model (gpt-6.1-terra, medium effort). No run in either arm passed its hidden checks, so no pair differed (0 wins, 0 losses of 9 complete pairs) against a keep rule of at least three net wins; several runs stopped early or hit infrastructure limits. The patch is dropped on these tasks, and the tasks leave no room to show a gain at this model setting."
     }
   ]
 }
