@@ -130,3 +130,7 @@ Why a quarter of Kogen's model requests get no prompt-cache discount, and whethe
 ## Kogen main after nine commits (1 Nov 2026)
 
 Kogen's current main (`e6f69a1`) against the build before its last nine commits (`69d09e1`), same model and effort, 13 Go tasks, 39 paired runs over three repetitions on two servers: hidden passes rose from 23 to 31 of 39 (9 wins, 1 loss) and shaping refusals fell from 8 to 1. Five of the nine wins are older-build shaping runs that ended at the approval-time example check the newer build removed; the probe, loop and test changes explain none of the pairs, and the remaining four wins and the loss match no listed change. So there is no regression, and the removal of the example check is the change worth keeping. See [kogen-release-e6f69a1-vs-69d09e1](../reproduce/kogen-release-e6f69a1-vs-69d09e1/README.md).
+
+## Kogen shaper at high effort (2 Nov 2026)
+
+Kogen's shaper at high reasoning effort against medium, same model, build and review at medium in both, 13 Go tasks, 78 paired runs over six repetitions: hidden passes were 57 of 78 on both sides (7 wins, 7 losses). Six of the 14 differing pairs came from the shaping stage (3 won, 3 lost) and eight were landed builds where one hidden test flipped (4 and 4). Contradicted acceptances fell from 6 to 3 but the pairs behind them split evenly, and no new refusal class appeared. High effort gains nothing measurable, so the shaper stays at medium. See [kogen-shaper-high-effort-e6f69a1](../reproduce/kogen-shaper-high-effort-e6f69a1/README.md).

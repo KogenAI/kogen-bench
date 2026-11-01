@@ -600,6 +600,15 @@
       "verdict": "yes",
       "finished": "2026-11-01",
       "summary": "We compared Kogen's current main (e6f69a1) with the build before its last nine commits (69d09e1), same model (gpt-6.1-terra, medium effort) for every role, 13 Go tasks, 39 paired runs over three repetitions on two servers, no patch on either side. The current main is not worse: hidden-test passes were 31 of 39 against 23 of 39 (9 wins, 1 loss), and shaping refusals fell from 8 to 1. Reading each older run's own logs, five of the nine wins are cells where shaping ended at the approval-time example check that the newer build removed (one of them only partly: the check used two of three attempts). The probe, loop and test changes explain none of the pairs, which only says these 39 runs rarely met the faults they fix. The other four wins and the one loss match no listed change and are ordinary run-to-run flipping. 13 tasks repeated three times are not 39 independent tasks, so the sign test (p = 0.021) is descriptive."
+    },
+    {
+      "id": "kogen-shaper-high-effort-e6f69a1",
+      "category": "categories/harness-levers.md",
+      "title": "High reasoning effort for Kogen's shaper passes no more hidden tests than medium (57 of 78 each)",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "We ran Kogen's current main twice per task, once with the shaper at high reasoning effort and once at medium, same model, with build and review at medium in both. Across 13 Go tasks and 78 paired runs, hidden-test passes were 57 of 78 on both sides, with 7 wins and 7 losses for high effort. Six of the 14 differing pairs came from the shaping stage (3 won, 3 lost); the other eight were runs that landed in both arms where one hidden test flipped (4 won, 4 lost). Fewer runs ended on a contradicted acceptance with high effort (3 against 6), but those cases split evenly and did not change the pass rate, and no new kind of refusal appeared. High effort made shaping a little slower and used more reasoning tokens, which we report only as description. Thirteen tasks repeated six times are not 78 independent tasks, so we read this as no measurable gain and keep medium."
     }
   ]
 }

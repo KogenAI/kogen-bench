@@ -1,0 +1,79 @@
+run	task	medium_outcome	high_outcome	medium_hidden_pass	high_hidden_pass	medium_intent_valid	high_intent_valid	medium_acceptance_contradicted	high_acceptance_contradicted	change	class	evidence
+shh-eu-r1	T01	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T02	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T03	build_blocked	landed	0	0	1	1	1	0			
+shh-eu-r1	T04	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T05	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T06	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T07	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T08	questions_pending	review_blocked	0	0	0	1	0	0			
+shh-eu-r1	T09	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T10	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T11	landed	landed	1	1	1	1	0	0			
+shh-eu-r1	T12	landed	landed	1	0	1	1	0	0	loss	e	both landed; high arm failed one hidden argument-error test
+shh-eu-r1	T13	landed	landed	1	0	1	1	0	0	loss	e	both landed; high arm failed the hidden syntax-before-evaluation-error test
+shh-eu-r2	T01	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T02	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T03	landed	landed	0	0	1	1	0	0			
+shh-eu-r2	T04	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T05	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T06	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T07	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T08	review_blocked	review_blocked	0	0	1	1	0	0			
+shh-eu-r2	T09	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T10	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T11	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T12	landed	landed	1	1	1	1	0	0			
+shh-eu-r2	T13	landed	landed	0	1	1	1	0	0	win	e	both landed; medium arm failed the hidden syntax-before-evaluation-error test
+shh-eu2-r1	T01	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T02	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T03	build_blocked	build_blocked	0	0	1	1	1	1			
+shh-eu2-r1	T04	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T05	landed	build_blocked	1	0	1	1	0	1	loss	a	high arm: build blocked, builder reports the acceptance step passes a JSON-encoded expected output through a string parameter and then parses it, so every numeric scenario fails; medium arm landed
+shh-eu2-r1	T06	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T07	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T08	review_blocked	review_blocked	0	0	1	1	0	0			
+shh-eu2-r1	T09	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T10	landed	build_blocked	1	0	1	1	0	1	loss	a	high arm: build blocked, builder reports the written acceptance expects a member order that the approved Intent rules out; medium arm landed
+shh-eu2-r1	T11	landed	landed	1	1	1	1	0	0			
+shh-eu2-r1	T12	landed	landed	0	1	1	1	0	0	win	e	both landed; medium arm failed one hidden argument-error test
+shh-eu2-r1	T13	landed	landed	0	0	1	1	0	0			
+shh-eu2-r2	T01	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T02	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T03	landed	landed	0	0	1	1	0	0			
+shh-eu2-r2	T04	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T05	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T06	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T07	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T08	review_blocked	review_blocked	0	0	1	1	0	0			
+shh-eu2-r2	T09	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T10	landed	landed	1	1	1	1	0	0			
+shh-eu2-r2	T11	landed	review_blocked	1	0	1	1	0	0	loss	a	high arm: review blocked on the protected acceptance step file raising the step timeout from 5 to 30 seconds without a profile; medium arm landed
+shh-eu2-r2	T12	landed	landed	0	1	1	1	0	0	win	e	both landed; medium arm failed one hidden argument-error test
+shh-eu2-r2	T13	landed	landed	1	0	1	1	0	0	loss	e	both landed; high arm failed three hidden tests (operators, nesting depth, syntax-before-evaluation)
+shh-lm-r1	T01	build_blocked	landed	0	1	1	1	1	0	win	a	medium arm: build blocked, builder reports an acceptance ordering that contradicts the Intent priority formula; high arm landed
+shh-lm-r1	T02	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T03	landed	landed	0	0	1	1	0	0			
+shh-lm-r1	T04	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T05	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T06	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T07	build_blocked	landed	0	1	1	1	1	0	win	a	medium arm: build blocked, builder reports the acceptance rejects the default maximum itself, against the approved inclusive maximum; high arm landed
+shh-lm-r1	T08	refused	unavailable	0	0	0	1	0	0			
+shh-lm-r1	T09	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T10	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T11	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T12	landed	landed	1	1	1	1	0	0			
+shh-lm-r1	T13	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T01	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T02	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T03	build_blocked	landed	0	0	1	1	1	0			
+shh-lm-r2	T04	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T05	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T06	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T07	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T08	review_blocked	review_blocked	0	0	1	1	0	0			
+shh-lm-r2	T09	landed	landed	1	0	1	1	0	0	loss	e	both landed; high arm failed one hidden error-position test
+shh-lm-r2	T10	build_blocked	landed	0	1	1	1	1	0	win	a	medium arm: build blocked, builder reports a null-pointer error position that the written acceptance gives in a different order; high arm landed
+shh-lm-r2	T11	landed	landed	1	1	1	1	0	0			
+shh-lm-r2	T12	landed	landed	0	1	1	1	0	0	win	e	both landed; medium arm failed one hidden argument-error test
+shh-lm-r2	T13	landed	landed	0	0	1	1	0	0			
