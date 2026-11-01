@@ -1,0 +1,9 @@
+pin, 12 easy kits: 12 cells, pass 12, mean wall 117 s, mean requests 15.8, mean usd 0.080, pooled cached/input 0.943, model time 0.92 of wall, client gap 0.08 of wall, gaps over 30 s 0, largest gap 6.0 s
+8a2fcda base, 12 easy kits (36 cells): 36 cells, pass 36, mean wall 153 s, mean requests 14.4, mean usd 0.088, pooled cached/input 0.931, model time 0.78 of wall, client gap 0.22 of wall, gaps over 30 s 7, largest gap 68.5 s
+pin, 2 review kits: 2 cells, pass 1, mean wall 336 s, mean requests 59.5, mean usd 0.561, pooled cached/input 0.952, model time 0.88 of wall, client gap 0.12 of wall, gaps over 30 s 0, largest gap 3.2 s
+8a2fcda base, 2 review kits (8 cells): 8 cells, pass 4, mean wall 518 s, mean requests 32.1, mean usd 0.312, pooled cached/input 0.955, model time 0.40 of wall, client gap 0.60 of wall, gaps over 30 s 31, largest gap 240.5 s
+
+pin: shell commands 142, still running at one second 47 (33%), handle polls 172 (55% of shell calls), requests carrying only polls 103 of 309 (33%), their cost 0.46 of 2.09 usd (22%), their model time 233 s of 2069 s agent wall (11%), polls returning the same output size as the previous snapshot 95 of 172, most polls on one handle 13, commands refused with a handle field 4
+  kogen-review-on-demand/r1/pin: polls-only requests 26 of 58, 0.26 of 0.57 usd, condensed 1, outcome finished pass 1
+  kogen-review-retry/r1/pin: polls-only requests 21 of 61, 0.11 of 0.55 usd, condensed 1, outcome finished pass 0
+8a2fcda base: shell polls 0, gaps over 30 s 38, agent_error cells 2

@@ -106,3 +106,7 @@ Three one-sentence additions to kogen-loop's default instructions, 12 Go tasks, 
 ## kogen-loop stop-at-green sentence on hard review tasks (l3hard, 31 Oct 2026)
 
 The finish-right-away sentence, tested on two hard Kogen review tasks (4 paired runs each, same model and effort): no run with the sentence failed where its paired baseline passed (4 failures in each arm), wall was lower in 6 of 8 pairs. One task passed 4/4 in both arms; the other failed 4/4 in both, so only one task could show an early stop. See [l3-stop-at-green-hard-kits](../reproduce/l3-stop-at-green-hard-kits/README.md).
+
+## kogen-loop at its newest version: failed runs and cost (1 Nov 2026)
+
+kogen-loop as vendored in Kogen `6a65bf3e` (loop pin `1a3eb18`), 12 Go tasks and 2 Kogen review tasks, one run each, same model and effort, compared with the same tasks at the previous pin: 13 of 14 pass; the one failure is a task-side acceptance problem that also fails at the previous pin. The request-size refusal that stopped 2 of 8 review runs is gone (older exchanges are condensed once), and shell waits over 30 s are gone because shell calls return a handle after one second. The new cost is polling: a third of all requests only check a handle (22% of cost), so the two review tasks cost about 80% more while taking 25% to 45% less wall time; the 12 short tasks are about 9% cheaper and 24% faster. See [loop-pin-1a3eb18-failed-row-cost-eu2](../reproduce/loop-pin-1a3eb18-failed-row-cost-eu2/README.md).

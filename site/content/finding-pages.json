@@ -501,6 +501,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-01",
       "summary": "This corrects the cause given for the stop-when-checks-pass result. We read every task where unpatched Kogen and the patched build differed on the hidden checks, and every build that stopped or was refused, across three repetitions of the same 13 Go tasks. All 7 patched losses trace to a defect written at the shaping step, which both arms run identically before the changed sentence is read: an acceptance example that contradicts the task's own Intent (checked by hand in each case), a refusal at shaping, a wrong test fixture, or an ambiguous request. Counting only the 28 pairs where both arms reached the build with a sound Intent, the patch has 0 wins and 1 loss (net -1) instead of the recorded net -6 over 38. Unpatched Kogen run against itself differed on the hidden result in 18% to 27% of pairs on a partial run, about the same as the patched build's 21%. Separately, the shaping step's acceptance example contradicted the Intent or request in 9 of 100 cells read. No gain from the patch is shown, and no early-finish problem either; one reader classified the cells, and the unpatched-against-itself run was partial."
+    },
+    {
+      "id": "loop-pin-1a3eb18-failed-row-cost-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "kogen-loop's latest version passes 13 of 14 tasks; its new cost is shell polling, not failures",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "unresolved",
+      "finished": "2026-11-01",
+      "summary": "We ran kogen-loop at its newest version inside Kogen (pin 1a3eb18) on 14 earlier tasks, once each, and compared every run with the same tasks at the previous version (8a2fcda). 13 of 14 passed; the one failure, a Kogen review task, fails the same way at both versions because the task's acceptance command needs environment variables the standalone sandbox does not set, so it is a task problem, not a loop one. The two long review tasks no longer hit the request-size refusal that stopped 2 of 8 earlier runs: the loop condenses older exchanges once. The new cost is polling: shell commands now return after one second with a handle, and one third of all requests (22% of cost) only check on a handle; the two review tasks cost about 80% more per run ($0.56 against $0.31) while their wall time fell by a quarter to a half. On the 12 short tasks the new version was about 9% cheaper and 24% faster. One run per task, so small differences are noise."
     }
   ]
 }
