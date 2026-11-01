@@ -179,7 +179,7 @@ class ApprovalReuse(unittest.TestCase):
         shim = os.path.join(self.tmp, ".lanes-shim")
         os.makedirs(shim)
         bad, lines, calls = self.preflight(PATH=shim + os.pathsep + os.environ["PATH"], SLOTS="3", DAYDIR="x",
-                                           GIT_AUTHOR_NAME="Kogen Lanes", LANES_SHARED_GOCACHE="/tmp/g",
+                                           GIT_AUTHOR_NAME="Kogen Lanes",
                                            TMPDIR=self.tmp, LANES_ENV="/x/run-u/lanes.env")
         self.assertEqual((bad, calls), (0, 0), lines)
 

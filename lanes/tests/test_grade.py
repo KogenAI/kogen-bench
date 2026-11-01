@@ -413,46 +413,45 @@ if __name__ == "__main__":
 
 
 class SharedGoCache(unittest.TestCase):
-    """`sh` with and without `LANES_SHARED_GOCACHE`: the command line and the environment it runs with."""
+    """`sh` always uses the host-wide shared Go build cache: the command line and the environment it runs with."""
 
-    def run_sh(self, cmd, shared):
+    SHARED = "/shared-root/shared"
+
+    def run_sh(self, cmd):
         seen = {}
 
         def fake_run(argv, cwd, env, deadline_s, **kw):
             seen.update(argv=argv, env=env)
             return 0, False
 
-        patch = {"LANES_SHARED_GOCACHE": shared} if shared else {}
-        with unittest.mock.patch.dict(os.environ, patch), unittest.mock.patch.object(grading.common, "run", fake_run):
-            if not shared:
-                os.environ.pop("LANES_SHARED_GOCACHE", None)
+        with unittest.mock.patch.dict(os.environ, {"LANES_GO_CACHE": "/shared-root"}), \
+                unittest.mock.patch.object(grading.common, "run", fake_run):
             grading.sh(cmd, "/", {"PATH": "/usr/bin"}, 5)
         return seen["argv"][-1], seen["env"]
 
-    def test_inline_gocache_is_rewritten_when_set(self):
-        cmd, env = self.run_sh("GOCACHE=$PWD/.cache/go go test ./... && GOCACHE=.c go vet ./...", "/shared/go")
-        self.assertEqual(cmd, "GOCACHE=/shared/go go test ./... && GOCACHE=/shared/go go vet ./...")
-        self.assertEqual(env, {"PATH": "/usr/bin", "GOCACHE": "/shared/go"})
+    def test_inline_gocache_is_rewritten(self):
+        cmd, env = self.run_sh("GOCACHE=$PWD/.cache/go go test ./... && GOCACHE=.c go vet ./...")
+        self.assertEqual(cmd, f"GOCACHE={self.SHARED} go test ./... && GOCACHE={self.SHARED} go vet ./...")
+        self.assertEqual(env, {"PATH": "/usr/bin", "GOCACHE": self.SHARED})
 
-    def test_inline_gocache_is_untouched_when_unset(self):
-        line = "GOCACHE=$PWD/.cache/go go test ./..."
-        cmd, env = self.run_sh(line, None)
-        self.assertEqual((cmd, env), (line, {"PATH": "/usr/bin"}))
+    def test_quoted_values_and_operators_survive_the_rewrite(self):
+        cmd, _ = self.run_sh('GOCACHE="$PWD/a b" go test ./... ; GOCACHE=.c;go vet ./... && GOCACHE=\'x y\' go build')
+        self.assertEqual(cmd, f"GOCACHE={self.SHARED} go test ./... ; GOCACHE={self.SHARED};go vet ./... && GOCACHE={self.SHARED} go build")
 
     def test_command_without_gocache_changes_only_the_env(self):
         line = "go test -count=1 ./..."
-        cmd, env = self.run_sh(line, "/shared/go")
-        self.assertEqual((cmd, env), (line, {"PATH": "/usr/bin", "GOCACHE": "/shared/go"}))
+        cmd, env = self.run_sh(line)
+        self.assertEqual((cmd, env), (line, {"PATH": "/usr/bin", "GOCACHE": self.SHARED}))
 
     def test_other_variables_that_end_in_gocache_are_not_rewritten(self):
         line = "MYGOCACHE=x go test ./..."
-        self.assertEqual(self.run_sh(line, "/shared/go")[0], line)
+        self.assertEqual(self.run_sh(line)[0], line)
 
     def test_the_command_really_runs_with_the_shared_cache(self):
-        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict(os.environ, {"LANES_SHARED_GOCACHE": "/shared/go"}):
+        with tempfile.TemporaryDirectory() as d, unittest.mock.patch.dict(os.environ, {"LANES_GO_CACHE": d}):
             grading.sh('GOCACHE=$PWD/.cache/go ; printf %s "$GOCACHE" > got', d, {"PATH": os.environ["PATH"]}, 10)
             with open(os.path.join(d, "got")) as f:
-                self.assertEqual(f.read(), "/shared/go")
+                self.assertEqual(f.read(), os.path.join(os.path.realpath(d), "shared"))
 
 
 class HeavyLock(unittest.TestCase):

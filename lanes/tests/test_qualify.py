@@ -125,7 +125,7 @@ class CacheWarning(GradeCase):
         self.assertEqual(code, 0, out)
         self.assertEqual(self.lines(out, "warn"), [
             "warn task-mini evaluator: per-tree GOCACHE in command 1 recompiles every grade; drop it "
-            "(the harness supplies a shared cache via LANES_SHARED_GOCACHE)"])
+            "(the harness supplies the host-wide shared cache)"])
         self.assertEqual(len(self.lines(out, "ok")), 7)
         self.assertEqual(self.lines(out, "FAIL"), [])
         self.assertEqual(len(out.splitlines()), 8)
@@ -147,7 +147,7 @@ class CacheWarning(GradeCase):
         self.assertEqual(len(out.splitlines()), 7)
 
     def test_shared_or_absolute_cache_is_not_per_tree(self):
-        for cache in ("/var/cache/go", "$HOME/.cache/go", "~/.cache/go", "$LANES_SHARED_GOCACHE"):
+        for cache in ("/var/cache/go", "$HOME/.cache/go", "~/.cache/go"):
             with self.subTest(cache=cache):
                 with open(os.path.join(self.task, "evaluator", "evaluate.toml"), "w") as f:
                     f.write("overlay = \"files\"\n"

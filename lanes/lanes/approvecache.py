@@ -28,11 +28,11 @@ CODE = ("approvecache.py", "cell.py", "common.py", "gocache.py", "node_modules.p
 #   KOGEN_LANES_*: Cell removes them. GIT_AUTHOR/COMMITTER_*: the workspace repo sets its own identity.
 #   SLOTS, DAYDIR, DAYCAP, LANES_*: dispatch and grading settings of the shell scripts, not read by approve.
 #   TMPDIR, LANES_ENV: per-unit scratch paths (studio-run-queued.sh); the workspace path is never an input.
-#   The per-run GOCACHE/GOMODCACHE copies are set by Cell, never in this environment; the Go cache entry follows
+#   GOCACHE (the host-wide shared cache) and the module cache are set by Cell, never in this environment; the Go cache entry follows
 #   from the start tree and the toolchain, both keyed here, and cannot change what a build produces.
 SKIP_ENV = {"TMPDIR", "LANES_ENV", "PWD", "OLDPWD", "SHLVL", "_", "SLOTS", "DAYDIR", "DAYCAP", "TERM", "SSH_CLIENT", "SSH_CONNECTION",
             "SSH_TTY", "SSH_AUTH_SOCK", "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME",
-            "GIT_COMMITTER_EMAIL", "LANES_CARRY_ACTIVE", "LANES_SHARED_GOCACHE", "LANES_NM_CACHE", "LANES_DIR",
+            "GIT_COMMITTER_EMAIL", "LANES_CARRY_ACTIVE", "LANES_NM_CACHE", "LANES_DIR",
             "LANES_NPMFIX_HARNESS", "LANES_APPROVAL_CACHE", "LANES_GUARD_LOG", "LANES_GO_CACHE"}
 SKIP_PREFIX = ("KOGEN_LANES_", "XPC_", "__CF")
 SHIM_DIR = ".lanes-shim"  # the day runners' killall/pkill guards only

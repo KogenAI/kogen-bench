@@ -8,7 +8,6 @@
 # cell's estimate. At 25 - slots*cell it pauses new cells (SIGSTOP); at 25 - $STOP_MARGIN, or once no cell is live, it
 # stops the run (TERM; lanes-run stops its cells and keeps their spend), and the run resumes the next UTC day.
 # Idempotent: a finished run leaves runs/<id>/DONE and is skipped; the 00:00Z timer may start it again safely.
-export LANES_SHARED_GOCACHE=${LANES_SHARED_GOCACHE:-$HOME/.cache/go-build}   # 26 Oct: grading shares the Go build cache
 export PATH=$HOME/.lanes-shim:$PATH LANES_NM_CACHE=${LANES_NM_CACHE:-$HOME/.cache/lanes-nm}   # 26 Oct: npm ci reuses one node_modules per lockfile (hardlink copy)
 [ -n "$LANES_ENV" ] && . "$LANES_ENV"  # host overrides (paths, PATH, caches)
 [ -n "$LANES_NPMFIX_HARNESS" ] && export LANES_DIR="$LANES_NPMFIX_HARNESS"

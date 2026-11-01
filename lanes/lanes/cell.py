@@ -203,8 +203,8 @@ def _git(ws, *args, env=None, check=True):
 def make_workspace(ws, tmp, start, config):
     """Copy `start/`, add the fixed configuration and commit it, with stable author, date and config.
 
-    Returns `(go_env, go_info)` from `gocache.prepare`: the run's own copy of the task's staged Go build cache,
-    outside the work tree in `tmp`, for its `Cell`."""
+    Returns `(go_env, go_info)` from `gocache.prepare`: the host-wide shared Go build cache (seeded from
+    the task's staged entry), for its `Cell`."""
     shutil.copytree(start, ws, symlinks=True)
     os.makedirs(os.path.join(ws, ".kogen"), exist_ok=True)
     with open(os.path.join(ws, ".kogen", "project.yaml"), "w", encoding="utf-8") as f:
