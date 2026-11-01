@@ -440,6 +440,15 @@
       "summary": "A one-sentence change to Kogen's builder prompt (call finish right away when the checks pass, with no extra re-reads or polishing) was compared with unpatched Kogen, same commit and model (gpt-6.1-terra, medium effort), one trial per task. On 13 Go tasks the hidden checks passed on 9 tasks without the change and 10 with it (one gained, none lost), and the patched build used less wall time or fewer tokens on 9 of 13 tasks, meeting the rule of at least 8. It is one trial on one laptop-class host, so it is a candidate to confirm at Kogen level before shipping, not a shipped change."
     },
     {
+      "id": "p5-stop-at-green-go-pooled-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "The stop-when-checks-pass sentence in Kogen's builder prompt lost to unpatched Kogen over two Go repetitions",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-01",
+      "summary": "The one-sentence change to Kogen's builder prompt (call finish right away when the checks pass) was repeated on the same 13 Go tasks on a second host and pooled with the first run. Across 26 task pairs unpatched Kogen passed the hidden checks on 20 and the patched build on 16 (one gained, five lost, net -4, against a keep rule of at least +3). In the second run alone the patched build lost three tasks to build_blocked, where the builder ended the attempt while Kogen's acceptance check was still failing, and one to a refusal at shaping. Further repetitions are still running, so this can change; it is one trial per pair on two different hosts."
+    },
+    {
       "id": "p2-unstated-go-pooled",
       "category": "categories/harness-levers.md",
       "title": "An unstated-requirement pass in Kogen shaping lost to unpatched Kogen over two Go repetitions and is dropped",
