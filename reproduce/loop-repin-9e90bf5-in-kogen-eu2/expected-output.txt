@@ -1,0 +1,31 @@
+pairs 52 in 4 runs, 13 tasks
+hidden pass: base 32/52, lever 31/52; wins 7 losses 8 net -1; discordant 15 (29% of pairs)
+base outcomes: {'build_blocked': 3, 'landed': 38, 'refused': 11}
+lever outcomes: {'build_blocked': 3, 'landed': 34, 'refused': 12, 'review_blocked': 3}
+base: cells with a build log 41; empty-handle refusals 18 in 17 cells; polls 1; build requests 335; stage ends from network outages 0
+lever: cells with a build log 40; empty-handle refusals 0 in 0 cells; polls 10; build requests 340; stage ends from network outages 0
+requests over all stages: base 818, lever 843; wall s (descriptive, runs overlapped other work): base 14699, lever 15209
+
+Discordant pairs by class (a = a loop-side event in the patched stage caused the flip; b = shape/approve cause; e = no stage cause shown, build or hidden-test variance)
+class	pairs	wins	losses
+b	11	4	7
+e	4	3	1
+class a proven: 0 pairs
+class e pairs 4: 3 wins where the base cell had an empty-handle refusal in its build (possible class a, not provable: tool arguments are hashed); losses 1 with no loop event
+
+run	task	base hidden	lever hidden	class
+lrp-eu2-r1	T05	1	0	b
+lrp-eu2-r1	T13	0	1	e
+lrp-eu2-r2	T04	1	0	b
+lrp-eu2-r2	T07	0	1	b
+lrp-eu2-r2	T09	0	1	b
+lrp-eu2-r2	T12	0	1	e
+lrp-eu2-r2	T13	0	1	b
+lrp-eu2-r3	T01	1	0	b
+lrp-eu2-r3	T10	1	0	b
+lrp-eu2-r3	T11	1	0	b
+lrp-eu2-r3	T13	0	1	b
+lrp-eu2-r4	T07	1	0	b
+lrp-eu2-r4	T09	1	0	b
+lrp-eu2-r4	T10	0	1	e
+lrp-eu2-r4	T13	1	0	e

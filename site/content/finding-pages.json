@@ -573,6 +573,15 @@
       "verdict": "no",
       "finished": "2026-11-01",
       "summary": "Kogen's shaping step was given an example check (a model reads each acceptance example, derives its value from the written rules, and the gate refuses the specification if one contradicts) and compared with the version before it, same model (gpt-6.1-terra, medium effort), 13 Go tasks, 65 paired runs on three servers. The check did cut builds that stopped on a contradicting acceptance (9 to 3), but hidden passes fell from 47 to 40 of 65: in 15 shapes it ended shaping with a refusal or questions (1 before). Of the 12 pairs that lost a pass, 8 were shaping stopped by the check itself, most often because it called two equal values contradictory when they were only written in a different format (braced or unbraced JSON). The test was stopped early for that reason and the check is dropped until that fault is fixed; the other discordant pairs balance out (5 wins, 4 losses) and are ordinary run-to-run flipping."
+    },
+    {
+      "id": "loop-repin-9e90bf5-in-kogen-eu2",
+      "category": "categories/harness-levers.md",
+      "title": "Updating Kogen's built-in loop to tonight's fixes removes refused shell calls but shows no gain in hidden passes (32 vs 31 of 52)",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-01",
+      "summary": "We gave Kogen's built-in loop (kogen-loop) tonight's fixes (version 9e90bf5: shell calls with an empty or unusable handle are accepted, and a request waits for the provider to accept connections instead of ending a stage after three quick network failures) and compared Kogen with and without them on the same 13 Go tasks, same model (gpt-6.1-terra, medium effort) for every role, 52 paired runs over four repetitions on one server. The refused shell calls disappeared: 18 refusals in 17 builds before, none after, and no new kind of refusal appeared. Hidden-test passes did not change measurably: 32 of 52 before, 31 of 52 after (7 wins, 8 losses). All 15 pairs that changed are shaping refusals or ordinary build variance; three of the wins had a refused call in the other build but the logs cannot show that it caused the failure. The network wait was not tested because no request met a network error. About 29% of pairs flip between arms here, so a gain of a few passes would need about ten repetitions to show."
     }
   ]
 }
