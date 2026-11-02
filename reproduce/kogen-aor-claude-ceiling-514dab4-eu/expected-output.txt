@@ -1,0 +1,59 @@
+cells 18: H1 6, H2 6, H3 6
+
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	3	1	1	1	0	0
+T2	3	2	2	2	0	0
+T3	3	2	2	2	0	0
+T4	3	0	0	0	0	0
+T5	3	2	2	2	2	2
+T6	3	0	0	0	0	0
+all	18	7	7	7	2	2
+
+outcomes: {'landed': 7, 'questions_pending': 1, 'refused': 10}
+
+host	cells	valid_intent	landed	hidden_all_pass	requested_all_pass
+H1	6	3	3	1	1
+H2	6	1	1	0	0
+H3	6	3	3	1	1
+
+tokens: input 90022038 (cached 86058508), output 1621044
+
+First mistake per cell: task host first_mistake
+T1	H1	build: landed, requested checks missed; review approved 0 blocking
+T1	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H2	build: landed, requested checks missed; review approved 0 blocking
+T3	H1	build: landed, requested checks missed; review approved 0 blocking
+T3	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T4	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T4	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T5	H1	none
+T5	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T6	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T6	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T1	H3	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H3	build: landed, requested checks missed; review approved 0 blocking
+T3	H3	build: landed, requested checks missed; review approved 0 blocking
+T4	H3	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T5	H3	none
+T6	H3	shape: stopped on 3 pending questions (no answerer)
+
+Per cell: task host hidden requested input output wall_s
+T1	H1	6/8	3/5	5956789	106230	1294
+T1	H2	3/8	0/5	2894670	73447	889
+T2	H1	3/17	0/14	7414382	121460	1664
+T2	H2	16/17	13/14	7706337	100397	1454
+T3	H1	8/9	5/6	7183835	113420	1668
+T3	H2	3/9	0/6	2047323	67031	701
+T4	H1	10/11	7/8	4179415	86113	1122
+T4	H2	10/11	7/8	4834164	80980	2164
+T5	H1	11/11	8/8	2634622	64858	781
+T5	H2	4/11	1/8	2701747	94975	941
+T6	H1	4/11	1/8	7297454	132310	1319
+T6	H2	4/11	1/8	4833660	85084	1027
+T1	H3	3/8	0/5	1357255	43047	430
+T2	H3	16/17	13/14	7593176	112779	1554
+T3	H3	8/9	5/6	10065230	121454	2673
+T4	H3	10/11	7/8	4581315	89165	1186
+T5	H3	11/11	8/8	5749115	107800	1387
+T6	H3	4/11	1/8	991549	20494	219

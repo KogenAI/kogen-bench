@@ -690,6 +690,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We ran Kogen as it is today (514dab4, no patch) on the same six Rails tasks as the gpt-6.1-terra control, given only the request text, with Claude Opus 5.5 at high effort through Claude Code for every step: two runs per task, one on each of two servers. Four of the 12 runs wrote a valid intent, all four landed a build, and one passed every hidden check. The other eight were refused at shaping after three tries, each time because a check the shaper had written failed when Kogen re-ran it on the shaper's own example of a correct result. Review approved all four landed builds, including the three that missed hidden checks. Beside the control, this cohort passed every hidden check on a task the control never did and landed a task where the control never wrote a valid intent, while the control reached a full pass on a different task. With two runs per task and a 18 to 27 % chance that a rerun flips a result, this lists successes only and claims no model is better."
+    },
+    {
+      "id": "kogen-aor-claude-ceiling-514dab4-eu",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen on Claude Opus 5.5, third server: 3 of 6 runs landed a build and 1 passed every hidden check; pooled 2 of 18",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "This adds a third server to the earlier Claude Opus 5.5 check of Kogen as it is today (514dab4, no patch): the same six Rails tasks, given only the request text, with Claude Opus 5.5 at high effort for every step, one run per task. Three of the six runs wrote a valid intent, all three landed a build, and one passed every hidden check. Two were refused at shaping after three tries, because a check the shaper had written failed when Kogen re-ran it, and one stopped when the shaper asked three questions and nobody answered, which had not happened in the first 12 runs. Pooled over all 18 runs, 7 wrote a valid intent, all 7 landed, and 2 passed every hidden check, both on the same task. In the runs where the cause was logged, Kogen ran the shaper's check in a temporary copy of the project where the version manager did not trust the project's config file, a Kogen defect and not a model result. With one to three runs per task and a 18 to 27 % chance that a rerun flips a result, this lists results only and claims no model is better."
     }
   ]
 }
