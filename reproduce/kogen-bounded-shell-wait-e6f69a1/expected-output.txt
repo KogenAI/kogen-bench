@@ -1,0 +1,48 @@
+pairs 78 in 6 runs, 13 tasks
+hidden pass: g0 55/78, g1 55/78; wins 6 losses 6 net 0; discordant 12
+g0 outcomes: {'build_blocked': 10, 'landed': 61, 'refused': 5, 'unavailable': 2}
+g1 outcomes: {'build_blocked': 8, 'landed': 64, 'questions_pending': 1, 'refused': 3, 'review_blocked': 2}
+valid Intent: g0 73 g1 74
+acceptance separating correct from incorrect: g0 20 g1 19
+acceptance contradicted by the builder: g0 10 g1 8
+requests per cell (all stages): g0 15.06 g1 15.74; build+review: g0 6.99 g1 7.69
+fetch-only requests: g0 9 (0.115 per cell) g1 0
+pooled agent wall per cell (all stages, failed attempts included): g0 202.3 s g1 201.3 s
+pairs where the lever fired in either cell (a handle fetch, or a command over 2 s that returned in its own response): 10
+
+Per task (6 pairs each): valid Intent g0/g1, acceptance separating g0/g1, hidden pass g0/g1, wins, losses
+T01	6/6	3/1	6/4	0	2
+T02	6/6	0/0	6/6	0	0
+T03	4/5	0/2	0/0	0	0
+T04	6/6	6/6	5/6	1	0
+T05	6/6	1/1	6/4	0	2
+T06	6/6	0/0	6/6	0	0
+T07	6/6	0/0	6/6	0	0
+T08	3/3	0/0	0/0	0	0
+T09	6/6	0/0	6/6	0	0
+T10	6/6	0/0	2/6	4	0
+T11	6/6	5/4	6/6	0	0
+T12	6/6	0/1	5/3	0	2
+T13	6/6	5/4	1/2	1	0
+
+Attribution of discordant pairs (a = the loop behaviour changed by the patch: a handle fetch or a longer in-response command in the differing cells; b = shape-time acceptance defect, a different Intent drawn, builder blocked in one arm; c = review; d = infrastructure; e = landed in both, one hidden test flipped)
+class	wins	losses
+a	0	0
+b	4	4
+c	0	0
+d	1	0
+e	1	2
+
+run	task	g0	g1	change	class
+bcwk-eu-r1	T10	0	1	win	b
+bcwk-eu-r2	T04	0	1	win	d
+bcwk-eu-r2	T10	0	1	win	b
+bcwk-eu2-r1	T10	0	1	win	b
+bcwk-eu2-r1	T12	1	0	loss	e
+bcwk-eu2-r2	T01	1	0	loss	b
+bcwk-eu2-r2	T05	1	0	loss	b
+bcwk-eu2-r2	T10	0	1	win	b
+bcwk-eu2-r2	T13	0	1	win	e
+bcwk-lm-r1	T01	1	0	loss	b
+bcwk-lm-r2	T05	1	0	loss	b
+bcwk-lm-r2	T12	1	0	loss	e

@@ -618,6 +618,15 @@
       "verdict": "yes",
       "finished": "2026-11-01",
       "summary": "We let kogen-loop wait up to 45 seconds for a new shell command to finish (instead of 1 second) before handing back a handle, and compared it with unchanged kogen-loop main (166ec7f) on two hard Kogen review tasks, three runs each, the two runs side by side on one server. Requests that only fetch a shell result fell from 16 to 0, all requests fell 30% (fewer in 5 of 5 complete pairs) and wall time fell 24%; no pair changed its hidden result (one task passes 3 of 3 on both sides, the other fails on both for a task-side reason). One pair was lost to a provider error on the unchanged side and is left out. A screen on two tasks, not a confirmation."
+    },
+    {
+      "id": "kogen-bounded-shell-wait-e6f69a1",
+      "category": "categories/harness-levers.md",
+      "title": "Letting Kogen's loop wait 45 seconds for shell commands passes the same hidden tests (55 of 78 each) and saves no requests on these tasks",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-02",
+      "summary": "We ran Kogen's current main twice per task, once as released and once with its loop changed so a new shell command waits up to 45 seconds for the result instead of 1 second before handing back a handle, same model and effort on both sides. Across 13 Go tasks and 78 paired runs, hidden-test passes were 55 of 78 on both sides, with 6 wins and 6 losses for the change. Requests that only fetch a shell result fell from 9 to 0, but all requests per run did not fall (15.1 against 15.7) and wall time was the same. The change altered what happened in only 10 of the 78 pairs, because only two of the tasks run commands long enough to matter, and none of those were among the 12 pairs with a different result: eight of those traced to a different shaping draw, one to a provider outage and three to a single hidden test flipping on identical builds. So this check shows no gain and no harm, and cannot say more. The earlier loop-level gain on two hard tasks is neither confirmed nor contradicted."
     }
   ]
 }
