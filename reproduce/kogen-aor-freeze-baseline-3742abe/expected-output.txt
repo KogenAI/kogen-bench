@@ -1,0 +1,92 @@
+frozen-tree cells 18: server1 6, laptop 6, server2 6
+
+Frozen tree (3742abe), one run per task per host
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	3	3	3	1	0	0
+T2	3	0	0	0	0	0
+T3	3	0	0	0	0	0
+T4	3	1	1	1	0	0
+T5	3	2	2	0	0	0
+T6	3	0	0	0	0	0
+all	18	6	6	2	0	0
+
+Control 514dab4 first pack (Studio, eu2, laptop)
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	3	3	3	2	1	1
+T2	3	1	1	1	0	0
+T3	3	0	0	0	0	0
+T4	3	2	2	1	0	0
+T5	3	2	2	1	0	1
+T6	3	0	0	0	0	0
+all	18	8	8	5	1	2
+
+Control 514dab4 follow-up (extra Studio runs, counted only)
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	1	1	1	0	0	0
+T2	3	0	0	0	0	0
+T3	3	0	0	0	0	0
+T4	2	0	0	0	0	0
+T5	2	2	2	0	0	0
+T6	3	0	0	0	0	0
+all	14	3	3	0	0	0
+
+Pool: frozen tree + control + control follow-up (descriptive)
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	7	7	7	3	1	1
+T2	9	1	1	1	0	0
+T3	9	0	0	0	0	0
+T4	8	3	3	2	0	0
+T5	8	6	6	1	0	1
+T6	9	0	0	0	0	0
+all	50	17	17	7	1	2
+
+Blocks (cells, valid Intent, landed, hidden all-pass):
+frozen server1	6	3	2	0
+frozen laptop	6	2	0	0
+frozen server2	6	1	0	0
+control server1	6	3	1	0
+control laptop	6	2	2	1
+control Mac (first + follow-up)	20	6	2	0
+
+outcomes (frozen tree): {'build_blocked': 4, 'landed': 2, 'questions_pending': 8, 'refused': 4}
+tokens (frozen tree): input 5824395 (cached 4929536), output 51124
+
+First mistake per cell (frozen tree): task host first_mistake
+T1	server1	build: landed, requested checks missed; review approved 0 blocking
+T1	laptop	build: stopped as build_blocked, builder claim unproven (protected blocker)
+T1	server2	build: stopped as build_blocked, builder claim unproven (protected blocker)
+T2	server1	shape: the shaper answered without calling a tool three times
+T2	laptop	shape: the shaper answered without calling a tool three times
+T2	server2	shape: questions left pending (no answerer)
+T3	server1	shape: questions left pending (no answerer)
+T3	laptop	shape: the shaper answered without calling a tool three times
+T3	server2	shape: the shaper answered without calling a tool three times
+T4	server1	build: landed, hidden result equals the start count; review approved 0 blocking
+T4	laptop	shape: questions left pending (no answerer)
+T4	server2	shape: questions left pending (no answerer)
+T5	server1	build: stopped as build_blocked, builder claim unproven (protected blocker)
+T5	laptop	build: stopped as build_blocked, builder claim unproven (protected blocker)
+T5	server2	shape: questions left pending (no answerer)
+T6	server1	shape: questions left pending (no answerer)
+T6	laptop	shape: questions left pending (no answerer)
+T6	server2	shape: questions left pending (no answerer)
+
+Per cell (frozen tree): task host hidden requested input output wall_s
+T1	server1	5/8	2/5	655562	7832	351
+T1	laptop	3/8	0/5	970038	7603	406
+T1	server2	3/8	0/5	503532	5558	324
+T2	server1	3/17	0/14	226646	1957	55
+T2	laptop	3/17	0/14	322990	2197	82
+T2	server2	3/17	0/14	149267	1224	76
+T3	server1	3/9	0/6	127881	1045	44
+T3	laptop	3/9	0/6	249861	1350	70
+T3	server2	3/9	0/6	231233	2060	72
+T4	server1	10/11	7/8	734464	7003	366
+T4	laptop	10/11	7/8	185985	1418	89
+T4	server2	10/11	7/8	183520	1319	58
+T5	server1	4/11	1/8	406815	3493	173
+T5	laptop	4/11	1/8	394327	2959	186
+T5	server2	4/11	1/8	160926	1330	49
+T6	server1	4/11	1/8	139081	1095	38
+T6	laptop	4/11	1/8	82528	791	34
+T6	server2	4/11	1/8	99739	890	32

@@ -186,3 +186,7 @@ Three more runs per task of the current-Kogen control (`514dab4`, no patch, requ
 ## Kogen AoR ceiling check on Claude Opus 5.5, second block (2 Nov 2026)
 
 A second block of the Opus 5.5 ceiling check (same Kogen `514dab4`, tasks and settings; 12 more runs on two servers): 11 shaped a valid intent, 10 landed a build and 4 passed every hidden check (T1 and T5 on both servers), 1 was refused at shaping and 1 timed out in build. Review approved all 10 landed builds. Pooled with the first block that is 24 runs: 15 valid intents, 14 landed and 5 full hidden passes. The first block's 8 shaping refusals did not recur (1 of 12) and this block does not establish why. Successes only; no model comparison. See [kogen-aor-claude-ceiling-514dab4-r2](../reproduce/kogen-aor-claude-ceiling-514dab4-r2/README.md).
+
+### Kogen at the frozen commit 3742abe, baseline on six Rails tasks (2 Nov 2026)
+
+Kogen `3742abe` (same source tree as the `514dab4` control, no patch), request-only, gpt-6.1-terra at medium effort, 18 runs on three Linux machines: 6 shaped a valid intent, 2 landed a build and none passed every hidden check. Pooled with the earlier control (50 runs) there are 17 valid intents, 7 landed builds and 1 full hidden pass. Baseline for the first component changes; no comparison. See [kogen-aor-freeze-baseline-3742abe](../reproduce/kogen-aor-freeze-baseline-3742abe/README.md).

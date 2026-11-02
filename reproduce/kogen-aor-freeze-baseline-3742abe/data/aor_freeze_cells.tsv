@@ -1,0 +1,19 @@
+task	host	outcome	valid_intent	reached_build	landed	hidden_passed	hidden_expected	hidden_all_pass	requested_passed	requested_total	first_mistake	input_tokens	cached_tokens	output_tokens	wall_s
+T1	server1	landed	1	1	1	5	8	0	2	5	build: landed, requested checks missed; review approved 0 blocking	655562	529792	7832	351
+T1	laptop	build_blocked	1	1	0	3	8	0	0	5	build: stopped as build_blocked, builder claim unproven (protected blocker)	970038	856448	7603	406
+T1	server2	build_blocked	1	1	0	3	8	0	0	5	build: stopped as build_blocked, builder claim unproven (protected blocker)	503532	398976	5558	324
+T2	server1	refused	0	0	0	3	17	0	0	14	shape: the shaper answered without calling a tool three times	226646	198528	1957	55
+T2	laptop	refused	0	0	0	3	17	0	0	14	shape: the shaper answered without calling a tool three times	322990	288000	2197	82
+T2	server2	questions_pending	0	0	0	3	17	0	0	14	shape: questions left pending (no answerer)	149267	122112	1224	76
+T3	server1	questions_pending	0	0	0	3	9	0	0	6	shape: questions left pending (no answerer)	127881	105088	1045	44
+T3	laptop	refused	0	0	0	3	9	0	0	6	shape: the shaper answered without calling a tool three times	249861	225152	1350	70
+T3	server2	refused	0	0	0	3	9	0	0	6	shape: the shaper answered without calling a tool three times	231233	202368	2060	72
+T4	server1	landed	1	1	1	10	11	0	7	8	build: landed, hidden result equals the start count; review approved 0 blocking	734464	634368	7003	366
+T4	laptop	questions_pending	0	0	0	10	11	0	7	8	shape: questions left pending (no answerer)	185985	162688	1418	89
+T4	server2	questions_pending	0	0	0	10	11	0	7	8	shape: questions left pending (no answerer)	183520	134144	1319	58
+T5	server1	build_blocked	1	1	0	4	11	0	1	8	build: stopped as build_blocked, builder claim unproven (protected blocker)	406815	345088	3493	173
+T5	laptop	build_blocked	1	1	0	4	11	0	1	8	build: stopped as build_blocked, builder claim unproven (protected blocker)	394327	318208	2959	186
+T5	server2	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	160926	138880	1330	49
+T6	server1	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	139081	117888	1095	38
+T6	laptop	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	82528	69120	791	34
+T6	server2	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	99739	82688	890	32
