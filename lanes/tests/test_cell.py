@@ -275,6 +275,32 @@ class CellTest(unittest.TestCase):
         self.assertEqual(res["stages"][0]["outcome"], "questions_pending")
         self.assertNotIn("shape task-mini -", read(os.path.join(path, "stdout.txt")))
 
+    def test_fb_answer_recommended_answers_every_round(self):  # fbw2c: 2 rounds then Intent, no answers.txt in the task
+        run = self.make_run("e2e")
+        r = self.cell(run, FAKE_KOGEN_QUESTIONS="twice", FB_ANSWER="recommended")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        path, res = self.done(run)
+        self.assertEqual((res["outcome"], res["exit_code"]), ("landed", 0))
+        self.assertEqual(common.read_json(os.path.join(path, "answer-rounds.json"))["answer_rounds"], 2)
+        self.assertEqual(read(os.path.join(path, "stdout.txt")).count("== kogen intent shape task-mini -"), 2)
+
+    def test_fb_answer_unset_is_one_round(self):
+        self.answers()
+        run = self.make_run("shape")
+        self.assertEqual(self.cell(run, FAKE_KOGEN_QUESTIONS="twice").returncode, 0)
+        path, res = self.done(run)
+        self.assertEqual(res["outcome"], "questions_pending")
+        self.assertFalse(os.path.exists(os.path.join(path, "answer-rounds.json")))
+
+    def test_fb_answer_recommended_stops_after_four_rounds(self):
+        run = self.make_run("shape")
+        self.assertEqual(self.cell(run, FAKE_KOGEN_QUESTIONS="always", FB_ANSWER="recommended").returncode, 0)
+        path, res = self.done(run)
+        self.assertEqual(res["outcome"], "questions_pending")
+        self.assertEqual(read(os.path.join(path, "stdout.txt")).count("== kogen intent shape"), 5)
+        self.assertEqual(common.read_json(os.path.join(path, "answer-rounds.json")),
+                         {"answer_rounds": 4, "limit": 4, "still_asking": True})
+
     def test_one_answer_round_then_pending(self):  # L9: capped at one round
         self.answers()
         run = self.make_run("shape")

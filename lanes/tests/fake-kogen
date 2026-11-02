@@ -12,8 +12,9 @@ Environment:
                       zero    build requests log 0 for every counter (b45ba32b: ChatGPT.usage/1),
                               shaping events log null (b45ba32b: known_usage)
                       unknown null everywhere: future/R2 behaviour, not b45ba32b
-  FAKE_KOGEN_QUESTIONS  once | always: `shape` from a file prints "Questions for <slug>:" and
+  FAKE_KOGEN_QUESTIONS  once | twice | always: `shape` from a file prints "Questions for <slug>:" and
                       exits 5; once: `shape <slug> -` (the answers) then completes,
+                      twice: the first answers round asks once more (state file in the project root);
                       always: it asks again
   FAKE_KOGEN_LINT     refuse: `approve` refuses the Intent with two `intent/lint:` lines and exits 1
   FAKE_KOGEN_APPROVE_DELAY_S  seconds `approve` sleeps before it answers (default 0), each call
@@ -224,6 +225,11 @@ def check_config(root):
 def cmd_shape(root, slug, source):
     request = sys.stdin.read() if source == "-" else read(source)
     ask = os.environ.get("FAKE_KOGEN_QUESTIONS")
+    if ask == "twice" and source == "-":
+        flag = os.path.join(root, ".fake-asked-twice")
+        if not os.path.exists(flag):
+            open(flag, "w").close()
+            die(5, f"Questions for {slug}:\n1. And which now?")
     if ask and (source != "-" or ask == "always"):
         die(5, f"Questions for {slug}:\n1. Which?")
     if not request.strip():

@@ -10,6 +10,7 @@ import argparse
 import datetime
 import fcntl
 import glob
+import json
 import os
 import re
 import shutil
@@ -229,6 +230,9 @@ def make_workspace(ws, tmp, start, config):
     return gocache.prepare(start, tmp)
 
 
+ANSWER_ROUNDS = 4  # FB_ANSWER=recommended: most answer rounds in one shape stage
+
+
 class Cell:
     def __init__(self, ws, kogen, out, deadline_s, abort=None, approval_context=None, go_env=None):
         self.ws, self.kogen, self.out = ws, kogen, out
@@ -306,11 +310,21 @@ class Cell:
         return code == 0 and not timed_out and not detail
 
     def shape(self, slug, request, answers):
-        """Shape; when Kogen asks questions, answer them once from `answers` (stdin of `shape <slug> -`)."""
+        """Shape; when Kogen asks questions, answer them from `answers` (stdin of `shape <slug> -`).
+
+        One answer round by default. FB_ANSWER=recommended (a row's env) answers every questions round, at most
+        ANSWER_ROUNDS (4); a further round stops as `questions_pending`. Each round is its own `== kogen intent
+        shape` section in stdout.txt/stderr.txt, so the questions and the answer of every round are logged.
+        """
+        limit = ANSWER_ROUNDS if os.environ.get("FB_ANSWER") == "recommended" else 1
         calls = [self.invoke(["intent", "shape", slug, request])]
-        if self._asks(calls[-1]) and answers and not calls[-1][1]:
+        while self._asks(calls[-1]) and answers and not calls[-1][1] and len(calls) <= limit:
             calls.append(self.invoke(["intent", "shape", slug, "-"], answers))
-        return self.record("shape", calls, "questions_pending" if self._asks(calls[-1]) else None)
+        ok = self.record("shape", calls, "questions_pending" if self._asks(calls[-1]) else None)
+        if limit > 1:
+            with open(os.path.join(self.out, "answer-rounds.json"), "w") as f:
+                json.dump({"answer_rounds": len(calls) - 1, "limit": limit, "still_asking": self._asks(calls[-1])}, f)
+        return ok
 
     @staticmethod
     def _failure(call):
@@ -502,6 +516,9 @@ def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, hos
     for name, dst in (("request.md", request), ("answers.txt", answers)):
         if os.path.isfile(os.path.join(task, name)):
             shutil.copyfile(os.path.join(task, name), dst)
+    if os.environ.get("FB_ANSWER") == "recommended" and not os.path.isfile(answers):
+        with open(answers, "w") as f:  # Kogen's own printed form: "all: recommended" accepts every recommended option
+            f.write("all: recommended\n")
     common.write_json(os.path.join(out, costguard.LIVE), live.record(ws, host))  # the guard reads its logs live; the pid says who owns it
     started, t0 = now(), time.monotonic()
     with costguard.Watcher(run_dir, exp, provider=costguard.lane_providers(exp).get(lane_name)) as watch:
