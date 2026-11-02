@@ -753,6 +753,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We ran the Claude Opus 5.5 check on Kogen as it is today (514dab4, no patch) a third time: the same six Rails tasks, given only the request text, one run per task on each of two servers, with Claude Opus 5.5 at high effort through Claude Code for every step. This time the run's own environment told mise to trust the project's config file, the setting meant to stop mise refusing it inside Kogen's temporary test-run copy, which had made earlier shaping refusals likely. Five of the 12 runs wrote a valid intent and all 5 landed a build; two passed every hidden check, one on T3 and one on T5. Seven were refused at shaping, six of them on Kogen's step self-check, the same refusal as before, and no run logged a trust error. The refusal text carries no error output, so we cannot say what made the check fail, and we do not know whether the setting reached Kogen's test-run copy. Shaping refusals were 8 of 12 in the first block, 1 of 12 in the second and 7 of 12 here on the same Kogen build, so none of them is a rate. This reports successes only, claims no rescue and claims no model is better."
+    },
+    {
+      "id": "kogen-aor-claude-ceiling-514dab4-misetrust-eu",
+      "category": "categories/harness-levers.md",
+      "title": "With mise's trust setting applied, Kogen on Claude Opus 5.5 passed every hidden check in 1 of 6 runs on a third server, and 3 runs got no valid intent",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We repeated the mise-trust version of the Claude Opus 5.5 check on Kogen as it is today (514dab4, no patch) on a third server: the same six Rails tasks, given only the request text, one run per task, Claude Opus 5.5 at high effort through Claude Code for every step, and the run's own environment telling mise to trust the project's config file. Three of the 6 runs wrote a valid intent and all 3 landed a build; one passed every hidden check (T1). Two were refused at shaping and one used up its 3600 s shaping deadline, each after Kogen's step self-check refused an observer whose good control failed on replay. One run's log still showed a mise \"not trusted\" error even with the setting, so it did not always reach Kogen's test-run copy, though that run landed. Pooled with the two-server block this is 8 valid intents, 8 landed builds and 3 hidden all-pass of 18 runs. One run per task is too few to read as a rate. This reports successes only, claims no rescue and claims no model is better."
     }
   ]
 }

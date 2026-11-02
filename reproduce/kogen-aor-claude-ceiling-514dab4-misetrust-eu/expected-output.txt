@@ -1,0 +1,38 @@
+this block: cells 6
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	1	1	1	1	1	1
+T2	1	1	1	1	0	0
+T3	1	0	0	0	0	0
+T4	1	1	1	1	0	0
+T5	1	0	0	0	0	0
+T6	1	0	0	0	0	0
+all	6	3	3	3	1	1
+pooled with the mise-trust two-hosts block (n=18): valid Intent 8, landed 8, hidden all-pass 3
+
+tokens: input 54213704 (cached 52475741), output 781296
+
+First mistake per cell: task first_mistake
+T1	none: landed, passed every hidden check; review approved first pass
+T2	build: landed, requested checks missed; review approved 0 blocking
+T3	shape: no Intent accepted within the 3600 s deadline (one step self-check refusal first: an observer's good control exited 1, recorded exit 0)
+T4	build: landed, requested checks missed; review approved 0 blocking
+T5	shape: refused 3 times (a path outside the allowed files, then a decision with no source, then the step self-check: an observer's good control exited 1, recorded exit 0)
+T6	shape: refused 3 times (a path outside the allowed files, then a decision with no source, then the step self-check: an observer's good control exited 1, recorded exit 0)
+
+Per cell: task outcome hidden requested input output wall_s
+T1	landed	8/8	5/5	6083931	92537	1429
+T2	landed	16/17	13/14	8618789	115656	1510
+T3	timeout	3/9	0/6	10982469	137632	3601
+T4	landed	10/11	7/8	5455810	103517	1642
+T5	refused	4/11	1/8	2751761	82177	764
+T6	refused	4/11	1/8	20320944	249777	3232
+
+Per task beside the other blocks: valid/build/landed/hidden-all-pass out of cells
+task	this block	mise-trust two hosts	first block (dd593dd3)	second block (r2)	third server, first setting (eu)
+T1	1/1/1/1 of 1	1/1/1/0 of 2	1/1/1/0 of 2	2/2/2/2 of 2	0/0/0/0 of 1
+T2	1/1/1/0 of 1	1/1/1/0 of 2	1/1/1/0 of 2	2/2/2/0 of 2	1/1/1/0 of 1
+T3	0/0/0/0 of 1	2/2/2/1 of 2	1/1/1/0 of 2	2/2/2/0 of 2	1/1/1/0 of 1
+T4	1/1/1/0 of 1	0/0/0/0 of 2	0/0/0/0 of 2	2/2/2/0 of 2	0/0/0/0 of 1
+T5	0/0/0/0 of 1	1/1/1/1 of 2	1/1/1/1 of 2	2/2/2/2 of 2	1/1/1/1 of 1
+T6	0/0/0/0 of 1	0/0/0/0 of 2	0/0/0/0 of 2	1/1/0/0 of 2	0/0/0/0 of 1
+all	3/3/3/1 of 6	5/5/5/2 of 12	4/4/4/1 of 12	11/11/10/4 of 12	3/3/3/1 of 6
