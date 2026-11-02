@@ -1,0 +1,56 @@
+rows 28: counted 20, voids Counter({'void_gate_timeout': 5, 'void_host_fault': 3})
+
+Follow-up runs only (extra Studio repetitions, reruns included)
+task	rows	counted	void	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	6	1	5	1	1	0	0	0
+T2	3	3	0	0	0	0	0	0
+T3	3	3	0	0	0	0	0	0
+T4	4	2	2	0	0	0	0	0
+T5	3	2	1	2	2	0	0	0
+T6	3	3	0	0	0	0	0	0
+all	22	14	8	3	3	0	0	0
+
+Studio block (first run + follow-up)
+task	rows	counted	void	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	7	2	5	2	2	0	0	0
+T2	4	4	0	1	1	1	0	0
+T3	4	4	0	0	0	0	0	0
+T4	5	3	2	1	1	1	0	0
+T5	4	3	1	2	2	0	0	0
+T6	4	4	0	0	0	0	0	0
+all	28	20	8	6	6	2	0	0
+
+outcomes of counted cells (follow-up): {'build_blocked': 1, 'build_deadline': 2, 'questions_pending': 7, 'refused': 4}
+outcomes of counted cells (Studio block): {'build_blocked': 2, 'build_deadline': 2, 'landed': 2, 'questions_pending': 10, 'refused': 4}
+
+tokens of the follow-up cells that reported them (18 of 22 rows): input 3417728, output 37618
+
+Per cell: task run rep status outcome hidden requested wall_s
+T1	first	1	counted	build_blocked	3/8	0/5	1248
+T1	st2	1	void_gate_timeout	void_gate_timeout	NA/8	NA/5	1405
+T1	st2	2	void_gate_timeout	void_gate_timeout	NA/8	NA/5	1393
+T1	st2	3	void_gate_timeout	void_gate_timeout	NA/8	NA/5	1452
+T1	st2-rerun	1	counted	build_deadline	3/8	0/5	3603
+T1	st2-rerun	2	void_gate_timeout	void_gate_timeout	NA/8	NA/5	1807
+T1	st2-rerun	3	void_host_fault	void_host_fault	NA/8	NA/5	NA
+T2	first	1	counted	landed	15/17	12/14	1731
+T2	st2	1	counted	refused	3/17	0/14	836
+T2	st2	2	counted	refused	3/17	0/14	671
+T2	st2	3	counted	questions_pending	3/17	0/14	575
+T3	first	1	counted	questions_pending	3/9	0/6	256
+T3	st2	1	counted	refused	3/9	0/6	449
+T3	st2	2	counted	questions_pending	3/9	0/6	368
+T3	st2	3	counted	refused	3/9	0/6	466
+T4	first	1	counted	landed	10/11	7/8	1070
+T4	st2	1	counted	questions_pending	10/11	7/8	336
+T4	st2	2	void_gate_timeout	void_gate_timeout	NA/11	NA/8	1153
+T4	st2	3	void_host_fault	void_host_fault	NA/11	NA/8	NA
+T4	st2-rerun	1	counted	questions_pending	10/11	7/8	403
+T5	first	1	counted	questions_pending	4/11	1/8	101
+T5	st2	1	counted	build_blocked	4/11	1/8	2189
+T5	st2	2	void_host_fault	void_host_fault	NA/11	NA/8	NA
+T5	st2	3	counted	build_deadline	4/11	1/8	3602
+T6	first	1	counted	questions_pending	4/11	1/8	50
+T6	st2	1	counted	questions_pending	4/11	1/8	313
+T6	st2	2	counted	questions_pending	4/11	1/8	190
+T6	st2	3	counted	questions_pending	4/11	1/8	99

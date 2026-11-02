@@ -1,0 +1,29 @@
+task	host	run	rep	status	outcome	valid_intent	reached_build	landed	hidden_passed	hidden_expected	hidden_all_pass	requested_passed	requested_total	first_mistake	input_tokens	cached_tokens	output_tokens	wall_s
+T1	Studio	first	1	counted	build_blocked	1	1	0	3	8	0	0	5	build: pass 1 acceptance failed, builder claim unproven (protected blocker)	815106	710400	7870	1248
+T1	Studio	st2	1	void_gate_timeout	void_gate_timeout	NA	NA	0	NA	8	NA	NA	5	void: the 120 s acceptance gate timed out at approval (Studio load)	192809	153216	3775	1405
+T1	Studio	st2	2	void_gate_timeout	void_gate_timeout	NA	NA	0	NA	8	NA	NA	5	void: the 120 s acceptance gate timed out at approval (Studio load)	203986	178688	5384	1393
+T1	Studio	st2	3	void_gate_timeout	void_gate_timeout	NA	NA	0	NA	8	NA	NA	5	void: the 120 s acceptance gate timed out at approval (Studio load)	200916	173184	4278	1452
+T1	Studio	st2-rerun	1	counted	build_deadline	1	1	0	3	8	0	0	5	build: 3600 s deadline reached, nothing landed	427620	346368	3490	3603
+T1	Studio	st2-rerun	2	void_gate_timeout	void_gate_timeout	NA	NA	0	NA	8	NA	NA	5	void: the 120 s acceptance gate timed out at approval (Studio load)	206052	167936	3129	1807
+T1	Studio	st2-rerun	3	void_host_fault	void_host_fault	NA	NA	0	NA	8	NA	NA	5	void: the cell's process disappeared and no result was written (host fault)	NA	NA	NA	NA
+T2	Studio	first	1	counted	landed	1	1	1	15	17	0	12	14	build: landed, requested checks missed; review approved 0 blocking	784222	668544	7306	1731
+T2	Studio	st2	1	counted	refused	0	0	0	3	17	0	0	14	shape: the shaper answered without calling a tool three times	291211	250880	1743	836
+T2	Studio	st2	2	counted	refused	0	0	0	3	17	0	0	14	shape: the shaper answered without calling a tool three times	310586	274048	1465	671
+T2	Studio	st2	3	counted	questions_pending	0	0	0	3	17	0	0	14	shape: questions left pending (no answerer)	146940	112640	939	575
+T3	Studio	first	1	counted	questions_pending	0	0	0	3	9	0	0	6	shape: questions left pending (no answerer)	189814	168832	952	256
+T3	Studio	st2	1	counted	refused	0	0	0	3	9	0	0	6	shape: the shaper's output was not a valid Intent after 3 attempts	166333	126976	1039	449
+T3	Studio	st2	2	counted	questions_pending	0	0	0	3	9	0	0	6	shape: questions left pending (no answerer)	90186	55808	593	368
+T3	Studio	st2	3	counted	refused	0	0	0	3	9	0	0	6	shape: the shaper's output was not a valid Intent after 3 attempts	172152	125696	956	466
+T4	Studio	first	1	counted	landed	1	1	1	10	11	0	7	8	build: landed, hidden result equals the start tree; review approved 0 blocking	604997	512896	5168	1070
+T4	Studio	st2	1	counted	questions_pending	0	0	0	10	11	0	7	8	shape: questions left pending (no answerer)	155915	133248	932	336
+T4	Studio	st2	2	void_gate_timeout	void_gate_timeout	NA	NA	0	NA	11	NA	NA	8	void: the 120 s acceptance gate timed out at approval (Studio load)	160642	138752	3050	1153
+T4	Studio	st2	3	void_host_fault	void_host_fault	NA	NA	0	NA	11	NA	NA	8	void: the cell's process disappeared and no result was written (host fault); rerun queued late and unfinished at the cut-off, not counted	NA	NA	NA	NA
+T4	Studio	st2-rerun	1	counted	questions_pending	0	0	0	10	11	0	7	8	shape: questions left pending (no answerer)	124165	109568	1022	403
+T5	Studio	first	1	counted	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	239041	205312	1307	101
+T5	Studio	st2	1	counted	build_blocked	1	1	0	4	11	0	1	8	build: pass 1 acceptance failed, builder claim unproven (protected blocker)	362471	299264	3651	2189
+T5	Studio	st2	2	void_host_fault	void_host_fault	NA	NA	0	NA	11	NA	NA	8	void: the cell's process disappeared and no result was written (host fault); rerun queued late and unfinished at the cut-off, not counted	NA	NA	NA	NA
+T5	Studio	st2	3	counted	build_deadline	1	1	0	4	11	0	1	8	build: 3600 s deadline reached, nothing landed	NA	NA	NA	3602
+T6	Studio	first	1	counted	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	86902	60928	759	50
+T6	Studio	st2	1	counted	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	82194	61056	760	313
+T6	Studio	st2	2	counted	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	63289	33408	629	190
+T6	Studio	st2	3	counted	questions_pending	0	0	0	4	11	0	1	8	shape: questions left pending (no answerer)	60261	49280	783	99
