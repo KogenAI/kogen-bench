@@ -654,6 +654,15 @@
       "verdict": "no",
       "finished": "2026-11-02",
       "summary": "We ran Kogen's current main twice per task, once as released and once with the opening request to its builder also carrying the contents of every small file in a small repository, same model and effort on both sides. Across 11 Go tasks and 66 paired runs, the builder's reading steps before its first edit went from 70 to 0 and build requests per run fell from 4.4 to 3.7 (lower in 44 pairs, higher in 8), with no new kind of failure. But hidden-test passes were 57 of 66 against 58 for Kogen as released, with 3 wins and 4 losses for the change, and three of the four losses were one task, where the same hidden test failed in all six runs with the snapshot and in three of six without it (too few runs to tell that from chance). Tokens per run rose about 3%, because the snapshot is carried in every build request, and wall time did not clearly change. Hidden passes are the main measure and the only task that moved went the wrong way, so Kogen's builder does not take this change. The same idea inside kogen-loop's own session, which Kogen's builder does not use, is a separate result."
+    },
+    {
+      "id": "kogen-shaper-opus-claude-code-partial",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's shaper on Claude Opus 5.5 through Claude Code could not be judged: the test stopped after 47 pairs ran with both arms, too few to tell",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We ran Kogen with its shaper (the step that writes the Intent and the acceptance tests) on Claude Opus 5.5 at high effort through Claude Code, and compared it with Kogen's default shaper (gpt-6.1-terra, medium effort), same build and review models, on 13 Go tasks. The test stopped early: the Claude seat hit its usage limit, and the hill climb then moved to another target. Only 47 pairs ran with both arms (34 on a busy Mac Studio, 13 on three quiet Linux servers) out of the 130 the sizing called for. Hidden passes were 15 against 14 of 34 on the Studio (8 wins, 7 losses) and 10 against 9 of 13 on the Linux servers (1 win, 0 losses), which cannot separate the two. Six Opus cells that ended on the seat limit are left out together with their pairs. Where the Opus shaper ran on quiet servers it landed 13 of 13 cells with no refusals, and nearly all of its roughly ten minutes of shaping was model time, not commands. On the busy Studio the same cells spent far more time in commands and 10 of 11 timeouts were at high load. The default shaper's refusals at its example check (10 Studio cells, 2 Linux cells) were the one shaping difference, and four of the six pairs it explains are one task that did not repeat on Linux. The two arms differ in model and in executor, so only success is compared, not speed or cost."
     }
   ]
 }

@@ -1,0 +1,90 @@
+
+== cohort studio: planned 78 pairs; {'censored (seat limit)': 6, 'g0 only': 29, 'g1 only': 1, 'not started': 8, 'paired': 34}
+all paired: 34 pairs; hidden pass g0 14 g1 15; g1 wins 8 losses 7 net 1 exact two-sided sign p 1.00; valid Intent g0 19 g1 28; acceptance separating g0 10 g1 13
+   discordant by class (a shape stage, b build, c review, d infrastructure, e unclear): {'a-win': 6, 'd-loss': 6, 'd-win': 1, 'e-loss': 1, 'e-win': 1}
+paired, load1 mean < 40 and no acceptance-120 s outcome in either cell: 13 pairs; hidden pass g0 6 g1 9; g1 wins 4 losses 1 net 3 exact two-sided sign p 0.38; valid Intent g0 9 g1 13; acceptance separating g0 4 g1 8
+   discordant by class (a shape stage, b build, c review, d infrastructure, e unclear): {'a-win': 3, 'd-loss': 1, 'e-win': 1}
+paired, infra-confounded (a cell at load1 >= 40 or set by the 120 s limit): 21 pairs; hidden pass g0 8 g1 6; g1 wins 4 losses 6 net -2 exact two-sided sign p 0.75; valid Intent g0 10 g1 15; acceptance separating g0 6 g1 5
+   discordant by class (a shape stage, b build, c review, d infrastructure, e unclear): {'a-win': 3, 'd-loss': 5, 'd-win': 1, 'e-loss': 1}
+paired, no cell outcome set by the 120 s acceptance limit: 26 pairs; hidden pass g0 13 g1 14; g1 wins 7 losses 6 net 1 exact two-sided sign p 1.00; valid Intent g0 18 g1 24; acceptance separating g0 10 g1 11
+   discordant by class (a shape stage, b build, c review, d infrastructure, e unclear): {'a-win': 6, 'd-loss': 5, 'e-loss': 1, 'e-win': 1}
+   refusal / non-landing causes per arm (all started cells with a result, excluding censored):
+      g0 {'landed': 38, 'refused: acceptance 120 s limit': 12, 'refused: example_check': 10, 'build_blocked: intent': 1, 'refused: step_selfcheck': 1, 'timeout: acceptance 120 s limit': 1}
+      g1 {'landed': 23, 'timeout: acceptance 120 s limit': 5, 'timeout (3600 s), intent refusal earlier': 2, 'timeout (3600 s), no refusal recorded': 2, 'timeout (3600 s), validation refusal earlier': 2, 'internal: intent': 1}
+      g0: cells 63, valid Intent 39, acceptance separating 15, hidden pass 34
+      g1: cells 35, valid Intent 29, acceptance separating 14, hidden pass 16
+   censored pairs (both arms excluded): [('shop-st-r14', 'T07'), ('shop-st-r14', 'T09'), ('shop-st-r15', 'T12'), ('shop-st-r16', 'T12'), ('shop-st-r17', 'T03'), ('shop-st-r17', 'T12')]
+   g0 only: 29 pairs; [('r15', 'T05'), ('r15', 'T06'), ('r15', 'T07'), ('r15', 'T08'), ('r15', 'T09'), ('r15', 'T10'), ('r15', 'T11'), ('r16', 'T05'), ('r16', 'T06'), ('r16', 'T07'), ('r16', 'T08'), ('r16', 'T09'), ('r16', 'T10'), ('r16', 'T11'), ('r17', 'T05'), ('r17', 'T06'), ('r17', 'T07'), ('r17', 'T08'), ('r17', 'T09'), ('r17', 'T10'), ('r17', 'T11'), ('r18', 'T05'), ('r18', 'T06'), ('r18', 'T07'), ('r18', 'T08'), ('r18', 'T09'), ('r18', 'T10'), ('r18', 'T11'), ('r18', 'T12')]
+   g1 only: 1 pairs; [('r18', 'T02')]
+   unfinished (started, no result): 0 pairs; []
+   not started: 8 pairs
+   per task (paired): task, valid Intent g0/g1, acceptance separating g0/g1, hidden g0/g1, wins, losses, pairs
+     T02	3/3	0/3	3/1	1	3	4
+     T03	3/5	2/0	0/0	0	0	5
+     T04	2/6	2/2	2/6	4	0	6
+     T05	1/1	1/1	1/1	0	0	2
+     T06	1/1	0/1	1/0	0	1	2
+     T07	0/1	0/0	0/1	1	0	1
+     T08	0/0	0/0	0/0	0	0	2
+     T09	0/1	0/1	0/1	1	0	1
+     T10	2/2	0/0	2/2	0	0	2
+     T11	2/2	2/2	2/1	0	1	2
+     T12	2/2	0/2	1/2	1	0	2
+     T13	3/4	3/1	2/0	0	2	5
+   discordant pairs: run, task, g0 hidden, g1 hidden, change, class
+     shop-st-r14	T02	1	0	loss	d
+     shop-st-r14	T04	0	1	win	a
+     shop-st-r14	T06	1	0	loss	d
+     shop-st-r14	T11	1	0	loss	d
+     shop-st-r14	T12	0	1	win	e
+     shop-st-r15	T02	1	0	loss	d
+     shop-st-r15	T13	1	0	loss	e
+     shop-st-r16	T02	1	0	loss	d
+     shop-st-r16	T04	0	1	win	a
+     shop-st-r17	T02	0	1	win	d
+     shop-st-r17	T04	0	1	win	a
+     shop-st-r18	T04	0	1	win	a
+     shop-st-r18	T13	1	0	loss	d
+     shop-st-r19	T07	0	1	win	a
+     shop-st-r19	T09	0	1	win	a
+   g1 time per cell (seconds, from Claude Code transcripts; model time sums request gaps and can exceed shape wall when the example-check session ran in parallel):
+      load1 < 40, landed: 14 cells; median wall 1548, shape wall 1062, model 858, commands 199 (longest single command median 50), Kogen-side 66, readiness acceptance runs 56
+      load1 < 40, timeout: 1 cells; median wall 3602, shape wall 3570, model 2727, commands 1175 (longest single command median 147), Kogen-side 168, readiness acceptance runs 433
+      load1 < 40, other: 1 cells; median wall 2138, shape wall 1714, model 1297, commands 428 (longest single command median 123), Kogen-side 217, readiness acceptance runs 166
+      load1 >= 40, landed: 9 cells; median wall 2580, shape wall 2034, model 1068, commands 674 (longest single command median 128), Kogen-side 175, readiness acceptance runs 102
+      load1 >= 40, timeout: 10 cells; median wall 3608, shape wall 3602, model 1726, commands 1438 (longest single command median 321), Kogen-side 282, readiness acceptance runs 0
+      load1 >= 40, other 0 cells
+   descriptive only (different model and executor between arms; no speed or cost-efficiency claim):
+      g0 cell wall: n 63, median 1070 s, max 3605 s
+      g1 cell wall: n 35, median 2422 s, max 3621 s
+      g1 shape stage, Claude Code API-equivalent estimate (seat, not billed): 35 cells, median 2.78 USD, total 102.6 USD
+
+== cohort linux: planned 78 pairs; {'g0 only': 7, 'not started': 53, 'paired': 13, 'unfinished (started, no result)': 5}
+all paired: 13 pairs; hidden pass g0 9 g1 10; g1 wins 1 losses 0 net 1 exact two-sided sign p 1.00; valid Intent g0 11 g1 13; acceptance separating g0 7 g1 3
+   discordant by class (a shape stage, b build, c review, d infrastructure, e unclear): {'a-win': 1}
+   cells with an acceptance 120 s outcome in this cohort: 0
+   refusal / non-landing causes per arm (all started cells with a result, excluding censored):
+      g0 {'landed': 15, 'refused: example_check': 2, 'refused: intent': 2, 'refused: step_selfcheck': 1}
+      g1 {'landed': 13}
+      g0: cells 20, valid Intent 15, acceptance separating 9, hidden pass 12
+      g1: cells 13, valid Intent 13, acceptance separating 3, hidden pass 10
+   censored pairs (both arms excluded): []
+   g0 only: 7 pairs; [('eu-r1', 'T08'), ('eu-r1', 'T11'), ('eu-r1', 'T12'), ('eu2-r1', 'T03'), ('eu2-r1', 'T08'), ('eu2-r1', 'T11'), ('eu2-r1', 'T12')]
+   g1 only: 0 pairs; []
+   unfinished (started, no result): 5 pairs; [('eu-r1', 'T05'), ('eu-r1', 'T06'), ('eu2-r1', 'T05'), ('eu2-r1', 'T06'), ('lm-r1', 'T03')]
+   not started: 53 pairs
+   per task (paired): task, valid Intent g0/g1, acceptance separating g0/g1, hidden g0/g1, wins, losses, pairs
+     T01	3/3	2/0	3/3	0	0	3
+     T02	2/3	0/2	2/3	1	0	3
+     T03	1/1	1/0	1/1	0	0	1
+     T04	3/3	3/0	3/3	0	0	3
+     T13	2/3	1/1	0/0	0	0	3
+   discordant pairs: run, task, g0 hidden, g1 hidden, change, class
+     shop-lx-eu-r1	T02	0	1	win	a
+   g1 time per cell (seconds, from Claude Code transcripts; model time sums request gaps and can exceed shape wall when the example-check session ran in parallel):
+      landed: 13 cells; median wall 668, shape wall 574, model 665, commands 13 (longest single command median 3), Kogen-side 3, readiness acceptance runs 2
+      other 0 cells
+   descriptive only (different model and executor between arms; no speed or cost-efficiency claim):
+      g0 cell wall: n 20, median 162 s, max 188 s
+      g1 cell wall: n 13, median 668 s, max 1081 s
+      g1 shape stage, Claude Code API-equivalent estimate (seat, not billed): 13 cells, median 2.46 USD, total 35.1 USD
