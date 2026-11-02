@@ -699,6 +699,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "This adds a third server to the earlier Claude Opus 5.5 check of Kogen as it is today (514dab4, no patch): the same six Rails tasks, given only the request text, with Claude Opus 5.5 at high effort for every step, one run per task. Three of the six runs wrote a valid intent, all three landed a build, and one passed every hidden check. Two were refused at shaping after three tries, because a check the shaper had written failed when Kogen re-ran it, and one stopped when the shaper asked three questions and nobody answered, which had not happened in the first 12 runs. Pooled over all 18 runs, 7 wrote a valid intent, all 7 landed, and 2 passed every hidden check, both on the same task. In the runs where the cause was logged, Kogen ran the shaper's check in a temporary copy of the project where the version manager did not trust the project's config file, a Kogen defect and not a model result. With one to three runs per task and a 18 to 27 % chance that a rerun flips a result, this lists results only and claims no model is better."
+    },
+    {
+      "id": "kogen-shape-data-stores-816b0b0-st2",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's data-stores change was refused at shaping again on a third machine: 0 of 8 valid intents pooled, against 8 of 8 for the build before it",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "This follows up our first test of Kogen's data-stores change (816b0b0, which asks the shaper to find every store keyed by an entity's id and scope it or record a sourced decision) against the build one commit earlier (514dab4): same model (gpt-6.1-terra, medium effort) for every role, no patch, the account-cleanup task built for the change. On a third machine the new build was refused at shaping in all 6 runs because the shaper answered without calling any tool three times, while the earlier build wrote a valid intent in all 4 clean pairs. Two more pairs had to be rerun because the earlier build's acceptance check timed out on a loaded machine; that was a machine fault, not a result. Pooled with the first test that is 0 of 8 valid intents for the new build against 8 of 8 (one-sided paired sign test p = 0.0039). The store scan still never ran, so whether the change makes the shaper cover the missed stores is unresolved; one landed build could not be graded because a clean-up job deleted its saved files first. The change has since been reverted, so this is history for the planned re-land, which will be measured the same way."
     }
   ]
 }

@@ -1,0 +1,50 @@
+pairs 10: clean 8, void (first-arm gate timeout) 2
+
+first pack (eu2, laptop): clean pairs 4
+  valid Intent g0 4/4, g1 0/4
+  g0 outcomes: {'build_blocked': 1, 'landed': 3}
+  g1 outcomes (every g1 cell, voided pairs included): {'refused': 4}
+  hidden all-pass g0 0/4 graded (not graded 0), g1 0/4
+  pairs where g0 had a valid Intent and g1 did not: 4 of 4; one-sided exact sign p = 0.0625
+
+Studio, first run: clean pairs 2
+  valid Intent g0 2/2, g1 0/2
+  g0 outcomes: {'build_blocked': 1, 'landed': 1, 'void_gate_timeout': 2}
+  g1 outcomes (every g1 cell, voided pairs included): {'refused': 4}
+  hidden all-pass g0 0/1 graded (not graded 1), g1 0/2
+  pairs where g0 had a valid Intent and g1 did not: 2 of 2; one-sided exact sign p = 0.2500
+
+Studio, rerun of the two voids: clean pairs 2
+  valid Intent g0 2/2, g1 0/2
+  g0 outcomes: {'build_blocked': 1, 'build_deadline': 1}
+  g1 outcomes (every g1 cell, voided pairs included): {'refused': 2}
+  hidden all-pass g0 0/2 graded (not graded 0), g1 0/2
+  pairs where g0 had a valid Intent and g1 did not: 2 of 2; one-sided exact sign p = 0.2500
+
+Studio, all: clean pairs 4
+  valid Intent g0 4/4, g1 0/4
+  g0 outcomes: {'build_blocked': 2, 'build_deadline': 1, 'landed': 1, 'void_gate_timeout': 2}
+  g1 outcomes (every g1 cell, voided pairs included): {'refused': 6}
+  hidden all-pass g0 0/3 graded (not graded 1), g1 0/4
+  pairs where g0 had a valid Intent and g1 did not: 4 of 4; one-sided exact sign p = 0.0625
+
+pooled (all hosts): clean pairs 8
+  valid Intent g0 8/8, g1 0/8
+  g0 outcomes: {'build_blocked': 3, 'build_deadline': 1, 'landed': 4, 'void_gate_timeout': 2}
+  g1 outcomes (every g1 cell, voided pairs included): {'refused': 10}
+  hidden all-pass g0 0/7 graded (not graded 1), g1 0/8
+  pairs where g0 had a valid Intent and g1 did not: 8 of 8; one-sided exact sign p = 0.0039
+
+Per pair: pair status g0_outcome g1_outcome g0_hidden g1_hidden (of expected) g0_requested g1_requested
+eu2-r1	clean	landed	refused	5	3/8	2	0
+eu2-r2	clean	landed	refused	7	3/8	4	0
+laptop-r1	clean	build_blocked	refused	3	3/8	0	0
+laptop-r2	clean	landed	refused	5	3/8	2	0
+Studio-st2-r1	void_g0_gate_timeout	void_gate_timeout	refused	NA	3/8	NA	0
+Studio-st2-r2	void_g0_gate_timeout	void_gate_timeout	refused	NA	3/8	NA	0
+Studio-st2-r3	clean	build_blocked	refused	3	3/8	0	0
+Studio-st2-r4	clean	landed	refused	NA	3/8	NA	0
+Studio-st2-rerun-r1	clean	build_blocked	refused	3	3/8	0	0
+Studio-st2-rerun-r2	clean	build_deadline	refused	3	3/8	0	0
+
+Studio input tokens (every cell, voids included): g0 4058329, g1 1000355
