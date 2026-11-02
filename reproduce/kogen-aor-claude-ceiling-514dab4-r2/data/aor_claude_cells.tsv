@@ -1,0 +1,13 @@
+task	host	outcome	valid_intent	reached_build	landed	hidden_passed	hidden_expected	hidden_all_pass	requested_passed	requested_total	first_mistake	input_tokens	cached_tokens	output_tokens	wall_s
+T1	H1	landed	1	1	1	8	8	1	5	5	none: landed, passed every hidden check; review approved first pass	5586172	5307515	82632	1074
+T1	H2	landed	1	1	1	8	8	1	5	5	none: landed, passed every hidden check; review approved first pass	8239991	7884788	122455	1861
+T2	H1	landed	1	1	1	16	17	0	13	14	build: landed, requested checks missed; review approved first pass	7711738	7287757	159324	1958
+T2	H2	landed	1	1	1	15	17	0	12	14	build: landed, requested checks missed; review approved first pass	12320568	11828348	183502	2146
+T3	H1	landed	1	1	1	8	9	0	5	6	build: landed, requested checks missed; review approved first pass	7796583	7418829	112788	1608
+T3	H2	landed	1	1	1	8	9	0	6	6	build: landed, a regression check missed; review approved first pass	11007363	10608125	125681	2104
+T4	H1	landed	1	1	1	10	11	0	7	8	build: landed, requested checks missed; review approved first pass	5778254	5532433	89228	1764
+T4	H2	landed	1	1	1	10	11	0	7	8	build: landed, requested checks missed; review approved first pass	2488712	2305685	42723	1154
+T5	H1	landed	1	1	1	11	11	1	8	8	none: landed, passed every hidden check; review approved first pass	2591282	2353390	67067	774
+T5	H2	landed	1	1	1	11	11	1	8	8	none: landed, passed every hidden check; review approved first pass	4643586	4351250	106717	1395
+T6	H1	timeout	1	1	0	4	11	0	1	8	build: 3600 s deadline reached (shape used 3018 s of it); requested checks missed	0	0	0	3601
+T6	H2	refused	0	0	0	4	11	0	1	8	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	9042275	8784058	153291	2085

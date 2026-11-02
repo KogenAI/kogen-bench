@@ -1,0 +1,55 @@
+second block (r2): cells 12, H1 6, H2 6
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	2	2	2	2	2	2
+T2	2	2	2	2	0	0
+T3	2	2	2	2	0	1
+T4	2	2	2	2	0	0
+T5	2	2	2	2	2	2
+T6	2	1	1	0	0	0
+all	12	11	11	10	4	5
+outcomes: {'landed': 10, 'refused': 1, 'timeout': 1}
+
+H1: valid Intent 6/6, landed 5, hidden all-pass 2
+H2: valid Intent 5/6, landed 5, hidden all-pass 2
+
+tokens: input 77206524 (cached 73662178), output 1245408 (the timed-out cell has no token totals and counts 0)
+
+First mistake per cell: task host first_mistake
+T1	H1	none: landed, passed every hidden check; review approved first pass
+T1	H2	none: landed, passed every hidden check; review approved first pass
+T2	H1	build: landed, requested checks missed; review approved first pass
+T2	H2	build: landed, requested checks missed; review approved first pass
+T3	H1	build: landed, requested checks missed; review approved first pass
+T3	H2	build: landed, a regression check missed; review approved first pass
+T4	H1	build: landed, requested checks missed; review approved first pass
+T4	H2	build: landed, requested checks missed; review approved first pass
+T5	H1	none: landed, passed every hidden check; review approved first pass
+T5	H2	none: landed, passed every hidden check; review approved first pass
+T6	H1	build: 3600 s deadline reached (shape used 3018 s of it); requested checks missed
+T6	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+
+Per cell: task host hidden requested input output wall_s
+T1	H1	8/8	5/5	5586172	82632	1074
+T1	H2	8/8	5/5	8239991	122455	1861
+T2	H1	16/17	13/14	7711738	159324	1958
+T2	H2	15/17	12/14	12320568	183502	2146
+T3	H1	8/9	5/6	7796583	112788	1608
+T3	H2	8/9	6/6	11007363	125681	2104
+T4	H1	10/11	7/8	5778254	89228	1764
+T4	H2	10/11	7/8	2488712	42723	1154
+T5	H1	11/11	8/8	2591282	67067	774
+T5	H2	11/11	8/8	4643586	106717	1395
+T6	H1	4/11	1/8	0	0	3601
+T6	H2	4/11	1/8	9042275	153291	2085
+
+pooled with the first block (dd593dd3), two hosts, EU's separate run not included: cells 24, H1 12, H2 12
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	4	3	3	3	2	2
+T2	4	3	3	3	0	0
+T3	4	3	3	3	0	1
+T4	4	2	2	2	0	0
+T5	4	3	3	3	3	3
+T6	4	1	1	0	0	0
+all	24	15	15	14	5	6
+outcomes: {'landed': 14, 'refused': 9, 'timeout': 1}
+

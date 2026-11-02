@@ -717,6 +717,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "This adds more runs to our baseline of Kogen as it is today (514dab4, no patch) on six Rails tasks, given only the request text, with gpt-6.1-terra at medium effort for every step, all on one Mac. We planned three more runs per task; 14 of the 18 gave a result. Three wrote a valid intent, all three reached a build, none landed, and none passed every hidden check; seven stopped to ask questions nobody answered and four were refused at shaping. Eight runs were machine faults, not results: five were refused because a fixed 120-second acceptance check timed out while the machine was heavily loaded, and three lost their process. The four timeouts of the first batch were rerun once with mixed luck, and two late reruns had not finished at the cut-off. With the earlier runs on the same machine, the six tasks have 20 results: 6 valid intents, 2 landed builds, no full pass. With four runs per task and an 18 to 27 % chance that a rerun flips a result, a per-task rate means little yet; this is the comparison base for later shaping changes on the same machine."
+    },
+    {
+      "id": "kogen-aor-claude-ceiling-514dab4-r2",
+      "category": "categories/harness-levers.md",
+      "title": "A second block of Kogen on Claude Opus 5.5 passed every hidden check in 4 of 12 runs on six Rails tasks, and 11 of 12 wrote a valid intent",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We repeated the Claude Opus 5.5 check on Kogen as it is today (514dab4, no patch): the same six Rails tasks, given only the request text, one run per task on each of two servers, with Claude Opus 5.5 at high effort through Claude Code for every step. Eleven of the 12 runs wrote a valid intent and 10 landed a build; four passed every hidden check, both runs of two tasks. Of the other two, one was refused at shaping and one ran out of its 3600 second limit in the build. Review approved all 10 landed builds. Together with the first block of 12 this makes 24 runs: 15 valid intents, 14 landed builds and 5 full hidden passes, all on two of the six tasks. The first block lost 8 runs to shaping refusals caused by a Kogen test-run setup problem; this block lost 1, and we do not know why the rate fell. With two runs per task per block and an 18 to 27 % chance that a rerun flips a result, this reports successes only and claims no model is better."
     }
   ]
 }
