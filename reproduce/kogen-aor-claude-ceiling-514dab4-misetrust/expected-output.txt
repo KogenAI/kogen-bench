@@ -1,0 +1,52 @@
+this block: cells 12, H1 6, H2 6
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	2	1	1	1	0	0
+T2	2	1	1	1	0	0
+T3	2	2	2	2	1	1
+T4	2	0	0	0	0	0
+T5	2	1	1	1	1	1
+T6	2	0	0	0	0	0
+all	12	5	5	5	2	2
+outcomes: {'landed': 5, 'refused': 7}
+H1: valid Intent 3/6, landed 3, hidden all-pass 1
+H2: valid Intent 2/6, landed 2, hidden all-pass 1
+
+tokens: input 76904493 (cached 73875310), output 1330800
+
+First mistake per cell: task host first_mistake
+T1	H1	build: landed, requested checks missed; review approved 0 blocking
+T1	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H1	build: landed, requested checks missed; review approved 0 blocking
+T2	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T3	H1	none: landed, passed every hidden check; review approved first pass
+T3	H2	build: landed, requested checks missed; review approved 0 blocking
+T4	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T4	H2	shape: refused 3 times; an observer's good control failed on replay (exit 1, recorded exit 0) at the second, then the 120 s acceptance readiness check timed out at the third
+T5	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T5	H2	none: landed, passed every hidden check; review approved first pass
+T6	H1	shape: refused 3 times; last refusal: step files failed to load (exit status 2) and an observer's good control exited 3, recorded 0
+T6	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+
+Per cell: task host hidden requested input output wall_s
+T1	H1	6/8	3/5	5225869	88900	1067
+T1	H2	3/8	0/5	3061880	72226	899
+T2	H1	16/17	13/14	13852733	186527	2063
+T2	H2	3/17	0/14	4361640	104237	1141
+T3	H1	9/9	6/6	6804572	90832	1321
+T3	H2	8/9	5/6	6917554	96658	1914
+T4	H1	10/11	7/8	7458480	113119	2446
+T4	H2	10/11	7/8	4622358	78914	2267
+T5	H1	4/11	1/8	4112000	105023	1076
+T5	H2	11/11	8/8	5345113	103637	1496
+T6	H1	4/11	1/8	3792876	101883	1065
+T6	H2	4/11	1/8	11349418	188844	2573
+
+Per task beside the earlier blocks: valid/build/landed/hidden-all-pass out of cells
+task	this block	first block (dd593dd3)	second block (r2)	third server (eu)
+T1	1/1/1/0 of 2	1/1/1/0 of 2	2/2/2/2 of 2	0/0/0/0 of 1
+T2	1/1/1/0 of 2	1/1/1/0 of 2	2/2/2/0 of 2	1/1/1/0 of 1
+T3	2/2/2/1 of 2	1/1/1/0 of 2	2/2/2/0 of 2	1/1/1/0 of 1
+T4	0/0/0/0 of 2	0/0/0/0 of 2	2/2/2/0 of 2	0/0/0/0 of 1
+T5	1/1/1/1 of 2	1/1/1/1 of 2	2/2/2/2 of 2	1/1/1/1 of 1
+T6	0/0/0/0 of 2	0/0/0/0 of 2	1/1/0/0 of 2	0/0/0/0 of 1
+all	5/5/5/2 of 12	4/4/4/1 of 12	11/11/10/4 of 12	3/3/3/1 of 6

@@ -1,0 +1,13 @@
+task	host	outcome	valid_intent	reached_build	landed	hidden_passed	hidden_expected	hidden_all_pass	requested_passed	requested_total	first_mistake	input_tokens	cached_tokens	output_tokens	wall_s
+T1	H1	landed	1	1	1	6	8	0	3	5	build: landed, requested checks missed; review approved 0 blocking	5225869	4927717	88900	1067
+T1	H2	refused	0	0	0	3	8	0	0	5	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	3061880	2944562	72226	899
+T2	H1	landed	1	1	1	16	17	0	13	14	build: landed, requested checks missed; review approved 0 blocking	13852733	13346648	186527	2063
+T2	H2	refused	0	0	0	3	17	0	0	14	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	4361640	4184390	104237	1141
+T3	H1	landed	1	1	1	9	9	1	6	6	none: landed, passed every hidden check; review approved first pass	6804572	6471377	90832	1321
+T3	H2	landed	1	1	1	8	9	0	5	6	build: landed, requested checks missed; review approved 0 blocking	6917554	6578161	96658	1914
+T4	H1	refused	0	0	0	10	11	0	7	8	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	7458480	7282490	113119	2446
+T4	H2	refused	0	0	0	10	11	0	7	8	shape: refused 3 times; an observer's good control failed on replay (exit 1, recorded exit 0) at the second, then the 120 s acceptance readiness check timed out at the third	4622358	4488795	78914	2267
+T5	H1	refused	0	0	0	4	11	0	1	8	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	4112000	3942330	105023	1076
+T5	H2	landed	1	1	1	11	11	1	8	8	none: landed, passed every hidden check; review approved first pass	5345113	5044401	103637	1496
+T6	H1	refused	0	0	0	4	11	0	1	8	shape: refused 3 times; last refusal: step files failed to load (exit status 2) and an observer's good control exited 3, recorded 0	3792876	3624884	101883	1065
+T6	H2	refused	0	0	0	4	11	0	1	8	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)	11349418	11039555	188844	2573
