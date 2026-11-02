@@ -166,3 +166,7 @@ Kogen's data-stores change (`816b0b0`, one commit after `514dab4`) asks the shap
 ## Kogen AoR control on six Rails tasks (2 Nov 2026)
 
 Current Kogen (`514dab4`, no patch) given only the request text of six Rails AoR tasks, gpt-6.1-terra at medium effort for every role, one run per task on each of three servers (18 runs): 8 shaped a valid intent, 5 landed a build and 1 passed every hidden check. Seven stopped at unanswered questions, three were refused at shaping and three builds were blocked; review approved all four landed builds that missed hidden checks. A baseline for later shaping changes, not a comparison. See [kogen-aor-control-514dab4](../reproduce/kogen-aor-control-514dab4/README.md).
+
+## Kogen AoR ceiling check on Claude Opus 5.5 (2 Nov 2026)
+
+Current Kogen (`514dab4`, no patch) on the same six Rails AoR tasks as the control, given only the request text, with claude-opus-5-5 at high effort through Claude Code for every role, one run per task on each of two servers (12 runs): 4 shaped a valid intent, all 4 landed a build and 1 passed every hidden check. The other 8 were refused at shaping after three tries, the last refusal each time an observer whose good control failed when Kogen re-ran it. Review approved all four landed builds, including the three that missed requested checks. A ceiling check beside the gpt-6.1-terra control, successes only, not a model comparison. See [kogen-aor-claude-ceiling-514dab4](../reproduce/kogen-aor-claude-ceiling-514dab4/README.md).

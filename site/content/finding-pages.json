@@ -681,6 +681,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We ran Kogen as it is today (514dab4, no patch) on six Rails tasks, given only the request text, with gpt-6.1-terra at medium effort for every step: three runs per task, one on each of three servers. Eight of the 18 runs wrote a valid intent, five landed a build, and one passed every hidden check. Seven stopped to ask questions nobody answered, three were refused at shaping (the shaper answered without calling a tool three times), and three builds were blocked after the first acceptance pass failed. Two tasks never reached a build in any of their three runs. Where a build landed, review approved it every time, including the four that missed hidden checks. This is the baseline for later shaping changes, not a comparison: with three runs per task and a 18 to 27 % chance that a rerun flips a result, a per-task rate means little yet. More Studio runs are queued as a follow-up."
+    },
+    {
+      "id": "kogen-aor-claude-ceiling-514dab4",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen on Claude Opus 5.5 passed every hidden check in 1 of 12 runs on six Rails tasks, and every valid intent it shaped landed",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We ran Kogen as it is today (514dab4, no patch) on the same six Rails tasks as the gpt-6.1-terra control, given only the request text, with Claude Opus 5.5 at high effort through Claude Code for every step: two runs per task, one on each of two servers. Four of the 12 runs wrote a valid intent, all four landed a build, and one passed every hidden check. The other eight were refused at shaping after three tries, each time because a check the shaper had written failed when Kogen re-ran it on the shaper's own example of a correct result. Review approved all four landed builds, including the three that missed hidden checks. Beside the control, this cohort passed every hidden check on a task the control never did and landed a task where the control never wrote a valid intent, while the control reached a full pass on a different task. With two runs per task and a 18 to 27 % chance that a rerun flips a result, this lists successes only and claims no model is better."
     }
   ]
 }

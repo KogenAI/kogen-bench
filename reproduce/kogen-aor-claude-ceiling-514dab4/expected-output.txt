@@ -1,0 +1,44 @@
+cells 12: H1 6, H2 6
+
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	2	1	1	1	0	0
+T2	2	1	1	1	0	0
+T3	2	1	1	1	0	0
+T4	2	0	0	0	0	0
+T5	2	1	1	1	1	1
+T6	2	0	0	0	0	0
+all	12	4	4	4	1	1
+
+outcomes: {'landed': 4, 'refused': 8}
+H1: valid Intent 3/6, landed 3, hidden all-pass 1
+H2: valid Intent 1/6, landed 1, hidden all-pass 0
+
+tokens: input 59684398 (cached 57139573), output 1126305
+
+First mistake per cell: task host first_mistake
+T1	H1	build: landed, requested checks missed; review approved 0 blocking
+T1	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T2	H2	build: landed, requested checks missed; review approved 0 blocking
+T3	H1	build: landed, requested checks missed; review approved 0 blocking
+T3	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T4	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T4	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T5	H1	none
+T5	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T6	H1	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+T6	H2	shape: refused 3 times; last refusal: an observer's good control failed on replay (exit 1, recorded exit 0)
+
+Per cell: task host hidden requested input output wall_s
+T1	H1	6/8	3/5	5956789	106230	1294
+T1	H2	3/8	0/5	2894670	73447	889
+T2	H1	3/17	0/14	7414382	121460	1664
+T2	H2	16/17	13/14	7706337	100397	1454
+T3	H1	8/9	5/6	7183835	113420	1668
+T3	H2	3/9	0/6	2047323	67031	701
+T4	H1	10/11	7/8	4179415	86113	1122
+T4	H2	10/11	7/8	4834164	80980	2164
+T5	H1	11/11	8/8	2634622	64858	781
+T5	H2	4/11	1/8	2701747	94975	941
+T6	H1	4/11	1/8	7297454	132310	1319
+T6	H2	4/11	1/8	4833660	85084	1027
