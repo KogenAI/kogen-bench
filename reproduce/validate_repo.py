@@ -188,6 +188,7 @@ RACE6_SYNTHETIC_ENDPOINT_ALLOWLIST={
     for path in ('harness/checks.py','harness/kg-wrap.py','harness/mode-env.sh','harness/score-arm.sh','results/AUDIT-SUMMARY.md')
 }
 LOOPBACK_LITERAL_ALLOWLIST={
+    ('reproduce/loop-workspace-snapshot-166ec7f-eu/patches/wmap.diff', 'IPv4 address'): [re.compile(r'127\.0\.0\.1')],
     ('reproduce/RERUN.md','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
     ('reproduce/egress-bridge.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],
     ('reproduce/test_egress_proxy.py','IPv4 address'): [re.compile(r'127\.0\.0\.1')],

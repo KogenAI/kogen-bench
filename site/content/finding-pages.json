@@ -627,6 +627,15 @@
       "verdict": "no",
       "finished": "2026-11-02",
       "summary": "We ran Kogen's current main twice per task, once as released and once with its loop changed so a new shell command waits up to 45 seconds for the result instead of 1 second before handing back a handle, same model and effort on both sides. Across 13 Go tasks and 78 paired runs, hidden-test passes were 55 of 78 on both sides, with 6 wins and 6 losses for the change. Requests that only fetch a shell result fell from 9 to 0, but all requests per run did not fall (15.1 against 15.7) and wall time was the same. The change altered what happened in only 10 of the 78 pairs, because only two of the tasks run commands long enough to matter, and none of those were among the 12 pairs with a different result: eight of those traced to a different shaping draw, one to a provider outage and three to a single hidden test flipping on identical builds. So this check shows no gain and no harm, and cannot say more. The earlier loop-level gain on two hard tasks is neither confirmed nor contradicted."
+    },
+    {
+      "id": "loop-workspace-snapshot-166ec7f-eu",
+      "category": "categories/harness-levers.md",
+      "title": "kogen-loop handing small repositories to the model up front removes its look-around requests",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "yes",
+      "finished": "2026-11-02",
+      "summary": "We let kogen-loop add the repository listing and every small file (up to 4096 bytes, only when the listing has at most 64 paths and the shown content stays under 32 KiB) to the first request, and compared it with the same loop without it (166ec7f plus the bounded shell wait) on 14 Go tasks, two runs each, side by side on one server. Requests that only list, search or read before the first edit fell 64% (66 to 24), and to 0 on all 22 small-task runs; all requests fell 28%, and where the snapshot was sent input tokens fell 22% and output tokens 11%. No pair changed its hidden result; one pair was lost to a provider error on the unchanged side. Large repositories get no snapshot and did not change. A screen, not a confirmation."
     }
   ]
 }

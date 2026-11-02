@@ -1,0 +1,54 @@
+pair | orientation before first edit | requests | hidden pass base/wmap | wall s
+argvsplit-go r1 | 2 -> 0 | 7 -> 2 | True/True | 47 -> 32
+argvsplit-go r2 | 2 -> 0 | 4 -> 2 | True/True | 30 -> 29
+bytefmt-go r1 | 2 -> 0 | 4 -> 2 | True/True | 37 -> 33
+bytefmt-go r2 | 2 -> 0 | 4 -> 2 | True/True | 37 -> 32
+csvq-go r1 | 2 -> 0 | 6 -> 4 | True/True | 40 -> 36
+csvq-go r2 | 2 -> 0 | 4 -> 3 | True/True | 41 -> 34
+deps-go r1 | 2 -> 0 | 6 -> 3 | True/True | 52 -> 36
+deps-go r2 | 2 -> 0 | 5 -> 3 | True/True | 53 -> 36
+jobq-go r1 | 2 -> 0 | 8 -> 2 | True/True | 56 -> 38
+jobq-go r2 | 2 -> 0 | 4 -> 2 | True/True | 40 -> 41
+kogen-review-on-demand r2 | 6 -> 8 | 12 -> 14 | True/True | 100 -> 110
+kogen-review-retry r1 | 6 -> 3 | 11 -> 6 | False/False | 155 -> 69
+kogen-review-retry r2 | 4 -> 6 | 10 -> 10 | False/False | 227 -> 163
+patchapply-go r1 | 2 -> 0 | 4 -> 2 | True/True | 37 -> 28
+patchapply-go r2 | 2 -> 0 | 5 -> 2 | True/True | 40 -> 27
+r70-5-go r1 | 2 -> 0 | 5 -> 3 | True/True | 47 -> 39
+r70-5-go r2 | 2 -> 0 | 5 -> 3 | True/True | 47 -> 39
+r70-7-go r1 | 2 -> 0 | 6 -> 2 | True/True | 55 -> 42
+r70-7-go r2 | 2 -> 0 | 6 -> 2 | True/True | 51 -> 41
+semrange-go r1 | 2 -> 0 | 4 -> 2 | True/True | 37 -> 33
+semrange-go r2 | 2 -> 0 | 4 -> 2 | True/True | 38 -> 32
+splitter-go r1 | 2 -> 0 | 4 -> 3 | True/True | 38 -> 40
+splitter-go r2 | 2 -> 0 | 4 -> 2 | True/True | 37 -> 32
+task-tags-go r1 | 3 -> 4 | 15 -> 16 | True/True | 449 -> 383
+task-tags-go r2 | 3 -> 3 | 14 -> 21 | True/True | 394 -> 383
+wrapcol-go r1 | 2 -> 0 | 5 -> 4 | True/True | 36 -> 34
+wrapcol-go r2 | 2 -> 0 | 4 -> 3 | True/True | 34 -> 31
+
+all: pairs 27
+  orient_pre: 66 -> 24 (-63.6%)
+  requests: 170 -> 122 (-28.2%)
+  input: 2.168e+06 -> 1.993e+06 (-8.1%)
+  output: 7.408e+04 -> 6.442e+04 (-13.0%)
+  usd: 1.47 -> 1.304 (-11.2%)
+  wall: 2254 -> 1875 (-16.8%)
+
+fired (snapshot sent): pairs 22
+  orient_pre: 44 -> 0 (-100.0%)
+  requests: 108 -> 55 (-49.1%)
+  input: 4.422e+05 -> 3.445e+05 (-22.1%)
+  output: 5.176e+04 -> 4.61e+04 (-10.9%)
+  usd: 0.6026 -> 0.4864 (-19.3%)
+  wall: 928.7 -> 765.8 (-17.5%)
+
+no snapshot (large repos): pairs 5
+  orient_pre: 22 -> 24 (+9.1%)
+  requests: 62 -> 67 (+8.1%)
+  input: 1.726e+06 -> 1.648e+06 (-4.5%)
+  output: 2.232e+04 -> 1.832e+04 (-17.9%)
+  usd: 0.867 -> 0.818 (-5.6%)
+  wall: 1325 -> 1109 (-16.3%)
+
+discordant hidden-pass pairs: none
