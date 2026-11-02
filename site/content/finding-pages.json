@@ -663,6 +663,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We ran Kogen with its shaper (the step that writes the Intent and the acceptance tests) on Claude Opus 5.5 at high effort through Claude Code, and compared it with Kogen's default shaper (gpt-6.1-terra, medium effort), same build and review models, on 13 Go tasks. The test stopped early: the Claude seat hit its usage limit, and the hill climb then moved to another target. Only 47 pairs ran with both arms (34 on a busy Mac Studio, 13 on three quiet Linux servers) out of the 130 the sizing called for. Hidden passes were 15 against 14 of 34 on the Studio (8 wins, 7 losses) and 10 against 9 of 13 on the Linux servers (1 win, 0 losses), which cannot separate the two. Six Opus cells that ended on the seat limit are left out together with their pairs. Where the Opus shaper ran on quiet servers it landed 13 of 13 cells with no refusals, and nearly all of its roughly ten minutes of shaping was model time, not commands. On the busy Studio the same cells spent far more time in commands and 10 of 11 timeouts were at high load. The default shaper's refusals at its example check (10 Studio cells, 2 Linux cells) were the one shaping difference, and four of the six pairs it explains are one task that did not repeat on Linux. The two arms differ in model and in executor, so only success is compared, not speed or cost."
+    },
+    {
+      "id": "kogen-shape-data-stores-816b0b0",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's data-stores change was refused at shaping in 4 of 4 account-cleanup runs, so its coverage is unmeasured",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We compared Kogen with its new data-stores change (816b0b0, which asks the shaper to find every store keyed by an entity's id and scope it or record a sourced decision) against the build one commit earlier (514dab4), same model (gpt-6.1-terra, medium effort) for every role, no patch. On the account-cleanup task built for it, the new build was refused at shaping in all four paired runs because the shaper answered without calling any tool three times, while the earlier build shaped a valid intent in all four (paired sign test p = 0.0625). The new check never ran, so whether it makes the shaper cover the missed stores is unresolved. Five other tasks run once each showed no new kind of refusal, but they mostly stopped at questions in both builds, so they say nothing about build regressions. Four pairs on one task is a screen, not a rate; the refusals need a larger matched run before anyone concludes the change causes them."
     }
   ]
 }

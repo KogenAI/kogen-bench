@@ -1,0 +1,24 @@
+pairs 9: primary T1 4, guards 5 on 5 tasks
+
+primary T1: valid Intent g0 4/4, g1 0/4
+  g0 outcomes: {'build_blocked': 1, 'landed': 3}
+  g1 outcomes: {'refused': 4}
+  requested checks passed g0 8, g1 0; input tokens g0 3270816, g1 784061
+
+guards: valid Intent g0 0/5, g1 1/5
+  g0 outcomes: {'questions_pending': 5}
+  g1 outcomes: {'build_blocked': 1, 'questions_pending': 4}
+  requested checks passed g0 9, g1 9; input tokens g0 577455, g1 1380313
+
+Per pair: task rep host g0_hidden/expected g1_hidden/expected g0_req g1_req
+T1	r1	eu2	5/8	3/8	2	0
+T1	r2	eu2	7/8	3/8	4	0
+T1	r1	laptop	3/8	3/8	0	0
+T1	r2	laptop	5/8	3/8	2	0
+T2	r1	eu2	3/17	3/17	0	0
+T3	r1	eu2	3/9	3/9	0	0
+T4	r1	eu2	10/11	10/11	7	7
+T5	r1	laptop	4/11	4/11	1	1
+T6	r1	laptop	4/11	4/11	1	1
+
+Primary pairs where g0 had a valid Intent and g1 did not: 4 of 4; one-sided exact sign p = 0.0625
