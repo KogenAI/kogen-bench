@@ -636,6 +636,15 @@
       "verdict": "yes",
       "finished": "2026-11-02",
       "summary": "We let kogen-loop add the repository listing and every small file (up to 4096 bytes, only when the listing has at most 64 paths and the shown content stays under 32 KiB) to the first request, and compared it with the same loop without it (166ec7f plus the bounded shell wait) on 14 Go tasks, two runs each, side by side on one server. Requests that only list, search or read before the first edit fell 64% (66 to 24), and to 0 on all 22 small-task runs; all requests fell 28%, and where the snapshot was sent input tokens fell 22% and output tokens 11%. No pair changed its hidden result; one pair was lost to a provider error on the unchanged side. Large repositories get no snapshot and did not change. A screen, not a confirmation."
+    },
+    {
+      "id": "kogen-workspace-snapshot-e6f69a1",
+      "category": "categories/harness-levers.md",
+      "title": "Showing Kogen's builder a small repository's files in its first request cuts its reading steps to zero and build requests by 17%, but passed no more hidden tests (57 of 66 against 58)",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-02",
+      "summary": "We ran Kogen's current main twice per task, once as released and once with the opening request to its builder also carrying the contents of every small file in a small repository, same model and effort on both sides. Across 11 Go tasks and 66 paired runs, the builder's reading steps before its first edit went from 70 to 0 and build requests per run fell from 4.4 to 3.7 (lower in 44 pairs, higher in 8), with no new kind of failure. But hidden-test passes were 57 of 66 against 58 for Kogen as released, with 3 wins and 4 losses for the change, and three of the four losses were one task, where the same hidden test failed in all six runs with the snapshot and in three of six without it (too few runs to tell that from chance). Tokens per run rose about 3%, because the snapshot is carried in every build request, and wall time did not clearly change. Hidden passes are the main measure and the only task that moved went the wrong way, so Kogen's builder does not take this change. The same idea inside kogen-loop's own session, which Kogen's builder does not use, is a separate result."
     }
   ]
 }
