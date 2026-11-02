@@ -638,6 +638,15 @@
       "summary": "We let kogen-loop add the repository listing and every small file (up to 4096 bytes, only when the listing has at most 64 paths and the shown content stays under 32 KiB) to the first request, and compared it with the same loop without it (166ec7f plus the bounded shell wait) on 14 Go tasks, two runs each, side by side on one server. Requests that only list, search or read before the first edit fell 64% (66 to 24), and to 0 on all 22 small-task runs; all requests fell 28%, and where the snapshot was sent input tokens fell 22% and output tokens 11%. No pair changed its hidden result; one pair was lost to a provider error on the unchanged side. Large repositories get no snapshot and did not change. A screen, not a confirmation."
     },
     {
+      "id": "loop-workspace-snapshot-replication-3hosts",
+      "category": "categories/harness-levers.md",
+      "title": "Handing small repositories to kogen-loop up front still removes its look-around requests on three servers, with input flat on the Mac",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "yes",
+      "finished": "2026-11-02",
+      "summary": "We repeated the earlier screen of kogen-loop adding the repository listing and every small file to its first request, unchanged, on a second Linux server and on a Mac, and added the three together: 14 Go tasks, two runs each, 79 scored pairs of 84 assigned (one lost to a provider error, four not run on the Mac, which hit its time cap). Requests that only list, search or read before the first edit fell 67% (190 to 63), and to 0 on all 65 small-task runs; all requests fell 26%; hidden results were identical in every pair (74 of 79 on both sides). Where the snapshot was sent, input tokens fell 11.8% and output tokens 6.2% overall, but on the Mac input was flat (+0.9%), because every Mac run spends extra rounds after its first edit. The earlier plan to join the snapshot to the loop stands. Kogen's own builder does not use this path."
+    },
+    {
       "id": "kogen-workspace-snapshot-e6f69a1",
       "category": "categories/harness-levers.md",
       "title": "Showing Kogen's builder a small repository's files in its first request cuts its reading steps to zero and build requests by 17%, but passed no more hidden tests (57 of 66 against 58)",

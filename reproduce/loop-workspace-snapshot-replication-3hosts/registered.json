@@ -1,0 +1,16 @@
+{
+ "arms": {"base": "kogen-loop 166ec7f + bcw.diff + api-replay.diff + overlap3-nohook.diff", "wmap": "base + wmap.diff (sha256 3613cdad479999db27adbdb9ba75de656b89c77fb7520f3e5ba94944fab1fadb)"},
+ "per_cohort_rules": [
+  "drop if orientation-only requests before the first edit fall by under 50% (sum over all tasks, wmap vs base)",
+  "drop if paired hidden pass gets worse (more class (a) wmap-only failures than wmap-only passes; every discordant pair attributed first)",
+  "drop if total input or output tokens rise, summed over the tasks where the snapshot fires (the 3 no-fire tasks are a control)",
+  "otherwise named loop bundle; a borderline primary (50-60% with one rep disagreeing) means bounded confirmation of 2 more reps"
+ ],
+ "pooling_rule_registered_before_laptop_and_studio_cells": [
+  "pool by simple sum of paired blocks (same arms, kits, model, patches), same rules on the pooled sums; host reported as a stratum with a per-host table next to the pooled one",
+  "pooled result and every host agree: that disposition",
+  "one host says drop and another does not: the pooled number does not override; result is bounded confirmation (2 more reps on one host, same rules) unless the disagreeing host's failure is a class (b-e) cause",
+  "no wall pooling (EU wall is a timing result; laptop and Studio wall are descriptive)"
+ ],
+ "cohorts": {"eu": "27 pairs scored of 28 assigned (1 provider-dropped base cell left out)", "laptop": "28 of 28", "studio": "24 of 28 (stopped at its 3 h cap; rep 2 of csvq-go, task-tags-go, kogen-review-on-demand and kogen-review-retry not run)"}
+}
