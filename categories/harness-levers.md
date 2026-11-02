@@ -190,3 +190,7 @@ A second block of the Opus 5.5 ceiling check (same Kogen `514dab4`, tasks and se
 ### Kogen at the frozen commit 3742abe, baseline on six Rails tasks (2 Nov 2026)
 
 Kogen `3742abe` (same source tree as the `514dab4` control, no patch), request-only, gpt-6.1-terra at medium effort, 18 runs on three Linux machines: 6 shaped a valid intent, 2 landed a build and none passed every hidden check. Pooled with the earlier control (50 runs) there are 17 valid intents, 7 landed builds and 1 full hidden pass. Baseline for the first component changes; no comparison. See [kogen-aor-freeze-baseline-3742abe](../reproduce/kogen-aor-freeze-baseline-3742abe/README.md).
+
+### Kogen split into component modules, A/A check on three Rails tasks (2 Nov 2026)
+
+Kogen `514dab4` (same source tree as the frozen `3742abe`) against a plain build of the extraction commit `573d023`, no patch, gpt-6.1-terra at medium effort, three tasks, one matched pair each: two pairs ended the same way, the third stopped at different stages with the same hidden count, and neither arm passed every hidden check. No new refusal class. A smoke test, not a rate. See [kogen-extraction-aa-573d023](../reproduce/kogen-extraction-aa-573d023/README.md).

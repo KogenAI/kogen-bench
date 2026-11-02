@@ -735,6 +735,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We ran Kogen at the frozen commit 3742abe (the same source as the earlier 514dab4 control, no patch) on six Rails tasks, given only the request text, with gpt-6.1-terra at medium effort for every step: three runs per task, one on each of three Linux machines. Six of the 18 runs wrote a valid intent, two landed a build, and none passed every hidden check. Eight stopped to ask questions nobody answered, four were refused at shaping (the shaper answered without calling a tool three times), and four builds were blocked. Pooled with the earlier control (50 runs in all) there are 17 valid intents, 7 landed builds and 1 full hidden pass. This is the baseline for the first component changes, not a comparison: with three runs per task and a 18 to 27 % chance that a rerun flips a result, a per-task rate means little yet."
+    },
+    {
+      "id": "kogen-extraction-aa-573d023",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen split into component modules behaved like the build before it in three matched runs",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We compared the Kogen release before its split into separately versioned component modules (514dab4) with a plain build of the split version (573d023), same model (gpt-6.1-terra, medium effort) for every step, no patch, on three Rails tasks, one pair each, run at the same time on the same server. Two of the three pairs ended the same way (one landed a build in both, one was refused at shaping in both for the same reason), and the third stopped at different stages with the same hidden-test count (review blocked against build blocked). Neither arm passed every hidden check on any task. We saw no new refusal class and no difference in versions or settings, but three pairs is a smoke test: a rerun flips a result 18 to 27 % of the time, so this shows no large difference, not equality."
     }
   ]
 }
