@@ -127,9 +127,13 @@ capped() { e=$1; tasks=$2; est0=$3
     fi
     touch $P/runs/$e/DONE; return 0
   done; }
+gradepath() { # 2 Nov gradefix: grade with a shim-free PATH (mise shims refuse a tree's .mise.toml as untrusted: every AoR grade was 1/8). Linux only; mise's own real tool bins (go/node/elixir/erlang, as the shims resolve them in $HOME) first, so system go stays behind them; grade.sh adds the Ruby install bin itself. No trust settings are changed.
+  if [ "$(uname -s)" = Linux ] && printf '%s' "$PATH" | grep -q '/mise/shims'; then
+    _p=$(printf '%s' "$PATH" | tr ':' '\n' | grep -v '/mise/shims$' | paste -sd: -); _m=$(cd "$HOME" && mise bin-paths 2>/dev/null | paste -sd: -); printf '%s' "${_m:+$_m:}$_p"
+  else printf '%s' "$PATH"; fi; }
 grade() { GL=$P/grade.lock; if command -v flock >/dev/null 2>&1; then LK="flock 9"; else LK="lockf -k $GL true"; fi; # lock on fd 9: only python carries bin/lanes-grade in argv (the host gate counts each match as a live cell; 28 Oct)
   exec 9>>$GL; $LK; gt=$(python3 $LANES/bin/lanes-gate acquire $P/runs --pid $$ 2>> $P/$1/run-logs/grade.out) || gt=   # a grade takes a place under the host cap like a cell (1 Nov gateops): waits for room, then holds it; no host-cap file: no wait
-  nice -n 19 python3 $LANES/bin/lanes-grade $P/runs/$1 --tasks $2 >> $P/$1/run-logs/grade.out 2>&1; [ -n "$gt" ] && python3 $LANES/bin/lanes-gate release "$gt"; exec 9>&-; python3 $LANES/bin/lanes-report $P/runs/$1 > $P/$1/run-logs/report.out 2>&1; say "$1 graded: $(tail -1 $P/$1/run-logs/report.out)"; }
+  nice -n 19 env PATH="$(gradepath)" python3 $LANES/bin/lanes-grade $P/runs/$1 --tasks $2 >> $P/$1/run-logs/grade.out 2>&1; [ -n "$gt" ] && python3 $LANES/bin/lanes-gate release "$gt"; exec 9>&-; python3 $LANES/bin/lanes-report $P/runs/$1 > $P/$1/run-logs/report.out 2>&1; say "$1 graded: $(tail -1 $P/$1/run-logs/report.out)"; }
 say "v3 start (weekly $(wpct)%, $(wstate)) (day spend \$$(acc $(today)))"
 run() { e=$1; tasks=$2; est=$3
   [ -f $P/runs/$e/GRADED ] && return 0
