@@ -468,6 +468,9 @@ def grade_shape(task, cell, deadline_s=600):
             os.path.isfile(os.path.join(intent, n)) for n in ("intent.md", "acceptance.feature")):
         rec["infrastructure"] = "task has no [acceptance] or the cell has no Intent"
         return rec
+    if not os.path.isdir(os.path.join(task["dir"], "reference")):  # a row's task copy has none (agents must not see it)
+        rec["infrastructure"] = "task copy has no reference tree (shape matrix needs the qualification dir)"
+        return rec
     slug = intent_slug(os.path.join(intent, "intent.md"))
     with scratch() as final:  # step files may be in the Intent folder or the cell's final tree
         if os.path.isfile(os.path.join(cell, "final-tree.tar")):
@@ -553,8 +556,19 @@ def grade_cell(run_dir, cell, tasks_dir, deadline_s=None):
 
 
 def finished_cells(run_dir):
+    """Cell ids `<task>/r<rep>/<lane>` that have a `result.json`.
+
+    Only the cell dir itself counts: a kept `run-log/` (a copy of Kogen's run folder) has its own `result.json`,
+    and walking into it graded a phantom cell `<cell>/run-log` ("final-tree.tar missing") and wrote a void
+    `run-log/evaluation.json` next to the real grade (2 Nov, ftreefix)."""
     base = os.path.join(run_dir, "cells")
-    return sorted(os.path.relpath(r, base) for r, _, f in os.walk(base) if "result.json" in f)
+    out = []
+    for task in sorted(os.listdir(base)) if os.path.isdir(base) else []:
+        for rep in sorted(os.listdir(os.path.join(base, task))):
+            for lane in sorted(os.listdir(os.path.join(base, task, rep))):
+                if os.path.isfile(os.path.join(base, task, rep, lane, "result.json")):
+                    out.append(f"{task}/{rep}/{lane}")
+    return out
 
 
 # --- qualification -----------------------------------------------------------------------------

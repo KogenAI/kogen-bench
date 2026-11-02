@@ -389,6 +389,26 @@ class GradeE2eShape(ShapeFixture):
         self.assertEqual(self.evaluation(d)["shape"],
                          {"phase": "shape", "infrastructure": "task has no [acceptance] or the cell has no Intent"})
 
+    def test_kept_run_log_is_not_a_cell_and_gets_no_evaluation(self):
+        c, d = self.e2e_cell(stages=[{"stage": "shape", "exit_code": 0}, {"stage": "build", "exit_code": 0}])
+        os.makedirs(os.path.join(d, "run-log"))  # qkeep: a copy of Kogen's run folder, with its own result.json
+        common.write_json(os.path.join(d, "run-log", "result.json"), {"status": "done"})
+        self.assertEqual(grading.finished_cells(self.run_dir), [c])
+        code, out, err = self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(code, 0, err)
+        self.assertNotIn("missing", out)
+        self.assertFalse(os.path.exists(os.path.join(d, "run-log", "evaluation.json")))
+        self.assertTrue(self.evaluation(d)["all_passed"])
+
+    def test_task_copy_without_reference_still_writes_the_build_grade(self):
+        c, d = self.e2e_cell(stages=[{"stage": "shape", "exit_code": 0}, {"stage": "build", "exit_code": 0}])
+        shutil.rmtree(os.path.join(self.task, "reference"))  # a row's task copy: agents never see the reference
+        code, out, err = self.cli("lanes-grade", self.run_dir)
+        self.assertEqual(code, 0, err)
+        ev = self.evaluation(d)
+        self.assertTrue(ev["all_passed"])
+        self.assertIn("no reference tree", ev["shape"]["infrastructure"])
+
     def test_report_shows_the_shape_class_next_to_the_build_result(self):
         c, d = self.e2e_cell()
         self.cli("lanes-grade", self.run_dir)
