@@ -1,0 +1,57 @@
+cells 18: Studio 6, eu2 6, laptop 6
+
+task	cells	valid_intent	reached_build	landed	hidden_all_pass	requested_all_pass
+T1	3	3	3	2	1	1
+T2	3	1	1	1	0	0
+T3	3	0	0	0	0	0
+T4	3	2	2	1	0	0
+T5	3	2	2	1	0	1
+T6	3	0	0	0	0	0
+all	18	8	8	5	1	2
+
+outcomes: {'build_blocked': 3, 'landed': 5, 'questions_pending': 7, 'refused': 3}
+Studio: valid Intent 3/6, landed 2, hidden all-pass 0
+eu2: valid Intent 3/6, landed 1, hidden all-pass 0
+laptop: valid Intent 2/6, landed 2, hidden all-pass 1
+
+tokens: input 8098723 (cached 6901120), output 79566
+
+First mistake per cell: task host first_mistake
+T1	Studio	build: pass 1 acceptance failed, builder claim unproven (protected blocker)
+T1	eu2	build: landed, requested checks missed; review approved 0 blocking
+T1	laptop	none
+T2	Studio	build: landed, requested checks missed; review approved 0 blocking
+T2	eu2	shape: no-tool refusal (shaper answered without a tool 3 times)
+T2	laptop	shape: no-tool refusal (shaper answered without a tool 3 times)
+T3	Studio	shape: questions left pending (no answerer)
+T3	eu2	shape: questions left pending (no answerer)
+T3	laptop	shape: questions left pending (no answerer)
+T4	Studio	build: landed, hidden result equals the start tree; review approved 0 blocking
+T4	eu2	build: pass 1 acceptance failed, builder claim unproven (protected blocker)
+T4	laptop	shape: no-tool refusal (shaper answered without a tool 3 times)
+T5	Studio	shape: questions left pending (no answerer)
+T5	eu2	build: pass 1 acceptance failed, builder claim unproven (protected blocker)
+T5	laptop	build: landed, a regression check failed; review approved 0 blocking
+T6	Studio	shape: questions left pending (no answerer)
+T6	eu2	shape: questions left pending (no answerer)
+T6	laptop	shape: questions left pending (no answerer)
+
+Per cell: task host hidden requested input output wall_s
+T1	Studio	3/8	0/5	815106	7870	1248
+T1	eu2	5/8	2/5	727284	8563	432
+T1	laptop	8/8	5/5	1149336	11123	663
+T2	Studio	15/17	12/14	784222	7306	1731
+T2	eu2	3/17	0/14	248627	2793	107
+T2	laptop	3/17	0/14	285841	3131	139
+T3	Studio	3/9	0/6	189814	952	256
+T3	eu2	3/9	0/6	160916	923	51
+T3	laptop	3/9	0/6	129195	874	60
+T4	Studio	10/11	7/8	604997	5168	1070
+T4	eu2	10/11	7/8	594222	4901	259
+T4	laptop	10/11	7/8	328320	4546	168
+T5	Studio	4/11	1/8	239041	1307	101
+T5	eu2	4/11	1/8	423206	5880	235
+T5	laptop	10/11	8/8	1142240	11902	664
+T6	Studio	4/11	1/8	86902	759	50
+T6	eu2	4/11	1/8	128510	824	32
+T6	laptop	4/11	1/8	60944	744	30

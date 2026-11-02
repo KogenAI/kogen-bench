@@ -672,6 +672,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We compared Kogen with its new data-stores change (816b0b0, which asks the shaper to find every store keyed by an entity's id and scope it or record a sourced decision) against the build one commit earlier (514dab4), same model (gpt-6.1-terra, medium effort) for every role, no patch. On the account-cleanup task built for it, the new build was refused at shaping in all four paired runs because the shaper answered without calling any tool three times, while the earlier build shaped a valid intent in all four (paired sign test p = 0.0625). The new check never ran, so whether it makes the shaper cover the missed stores is unresolved. Five other tasks run once each showed no new kind of refusal, but they mostly stopped at questions in both builds, so they say nothing about build regressions. Four pairs on one task is a screen, not a rate; the refusals need a larger matched run before anyone concludes the change causes them."
+    },
+    {
+      "id": "kogen-aor-control-514dab4",
+      "category": "categories/harness-levers.md",
+      "title": "Current Kogen passed every hidden check in 1 of 18 runs on six Rails tasks, and shaped a valid intent in 8",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-02",
+      "summary": "We ran Kogen as it is today (514dab4, no patch) on six Rails tasks, given only the request text, with gpt-6.1-terra at medium effort for every step: three runs per task, one on each of three servers. Eight of the 18 runs wrote a valid intent, five landed a build, and one passed every hidden check. Seven stopped to ask questions nobody answered, three were refused at shaping (the shaper answered without calling a tool three times), and three builds were blocked after the first acceptance pass failed. Two tasks never reached a build in any of their three runs. Where a build landed, review approved it every time, including the four that missed hidden checks. This is the baseline for later shaping changes, not a comparison: with three runs per task and a 18 to 27 % chance that a rerun flips a result, a per-task rate means little yet. More Studio runs are queued as a follow-up."
     }
   ]
 }
