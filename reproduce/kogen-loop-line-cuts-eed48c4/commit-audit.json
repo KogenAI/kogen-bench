@@ -1,0 +1,48 @@
+[
+  {
+    "sha": "f4f617f460aa484b8897bd0fdbe49d05ffb95f67",
+    "title": "Record each attempt's request offset and host load",
+    "runtime_files": [
+      "provider/client.go",
+      "provider/loadavg.go",
+      "provider/loadavg_darwin.go",
+      "provider/loadavg_linux.go",
+      "provider/loadavg_other.go",
+      "provider/respond.go"
+    ],
+    "contract_fixture_files": [],
+    "verdict": "same"
+  },
+  {
+    "sha": "3372dcfd45bf28deeb8379618a094a032f4930d8",
+    "title": "Cancel discarded shells before joining them",
+    "runtime_files": [
+      "loop/overlap.go",
+      "tools/tools.go"
+    ],
+    "contract_fixture_files": [],
+    "verdict": "same"
+  },
+  {
+    "sha": "ae0d82d6e713729883ea163cad80545b52479d6e",
+    "title": "Disclose spent usage of a failed condensation",
+    "runtime_files": [
+      "loop/condense.go",
+      "loop/loop.go",
+      "loop/session.go"
+    ],
+    "contract_fixture_files": [],
+    "verdict": "same"
+  },
+  {
+    "sha": "eed48c49d853150650523625638e4c9e05a32520",
+    "title": "Align tool text cuts with complete lines",
+    "runtime_files": [
+      "tools/tools.go"
+    ],
+    "contract_fixture_files": [
+      "tools/testdata/cut_golden.json"
+    ],
+    "verdict": "unresolved"
+  }
+]

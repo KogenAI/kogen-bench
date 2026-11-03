@@ -255,3 +255,12 @@ A candidate with build component `09b177e` ran on five of nine assigned tasks. T
 ## Executor policy ownership move: assembly blocked
 
 Moving phase prompts and tools out of executor requires compatible consumers. The candidate assembled with adopted Kogen source and paired component heads failed compilation because the old shaping setup entry point had been removed. No model run or paid screen cost; behaviour unresolved, current head unqualified. See [the assembly check](../reproduce/kogen-executor-phase-api-2f13bd4/README.md).
+
+## Verification timeout evidence on the adopted assembly
+
+A three-task candidate-only smoke screen of verification `5070052` on adopted Kogen `573d023` had the same whole-task hidden pass results as stored adopted cells: all three failed. One candidate task produced a valid Intent and landed; two stopped during shaping. Targeted contracts passed at both endpoints. Four process-sweep events were observed, but no timeout-diagnostic path fired. The head remains unqualified, pending a bounded triggered confirmation. See [the verification evidence pack](../reproduce/kogen-verification-timeout-evidence-5070052/README.md).
+
+
+## Loop output line boundaries on the adopted assembly
+
+The loop prefix through `ae0d82d` sends identical request bytes in eight scripted sessions. The final `eed48c4` change preserves complete lines in long tool output and alters both long-output replay sessions. A three-task candidate-only Terra medium smoke screen has whole-task hidden pass 0/3, matching its stored adopted comparisons, but lacks a retained live cut witness. All three task stops are attributed to shaping or protected acceptance. The changed head remains unresolved and unqualified; the unchanged prefix is SAME. See [the loop evidence pack](../reproduce/kogen-loop-line-cuts-eed48c4/README.md).

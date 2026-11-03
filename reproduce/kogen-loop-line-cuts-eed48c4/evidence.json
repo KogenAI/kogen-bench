@@ -1,0 +1,175 @@
+{
+  "component": "kogen-loop",
+  "head": "eed48c49d853150650523625638e4c9e05a32520",
+  "baseline": "05a4ccb8e5b86bfec82e8c1c018146c2d0172ea5",
+  "adopted_kogen": "573d023b66b93f9781557e1518f78f2ce969dde3",
+  "adopted_loop": "c6e2360290d4d8f7e124d68c4e656b38fb350d32",
+  "adopted_verification": "587f67dae7e8606afc4be14b2af3150f2f16c153",
+  "verdict": "unresolved",
+  "finished_at": "2026-11-03T14:10:34Z",
+  "contract_tests": {
+    "baseline": {
+      "passed_cases": 62,
+      "failed_cases": 0,
+      "scope": "targeted contracts and goldens; counts include subtests; default timeouts; Go 1.27.2"
+    },
+    "head": {
+      "passed_cases": 76,
+      "failed_cases": 0,
+      "scope": "targeted contracts and goldens; counts include subtests; default timeouts; Go 1.27.2"
+    }
+  },
+  "tasks": [
+    {
+      "task": "T1",
+      "group": "targeted",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "hidden_pass": false,
+        "wall_s": 393.325,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "build_blocked",
+        "valid_intent": true,
+        "hidden_pass": false,
+        "graded": true,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 3,
+        "acceptance_separation": "not established",
+        "shape_assessment_missing": "task copy has no reference tree (shape matrix needs the qualification dir)",
+        "wall_s": 443.256,
+        "input_tokens": 499619,
+        "output_tokens": 6752,
+        "explicit_write_to_pass_s": [],
+        "edit_to_feedback_s": null,
+        "timeout_diagnostic_seen": false,
+        "cut_witnesses": 0,
+        "step_sweep_events": 0
+      },
+      "attribution": {
+        "stage": "shape acceptance",
+        "class": "b",
+        "cause": "The protected shape-written scheduling step references an unloaded parser and calls a protected time conversion method; the builder reported a baseline contradiction."
+      }
+    },
+    {
+      "task": "T2",
+      "group": "targeted",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "wall_s": 112.324,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "questions_pending",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "graded": true,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 10,
+        "acceptance_separation": "not established",
+        "shape_assessment_missing": "shape stage did not finish: exit 5",
+        "wall_s": 965.282,
+        "input_tokens": null,
+        "output_tokens": null,
+        "explicit_write_to_pass_s": [],
+        "edit_to_feedback_s": null,
+        "timeout_diagnostic_seen": false,
+        "cut_witnesses": 0,
+        "step_sweep_events": 0
+      },
+      "attribution": {
+        "stage": "shape",
+        "class": "b",
+        "cause": "Shaping asked for a measurable sweep-performance outcome before implementation; no completed Intent."
+      }
+    },
+    {
+      "task": "T3",
+      "group": "held-out",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "wall_s": 65.338,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "graded": true,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 3,
+        "acceptance_separation": "not established",
+        "shape_assessment_missing": "shape stage did not finish: exit 1",
+        "wall_s": 118.992,
+        "input_tokens": 173689,
+        "output_tokens": 1309,
+        "explicit_write_to_pass_s": [],
+        "edit_to_feedback_s": null,
+        "timeout_diagnostic_seen": false,
+        "cut_witnesses": 0,
+        "step_sweep_events": 0
+      },
+      "attribution": {
+        "stage": "shape",
+        "class": "b",
+        "cause": "Shaping stopped after three turns without a tool call; no Intent was submitted."
+      }
+    }
+  ],
+  "cost": {
+    "input_tokens": 673308,
+    "cached_input_tokens": 565888,
+    "output_tokens": 8061,
+    "usd": null,
+    "pricing": "subscription route, model unpriced; helper orchestration tokens unavailable; all build and test attempts retained in private receipts",
+    "orchestration_started_at": "2026-11-03T13:30:08Z",
+    "test_and_build_attempts": "All attempts, including the rejected loop assembly, retained; source reconstruction and contract replays made no model calls."
+  },
+  "candidate_cell_wall_s": 1527.53,
+  "artifact": {
+    "binary_sha256": "73fed6ccf5be74107ed535c87fdd30813e307913d539c9b4c359d2c009c28ebc",
+    "release_sha256": "a5fe8eda5cb3b9c72ba6fcebdea89677c1fb1cda501088b8fc0bc78eed1b11d9",
+    "modules": [
+      "github.com/KogenAI/kogen-build v0.0.0-20261102194452-3109cd105f75",
+      "github.com/KogenAI/kogen-coordinator v0.0.0-20261102193107-c4a49a4fe84f",
+      "github.com/KogenAI/kogen-executor v0.0.0-20261102193603-1aea0728c24b",
+      "github.com/KogenAI/kogen-shaping v0.0.0-20261102194440-94eabe5d492d",
+      "github.com/KogenAI/kogen-verification v0.0.0-20261102193616-587f67dae7e8",
+      "kogen-loop v0.0.1-29990101000000-eed48c49d853"
+    ],
+    "git": "git version 2.43.0"
+  },
+  "limits": [
+    "Three tasks, one candidate repetition each; stored controls on another Linux host; no significance or causal rescue claim.",
+    "Input hashes match the currently retained stored-task copies; historical per-cell input hashes were not recorded.",
+    "Acceptance separation not independently established; edit timings unavailable for shell edits.",
+    "A missing mechanism witness cannot establish non-regression for that mechanism."
+  ],
+  "landed_head_at": "2026-11-03T11:53:52Z",
+  "head_to_last_cell_feedback_s": 8202.0
+}
