@@ -226,3 +226,7 @@ The adopted build against the same data-stores candidate (kogen-shaping `13ff132
 ## Kogen adopted release, control block on six Rails tasks (3 Nov 2026)
 
 The adopted release `573d023` with no patch, `gpt-6.1-terra` at medium effort, request-only, one run of each of six tasks on a Mac and on a Linux laptop: 4 of 12 runs saved a valid intent (all on Linux), 1 landed a build, none passed every hidden check; on the Mac no run got past shaping. A baseline to read the next shaper, build and review changes against. See [kogen-aor-control-573d023](../reproduce/kogen-aor-control-573d023/README.md).
+
+## Kogen verification leftover-process sweep, landing check (3 Nov 2026)
+
+The landed leftover-process sweep in Kogen's verification component (`6ac87f0`) against the version before it (`587f67d`), model-free, on Linux: six leftover-server cases, 5 swept in both arms, no case differs. The one that survives is a server started with a cleared environment in a new session by a launcher that exits and closes inherited descriptors (Python's default). The macOS run did not execute. See [kogen-verification-orphan-sweep-6ac87f0](../reproduce/kogen-verification-orphan-sweep-6ac87f0/README.md).

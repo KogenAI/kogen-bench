@@ -1,0 +1,5 @@
+command	exit_status	output	control_equals_candidate
+echo out; echo err >&2; exit 7	7	out\nerr\n	yes
+echo fine; exit 0	0	fine\n	yes
+kill -TERM $$	143	(empty)	yes
+(sleep 1 &); echo bg; exit 3	3	bg\n	yes

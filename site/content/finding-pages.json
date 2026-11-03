@@ -816,6 +816,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-03",
       "summary": "This is a control for later changes to Kogen's shaper, build and review: the adopted release (573d023, no patch) on six Rails tasks given only the request text, with gpt-6.1-terra at medium effort for every step, one run of each task on a Mac and one on a Linux laptop. Four of the 12 runs wrote a valid intent, all on the Linux laptop; four reached a build and one landed (the account-cleanup task, with review approving a tree that passes 5 of its 8 hidden checks); none passed every hidden check. On the Mac no run got past shaping: three were refused at shaping and three stopped on questions. Eight of the 12 runs ended at shaping, two in the build and one in review, and the pack lists the stage and exact stop class of each. The two machines use different harness set-ups and one run per task per machine cannot give a rate (a rerun flips a result 18 to 27 % of the time), so this is a baseline to read the next change against, extending the earlier controls of the same code tree."
+    },
+    {
+      "id": "kogen-verification-orphan-sweep-6ac87f0",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's landed leftover-process sweep still misses a server started by a launcher that closes file descriptors",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "When Kogen checks a change it runs a command from the request, often one that starts a server, and should leave nothing of its own running afterwards. A change to its verification component landed to sweep leftover processes. Without calling any model, we ran six leftover-server cases on Linux against the version before the change and the landed one: both swept 5 of the 6, and no case differs between them, so the 6 of 6 the change was meant to reach is not met. The case that survives is a server started with a cleared environment in a new session by a launcher that then exits and, like Python's subprocess module by default, closes inherited file descriptors; the change finds leftovers through an open descriptor and an environment marker, so nothing is left to find. The same launcher told to keep its descriptors is swept by the new version and not by the old one. A bystander process started outside the run survived all 12 runs, and exit status and output were identical for four test commands. The macOS run did not execute because the machine stayed busy, so only Linux is measured, with one run per case; it was published late after a session outage."
     }
   ]
 }

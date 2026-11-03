@@ -1,0 +1,7 @@
+case	launcher	control_587f67d	candidate_6ac87f0
+plain background	shell &	swept	swept
+nohup background	nohup ... &	swept	swept
+new session, env kept	python subprocess, start_new_session	swept	swept
+env cleared, same group	env -i ... &	swept	swept
+env cleared, subshell reparent	(env -i ... &)	swept	swept
+env cleared, new session, launcher exited	python subprocess, env={}, start_new_session, default descriptors	survives	survives
