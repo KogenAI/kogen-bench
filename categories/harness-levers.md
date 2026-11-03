@@ -230,3 +230,7 @@ The adopted release `573d023` with no patch, `gpt-6.1-terra` at medium effort, r
 ## Kogen verification leftover-process sweep, landing check (3 Nov 2026)
 
 The landed leftover-process sweep in Kogen's verification component (`6ac87f0`) against the version before it (`587f67d`), model-free, on Linux: six leftover-server cases, 5 swept in both arms, no case differs. The one that survives is a server started with a cleared environment in a new session by a launcher that exits and closes inherited descriptors (Python's default). The macOS run did not execute. See [kogen-verification-orphan-sweep-6ac87f0](../reproduce/kogen-verification-orphan-sweep-6ac87f0/README.md).
+
+## Kogen setup component: first commit is a pure move (3 Nov 2026)
+
+Kogen's project setup step (`kogen init`) now lives in its own component, first commit `e580996`. Model-free byte comparison: its init source is identical to the shaping component's at the adopted pin (`94eabe5`) and at head (`d69a0a3`) once the package line is rewritten, nothing is embedded, and the init prompt stays in the executor component. Only a test fixture differs from the adopted pin, by one serialisation line. Same behaviour on this evidence, no run made, nothing changes. See [kogen-setup-initial-e580996](../reproduce/kogen-setup-initial-e580996/README.md).

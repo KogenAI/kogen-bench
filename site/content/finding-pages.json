@@ -825,6 +825,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "When Kogen checks a change it runs a command from the request, often one that starts a server, and should leave nothing of its own running afterwards. A change to its verification component landed to sweep leftover processes. Without calling any model, we ran six leftover-server cases on Linux against the version before the change and the landed one: both swept 5 of the 6, and no case differs between them, so the 6 of 6 the change was meant to reach is not met. The case that survives is a server started with a cleared environment in a new session by a launcher that then exits and, like Python's subprocess module by default, closes inherited file descriptors; the change finds leftovers through an open descriptor and an environment marker, so nothing is left to find. The same launcher told to keep its descriptors is swept by the new version and not by the old one. A bystander process started outside the run survived all 12 runs, and exit status and output were identical for four test commands. The macOS run did not execute because the machine stayed busy, so only Linux is measured, with one run per case; it was published late after a session outage."
+    },
+    {
+      "id": "kogen-setup-initial-e580996",
+      "category": "categories/harness-levers.md",
+      "title": "Moving Kogen's project setup step into its own component changed none of its code or prompt text",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "Kogen's project setup step (the one behind kogen init) was moved out of the shaping component into a new component of its own, first commit e580996. We checked the move without running any model. Once the package name line is rewritten, the setup logic is byte-identical to the shaping component's version at the adopted pin (94eabe5) and at its current head (d69a0a3). Nothing is embedded in the new component, so no prompt text moved: the setup prompt is still read from the executor component, which the move does not touch. The only difference is a test fixture that differs from the adopted pin by one line and is never sent to a model. So the moved step behaves the same and nothing changes. We made no run, because identical code has nothing for a run to measure. Later commits that change setup behaviour or text will be screened separately. This claims no improvement."
     }
   ]
 }
