@@ -251,3 +251,7 @@ A rule telling the shaping step to decide evidence-backed or reversible product 
 ### An incomplete build screen leaves adoption unresolved
 
 A candidate with build component `09b177e` ran on five of nine assigned tasks. Three attempts stopped during shaping and two reported protected acceptance contradictions; none landed or reached review, and none passed every hidden check. Four assignments were left unrun under capacity and delivery-priority gates. This is **unresolved**, with no adoption qualification. The data, cost, source reconstruction patch and bounded follow-up rule are in the [reproduction pack](../reproduce/kogen-build-main-09b177e/README.md).
+
+## Executor policy ownership move: assembly blocked
+
+Moving phase prompts and tools out of executor requires compatible consumers. The candidate assembled with adopted Kogen source and paired component heads failed compilation because the old shaping setup entry point had been removed. No model run or paid screen cost; behaviour unresolved, current head unqualified. See [the assembly check](../reproduce/kogen-executor-phase-api-2f13bd4/README.md).
