@@ -1,0 +1,1168 @@
+{
+  "metadata": {
+    "finding_id": "kogen-coherent-set-c92d897-confirmation",
+    "finished_at": "2026-11-03T15:33:39.190850448Z",
+    "verdict": "worse",
+    "qualified": false,
+    "disposition": "drop",
+    "stop_rule_fired": "first broken generated acceptance contract; third attempt not launched",
+    "attempt_cap": 3,
+    "attempts_launched": 2,
+    "attempts_not_launched": 1,
+    "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+    "release_sha256": "bdbd016672b3942e6a607d54572a6d84a10603af84ad9272f6ede78540c46520",
+    "cost_usd": null,
+    "cost_reason": "unpriced subscription use, not zero; orchestration unmetered",
+    "tokens": {
+      "input_tokens": 980478,
+      "cached_input_tokens": 865536,
+      "output_tokens": 8374,
+      "reasoning_tokens": 2332,
+      "requests": 43
+    },
+    "cell_wall_s": 744.27,
+    "earlier_workflow_tokens": {
+      "input_tokens": 2830910,
+      "cached_input_tokens": 2404864,
+      "output_tokens": 30237,
+      "reasoning_tokens": 6796,
+      "requests": 156
+    },
+    "earlier_cell_wall_s": 2073.703,
+    "original_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.11038011695906431,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.42105263157894735,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.25,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.07273391812865497,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.8947368421052632,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.125,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.17673992673992675,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.15384615384615385,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": -0.42857142857142855,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.2857142857142857,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.04578754578754579,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.8461538461538461,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": -0.42857142857142855,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.14285714285714285,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      }
+    },
+    "confirmation_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": 0.04385964912280704,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.5789473684210527,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.6666666666666667,
+              "stored_denominator": 9
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.28070175438596495,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.10526315789473684,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.6666666666666667,
+              "stored_denominator": 9
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.13736263736263737,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.8461538461538461,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.5714285714285714,
+              "stored_denominator": 7
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.20879120879120877,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.15384615384615385,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.5714285714285714,
+              "stored_denominator": 7
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            }
+          ],
+          "worse": false
+        }
+      }
+    },
+    "combined_per_task_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.11038011695906431,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.07894736842105265,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.16666666666666669,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.25,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.07273391812865497,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.39473684210526316,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.16666666666666669,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.125,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.17673992673992675,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": -0.34615384615384615,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.07142857142857145,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.2857142857142857,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.04578754578754579,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.34615384615384615,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.07142857142857145,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.14285714285714285,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      }
+    },
+    "earlier_harms_retained": true,
+    "acceptance_separation": "not established; no useful gate weakened",
+    "phase_score_original": {
+      "attempts": 3,
+      "valid_intents": 0,
+      "coverage_per_attempt": 0,
+      "rubric_items": 41
+    },
+    "combined_timeout_sensitivity_agrees": true,
+    "original_verdict": "unresolved",
+    "reading_scope": "Original registered verdict retained unchanged. Combined descriptive follow-up uses per-task candidate means over every observed repetition, never pools tasks or discards original harms. Stop-rule failure forbids qualification regardless of descriptive reading.",
+    "secondary_stored_cohort": {
+      "note": "The separately frozen supplementary runtime cohort is not pooled with the primary historical cohort. Candidate runtime differs from both historical host blocks.",
+      "stored_by_task": {
+        "D": {
+          "n": 10,
+          "valid": 3,
+          "landed": 2,
+          "graded": 10,
+          "hidden": 0,
+          "timeouts": 0
+        },
+        "A": {
+          "n": 12,
+          "valid": 12,
+          "landed": 11,
+          "graded": 10,
+          "hidden": 2,
+          "timeouts": 0
+        },
+        "C": {
+          "n": 9,
+          "valid": 8,
+          "landed": 3,
+          "graded": 9,
+          "hidden": 2,
+          "timeouts": 0
+        },
+        "E": {
+          "n": 8,
+          "valid": 4,
+          "landed": 3,
+          "graded": 8,
+          "hidden": 1,
+          "timeouts": 0
+        },
+        "B": {
+          "n": 8,
+          "valid": 4,
+          "landed": 2,
+          "graded": 8,
+          "hidden": 0,
+          "timeouts": 0
+        },
+        "G": {
+          "n": 2,
+          "valid": 0,
+          "landed": 0,
+          "graded": 0,
+          "hidden": 0,
+          "timeouts": 0
+        },
+        "H": {
+          "n": 2,
+          "valid": 0,
+          "landed": 0,
+          "graded": 0,
+          "hidden": 0,
+          "timeouts": 0
+        }
+      },
+      "confirmation_readings": {
+        "include_approval_timeouts": {
+          "valid": {
+            "mean_delta": -0.25,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -1.0,
+                "stored_denominator": 12
+              },
+              {
+                "task": "B",
+                "delta": 0.5,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": true
+          },
+          "landed": {
+            "mean_delta": -0.08333333333333331,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -0.9166666666666666,
+                "stored_denominator": 12
+              },
+              {
+                "task": "B",
+                "delta": 0.75,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": true
+          },
+          "hidden": {
+            "mean_delta": -0.1,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -0.2,
+                "stored_denominator": 10
+              },
+              {
+                "task": "B",
+                "delta": 0.0,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": false
+          }
+        },
+        "exclude_approval_timeouts": {
+          "valid": {
+            "mean_delta": -0.25,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -1.0,
+                "stored_denominator": 12
+              },
+              {
+                "task": "B",
+                "delta": 0.5,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": true
+          },
+          "landed": {
+            "mean_delta": -0.08333333333333331,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -0.9166666666666666,
+                "stored_denominator": 12
+              },
+              {
+                "task": "B",
+                "delta": 0.75,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": true
+          },
+          "hidden": {
+            "mean_delta": -0.1,
+            "per_task": [
+              {
+                "task": "A",
+                "delta": -0.2,
+                "stored_denominator": 10
+              },
+              {
+                "task": "B",
+                "delta": 0.0,
+                "stored_denominator": 8
+              }
+            ],
+            "worse": false
+          }
+        }
+      }
+    }
+  },
+  "original": [
+    {
+      "task": "A",
+      "outcome": "landed",
+      "valid": true,
+      "landed": true,
+      "hidden_all_pass": false,
+      "acceptance_separation": "unestablished",
+      "stored": {
+        "n": 19,
+        "valid": 11,
+        "landed": 2,
+        "graded": 11,
+        "hidden": 0,
+        "timeouts": 6
+      },
+      "wall_s": 567.493,
+      "tokens": {
+        "input_tokens": 822717,
+        "cached_input_tokens": 714624,
+        "output_tokens": 10801,
+        "reasoning_tokens": 2074,
+        "requests": 40
+      }
+    },
+    {
+      "task": "B",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": {
+        "n": 9,
+        "valid": 3,
+        "landed": 3,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 2
+      },
+      "wall_s": 157.186,
+      "tokens": {
+        "input_tokens": 167875,
+        "cached_input_tokens": 145024,
+        "output_tokens": 2154,
+        "reasoning_tokens": 793,
+        "requests": 12
+      }
+    },
+    {
+      "task": "C",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": {
+        "n": 8,
+        "valid": 4,
+        "landed": 0,
+        "graded": 4,
+        "hidden": 0,
+        "timeouts": 0
+      },
+      "wall_s": 162.33,
+      "tokens": {
+        "input_tokens": 285485,
+        "cached_input_tokens": 241664,
+        "output_tokens": 3516,
+        "reasoning_tokens": 310,
+        "requests": 14
+      }
+    },
+    {
+      "task": "D",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": {
+        "n": 8,
+        "valid": 2,
+        "landed": 1,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 1
+      },
+      "wall_s": 141.618,
+      "tokens": {
+        "input_tokens": 300780,
+        "cached_input_tokens": 256256,
+        "output_tokens": 3550,
+        "reasoning_tokens": 821,
+        "requests": 18
+      }
+    },
+    {
+      "task": "E",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": {
+        "n": 8,
+        "valid": 0,
+        "landed": 0,
+        "graded": 8,
+        "hidden": 0,
+        "timeouts": 0
+      },
+      "wall_s": 215.794,
+      "tokens": {
+        "input_tokens": 212879,
+        "cached_input_tokens": 167040,
+        "output_tokens": 1704,
+        "reasoning_tokens": 313,
+        "requests": 10
+      }
+    },
+    {
+      "task": "F",
+      "outcome": "questions_pending",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": {
+        "n": 6,
+        "valid": 0,
+        "landed": 0,
+        "graded": 6,
+        "hidden": 0,
+        "timeouts": 0
+      },
+      "wall_s": 200.929,
+      "tokens": {
+        "input_tokens": 219008,
+        "cached_input_tokens": 189312,
+        "output_tokens": 1194,
+        "reasoning_tokens": 194,
+        "requests": 11
+      }
+    },
+    {
+      "task": "G",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": null,
+      "wall_s": 287.632,
+      "tokens": {
+        "input_tokens": 218705,
+        "cached_input_tokens": 200704,
+        "output_tokens": 2728,
+        "reasoning_tokens": 1045,
+        "requests": 13
+      }
+    },
+    {
+      "task": "H",
+      "outcome": "questions_pending",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": null,
+      "wall_s": 81.599,
+      "tokens": {
+        "input_tokens": 98364,
+        "cached_input_tokens": 77184,
+        "output_tokens": 767,
+        "reasoning_tokens": 229,
+        "requests": 6
+      }
+    },
+    {
+      "task": "I",
+      "outcome": "questions_pending",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "acceptance_separation": "no completed Intent",
+      "stored": null,
+      "wall_s": 38.907,
+      "tokens": {
+        "input_tokens": 71088,
+        "cached_input_tokens": 46976,
+        "output_tokens": 738,
+        "reasoning_tokens": 197,
+        "requests": 5
+      }
+    }
+  ],
+  "confirmation": [
+    {
+      "task": "A",
+      "outcome": "refused",
+      "valid": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "complete": true,
+      "acceptance_separation": "invalid proposal: undefined acceptance steps; no completed Intent",
+      "stored": {
+        "n": 19,
+        "valid": 11,
+        "landed": 2,
+        "graded": 11,
+        "hidden": 0,
+        "timeouts": 6
+      },
+      "wall_s": 142.695,
+      "tokens": {
+        "input_tokens": 226987,
+        "cached_input_tokens": 205568,
+        "output_tokens": 2017,
+        "reasoning_tokens": 673,
+        "requests": 14
+      },
+      "review_verdicts": [],
+      "events": {
+        "pass": 0,
+        "review": 0,
+        "review_material": 0,
+        "read_ledger_reset": 0,
+        "window_reset": 0,
+        "step_sweep": 0
+      },
+      "finished_at": "2026-11-03T15:25:40.181442134Z",
+      "hidden_counts": {
+        "total": {
+          "expected": 8,
+          "passed": 3
+        },
+        "requested": {
+          "passed": 0,
+          "expected": 5
+        },
+        "regression": {
+          "passed": 3,
+          "expected": 3
+        }
+      }
+    },
+    {
+      "task": "B",
+      "outcome": "landed",
+      "valid": true,
+      "landed": true,
+      "hidden_all_pass": false,
+      "complete": true,
+      "acceptance_separation": "acceptance passed on a hidden-failing final tree; general separating power unestablished without replay",
+      "stored": {
+        "n": 9,
+        "valid": 3,
+        "landed": 3,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 2
+      },
+      "wall_s": 601.575,
+      "tokens": {
+        "input_tokens": 753491,
+        "cached_input_tokens": 659968,
+        "output_tokens": 6357,
+        "reasoning_tokens": 1659,
+        "requests": 29
+      },
+      "review_verdicts": [
+        "approve"
+      ],
+      "events": {
+        "pass": 2,
+        "review": 1,
+        "review_material": 0,
+        "read_ledger_reset": 0,
+        "window_reset": 0,
+        "step_sweep": 0
+      },
+      "finished_at": "2026-11-03T15:33:39.190850448Z",
+      "hidden_counts": {
+        "total": {
+          "expected": 11,
+          "passed": 10
+        },
+        "requested": {
+          "passed": 7,
+          "expected": 8
+        },
+        "regression": {
+          "passed": 3,
+          "expected": 3
+        }
+      }
+    }
+  ],
+  "combined_by_task": [
+    {
+      "task": "A",
+      "candidate_attempts": 2,
+      "valid": 0.5,
+      "landed": 0.5,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 19,
+        "valid": 11,
+        "landed": 2,
+        "graded": 11,
+        "hidden": 0,
+        "timeouts": 6
+      }
+    },
+    {
+      "task": "B",
+      "candidate_attempts": 2,
+      "valid": 0.5,
+      "landed": 0.5,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 9,
+        "valid": 3,
+        "landed": 3,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 2
+      }
+    },
+    {
+      "task": "C",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 8,
+        "valid": 4,
+        "landed": 0,
+        "graded": 4,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "D",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 8,
+        "valid": 2,
+        "landed": 1,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 1
+      }
+    },
+    {
+      "task": "E",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 8,
+        "valid": 0,
+        "landed": 0,
+        "graded": 8,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "F",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": {
+        "n": 6,
+        "valid": 0,
+        "landed": 0,
+        "graded": 6,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "G",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": null
+    },
+    {
+      "task": "H",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": null
+    },
+    {
+      "task": "I",
+      "candidate_attempts": 1,
+      "valid": 0.0,
+      "landed": 0.0,
+      "hidden_all_pass": 0.0,
+      "stored": null
+    }
+  ]
+}

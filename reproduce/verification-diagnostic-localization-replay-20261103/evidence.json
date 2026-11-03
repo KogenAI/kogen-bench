@@ -1,0 +1,581 @@
+{
+  "cases": [
+    {
+      "id": 1,
+      "title": "Discarded yielded shells cancel serially",
+      "repo": "kogen-loop",
+      "tested_commit": "fe2bcd7e3fe059fc5ac8c3a792168f988b495057",
+      "tested_tree": "ee4174240cdbcee426e3a50ba72125a546fb534b",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "3372dcfd45bf28deeb8379618a094a032f4930d8",
+      "source_url": "https://github.com/KogenAI/kogen-loop/commit/3372dcfd45bf28deeb8379618a094a032f4930d8",
+      "responsible": [
+        {
+          "file": "loop/overlap.go",
+          "start": 94,
+          "end": 117,
+          "function": "(*stage).retire"
+        }
+      ],
+      "fix_locations": [
+        "loop/overlap.go:94-117",
+        "tools/tools.go:635-646"
+      ],
+      "retained_output": "=== RUN   TestCL3SequentialShellsAddUp\n--- PASS: TestCL3SequentialShellsAddUp (1.51s)\n=== RUN   TestCL3TermIgnoringTeardown\n    cl3_turn_bound_test.go:99: CL3 n=1 TERM-ignoring: EndShellRound real=5.03s\n    cl3_turn_bound_test.go:121: CL3 n=1 TERM-ignoring: discarded-attempt retire real=5.04s\n    cl3_turn_bound_test.go:99: CL3 n=2 TERM-ignoring: EndShellRound real=5.04s\n    cl3_turn_bound_test.go:121: CL3 n=2 TERM-ignoring: discarded-attempt retire real=10.08s\n    cl3_turn_bound_test.go:99: CL3 n=3 TERM-ignoring: EndShellRound real=5.04s\n    cl3_turn_bound_test.go:121: CL3 n=3 TERM-ignoring: discarded-attempt retire real=15.11s\n--- PASS: TestCL3TermIgnoringTeardown (47.75s)\n=== RUN   TestCL3CompletionAndDrain\n--- PASS: TestCL3CompletionAndDrain (1.21s)\n",
+      "output_kind": "retained L1 measurement, not emitted verification feedback",
+      "limit": "Raw tool result recovered from climb-loop-3 retained transcript; no historical verification refusal exists. Do not count as a failed repair.",
+      "input_sha256": "bf371d612c14aedaac5304f7d24db924aac0c671499e1de0cbd458f686c05a61",
+      "score": {
+        "file": false,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "=== RUN   TestCL3SequentialShellsAddUp\n--- PASS: TestCL3SequentialShellsAddUp (1.51s)\n=== RUN   TestCL3TermIgnoringTeardown\n    cl3_turn_bound_test.go:99: CL3 n=1 TERM-ignoring: EndShellRound real=5.03s\n    cl3_turn_bound_test.go:121: CL3 n=1 TERM-ignoring: discarded-attempt retire real=5.04s\n    cl3_turn_bound_test.go:99: CL3 n=2 TERM-ignoring: EndShellRound real=5.04s\n    cl3_turn_bound_test.go:121: CL3 n=2 TERM-ignoring: discarded-attempt retire real=10.08s\n    cl3_turn_bound_test.go:99: CL3 n=3 TERM-ignoring: EndShellRound real=5.04s\n    cl3_turn_bound_test.go:121: CL3 n=3 TERM-ignoring: discarded-attempt retire real=15.11s\n--- PASS: TestCL3TermIgnoringTeardown (47.75s)\n=== RUN   TestCL3CompletionAndDrain\n--- PASS: TestCL3CompletionAndDrain (1.21s)",
+        "host_failure": false,
+        "host_line": "",
+        "id": 1
+      },
+      "declared_component_versions": []
+    },
+    {
+      "id": 2,
+      "title": "Probe ignores cancellation after start",
+      "repo": "kogen-verification",
+      "tested_commit": "50700523f3496555ef4774999265ecb09c50684a",
+      "tested_tree": "2a22ca1c73c0b694a38f4a5acf3e14c72202cd7f",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "c025c694888d933e851664df7937c0a535234425",
+      "source_url": "https://github.com/KogenAI/kogen-verification/commit/c025c694888d933e851664df7937c0a535234425",
+      "responsible": [
+        {
+          "file": "verify/probe.go",
+          "start": 42,
+          "end": 42,
+          "function": "probeRun"
+        }
+      ],
+      "fix_locations": [
+        "verify/probe.go:42-44",
+        "verify/probe.go:197-205"
+      ],
+      "retained_output": "{\"after_cancel_ms\": 1001, \"cancelled\": true, \"case\": \"probe-cancel-after-start\", \"error\": \"\", \"late_side_effect\": true, \"returned_cancel\": false, \"status\": 0, \"timed_out\": false}",
+      "output_kind": "retained external harness result",
+      "limit": "Synthetic command witness, not a model repair log. Current diagnostic replay transforms the retained result, it does not rerun cancellation.",
+      "input_sha256": "ca0884b5c3ea83c7873163c144220a1a440149c7c754186e592e3b3d060def0e",
+      "score": {
+        "file": false,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "{\"after_cancel_ms\": 1001, \"cancelled\": true, \"case\": \"probe-cancel-after-start\", \"error\": \"\", \"late_side_effect\": true, \"returned_cancel\": false, \"status\": 0, \"timed_out\": false}",
+        "host_failure": false,
+        "host_line": "",
+        "id": 2
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Candidate assertion quotes memory failure",
+      "repo": "kogen-verification",
+      "tested_commit": "50700523f3496555ef4774999265ecb09c50684a",
+      "tested_tree": "2a22ca1c73c0b694a38f4a5acf3e14c72202cd7f",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "f4d004d53a8d2928c778462944993a93fc5f5ee4",
+      "source_url": "https://github.com/KogenAI/kogen-verification/commit/f4d004d53a8d2928c778462944993a93fc5f5ee4",
+      "responsible": [
+        {
+          "file": "verify/envfailure.go",
+          "start": 15,
+          "end": 31,
+          "function": "EnvFailure"
+        }
+      ],
+      "fix_locations": [
+        "verify/envfailure.go:15-31"
+      ],
+      "retained_output": "--- FAIL: TestResourceMessage (0.00s)\n    message_test.go:12: want error containing 'out of memory', got nil\nFAIL\n",
+      "output_kind": "retained exported classifier input",
+      "limit": "Quoted phrase is test data; independent historical harness classified it as host failure. The supplied message_test.go:12 is an assertion site, not the classifier defect.",
+      "input_sha256": "0644d84fb6113047a0048807fdba7a0fb504c8f8f570800b55a719155fd5c38a",
+      "score": {
+        "file": false,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "--- FAIL: TestResourceMessage (0.00s)\n    message_test.go:12: want error containing 'out of memory', got nil\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 3
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Candidate assertion quotes file limit",
+      "repo": "kogen-verification",
+      "tested_commit": "50700523f3496555ef4774999265ecb09c50684a",
+      "tested_tree": "2a22ca1c73c0b694a38f4a5acf3e14c72202cd7f",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "f4d004d53a8d2928c778462944993a93fc5f5ee4",
+      "source_url": "https://github.com/KogenAI/kogen-verification/commit/f4d004d53a8d2928c778462944993a93fc5f5ee4",
+      "responsible": [
+        {
+          "file": "verify/envfailure.go",
+          "start": 15,
+          "end": 31,
+          "function": "EnvFailure"
+        }
+      ],
+      "fix_locations": [
+        "verify/envfailure.go:15-31"
+      ],
+      "retained_output": "--- FAIL: TestResourceMessage (0.00s)\n    message_test.go:12: want error containing 'too many open files', got nil\nFAIL\n",
+      "output_kind": "retained exported classifier input",
+      "limit": "Quoted phrase is test data; independent historical harness classified it as host failure. The supplied message_test.go:12 is an assertion site, not the classifier defect.",
+      "input_sha256": "d6e36774baf9efdac2e81ba1de5e62f462d5e49d95799aeed674febb4f38fdc4",
+      "score": {
+        "file": false,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "--- FAIL: TestResourceMessage (0.00s)\n    message_test.go:12: want error containing 'too many open files', got nil\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 4
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Review host calls deleted state methods",
+      "repo": "kogen-build",
+      "tested_commit": "14f21a39bbf70299d1401a7af69059d828f1e8d3",
+      "tested_tree": "d6c827b9303e88942e0b5a7d283a9b74c3ad0cb6",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "b47cde70dcdf4fea58f2043b31619b07e8bdc9da",
+      "source_url": "https://github.com/KogenAI/kogen-build/commit/b47cde70dcdf4fea58f2043b31619b07e8bdc9da",
+      "responsible": [
+        {
+          "file": "build/host.go",
+          "start": 93,
+          "end": 106,
+          "function": "(*reviewHost).OnDemand / RequiredUnread"
+        }
+      ],
+      "fix_locations": [
+        "build/host.go:93-106"
+      ],
+      "retained_output": "vet rc=1 1s\n# github.com/KogenAI/kogen-build/build\n# [github.com/KogenAI/kogen-build/build]\nvet: build/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\ngo-test rc=1 31s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/host.go:93:44: h.b.onDemand undefined (type *Attempt has no field or method onDemand)\nbuild/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nok  \tgithub.com/KogenAI/kogen-build/build/core\t(cached)\nok  \tgithub.com/KogenAI/kogen-build/build/review\t0.008s\nFAIL\nrace rc=1 2s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/host.go:93:44: h.b.onDemand undefined (type *Attempt has no field or method onDemand)\nbuild/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nok  \tgithub.com/KogenAI/kogen-build/build/core\t1.213s\nok  \tgithub.com/KogenAI/kogen-build/build/review\t1.027s\nFAIL\n",
+      "output_kind": "retained landing summary",
+      "limit": "Summary includes resolver and gate text; current replay is a feedback proxy, not the exact original verification envelope.",
+      "input_sha256": "24fcf68a7f38d18bc3c849de694701d220ac666e57ebcf8a6ba98646676a7f7a",
+      "score": {
+        "file": true,
+        "line_or_function": true,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "vet rc=1 1s\n# github.com/KogenAI/kogen-build/build\n# [github.com/KogenAI/kogen-build/build]\nvet: build/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\ngo-test rc=1 31s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/host.go:93:44: h.b.onDemand undefined (type *Attempt has no field or method onDemand)\nbuild/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nok  \tgithub.com/KogenAI/kogen-build/build/core\t(cached)\nok  \tgithub.com/KogenAI/kogen-build/build/review\t0.008s\nFAIL\nrace rc=1 2s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/host.go:93:44: h.b.onDemand undefined (type *Attempt has no field or method onDemand)\nbuild/host.go:105:13: h.b.materialRequiredUnread undefined (type *Attempt has no field or method materialRequiredUnread)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nok  \tgithub.com/KogenAI/kogen-build/build/core\t1.213s\nok  \tgithub.com/KogenAI/kogen-build/build/review\t1.027s\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 5
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261102193603-1aea0728c24b"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261103020618-01aa16c01767"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Rebase loses durable check ledger",
+      "repo": "kogen-build",
+      "tested_commit": "601a4852c79745934cb6b59f0d2eb37480002dde",
+      "tested_tree": "4982d0608bb90cbb72ec3902c43665a1f3ee23bf",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "b9990a3d090306d79e28ac0d858ba47c8f3b0ed4",
+      "source_url": "https://github.com/KogenAI/kogen-build/commit/b9990a3d090306d79e28ac0d858ba47c8f3b0ed4",
+      "responsible": [
+        {
+          "file": "build/core_state.go",
+          "start": 158,
+          "end": 166,
+          "function": "State"
+        }
+      ],
+      "fix_locations": [
+        "build/core_state.go:158-166"
+      ],
+      "retained_output": "vet rc=1 0s\n# github.com/KogenAI/kogen-build/build\n# [github.com/KogenAI/kogen-build/build]\nvet: build/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\ngo-test rc=1 149s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nbuild/checkreuse.go:117:27: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nFAIL\nrace rc=1 1s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nbuild/checkreuse.go:117:27: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nFAIL\n",
+      "output_kind": "retained landing summary",
+      "limit": "Fix is rebuilt implementation with CheckResults on current State; undefined-use site checkreuse.go is not the missing declaration.",
+      "input_sha256": "b81f8fcc9c7e55216f15348507e29e3a4cf61575d9dca92d68a073beb05dae89",
+      "score": {
+        "file": false,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "vet rc=1 0s\n# github.com/KogenAI/kogen-build/build\n# [github.com/KogenAI/kogen-build/build]\nvet: build/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\ngo-test rc=1 149s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nbuild/checkreuse.go:117:27: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nFAIL\nrace rc=1 1s\n# github.com/KogenAI/kogen-build/build [github.com/KogenAI/kogen-build/build.test]\nbuild/checkreuse.go:103:22: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nbuild/checkreuse.go:117:27: b.CheckLedger undefined (type *Attempt has no field or method CheckLedger)\nFAIL\tgithub.com/KogenAI/kogen-build/build [build failed]\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 6
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261103084720-09eabaf5b7dc"
+        ],
+        [
+          "github.com/KogenAI/kogen-review",
+          "v0.0.0-20261103085153-1c3a6418c47e"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261103020618-01aa16c01767"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Consumer NativeBuilder pins obsolete exact cut",
+      "repo": "kogen-build",
+      "tested_commit": "09b177ee4570fd8e9c84c150dd6c5f114a922fbe",
+      "tested_tree": "98137c0ad2f5e25683ed519c6ec53964650d621a",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "77577264387a164f1ce1928fd414e852916cc6ed",
+      "source_url": "https://github.com/KogenAI/kogen-build/commit/77577264387a164f1ce1928fd414e852916cc6ed",
+      "responsible": [
+        {
+          "file": "build/loop_knobs_test.go",
+          "start": 20,
+          "end": 32,
+          "function": "knobCut"
+        }
+      ],
+      "fix_locations": [
+        "build/loop_knobs_test.go:20-33"
+      ],
+      "retained_output": "--- FAIL: TestLoopKnobsNativeBuilder (0.00s)\n        loop_knobs_test.go:114: shell result: 12303 bytes delivered, want about 16384\nFAIL\n",
+      "output_kind": "retained landing assertion excerpt",
+      "limit": "Two paths share one obsolete helper; do not treat them as independent mechanisms. Basename-only assertion does not name the responsible helper or range.",
+      "input_sha256": "7818612fc3363f7d0bdbf6472846b22a9ed1c090d87b772af21dd4b56f177576",
+      "score": {
+        "file": true,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "--- FAIL: TestLoopKnobsNativeBuilder (0.00s)\n        loop_knobs_test.go:114: shell result: 12303 bytes delivered, want about 16384\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 7
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261103113131-ffca7072fe15"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261103084720-09eabaf5b7dc"
+        ],
+        [
+          "github.com/KogenAI/kogen-review",
+          "v0.0.0-20261103113204-11d83000d2f2"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261103020618-01aa16c01767"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Consumer Review pins obsolete exact cut",
+      "repo": "kogen-build",
+      "tested_commit": "09b177ee4570fd8e9c84c150dd6c5f114a922fbe",
+      "tested_tree": "98137c0ad2f5e25683ed519c6ec53964650d621a",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "77577264387a164f1ce1928fd414e852916cc6ed",
+      "source_url": "https://github.com/KogenAI/kogen-build/commit/77577264387a164f1ce1928fd414e852916cc6ed",
+      "responsible": [
+        {
+          "file": "build/loop_knobs_test.go",
+          "start": 20,
+          "end": 32,
+          "function": "knobCut"
+        }
+      ],
+      "fix_locations": [
+        "build/loop_knobs_test.go:20-33"
+      ],
+      "retained_output": "--- FAIL: TestLoopKnobsReview (0.00s)\n        loop_knobs_test.go:164: reviewer shell result: 12303 bytes delivered, want about 16384\nFAIL\n",
+      "output_kind": "retained landing assertion excerpt",
+      "limit": "Two paths share one obsolete helper; do not treat them as independent mechanisms. Basename-only assertion does not name the responsible helper or range.",
+      "input_sha256": "3db589548f417c6586bbedad66aeab51b3859939cb32360e1d317af0fccd3c54",
+      "score": {
+        "file": true,
+        "line_or_function": false,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "--- FAIL: TestLoopKnobsReview (0.00s)\n        loop_knobs_test.go:164: reviewer shell result: 12303 bytes delivered, want about 16384\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 8
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261103113131-ffca7072fe15"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261103084720-09eabaf5b7dc"
+        ],
+        [
+          "github.com/KogenAI/kogen-review",
+          "v0.0.0-20261103113204-11d83000d2f2"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261103020618-01aa16c01767"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Standalone review uses old material type",
+      "repo": "kogen-review",
+      "tested_commit": "58069c613ebb15c5cae98010bf7424c9d39fe37a",
+      "tested_tree": "772fcd2fe578a992e5a7530145059b031b9e7f82",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "4870fdd4b571ccda55a516a6ef30bafd050ae40c",
+      "source_url": "https://github.com/KogenAI/kogen-review/commit/4870fdd4b571ccda55a516a6ef30bafd050ae40c",
+      "responsible": [
+        {
+          "file": "cmd/kogen-review/main.go",
+          "start": 253,
+          "end": 255,
+          "function": "(*env).Prepare"
+        }
+      ],
+      "fix_locations": [
+        "cmd/kogen-review/main.go:186-190"
+      ],
+      "retained_output": "\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\ncmd/kogen-review/main.go:301:20: cannot use (*env)(nil) (value of type *env) as review.Env value in variable declaration: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\nFAIL\tgithub.com/KogenAI/kogen-review/cmd/kogen-review [build failed]\nok  \tgithub.com/KogenAI/kogen-review/contract\t1.741s\nok  \tgithub.com/KogenAI/kogen-review/review\t0.223s\nFAIL\nrace rc=1 4s\n# github.com/KogenAI/kogen-review/cmd/kogen-review\ncmd/kogen-review/main.go:121:59: cannot use e (variable of type *env) as review.Env value in argument to review.Independent{}.Review: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\ncmd/kogen-review/main.go:301:20: cannot use (*env)(nil) (value of type *env) as review.Env value in variable declaration: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\nFAIL\tgithub.com/KogenAI/kogen-review/cmd/kogen-review [build failed]\nok  \tgithub.com/KogenAI/kogen-review/contract\t2.694s\nok  \tgithub.com/KogenAI/kogen-review/review\t1.223s\nFAIL\n",
+      "output_kind": "retained landing summary",
+      "limit": "Compiler names interface assertion/use sites; repair changes Prepare signature.",
+      "input_sha256": "d630d6fa413fb28a5725386bf17dca24b2e48ebace3b8b466d042b4c6deb9674",
+      "score": {
+        "file": true,
+        "line_or_function": true,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\ncmd/kogen-review/main.go:301:20: cannot use (*env)(nil) (value of type *env) as review.Env value in variable declaration: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\nFAIL\tgithub.com/KogenAI/kogen-review/cmd/kogen-review [build failed]\nok  \tgithub.com/KogenAI/kogen-review/contract\t1.741s\nok  \tgithub.com/KogenAI/kogen-review/review\t0.223s\nFAIL\nrace rc=1 4s\n# github.com/KogenAI/kogen-review/cmd/kogen-review\ncmd/kogen-review/main.go:121:59: cannot use e (variable of type *env) as review.Env value in argument to review.Independent{}.Review: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\ncmd/kogen-review/main.go:301:20: cannot use (*env)(nil) (value of type *env) as review.Env value in variable declaration: *env does not implement review.Env (wrong type for method Prepare)\n\t\thave Prepare(string, core.MaterialSet, project.Role, string, []any, []any) ([]any, error)\n\t\twant Prepare(string, review.MaterialSet, project.Role, string, []any, []any) ([]any, error)\nFAIL\tgithub.com/KogenAI/kogen-review/cmd/kogen-review [build failed]\nok  \tgithub.com/KogenAI/kogen-review/contract\t2.694s\nok  \tgithub.com/KogenAI/kogen-review/review\t1.223s\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 9
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261103113131-ffca7072fe15"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261103084720-09eabaf5b7dc"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261103020618-01aa16c01767"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Selfcheck fixture reaches wrong refusal stage",
+      "repo": "kogen-shaping",
+      "tested_commit": "e35af7c2a1ad07e12e967c14e5655ab268a51351",
+      "tested_tree": "ce4cdc61a5e8cf1506c1ff54d184a8b4ed89b557",
+      "tuple_limit": "Declared module pins recovered from the named tree; runtime overrides and complete consumer tuple not retained.",
+      "fix_commit": "0f3c76f5c6db3e6bf85ab2f570f11fe53ab31bfa",
+      "source_url": "https://github.com/KogenAI/kogen-shaping/commit/0f3c76f5c6db3e6bf85ab2f570f11fe53ab31bfa",
+      "responsible": [
+        {
+          "file": "shape/selfcheck_stderr_test.go",
+          "start": 76,
+          "end": 89,
+          "function": "TestSelfcheckObserverExhaustionRedactsRetainedEvents"
+        }
+      ],
+      "fix_locations": [
+        "shape/stepcheck_test.go:63-105 (replacement fixtures)"
+      ],
+      "retained_output": "format rc=0 0s\ncompile rc=0 4s\nvet rc=0 1s\ngo-test rc=1 275s\n--- FAIL: TestSelfcheckObserverExhaustionRedactsRetainedEvents (0.19s)\n    selfcheck_stderr_test.go:89: err = shape/invalid_output: the shaper's output was not a valid Intent after 3 attempts (exit 1), want intent/not_ready: the Intent is not ready to build (exit 1)\nFAIL\nFAIL\tgithub.com/KogenAI/kogen-shaping/shape\t189.503s\nFAIL\nrace rc=1 227s\n--- FAIL: TestSelfcheckObserverExhaustionRedactsRetainedEvents (0.27s)\n    selfcheck_stderr_test.go:89: err = shape/invalid_output: the shaper's output was not a valid Intent after 3 attempts (exit 1), want intent/not_ready: the Intent is not ready to build (exit 1)\nFAIL\nFAIL\tgithub.com/KogenAI/kogen-shaping/shape\t218.633s\nFAIL\n",
+      "output_kind": "retained landing summary",
+      "limit": "Fixture was replaced by focused synthetic stderr tests in shape/stepcheck_test.go:63-105. This is a test/fixture repair, not evidence that deleting a useful gate improves correctness; no rescue claim.",
+      "input_sha256": "2544e72c97ccebcdc53701ab67e18e64b0b6247b737b15c46e39069b21209d11",
+      "score": {
+        "file": true,
+        "line_or_function": true,
+        "exact_tested_tuple": false,
+        "stale_revision_demonstrated": false
+      },
+      "current": {
+        "diagnostic": "format rc=0 0s\ncompile rc=0 4s\nvet rc=0 1s\ngo-test rc=1 275s\n--- FAIL: TestSelfcheckObserverExhaustionRedactsRetainedEvents (0.19s)\n    selfcheck_stderr_test.go:89: err = shape/invalid_output: the shaper's output was not a valid Intent after 3 attempts (exit 1), want intent/not_ready: the Intent is not ready to build (exit 1)\nFAIL\nFAIL\tgithub.com/KogenAI/kogen-shaping/shape\t189.503s\nFAIL\nrace rc=1 227s\n--- FAIL: TestSelfcheckObserverExhaustionRedactsRetainedEvents (0.27s)\n    selfcheck_stderr_test.go:89: err = shape/invalid_output: the shaper's output was not a valid Intent after 3 attempts (exit 1), want intent/not_ready: the Intent is not ready to build (exit 1)\nFAIL\nFAIL\tgithub.com/KogenAI/kogen-shaping/shape\t218.633s\nFAIL",
+        "host_failure": false,
+        "host_line": "",
+        "id": 10
+      },
+      "declared_component_versions": [
+        [
+          "github.com/KogenAI/kogen-coordinator",
+          "v0.0.0-20261102193107-c4a49a4fe84f"
+        ],
+        [
+          "github.com/KogenAI/kogen-executor",
+          "v0.0.0-20261102193603-1aea0728c24b"
+        ],
+        [
+          "github.com/KogenAI/kogen-verification",
+          "v0.0.0-20261102193616-587f67dae7e8"
+        ],
+        [
+          "kogen-loop",
+          "v0.0.0"
+        ],
+        [
+          "github.com/KogenAI/kogen-loop",
+          "v0.0.0-20261102055344-c6e2360290d4"
+        ]
+      ]
+    }
+  ],
+  "totals": {
+    "file": 5,
+    "line_or_function": 3,
+    "exact_tested_tuple": 0,
+    "stale_revision_demonstrated": 0,
+    "n": 10,
+    "repos": 5,
+    "independent_mechanisms": 8,
+    "old_quoted_assertion_host_failures": 2,
+    "current_quoted_assertion_host_failures": 0
+  },
+  "replay_modules": {
+    "kogen-verification": "f4d004d53a8d2928c778462944993a93fc5f5ee4",
+    "kogen-coordinator": "c4a49a4fe84faaa2d3705ad4d270841f4467969f",
+    "kogen-loop": "c6e2360290d4d8f7e124d68c4e656b38fb350d32"
+  },
+  "go": "go version go1.27.2 linux/amd64",
+  "finished_at": "2026-11-03T18:18:46.650465Z"
+}

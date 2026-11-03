@@ -268,3 +268,19 @@ The loop prefix through `ae0d82d` sends identical request bytes in eight scripte
 ### A coherent component update remains unqualified
 
 All current component heads, assembled together by one Kogen re-pin candidate, ran nine full-pipeline attempts with gpt-6.1-terra at medium effort for every role, candidate only, compared with stored runs of the adopted release on the same tasks. One attempt produced a valid Intent, landed and passed review; none passed every hidden check; three shape-only attempts produced no Intent. Most shaping stops came from submitted packages that were incomplete, against a stored valid-Intent rate of about one in three. A harm guard fires and the registered comparison changes classification when historical approval timeouts are excluded, so the set stays unqualified and a bounded confirmation follows. [Reproduction pack](../reproduce/kogen-coherent-set-c92d897/README.md).
+
+## Current coherent component set
+
+[A coherent component update regresses task readiness](../reproduce/kogen-coherent-main-a1a0445/README.md) recorded 2/9 valid Intents and 0/9 hidden all-passes. Verdict **WORSE**; no individual component effect is claimed.
+
+## Bounded follow-up of a coherent component update
+
+[The bounded confirmation](../reproduce/kogen-coherent-set-c92d897-confirmation/README.md) ended with one valid Intent and one landed change in two attempts, and no whole-task hidden passes. Undefined steps in a generated acceptance contract triggered the registered stopping rule before a third attempt. The original readiness harm remains primary in both historical-timeout readings. No component is qualified.
+
+A [verification cancellation follow-up](finding:kogen-verification-caller-cancellation-f0884fd) checks the updated release assembly against stored attempts at the same model and effort. Contract checks pass; task outcomes and natural cancellation observations are reported separately.
+
+A [coordinator validation feedback screen](finding:kogen-coordinator-lint-routing-e26a4d7) completed three task attempts with no whole-task hidden passes against stored attempts with the same result. Contract checks pass, but changed-feedback behavior was not observed; the component remains unresolved.
+
+## Retained diagnostic localization replay
+
+[Ten retained inputs](../reproduce/verification-diagnostic-localization-replay-20261103/README.md) span five component repositories. File and function localization remain incomplete and no full tested tuple is carried by the replayed excerpts. This is model-free diagnostic evidence; repair efficacy remains unresolved.

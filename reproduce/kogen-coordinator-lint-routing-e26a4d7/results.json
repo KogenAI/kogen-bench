@@ -1,0 +1,230 @@
+{
+  "finding_id": "kogen-coordinator-lint-routing-e26a4d7",
+  "verdict": "unresolved",
+  "finished_at": "2026-11-03T17:18:45.645151587Z",
+  "ledger_finished_at": "2026-11-03T17:18:45Z",
+  "tasks": [
+    {
+      "task": "Account cleanup",
+      "task_id": "rails-ft-cancelled-account-cleanup",
+      "group": "targeted",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "hidden_pass": false,
+        "wall_s": 393.325
+      },
+      "candidate": {
+        "outcome": "build_blocked",
+        "valid_intent": true,
+        "hidden_pass": false,
+        "grade_complete": true,
+        "grade_infrastructure": null,
+        "grade_totals": {
+          "expected": 8,
+          "passed": 3
+        },
+        "acceptance_separation": "not established",
+        "shape_assessment": "task copy has no reference tree (shape matrix needs the qualification dir)",
+        "wall_s": 433.92,
+        "input_tokens": 867383,
+        "cached_input_tokens": 780544,
+        "output_tokens": 7726,
+        "reasoning_tokens_subset_of_output": 1136,
+        "lint_witness_count": 0
+      },
+      "attribution": {
+        "stage": "shape/acceptance",
+        "class": "b",
+        "cause": "Stored landed; candidate build_blocked after valid Intent. Protected step runs Rails runner without schema preparation (saved step lines 31/43; Account.create! line 14); actual protected project setup is empty (project.yaml line 3). Builder reports missing accounts table. Source supports the missing fixture precondition; no independent new reproduction. No changed-lint witness. All harms retained."
+      },
+      "event_counts": {
+        "response_budget": 2,
+        "cache_identity": 3,
+        "context_selection": 15,
+        "provider_call": 25,
+        "probe_result": 6,
+        "step_selfcheck": 3,
+        "contract_review": 2,
+        "shaping_turn_counts": 1,
+        "usage_totals": 1,
+        "phase_duration": 10,
+        "session_end": 1,
+        "start": 1,
+        "command": 2,
+        "command_result": 2,
+        "baseline_checks": 1,
+        "provider_attempt": 16,
+        "request": 16,
+        "tool_call": 17,
+        "pass": 1,
+        "builder_blocker": 1,
+        "outcome": 1
+      }
+    },
+    {
+      "task": "Sweep performance",
+      "task_id": "rails-ft-entropy-sweep",
+      "group": "targeted",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "wall_s": 112.324
+      },
+      "candidate": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "hidden_pass": false,
+        "grade_complete": true,
+        "grade_infrastructure": null,
+        "grade_totals": {
+          "expected": 11,
+          "passed": 10
+        },
+        "acceptance_separation": "not established",
+        "shape_assessment": "task copy has no reference tree (shape matrix needs the qualification dir)",
+        "wall_s": 334.099,
+        "input_tokens": 549635,
+        "cached_input_tokens": 430976,
+        "output_tokens": 4629,
+        "reasoning_tokens_subset_of_output": 1235,
+        "lint_witness_count": 0
+      },
+      "attribution": {
+        "stage": "shape",
+        "class": "b",
+        "cause": "Stored stopped at three no-tool shaping turns; candidate shaped and approved a valid Intent and landed. No changed-lint witness, and the released assembly differs from the stored baseline, so this is an unisolated package observation. Final hidden result is retained separately."
+      },
+      "event_counts": {
+        "response_budget": 2,
+        "cache_identity": 3,
+        "context_selection": 11,
+        "provider_call": 16,
+        "documentation_lookup": 2,
+        "probe_result": 3,
+        "step_selfcheck": 3,
+        "contract_review": 2,
+        "shaping_turn_counts": 1,
+        "usage_totals": 1,
+        "phase_duration": 11,
+        "session_end": 1,
+        "start": 1,
+        "command": 3,
+        "command_result": 3,
+        "baseline_checks": 1,
+        "provider_attempt": 11,
+        "request": 11,
+        "tool_call": 15,
+        "pass": 1,
+        "review_tool_call": 2,
+        "review": 1,
+        "commit": 1,
+        "outcome": 1
+      }
+    },
+    {
+      "task": "Comment reactions",
+      "task_id": "rails-ft-comment-reaction-live-echo",
+      "group": "held-out",
+      "role_model_effort_backend": {
+        "shape": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "build": "gpt-6.1-terra / medium / native Loop / ChatGPT",
+        "review": "gpt-6.1-terra / medium / native Loop / ChatGPT"
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "wall_s": 65.338
+      },
+      "candidate": {
+        "outcome": "questions_pending",
+        "valid_intent": false,
+        "hidden_pass": false,
+        "grade_complete": true,
+        "grade_infrastructure": null,
+        "grade_totals": {
+          "expected": 9,
+          "passed": 3
+        },
+        "acceptance_separation": "not established",
+        "shape_assessment": "shape stage did not finish: exit 5",
+        "wall_s": 46.002,
+        "input_tokens": 106311,
+        "cached_input_tokens": 83968,
+        "output_tokens": 1224,
+        "reasoning_tokens_subset_of_output": 631,
+        "lint_witness_count": 0
+      },
+      "attribution": {
+        "stage": "shape",
+        "class": "b",
+        "cause": "Stored refused after no-tool shaping turns; candidate asks an explicit UX question about anonymous visitors using the add-reaction button. No completed Intent. This question is not independently classified as a product defect; both attempts stop before implementation, with no changed-lint witness."
+      },
+      "event_counts": {
+        "response_budget": 1,
+        "cache_identity": 1,
+        "context_selection": 6,
+        "provider_call": 6,
+        "probe_result": 1,
+        "forced_submit_turn": 1,
+        "shaping_turn_counts": 1,
+        "usage_totals": 1,
+        "phase_duration": 6,
+        "session_end": 1
+      }
+    }
+  ],
+  "acceptance_separation": "not established",
+  "cost": {
+    "input_tokens": 1523329,
+    "cached_input_tokens": 1295488,
+    "output_tokens": 13579,
+    "usd": null,
+    "pricing": "Subscription model is unpriced; numeric zero emitted by the harness is not a free-run estimate.",
+    "helper_orchestration_tokens": null,
+    "helper_orchestration_usd": null,
+    "grading_wall_s": null,
+    "build_attempts": [
+      {
+        "rc": 0,
+        "wall_s": 14.46773
+      }
+    ],
+    "failed_staging_attempts": 1,
+    "test_attempts": [
+      {
+        "base": "qualified",
+        "rc": 0,
+        "test_subtest_passes": 98
+      },
+      {
+        "base": "candidate",
+        "rc": 0,
+        "test_subtest_passes": 124
+      }
+    ]
+  },
+  "candidate_cell_wall_s": 814.021,
+  "disposition": "bounded confirmation",
+  "stop_rule": "Require a retained natural lint-refusal case and stored adopted comparison before any next candidate cells; at most two Terra-medium cells, one hour total; stop if the feedback never fires. No further cells in this job.",
+  "limits": [
+    "Three tasks, one repetition each; descriptive smoke only, no significance or equivalence claim.",
+    "Stored comparison is another Linux host/time; current and stored git both 2.43.0; historical kit digests and per-cell host load readings unavailable.",
+    "Candidate uses a newer released assembly; changes cannot be isolated to the coordinator.",
+    "The harness skips initialization, and released build does not import route: Bundler/routing live coverage absent.",
+    "No weakening of gates or removal of harms; builder-reported protected contradiction remains a claim supported by source inspection, not a newly reproduced proof.",
+    "Helper orchestration tokens and subscription dollar prices unavailable; all measured cell phases and failed attempts retained."
+  ]
+}

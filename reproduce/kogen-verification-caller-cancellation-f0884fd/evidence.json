@@ -1,0 +1,199 @@
+{
+  "component": "kogen-verification",
+  "head": "f0884fde435ad9d59f9c882b17b93b48ce5dfeeb",
+  "verdict": "unresolved",
+  "finished_at": "2026-11-03T17:03:04Z",
+  "finished_at_exact": "2026-11-03T17:03:04.248838441Z",
+  "stored_adopted_kogen": "573d023b66b93f9781557e1518f78f2ce969dde3",
+  "candidate_kogen": "6e69ffb3243603cd5cd9253efd418a0c24130583",
+  "tasks": [
+    {
+      "task": "T1",
+      "group": "targeted",
+      "roles": {
+        "shape": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": true
+        },
+        "build": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": true
+        },
+        "review": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": true
+        }
+      },
+      "stored": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "hidden_all_passed": false,
+        "wall_s": 393.325,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "hidden_all_passed": false,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 5,
+        "grade_total": 8,
+        "acceptance_separation": "not established",
+        "wall_s": 538.27,
+        "tokens": {
+          "input_tokens": 837043,
+          "cached_input_tokens": 731904,
+          "output_tokens": 9452
+        },
+        "git": "git version 2.43.0"
+      },
+      "attribution": {
+        "stage": "completed",
+        "cause_class": "e",
+        "cause": "Both attempts landed and failed whole-task hidden grading; no natural caller-cancellation witness."
+      }
+    },
+    {
+      "task": "T2",
+      "group": "targeted",
+      "roles": {
+        "shape": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": true
+        },
+        "build": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": false
+        },
+        "review": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": false
+        }
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_all_passed": false,
+        "wall_s": 112.324,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "questions_pending",
+        "valid_intent": false,
+        "hidden_all_passed": false,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 10,
+        "grade_total": 11,
+        "acceptance_separation": "not established",
+        "wall_s": 60.263,
+        "tokens": {
+          "input_tokens": 154123,
+          "cached_input_tokens": 132736,
+          "output_tokens": 1442
+        },
+        "git": "git version 2.43.0"
+      },
+      "attribution": {
+        "stage": "shape",
+        "cause_class": "b",
+        "cause": "Candidate asked for a workload target before producing an Intent; stored attempt also stopped in shaping."
+      }
+    },
+    {
+      "task": "T3",
+      "group": "held-out",
+      "roles": {
+        "shape": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": true
+        },
+        "build": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": false
+        },
+        "review": {
+          "model": "gpt-6.1-terra",
+          "effort": "medium",
+          "backend": "native Loop",
+          "route": "ChatGPT",
+          "executed": false
+        }
+      },
+      "stored": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_all_passed": false,
+        "wall_s": 65.338,
+        "git": "git version 2.43.0"
+      },
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "hidden_all_passed": false,
+        "hidden_grade_complete": true,
+        "hidden_grade_infrastructure": null,
+        "grade_passed": 3,
+        "grade_total": 9,
+        "acceptance_separation": "not established",
+        "wall_s": 65.693,
+        "tokens": {
+          "input_tokens": 176821,
+          "cached_input_tokens": 157312,
+          "output_tokens": 1265
+        },
+        "git": "git version 2.43.0"
+      },
+      "attribution": {
+        "stage": "shape",
+        "cause_class": "b",
+        "cause": "Candidate made three no-tool turns and never submitted an Intent; stored attempt had the same stop."
+      }
+    }
+  ],
+  "totals": {
+    "input_tokens": 1167987,
+    "cached_input_tokens": 1021952,
+    "output_tokens": 12159,
+    "requests": 58,
+    "cost_usd": null,
+    "reason": "Subscription model pricing unavailable; raw zero-valued priced subtotal is incomplete"
+  },
+  "step_sweep_events": 4,
+  "cancellation_witnessed": false,
+  "timeout_diagnostic_witnessed": false,
+  "disposition": "bounded confirmation",
+  "limits": [
+    "Three-task smoke, one candidate attempt per task; no fresh control",
+    "Updated assembly includes changes beyond verification relative to stored adopted release",
+    "Current requests/configs match retained copies; historical per-cell input fingerprints unavailable",
+    "Both cohorts use Git 2.43.0 on different Linux machines/times",
+    "Acceptance separation not independently established; separate shape matrix lacks reference trees",
+    "Orchestration-model usage and some setup wall time unmetered; failed attempts retained"
+  ]
+}

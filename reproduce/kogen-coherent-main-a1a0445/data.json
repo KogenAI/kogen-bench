@@ -1,0 +1,935 @@
+{
+  "metadata": {
+    "finding_id": "kogen-coherent-main-a1a0445",
+    "finished_at": "2026-11-03T17:29:26.697327207Z",
+    "verdict": "worse",
+    "qualified": false,
+    "disposition": "drop",
+    "assembly_base": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+    "components": {
+      "kogen-build": "c8e21725d3fee471f10ba0a96add5ce45bf91c5a",
+      "kogen-shaping": "034917175f006662f858f011642712b43ca34d78",
+      "kogen-executor": "97892f55ed4f568e4fc32d71e0f04fed4f89a179",
+      "kogen-verification": "f4d004d53a8d2928c778462944993a93fc5f5ee4",
+      "kogen-coordinator": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+      "kogen-review": "f01c92eae077f6471c678117cedbb881c6501ac8",
+      "kogen-setup": "9316891471b5d1c5cf465bcbdca22fed56577fc6",
+      "kogen-loop": "932c462bdf193c808fbe822c03008622ac79d3e4"
+    },
+    "assigned_tasks": 9,
+    "held_out_tasks": 3,
+    "shape_repetitions": 3,
+    "model": "gpt-6.1-terra",
+    "effort": "medium",
+    "backend": "native OpenAI",
+    "primary_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": 0.05628654970760235,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.25,
+              "stored_denominator": 8
+            },
+            {
+              "task": "A",
+              "delta": 0.42105263157894735,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.6666666666666667,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.23940058479532164,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.125,
+              "stored_denominator": 8
+            },
+            {
+              "task": "A",
+              "delta": 0.8947368421052632,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": 0.6666666666666667,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.01800976800976801,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 6
+            },
+            {
+              "task": "A",
+              "delta": 0.15384615384615385,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.5714285714285714,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.2084859584859585,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.16666666666666666,
+              "stored_denominator": 6
+            },
+            {
+              "task": "A",
+              "delta": 0.8461538461538461,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": 0.5714285714285714,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      }
+    },
+    "supplementary_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.16984126984126985,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.3,
+              "stored_denominator": 10
+            },
+            {
+              "task": "H",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 12
+            },
+            {
+              "task": "B",
+              "delta": 0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.8888888888888888,
+              "stored_denominator": 9
+            },
+            {
+              "task": "G",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "E",
+              "delta": -0.5,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": -0.010714285714285707,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.2,
+              "stored_denominator": 10
+            },
+            {
+              "task": "H",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "A",
+              "delta": 0.08333333333333337,
+              "stored_denominator": 12
+            },
+            {
+              "task": "B",
+              "delta": 0.75,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "G",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "E",
+              "delta": -0.375,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": true
+        },
+        "hidden": {
+          "mean_delta": -0.10944444444444446,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 10
+            },
+            {
+              "task": "A",
+              "delta": -0.2,
+              "stored_denominator": 10
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.2222222222222222,
+              "stored_denominator": 9
+            },
+            {
+              "task": "E",
+              "delta": -0.125,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.16984126984126985,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.3,
+              "stored_denominator": 10
+            },
+            {
+              "task": "H",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 12
+            },
+            {
+              "task": "B",
+              "delta": 0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.8888888888888888,
+              "stored_denominator": 9
+            },
+            {
+              "task": "G",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "E",
+              "delta": -0.5,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": -0.010714285714285707,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": -0.2,
+              "stored_denominator": 10
+            },
+            {
+              "task": "H",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "A",
+              "delta": 0.08333333333333337,
+              "stored_denominator": 12
+            },
+            {
+              "task": "B",
+              "delta": 0.75,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "G",
+              "delta": 0.0,
+              "stored_denominator": 2
+            },
+            {
+              "task": "E",
+              "delta": -0.375,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": true
+        },
+        "hidden": {
+          "mean_delta": -0.10944444444444446,
+          "per_task": [
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 10
+            },
+            {
+              "task": "A",
+              "delta": -0.2,
+              "stored_denominator": 10
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "C",
+              "delta": -0.2222222222222222,
+              "stored_denominator": 9
+            },
+            {
+              "task": "E",
+              "delta": -0.125,
+              "stored_denominator": 8
+            }
+          ],
+          "worse": false
+        }
+      }
+    },
+    "timeout_sensitivity_disagrees": false,
+    "tokens": {
+      "input_tokens": 3819564,
+      "cached_input_tokens": 3269120,
+      "output_tokens": 39721,
+      "reasoning_tokens": 7543,
+      "requests": 204
+    },
+    "cell_wall_s": 1757.588,
+    "cost_usd": null,
+    "cost_reason": "Terra is unpriced in the configured ledger; dollars unknown, not zero",
+    "git": {
+      "candidate_linux": "git version 2.43.0",
+      "candidate_macos": "git version 2.54.0 (Apple Git-157)",
+      "stored_runtime_versions": [
+        "git version 2.43.0",
+        "git version 2.54.0 (Apple Git-157)"
+      ]
+    },
+    "toolchains": {
+      "Linux": "Go 1.27.3",
+      "macOS": "Go 1.27.2"
+    },
+    "release_sha256": {
+      "Linux": "15adc3a57d8ea3ae65dd5fee9c443b77e8f4e01ccad30551b9ee9a05cf89da99",
+      "macOS": "bad7a6d65d8bf06075c2523b5de11ad5aabd4a4b138eef4da235157333bf7f62"
+    },
+    "effect": "coherent treatment only; no per-component causal claim"
+  },
+  "rows": [
+    {
+      "task": "A",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "landed": true,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "approve"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 19,
+        "valid_intents": 11,
+        "landed": 2,
+        "hidden_graded": 11,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 6
+      },
+      "delta": {
+        "valid_intent": 0.42105263157894735,
+        "landed": 0.8947368421052632,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Linux; Go 1.27.3",
+      "wall_s": 564.125,
+      "tokens": {
+        "input_tokens": 709096,
+        "cached_input_tokens": 597888,
+        "output_tokens": 11425,
+        "reasoning_tokens": 1437,
+        "requests": 41
+      },
+      "finish_to_feedback_s": [
+        63.263182
+      ],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 854.874966,
+      "stage_event_counts": {
+        "step_sweep": 4,
+        "submission_refused": 2,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "B",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "landed",
+        "valid_intent": true,
+        "landed": true,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "approve"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 9,
+        "valid_intents": 3,
+        "landed": 3,
+        "hidden_graded": 7,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 2
+      },
+      "delta": {
+        "valid_intent": 0.6666666666666667,
+        "landed": 0.6666666666666667,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Linux; Go 1.27.3",
+      "wall_s": 337.901,
+      "tokens": {
+        "input_tokens": 584812,
+        "cached_input_tokens": 483712,
+        "output_tokens": 7083,
+        "reasoning_tokens": 1549,
+        "requests": 28
+      },
+      "finish_to_feedback_s": [
+        72.185603
+      ],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 648.810947,
+      "stage_event_counts": {
+        "step_sweep": 2,
+        "submission_refused": 1,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "C",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 8,
+        "valid_intents": 4,
+        "landed": 0,
+        "hidden_graded": 4,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 0
+      },
+      "delta": {
+        "valid_intent": -0.5,
+        "landed": 0.0,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Linux; Go 1.27.3",
+      "wall_s": 115.053,
+      "tokens": {
+        "input_tokens": 395530,
+        "cached_input_tokens": 333952,
+        "output_tokens": 3851,
+        "reasoning_tokens": 617,
+        "requests": 19
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 446.189014,
+      "stage_event_counts": {
+        "submission_refused": 3,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "D",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 8,
+        "valid_intents": 2,
+        "landed": 1,
+        "hidden_graded": 7,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 2
+      },
+      "delta": {
+        "valid_intent": -0.25,
+        "landed": -0.125,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Linux; Go 1.27.3",
+      "wall_s": 92.083,
+      "tokens": {
+        "input_tokens": 307600,
+        "cached_input_tokens": 268160,
+        "output_tokens": 2337,
+        "reasoning_tokens": 303,
+        "requests": 15
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 685.02938,
+      "stage_event_counts": {
+        "submission_refused": 3,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "E",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 8,
+        "valid_intents": 0,
+        "landed": 0,
+        "hidden_graded": 8,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 0
+      },
+      "delta": {
+        "valid_intent": 0.0,
+        "landed": 0.0,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Mac; Go 1.27.2",
+      "wall_s": 101.924,
+      "tokens": {
+        "input_tokens": 256361,
+        "cached_input_tokens": 233216,
+        "output_tokens": 2120,
+        "reasoning_tokens": 556,
+        "requests": 12
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 622.284317,
+      "stage_event_counts": {
+        "submission_refused": 3,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "F",
+      "assignment": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": {
+        "attempts": 6,
+        "valid_intents": 0,
+        "landed": 0,
+        "hidden_graded": 6,
+        "hidden_all_passes": 0,
+        "approval_timeouts": 0
+      },
+      "delta": {
+        "valid_intent": 0.0,
+        "landed": 0.0,
+        "hidden_all_pass": 0.0
+      },
+      "runtime": "Mac; Go 1.27.2",
+      "wall_s": 85.554,
+      "tokens": {
+        "input_tokens": 316022,
+        "cached_input_tokens": 283904,
+        "output_tokens": 1953,
+        "reasoning_tokens": 294,
+        "requests": 15
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 625.919651,
+      "stage_event_counts": {
+        "question_check": 2,
+        "submission_refused": 3,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "G",
+      "assignment": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "refused",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": null,
+      "delta": null,
+      "runtime": "Mac; Go 1.27.2",
+      "wall_s": 174.251,
+      "tokens": {
+        "input_tokens": 379633,
+        "cached_input_tokens": 331392,
+        "output_tokens": 4281,
+        "reasoning_tokens": 1340,
+        "requests": 25
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 734.791219,
+      "stage_event_counts": {
+        "question_check": 1,
+        "submission_refused": 3,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "H",
+      "assignment": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "questions_pending",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": null,
+      "delta": null,
+      "runtime": "Linux; Go 1.27.3",
+      "wall_s": 47.36,
+      "tokens": {
+        "input_tokens": 122178,
+        "cached_input_tokens": 95872,
+        "output_tokens": 892,
+        "reasoning_tokens": 233,
+        "requests": 7
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 754.106524,
+      "stage_event_counts": {
+        "question_check": 1,
+        "session_end": 1
+      }
+    },
+    {
+      "task": "I",
+      "assignment": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra medium; native OpenAI",
+      "candidate": {
+        "outcome": "questions_pending",
+        "valid_intent": false,
+        "landed": false,
+        "hidden_all_pass": false,
+        "hidden_grade_complete": true,
+        "review_verdicts": [
+          "not reached"
+        ],
+        "acceptance_separation": "not established"
+      },
+      "stored": null,
+      "delta": null,
+      "runtime": "Linux laptop; Go 1.27.3",
+      "wall_s": 40.989,
+      "tokens": {
+        "input_tokens": 58506,
+        "cached_input_tokens": 44416,
+        "output_tokens": 934,
+        "reasoning_tokens": 75,
+        "requests": 6
+      },
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "tuple_registration_to_result_s": 402.432798,
+      "stage_event_counts": {
+        "question_check": 2,
+        "submission_refused": 1,
+        "session_end": 1
+      }
+    }
+  ],
+  "shape_only": [
+    {
+      "repetition": "r1",
+      "outcome": "refused",
+      "valid_intent": false,
+      "coverage": "not scored: no valid Intent",
+      "wall_s": 79.988,
+      "tokens": {
+        "input_tokens": 295569,
+        "cached_input_tokens": 263552,
+        "output_tokens": 1855,
+        "reasoning_tokens": 399,
+        "requests": 13
+      }
+    },
+    {
+      "repetition": "r2",
+      "outcome": "questions_pending",
+      "valid_intent": false,
+      "coverage": "not scored: no valid Intent",
+      "wall_s": 44.358,
+      "tokens": {
+        "input_tokens": 167171,
+        "cached_input_tokens": 143232,
+        "output_tokens": 1191,
+        "reasoning_tokens": 291,
+        "requests": 10
+      }
+    },
+    {
+      "repetition": "r3",
+      "outcome": "refused",
+      "valid_intent": false,
+      "coverage": "not scored: no valid Intent",
+      "wall_s": 74.002,
+      "tokens": {
+        "input_tokens": 227086,
+        "cached_input_tokens": 189824,
+        "output_tokens": 1799,
+        "reasoning_tokens": 449,
+        "requests": 13
+      }
+    }
+  ]
+}

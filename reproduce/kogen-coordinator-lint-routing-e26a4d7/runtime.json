@@ -1,0 +1,49 @@
+{
+  "kogen": "6e69ffb3243603cd5cd9253efd418a0c24130583",
+  "components": {
+    "kogen-build": "3109cd105f750979d5d92b25945fde36891ab738",
+    "kogen-coordinator": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+    "kogen-executor": "1aea0728c24b1dad83502e3500457be1b59b829f",
+    "kogen-setup": "e580996119992edd973d697855d6dee28d9d1bf2",
+    "kogen-shaping": "94eabe5d492dadf27918132feb2b1849b359f712",
+    "kogen-verification": "11a5244e95ee730f578cd97cbebdec417b1a2dbe"
+  },
+  "binary_sha256": "961ef3f8ec24f2fe4d56d67cf9c43f47a00c3d23f765f05ac3a1343e0843ffc3",
+  "release_sha256": "f6d643349ea3c46a01ad0e3e11af55b3a9b627bc4622fefcd09d444e1b4cf9ef",
+  "original_release_sha256": "2779df93030406504f013c72304dfc7370094cd02c624edf7998e83a9749630c",
+  "go": "go version go1.27.3 linux/amd64",
+  "flags": "CGO_ENABLED=0 -trimpath -buildvcs=false",
+  "component_override": {
+    "module": "github.com/KogenAI/kogen-coordinator",
+    "sha": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+    "version_in_binary": "v0.0.0-29990101000000-e26a4d75cdcc"
+  },
+  "source_links": {
+    "kogen-build": "https://github.com/KogenAI/kogen-build/tree/3109cd105f750979d5d92b25945fde36891ab738",
+    "kogen-coordinator": "https://github.com/KogenAI/kogen-coordinator/tree/e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+    "kogen-executor": "https://github.com/KogenAI/kogen-executor/tree/1aea0728c24b1dad83502e3500457be1b59b829f",
+    "kogen-setup": "https://github.com/KogenAI/kogen-setup/tree/e580996119992edd973d697855d6dee28d9d1bf2",
+    "kogen-shaping": "https://github.com/KogenAI/kogen-shaping/tree/94eabe5d492dadf27918132feb2b1849b359f712",
+    "kogen-verification": "https://github.com/KogenAI/kogen-verification/tree/11a5244e95ee730f578cd97cbebdec417b1a2dbe",
+    "kogen": "https://github.com/KogenAI/kogen/tree/6e69ffb3243603cd5cd9253efd418a0c24130583"
+  },
+  "candidate_cell_git": "git version 2.43.0",
+  "stored_cell_git": "git version 2.43.0",
+  "execution_design": {
+    "planned_cells": 3,
+    "repetitions": 1,
+    "slots": 1,
+    "phase": "e2e",
+    "models": {
+      "shape": "gpt-6.1-terra medium",
+      "build": "gpt-6.1-terra medium",
+      "review": "gpt-6.1-terra medium"
+    },
+    "backend": "native Loop / ChatGPT",
+    "candidate_host_class": "Linux two-core",
+    "stored_host_class": "Linux four-core",
+    "per_cell_host_load": null,
+    "stored_per_cell_host_load": null,
+    "deadline_s": 3600
+  }
+}

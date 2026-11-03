@@ -1,0 +1,159 @@
+{
+  "base": "656694f4b3ef0a982691cabcce8b924ec77eeee9",
+  "head": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+  "commits": [
+    {
+      "sha": "8d24cc7b091d28716b86c72ef790b8cc751c574d",
+      "subject": "Report every Intent lint problem in one refusal",
+      "paths": [
+        ".kogen/intents/k-coord-lint-all-problems/acceptance.feature",
+        ".kogen/intents/k-coord-lint-all-problems/intent.md",
+        "contract/intent_test.go",
+        "features/steps/lint_all_problems.js",
+        "features/steps/lint_all_problems_driver.go.txt",
+        "project/intent.go",
+        "project/intent_test.go",
+        "project/testdata/golden.json"
+      ],
+      "already_in_coordinator_lvscr": false
+    },
+    {
+      "sha": "741ddac6213a266b7d6bbd1dcc4ef16393600f8e",
+      "subject": "Detect Bundler setup and Rails tests",
+      "paths": [
+        ".kogen/intents/k-coord-detect-bundler/acceptance.feature",
+        ".kogen/intents/k-coord-detect-bundler/intent.md",
+        "features/steps/bundler_detect.js",
+        "features/steps/bundler_detect_probe/main.go",
+        "project/detect.go",
+        "project/detect_test.go"
+      ],
+      "already_in_coordinator_lvscr": false
+    },
+    {
+      "sha": "ffca7072fe15303cfe24e50418250bbc909750d4",
+      "subject": "Route the candidate through the phases",
+      "paths": [
+        "README.md",
+        "contract/README.md",
+        "contract/route_test.go",
+        "route/route.go",
+        "route/route_test.go"
+      ],
+      "already_in_coordinator_lvscr": false
+    },
+    {
+      "sha": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+      "subject": "Prepare coordinator documentation for public use",
+      "paths": [
+        ".kogen/intents/k-contracts-coordinator/intent.md",
+        ".kogen/intents/k-git-warning-dirty/intent.md",
+        ".kogen/intents/k-golden-update-coordinator/intent.md",
+        ".kogen/intents/k-public-ready-coordinator/acceptance.feature",
+        ".kogen/intents/k-public-ready-coordinator/intent.md",
+        "README.md",
+        "docs/public-audit.md",
+        "features/steps/public_ready.js"
+      ],
+      "already_in_coordinator_lvscr": false
+    }
+  ],
+  "golden_changes": [
+    {
+      "section": "intent",
+      "index": 6,
+      "label": "long title",
+      "before": {
+        "problems": [
+          "lint",
+          "title: the title must be at most 50 characters"
+        ]
+      },
+      "after": {
+        "problems": [
+          "lint",
+          "title: the title must be at most 50 characters, not 51"
+        ]
+      }
+    },
+    {
+      "section": "intent",
+      "index": 10,
+      "label": "title long cjk",
+      "before": {
+        "problems": [
+          "lint",
+          "title: the title must be at most 50 characters"
+        ]
+      },
+      "after": {
+        "problems": [
+          "lint",
+          "title: the title must be at most 50 characters, not 51"
+        ]
+      }
+    },
+    {
+      "section": "intent",
+      "index": 34,
+      "label": "decision no source",
+      "before": {
+        "problems": [
+          "lint",
+          "decisions: a decision has no source"
+        ]
+      },
+      "after": {
+        "problems": [
+          "lint",
+          "decisions: - Do it must end with `(source: request)` or `(source: answer <n>)`"
+        ]
+      }
+    },
+    {
+      "section": "intent",
+      "index": 36,
+      "label": "decision bad answer",
+      "before": {
+        "problems": [
+          "lint",
+          "decisions: a decision has no source"
+        ]
+      },
+      "after": {
+        "problems": [
+          "lint",
+          "decisions: - Do it (source: answer x) must end with `(source: request)` or `(source: answer <n>)`"
+        ]
+      }
+    }
+  ],
+  "source_identity": {
+    "base": {
+      "sha": "656694f4b3ef0a982691cabcce8b924ec77eeee9",
+      "file_count": 82,
+      "mismatches": [],
+      "tracked_manifest_sha256": "59f56ddcd073992f2c9eaa03fe4d6c5bef40a5048c67af16be069c64b6be627e"
+    },
+    "head": {
+      "sha": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+      "file_count": 97,
+      "mismatches": [],
+      "tracked_manifest_sha256": "9ccc92dca3a8a5c44f03bccf75357ed3b3f9f4bd2fa98c543cc9899b34d46f11"
+    }
+  },
+  "tests": {
+    "base": {
+      "test_subtest_passes": 98,
+      "rc": 0
+    },
+    "head": {
+      "test_subtest_passes": 124,
+      "rc": 0
+    }
+  },
+  "toolchain": {
+    "go": "1.27.2",
+    "git": "2.54.0 Apple Git-157"
+  }
+}
