@@ -780,6 +780,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "A newer version of Kogen's loop (2fc1eb7, against the version Kogen vendors, c6e2360) classifies tool errors and malformed tool calls with an error kind and a malformed-call class. We checked, without running any model, whether the model sees anything different. The labels go only into the loop's own event log; every error text, tool output, system prompt, tool definition, retry and timing bound is unchanged. We replayed six scripted sessions against a fake provider, covering tool errors, malformed calls and mixed calls, each batched and one call per exchange. That gave 34 recorded request bodies per version. After removing the random cache key, all six sessions are byte-identical across the vendored version, the version before the change and the new version. So the change behaves the same toward the model and nothing changes. This is not a live-model run and covers only those six sessions on Linux; it claims no improvement."
+    },
+    {
+      "id": "kogen-shaping-data-stores-tool-13ff132",
+      "category": "categories/harness-levers.md",
+      "title": "Kogen's re-landed data-stores tool wrote fewer valid intents than the adopted build, by the narrowest margin our rule counts",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "Kogen's shaper has a re-landed data-stores tool (kogen-shaping commit 13ff1327) that finds every store keyed by an entity's id before the shaper writes scope; the first version was refused at shaping in every run and was reverted. We assembled the adopted release (573d023) with only that change and compared it with the plain adopted build: same model (gpt-6.1-terra, medium effort) for every step, no other patch, six Rails tasks given only the request text, each pair run at the same time on the same machine. Before any run we fixed a rule: worse if the new build writes two or more fewer valid intents across the pairs. Across 13 clean pairs the adopted build wrote a valid intent in 4 and the new one in 2, so by the rule it is worse; both lost pairs are the account-cleanup task the change was built for (the adopted build landed a build in both, the new one stopped on a question once and was refused at shaping once). The refusal that sank the first version also appears in the adopted build (4 runs against 3), so it is not a new failure. One more account-cleanup pair was lost twice to a fixed 120 s limit on a busy Mac: there the new build did write an intent naming the search records, which the adopted build's intents never named, so the tool works when it gets that far. The margin is exactly the threshold and a rerun flips a result 18 to 27 % of the time, so this is a hold on adoption and a case for a bounded confirmation, not a measured rate."
     }
   ]
 }

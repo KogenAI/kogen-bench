@@ -1,0 +1,29 @@
+pair rows 15 (clean 13, void 2: gate timeout, one rerun also void)
+valid Intent over clean pairs: g0 4/13, g1 2/13
+g0 classes (clean pairs): build_blocked 1, landed 3, no_tool_refusal 4, protected_file_conflict 1, questions_pending 4
+g1 classes (clean pairs): invalid_intent_3_attempts 1, landed 2, no_tool_refusal 3, questions_pending 7
+target clean pairs 3: valid Intent g0 2, g1 0
+guard clean pairs 10: valid Intent g0 2, g1 2
+hidden all-pass, target clean pairs: g0 1, g1 0; guards: g0 0, g1 0
+stores named in a saved Intent (all pair rows): g0 0, g1 2 (g1 only in the void pair's saved Intents)
+input tokens (all pair rows): g0 5716178, g1 3525546; output: g0 59418, g1 41488
+
+Per pair: pair task status g0_outcome g1_outcome g0_hidden/expected g1_hidden/expected
+mac-r1	T1	void	build_blocked	refused	3/8	3/8
+mac-r2	T1	clean	refused	questions_pending	3/8	3/8
+mac-rerun-r1	T1	void	build_blocked	refused	3/8	3/8
+mac-r1	T2	clean	refused	refused	3/17	3/17
+mac-r1	T3	clean	questions_pending	refused	3/9	3/9
+mac-r1	T4	clean	questions_pending	questions_pending	10/11	10/11
+mac-r1	T5	clean	build_blocked	landed	NA/11	NA/11
+mac-r1	T6	clean	questions_pending	questions_pending	4/11	4/11
+linux-r1	T1	clean	landed	questions_pending	8/8	3/8
+linux-r2	T1	clean	landed	refused	5/8	3/8
+linux-r1	T2	clean	refused	refused	3/17	3/17
+linux-r1	T3	clean	refused	questions_pending	3/9	3/9
+linux-r1	T4	clean	refused	questions_pending	10/11	10/11
+linux-r1	T5	clean	landed	landed	4/11	3/11
+linux-r1	T6	clean	questions_pending	questions_pending	4/11	4/11
+
+Registered rule: WORSE if g0 valid Intents exceed g1 by >= 2 pairs (gap 2) or a refusal class seen only in g1 in >= 2 clean cells (none).
+Rule outcome: WORSE

@@ -210,3 +210,7 @@ Kogen's build component `269823f` against the adopted `3109cd1`: the review rule
 ## Kogen loop: tool-error classes change sends the model the same bytes (3 Nov 2026)
 
 Kogen's loop version `2fc1eb7` classifies tool errors and malformed tool calls, against the vendored `c6e2360`. The labels are written to the loop's event log only. Model-free check with a fake provider: in 6 scripted sessions (34 recorded request bodies per version) covering tool errors, malformed calls and mixed calls, every request body is byte-identical across the vendored version, the version before the change and the new one. Same behaviour toward the model, no run made, nothing changes. See [kogen-loop-tool-error-classes-2fc1eb7](../reproduce/kogen-loop-tool-error-classes-2fc1eb7/README.md).
+
+## Kogen shaper data-stores tool, adoption check on six Rails tasks (3 Nov 2026)
+
+The re-landed data-stores tool in Kogen's shaper (kogen-shaping commit `13ff1327`, on the adopted release `573d023`) against the plain adopted build, gpt-6.1-terra at medium effort, request-only, 13 clean matched pairs on six tasks plus one pair lost to a time limit: the adopted build wrote a valid intent in 4 pairs and the candidate in 2, which is worse by the rule fixed beforehand (a gap of two or more). Both lost pairs are the account-cleanup task the change was built for; the tool was seen working only in the voided pair. A narrow margin, so a hold and a bounded confirmation rather than a rate. See [kogen-shaping-data-stores-tool-13ff132](../reproduce/kogen-shaping-data-stores-tool-13ff132/README.md).

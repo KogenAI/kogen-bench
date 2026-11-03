@@ -1,0 +1,16 @@
+block	pair	task	role	pair_status	g0_outcome	g1_outcome	g0_class	g1_class	g0_valid_intent	g1_valid_intent	g0_stores_named	g1_stores_named	g1_data_stores_section	g0_hidden_passed	g1_hidden_passed	hidden_expected	g0_requested_passed	g1_requested_passed	requested_total	g0_input_tokens	g1_input_tokens	g0_output_tokens	g1_output_tokens
+mac	mac-r1	T1	target	void	build_blocked	refused	build_blocked	acceptance_gate_timeout_120s	1	NA	0	1	1	3	3	8	0	0	5	374626	127116	6220	4221
+mac	mac-r2	T1	target	clean	refused	questions_pending	no_tool_refusal	questions_pending	0	0	NA	NA	NA	3	3	8	0	0	5	238766	86801	3151	992
+mac-rerun	mac-rerun-r1	T1	target	void	build_blocked	refused	build_blocked	acceptance_gate_timeout_120s	1	NA	0	1	1	3	3	8	0	0	5	782896	185528	7148	4748
+mac	mac-r1	T2	guard	clean	refused	refused	no_tool_refusal	no_tool_refusal	0	0	0	0	0	3	3	17	0	0	14	249471	276375	2403	2902
+mac	mac-r1	T3	guard	clean	questions_pending	refused	questions_pending	invalid_intent_3_attempts	0	0	NA	NA	NA	3	3	9	0	0	6	115852	170191	635	1549
+mac	mac-r1	T4	guard	clean	questions_pending	questions_pending	questions_pending	questions_pending	0	0	NA	NA	NA	10	10	11	7	7	8	142241	124648	972	746
+mac	mac-r1	T5	guard	clean	build_blocked	landed	build_blocked	landed	1	1	0	0	0	NA	NA	11	NA	NA	8	647388	849525	6426	9641
+mac	mac-r1	T6	guard	clean	questions_pending	questions_pending	questions_pending	questions_pending	0	0	NA	NA	NA	4	4	11	1	1	8	97007	92073	707	737
+linux	linux-r1	T1	target	clean	landed	questions_pending	landed	questions_pending	1	0	0	NA	NA	8	3	8	5	0	5	703603	102605	8494	1065
+linux	linux-r2	T1	target	clean	landed	refused	landed	no_tool_refusal	1	0	0	NA	NA	5	3	8	2	0	5	844914	180188	9195	1428
+linux	linux-r1	T2	guard	clean	refused	refused	protected_file_conflict	no_tool_refusal	0	0	NA	0	0	3	3	17	0	0	14	182751	310242	1043	2748
+linux	linux-r1	T3	guard	clean	refused	questions_pending	no_tool_refusal	questions_pending	0	0	NA	NA	NA	3	3	9	0	0	6	246050	79914	1472	671
+linux	linux-r1	T4	guard	clean	refused	questions_pending	no_tool_refusal	questions_pending	0	0	0	NA	NA	10	10	11	7	7	8	341703	106833	3215	692
+linux	linux-r1	T5	guard	clean	landed	landed	landed	landed	1	1	0	0	0	4	3	11	1	1	8	686682	742203	7648	8428
+linux	linux-r1	T6	guard	clean	questions_pending	questions_pending	questions_pending	questions_pending	0	0	NA	NA	NA	4	4	11	1	1	8	62228	91304	689	920
