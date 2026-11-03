@@ -771,6 +771,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "Kogen's review step used to refuse a blocking finding that says no defect was found, since such a finding contradicts itself. A newer version of Kogen's build component (269823f, against the adopted 3109cd1) applies that rule only in an experimental review mode and ignores quoted text. Our benchmark runs use the default mode, where the rule is simply removed. We checked the change without running any model: we replayed the old and new rule over the 77 blocking findings in 2041 retained reviews. Neither version refused any of them, and they agree on every finding. No review verdict had ever been rejected by this rule in that data. So the change behaves the same on this evidence and nothing changes. We made no matched run, because a run could only differ if a reviewer wrote such a finding, which happened in 0 of 2041 reviews. Other reviewers might phrase findings differently; if one ever triggers the rule, the check will be reopened. This claims no improvement."
+    },
+    {
+      "id": "kogen-loop-tool-error-classes-2fc1eb7",
+      "category": "categories/harness-levers.md",
+      "title": "A change to Kogen's loop that labels tool errors sends the model exactly the same bytes",
+      "comparison": "loop-speed-and-routes",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "A newer version of Kogen's loop (2fc1eb7, against the version Kogen vendors, c6e2360) classifies tool errors and malformed tool calls with an error kind and a malformed-call class. We checked, without running any model, whether the model sees anything different. The labels go only into the loop's own event log; every error text, tool output, system prompt, tool definition, retry and timing bound is unchanged. We replayed six scripted sessions against a fake provider, covering tool errors, malformed calls and mixed calls, each batched and one call per exchange. That gave 34 recorded request bodies per version. After removing the random cache key, all six sessions are byte-identical across the vendored version, the version before the change and the new version. So the change behaves the same toward the model and nothing changes. This is not a live-model run and covers only those six sessions on Linux; it claims no improvement."
     }
   ]
 }

@@ -206,3 +206,7 @@ The mise-trust block repeated on a third server (same Kogen `514dab4`, tasks and
 ## Kogen build review: no-defect check scoped to on-demand review (3 Nov 2026)
 
 Kogen's build component `269823f` against the adopted `3109cd1`: the review rule that refuses a blocking finding saying "no defect found" now applies only in the experimental on-demand review mode and ignores quoted text. Our runs use the default mode, where the rule is simply removed. Model-free check of 2041 retained reviews: 77 blocking findings, the old and new checks agree on all of them (0 refused by either), and no review verdict was ever rejected. Same behaviour on this evidence, no matched run made, nothing changes. See [kogen-build-nodefect-scope-269823f](../reproduce/kogen-build-nodefect-scope-269823f/README.md).
+
+## Kogen loop: tool-error classes change sends the model the same bytes (3 Nov 2026)
+
+Kogen's loop version `2fc1eb7` classifies tool errors and malformed tool calls, against the vendored `c6e2360`. The labels are written to the loop's event log only. Model-free check with a fake provider: in 6 scripted sessions (34 recorded request bodies per version) covering tool errors, malformed calls and mixed calls, every request body is byte-identical across the vendored version, the version before the change and the new one. Same behaviour toward the model, no run made, nothing changes. See [kogen-loop-tool-error-classes-2fc1eb7](../reproduce/kogen-loop-tool-error-classes-2fc1eb7/README.md).
