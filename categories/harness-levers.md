@@ -288,3 +288,7 @@ A [coordinator validation feedback screen](finding:kogen-coordinator-lint-routin
 [The shaping repair paired screen](../reproduce/kogen-shaping-repair-before-terminal-submit-2192ae21/README.md) graded nine of eleven pairs. Neither arm achieved whole-task hidden all-pass; the candidate lost valid Intent on two targeted tasks, while the held-out result was mixed. Two pairs remained unrun and acceptance separation was unavailable, so the candidate is unresolved and not an adoption result.
 
 - [Completed shaping repair pairs](../reproduce/kogen-shaping-repair-completed-pairs-2192ae21/README.md): eleven pairs; keep under the owner rule; valid Intent 6 to 4, landed 2 to 4; acceptance separation unknown.
+
+## Targeted readiness recheck
+
+[The bounded recheck](../reproduce/kogen-coherent-worseattr-confirmation-20261103/README.md) leaves both earlier regression claims **TENTATIVE**. Small historical comparisons and distinct stop causes do not identify a harmful component commit.
