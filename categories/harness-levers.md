@@ -222,3 +222,7 @@ One extra paragraph in Kogen's shaper instructions (kogen-shaping on the adopted
 ## Kogen shaper data-stores tool with a stronger model (3 Nov 2026)
 
 The adopted build against the same data-stores candidate (kogen-shaping `13ff1327`) as the companion Terra screen, now with `claude-opus-5-5` at high effort: 13 matched pairs on six tasks, a valid intent in both arms in every pair, no refusals or question stops, no hidden suite fully passed in either arm. The candidate's intent has a data-stores section in all 3 account-cleanup pairs (the adopted build's never does) while both name the search records. Descriptive, beside and not replacing the Terra verdict. See [kogen-shaping-data-stores-tool-13ff132-opus](../reproduce/kogen-shaping-data-stores-tool-13ff132-opus/README.md).
+
+## Kogen adopted release, control block on six Rails tasks (3 Nov 2026)
+
+The adopted release `573d023` with no patch, `gpt-6.1-terra` at medium effort, request-only, one run of each of six tasks on a Mac and on a Linux laptop: 4 of 12 runs saved a valid intent (all on Linux), 1 landed a build, none passed every hidden check; on the Mac no run got past shaping. A baseline to read the next shaper, build and review changes against. See [kogen-aor-control-573d023](../reproduce/kogen-aor-control-573d023/README.md).

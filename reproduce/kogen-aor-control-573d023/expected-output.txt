@@ -1,0 +1,26 @@
+Mac block: cells 6, valid Intent 0, reached build 0, landed 0, hidden all-pass 0
+  outcomes: refused at shaping 3, stopped on questions 3
+  tokens: input 1031153, output 9491, summed wall s 2102
+Linux block: cells 6, valid Intent 4, reached build 4, landed 1, hidden all-pass 0
+  outcomes: build blocked 2, landed build 1, refused at shaping 1, review blocked 1, stopped on questions 1
+  tokens: input 2934215, output 25170, summed wall s 1904
+both blocks: cells 12, valid Intent 4, reached build 4, landed 1, hidden all-pass 0
+  outcomes: build blocked 2, landed build 1, refused at shaping 4, review blocked 1, stopped on questions 4
+  tokens: input 3965368, output 34661, summed wall s 4006
+
+Per task: task block outcome hidden/expected
+T1	Linux	landed build	5/8
+T1	Mac	refused at shaping	3/8
+T2	Linux	build blocked	3/17
+T2	Mac	refused at shaping	3/17
+T3	Linux	refused at shaping	3/9
+T3	Mac	refused at shaping	3/9
+T4	Linux	review blocked	10/11
+T4	Mac	stopped on questions	10/11
+T5	Linux	build blocked	4/11
+T5	Mac	stopped on questions	4/11
+T6	Linux	stopped on questions	4/11
+T6	Mac	stopped on questions	4/11
+
+First mistake (stage) per cell:
+build 2, review 1, shape 8; landed with missing requested checks: 1

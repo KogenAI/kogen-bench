@@ -1,0 +1,13 @@
+task	block	outcome	valid_intent	reached_build	landed	hidden_passed	hidden_expected	hidden_all_pass	first_mistake	input_tokens	output_tokens	wall_s
+T1	Linux	landed build	1	1	1	5	8	0	build landed and review approved, but the landed tree passes 2 of the 5 requested checks	725089	8165	479
+T1	Mac	refused at shaping	0	0	0	3	8	0	shape: refused, the shaper answered without calling a tool 3 times	187617	3000	718
+T2	Linux	build blocked	1	1	0	3	17	0	build: blocked, the protected acceptance scenario always fails (placeholder step); the builder reports a baseline contradiction, unproven	294430	2263	174
+T2	Mac	refused at shaping	0	0	0	3	17	0	shape: refused, the shaper answered without calling a tool 3 times	266890	2551	620
+T3	Linux	refused at shaping	0	0	0	3	9	0	shape: refused, the shaper answered without calling a tool 3 times	198313	1186	74
+T3	Mac	refused at shaping	0	0	0	3	9	0	shape: refused, the shaper's output was not a valid Intent after 3 attempts	185750	1202	480
+T4	Linux	review blocked	1	1	0	10	11	0	review: blocked, the reviewer found the requested speedup not established by the shaped acceptance	1266102	8857	939
+T4	Mac	stopped on questions	0	0	0	10	11	0	shape: stopped on a question about the measurable target	139818	1000	155
+T5	Linux	build blocked	1	1	0	4	11	0	build: blocked, the protected acceptance expects output the bundled deploy tool does not print; the builder reports a baseline contradiction, unproven	356684	3814	206
+T5	Mac	stopped on questions	0	0	0	4	11	0	shape: stopped on a question asking for server access (security handoff)	163396	865	77
+T6	Linux	stopped on questions	0	0	0	4	11	0	shape: stopped on questions about two product rules	93597	885	32
+T6	Mac	stopped on questions	0	0	0	4	11	0	shape: stopped on questions about two product rules	87682	873	52

@@ -807,6 +807,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-03",
       "summary": "The earlier check of Kogen's re-landed data-stores tool (kogen-shaping 13ff1327) ran with gpt-6.1-terra and found it worse than the adopted build by its rule. Here we ran the same two builds, assembled the same way and compared pair by pair, with claude-opus-5-5 at high effort for every step: six Rails tasks given only the request text, 13 pairs on three Linux machines (three of the account-cleanup task the change targets, ten guards). Both builds wrote a valid intent in all 13 pairs, nothing was refused at shaping or stopped on a question, and no run passed a full hidden suite in either build; the hidden count is identical in all 13 pairs. The tool shows in the saved intent: the new build's account-cleanup intent has a data-stores section in all 3 pairs and the adopted build's never does, though both name the search records in all 3, which the adopted build did not do with the other model. Two pairs differ in outcome class (the adopted build landed one build on one guard task; the new build ran out of its time limit once), and neither moves a hidden count. Thirteen pairs cannot rank two builds (a rerun flips a result 18 to 27 % of the time) and almost every build ended blocked in both arms, so this is descriptive and does not replace the earlier verdict."
+    },
+    {
+      "id": "kogen-aor-control-573d023",
+      "category": "categories/harness-levers.md",
+      "title": "The adopted Kogen release saved a valid intent in 4 of 12 control runs and passed every hidden check in none",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-03",
+      "summary": "This is a control for later changes to Kogen's shaper, build and review: the adopted release (573d023, no patch) on six Rails tasks given only the request text, with gpt-6.1-terra at medium effort for every step, one run of each task on a Mac and one on a Linux laptop. Four of the 12 runs wrote a valid intent, all on the Linux laptop; four reached a build and one landed (the account-cleanup task, with review approving a tree that passes 5 of its 8 hidden checks); none passed every hidden check. On the Mac no run got past shaping: three were refused at shaping and three stopped on questions. Eight of the 12 runs ended at shaping, two in the build and one in review, and the pack lists the stage and exact stop class of each. The two machines use different harness set-ups and one run per task per machine cannot give a rate (a rerun flips a result 18 to 27 % of the time), so this is a baseline to read the next change against, extending the earlier controls of the same code tree."
     }
   ]
 }
