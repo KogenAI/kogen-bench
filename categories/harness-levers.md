@@ -242,3 +242,7 @@ A shaping change (`37d5474`, in the shaping component at `e572010`) makes the sh
 ## Agents-on-Rails kit: wrong hidden-check ids on one new task, fixed (3 Nov 2026)
 
 Our converter built the expected hidden-check ids from the last class line it saw, so a verifier with a helper class before its tests got that helper's name on every id and a correct solution would score as missing those checks. Found on one new task (nine ids). The other 13 tasks give identical ids under old and fixed code, 338 task copies were scanned (2 wrong, both of the new task), and no published run used that task, so no Agents-on-Rails score changes. Kit version 2 fixes it with a self-test over all tasks. Model-free, no run made. See [kogen-aor-kit-evaluate-ids](../reproduce/kogen-aor-kit-evaluate-ids/README.md).
+
+## Kogen shaper: a rule to decide reversible product questions itself did not help on one ticket (3 Nov 2026)
+
+A rule telling the shaping step to decide evidence-backed or reversible product details itself, and to record them under Decisions, was tried against the adopted release on one export-and-import ticket, three runs per arm with no one to answer questions. All six runs still stopped on one question about how restored people get access; no Intent in either arm. The rule changed the wording and options and made the shaper look at more of the application (about 2.8 times the input), not what was asked. Same result, no improvement; small check. See [kogen-shaper-product-decisions-5801b28](../reproduce/kogen-shaper-product-decisions-5801b28/README.md).

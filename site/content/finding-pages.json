@@ -852,6 +852,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "Our converter for Agents-on-Rails tasks builds the list of hidden checks a solution is graded against. It took each check's class name from the last class line it had seen, so when a verifier declares a helper class before its tests, every check got the helper's name and none matched. A correct solution would have scored as missing all of them. We found it on one new task (nine checks). The other 13 tasks give identical ids under the old and fixed converter, and of 338 task copies compared only the two copies of that one new task were wrong. No published run used the task, so no Agents-on-Rails score, ceiling or baseline changes. The converter now tracks the enclosing test class and has a self-test over every task. We made no model run, because the question is about ids, not behaviour. The problem was ours; the upstream verifier is unchanged."
+    },
+    {
+      "id": "kogen-shaper-product-decisions-5801b28",
+      "category": "categories/harness-levers.md",
+      "title": "Telling Kogen's shaper to decide reversible product questions itself did not get one stuck ticket to an Intent",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "With no one to answer questions, Kogen's shaping step stops as soon as it asks one. On an export-and-import ticket for a Rails app, the adopted release asked a single question about how restored people should regain access, in all three runs, and so produced no Intent. We added one rule to the shaper's instructions: look at the application first, decide evidence-backed or reversible product details itself, record them under Decisions with the basis, and still ask when only the requester can know. Three runs with the rule behaved the same way: each stopped on one question about the same topic, with different wording and options, so again no Intent. The shaper did look further (5 to 6 model requests per run instead of 3, about 2.8 times the input) but did not decide. Granting access to people named in an uploaded file is a choice the rule keeps as a question, so this ticket may simply fit the rule badly. One ticket and three runs per arm, so this is a small check and shows no improvement. A similar change from the Kogen team has landed separately and has its own screen, so this candidate is dropped, not stacked."
     }
   ]
 }
