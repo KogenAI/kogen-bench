@@ -36,6 +36,9 @@ Five Rails tasks from the AoR set (names and hidden suites withheld; `T1` to `T5
 ## Limits
 Two repetitions per pair on one machine: a smoke test and an attribution, not a rate. The screen has no answerer, so any build that asks a question ends there; this hides what the patch does once questions are answered. Five of 20 hidden grades are missing because the trees were not kept. Task requests chosen as property or guard by their text, not by a measured property. The Mac's load was high when the run was queued (long wall times), which affects timings and not the counts.
 
+## Publication note
+Published late, announced: the last cell finished on 3 November at 01:29 UTC and the three-hour publication window closed at 04:29 UTC, because the hidden grading of the run finished at 04:28 UTC and the write-up started after it. The verdict did not change between the partly graded and the final reading.
+
 ## Rerun
 Candidate: Kogen `573d023b66b93f9781557e1518f78f2ce969dde3` with the kogen-shaping component carrying the property-acceptance paragraph described above (patch digest prefix `cc7fdc8e`); control: the plain release of the same source. Models `gpt-6.1-terra` at medium effort, five AoR tasks, two repetitions.
 
