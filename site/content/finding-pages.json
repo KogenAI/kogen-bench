@@ -861,6 +861,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "With no one to answer questions, Kogen's shaping step stops as soon as it asks one. On an export-and-import ticket for a Rails app, the adopted release asked a single question about how restored people should regain access, in all three runs, and so produced no Intent. We added one rule to the shaper's instructions: look at the application first, decide evidence-backed or reversible product details itself, record them under Decisions with the basis, and still ask when only the requester can know. Three runs with the rule behaved the same way: each stopped on one question about the same topic, with different wording and options, so again no Intent. The shaper did look further (5 to 6 model requests per run instead of 3, about 2.8 times the input) but did not decide. Granting access to people named in an uploaded file is a choice the rule keeps as a question, so this ticket may simply fit the rule badly. One ticket and three runs per arm, so this is a small check and shows no improvement. A similar change from the Kogen team has landed separately and has its own screen, so this candidate is dropped, not stacked."
+    },
+    {
+      "id": "kogen-build-main-09b177e",
+      "category": "categories/harness-levers.md",
+      "title": "Build changes remain unverified after an incomplete screen",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-03",
+      "summary": "Five of nine assigned attempts ran: three stopped while shaping the specification and two stopped on protected acceptance contradictions. None landed or reached review, so this screen leaves the build changes unresolved and does not qualify them for adoption. Four assignments stayed unrun under capacity and delivery-priority gates. The source reconstruction patch and all observed outcomes are published; missing outcomes remain unknown."
     }
   ]
 }

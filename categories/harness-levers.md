@@ -246,3 +246,8 @@ Our converter built the expected hidden-check ids from the last class line it sa
 ## Kogen shaper: a rule to decide reversible product questions itself did not help on one ticket (3 Nov 2026)
 
 A rule telling the shaping step to decide evidence-backed or reversible product details itself, and to record them under Decisions, was tried against the adopted release on one export-and-import ticket, three runs per arm with no one to answer questions. All six runs still stopped on one question about how restored people get access; no Intent in either arm. The rule changed the wording and options and made the shaper look at more of the application (about 2.8 times the input), not what was asked. Same result, no improvement; small check. See [kogen-shaper-product-decisions-5801b28](../reproduce/kogen-shaper-product-decisions-5801b28/README.md).
+
+
+### An incomplete build screen leaves adoption unresolved
+
+A candidate with build component `09b177e` ran on five of nine assigned tasks. Three attempts stopped during shaping and two reported protected acceptance contradictions; none landed or reached review, and none passed every hidden check. Four assignments were left unrun under capacity and delivery-priority gates. This is **unresolved**, with no adoption qualification. The data, cost, source reconstruction patch and bounded follow-up rule are in the [reproduction pack](../reproduce/kogen-build-main-09b177e/README.md).
