@@ -250,7 +250,7 @@ A rule telling the shaping step to decide evidence-backed or reversible product 
 
 ### An incomplete build screen leaves adoption unresolved
 
-A candidate with build component `09b177e` ran on five of nine assigned tasks. Three attempts stopped during shaping and two reported protected acceptance contradictions; none landed or reached review, and none passed every hidden check. Four assignments were left unrun under capacity and delivery-priority gates. This is **unresolved**, with no adoption qualification. The data, cost, source reconstruction patch and bounded follow-up rule are in the [reproduction pack](../reproduce/kogen-build-main-09b177e/README.md).
+A candidate with build component `09b177e` ran on five of nine assigned tasks. Three attempts stopped during shaping and two reported protected acceptance contradictions; none landed or reached review, and none passed every hidden check. Four assignments were left unrun under capacity and delivery-priority gates. This is **unresolved**, with no adoption qualification. The data, cost and bounded follow-up rule are in the [reproduction pack](../reproduce/kogen-build-main-09b177e/README.md).
 
 ## Executor policy ownership move: assembly blocked
 
@@ -264,3 +264,7 @@ A three-task candidate-only smoke screen of verification `5070052` on adopted Ko
 ## Loop output line boundaries on the adopted assembly
 
 The loop prefix through `ae0d82d` sends identical request bytes in eight scripted sessions. The final `eed48c4` change preserves complete lines in long tool output and alters both long-output replay sessions. A three-task candidate-only Terra medium smoke screen has whole-task hidden pass 0/3, matching its stored adopted comparisons, but lacks a retained live cut witness. All three task stops are attributed to shaping or protected acceptance. The changed head remains unresolved and unqualified; the unchanged prefix is SAME. See [the loop evidence pack](../reproduce/kogen-loop-line-cuts-eed48c4/README.md).
+
+### A coherent component update remains unqualified
+
+All current component heads, assembled together by one Kogen re-pin candidate, ran nine full-pipeline attempts with gpt-6.1-terra at medium effort for every role, candidate only, compared with stored runs of the adopted release on the same tasks. One attempt produced a valid Intent, landed and passed review; none passed every hidden check; three shape-only attempts produced no Intent. Most shaping stops came from submitted packages that were incomplete, against a stored valid-Intent rate of about one in three. A harm guard fires and the registered comparison changes classification when historical approval timeouts are excluded, so the set stays unqualified and a bounded confirmation follows. [Reproduction pack](../reproduce/kogen-coherent-set-c92d897/README.md).

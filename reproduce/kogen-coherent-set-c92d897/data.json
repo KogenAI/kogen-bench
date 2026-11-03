@@ -1,0 +1,629 @@
+{
+  "metadata": {
+    "finding_id": "kogen-coherent-set-c92d897",
+    "source": "c92d8971a91bb005058838eced451b7a9d56596c",
+    "components": {
+      "kogen-build": {
+        "sha": "45e455ef8c5be18512e8940a96d39ff0f8eb3d8a",
+        "version": "v0.0.0-20261103132152-45e455ef8c5b"
+      },
+      "kogen-coordinator": {
+        "sha": "ffca7072fe15303cfe24e50418250bbc909750d4",
+        "version": "v0.0.0-20261103113131-ffca7072fe15"
+      },
+      "kogen-executor": {
+        "sha": "e3c1ac803c2779117ffb75f579e9fc113dab1bb0",
+        "version": "v0.0.0-20261103130615-e3c1ac803c27"
+      },
+      "kogen-review": {
+        "sha": "cfc2fb29917c9ce667d17ae7e092827641f551fa",
+        "version": "v0.0.0-20261103124347-cfc2fb29917c"
+      },
+      "kogen-setup": {
+        "sha": "2c226c2eb13030abe897aaf4121534c2d0a69842",
+        "version": "v0.0.0-20261103122614-2c226c2eb130"
+      },
+      "kogen-shaping": {
+        "sha": "5a0ca3dfb7bb340e036c4afcfb8593f5b5bba79e",
+        "version": "v0.0.0-20261103122614-5a0ca3dfb7bb"
+      },
+      "kogen-verification": {
+        "sha": "11a5244e95ee730f578cd97cbebdec417b1a2dbe",
+        "version": "v0.0.0-20261103052035-11a5244e95ee"
+      }
+    },
+    "loop_pin": {
+      "module": "kogen-loop",
+      "protocol": "kogen-loop/v1",
+      "library": "loop/v1",
+      "digest": "d41bb881e861edd01f12b1cb76261d6daecb232f2247635ff31f0a92b7e45626",
+      "files": 178,
+      "source_head": "c6e2360290d4d8f7e124d68c4e656b38fb350d32",
+      "source_state": "clean"
+    },
+    "verdict": "UNRESOLVED",
+    "readiness_harm_guard": true,
+    "qualified": false,
+    "finished_at": "2026-11-03T14:47:44.485784066Z",
+    "assigned_e2e": 9,
+    "observed_e2e": 9,
+    "assigned_shape": 3,
+    "observed_shape": 3,
+    "release_sha256": {
+      "linux": "bdbd016672b3942e6a607d54572a6d84a10603af84ad9272f6ede78540c46520",
+      "darwin": "37dd4c93bac49069b56dad19fd5e972f88f388b421c9b0acfdd173bf2222a75d"
+    },
+    "runtime_source_files": 249,
+    "candidate_patch_sha256": "bc4dd787b272d1ee1e1dccd781ab29c7e7a8c9b880f81ff1f14122f817e1629f",
+    "cost_usd": null,
+    "cost_reason": "Terra subscription model is unlisted; all observed tokens and failed attempts retained",
+    "tokens": {
+      "input_tokens": 2830910,
+      "cached_input_tokens": 2404864,
+      "output_tokens": 30237,
+      "reasoning_tokens": 6796,
+      "requests": 156
+    },
+    "cell_wall_s": 2073.703,
+    "metric_readings": {
+      "include_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.11038011695906431,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.42105263157894735,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.25,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.07273391812865497,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.8947368421052632,
+              "stored_denominator": 19
+            },
+            {
+              "task": "B",
+              "delta": -0.3333333333333333,
+              "stored_denominator": 9
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.125,
+              "stored_denominator": 8
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      },
+      "exclude_approval_timeouts": {
+        "valid": {
+          "mean_delta": -0.17673992673992675,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.15384615384615385,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": -0.42857142857142855,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": -0.5,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.2857142857142857,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "landed": {
+          "mean_delta": 0.04578754578754579,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.8461538461538461,
+              "stored_denominator": 13
+            },
+            {
+              "task": "B",
+              "delta": -0.42857142857142855,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "D",
+              "delta": -0.14285714285714285,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": true
+        },
+        "hidden": {
+          "mean_delta": 0.0,
+          "per_task": [
+            {
+              "task": "A",
+              "delta": 0.0,
+              "stored_denominator": 11
+            },
+            {
+              "task": "B",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "C",
+              "delta": 0.0,
+              "stored_denominator": 4
+            },
+            {
+              "task": "D",
+              "delta": 0.0,
+              "stored_denominator": 7
+            },
+            {
+              "task": "E",
+              "delta": 0.0,
+              "stored_denominator": 8
+            },
+            {
+              "task": "F",
+              "delta": 0.0,
+              "stored_denominator": 6
+            }
+          ],
+          "worse": false
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "task": "A",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "landed",
+      "valid_intent": true,
+      "landed": true,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 567.493,
+      "tokens": {
+        "input_tokens": 822717,
+        "cached_input_tokens": 714624,
+        "output_tokens": 10801,
+        "reasoning_tokens": 2074,
+        "requests": 40
+      },
+      "review_count": 1,
+      "review_verdicts": [
+        "approve"
+      ],
+      "events": {
+        "pass": 2,
+        "review": 1
+      },
+      "finish_to_feedback_s": [
+        44.688719
+      ],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 19,
+        "valid": 11,
+        "landed": 2,
+        "graded": 11,
+        "hidden": 0,
+        "timeouts": 6
+      }
+    },
+    {
+      "task": "B",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "refused",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 157.186,
+      "tokens": {
+        "input_tokens": 167875,
+        "cached_input_tokens": 145024,
+        "output_tokens": 2154,
+        "reasoning_tokens": 793,
+        "requests": 12
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 9,
+        "valid": 3,
+        "landed": 3,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 2
+      }
+    },
+    {
+      "task": "C",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "refused",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 162.33,
+      "tokens": {
+        "input_tokens": 285485,
+        "cached_input_tokens": 241664,
+        "output_tokens": 3516,
+        "reasoning_tokens": 310,
+        "requests": 14
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 8,
+        "valid": 4,
+        "landed": 0,
+        "graded": 4,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "D",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "refused",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 141.618,
+      "tokens": {
+        "input_tokens": 300780,
+        "cached_input_tokens": 256256,
+        "output_tokens": 3550,
+        "reasoning_tokens": 821,
+        "requests": 18
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 8,
+        "valid": 2,
+        "landed": 1,
+        "graded": 7,
+        "hidden": 0,
+        "timeouts": 1
+      }
+    },
+    {
+      "task": "E",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "refused",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 215.794,
+      "tokens": {
+        "input_tokens": 212879,
+        "cached_input_tokens": 167040,
+        "output_tokens": 1704,
+        "reasoning_tokens": 313,
+        "requests": 10
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 8,
+        "valid": 0,
+        "landed": 0,
+        "graded": 8,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "F",
+      "group": "targeted",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "questions_pending",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 200.929,
+      "tokens": {
+        "input_tokens": 219008,
+        "cached_input_tokens": 189312,
+        "output_tokens": 1194,
+        "reasoning_tokens": 194,
+        "requests": 11
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": {
+        "n": 6,
+        "valid": 0,
+        "landed": 0,
+        "graded": 6,
+        "hidden": 0,
+        "timeouts": 0
+      }
+    },
+    {
+      "task": "G",
+      "group": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "refused",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 287.632,
+      "tokens": {
+        "input_tokens": 218705,
+        "cached_input_tokens": 200704,
+        "output_tokens": 2728,
+        "reasoning_tokens": 1045,
+        "requests": 13
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": null
+    },
+    {
+      "task": "H",
+      "group": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "questions_pending",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 81.599,
+      "tokens": {
+        "input_tokens": 98364,
+        "cached_input_tokens": 77184,
+        "output_tokens": 767,
+        "reasoning_tokens": 229,
+        "requests": 6
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": null
+    },
+    {
+      "task": "I",
+      "group": "held-out",
+      "role_model_effort_backend": "shape/build/review: gpt-6.1-terra / medium / native OpenAI",
+      "outcome": "questions_pending",
+      "valid_intent": false,
+      "landed": false,
+      "hidden_all_pass": false,
+      "grading_infrastructure": null,
+      "wall_s": 38.907,
+      "tokens": {
+        "input_tokens": 71088,
+        "cached_input_tokens": 46976,
+        "output_tokens": 738,
+        "reasoning_tokens": 197,
+        "requests": 5
+      },
+      "review_count": 0,
+      "review_verdicts": [],
+      "events": {},
+      "finish_to_feedback_s": [],
+      "edit_to_feedback_s": null,
+      "acceptance_separation": "not established",
+      "stored": null
+    }
+  ],
+  "phase_scores": [
+    {
+      "rep": "r1",
+      "outcome": "questions_pending",
+      "intent_valid": false,
+      "coverage": 0,
+      "exposure": 0,
+      "invented": 0,
+      "essential_missing": 22,
+      "essential_total": 22,
+      "rubric_items": 41,
+      "wall_s": 57.846,
+      "tokens": {
+        "input_tokens": 150495,
+        "cached_input_tokens": 127616,
+        "output_tokens": 1012,
+        "reasoning_tokens": 259,
+        "requests": 9
+      },
+      "judge_called": false
+    },
+    {
+      "rep": "r2",
+      "outcome": "questions_pending",
+      "intent_valid": false,
+      "coverage": 0,
+      "exposure": 0,
+      "invented": 0,
+      "essential_missing": 22,
+      "essential_total": 22,
+      "rubric_items": 41,
+      "wall_s": 105.22,
+      "tokens": {
+        "input_tokens": 119820,
+        "cached_input_tokens": 98048,
+        "output_tokens": 1087,
+        "reasoning_tokens": 305,
+        "requests": 8
+      },
+      "judge_called": false
+    },
+    {
+      "rep": "r3",
+      "outcome": "questions_pending",
+      "intent_valid": false,
+      "coverage": 0,
+      "exposure": 0,
+      "invented": 0,
+      "essential_missing": 22,
+      "essential_total": 22,
+      "rubric_items": 41,
+      "wall_s": 57.149,
+      "tokens": {
+        "input_tokens": 163694,
+        "cached_input_tokens": 140416,
+        "output_tokens": 986,
+        "reasoning_tokens": 256,
+        "requests": 10
+      },
+      "judge_called": false
+    }
+  ]
+}
