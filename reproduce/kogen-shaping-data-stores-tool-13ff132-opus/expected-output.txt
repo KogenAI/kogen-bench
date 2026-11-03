@@ -1,0 +1,27 @@
+pairs 13 (target 3, guard 10); no pair void
+valid Intent: g0 13/13, g1 13/13
+g0 outcomes: build blocked 12, landed build 1
+g1 outcomes: build blocked 12, build ran out of the 3600 s deadline 1
+stores named in the saved Intent, target pairs: g0 3/3, g1 3/3
+candidate Intent with a data-stores section: target 3/3, guards 0/10
+hidden all-pass: target g0 0, g1 0; guards g0 0, g1 0
+pairs where the hidden count differs: 0
+pairs where the outcome class differs: 2
+tokens over cells that recorded them: input g0 97640818 (13 cells), g1 96628232 (12 cells); output g0 1408794, g1 1405796
+
+Per pair: pair task machine g0_outcome | g1_outcome | g0_hidden/expected g1_hidden/expected
+P01	T1	A	build blocked | build blocked | 3/8 3/8
+P02	T1	C	build blocked | build blocked | 3/8 3/8
+P03	T1	C	build blocked | build blocked | 3/8 3/8
+P04	T2	A	build blocked | build blocked | 3/17 3/17
+P05	T2	B	build blocked | build blocked | 3/17 3/17
+P06	T3	A	build blocked | build blocked | 3/9 3/9
+P07	T3	B	build blocked | build blocked | 3/9 3/9
+P08	T4	A	build blocked | build blocked | 10/11 10/11
+P09	T4	B	landed build | build blocked | 10/11 10/11
+P10	T5	A	build blocked | build blocked | 4/11 4/11
+P11	T5	B	build blocked | build blocked | 4/11 4/11
+P12	T6	A	build blocked | build ran out of the 3600 s deadline | 4/11 4/11
+P13	T6	B	build blocked | build blocked | 4/11 4/11
+
+Refusals or question stops at shaping in either arm: 0. Flag rule (a refusal class only in g1, in two or more cells): not triggered.
