@@ -286,3 +286,5 @@ A [coordinator validation feedback screen](finding:kogen-coordinator-lint-routin
 [Ten retained inputs](../reproduce/verification-diagnostic-localization-replay-20261103/README.md) span five component repositories. File and function localization remain incomplete and no full tested tuple is carried by the replayed excerpts. This is model-free diagnostic evidence; repair efficacy remains unresolved.
 
 [The shaping repair paired screen](../reproduce/kogen-shaping-repair-before-terminal-submit-2192ae21/README.md) graded nine of eleven pairs. Neither arm achieved whole-task hidden all-pass; the candidate lost valid Intent on two targeted tasks, while the held-out result was mixed. Two pairs remained unrun and acceptance separation was unavailable, so the candidate is unresolved and not an adoption result.
+
+- [Completed shaping repair pairs](../reproduce/kogen-shaping-repair-completed-pairs-2192ae21/README.md): eleven pairs; keep under the owner rule; valid Intent 6 to 4, landed 2 to 4; acceptance separation unknown.
