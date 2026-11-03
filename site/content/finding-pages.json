@@ -762,6 +762,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-02",
       "summary": "We repeated the mise-trust version of the Claude Opus 5.5 check on Kogen as it is today (514dab4, no patch) on a third server: the same six Rails tasks, given only the request text, one run per task, Claude Opus 5.5 at high effort through Claude Code for every step, and the run's own environment telling mise to trust the project's config file. Three of the 6 runs wrote a valid intent and all 3 landed a build; one passed every hidden check (T1). Two were refused at shaping and one used up its 3600 s shaping deadline, each after Kogen's step self-check refused an observer whose good control failed on replay. One run's log still showed a mise \"not trusted\" error even with the setting, so it did not always reach Kogen's test-run copy, though that run landed. Pooled with the two-server block this is 8 valid intents, 8 landed builds and 3 hidden all-pass of 18 runs. One run per task is too few to read as a rate. This reports successes only, claims no rescue and claims no model is better."
+    },
+    {
+      "id": "kogen-build-nodefect-scope-269823f",
+      "category": "categories/harness-levers.md",
+      "title": "A change to Kogen's review step that scopes its no-defect check made no difference in 2041 retained reviews",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "Kogen's review step used to refuse a blocking finding that says no defect was found, since such a finding contradicts itself. A newer version of Kogen's build component (269823f, against the adopted 3109cd1) applies that rule only in an experimental review mode and ignores quoted text. Our benchmark runs use the default mode, where the rule is simply removed. We checked the change without running any model: we replayed the old and new rule over the 77 blocking findings in 2041 retained reviews. Neither version refused any of them, and they agree on every finding. No review verdict had ever been rejected by this rule in that data. So the change behaves the same on this evidence and nothing changes. We made no matched run, because a run could only differ if a reviewer wrote such a finding, which happened in 0 of 2041 reviews. Other reviewers might phrase findings differently; if one ever triggers the rule, the check will be reopened. This claims no improvement."
     }
   ]
 }

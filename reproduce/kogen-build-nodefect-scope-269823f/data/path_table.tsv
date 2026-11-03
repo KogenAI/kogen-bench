@@ -1,0 +1,6 @@
+mode	finding	before	after	changed
+parts	blocking, matches the no-defect pattern, outside the baseline paths	refused as invalid feedback	accepted as a changes verdict	yes
+parts	any other finding	unchanged	unchanged	no
+on_demand	blocking, pattern text unquoted (or quoted and unquoted)	refused as invalid feedback	refused as invalid feedback	no
+on_demand	blocking, pattern text only inside quotes or backticks	refused as invalid feedback	accepted as a changes verdict	yes
+on_demand	any other finding	unchanged	unchanged	no
