@@ -238,3 +238,7 @@ Kogen's project setup step (`kogen init`) now lives in its own component, first 
 ## Kogen shaper deciding non-product questions itself: tentative, effect unresolved (3 Nov 2026)
 
 A shaping change (`37d5474`, in the shaping component at `e572010`) makes the shaper refuse non-product questions and decide them itself. On six tasks with stored runs of the adopted release it produced more valid Intents (mean +0.39 per task, two runs each), but it never fired on the four tasks that improved, and on the two tasks where it did fire no run improved. Six held-out tasks gave no valid Intent in 12 runs. Verdict tentative, effect unresolved; a bounded confirmation with the shipped defaults comes next. See [kogen-shaping-decide-non-ux-e572010](../reproduce/kogen-shaping-decide-non-ux-e572010/README.md).
+
+## Agents-on-Rails kit: wrong hidden-check ids on one new task, fixed (3 Nov 2026)
+
+Our converter built the expected hidden-check ids from the last class line it saw, so a verifier with a helper class before its tests got that helper's name on every id and a correct solution would score as missing those checks. Found on one new task (nine ids). The other 13 tasks give identical ids under old and fixed code, 338 task copies were scanned (2 wrong, both of the new task), and no published run used that task, so no Agents-on-Rails score changes. Kit version 2 fixes it with a self-test over all tasks. Model-free, no run made. See [kogen-aor-kit-evaluate-ids](../reproduce/kogen-aor-kit-evaluate-ids/README.md).

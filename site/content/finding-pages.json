@@ -843,6 +843,15 @@
       "verdict": "unresolved",
       "finished": "2026-11-03",
       "summary": "A change to Kogen's shaping step (commit 37d5474, in the shaping component at e572010) makes the shaper refuse questions that are not about the product and decide them from the request and the app. We ran the changed build alone on six tasks that have stored runs of the adopted release, two runs each, with gpt-6.1-terra at medium effort for every step. It produced a valid Intent in all 8 runs on four of them against 20 of 44 stored runs, and the registered rule reads better (mean +0.39 per task). We do not call it better: on those four tasks the change never acted at all, so the gains are not its doing, and two runs per task is within the 18 to 27 % chance of a rerun flipping. On the two tasks where it did act, it removed non-product questions but the runs still ended without a valid Intent, as in the stored runs. On six further held-out tasks, 12 runs gave no valid Intent. The verdict is tentative and the effect unresolved; the next step is a bounded confirmation with the shipped model defaults on the affected cases."
+    },
+    {
+      "id": "kogen-aor-kit-evaluate-ids",
+      "category": "categories/harness-levers.md",
+      "title": "A bug in our Agents-on-Rails task converter would have hidden a correct solution's hidden checks on one new task; no published score is affected",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "no",
+      "finished": "2026-11-03",
+      "summary": "Our converter for Agents-on-Rails tasks builds the list of hidden checks a solution is graded against. It took each check's class name from the last class line it had seen, so when a verifier declares a helper class before its tests, every check got the helper's name and none matched. A correct solution would have scored as missing all of them. We found it on one new task (nine checks). The other 13 tasks give identical ids under the old and fixed converter, and of 338 task copies compared only the two copies of that one new task were wrong. No published run used the task, so no Agents-on-Rails score, ceiling or baseline changes. The converter now tracks the enclosing test class and has a self-test over every task. We made no model run, because the question is about ids, not behaviour. The problem was ours; the upstream verifier is unchanged."
     }
   ]
 }
