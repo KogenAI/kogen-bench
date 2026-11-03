@@ -1,0 +1,37 @@
+{
+  "id": "loopwave2-eu",
+  "kogen": {
+    "repo": "https://github.com/KogenAI/kogen.git"
+  },
+  "lanes": [
+    {
+      "name": "g1",
+      "sha": "6e69ffb3243603cd5cd9253efd418a0c24130583",
+      "patch": null,
+      "driver": "kogen-e2e",
+      "settings": {
+        "models": {
+          "shape": "openai/gpt-6.1-terra medium",
+          "build": "openai/gpt-6.1-terra medium",
+          "review": "openai/gpt-6.1-terra medium"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    "rails-ft-i18n-support",
+    "rails-ft-mysql-fulltext-search-foundation",
+    "rails-ft-notification-bundle-window-overlap"
+  ],
+  "reps": 1,
+  "phase": "e2e",
+  "deadline_s": 3600,
+  "cost_cap_usd": 30,
+  "hosts": [
+    "local"
+  ],
+  "decision_rule": {
+    "kind": "descriptive"
+  },
+  "hk_repetition_block": "loopwave2-eu"
+}

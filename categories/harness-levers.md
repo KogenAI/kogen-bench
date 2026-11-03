@@ -292,3 +292,7 @@ A [coordinator validation feedback screen](finding:kogen-coordinator-lint-routin
 ## Targeted readiness recheck
 
 [The bounded recheck](../reproduce/kogen-coherent-worseattr-confirmation-20261103/README.md) leaves both earlier regression claims **TENTATIVE**. Small historical comparisons and distinct stop causes do not identify a harmful component commit.
+
+### Three-task Loop evidence wave
+
+Three request-only tasks examined on the current release; no new Loop fault demonstrated. Two stopped for questions. No valid matched behavior comparison; tool feedback coverage is incomplete. [Evidence](../reproduce/kogen-loop-evidence-wave-three-kits-6e69ffb3/README.md).
