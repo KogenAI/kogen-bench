@@ -834,6 +834,15 @@
       "verdict": "no",
       "finished": "2026-11-03",
       "summary": "Kogen's project setup step (the one behind kogen init) was moved out of the shaping component into a new component of its own, first commit e580996. We checked the move without running any model. Once the package name line is rewritten, the setup logic is byte-identical to the shaping component's version at the adopted pin (94eabe5) and at its current head (d69a0a3). Nothing is embedded in the new component, so no prompt text moved: the setup prompt is still read from the executor component, which the move does not touch. The only difference is a test fixture that differs from the adopted pin by one line and is never sent to a model. So the moved step behaves the same and nothing changes. We made no run, because identical code has nothing for a run to measure. Later commits that change setup behaviour or text will be screened separately. This claims no improvement."
+    },
+    {
+      "id": "kogen-shaping-decide-non-ux-e572010",
+      "category": "categories/harness-levers.md",
+      "title": "Letting Kogen's shaper decide non-product questions itself looks better on paper, but the change did not cause the gains",
+      "comparison": "kogen-shaping-and-builds",
+      "verdict": "unresolved",
+      "finished": "2026-11-03",
+      "summary": "A change to Kogen's shaping step (commit 37d5474, in the shaping component at e572010) makes the shaper refuse questions that are not about the product and decide them from the request and the app. We ran the changed build alone on six tasks that have stored runs of the adopted release, two runs each, with gpt-6.1-terra at medium effort for every step. It produced a valid Intent in all 8 runs on four of them against 20 of 44 stored runs, and the registered rule reads better (mean +0.39 per task). We do not call it better: on those four tasks the change never acted at all, so the gains are not its doing, and two runs per task is within the 18 to 27 % chance of a rerun flipping. On the two tasks where it did act, it removed non-product questions but the runs still ended without a valid Intent, as in the stored runs. On six further held-out tasks, 12 runs gave no valid Intent. The verdict is tentative and the effect unresolved; the next step is a bounded confirmation with the shipped model defaults on the affected cases."
     }
   ]
 }

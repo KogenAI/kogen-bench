@@ -234,3 +234,7 @@ The landed leftover-process sweep in Kogen's verification component (`6ac87f0`) 
 ## Kogen setup component: first commit is a pure move (3 Nov 2026)
 
 Kogen's project setup step (`kogen init`) now lives in its own component, first commit `e580996`. Model-free byte comparison: its init source is identical to the shaping component's at the adopted pin (`94eabe5`) and at head (`d69a0a3`) once the package line is rewritten, nothing is embedded, and the init prompt stays in the executor component. Only a test fixture differs from the adopted pin, by one serialisation line. Same behaviour on this evidence, no run made, nothing changes. See [kogen-setup-initial-e580996](../reproduce/kogen-setup-initial-e580996/README.md).
+
+## Kogen shaper deciding non-product questions itself: tentative, effect unresolved (3 Nov 2026)
+
+A shaping change (`37d5474`, in the shaping component at `e572010`) makes the shaper refuse non-product questions and decide them itself. On six tasks with stored runs of the adopted release it produced more valid Intents (mean +0.39 per task, two runs each), but it never fired on the four tasks that improved, and on the two tasks where it did fire no run improved. Six held-out tasks gave no valid Intent in 12 runs. Verdict tentative, effect unresolved; a bounded confirmation with the shipped defaults comes next. See [kogen-shaping-decide-non-ux-e572010](../reproduce/kogen-shaping-decide-non-ux-e572010/README.md).
