@@ -302,3 +302,5 @@ Three request-only tasks examined on the current release; no new Loop fault demo
 [The completed comparison](../reproduce/review-climb-saved-candidates-20261103/README.md) leaves the improvement claim unresolved. It preserves every assigned pair and separates observed repairs from verified success.
 
 A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusal-recovery-41d70052/README.md) produced two saved Intents compared with one in each stored draw, with no hidden all-passes. Some question handoffs became refusals, so the result remains tentative.
+
+[Build head paired screen](../reproduce/build-release-mainhead-20261104/README.md) found a tentative candidate-worse smoke outcome in shaping, before the changed build stage. Both guard arms landed without hidden all-pass, so the component effect remains unresolved.
