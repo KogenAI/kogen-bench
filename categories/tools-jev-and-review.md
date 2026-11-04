@@ -42,3 +42,5 @@ Measured on a copy of the task's starting files (2,374 files, 73 MB, mostly vend
 | npm install from a warm package cache | 0.46 s |
 
 Each step was timed once, on one task and one machine, while that machine had 44 to 74% of its CPU idle. The original failure happened with under 10% idle, and its elapsed time was not recorded. So these numbers show that staging is not slow in normal conditions and that a cold build needs about 42 CPU-seconds. They do not show what used up the 120 seconds in the failed run. A test that made staging stall on purpose also hit the same deadline, so a slow staging step is another possible cause. Since 30 October the harness caches the npm install once per lockfile, and the error now names the step that was running at the deadline. This is a single task's measurement on one machine, not a general timing claim.
+
+- [Context packet did not speed up four tasks](../reproduce/kogen-context-failure-packet-screen-20261104/README.md): matched screen, 20 cells, all passing in both arms; no time or token gain from the packet, which missed the edited file on both Rust tasks. Unresolved.
