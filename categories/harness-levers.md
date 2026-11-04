@@ -312,3 +312,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Build component supplied-Intent screen](../reproduce/kogen-build-mainhead-supplied-intent-20261104/README.md) is tentative: four paired tasks are insufficient to establish a component improvement or regression.
 
 [Review component supplied-Intent screen](../reproduce/kogen-review-mainhead-supplied-intent-20261104/README.md) is tentative: four paired tasks are insufficient to establish a component improvement or regression.
+
+[Review head confirmation](../reproduce/kogen-review-mainhead-confirm-20261104/README.md) did not reproduce the earlier review regression: release and candidate passed identical hidden checks in all 20 cells.
