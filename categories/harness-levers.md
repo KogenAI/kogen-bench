@@ -308,3 +308,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 ## Bounded shaping recovery confirmation
 
 [The confirmation](../reproduce/kogen-shaping-recovery-confirmation-stop-41d70052/README.md) stopped after two invalid-submission failures; its improvement claim remains unresolved.
+
+[Build component supplied-Intent screen](../reproduce/kogen-build-mainhead-supplied-intent-20261104/README.md) is tentative: four paired tasks are insufficient to establish a component improvement or regression.
