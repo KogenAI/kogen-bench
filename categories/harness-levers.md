@@ -296,3 +296,7 @@ A [coordinator validation feedback screen](finding:kogen-coordinator-lint-routin
 ### Three-task Loop evidence wave
 
 Three request-only tasks examined on the current release; no new Loop fault demonstrated. Two stopped for questions. No valid matched behavior comparison; tool feedback coverage is incomplete. [Evidence](../reproduce/kogen-loop-evidence-wave-three-kits-6e69ffb3/README.md).
+
+## Saved-candidate review comparison
+
+[The completed comparison](../reproduce/review-climb-saved-candidates-20261103/README.md) leaves the improvement claim unresolved. It preserves every assigned pair and separates observed repairs from verified success.
