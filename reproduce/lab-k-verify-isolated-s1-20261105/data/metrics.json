@@ -1,0 +1,733 @@
+{
+ "v4": {
+  "repeats": 1,
+  "run_wall_s": [
+   4880.0
+  ],
+  "T_median": 785.7,
+  "T_note": "sum of scenario walls of the sampled Intents (go-core-migration excluded)",
+  "go_core_migration": {
+   "scenarios": 16,
+   "wall_s": 4032.0,
+   "longest_s": 1657.2
+  },
+  "scenarios": 284,
+  "intents": 29,
+  "red_intents": 22,
+  "red_scenarios": 222,
+  "by_budget": {
+   "5": {
+    "flagged_per_repeat": [
+     15
+    ],
+    "known_hazards_flagged": [
+     [
+      "deterministic-check-gate"
+     ]
+    ],
+    "known_hazards_in_sample": [
+     "deterministic-check-gate"
+    ],
+    "false_refusals_any_repeat": 14,
+    "false_refusals_all_repeats": 14,
+    "false_refusals_green_only": 5,
+    "same_set_all_repeats": true,
+    "fr_intents": [
+     "build-continuity",
+     "build-diagnostic-context",
+     "build-unblocking-recovery",
+     "bundled-zip-safety",
+     "claude-code-full-lineup",
+     "clean-readiness-parity",
+     "documentation-lookup-evidence",
+     "extract-loop-executors",
+     "faster-shaping",
+     "fix-k-acceptance-no-card-hash",
+     "k-accept-drop-stale-drivers",
+     "k-accept-release-copy",
+     "k-accept-wait-handlers",
+     "k-acceptance-decision-check-answer"
+    ]
+   },
+   "10": {
+    "flagged_per_repeat": [
+     11
+    ],
+    "known_hazards_flagged": [
+     [
+      "deterministic-check-gate"
+     ]
+    ],
+    "known_hazards_in_sample": [
+     "deterministic-check-gate"
+    ],
+    "false_refusals_any_repeat": 10,
+    "false_refusals_all_repeats": 10,
+    "false_refusals_green_only": 3,
+    "same_set_all_repeats": true,
+    "fr_intents": [
+     "build-continuity",
+     "build-unblocking-recovery",
+     "bundled-zip-safety",
+     "claude-code-full-lineup",
+     "extract-loop-executors",
+     "faster-shaping",
+     "k-accept-drop-stale-drivers",
+     "k-accept-release-copy",
+     "k-accept-wait-handlers",
+     "k-acceptance-decision-check-answer"
+    ]
+   },
+   "20": {
+    "flagged_per_repeat": [
+     3
+    ],
+    "known_hazards_flagged": [
+     []
+    ],
+    "known_hazards_in_sample": [
+     "deterministic-check-gate"
+    ],
+    "false_refusals_any_repeat": 3,
+    "false_refusals_all_repeats": 3,
+    "false_refusals_green_only": 2,
+    "same_set_all_repeats": true,
+    "fr_intents": [
+     "claude-code-full-lineup",
+     "k-accept-wait-handlers",
+     "k-acceptance-decision-check-answer"
+    ]
+   },
+   "30": {
+    "flagged_per_repeat": [
+     2
+    ],
+    "known_hazards_flagged": [
+     []
+    ],
+    "known_hazards_in_sample": [
+     "deterministic-check-gate"
+    ],
+    "false_refusals_any_repeat": 2,
+    "false_refusals_all_repeats": 2,
+    "false_refusals_green_only": 1,
+    "same_set_all_repeats": true,
+    "fr_intents": [
+     "claude-code-full-lineup",
+     "k-accept-wait-handlers"
+    ]
+   }
+  },
+  "slowest": [
+   {
+    "intent": "claude-code-full-lineup",
+    "wall": 82.4,
+    "status": "FAILED",
+    "name": "The installed CLI proves the complete lineup and its safe negative out"
+   },
+   {
+    "intent": "k-accept-wait-handlers",
+    "wall": 31.2,
+    "status": "PASSED",
+    "name": "A request that arrives after the old fixed wait ends the wait instead "
+   },
+   {
+    "intent": "k-acceptance-decision-check-answer",
+    "wall": 26.9,
+    "status": "PASSED",
+    "name": "Shaping scenarios pass with kogen-shaping 6a80040"
+   },
+   {
+    "intent": "k-acceptance-decision-check-answer",
+    "wall": 19.7,
+    "status": "PASSED",
+    "name": "The same shaping scenarios still pass with kogen's current pins"
+   },
+   {
+    "intent": "k-accept-drop-stale-drivers",
+    "wall": 17.4,
+    "status": "PASSED",
+    "name": "The copy of kogen-build's legacy fixture is gone and the Go tests that"
+   },
+   {
+    "intent": "deterministic-check-gate",
+    "wall": 15.8,
+    "status": "PASSED",
+    "name": "Delayed readiness and test-owner shutdown have deterministic outcomes"
+   },
+   {
+    "intent": "extract-loop-executors",
+    "wall": 15.5,
+    "status": "FAILED",
+    "name": "Actually execute LOOP-14 LOOP-15 and SET-14 through the installed CLI"
+   },
+   {
+    "intent": "deterministic-check-gate",
+    "wall": 14.2,
+    "status": "FAILED",
+    "name": "The reported real integration cases retain their guarantees without ov"
+   },
+   {
+    "intent": "extract-loop-executors",
+    "wall": 14.2,
+    "status": "PASSED",
+    "name": "Keep affected native verification and protected-baseline scenarios gre"
+   },
+   {
+    "intent": "bundled-zip-safety",
+    "wall": 13.7,
+    "status": "PASSED",
+    "name": "Ship a reproducible ZIP repair without changing Quint verification"
+   },
+   {
+    "intent": "build-unblocking-recovery",
+    "wall": 13.2,
+    "status": "PASSED",
+    "name": "Deeper fixture expectations are exercised despite missing-feature red"
+   },
+   {
+    "intent": "build-continuity",
+    "wall": 13.1,
+    "status": "PASSED",
+    "name": "Rotate completed windows and safely handle resume"
+   },
+   {
+    "intent": "k-accept-release-copy",
+    "wall": 12.9,
+    "status": "FAILED",
+    "name": "Preserve installation coverage while reducing workspace file creation"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.7,
+    "status": "FAILED",
+    "name": "Refuse unauthorized returned draft files"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Cancel the batch after one job completed without losing its evidence"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Preserve completed usage and sibling evidence after a worker transport"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Represent unavailable worker token and cache usage as unknown"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Integrate scoped drafts through one unchanged normal readiness gate"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Integrate scoped drafts through one unchanged normal readiness gate"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Preserve the sequential path and measure its baseline"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Worker allowlists reject forged authority and preserve scratch isolati"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Interrupt reaches an owner-executed probe and outstanding HTTP job"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Stop a worker at the provider call bound without replay"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Integrate scoped drafts through one unchanged normal readiness gate"
+   },
+   {
+    "intent": "faster-shaping",
+    "wall": 10.6,
+    "status": "FAILED",
+    "name": "Refuse incomplete or conflicting dispatch before worker calls"
+   }
+  ],
+  "hazard_walls": {
+   "k-repin-adapt-f2e30a4": [],
+   "deterministic-check-gate": [
+    15.8,
+    14.2
+   ]
+  }
+ },
+ "mutants": [
+  {
+   "n": 0,
+   "cls": "port",
+   "intent": "build-diagnostic-context",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.01,
+   "v2_pair_wall": 36.8,
+   "serial_wall": 22.6,
+   "v1p_flag": true
+  },
+  {
+   "n": 1,
+   "cls": "port",
+   "intent": "k-accept-wait-handlers",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 1,
+    "10": 1,
+    "20": 1,
+    "30": 1
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.01,
+   "v2_pair_wall": 36.6,
+   "serial_wall": 35.5,
+   "v1p_flag": true
+  },
+  {
+   "n": 2,
+   "cls": "port",
+   "intent": "build-diagnostic-context",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.01,
+   "v2_pair_wall": 32.1,
+   "serial_wall": 22.5,
+   "v1p_flag": true
+  },
+  {
+   "n": 3,
+   "cls": "port",
+   "intent": "k-acceptance-fixed-wait",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.01,
+   "v2_pair_wall": 9.5,
+   "serial_wall": 8.6,
+   "v1p_flag": true
+  },
+  {
+   "n": 10,
+   "cls": "path",
+   "intent": "k-accept-wait-handlers",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 1,
+    "10": 1,
+    "20": 1,
+    "30": 1
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.02,
+   "v2_pair_wall": 36.5,
+   "serial_wall": 35.6,
+   "v1p_flag": true
+  },
+  {
+   "n": 11,
+   "cls": "path",
+   "intent": "fix-k-acceptance-no-card-hash",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 4,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": false,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0,
+   "v2_pair_wall": 45.9,
+   "serial_wall": 31.1,
+   "v1p_flag": true
+  },
+  {
+   "n": 12,
+   "cls": "path",
+   "intent": "k-accept-wait-handlers",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 1,
+    "10": 1,
+    "20": 1,
+    "30": 1
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0.02,
+   "v2_pair_wall": 39.3,
+   "serial_wall": 37.1,
+   "v1p_flag": true
+  },
+  {
+   "n": 13,
+   "cls": "path",
+   "intent": "bundled-zip-safety",
+   "valid": true,
+   "serial_hazard_wall": 2.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 1,
+    "10": 1,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": false,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0,
+   "v2_pair_wall": 28.9,
+   "serial_wall": 18.9,
+   "v1p_flag": true
+  },
+  {
+   "n": 20,
+   "cls": "shared",
+   "intent": "k-accept-server-leak",
+   "valid": true,
+   "serial_hazard_wall": 0.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0,
+   "v2_pair_wall": 8.0,
+   "serial_wall": 5.4,
+   "v1p_flag": false
+  },
+  {
+   "n": 21,
+   "cls": "shared",
+   "intent": "k-acceptance-fixed-wait",
+   "valid": true,
+   "serial_hazard_wall": 0.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0,
+   "v2_pair_wall": 7.7,
+   "serial_wall": 6.6,
+   "v1p_flag": false
+  },
+  {
+   "n": 22,
+   "cls": "shared",
+   "intent": "fix-k-acceptance-no-card-hash",
+   "valid": true,
+   "serial_hazard_wall": 0.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": false,
+    "10": false,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 4,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": true,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 0,
+   "v2_pair_wall": 45.7,
+   "serial_wall": 28.8,
+   "v1p_flag": false
+  },
+  {
+   "n": 30,
+   "cls": "sleep",
+   "intent": "k-accept-server-leak",
+   "valid": true,
+   "serial_hazard_wall": 11.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": true,
+    "10": true,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": false,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 11.03,
+   "v2_pair_wall": 18.4,
+   "serial_wall": 16.5,
+   "v1p_flag": false
+  },
+  {
+   "n": 31,
+   "cls": "sleep",
+   "intent": "k-accept-wait-handlers",
+   "valid": true,
+   "serial_hazard_wall": 12.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": true,
+    "10": true,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 1,
+    "10": 1,
+    "20": 1,
+    "30": 1
+   },
+   "v2_detect": false,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 12.03,
+   "v2_pair_wall": 46.6,
+   "serial_wall": 45.5,
+   "v1p_flag": false
+  },
+  {
+   "n": 32,
+   "cls": "sleep",
+   "intent": "k-acceptance-fixed-wait",
+   "valid": true,
+   "serial_hazard_wall": 13.0,
+   "serial_other_red": 0,
+   "v4_flag": {
+    "5": true,
+    "10": true,
+    "20": false,
+    "30": false
+   },
+   "v4_flag_other_scenarios": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "30": 0
+   },
+   "v2_detect": false,
+   "v2_other_new_failures": [],
+   "v2_n_other": 0,
+   "overlap_s": 13.03,
+   "v2_pair_wall": 20.7,
+   "serial_wall": 19.6,
+   "v1p_flag": false
+  }
+ ],
+ "v2_on_mutants": {
+  "n": 14,
+  "added_wall_pct_median": 14.1,
+  "added_wall_pct_min": 2.4,
+  "added_wall_pct_max": 62.8,
+  "other_new_failures_total": 0,
+  "mutants_run": 14,
+  "mutants_invalid": 0
+ },
+ "recall": {
+  "port": {
+   "n": 4,
+   "valid": 4,
+   "v4_B10": 0,
+   "v4_B5": 0,
+   "v4_B20": 0,
+   "v4_B30": 0,
+   "v2": 4,
+   "v2_with_overlap": 4,
+   "v2_detect_given_overlap": 4,
+   "v1p": 4
+  },
+  "path": {
+   "n": 4,
+   "valid": 4,
+   "v4_B10": 0,
+   "v4_B5": 0,
+   "v4_B20": 0,
+   "v4_B30": 0,
+   "v2": 2,
+   "v2_with_overlap": 2,
+   "v2_detect_given_overlap": 2,
+   "v1p": 4
+  },
+  "shared": {
+   "n": 3,
+   "valid": 3,
+   "v4_B10": 0,
+   "v4_B5": 0,
+   "v4_B20": 0,
+   "v4_B30": 0,
+   "v2": 3,
+   "v2_with_overlap": 0,
+   "v2_detect_given_overlap": 0,
+   "v1p": 0
+  },
+  "sleep": {
+   "n": 3,
+   "valid": 3,
+   "v4_B10": 3,
+   "v4_B5": 3,
+   "v4_B20": 0,
+   "v4_B30": 0,
+   "v2": 0,
+   "v2_with_overlap": 3,
+   "v2_detect_given_overlap": 0,
+   "v1p": 0
+  }
+ },
+ "slice": {
+  "serial_wall": 189.2,
+  "repeats": 0,
+  "refused_per_repeat": [],
+  "stable": false,
+  "refused_union": [],
+  "pair_wall_median": null,
+  "pair_walls": [],
+  "added_wall_pct": null,
+  "v4_under_load_flagged_intents": {},
+  "serial_red": 3,
+  "serial_scen": 25
+ }
+}

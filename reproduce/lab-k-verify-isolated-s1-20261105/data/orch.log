@@ -1,0 +1,168 @@
+09:32:20Z STAGE auto
+09:32:20Z GUARD busy ['3200185:kogen'] load1 1.06
+09:33:32Z STAGE auto
+09:33:32Z GUARD busy ['3200185:kogen'] load1 1.5
+09:51:10Z GUARD free after 1058s
+09:51:10Z RUN v4-r1
+11:12:30 STOPPED v4-r1 by me at partial (time rule); suite T exceeded window
+11:12:47Z STAGE salvage
+11:12:48Z SALVAGE v4-r1 {'intents_total': 147, 'intents_complete': 30, 'scen_finished': 300, 'scen_kept': 300}
+11:12:48Z STAGE-END salvage
+11:14:18Z STAGE r1b
+11:14:18Z R1B intents 117
+11:14:18Z GUARD busy ['4067200:go', '4067859:kogen.test', '4074345:go'] load1 4.13
+11:34:37 guard relaxed: idle kogen model-waiters ignored, compute processes (go/node/*.test/beam) still block
+11:34:37Z STAGE r1b
+11:34:37Z R1B intents 117
+11:34:37Z GUARD busy ['34175:go'] load1 2.33
+11:48:41Z STAGE quick
+11:48:41Z PLAN {'intents': 29, 'green': 7, 'eligible': 6, 'slice_pool': 7, 'T': 4880.0}
+11:48:41Z QUICK mutants then slice; hosts ['build-diagnostic-context', 'bundled-zip-safety', 'fix-k-acceptance-no-card-hash', 'k-accept-server-leak', 'k-accept-wait-handlers', 'k-acceptance-fixed-wait']
+11:48:41Z GUARD busy ['137921:go', '138270:kogen.test', '140837:go'] load1 2.99
+11:56:10 guard now measured: cpu busy <35% over 6s twice and load1<2.0
+11:56:10Z STAGE quick
+11:56:10Z PLAN {'intents': 29, 'green': 7, 'eligible': 6, 'slice_pool': 7, 'T': 4880.0}
+11:56:10Z QUICK mutants then slice; hosts ['build-diagnostic-context', 'bundled-zip-safety', 'fix-k-acceptance-no-card-hash', 'k-accept-server-leak', 'k-accept-wait-handlers', 'k-acceptance-fixed-wait']
+11:56:16Z GUARD busy cpu=1.00 load1=3.13 ['182445:go', '182520:kogen.test']
+11:58:26Z GUARD free after 136s
+11:58:26Z RUN mut00-port-serial
+11:58:49Z DONE mut00-port-serial wall=22.6s rc=0 scen=8 fail=0
+11:58:55Z GUARD busy cpu=0.04 load1=1.41 ['182445:go', '182520:kogen.test']
+11:59:05Z GUARD free after 16s
+11:59:05Z RUN mut00-port-v2 pair (101, 202)
+11:59:40Z DONE mut00-port-v2-A wall=34.7s rc=0 scen=8 fail=0
+11:59:42Z DONE mut00-port-v2-B wall=36.7s rc=1 scen=8 fail=1
+11:59:42Z PAIR mut00-port-v2 wall=36.8s
+11:59:48Z GUARD busy cpu=0.03 load1=2.05 ['182445:go', '182520:kogen.test']
+12:03:15 guard: cpu busy <35% twice only (load1 dropped: my own runs inflate it)
+12:03:15Z STAGE quick
+12:03:15Z PLAN {'intents': 29, 'green': 7, 'eligible': 6, 'slice_pool': 7, 'T': 4880.0}
+12:03:15Z QUICK mutants then slice; hosts ['build-diagnostic-context', 'bundled-zip-safety', 'fix-k-acceptance-no-card-hash', 'k-accept-server-leak', 'k-accept-wait-handlers', 'k-acceptance-fixed-wait']
+12:03:21Z GUARD busy cpu=0.54 load1=2.34 ['238357:go', '238569:kogen.test']
+12:03:51Z GUARD free after 36s
+12:03:51Z RUN mut01-port-serial
+12:03:55Z STAGE quick
+12:03:55Z PLAN {'intents': 29, 'green': 7, 'eligible': 6, 'slice_pool': 7, 'T': 4880.0}
+12:03:55Z QUICK mutants then slice; hosts ['build-diagnostic-context', 'bundled-zip-safety', 'fix-k-acceptance-no-card-hash', 'k-accept-server-leak', 'k-accept-wait-handlers', 'k-acceptance-fixed-wait']
+12:04:01Z GUARD busy cpu=0.10 load1=1.43 ['238357:go', '238569:kogen.test']
+12:04:11Z GUARD free after 16s
+12:04:11Z RUN mut10-path-serial
+12:04:46Z DONE mut10-path-serial wall=35.6s rc=0 scen=3 fail=0
+12:04:52Z GUARD busy cpu=0.01 load1=0.79 ['238357:go', '238569:kogen.test']
+12:05:02Z GUARD free after 16s
+12:05:02Z RUN mut10-path-v2 pair (101, 202)
+12:05:37Z DONE mut10-path-v2-A wall=34.4s rc=1 scen=3 fail=1
+12:05:39Z DONE mut10-path-v2-B wall=36.4s rc=0 scen=3 fail=0
+12:05:39Z PAIR mut10-path-v2 wall=36.5s
+12:05:45Z GUARD busy cpu=0.56 load1=0.34 ['269675:go', '270010:kogen.test', '270016:go']
+12:08:55Z GUARD free after 196s
+12:08:55Z RUN mut20-shared-serial
+12:09:00Z DONE mut20-shared-serial wall=5.4s rc=0 scen=5 fail=0
+12:09:06Z GUARD busy cpu=0.05 load1=1.35 ['272011:go', '272154:kogen.test']
+12:09:16Z GUARD free after 16s
+12:09:16Z RUN mut20-shared-v2 pair (101, 202)
+12:09:24Z DONE mut20-shared-v2-A wall=7.9s rc=1 scen=5 fail=2
+12:09:24Z DONE mut20-shared-v2-B wall=8.0s rc=1 scen=5 fail=2
+12:09:24Z PAIR mut20-shared-v2 wall=8.0s
+12:09:30Z GUARD busy cpu=0.05 load1=1.13 ['272011:go', '272154:kogen.test']
+12:09:40Z GUARD free after 16s
+12:09:40Z RUN mut30-sleep-serial
+12:09:57Z DONE mut30-sleep-serial wall=16.5s rc=0 scen=3 fail=0
+12:10:03Z GUARD busy cpu=0.03 load1=0.69 ['272011:go', '272154:kogen.test']
+12:10:13Z GUARD free after 16s
+12:10:13Z RUN mut30-sleep-v2 pair (101, 202)
+12:10:31Z DONE mut30-sleep-v2-A wall=18.3s rc=0 scen=3 fail=0
+12:10:31Z DONE mut30-sleep-v2-B wall=18.4s rc=0 scen=3 fail=0
+12:10:31Z PAIR mut30-sleep-v2 wall=18.4s
+12:10:37Z GUARD busy cpu=0.06 load1=0.73 ['272011:go', '272154:kogen.test']
+12:10:47Z GUARD free after 16s
+12:10:47Z RUN mut01-port-serial
+12:11:23Z DONE mut01-port-serial wall=35.5s rc=0 scen=3 fail=0
+12:11:29Z GUARD busy cpu=0.00 load1=0.40 []
+12:11:39Z GUARD free after 16s
+12:11:39Z RUN mut01-port-v2 pair (101, 202)
+12:12:13Z DONE mut01-port-v2-A wall=34.6s rc=1 scen=3 fail=1
+12:12:15Z DONE mut01-port-v2-B wall=36.5s rc=0 scen=3 fail=0
+12:12:15Z PAIR mut01-port-v2 wall=36.6s
+12:12:21Z GUARD busy cpu=0.29 load1=0.27 []
+12:15:21Z GUARD free after 186s
+12:15:21Z RUN mut11-path-serial
+12:15:53Z DONE mut11-path-serial wall=31.1s rc=0 scen=5 fail=0
+12:15:55Z STAGE quick
+12:15:55Z PLAN {'intents': 29, 'green': 7, 'eligible': 6, 'slice_pool': 7, 'T': 4880.0}
+12:15:55Z QUICK mutants then slice; hosts ['build-diagnostic-context', 'bundled-zip-safety', 'fix-k-acceptance-no-card-hash', 'k-accept-server-leak', 'k-accept-wait-handlers', 'k-acceptance-fixed-wait']
+12:15:55Z RUN mut11-path-v2 pair (101, 202)
+12:16:41Z DONE mut11-path-v2-A wall=45.7s rc=0 scen=5 fail=0
+12:16:41Z DONE mut11-path-v2-B wall=45.9s rc=0 scen=5 fail=0
+12:16:41Z PAIR mut11-path-v2 wall=45.9s
+12:16:47Z GUARD busy cpu=0.04 load1=2.40 ['310224:go', '310653:kogen.test']
+12:16:57Z GUARD free after 16s
+12:16:57Z RUN mut21-shared-serial
+12:17:04Z DONE mut21-shared-serial wall=6.6s rc=0 scen=4 fail=0
+12:17:04Z RUN mut21-shared-v2 pair (101, 202)
+12:17:11Z DONE mut21-shared-v2-A wall=7.6s rc=1 scen=4 fail=2
+12:17:11Z DONE mut21-shared-v2-B wall=7.6s rc=0 scen=4 fail=0
+12:17:11Z PAIR mut21-shared-v2 wall=7.7s
+12:17:17Z GUARD busy cpu=0.61 load1=1.61 ['345228:go']
+12:20:07Z GUARD free after 176s
+12:20:07Z RUN mut31-sleep-serial
+12:20:53Z DONE mut31-sleep-serial wall=45.5s rc=0 scen=3 fail=0
+12:20:53Z RUN mut31-sleep-v2 pair (101, 202)
+12:21:39Z DONE mut31-sleep-v2-A wall=46.6s rc=0 scen=3 fail=0
+12:21:39Z DONE mut31-sleep-v2-B wall=46.6s rc=0 scen=3 fail=0
+12:21:39Z PAIR mut31-sleep-v2 wall=46.6s
+12:21:45Z GUARD busy cpu=0.00 load1=0.65 ['345947:go', '346094:kogen.test']
+12:21:55Z GUARD free after 16s
+12:21:55Z RUN mut02-port-serial
+12:22:18Z DONE mut02-port-serial wall=22.5s rc=0 scen=8 fail=0
+12:22:18Z RUN mut02-port-v2 pair (101, 202)
+12:22:48Z DONE mut02-port-v2-A wall=29.9s rc=1 scen=8 fail=1
+12:22:50Z DONE mut02-port-v2-B wall=32.0s rc=0 scen=8 fail=0
+12:22:50Z PAIR mut02-port-v2 wall=32.1s
+12:22:56Z GUARD busy cpu=0.04 load1=1.63 []
+12:23:06Z GUARD free after 16s
+12:23:06Z RUN mut12-path-serial
+12:23:43Z DONE mut12-path-serial wall=37.1s rc=0 scen=3 fail=0
+12:23:43Z RUN mut12-path-v2 pair (101, 202)
+12:24:20Z DONE mut12-path-v2-A wall=37.3s rc=1 scen=3 fail=1
+12:24:22Z DONE mut12-path-v2-B wall=39.3s rc=0 scen=3 fail=0
+12:24:22Z PAIR mut12-path-v2 wall=39.3s
+12:24:29Z GUARD busy cpu=1.00 load1=3.89 ['386568:go', '386920:kogen.test']
+12:26:19Z GUARD free after 116s
+12:26:19Z RUN mut22-shared-serial
+12:26:47Z DONE mut22-shared-serial wall=28.8s rc=0 scen=7 fail=0
+12:26:47Z RUN mut22-shared-v2 pair (101, 202)
+12:27:33Z DONE mut22-shared-v2-A wall=45.7s rc=0 scen=7 fail=0
+12:27:33Z DONE mut22-shared-v2-B wall=45.7s rc=1 scen=7 fail=2
+12:27:33Z PAIR mut22-shared-v2 wall=45.7s
+12:27:39Z GUARD busy cpu=0.02 load1=2.60 ['386568:go', '386920:kogen.test']
+12:27:49Z GUARD free after 16s
+12:27:49Z RUN mut32-sleep-serial
+12:28:09Z DONE mut32-sleep-serial wall=19.6s rc=0 scen=2 fail=0
+12:28:09Z RUN mut32-sleep-v2 pair (101, 202)
+12:28:29Z DONE mut32-sleep-v2-A wall=20.7s rc=0 scen=2 fail=0
+12:28:30Z DONE mut32-sleep-v2-B wall=20.7s rc=0 scen=2 fail=0
+12:28:30Z PAIR mut32-sleep-v2 wall=20.7s
+12:28:36Z GUARD busy cpu=0.11 load1=1.16 ['423014:go']
+12:31:36Z GUARD free after 186s
+12:31:36Z RUN mut03-port-serial
+12:31:44Z DONE mut03-port-serial wall=8.6s rc=0 scen=2 fail=0
+12:31:44Z RUN mut03-port-v2 pair (101, 202)
+12:31:54Z DONE mut03-port-v2-A wall=9.5s rc=0 scen=2 fail=0
+12:31:54Z DONE mut03-port-v2-B wall=7.5s rc=1 scen=2 fail=1
+12:31:54Z PAIR mut03-port-v2 wall=9.5s
+12:32:00Z GUARD busy cpu=0.02 load1=1.34 ['423354:go', '423838:kogen.test']
+12:32:10Z GUARD free after 16s
+12:32:10Z RUN mut13-path-serial
+12:32:29Z DONE mut13-path-serial wall=18.9s rc=0 scen=4 fail=0
+12:32:29Z RUN mut13-path-v2 pair (101, 202)
+12:32:58Z DONE mut13-path-v2-A wall=28.8s rc=0 scen=4 fail=0
+12:32:58Z DONE mut13-path-v2-B wall=28.5s rc=0 scen=4 fail=0
+12:32:58Z PAIR mut13-path-v2 wall=28.9s
+12:32:59Z STAGE slice
+12:33:05Z GUARD busy cpu=0.04 load1=1.85 ['423354:go', '423838:kogen.test']
+12:33:15Z GUARD free after 16s
+12:33:15Z RUN slice-serial
+12:36:25Z DONE slice-serial wall=189.2s rc=1 scen=25 fail=3
+12:36:31Z GUARD busy cpu=0.89 load1=3.64 ['481604:go']
+12:58:28 STOP by me: time limit; slice pairs not started

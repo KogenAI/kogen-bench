@@ -1356,6 +1356,15 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-k-verify-isolated-s1-20261105",
+      "title": "Isolated, parallel-safe generated acceptance: no detector with a payoff passes",
+      "summary": "Tested three detectors on Kogen's own 604-scenario acceptance with 14 seeded hazards run and 40 scanned. A static lint refuses none of 509 real files but the real corpus holds no port or path hazard; a measured-wall check falsely refuses 10 of 28 sampled Intents at 10 s; two concurrent shuffled copies catch collisions when they overlap but add a median 14% wall. The first full suite run was stopped at 81 minutes and delivery Builds shared the host, so the numbers are a sample.",
+      "verdict": "no",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
