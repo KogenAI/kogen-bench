@@ -328,3 +328,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Shaping recovery on the Claude route, second repetition](../reproduce/kogen-shaping-claude-route-confirm-c3-20261105/README.md) stayed unresolved: the change rescued one refused shaping and failed to rescue another, and the hidden-check gap between arms comes from build-stage timeouts rather than the patched stage.
 
 [Context packet time to a verified patch](../reproduce/kontext-matched-2-verified-patch-time-20261105/README.md) is a screen on five real tasks. Both arms verified every patch and the median time ratio was 1.02 on Zig and 1.00 on Rust; most runs ended at the attempt cap, so the screen does not show a time gain.
+
+[Brief marker versus compaction hook](../reproduce/brief-marker-compaction-p1-20261105/README.md) found that a marker echoed on every call detected 0 of 26 forced compactions, while the client's compaction hook detected 52 of 52. The marker is not adopted as a compaction detector. Using it to detect a stale brief revision was not measured.

@@ -1203,6 +1203,15 @@
       "comparison": "kogen-context",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "brief-marker-compaction-p1-20261105",
+      "title": "A brief marker did not detect compaction; the hook did",
+      "summary": "A marker echoed on every call caught 0 of 26 forced compactions, because the compaction summary repeats it word for word; the client's SessionStart hook caught 52 of 52. The marker costs about 6 tokens per call with no false alarms, but it fails the detection test, so it is not adopted. Short headless sessions with forced compaction were tested; the Codex client was not.",
+      "verdict": "no",
+      "comparison": "kogen-context",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
