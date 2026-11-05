@@ -1,0 +1,114 @@
+{
+ "client": "claude-code 2.1.312",
+ "model": "claude-sonnet-5-5",
+ "effort": "medium",
+ "cells": {
+  "n1": {
+   "kind": "compaction",
+   "compactions": 4,
+   "hook_firings": 4,
+   "studio_notes": 10,
+   "signals": {
+    "ok": 6,
+    "changed-fresh": 4
+   },
+   "cli_turns": 15,
+   "model_calls": 22,
+   "failed_turns": 0,
+   "wall_s": 121.2,
+   "summaries_mentioning_nonce_rule": 4
+  },
+  "n2": {
+   "kind": "compaction",
+   "compactions": 4,
+   "hook_firings": 4,
+   "studio_notes": 10,
+   "signals": {
+    "ok": 6,
+    "changed-fresh": 4
+   },
+   "cli_turns": 15,
+   "model_calls": 23,
+   "failed_turns": 0,
+   "wall_s": 130.1,
+   "summaries_mentioning_nonce_rule": 4
+  },
+  "s1": {
+   "kind": "steady",
+   "compactions": 0,
+   "hook_firings": 0,
+   "studio_notes": 12,
+   "signals": {
+    "ok": 12
+   },
+   "cli_turns": 13,
+   "model_calls": 26,
+   "failed_turns": 0,
+   "wall_s": 75.0
+  },
+  "s2": {
+   "kind": "steady",
+   "compactions": 0,
+   "hook_firings": 0,
+   "studio_notes": 12,
+   "signals": {
+    "ok": 12
+   },
+   "cli_turns": 13,
+   "model_calls": 26,
+   "failed_turns": 0,
+   "wall_s": 73.2
+  }
+ },
+ "per_compaction": [
+  {
+   "cell": "n1",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 4.2
+  },
+  {
+   "cell": "n1",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 4.9
+  },
+  {
+   "cell": "n1",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 4.1
+  },
+  {
+   "cell": "n1",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 4.1
+  },
+  {
+   "cell": "n2",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 6.7
+  },
+  {
+   "cell": "n2",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 5.2
+  },
+  {
+   "cell": "n2",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 6.8
+  },
+  {
+   "cell": "n2",
+   "first_note_signal": "changed-fresh",
+   "seconds_to_first_note": 5.3
+  }
+ ],
+ "totals": {
+  "cli_turns": 56,
+  "model_calls": 97
+ },
+ "latency_s": {
+  "min": 4.1,
+  "median": 5.05,
+  "max": 6.8
+ }
+}

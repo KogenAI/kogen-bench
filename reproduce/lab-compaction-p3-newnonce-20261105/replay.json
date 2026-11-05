@@ -1,0 +1,45 @@
+{
+ "kind": "model-cells",
+ "model_calls": 97,
+ "finding_id": "lab-compaction-p3-newnonce-20261105",
+ "arms": {
+  "arm1-new-nonce": {
+   "verdict": "8 of 8 forced compactions detected, 0 false alarms in 36 other calls; clears the stop rule, tentative at n=8",
+   "counts": {
+    "compactions": 8,
+    "detected": 8,
+    "detected_fresh": 8,
+    "missing": 0,
+    "false_alarms": 0,
+    "steady_calls": 28,
+    "studio_notes": 44,
+    "cells": 4,
+    "client_turns": 56
+   },
+   "duration_s": 399.5
+  },
+  "hook-reference": {
+   "verdict": "8 of 8 compactions, paired reference in the same cells",
+   "counts": {
+    "compactions": 8,
+    "detected": 8,
+    "false_alarms": 0
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "reproduce/stub3.py",
+   "sha": "2a5da517ef0261bd77387b5a694523616ff4a34e639f97c8e92e14fcd0d7d103"
+  },
+  {
+   "tree": "reproduce/run-cell3.sh",
+   "sha": "b985c5d2b2460d8b71316e7c9a9b154bc07be2db5c328c844c7f461d414bd5ea"
+  },
+  {
+   "tree": "reproduce/analyze3_nonce.py",
+   "sha": "518c746dcfe5f3c534fd709bd784c9b88e10e09441cb05058d48af9c08bbfa6c"
+  }
+ ]
+}

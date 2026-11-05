@@ -1410,6 +1410,15 @@
       "comparison": "kogen-review",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-compaction-p3-newnonce-20261105",
+      "title": "A new-nonce instruction detected 8 of 8 forced compactions in a small Claude Code test",
+      "summary": "Telling the agent to invent a new nonce after its context is compacted, and checking at its next call to the service that the value changed, detected 8 of 8 forced compactions and raised no false alarm in 36 other calls; the compaction hook caught the same 8. The earlier static nonce caught 0 of 8 because the summary copies the value. The result is tentative: 8 compactions, short headless sessions, one model and client version, forced compaction only. It shows that the agent noticed the compaction, not that the whole brief survived, it depends on the model obeying the instruction, and the service can only react at the next call. Codex was not run.",
+      "verdict": "yes",
+      "comparison": "kogen-context",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
