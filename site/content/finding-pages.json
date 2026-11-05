@@ -1365,6 +1365,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-cc-layers-b-20261105",
+      "title": "kogen-loop is faster and lighter than Claude Code on the same API key",
+      "summary": "Same model (claude-sonnet-5-5, medium effort), prompt, server and API key, 12 Go tasks x 2 repetitions. kogen-loop took 0.80x the agent wall time of Claude Code configured as Kogen runs it and 0.88x that of a lean Claude Code, faster in 21 of 23 paired blocks each, with 0.64x and 0.85x the tokens and 2-3 fewer requests per task. Passes: loop 21/24, Kogen-style Claude Code 20/23, lean 22/23. Kogen's executor arguments cost Claude Code about 9% wall and 33% tokens; running Claude Code with kogen-loop's instructions as its system prompt was no slower and passed 24/24. Descriptive; the last block's two Claude Code cells did not run (spend cap).",
+      "verdict": "yes",
+      "comparison": "loop-speed-and-routes",
+      "finished": "2026-11-05",
+      "category": "categories/head-to-head.md"
     }
   ]
 }

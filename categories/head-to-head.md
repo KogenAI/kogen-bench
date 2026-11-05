@@ -599,3 +599,5 @@ In Kogen's run logs, the review and verification phases together average about 3
 ## Next
 
 Hill-climbs on both scoreboards are running as separate patch runs. The patches cover review that resumes the build session, deferred and parallel checks, effort scheduling, context management, reading and tool use. Winning patches will be built into Kogen and kogen-loop, and this page will be updated.
+
+[kogen-loop against Claude Code on one API key](../reproduce/lab-cc-layers-b-20261105/README.md): with the same model, effort, prompt, server and key on 12 Go tasks, kogen-loop finished in 0.80x the agent wall time of Claude Code as Kogen runs it and 0.88x that of a lean Claude Code (faster in 21 of 23 paired blocks each), with 0.64x and 0.85x the tokens; passes 21/24, 20/23 and 22/23.

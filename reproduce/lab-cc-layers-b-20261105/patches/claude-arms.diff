@@ -1,0 +1,227 @@
+--- a/lanes/bare/lanes_bare.py
++++ b/lanes/bare/lanes_bare.py
+@@ -253,14 +253,70 @@
+ def claude_command(a, claude_bin):
+     cmd = [claude_bin, "-p", "--output-format", "stream-json", "--verbose", "--permission-mode", "bypassPermissions",
+            "--tools", CLAUDE_TOOLS, "--no-session-persistence", "--disable-slash-commands", "--strict-mcp-config",
+-           "--setting-sources", "project"]
++           "--setting-sources", ""]
+     if a.model:
+         cmd += ["--model", a.model]
+     if a.effort:
+         cmd += ["--effort", a.effort]
+     return cmd
++
++
++KEXEC_CONSTRAINTS = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "constraints.txt"), encoding="utf-8").read()
++BUILD_SCHEMA = ('{"type":"object","properties":{"summary":{"type":"string"},"blocker":{"type":"object","properties":{"paths":'
++                '{"type":"array","items":{"type":"string"}},"reason":{"type":"string"},"evidence":{"type":"string"}},'
++                '"required":["paths","reason","evidence"],"additionalProperties":false}},"additionalProperties":false}')
++LEAN_TOOLS = "Bash,Read,Write,Edit,Glob,Grep"
++# C2: kogen-loop e5054c8 loop/session.go DefaultInstructions, verbatim (Lab cc-layers-1 owner addition, 5 Nov)
++LOOP_INSTRUCTIONS = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "loop-instructions.txt"), encoding="utf-8").read()
++KEXEC_SET_ENV = {"CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1", "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1", "DISABLE_UPDATES": "1"}
++
++
++def kexec_command(a, claude_bin, settings_path, session_id, lean, system=None):
++    """roundArgs(n=1) + roleRoundArgs("build") of kogen-executor; lean swaps the system prompt and limits the tools."""
++    cmd = [claude_bin, "-p", "--session-id", session_id]
++    if a.model:
++        cmd += ["--model", a.model]
++    if a.effort:
++        cmd += ["--effort", a.effort]
++    cmd += ["--output-format", "stream-json", "--verbose", "--include-hook-events",
++            "--permission-mode", "acceptEdits", "--permission-prompts", "none", "--allowedTools", "Bash",
++            "--settings", settings_path, "--setting-sources", "",
++            "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--no-chrome", "--max-turns", "150"]
++    if lean:
++        return cmd + ["--system-prompt", system or KEXEC_CONSTRAINTS, "--tools", LEAN_TOOLS, "--json-schema", BUILD_SCHEMA]
++    return cmd + ["--append-system-prompt", KEXEC_CONSTRAINTS, "--disallowedTools", "ScheduleWakeup", "--json-schema", BUILD_SCHEMA]
+ 
+ 
++def kogen_hook_settings(hook_bin, policy_path):
++    """kogen-executor hookSettings: blocking PreToolUse guard on file-writing tools, PostToolUse Bash observation."""
++    def hook(sub, block):
++        h = {"type": "command", "command": hook_bin, "args": ["__kogen_executor_hook", sub, "--policy", policy_path], "timeout": 10}
++        if block:
++            h["onFailure"] = "block"
++        return h
++    return {"hooks": {"PreToolUse": [{"matcher": "Write|Edit|MultiEdit|NotebookEdit", "hooks": [hook("pretool", True)]}],
++                      "PostToolUse": [{"matcher": "Bash", "hooks": [hook("posttool", False)]}]}}
++
++
++def read_api_key(home):
++    """The Anthropic API key stored in `<home>/.kogen/credentials/anthropic.json`; used in memory only, handed on a pipe fd."""
++    path = os.path.join(home, ".kogen", "credentials", "anthropic.json")
++    try:
++        with open(path, encoding="utf-8") as f:
++            key = json.load(f).get("api_key")
++    except (OSError, ValueError):
++        key = None
++    if not key:
++        raise BareError(f"no stored Anthropic API key in {path}")
++    return key
++
++
++def write_private(path, data):
++    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
++    with os.fdopen(fd, "w") as f:
++        f.write(data)
++
++
+ def codex_command(a, codex_bin):
+     cmd = [codex_bin, "exec", "--json", "--ephemeral", "--ignore-user-config", "--ignore-rules", "-s", "workspace-write",
+            "-c", 'approval_policy="never"', "-c", 'web_search="disabled"']
+@@ -397,6 +453,11 @@
+             for blk in (e.get("message") or {}).get("content") or []:
+                 if blk.get("type") == "tool_use":
+                     rec["tool_calls"] += 1
++                    names = rec.setdefault("tool_names", {})
++                    names[blk.get("name")] = names.get(blk.get("name"), 0) + 1
++            u0 = (e.get("message") or {}).get("usage")
++            if u0 and "first_request_usage" not in rec:
++                rec["first_request_usage"] = u0
+         if e.get("type") == "result":
+             last = e
+     if last:
+@@ -425,7 +486,7 @@
+     return (None if usd is None else round(usd, 8)), why
+ 
+ 
+-def filtered_agent_run(cmd, cwd, env, deadline_s, events_path, stderr, stdin, arm, out):
++def filtered_agent_run(cmd, cwd, env, deadline_s, events_path, stderr, stdin, arm, out, secret=None):
+     """Drain child stdout on a reader thread, filtering Pi deltas and capping the saved transcript."""
+     sidecar = os.path.join(out, "usage-events.jsonl")
+     state = {"size": 0, "capped": False}
+@@ -454,8 +515,21 @@
+                         state["size"] += len(line)
+             pipe.close()
+ 
+-    proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=stderr,
+-                            stdin=stdin, start_new_session=True)
++    pass_fds = ()
++    if secret is not None:
++        r, w = os.pipe()
++        os.write(w, secret.encode())
++        os.close(w)
++        var = env["_CCL_SECRET_VAR"]
++        env = {k: v for k, v in env.items() if k != "_CCL_SECRET_VAR"}
++        env[var] = str(r)
++        pass_fds = (r,)
++    try:
++        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=stderr,
++                                stdin=stdin, start_new_session=True, pass_fds=pass_fds)
++    finally:
++        for fd in pass_fds:
++            os.close(fd)
+     thread = threading.Thread(target=reader, args=(proc.stdout,), daemon=True)
+     thread.start()
+     timed_out = False
+@@ -484,6 +558,38 @@
+                  "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1", "DISABLE_TELEMETRY": "1",
+                  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1", "DISABLE_AUTOUPDATER": "1"}
+         cmd, bin_ = claude_command(a, claude_bin), claude_bin
++    elif arm in ("claude-kexec", "claude-lean", "claude-c2"):
++        claude_bin = a.claude_bin
++        if not claude_bin or not os.access(claude_bin, os.X_OK):
++            raise BareError("--claude-bin must be the pinned Claude Code executable")
++        hook_bin = getattr(a, "kogen_hook_bin", None)
++        if not hook_bin or not os.access(hook_bin, os.X_OK):
++            raise BareError("--kogen-hook-bin must be the Kogen release binary (its __kogen_executor_hook)")
++        cfg = os.path.join(tmp, "claude-config")
++        os.makedirs(cfg)
++        hookdir = os.path.join(tmp, "kogen-executor")
++        os.makedirs(hookdir, mode=0o700)
++        policy_path = os.path.join(hookdir, "hook-policy.json")
++        write_private(policy_path, json.dumps({"root": os.path.realpath(ws), "protected": tt.get("protect") or [],
++                                               "log": os.path.join(out, "hook-log.jsonl"), "nonce": os.urandom(16).hex()}))
++        settings_path = os.path.join(hookdir, "claude-settings.json")
++        write_private(settings_path, json.dumps(kogen_hook_settings(hook_bin, policy_path)))
++        route = getattr(a, "claude_route", None) or "seat"
++        if route == "seat":
++            secret, var = read_token(a.claude_token_home), "CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR"
++        elif route == "api":
++            secret, var = read_api_key(a.claude_token_home), "CLAUDE_CODE_API_KEY_FILE_DESCRIPTOR"
++        else:
++            raise BareError(f"unknown claude route {route}")
++        extra = {**KEXEC_SET_ENV, "CLAUDE_CONFIG_DIR": cfg, "_CCL_SECRET_VAR": var}
++        if arm in ("claude-lean", "claude-c2"):
++            extra["CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS"] = "1"
++        session_id = __import__("uuid").uuid4().__str__()
++        cmd, bin_ = kexec_command(a, claude_bin, settings_path, session_id, arm != "claude-kexec",
++                                 LOOP_INSTRUCTIONS if arm == "claude-c2" else None), claude_bin
++        with open(os.path.join(out, "argv.json"), "w") as f:  # no secret in argv; the Constraints/schema are public text
++            json.dump({"argv": cmd[1:], "route": route, "env_set": sorted(k for k in extra if not k.startswith("_")),
++                       "secret_fd_var": var}, f, indent=1)
+     elif arm == "codex":
+         codex_bin = a.codex_bin or shutil.which("codex") or CODEX_BIN_DEFAULT
+         if not os.access(codex_bin, os.X_OK):
+@@ -531,8 +637,10 @@
+         extra = {"HOME": a.home}
+         cmd, bin_ = [loop_bin, "run", "--task", "-"], loop_bin
+     env = agent_env(tt, tmp, extra)
++    secret_var_name = env.get("_CCL_SECRET_VAR")
++    ver_env = {k: v for k, v in env.items() if k != "_CCL_SECRET_VAR"}
+     ver_cmd = [bin_, "version"] if arm == "loop" else [bin_, "--version"]
+-    ver = subprocess.run(ver_cmd, capture_output=True, text=True, env=env, timeout=60).stdout.strip()
++    ver = subprocess.run(ver_cmd, capture_output=True, text=True, env=ver_env, timeout=60).stdout.strip()
+     prompt_path = os.path.join(tmp, "prompt.md")
+     with open(prompt_path, "w") as f:
+         f.write(prompt)
+@@ -544,11 +652,15 @@
+         cmd = [bin_, "run", "--task", os.path.join(tmp, "task.json")]
+     with open(os.path.join(out, "stderr.txt"), "w") as fe, open(prompt_path) as fi:
+         code, timed_out, capped, usage_events = filtered_agent_run(
+-            cmd, ws, env, deadline_s, events, fe, fi, arm, out)
++            cmd, ws, env if secret_var_name else ver_env, deadline_s, events, fe, fi, arm, out,
++            secret=secret if secret_var_name else None)
+     wall = round(time.monotonic() - started, 3)
+     parse_path = usage_events if os.path.isfile(usage_events) else events
+-    rec = (parse_claude(parse_path) if arm == "claude" else parse_loop(parse_path) if arm == "loop" else
++    rec = (parse_claude(parse_path) if arm.startswith("claude") else parse_loop(parse_path) if arm == "loop" else
+            parse_open_usage(parse_path, arm) if arm in ("pi", "opencode") else parse_codex(parse_path))
++    if arm.startswith("claude") and os.path.isfile(events):
++        full = parse_claude(events)
++        rec.update(tool_calls=full["tool_calls"], tool_names=full.get("tool_names"), first_request_usage=full.get("first_request_usage"))
+     if timed_out or code:
+         rec["usage_complete"] = {k: False for k in pm.TOKENS}
+         rec["usage_lower_bounds"] = rec.get("usage_lower_bounds") or {k: rec.get(k) for k in pm.TOKENS}
+@@ -579,7 +691,7 @@
+     pinned = getattr(a, "manifest_provenance", None)
+     if not pinned:
+         return
+-    key = {"loop":"loop_bin", "codex":"codex_bin", "claude":"claude_bin", "kogen":"kogen", "pi":"pi_bin", "opencode":"opencode_bin"}[a.arm]
++    key = {"loop":"loop_bin", "codex":"codex_bin", "claude":"claude_bin", "claude-kexec":"claude_bin", "claude-lean":"claude_bin", "claude-c2":"claude_bin", "kogen":"kogen", "pi":"pi_bin", "opencode":"opencode_bin"}[a.arm]
+     binary = getattr(a, key, None) or shutil.which("kogen-loop" if a.arm == "loop" else a.arm)
+     if not binary or pm.digest(binary) != pinned["binaries"][lane] or pm.tree_hash(task_dir) != pinned["tasks"][a.task]:
+         raise BareError("Cell inputs or executable differ from immutable plan")
+@@ -663,6 +775,8 @@
+     stage = {"stage": "agent", "wall_s": rec["wall_s"], "exit_code": code, **({"timed_out": True} if timed_out else {}),
+              "outcome": outcome, **{k: rec.get(k) for k in usage.TOKENS}, "requests": rec.get("requests"),
+              "tool_calls": rec.get("tool_calls"), "models": rec.get("models"), "cost_usd": cost, "cost_reason": why,
++             "tool_names": rec.get("tool_names"), "first_request_usage": rec.get("first_request_usage"),
++             "result_subtype": rec.get("result_subtype"),
+              **({"client_cost_usd": rec["client_cost_usd"]} if rec.get("client_cost_usd") is not None else {}),
+              **({"cache_creation_input_tokens": rec["cache_creation_input_tokens"]}
+                 if rec.get("cache_creation_input_tokens") is not None else {})}
+@@ -918,7 +1032,7 @@
+     c = sub.add_parser("cell")
+     c.add_argument("--tasks", required=True)
+     c.add_argument("--task", required=True)
+-    c.add_argument("--arm", required=True, choices=["kogen", "codex", "claude", "loop", "pi", "opencode"])
++    c.add_argument("--arm", required=True, choices=["kogen", "codex", "claude", "claude-kexec", "claude-lean", "claude-c2", "loop", "pi", "opencode"])
+     c.add_argument("--run-dir", required=True)
+     c.add_argument("--rep", type=int, default=1)
+     c.add_argument("--lane")
+@@ -930,6 +1044,11 @@
+     c.add_argument("--claude-config-dir")
+     c.add_argument("--claude-token-home", help="Kogen home whose stored Claude Code token the claude arm uses")
+     c.add_argument("--claude-bin")
++    c.add_argument("--claude-route", choices=["seat", "api"], default="seat",
++                   help="claude-kexec/lean: seat = OAuth token from <claude-token-home>/.kogen/credentials/claude-code.json; "
++                        "api = API key from <claude-token-home>/.kogen/credentials/anthropic.json (both on an inherited fd)")
++    c.add_argument("--kogen-hook-bin", help="Kogen release binary whose __kogen_executor_hook the kexec/lean arms use")
++    c.add_argument("--provider", help="loop arm provider (anthropic, chatgpt, ...)")
+     c.add_argument("--codex-home", help="CODEX_HOME holding the ChatGPT login")
+     c.add_argument("--codex-bin")
+     c.add_argument("--loop-bin")

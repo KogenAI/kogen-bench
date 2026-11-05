@@ -1,0 +1,15 @@
+Per arm (all counted cells)
+arm            cells pass  checks     median_wall_s  mean_requests  list_usd  usd_per_pass  ktok_per_pass
+loop              24   21  2075/2098             36.8            5.7      2.32         0.110             55
+claude-kexec      23   20  1335/2091             45.4            8.4      3.27         0.163             82
+claude-lean       23   22  2084/2091             42.6            8.0      2.55         0.116             58
+claude-c2         24   24  2098/2098             44.5            8.6      2.87         0.120             60
+
+Paired ratios a/b over blocks holding both arms (geometric means; CI = normal on per-block log ratios)
+loop/claude-kexec (primary, 97.5% CI, n=23): wall 0.804 [0.758, 0.853], loop faster in 21/23, sign p=0.0001; tokens 0.644 [0.606, 0.684]; list USD 0.644 [0.606, 0.684]; requests -2.7 per block; pass 21 vs 20
+loop/claude-lean (primary, 97.5% CI, n=23): wall 0.877 [0.836, 0.920], loop faster in 21/23, sign p=0.0001; tokens 0.853 [0.819, 0.889]; list USD 0.853 [0.819, 0.889]; requests -2.2 per block; pass 21 vs 22
+claude-kexec/claude-lean (secondary, 95% CI, n=23): wall 1.090 [1.047, 1.135], claude-kexec faster in 5/23, sign p=0.0106; tokens 1.326 [1.271, 1.384]; list USD 1.326 [1.271, 1.384]; requests +0.4 per block; pass 20 vs 22
+claude-c2/claude-lean (secondary, 95% CI, n=23): wall 1.016 [0.964, 1.071], claude-c2 faster in 9/23, sign p=0.4049; tokens 1.027 [0.962, 1.097]; list USD 1.027 [0.962, 1.097]; requests +0.7 per block; pass 23 vs 22
+loop/claude-c2 (secondary, 95% CI, n=24): wall 0.859 [0.807, 0.914], loop faster in 20/24, sign p=0.0015; tokens 0.826 [0.774, 0.881]; list USD 0.826 [0.774, 0.881]; requests -2.9 per block; pass 21 vs 24
+
+Failed cells: csvq-go r1 loop (0/7), csvq-go r1 claude-kexec (0/7), csvq-go r1 claude-lean (0/7), splitter-go r2 loop (0/9), patchapply-go r2 claude-kexec (0/9), task-tags-go r2 claude-kexec (160/900), csvq-go r2 loop (0/7)
