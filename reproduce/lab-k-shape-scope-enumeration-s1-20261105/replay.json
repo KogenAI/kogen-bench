@@ -1,0 +1,27 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-k-shape-scope-enumeration-s1-20261105",
+ "scope": "the judge arm only: model-free recall scoring of the stored inventories. The three dry cells in data/dry-cells.tsv are separate smoke runs and are not part of this replay.",
+ "arms": {
+  "judge": {
+   "verdict": "unresolved: judge gate passes (owner-keyed recall 1.00 on 13 of 13 trees); counted Stage 1a cells not run",
+   "counts": {
+    "trees_with_inventory": 13,
+    "owner_keyed_missed": 0,
+    "trees_owner_keyed_recall_1": 13,
+    "hidden_touched_tables": 121,
+    "hidden_touched_owner_keyed": 106,
+    "missed_not_owner_keyed": 14,
+    "inventory_bytes_median": 2781,
+    "dry_cells": 3
+   },
+   "duration_s": 1
+  }
+ },
+ "inputs": [
+  {"tree": "stored inventories of the 13 application start trees, 39 files in all (sha256 over sorted file names and contents)", "sha": "ccb49af627827633e6721a31bcd790a50bef491ff329ed3a3c7a7f69ff0c8079"},
+  {"tree": "kogen-shaping pin of release 41d70052", "sha": "f04edcea9896"},
+  {"tree": "kogen release under test", "sha": "41d70052bf0ff932a0424df86a0fb388021428fc"}
+ ]
+}
