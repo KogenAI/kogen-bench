@@ -1,0 +1,167 @@
+{
+ "finding": "kogen-build-claude-route-confirm-c3-20261105",
+ "model": "claude-sonnet-5-5",
+ "effort": "high",
+ "cells": [
+  {
+   "task": "active-storage-tracking",
+   "arm": "release",
+   "outcome": "environment",
+   "reached_build": false,
+   "wall_s": 276,
+   "hidden_passed": 0,
+   "hidden_total": 15,
+   "all_passed": false,
+   "stop_cause": "approve-stage acceptance step timeout on a loaded host (instrument failure)"
+  },
+  {
+   "task": "active-storage-tracking",
+   "arm": "candidate",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 3006,
+   "hidden_passed": 14,
+   "hidden_total": 15,
+   "all_passed": false,
+   "stop_cause": null
+  },
+  {
+   "task": "agingq-go",
+   "arm": "release",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 317,
+   "hidden_passed": 13,
+   "hidden_total": 13,
+   "all_passed": true,
+   "stop_cause": null
+  },
+  {
+   "task": "agingq-go",
+   "arm": "candidate",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 218,
+   "hidden_passed": 13,
+   "hidden_total": 13,
+   "all_passed": true,
+   "stop_cause": null
+  },
+  {
+   "task": "cancelled-account-cleanup",
+   "arm": "release",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 3226,
+   "hidden_passed": 5,
+   "hidden_total": 5,
+   "all_passed": true,
+   "stop_cause": null
+  },
+  {
+   "task": "cancelled-account-cleanup",
+   "arm": "candidate",
+   "outcome": "environment",
+   "reached_build": false,
+   "wall_s": 230,
+   "hidden_passed": 0,
+   "hidden_total": 5,
+   "all_passed": false,
+   "stop_cause": "approve-stage acceptance step timeout on a loaded host (instrument failure)"
+  },
+  {
+   "task": "kamal-deploy",
+   "arm": "release",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 2669,
+   "hidden_passed": 7,
+   "hidden_total": 8,
+   "all_passed": false,
+   "stop_cause": null
+  },
+  {
+   "task": "kamal-deploy",
+   "arm": "candidate",
+   "outcome": "landed",
+   "reached_build": true,
+   "wall_s": 2744,
+   "hidden_passed": 6,
+   "hidden_total": 8,
+   "all_passed": false,
+   "stop_cause": null
+  }
+ ],
+ "pairs": [
+  {
+   "task": "cancelled-account-cleanup",
+   "release": 5,
+   "candidate": null,
+   "total": 5,
+   "valid_pair": false
+  },
+  {
+   "task": "active-storage-tracking",
+   "release": null,
+   "candidate": 14,
+   "total": 15,
+   "valid_pair": false
+  },
+  {
+   "task": "kamal-deploy",
+   "release": 7,
+   "candidate": 6,
+   "total": 8,
+   "valid_pair": true
+  },
+  {
+   "task": "agingq-go",
+   "release": 13,
+   "candidate": 13,
+   "total": 13,
+   "valid_pair": true
+  }
+ ],
+ "attribution": [
+  {
+   "task": "kamal-deploy",
+   "stage": "build",
+   "cause_class": "e",
+   "note": "candidate failed one more hidden check (deployment acceptance); single flip inside the 18-27% same-arm flip rate"
+  },
+  {
+   "task": "cancelled-account-cleanup",
+   "stage": "approve",
+   "cause_class": "d",
+   "note": "candidate cell never built (instrument failure)"
+  },
+  {
+   "task": "active-storage-tracking",
+   "stage": "approve",
+   "cause_class": "d",
+   "note": "release cell never built (instrument failure)"
+  }
+ ],
+ "pooled_tool_output": {
+  "g0": {
+   "all_pass": 2,
+   "cells": 4,
+   "hidden_frac_mean": 0.7188,
+   "hidden_passed": 25,
+   "hidden_total": 41,
+   "landed": 3,
+   "ungraded": 0,
+   "valid_intent": 3
+  },
+  "g1": {
+   "all_pass": 1,
+   "cells": 4,
+   "hidden_frac_mean": 0.6708,
+   "hidden_passed": 33,
+   "hidden_total": 41,
+   "landed": 3,
+   "ungraded": 0,
+   "valid_intent": 3
+  }
+ }
+}
