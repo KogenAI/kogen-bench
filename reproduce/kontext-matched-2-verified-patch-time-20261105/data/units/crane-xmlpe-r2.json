@@ -1,0 +1,167 @@
+{
+ "rows": [
+  {
+   "case": "crane-xmlpe",
+   "arm": "assisted",
+   "attempts": [
+    {
+     "n": 1,
+     "retrieval_s": 0.334,
+     "packet_bytes": 5531,
+     "packet_valid": true,
+     "claude_s": 162.417,
+     "claude_timed_out": false,
+     "claude_error": null,
+     "process_wall_s": 163.056,
+     "result_event_s": 162.417,
+     "agent_duration_ms": 162163,
+     "cleanup_s": 0.639,
+     "closed_after_result": false,
+     "models": [
+      "claude-sonnet-5-5"
+     ],
+     "turns": 15,
+     "usage": {
+      "input_tokens": 20,
+      "cache_creation_input_tokens": 36017,
+      "cache_read_input_tokens": 339023,
+      "output_tokens": 3323,
+      "output_tokens_details": {
+       "thinking_tokens": 269
+      },
+      "server_tool_use": {
+       "web_search_requests": 0,
+       "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+       "ephemeral_1h_input_tokens": 36017,
+       "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+       {
+        "input_tokens": 2,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 40964,
+        "cache_creation_input_tokens": 201,
+        "cache_creation": {
+         "ephemeral_5m_input_tokens": 0,
+         "ephemeral_1h_input_tokens": 201
+        },
+        "type": "message"
+       }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+     },
+     "cost_usd": 0.2112403,
+     "denials": 4,
+     "grade_s": 35.093,
+     "grade": "green"
+    }
+   ],
+   "excluded": null,
+   "outcome": "green",
+   "retrieval_s": 0.334,
+   "claude_s": 162.417,
+   "grade_s": 35.093,
+   "retry_s": 0,
+   "first_attempt_s": 197.844,
+   "total_s": 230.953,
+   "counts_for_model": true,
+   "pair_order": [
+    "assisted",
+    "direct"
+   ]
+  },
+  {
+   "case": "crane-xmlpe",
+   "arm": "direct",
+   "attempts": [
+    {
+     "n": 1,
+     "claude_s": 137.931,
+     "claude_timed_out": false,
+     "claude_error": null,
+     "process_wall_s": 138.461,
+     "result_event_s": 137.931,
+     "agent_duration_ms": 137579,
+     "cleanup_s": 0.529,
+     "closed_after_result": false,
+     "models": [
+      "claude-sonnet-5-5"
+     ],
+     "turns": 14,
+     "usage": {
+      "input_tokens": 18,
+      "cache_creation_input_tokens": 34338,
+      "cache_read_input_tokens": 274580,
+      "output_tokens": 3331,
+      "output_tokens_details": {
+       "thinking_tokens": 196
+      },
+      "server_tool_use": {
+       "web_search_requests": 0,
+       "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+       "ephemeral_1h_input_tokens": 34338,
+       "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+       {
+        "input_tokens": 2,
+        "output_tokens": 536,
+        "cache_read_input_tokens": 39116,
+        "cache_creation_input_tokens": 370,
+        "cache_creation": {
+         "ephemeral_5m_input_tokens": 0,
+         "ephemeral_1h_input_tokens": 370
+        },
+        "type": "message"
+       }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+     },
+     "cost_usd": 0.198156,
+     "denials": 3,
+     "grade_s": 27.112,
+     "grade": "green"
+    }
+   ],
+   "excluded": null,
+   "outcome": "green",
+   "retrieval_s": 0,
+   "claude_s": 137.931,
+   "grade_s": 27.112,
+   "retry_s": 0,
+   "first_attempt_s": 165.043,
+   "total_s": 195.499,
+   "counts_for_model": true,
+   "pair_order": [
+    "assisted",
+    "direct"
+   ]
+  }
+ ],
+ "pairs": [
+  {
+   "case": "crane-xmlpe",
+   "matched": true,
+   "direct": "green",
+   "assisted": "green"
+  }
+ ],
+ "matched_pair_tally": {
+  "direct": {
+   "green": 1
+  },
+  "assisted": {
+   "green": 1
+  }
+ }
+}

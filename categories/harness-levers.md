@@ -326,3 +326,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Review component check on Claude](../reproduce/kogen-review-claude-route-confirm-c3-20261105/README.md) stayed unresolved: two tasks stopped before building on an approval timeout, and the two valid pairs showed no difference between arms.
 
 [Shaping recovery on the Claude route, second repetition](../reproduce/kogen-shaping-claude-route-confirm-c3-20261105/README.md) stayed unresolved: the change rescued one refused shaping and failed to rescue another, and the hidden-check gap between arms comes from build-stage timeouts rather than the patched stage.
+
+[Context packet time to a verified patch](../reproduce/kontext-matched-2-verified-patch-time-20261105/README.md) is a screen on five real tasks. Both arms verified every patch and the median time ratio was 1.02 on Zig and 1.00 on Rust; most runs ended at the attempt cap, so the screen does not show a time gain.

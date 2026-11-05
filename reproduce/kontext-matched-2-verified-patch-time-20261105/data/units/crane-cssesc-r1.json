@@ -1,0 +1,132 @@
+{
+ "rows": [
+  {
+   "case": "crane-cssesc",
+   "arm": "direct",
+   "attempts": [
+    {
+     "n": 1,
+     "claude_s": 300.736,
+     "claude_timed_out": true,
+     "claude_error": null,
+     "process_wall_s": 300.736,
+     "result_event_s": null,
+     "agent_duration_ms": null,
+     "cleanup_s": 0.705,
+     "closed_after_result": false,
+     "models": [],
+     "turns": null,
+     "usage": null,
+     "cost_usd": null,
+     "denials": 0,
+     "grade_s": 50.564,
+     "grade": "green"
+    }
+   ],
+   "excluded": null,
+   "outcome": "green",
+   "retrieval_s": 0,
+   "claude_s": 300.736,
+   "grade_s": 50.564,
+   "retry_s": 0,
+   "first_attempt_s": 351.3,
+   "total_s": 385.798,
+   "counts_for_model": true,
+   "pair_order": [
+    "direct",
+    "assisted"
+   ]
+  },
+  {
+   "case": "crane-cssesc",
+   "arm": "assisted",
+   "attempts": [
+    {
+     "n": 1,
+     "retrieval_s": 0.344,
+     "packet_bytes": 4793,
+     "packet_valid": true,
+     "claude_s": 35.207,
+     "claude_timed_out": false,
+     "claude_error": null,
+     "process_wall_s": 35.633,
+     "result_event_s": 35.207,
+     "agent_duration_ms": 34361,
+     "cleanup_s": 0.426,
+     "closed_after_result": false,
+     "models": [
+      "claude-sonnet-5-5"
+     ],
+     "turns": 10,
+     "usage": {
+      "input_tokens": 14,
+      "cache_creation_input_tokens": 36583,
+      "cache_read_input_tokens": 224967,
+      "output_tokens": 4565,
+      "output_tokens_details": {
+       "thinking_tokens": 243
+      },
+      "server_tool_use": {
+       "web_search_requests": 0,
+       "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+       "ephemeral_1h_input_tokens": 36583,
+       "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+       {
+        "input_tokens": 2,
+        "output_tokens": 549,
+        "cache_read_input_tokens": 41277,
+        "cache_creation_input_tokens": 454,
+        "cache_creation": {
+         "ephemeral_5m_input_tokens": 0,
+         "ephemeral_1h_input_tokens": 454
+        },
+        "type": "message"
+       }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+     },
+     "cost_usd": 0.21450670000000002,
+     "denials": 5,
+     "grade_s": 62.489,
+     "grade": "green"
+    }
+   ],
+   "excluded": null,
+   "outcome": "green",
+   "retrieval_s": 0.344,
+   "claude_s": 35.207,
+   "grade_s": 62.489,
+   "retry_s": 0,
+   "first_attempt_s": 98.04,
+   "total_s": 106.266,
+   "counts_for_model": true,
+   "pair_order": [
+    "direct",
+    "assisted"
+   ]
+  }
+ ],
+ "pairs": [
+  {
+   "case": "crane-cssesc",
+   "matched": true,
+   "direct": "green",
+   "assisted": "green"
+  }
+ ],
+ "matched_pair_tally": {
+  "direct": {
+   "green": 1
+  },
+  "assisted": {
+   "green": 1
+  }
+ }
+}

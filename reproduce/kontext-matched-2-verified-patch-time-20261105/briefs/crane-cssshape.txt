@@ -1,0 +1,11 @@
+clip-path inset() rejects extended length units in its corner radius
+
+Observed behavior
+- `padding-left: 1cap` parses.
+- `clip-path: inset(0 round 1cap)`, `clip-path: inset(0 round calc(1cap))` and `clip-path: inset(0 round 1rcap / 2ic)` are rejected as invalid.
+
+Expected behavior
+- Lengths in the `round` part of a basic shape accept the same extended length units (cap, rcap, ic, and the other font-relative units) that ordinary length properties accept, and keep them as typed values. Like those properties' values, the parsed values report that they depend on font metrics (they need metrics that are not available when the caller says metrics are unavailable, and do not when metrics are available).
+- The grammar's own range is applied to literals before anything is allocated: a negative radius such as `clip-path: inset(0 round -1cap)` stays invalid and produces no value.
+- Math functions keep their current behavior.
+- Every allocation failure is cleaned up (no leaks).

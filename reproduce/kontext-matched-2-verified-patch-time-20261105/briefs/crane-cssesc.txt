@@ -1,0 +1,13 @@
+CSS names written with long escape sequences are not recognized
+
+Observed behavior
+- A keyword or function name written entirely with CSS hex escapes is not recognized once its raw spelling is long. Example: `revert-layer` written as twelve six-digit escapes, each followed by a space (`\000072 \000065 \000076 ...`), is more than 64 bytes of source. `width: <that spelling>` is not parsed as the CSS-wide keyword revert-layer. The same happens with a tab or CRLF after each escape.
+- `background-image: <linear-gradient spelled the same way>(red, blue)` is rejected.
+- The same names written with short escapes (for example `\72 evert-layer`) are recognized.
+
+Expected behavior (CSS Syntax 3, sections 4.3.7 and 4.3.12)
+- Names are compared by their decoded value, ASCII case-insensitively, whatever the length of the raw spelling: the long `width` value is revert-layer and serializes as `revert-layer`, and the gradient serializes as `linear-gradient(red, blue)`. Upper-case targets (REVERT-LAYER) match too.
+- A name whose decoded value is longer still does not match: escaped `revert-layer-extra` is not `revert-layer`, and `\72 evert-layer` is not `revert`.
+- An escape that decodes to NUL, a surrogate (for example `\d800`) or a value above U+10FFFF, a raw NUL or an encoded surrogate, and a backslash at the end of input all decode to U+FFFD; such a name never matches an ASCII name, not even the empty one.
+- Decoding otherwise keeps its current output, for example `a\41 B` -> `aAB`, `\000041` followed by a tab or CRLF then `B` -> `AB`, an escaped newline (LF, CRLF or form feed) is removed, an escaped non-ASCII character is kept.
+- Every allocation failure is cleaned up (no leaks).

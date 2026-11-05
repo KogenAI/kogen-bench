@@ -1,0 +1,15 @@
+standalone='yes' XML documents with an unread external parameter entity are accepted
+
+Observed behavior
+- The XML parser accepts these documents as well-formed:
+  <?xml version='1.0' standalone='yes'?><!DOCTYPE r [<!ENTITY % p SYSTEM 'about:blank'>%p;]><r/>
+  and the same document with a later <!ENTITY e 'ok'> or <!ATTLIST r a CDATA 'ok'> declaration after %p;.
+- Chrome and Safari report a fatal error for them.
+
+Expected behavior
+- In a document declared standalone='yes', a reference to a declared external parameter entity that the parser does not read is a fatal error, raised before any later declarations are processed.
+- Unchanged: in documents that are not standalone (no standalone declaration, or standalone='no'), the parser keeps skipping the declarations after such a reference without an error (an ATTLIST default after it is not applied; a general entity declared after it stays undeclared, so using it is fatal).
+- Unchanged: undeclared general entities stay fatal in content and in attribute values, including with an external DTD subset or after a parameter-entity reference.
+- standalone='yes' documents still process internal parameter entities: <!ENTITY % p "<!ATTLIST r a CDATA 'ok'>">%p; applies the default a=ok.
+- When one parser instance is reused, the standalone setting of one document never carries over to the next.
+- Every allocation failure is cleaned up (no leaks).
