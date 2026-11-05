@@ -1311,6 +1311,15 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "build-speed-e1-approve-batch-20261105",
+      "title": "Batching Kogen's approval step-binding check cuts approval time by over 90%",
+      "summary": "Since release 41d70052, approving an Intent starts one Node and Cucumber process per step text for every pair of step files with every earlier Intent, so approval grows with the repository's history; the delivery launcher also approves twice per Build. On frozen copies of real shaped trees, with no language model involved, a Lab build that loads each pair of step files once and matches all step texts in that process cut approval time by 91.9-96.3% on all 7 trees (pooled 16,360 s to 1,093 s; Studio trees about 50 minutes to 4). It reached the same step-binding verdict as the release on 12 of 12 fixtures and refused all 3 synthetic collisions with identical text. The three final-verdict differences were readiness timeouts under host load, a stage the change does not touch. Calling approve once instead of twice saved only -10% to 57% and needs a digest the launcher does not have, so it was not adopted.",
+      "verdict": "yes",
+      "comparison": "kogen-shaping-and-builds",
+      "finished": "2026-11-05",
+      "category": "categories/mechanism-profiles.md"
     }
   ]
 }
