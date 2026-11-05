@@ -322,3 +322,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Shaping recovery on Claude](../reproduce/kogen-shaping-recovery-claude-20261105/README.md) is tentative: 5 of 7 valid Intents against 4 of 7, one refusal rescued; a bounded confirmation is registered.
 
 [Build component check on Claude](../reproduce/kogen-build-claude-route-confirm-c3-20261105/README.md) stayed unresolved: two cells stopped before building on an approval timeout, and the one valid-pair flip against the candidate is within normal repeat variation.
+
+[Review component check on Claude](../reproduce/kogen-review-claude-route-confirm-c3-20261105/README.md) stayed unresolved: two tasks stopped before building on an approval timeout, and the two valid pairs showed no difference between arms.

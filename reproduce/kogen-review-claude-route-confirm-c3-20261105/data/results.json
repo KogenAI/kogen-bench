@@ -1,0 +1,21 @@
+{
+ "finding": "kogen-review-claude-route-confirm-c3-20261105",
+ "model": "claude-sonnet-5-5",
+ "effort": "high",
+ "cells": [
+  {"task":"active-storage-tracking","arm":"release","outcome":"not started","reached_build":false,"wall_s":null,"hidden_passed":0,"hidden_total":15,"all_passed":false,"stop_cause":"never started: the run's approval preflight timed out on a loaded host (instrument failure)"},
+  {"task":"active-storage-tracking","arm":"candidate","outcome":"environment","reached_build":false,"wall_s":null,"hidden_passed":0,"hidden_total":15,"all_passed":false,"stop_cause":"approval acceptance step timeout on a loaded host (instrument failure)"},
+  {"task":"agingq-go","arm":"release","outcome":"landed","reached_build":true,"wall_s":272,"hidden_passed":13,"hidden_total":13,"all_passed":true,"review":"approved","stop_cause":null},
+  {"task":"agingq-go","arm":"candidate","outcome":"landed","reached_build":true,"wall_s":487,"hidden_passed":13,"hidden_total":13,"all_passed":true,"review":"approved","stop_cause":null},
+  {"task":"cancelled-account-cleanup","arm":"release","outcome":"environment","reached_build":false,"wall_s":198,"hidden_passed":0,"hidden_total":5,"all_passed":false,"stop_cause":"approval acceptance step timeout on a loaded host (instrument failure)"},
+  {"task":"cancelled-account-cleanup","arm":"candidate","outcome":"environment","reached_build":false,"wall_s":163,"hidden_passed":0,"hidden_total":5,"all_passed":false,"stop_cause":"approval acceptance step timeout on a loaded host (instrument failure)"},
+  {"task":"kamal-deploy","arm":"release","outcome":"landed","reached_build":true,"wall_s":3049,"hidden_passed":1,"hidden_total":8,"errored":7,"all_passed":false,"review":"approved, 1 note","stop_cause":null},
+  {"task":"kamal-deploy","arm":"candidate","outcome":"landed","reached_build":true,"wall_s":2085,"hidden_passed":1,"hidden_total":8,"errored":7,"all_passed":false,"review":"approved, 1 note","stop_cause":null}
+ ],
+ "pairs": [
+  {"task":"cancelled-account-cleanup","release":null,"candidate":null,"total":5,"valid_pair":false},
+  {"task":"active-storage-tracking","release":null,"candidate":null,"total":15,"valid_pair":false},
+  {"task":"kamal-deploy","release":1,"candidate":1,"total":8,"valid_pair":true},
+  {"task":"agingq-go","release":13,"candidate":13,"total":13,"valid_pair":true}
+ ]
+}
