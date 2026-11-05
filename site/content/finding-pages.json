@@ -1293,6 +1293,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "compaction-watcher-token-drop-p3a-20261105",
+      "title": "Detecting compaction without a model: a transcript watcher always works, token drop only on long sessions",
+      "summary": "A process that reads the harness transcript caught all 173 forced compactions in the earlier short test sessions, and all 129 Claude Code and 165 Codex compactions in real long sessions; on real sessions that rate holds by construction, because it reads the same entries that define the truth. A detector that looks for a large fall in context size caught none of the 173 in the short sessions, where the fixed prompt dominates, but all 129 and 165 in real sessions, with about 0.002 false alarms per 100 calls. Neither needs a model call, and both can act only at the agent's next call to the service, which also needs the loop id from the launcher. The real-session corpus is private, so only counts are published. Whether a new-nonce instruction helps is a separate, later test.",
+      "verdict": "yes",
+      "comparison": "kogen-context",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
