@@ -1,0 +1,54 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "arms": {
+  "c2-arm-a-static-checks": {
+   "verdict": "1 of 22 builder-blocked defects caught (4.5%); 60% bar not met; 0 false refusals in 30; step 2 needed",
+   "counts": {
+    "builder_blocked_targeted": 22,
+    "caught": 1,
+    "report_invalid_rows": 6,
+    "already_refused_by_readiness": 6,
+    "trees_recovered": 5,
+    "trees_targeted": 28,
+    "green_intents_checked": 327,
+    "green_flagged": 0,
+    "sample_false_refusals": 0,
+    "go_packages_in_scope": 12,
+    "go_false_refusals": 1
+   },
+   "duration_s": 380
+  },
+  "c10-arm-a-release": {
+   "verdict": "0 of 6 affected feasibility commands as expected",
+   "counts": {
+    "affected_commands": 6,
+    "as_expected": 0,
+    "control_commands": 20,
+    "control_as_recorded": 20
+   },
+   "duration_s": 60
+  },
+  "c10-arm-b-git-copy": {
+   "verdict": "6 of 6 affected commands as expected; 20 of 20 control commands unchanged; source unchanged",
+   "counts": {
+    "affected_commands": 6,
+    "as_expected": 6,
+    "control_commands": 20,
+    "control_as_recorded": 20,
+    "isolation_tests_passed": 1
+   },
+   "duration_s": 60
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-verification host mirror main",
+   "sha": "5c4942485f91a8df023cc2f2320e43aa860d1873"
+  },
+  {
+   "tree": "kogen-shaping main at the start of the Lab",
+   "sha": "42424ca"
+  }
+ ]
+}

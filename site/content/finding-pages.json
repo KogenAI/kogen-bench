@@ -1275,6 +1275,24 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c2-static-checks-20261105",
+      "title": "Static checks on shaped files stop 1 of 22 defects the builder refuses",
+      "summary": "The repository's own format, vet and syntax checks, run on shaper-written acceptance files before approve, caught 1 of 22 builder-blocked defects (a Go driver that was not gofmt-formatted). With the 6 readiness refusals that already happen, 7 of 28 failures are stopped. The rest are semantic: contradictory steps, wrong expected values, fixtures that do not match the code, timing, string escaping. No false refusals in 30 landed Intents, and 1 in 12 in-scope Go packages. Shaped bytes survived for only 5 of the 28 failures, the rest were scored from logs and probes. The 60% bar is not met, so the shape-repair comparison is needed.",
+      "verdict": "no",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c10-probe-git-copy-20261105",
+      "title": "A probe copy with git history lets git-reading observers pass",
+      "summary": "Readiness runs observers in a scratch copy without git metadata, so an observer that reads git fails. Giving the copy a shared clone of the source at its HEAD, with hooks off, made 6 of 6 feasibility commands of the 3 affected Intents pass (0 of 6 before) and left 10 git-free controls unchanged in all 20 commands; a probe that writes config, files and a commit leaves the source untouched. The three observers are reconstructions and the replay stops at the probe, not a full approve. A request for the verification component is filed.",
+      "verdict": "yes",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
