@@ -1,0 +1,62 @@
+{
+ "documentation-lookup-evidence": {
+  "full_secs": 854,
+  "tests_total": 37,
+  "changed_lib_files": 3,
+  "wide_files": 1,
+  "wide_secs": 18,
+  "wide_ratio": 0.021,
+  "narrow_files": 0,
+  "narrow_secs": null,
+  "narrow_ratio": null,
+  "wide_ratio_fallback": 0.021,
+  "narrow_ratio_fallback": 1.0
+ },
+ "opencode-go-subscription": {
+  "full_secs": 803,
+  "tests_total": 37,
+  "changed_lib_files": 10,
+  "wide_files": 14,
+  "wide_secs": 187,
+  "wide_ratio": 0.233,
+  "narrow_files": 6,
+  "narrow_secs": 2,
+  "narrow_ratio": 0.002,
+  "wide_ratio_fallback": 0.233,
+  "narrow_ratio_fallback": 0.002
+ },
+ "prompt-cache-reuse-and-usage": {
+  "full_secs": 441,
+  "tests_total": 27,
+  "changed_lib_files": 11,
+  "wide_files": 4,
+  "wide_secs": 306,
+  "wide_ratio": 0.694,
+  "narrow_files": 2,
+  "narrow_secs": 2,
+  "narrow_ratio": 0.005,
+  "wide_ratio_fallback": 0.694,
+  "narrow_ratio_fallback": 0.005
+ },
+ "shaping-technical-discovery": {
+  "full_secs": 1087,
+  "tests_total": 36,
+  "changed_lib_files": 4,
+  "wide_files": 0,
+  "wide_secs": null,
+  "wide_ratio": null,
+  "narrow_files": 0,
+  "narrow_secs": null,
+  "narrow_ratio": null,
+  "wide_ratio_fallback": 1.0,
+  "narrow_ratio_fallback": 1.0
+ },
+ "_gate": {
+  "rule": "targeted/full <= 0.5 on at least 3 of the 4 tasks",
+  "primary_form": "wide (tests that mirror a changed file or reference a changed module)",
+  "wide_pass_count": 2,
+  "narrow_pass_count": 2,
+  "wide_pass_count_if_unmapped_counts_free": 3,
+  "verdict": "STOP: A2 no headroom"
+ }
+}

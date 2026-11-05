@@ -1248,6 +1248,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-k-round-full-suite-s1-20261105",
+      "title": "Changed-first checks in build rounds: the targeted test run is not cheap enough",
+      "summary": "On the frozen start trees of four slow-suite tasks, the targeted form of a heavy check (only tests tied to the changed files) cost 0.02, 0.23 and 0.69 of the full mix test, and for one task no test maps to the change; the registered gate needed 3 of 4 at half the full cost or less and got 2, so arm A2 gets no cells and the row closes as measured. Model-free timing on a loaded host; whether the targeted form misses failures the full run catches was not measured.",
+      "verdict": "no",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
