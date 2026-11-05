@@ -1,0 +1,59 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-c1-reaper-confirm-20261105",
+ "arms": {
+  "A-released-helper": {
+   "verdict": "fails the go-test check of kogen-shaping and kogen-loop 20 of 20 at the 10 minute timeout; passes kogen-verification 10 of 10 (no kill-and-wait test there); zombie probe fails 10 of 10",
+   "counts": {
+    "gotest_runs": 30,
+    "gotest_passed": 10,
+    "gotest_timeouts": 20,
+    "probe_runs": 10,
+    "probe_passed": 0,
+    "orphans_alive": 0
+   },
+   "duration_s": 13480.3
+  },
+  "B-continuous-reap": {
+   "verdict": "30 of 30 go-test runs pass within 10 percent of no-helper, 0 orphans, zombie probe 10 of 10",
+   "counts": {
+    "gotest_runs": 30,
+    "gotest_passed": 30,
+    "probe_runs": 10,
+    "probe_passed": 10,
+    "orphans_alive": 0
+   },
+   "duration_s": 3813.9
+  },
+  "C-no-helper": {
+   "verdict": "30 of 30 go-test runs pass, zombie probe 10 of 10, 40 detached servers survive the check (4 per fixture run)",
+   "counts": {
+    "gotest_runs": 30,
+    "gotest_passed": 30,
+    "probe_runs": 10,
+    "probe_passed": 10,
+    "orphans_alive": 40
+   },
+   "duration_s": 3898.4
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-shaping",
+   "sha": "3696dba67f13c16aae5978c943d9a6ec844c5b63"
+  },
+  {
+   "tree": "kogen-verification main",
+   "sha": "6ffb2d1a24a4dd07a6ad4e65a88269845fecffbd"
+  },
+  {
+   "tree": "kogen-loop main",
+   "sha": "268327e7f9503310dd9834f17f283effa17a2c09"
+  },
+  {
+   "tree": "kogen-verification helper (arms A and B)",
+   "sha": "3cb7305a56907d7105cd20cf51de6767f488fbf6"
+  }
+ ]
+}

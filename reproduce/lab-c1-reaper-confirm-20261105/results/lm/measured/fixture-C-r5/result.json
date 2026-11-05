@@ -1,0 +1,59 @@
+{
+ "runid": "c1r2-lm-fixture-C-5-1793891443",
+ "host": "lm",
+ "arm": "C",
+ "unit": "fixture",
+ "rep": "5",
+ "rc": 0,
+ "passed": true,
+ "wall_s": 0.21,
+ "start": "2026-11-05T15:10:43Z",
+ "end": "2026-11-05T15:10:43Z",
+ "load1_before": 2.96,
+ "guard_stop": false,
+ "fail_tests": [],
+ "fail_pkgs": [],
+ "timeout_panic": false,
+ "zprobe": "ZPROBE PASS: killed group member gone after 0.05s",
+ "xv1": [],
+ "fixture_servers": 4,
+ "orphans_alive": 4,
+ "orphans_zombie": 0,
+ "orphans": [
+  {
+   "pid": 3685971,
+   "ppid": 1,
+   "pgid": 3685971,
+   "state": "S",
+   "tag": "fixture-node",
+   "cmd": "/bin/sleep 300 "
+  },
+  {
+   "pid": 3685973,
+   "ppid": 1,
+   "pgid": 3685973,
+   "state": "S",
+   "tag": "fixture-perl",
+   "cmd": "/bin/sleep 300 "
+  },
+  {
+   "pid": 3685980,
+   "ppid": 1,
+   "pgid": 3685980,
+   "state": "S",
+   "tag": "fixture-go",
+   "cmd": "/bin/sleep 300 "
+  },
+  {
+   "pid": 3685982,
+   "ppid": 1,
+   "pgid": 3685982,
+   "state": "S",
+   "tag": "fixture-python",
+   "cmd": "/bin/sleep 300 "
+  }
+ ],
+ "cwd": "~/work.noindex/scratch/research/work/c1-confirm/fixture",
+ "command": "sh ./fixture.sh '~/work.noindex/scratch/research/runs/c1-confirm-lm/measured/fixture-C-r5/fixture-pids.txt'",
+ "helper": null
+}

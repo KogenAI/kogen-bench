@@ -1,0 +1,47 @@
+{
+ "runid": "c1r2-lm-sweep-A-7-1793895841",
+ "host": "lm",
+ "arm": "A",
+ "unit": "sweep",
+ "rep": "7",
+ "rc": 0,
+ "passed": true,
+ "wall_s": 11.57,
+ "start": "2026-11-05T16:24:01Z",
+ "end": "2026-11-05T16:24:12Z",
+ "load1_before": 2.48,
+ "guard_stop": false,
+ "fail_tests": [],
+ "fail_pkgs": [],
+ "timeout_panic": false,
+ "zprobe": null,
+ "xv1": [
+  [
+   "python",
+   "swept"
+  ],
+  [
+   "node",
+   "swept"
+  ],
+  [
+   "perl",
+   "swept"
+  ],
+  [
+   "go",
+   "swept"
+  ],
+  [
+   "ruby",
+   "SKIPPED(no"
+  ]
+ ],
+ "fixture_servers": 0,
+ "orphans_alive": 0,
+ "orphans_zombie": 0,
+ "orphans": [],
+ "cwd": "~/work.noindex/scratch/research/work/c1-confirm/src/kv-a",
+ "command": "go test -count=1 -v -run 'Sweep|Orphan|Detached|Acceptance|Reap|ClimbLauncher' ./verify/",
+ "helper": "~/work.noindex/releases/kogen-d98cfe0/lib/kogen/bin/kogen"
+}

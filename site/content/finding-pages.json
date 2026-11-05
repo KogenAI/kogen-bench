@@ -1464,6 +1464,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c1-reaper-confirm-20261105",
+      "title": "Reaping while the check runs ends the Linux helper's hangs, with no orphans",
+      "summary": "Kogen's Linux check helper leaves a process that exits during a check as a zombie, so a test that kills a process group and waits for it hangs to its 10 minute timeout. Over 10 repetitions on one Linux host, the released helper failed kogen-shaping and kogen-loop's go-test check in all 20 runs, every time at the timeout, and a kill-group probe failed 10 of 10. A helper that reaps every exited child while the check runs passed all 30 go-test runs (within 3 percent of no helper on every repository, kogen-loop unchanged) with no orphans, and still stopped all detached servers, which no-helper leaves. The registered failure clause is read over the two repositories that have such a test (kogen-verification has none).",
+      "verdict": "yes",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
