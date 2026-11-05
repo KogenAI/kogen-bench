@@ -1,0 +1,264 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-prelanding-kogen-check-20261105",
+ "rerun": "cd reproduce/lab-prelanding-kogen-check-20261105 && python3 -I report.py data",
+ "arms": {
+  "A": {
+   "verdict": "the landing gate as it decided: 0 of 8 breakers refused, 0 of 40 good refused (all landed GREEN); kogen's tests ran at landing for 1 of 8 breakers",
+   "counts": {
+    "breakers_refused": 0,
+    "good_refused": 0,
+    "breakers_run": 8,
+    "good_run": 40
+   },
+   "duration_s": 0
+  },
+  "B": {
+   "verdict": "FAIL (strict, as registered: 12 false refusals of 31 good run > 2)",
+   "counts": {
+    "breakers_run": 8,
+    "good_run": 31,
+    "breakers_refused_strict": 7,
+    "good_refused_strict": 12,
+    "breakers_refused_adjusted": 4,
+    "good_refused_adjusted": 8,
+    "breakers_refused_behaviour": 1,
+    "good_refused_behaviour": 8,
+    "median_minutes_added_x10": 48
+   },
+   "duration_s": 9676
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-build@8852812",
+   "sha": "8852812f7a6083f7b5267746290dfc9dbce0bc53"
+  },
+  {
+   "tree": "kogen-build@10f190b",
+   "sha": "10f190b544da3827ce9b61385354ccb86877da52"
+  },
+  {
+   "tree": "kogen-coordinator@91d0a32",
+   "sha": "91d0a325d9822dd1f5fafdba7c4b0057a9425d39"
+  },
+  {
+   "tree": "kogen-shaping@f04edce",
+   "sha": "f04edcea9896db525855a810bf6c0429b8494278"
+  },
+  {
+   "tree": "kogen-setup@aeeb5be",
+   "sha": "aeeb5bec335bb847c5bd23c32ea9363c5eb43dc3"
+  },
+  {
+   "tree": "kogen-review@f4b7f54",
+   "sha": "f4b7f544f91bcbfee7afcfc9cb6be6c7bf062be4"
+  },
+  {
+   "tree": "kogen-shaping@1e795ed",
+   "sha": "1e795ede88104c4cf496683c5c3ad660ce30e042"
+  },
+  {
+   "tree": "kogen-coordinator@bc5b726",
+   "sha": "bc5b726d84083927ce0cfc73d9694d07f70e5ac8"
+  },
+  {
+   "tree": "kogen-shaping@3e17221",
+   "sha": "3e17221043f4d0e804e6d843b1e1be11ed25d2d6"
+  },
+  {
+   "tree": "kogen-executor@b369cf2",
+   "sha": "b369cf2ae13b14363860fbda8a0544613a79a836"
+  },
+  {
+   "tree": "kogen-executor@0b8dda1",
+   "sha": "0b8dda1b04a831f1f2c969ad7d5325fe36752304"
+  },
+  {
+   "tree": "kogen-coordinator@8d24cc7",
+   "sha": "8d24cc7b091d28716b86c72ef790b8cc751c574d"
+  },
+  {
+   "tree": "kogen-review@640bdc6",
+   "sha": "640bdc6afe84322143bb29f421a4eb416e8b7f43"
+  },
+  {
+   "tree": "kogen-coordinator@03d7341",
+   "sha": "03d7341feab73c5f5bfc79faec0e693427535f65"
+  },
+  {
+   "tree": "kogen-executor@a55cc55",
+   "sha": "a55cc5502d9793f302b37cef71d5ba68f81b4fa9"
+  },
+  {
+   "tree": "kogen-build@b9990a3",
+   "sha": "b9990a3d090306d79e28ac0d858ba47c8f3b0ed4"
+  },
+  {
+   "tree": "kogen-build@7757726",
+   "sha": "77577264387a164f1ce1928fd414e852916cc6ed"
+  },
+  {
+   "tree": "kogen-executor@8fa25eb",
+   "sha": "8fa25eb812a1dbaf0f0990d01ce0d9359d59fbd9"
+  },
+  {
+   "tree": "kogen-review@e5005fa",
+   "sha": "e5005fa1daf855ff076b52adc78b92f2cf120be9"
+  },
+  {
+   "tree": "kogen-setup@9316891",
+   "sha": "9316891471b5d1c5cf465bcbdca22fed56577fc6"
+  },
+  {
+   "tree": "kogen-shaping@0f3c76f",
+   "sha": "0f3c76f5c6db3e6bf85ab2f570f11fe53ab31bfa"
+  },
+  {
+   "tree": "kogen-executor@391e0b6",
+   "sha": "391e0b6ecd4fc4307c109523d203fe26fd0d76e9"
+  },
+  {
+   "tree": "kogen-verification@57542e9",
+   "sha": "57542e9556807c558c2abca3b7294d8d42d00fc2"
+  },
+  {
+   "tree": "kogen-executor@70ceb5a",
+   "sha": "70ceb5affc21258fdb18b3762e6933da69cde8f0"
+  },
+  {
+   "tree": "kogen-shaping@acd50c6",
+   "sha": "acd50c60e05ab0a8b6994c2608539f0bde01f2cf"
+  },
+  {
+   "tree": "kogen-executor@64ffa58",
+   "sha": "64ffa584bcff33319a5db73b0c550892be1136dd"
+  },
+  {
+   "tree": "kogen-executor@2daf614",
+   "sha": "2daf61427b28df6c6e7e272ed813ef141d1b6e47"
+  },
+  {
+   "tree": "kogen-executor@923b1ad",
+   "sha": "923b1adfa45cbed0c5a0722a1da1bd975b4409e5"
+  },
+  {
+   "tree": "kogen-shaping@33338a6",
+   "sha": "33338a6d324b04fade4f3ebdb0c498cbaa101090"
+  },
+  {
+   "tree": "kogen-build@5140f0d",
+   "sha": "5140f0d0789b39395701f12ab58574d8d727e278"
+  },
+  {
+   "tree": "kogen-executor@a4da7f8",
+   "sha": "a4da7f8de4eed3998969a648272b3ca666581c3c"
+  },
+  {
+   "tree": "kogen-coordinator@e26a4d7",
+   "sha": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19"
+  },
+  {
+   "tree": "kogen-verification@292a2d1",
+   "sha": "292a2d12ec162a5b5381b3d86d114cc718416177"
+  },
+  {
+   "tree": "kogen-executor@cd5e978",
+   "sha": "cd5e97870367b12e447eca4dd6b4206a8e9e13c6"
+  },
+  {
+   "tree": "kogen-shaping@8d85681",
+   "sha": "8d85681e20e3f84e7d7b4f03098b64ea8516c915"
+  },
+  {
+   "tree": "kogen-loop@0c49f87",
+   "sha": "0c49f870c9c948541f3bfd470023959b4ed93b78"
+  },
+  {
+   "tree": "kogen-setup@39949be",
+   "sha": "39949bef15197bca2372c47a0ebf4952684b1e53"
+  },
+  {
+   "tree": "kogen-shaping@3cd2d23",
+   "sha": "3cd2d238a4fb99731d76b4696239c4fbb9cd8a3d"
+  },
+  {
+   "tree": "kogen-loop@3372dcf",
+   "sha": "3372dcfd45bf28deeb8379618a094a032f4930d8"
+  },
+  {
+   "tree": "kogen-setup@5114ee7",
+   "sha": "5114ee7aaaa93401664a4a49cf0b2d418077b36b"
+  },
+  {
+   "tree": "kogen-shaping@9a4835e",
+   "sha": "9a4835e496054c37e265c7300582a46ead896bee"
+  },
+  {
+   "tree": "kogen-verification@76a8e75",
+   "sha": "76a8e750c9aa4c77d26de793e14618f8fa47a6a0"
+  },
+  {
+   "tree": "kogen-shaping@8e19831",
+   "sha": "8e19831787805612d9a231dc946955d6c352c390"
+  },
+  {
+   "tree": "kogen-executor@ad14da8",
+   "sha": "ad14da85563e31cf0a18ea7abc906b01fe5f53da"
+  },
+  {
+   "tree": "kogen-build@1c9182c",
+   "sha": "1c9182c3359626d9177b7dc1dbf8dff7aeea22f6"
+  },
+  {
+   "tree": "kogen-setup@061f6f1",
+   "sha": "061f6f15706c2b5e1b70c25c4c1e87ab4532c317"
+  },
+  {
+   "tree": "kogen-verification@f4d004d",
+   "sha": "f4d004d53a8d2928c778462944993a93fc5f5ee4"
+  },
+  {
+   "tree": "kogen-loop@8b01989",
+   "sha": "8b01989627e6739988b3da7d6283566c9b8732b1"
+  },
+  {
+   "tree": "kogen@41d70052",
+   "sha": "41d70052bf0ff932a0424df86a0fb388021428fc"
+  },
+  {
+   "tree": "kogen@5cf70c29",
+   "sha": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae"
+  },
+  {
+   "tree": "kogen@6e69ffb3",
+   "sha": "6e69ffb3243603cd5cd9253efd418a0c24130583"
+  },
+  {
+   "tree": "kogen@9bf6073f",
+   "sha": "9bf6073f8096f5a50013fc42c482695742645ac8"
+  },
+  {
+   "tree": "kogen@a1a04454",
+   "sha": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28"
+  },
+  {
+   "tree": "kogen@afa32b87",
+   "sha": "afa32b8729fbf790e0e915b0bfc9e53da49eb4a5"
+  },
+  {
+   "tree": "kogen@b3967173",
+   "sha": "b3967173f4c24d505c0cd0b8994f7f3252caae99"
+  },
+  {
+   "tree": "kogen@cecf691a",
+   "sha": "cecf691adc50e117b8f04fb0cb712fb05e2305aa"
+  },
+  {
+   "tree": "kogen@cf58cd64",
+   "sha": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad"
+  }
+ ],
+ "duration_note": "B duration_s is the summed wall time of the B runs on EU (2 vCPU); A is read from logs and takes no time"
+}

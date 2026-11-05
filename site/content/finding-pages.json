@@ -1392,6 +1392,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-prelanding-kogen-check-20261105",
+      "title": "Unconditional kogen check at landing fails its rule: it refuses good commits and reproduces 1 of 8 breakers",
+      "summary": "Replaying 48 component landings (8 breakers, 40 known-good) with kogen's go build, vet and test run on the landing-time kogen main after pinning the landed commit: the registered rule fails (12 of 31 good commits refused, limit 2). Strict recall looks high (7 of 8) but only 1 breaker is refused for the reported reason; the rest are refused by a hard-coded-pin test fixed in kogen on 4 Nov or by loop-module skew, and some are not reproduced at all. Good commits are also refused for coupling between components and for kogen tests that kogen edited with the move. About 4.8 minutes added per landing. Not built as specified; the tuple variant refuses good commits too, because kogen's tests lag legitimate component moves.",
+      "verdict": "no",
+      "comparison": "kogen-shaping-and-builds",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

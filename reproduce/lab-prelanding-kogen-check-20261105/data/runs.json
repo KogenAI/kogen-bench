@@ -1,0 +1,1220 @@
+{
+ "b_runs": [
+  {
+   "n": 1,
+   "arm": "B",
+   "repo": "kogen-build",
+   "commit": "8852812f7a6083f7b5267746290dfc9dbce0bc53",
+   "kogen_main": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring",
+    "kogen/consumes/kogen-build.TestRecoverArchivesTheBlockedBuildAndClearsTheImplementation",
+    "kogen/consumes/kogen-build.TestRecoverRefusalsAreSysErrorsWithTheirExit"
+   ],
+   "wall_s": 329,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 7,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 319
+   }
+  },
+  {
+   "n": 1,
+   "arm": "B-tuple",
+   "repo": "kogen-build",
+   "commit": "8852812f7a6083f7b5267746290dfc9dbce0bc53",
+   "kogen_main": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae",
+   "status": "red",
+   "detail": "PIN go mod tidy failed: go: kogen imports \tgithub.com/KogenAI/kogen-build/build imports \tkogen-loop/tools: malformed module path \"kogen-loop\": missing dot in first path element ",
+   "failed_ids": [],
+   "wall_s": 6,
+   "times_s": {
+    "clone": 0
+   }
+  },
+  {
+   "n": 2,
+   "arm": "B",
+   "repo": "kogen-build",
+   "commit": "10f190b544da3827ce9b61385354ccb86877da52",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 284,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 277
+   }
+  },
+  {
+   "n": 2,
+   "arm": "B-tuple",
+   "repo": "kogen-build",
+   "commit": "10f190b544da3827ce9b61385354ccb86877da52",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "PIN go mod tidy failed: go: kogen imports \tgithub.com/KogenAI/kogen-build/build imports \tkogen-loop/tools: malformed module path \"kogen-loop\": missing dot in first path element ",
+   "failed_ids": [],
+   "wall_s": 5,
+   "times_s": {
+    "clone": 0
+   }
+  },
+  {
+   "n": 3,
+   "arm": "B",
+   "repo": "kogen-coordinator",
+   "commit": "91d0a325d9822dd1f5fafdba7c4b0057a9425d39",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 393,
+   "times_s": {
+    "clone": 0,
+    "pin": 2,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 378
+   }
+  },
+  {
+   "n": 3,
+   "arm": "B-tuple",
+   "repo": "kogen-coordinator",
+   "commit": "91d0a325d9822dd1f5fafdba7c4b0057a9425d39",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestResearchRemovalDefaults",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 283,
+   "times_s": {
+    "clone": 0,
+    "pin": 4,
+    "gofmt": 1,
+    "build": 0,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 277
+   }
+  },
+  {
+   "n": 4,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "f04edcea9896db525855a810bf6c0429b8494278",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 434,
+   "times_s": {
+    "clone": 0,
+    "pin": 2,
+    "gofmt": 0,
+    "build": 13,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 417
+   }
+  },
+  {
+   "n": 4,
+   "arm": "B-tuple",
+   "repo": "kogen-shaping",
+   "commit": "f04edcea9896db525855a810bf6c0429b8494278",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go vet failed: vet: buildprogram/k_reviewretry2_test.go:20:53: undefined: agent.Reviewer vet: ./research_removal_test.go:45:122: undefined: agent.ReportBlockerTool ",
+   "failed_ids": [],
+   "wall_s": 18,
+   "times_s": {
+    "clone": 0,
+    "pin": 5,
+    "gofmt": 0,
+    "build": 12,
+    "vet": 1
+   }
+  },
+  {
+   "n": 5,
+   "arm": "B",
+   "repo": "kogen-setup",
+   "commit": "aeeb5bec335bb847c5bd23c32ea9363c5eb43dc3",
+   "kogen_main": "afa32b8729fbf790e0e915b0bfc9e53da49eb4a5",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-review@v0.0.0-20261103161351-e5005fa1daf8/review/independent.go:168:45: cannot use t (variable of type *\"kogen-loop/tools\".Tools) as *\"github.com/KogenAI/kogen-loop/tools\".Tools value in argument to core.ShellDefinitions ../../../../gomodcache/github.com/!kogen!a!i/kogen-review@v0.0.0-20261103161351-e5005fa1daf8/review/independent.go:491:35: cannot use core.ProviderRole(r.sess.Role) (value of struct type \"github.com/KogenAI/kogen-loop/provider\".Role) as \"kogen-loop/provider\".Role value in argument to provider.SupportsToolChoice ",
+   "failed_ids": [],
+   "wall_s": 7,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 6
+   }
+  },
+  {
+   "n": 5,
+   "arm": "B-loop-aligned",
+   "repo": "kogen-setup",
+   "commit": "aeeb5bec335bb847c5bd23c32ea9363c5eb43dc3",
+   "kogen_main": "afa32b8729fbf790e0e915b0bfc9e53da49eb4a5",
+   "status": "red",
+   "detail": "PIN go mod tidy failed: go: kogen imports \tgithub.com/KogenAI/kogen-build/build imports \tkogen-loop/tools: malformed module path \"kogen-loop\": missing dot in first path element ",
+   "failed_ids": [],
+   "wall_s": 2,
+   "times_s": {
+    "clone": 1
+   }
+  },
+  {
+   "n": 6,
+   "arm": "B",
+   "repo": "kogen-review",
+   "commit": "f4b7f544f91bcbfee7afcfc9cb6be6c7bf062be4",
+   "kogen_main": "cecf691adc50e117b8f04fb0cb712fb05e2305aa",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-setup@v0.0.0-20261103140900-9316891471b5/setup/init.go:1029:44: cannot use s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to verify.RunnerCheck ../../../../gomodcache/github.com/!kogen!a!i/kogen-setup@v0.0.0-20261103140900-9316891471b5/setup/init.go:1050:44: cannot use s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to verify.RunnerCheck ",
+   "failed_ids": [],
+   "wall_s": 8,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 7
+   }
+  },
+  {
+   "n": 6,
+   "arm": "B-loop-aligned",
+   "repo": "kogen-review",
+   "commit": "f4b7f544f91bcbfee7afcfc9cb6be6c7bf062be4",
+   "kogen_main": "cecf691adc50e117b8f04fb0cb712fb05e2305aa",
+   "status": "red",
+   "detail": "PIN go mod tidy failed: go: kogen imports \tgithub.com/KogenAI/kogen-build/build imports \tkogen-loop/tools: malformed module path \"kogen-loop\": missing dot in first path element ",
+   "failed_ids": [],
+   "wall_s": 2,
+   "times_s": {
+    "clone": 0
+   }
+  },
+  {
+   "n": 7,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "1e795ede88104c4cf496683c5c3ad660ce30e042",
+   "kogen_main": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 314,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 306
+   }
+  },
+  {
+   "n": 8,
+   "arm": "B",
+   "repo": "kogen-coordinator",
+   "commit": "bc5b726d84083927ce0cfc73d9694d07f70e5ac8",
+   "kogen_main": "cecf691adc50e117b8f04fb0cb712fb05e2305aa",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261103154529-b9990a3d0903/build/build.go:186:38: cannot use s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to git.AcquireBuild ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261103154529-b9990a3d0903/build/build.go:374:34: cannot use b.s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to b.repo.CheckCommitMsg ",
+   "failed_ids": [],
+   "wall_s": 8,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 7
+   }
+  },
+  {
+   "n": 8,
+   "arm": "B-loop-aligned",
+   "repo": "kogen-coordinator",
+   "commit": "bc5b726d84083927ce0cfc73d9694d07f70e5ac8",
+   "kogen_main": "cecf691adc50e117b8f04fb0cb712fb05e2305aa",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-setup@v0.0.0-20261103140900-9316891471b5/setup/init.go:1123:26: cannot use s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to repo.CommitPaths ../../../../gomodcache/github.com/!kogen!a!i/kogen-shaping@v0.0.0-20261103154530-f04edcea9896/shape/approve.go:77:42: cannot use s (variable of type *\"kogen-loop/sys\".Session) as *\"github.com/KogenAI/kogen-loop/sys\".Session value in argument to git.AcquireBuild ",
+   "failed_ids": [],
+   "wall_s": 3,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 2
+   }
+  },
+  {
+   "n": 9,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "3e17221043f4d0e804e6d843b1e1be11ed25d2d6",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 335,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 1,
+    "lockwait": 36,
+    "test": 286
+   }
+  },
+  {
+   "n": 9,
+   "arm": "B-tuple",
+   "repo": "kogen-shaping",
+   "commit": "3e17221043f4d0e804e6d843b1e1be11ed25d2d6",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestApproveDeadlineHungCLI",
+    "kogen.TestApproveDeadlineSplitCLI",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 304,
+   "times_s": {
+    "clone": 0,
+    "pin": 4,
+    "gofmt": 1,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 292
+   }
+  },
+  {
+   "n": 10,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "b369cf2ae13b14363860fbda8a0544613a79a836",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 293,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 285
+   }
+  },
+  {
+   "n": 10,
+   "arm": "B-tuple",
+   "repo": "kogen-executor",
+   "commit": "b369cf2ae13b14363860fbda8a0544613a79a836",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestApproveDeadlineHungCLI",
+    "kogen.TestApproveDeadlineSplitCLI",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 393,
+   "times_s": {
+    "clone": 0,
+    "pin": 4,
+    "gofmt": 0,
+    "build": 8,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 380
+   }
+  },
+  {
+   "n": 11,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "0b8dda1b04a831f1f2c969ad7d5325fe36752304",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 287,
+   "times_s": {
+    "clone": 1,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 279
+   }
+  },
+  {
+   "n": 11,
+   "arm": "B-tuple",
+   "repo": "kogen-executor",
+   "commit": "0b8dda1b04a831f1f2c969ad7d5325fe36752304",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestResearchRemovalDefaults",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 404,
+   "times_s": {
+    "clone": 1,
+    "pin": 6,
+    "gofmt": 0,
+    "build": 12,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 383
+   }
+  },
+  {
+   "n": 12,
+   "arm": "B",
+   "repo": "kogen-coordinator",
+   "commit": "8d24cc7b091d28716b86c72ef790b8cc751c574d",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 291,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 283
+   }
+  },
+  {
+   "n": 12,
+   "arm": "B-tuple",
+   "repo": "kogen-coordinator",
+   "commit": "8d24cc7b091d28716b86c72ef790b8cc751c574d",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestApproveDeadlineHungCLI",
+    "kogen.TestApproveDeadlineSplitCLI",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 313,
+   "times_s": {
+    "clone": 0,
+    "pin": 5,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 1,
+    "lockwait": 1,
+    "test": 295
+   }
+  },
+  {
+   "n": 13,
+   "arm": "B",
+   "repo": "kogen-review",
+   "commit": "640bdc6afe84322143bb29f421a4eb416e8b7f43",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 300,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 9,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 289
+   }
+  },
+  {
+   "n": 13,
+   "arm": "B-tuple",
+   "repo": "kogen-review",
+   "commit": "640bdc6afe84322143bb29f421a4eb416e8b7f43",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go vet failed: vet: buildprogram/k_reviewretry2_test.go:20:53: undefined: agent.Reviewer vet: ./research_removal_test.go:45:122: undefined: agent.ReportBlockerTool ",
+   "failed_ids": [],
+   "wall_s": 18,
+   "times_s": {
+    "clone": 0,
+    "pin": 4,
+    "gofmt": 1,
+    "build": 11,
+    "vet": 2
+   }
+  },
+  {
+   "n": 14,
+   "arm": "B",
+   "repo": "kogen-coordinator",
+   "commit": "03d7341feab73c5f5bfc79faec0e693427535f65",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 291,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 283
+   }
+  },
+  {
+   "n": 14,
+   "arm": "B-tuple",
+   "repo": "kogen-coordinator",
+   "commit": "03d7341feab73c5f5bfc79faec0e693427535f65",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestResearchRemovalDefaults",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 320,
+   "times_s": {
+    "clone": 1,
+    "pin": 5,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 307
+   }
+  },
+  {
+   "n": 15,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "a55cc5502d9793f302b37cef71d5ba68f81b4fa9",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 397,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 383
+   }
+  },
+  {
+   "n": 16,
+   "arm": "B",
+   "repo": "kogen-build",
+   "commit": "b9990a3d090306d79e28ac0d858ba47c8f3b0ed4",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 380,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 366
+   }
+  },
+  {
+   "n": 17,
+   "arm": "B",
+   "repo": "kogen-build",
+   "commit": "77577264387a164f1ce1928fd414e852916cc6ed",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 379,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 365
+   }
+  },
+  {
+   "n": 18,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "8fa25eb812a1dbaf0f0990d01ce0d9359d59fbd9",
+   "kogen_main": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 343,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 1,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 0,
+    "test": 328
+   }
+  },
+  {
+   "n": 19,
+   "arm": "B",
+   "repo": "kogen-review",
+   "commit": "e5005fa1daf855ff076b52adc78b92f2cf120be9",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 332,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 11,
+    "vet": 2,
+    "lockwait": 36,
+    "test": 282
+   }
+  },
+  {
+   "n": 20,
+   "arm": "B",
+   "repo": "kogen-setup",
+   "commit": "9316891471b5d1c5cf465bcbdca22fed56577fc6",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 273,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 266
+   }
+  },
+  {
+   "n": 21,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "0f3c76f5c6db3e6bf85ab2f570f11fe53ab31bfa",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 280,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 273
+   }
+  },
+  {
+   "n": 22,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "391e0b6ecd4fc4307c109523d203fe26fd0d76e9",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestAssemblyUsesThePinnedComponents",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 284,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 277
+   }
+  },
+  {
+   "n": 23,
+   "arm": "B",
+   "repo": "kogen-verification",
+   "commit": "57542e9556807c558c2abca3b7294d8d42d00fc2",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestApproveDeadlineHungCLI",
+    "kogen.TestApproveDeadlineSplitCLI",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 288,
+   "times_s": {
+    "clone": 1,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 280
+   }
+  },
+  {
+   "n": 24,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "70ceb5affc21258fdb18b3762e6933da69cde8f0",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/review_parts.go:33:8: undefined: agent.LimitRaises ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/executor_native.go:121:78: undefined: agent.Builder ",
+   "failed_ids": [],
+   "wall_s": 4,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 3
+   }
+  },
+  {
+   "n": 25,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "acd50c60e05ab0a8b6994c2608539f0bde01f2cf",
+   "kogen_main": "b3967173f4c24d505c0cd0b8994f7f3252caae99",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 280,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 273
+   }
+  },
+  {
+   "n": 26,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "64ffa584bcff33319a5db73b0c550892be1136dd",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/review_parts.go:33:8: undefined: agent.LimitRaises ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/executor_native.go:121:78: undefined: agent.Builder ",
+   "failed_ids": [],
+   "wall_s": 4,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 3
+   }
+  },
+  {
+   "n": 27,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "2daf61427b28df6c6e7e272ed813ef141d1b6e47",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 287,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 1,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 280
+   }
+  },
+  {
+   "n": 28,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "923b1adfa45cbed0c5a0722a1da1bd975b4409e5",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/review_parts.go:33:8: undefined: agent.LimitRaises ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/executor_native.go:121:78: undefined: agent.Builder ",
+   "failed_ids": [],
+   "wall_s": 4,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 3
+   }
+  },
+  {
+   "n": 29,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "33338a6d324b04fade4f3ebdb0c498cbaa101090",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 278,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 271
+   }
+  },
+  {
+   "n": 30,
+   "arm": "B",
+   "repo": "kogen-build",
+   "commit": "5140f0d0789b39395701f12ab58574d8d727e278",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 288,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 280
+   }
+  },
+  {
+   "n": 31,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "a4da7f8de4eed3998969a648272b3ca666581c3c",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/review_parts.go:33:8: undefined: agent.LimitRaises ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/executor_native.go:121:78: undefined: agent.Builder ",
+   "failed_ids": [],
+   "wall_s": 4,
+   "times_s": {
+    "clone": 1,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 3
+   }
+  },
+  {
+   "n": 32,
+   "arm": "B",
+   "repo": "kogen-coordinator",
+   "commit": "e26a4d75cdcc3bbcd6d900f2698cac8144bfdc19",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 289,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 281
+   }
+  },
+  {
+   "n": 33,
+   "arm": "B",
+   "repo": "kogen-verification",
+   "commit": "292a2d12ec162a5b5381b3d86d114cc718416177",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestApproveDeadlineHungCLI",
+    "kogen.TestApproveDeadlineSplitCLI",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 289,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 1,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 281
+   }
+  },
+  {
+   "n": 34,
+   "arm": "B",
+   "repo": "kogen-executor",
+   "commit": "cd5e97870367b12e447eca4dd6b4206a8e9e13c6",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go build failed: ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/review_parts.go:33:8: undefined: agent.LimitRaises ../../../../gomodcache/github.com/!kogen!a!i/kogen-build@v0.0.0-20261102194452-3109cd105f75/build/executor_native.go:121:78: undefined: agent.Builder ",
+   "failed_ids": [],
+   "wall_s": 4,
+   "times_s": {
+    "clone": 0,
+    "pin": 2,
+    "gofmt": 0,
+    "build": 2
+   }
+  },
+  {
+   "n": 35,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "8d85681e20e3f84e7d7b4f03098b64ea8516c915",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 278,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 271
+   }
+  },
+  {
+   "n": 36,
+   "arm": "B",
+   "repo": "kogen-loop",
+   "commit": "0c49f870c9c948541f3bfd470023959b4ed93b78",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestResearchRemovalDefaults",
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 296,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 288
+   }
+  },
+  {
+   "n": 37,
+   "arm": "B",
+   "repo": "kogen-setup",
+   "commit": "39949bef15197bca2372c47a0ebf4952684b1e53",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 271,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 5,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 264
+   }
+  },
+  {
+   "n": 38,
+   "arm": "B",
+   "repo": "kogen-shaping",
+   "commit": "3cd2d238a4fb99731d76b4696239c4fbb9cd8a3d",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 279,
+   "times_s": {
+    "clone": 0,
+    "pin": 0,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 272
+   }
+  },
+  {
+   "n": 39,
+   "arm": "B",
+   "repo": "kogen-loop",
+   "commit": "3372dcfd45bf28deeb8379618a094a032f4930d8",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "wall_s": 291,
+   "times_s": {
+    "clone": 0,
+    "pin": 1,
+    "gofmt": 0,
+    "build": 6,
+    "vet": 1,
+    "lockwait": 0,
+    "test": 283
+   }
+  }
+ ],
+ "base_runs": [
+  {
+   "run": "base-5cf70c29f9b7",
+   "kogen_main": "5cf70c29f9b71afbc0fec0ff785b42e7111c85ae",
+   "mode": "base",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestZshDynamicWiring"
+   ],
+   "tested": {},
+   "wall_s": 297
+  },
+  {
+   "run": "base-a1a04454a891",
+   "kogen_main": "a1a04454a891a8a8b823d5cdba5c77ab0301cc28",
+   "mode": "base",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "tested": {},
+   "wall_s": 344
+  },
+  {
+   "run": "base-cf58cd64c5b6",
+   "kogen_main": "cf58cd64c5b61b1c6db96591f1264d4777b5fcad",
+   "mode": "base",
+   "status": "red",
+   "detail": "go test rc=1",
+   "failed_ids": [
+    "kogen.TestZshDynamicWiring"
+   ],
+   "tested": {},
+   "wall_s": 370
+  },
+  {
+   "run": "basetests-9bf6073f8096-9",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "mode": "basetests",
+   "status": "basetests",
+   "detail": "ran the named tests on the unpinned base",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "tested": {
+    "kogen.TestShapeBudgetRoleContract": "fail",
+    "kogen.TestZshDynamicWiring": "fail"
+   },
+   "wall_s": 13
+  },
+  {
+   "run": "basetests-9bf6073f8096-T9",
+   "kogen_main": "9bf6073f8096f5a50013fc42c482695742645ac8",
+   "mode": "basetests",
+   "status": "basetests",
+   "detail": "ran the named tests on the unpinned base",
+   "failed_ids": [],
+   "tested": {
+    "kogen.TestApproveDeadlineHungCLI": "pass",
+    "kogen.TestApproveDeadlineSplitCLI": "pass"
+   },
+   "wall_s": 133
+  },
+  {
+   "run": "basetests-b3967173f4c2-25",
+   "kogen_main": "b3967173f4c24d505c0cd0b8994f7f3252caae99",
+   "mode": "basetests",
+   "status": "basetests",
+   "detail": "ran the named tests on the unpinned base",
+   "failed_ids": [
+    "kogen.TestShapeBudgetRoleContract",
+    "kogen.TestZshDynamicWiring"
+   ],
+   "tested": {
+    "kogen.TestShapeBudgetRoleContract": "fail",
+    "kogen.TestZshDynamicWiring": "fail"
+   },
+   "wall_s": 6
+  },
+  {
+   "run": "basevet-afa32b8729fb",
+   "kogen_main": "afa32b8729fbf790e0e915b0bfc9e53da49eb4a5",
+   "mode": "base",
+   "status": "green",
+   "detail": "build and vet passed (stopped before tests)",
+   "failed_ids": [],
+   "tested": {},
+   "wall_s": 7
+  },
+  {
+   "run": "basevet-cecf691adc50",
+   "kogen_main": "cecf691adc50e117b8f04fb0cb712fb05e2305aa",
+   "mode": "base",
+   "status": "green",
+   "detail": "build and vet passed (stopped before tests)",
+   "failed_ids": [],
+   "tested": {},
+   "wall_s": 8
+  }
+ ]
+}
