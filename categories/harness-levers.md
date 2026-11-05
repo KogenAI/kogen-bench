@@ -336,3 +336,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Alarm relays to main](../reproduce/lab-loops-collide-s0-20261105/README.md) replayed 4.8 days of recorded alarms: 57% of relayed lines were repeats, one line per event removes them (439 to 303 relay messages), while escalation adds messages and leases have no target. The fix covers about a quarter of main's traffic.
 
 [Slow checks re-run on an unchanged tree](../reproduce/lab-slow-checks-rerun-s0-20261105/README.md) replayed 101 stored Kogen Builds: reusing a slow green check on an identical tree would save 2.75% of total Build wall, always on the re-verify after review approval, and kogen-build already ships that reuse, so the opt-in Verify reuse is not built. Cross-restart baseline reuse stays open.
+
+[Handoff questions in shaping](../reproduce/lab-shape-handoff-question-s0-20261105/README.md) counted 11 handoff stops in 626 shaping runs, all before the question check and none after it (0 of 197), so only the missing-options check is built.

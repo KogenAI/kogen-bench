@@ -1,0 +1,12 @@
+item	host	handoff_rounds	asked_for	reading	reason
+k-checktime	studio	1	environment: Linux host access for a race qualification	non-user-only	a stand-in or portable check could be decided by shaping; option b defers
+k-pin-knobs	studio	1	missing input: a source revision absent from the delivery repository	non-user-only	a missing repository fact, not an authentication step
+k-revod-gate	studio	1	access: authorized custody of a prior run and its review route	non-user-only	option b keeps the live re-review as an external gate, so shaping could decide it
+s-decimport	laptop	1	missing input: schema-only export of two databases	non-user-only	an input request, not an authentication step
+s-auth-harden	laptop	3	one policy choice (who may approve), one account-binding default the shaper itself offered, one toolchain restore	non-user-only	a decision, a self-answered default and an environment fault
+k-round-targeted-tests	laptop	1	missing input: export of a Lab screen	non-user-only	option b decides without it
+s-browser-waits	laptop	4	environment: package manager unavailable (same cause four rounds)	non-user-only	pause recommended in 3 of 4 rounds; no new evidence after round 1
+k-init-provider	studio	4	access: disposable environment with signed-in routes for real-route qualification	contested	the request itself asks for real-route qualification; the Intent could carry an external gate; option b pauses in every round; round 4 recommends pausing
+k-contracts-shaping	studio	4	access: read access to a private consumer repository	contested	a real access need, but rounds 2-4 repeat the same ask with no new evidence
+k-public-ready-build	laptop	1	authorization: repository admin must change a hosting setting	contested	a user-only act, but the Intent could carry it as an external gate; option b pauses
+s-cancelflake	studio	1	environment: Linux host; no options and no recommended mark	non-user-only	also the one malformed question in 81 question blocks

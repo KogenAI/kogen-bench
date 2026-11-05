@@ -1239,6 +1239,15 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-shape-handoff-question-s0-20261105",
+      "title": "Handoff questions stopped shaping before the question check, not after",
+      "summary": "In 626 shaping runs, 11 stopped on an authentication or security handoff question (1.76 per 100). All 11 ran before the question check landed; 0 of 197 runs after it did, and none of 80 questions in 549 stored research cells was classed as a handoff. No handoff was clearly one only the user could answer, so an evidence gate on handoffs is not built. One question in 81 had no options and no recommended answer and still passes today, so only that check is built.",
+      "verdict": "no",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

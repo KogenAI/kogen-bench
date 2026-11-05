@@ -1,0 +1,41 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-shape-handoff-question-s0-20261105",
+ "rerun": "cd reproduce/lab-shape-handoff-question-s0-20261105 && python3 -I report.py",
+ "arms": {
+  "before-question-check": {
+   "verdict": "11 of 429 shaping runs ended on a handoff question (2.56 per 100)",
+   "counts": {
+    "shape_logs": 429,
+    "question_stop_logs": 50,
+    "handoff_ended_logs": 11
+   },
+   "duration_s": 0.03
+  },
+  "with-question-check": {
+   "verdict": "0 of 197 shaping runs ended on a handoff question (95% upper bound 1.52 per 100; exact one-sided p=0.015)",
+   "counts": {
+    "shape_logs": 197,
+    "question_stop_logs": 1,
+    "handoff_ended_logs": 0
+   },
+   "duration_s": 0.03
+  }
+ },
+ "duration_note": "duration_s is the wall time of the whole replay (report.py), which computes both arms in one pass",
+ "inputs": [
+  {
+   "tree": "data/delivery-shape-logs.tsv",
+   "sha": "cdda5adcd241316dbce030e8edab3b9e6f7302c3c08c4c3626ca4a16cc416c36"
+  },
+  {
+   "tree": "data/handoff-cases.tsv",
+   "sha": "d1ef53e4899a6350707e1117caf301a81b8b4767f729595588bf2eb1f5b1b716"
+  },
+  {
+   "tree": "data/research-cells.tsv",
+   "sha": "4c1c517929cb076d0faee9e1ab21d34aa4a286d93d7892535e2ce8cfbff57d68"
+  }
+ ]
+}
