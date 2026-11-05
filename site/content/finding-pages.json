@@ -1302,6 +1302,15 @@
       "comparison": "kogen-context",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "build-speed-e6d-assembly-single-member-extract-20261105",
+      "title": "Extracting one release file cuts the biggest MacBook test's temp files by 46%",
+      "summary": "The release-assembly test unpacked the whole release package (about 7,500 files) to read one executable. Extracting only that executable cut the files it creates per run by 46% (15,425 to 8,297) and file-event CPU in 7 of 8 paired rounds, with every test passing and the package unchanged, so a change request is filed.",
+      "verdict": "yes",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
