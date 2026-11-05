@@ -1,0 +1,53 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-rc-l1-walltime-20261105",
+ "arms": {
+  "A-test-as-is": {
+   "verdict": "2 of 600 failed (wave 1 2/300, wave 2 0/300; all setup-1 never started); below the registered 3 of 300, so unresolved",
+   "counts": {
+    "runs": 600,
+    "fails": 2,
+    "never_started": 2,
+    "wave1_fails": 2,
+    "wave2_fails": 0
+   },
+   "duration_s": 404.6
+  },
+  "B-clock-from-setup-1": {
+   "verdict": "0 of 600 failed",
+   "counts": {
+    "runs": 600,
+    "fails": 0
+   },
+   "duration_s": 548.7
+  },
+  "mutant-deadline-ignored": {
+   "verdict": "fails both A and B 2 of 2, so B still detects a broken deadline",
+   "counts": {
+    "a_runs": 2,
+    "a_fails": 2,
+    "b_runs": 2,
+    "b_fails": 2
+   },
+   "duration_s": 122
+  },
+  "probe-pre-setup-ms": {
+   "verdict": "Verify spends 215-297 ms (median 228) of the 300 ms budget before setup-1 starts",
+   "counts": {
+    "runs": 300,
+    "over_200_ms": 300,
+    "over_300_ms": 0,
+    "min_ms": 215,
+    "max_ms": 297
+   },
+   "duration_s": 208.9
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-verification (arms A, B, mutant, probe)",
+   "sha": "ec39831718deb42a60af26e1e8a9b06a763e1258"
+  }
+ ]
+}

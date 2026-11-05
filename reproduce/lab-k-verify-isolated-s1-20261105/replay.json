@@ -1,0 +1,56 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-k-verify-isolated-s1-20261105",
+ "arms": {
+  "V1prime-static-lint": {
+   "verdict": "passes its gates (port 10/10, path 10/10 seeded, 0 of 509 real files refused) but no payoff: 0 real port or path hazards",
+   "counts": {
+    "seeded_port_found": 10,
+    "seeded_port": 10,
+    "seeded_path_found": 10,
+    "seeded_path": 10,
+    "real_files": 509,
+    "real_files_refused": 0,
+    "dynamic_mutants_flagged": 8
+   },
+   "duration_s": 0
+  },
+  "V4-measured-wall-B10": {
+   "verdict": "fails 0 false refusals: 10 of 28 sampled Intents falsely refused at B=10 s",
+   "counts": {
+    "sleep_mutants": 3,
+    "sleep_caught": 3,
+    "sampled_intents": 28,
+    "false_refusals": 10,
+    "repeats": 1
+   },
+   "duration_s": 4880.0
+  },
+  "V2-paired-copies": {
+   "verdict": "fails: added wall median 14.1% (above 10%), recall incomplete, stability not shown",
+   "counts": {
+    "mutants_run": 14,
+    "port_caught": 4,
+    "port": 4,
+    "path_caught": 2,
+    "path": 4,
+    "shared_caught": 3,
+    "shared": 3,
+    "other_new_failures": 0,
+    "stability_repeats": 0
+   },
+   "duration_s": 412.7
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen",
+   "sha": "24136fca70dc16fe2f97907cecd924c4a403470b"
+  },
+  {
+   "tree": "studio (static census only)",
+   "sha": "4302e2c86df46294192c339633a0d8de027be0d5"
+  }
+ ]
+}
