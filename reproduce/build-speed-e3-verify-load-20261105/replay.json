@@ -1,0 +1,46 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "verdict": "unresolved: no tree re-run (no quiet host; original trees deleted); log evidence only, no fix chosen",
+ "arms": {
+  "host-or-base-logs": {
+   "verdict": "10 Builds, final verify 1,227-1,668 s each (two 10-minute go test timeouts); 4 logs name a hang, 6 eu2 shaping Builds unexplained",
+   "counts": {
+    "items": 10,
+    "verify_s_min": 1227,
+    "verify_s_max": 1668,
+    "logs_naming_timeout_hang": 4,
+    "unexplained": 6,
+    "reruns": 0
+   },
+   "duration_s": 0
+  },
+  "land-red-logs": {
+   "verdict": "28 retries by recorded signature: none mentions a timeout; sample of 10 is 8 deterministic assertion/golden and 2 named test without cause",
+   "counts": {
+    "rows": 28,
+    "assertion_or_golden": 14,
+    "compile_or_api_drift": 3,
+    "no_cause_line": 9,
+    "usage_limit_or_push": 2,
+    "timeout_mentions": 0,
+    "sample": 10,
+    "sample_assertion_or_golden": 8,
+    "sample_no_cause": 2,
+    "reruns": 0
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-bench reproduce/build-speed-e3-verify-load-20261105/data/e3-items.json",
+   "sha": "82c77db7b742e285455c710a570124cc6b6ef23e"
+  },
+  {
+   "tree": "kogen-bench reproduce/build-speed-e3-verify-load-20261105/data/landred-28.json",
+   "sha": "331b1d06f5e2ae36b548d17b321bb463b5a95e26"
+  }
+ ],
+ "rerun": "python3 -I report.py (in this directory)"
+}

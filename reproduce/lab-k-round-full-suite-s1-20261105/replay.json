@@ -1,0 +1,54 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "verdict": "stop before any cell: targeted/full <= 0.5 on 2 of 4 tasks (gate needs 3), wide and narrow forms alike",
+ "arms": {
+  "full-mix-test": {
+   "verdict": "full suite on the four frozen start trees: 854, 803, 441 and 1,087 s",
+   "counts": {
+    "tasks": 4,
+    "runs": 4
+   },
+   "duration_s": 3185
+  },
+  "wide-targeted": {
+   "verdict": "f = 0.02, 0.23, 0.69 and 1.00 (no test maps, falls back): 2 of 4 at or under 0.5",
+   "counts": {
+    "tasks": 4,
+    "tasks_f_at_most_half": 2,
+    "tasks_falling_back": 1,
+    "runs": 3
+   },
+   "duration_s": 511
+  },
+  "narrow-targeted": {
+   "verdict": "f = 1.00 (falls back), 0.00, 0.01 and 1.00 (falls back): 2 of 4 at or under 0.5",
+   "counts": {
+    "tasks": 4,
+    "tasks_f_at_most_half": 2,
+    "tasks_falling_back": 2,
+    "runs": 2
+   },
+   "duration_s": 4
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen repository frozen start commit of task documentation-lookup-evidence",
+   "sha": "2ca0e0658b0aed9f2ec460dad50348dc9c7e1772"
+  },
+  {
+   "tree": "kogen repository frozen start commit of task opencode-go-subscription",
+   "sha": "276870e86360d1a2fa953ed72139512773e80938"
+  },
+  {
+   "tree": "kogen repository frozen start commit of task prompt-cache-reuse-and-usage",
+   "sha": "70506bb36b3a281dc6a91bf81210b0037c084ccf"
+  },
+  {
+   "tree": "kogen repository frozen start commit of task shaping-technical-discovery",
+   "sha": "bdfd6075e5ff29a8a45d93492d00b39bedd3d969"
+  }
+ ],
+ "rerun": "python3 -I report.py data/gate.tsv data/targets.json data/results.json"
+}

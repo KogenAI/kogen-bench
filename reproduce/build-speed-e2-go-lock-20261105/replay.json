@@ -1,0 +1,72 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "verdict": "unresolved: no arm measured; the quiet-host guard never held long enough for arm A",
+ "arms": {
+  "quiet-host-guard": {
+   "verdict": "18 of 639 monitor samples passed the registered guard; longest passing stretch 20 s against about 18 min needed per arm; arms A, B, C not run",
+   "counts": {
+    "samples": 639,
+    "samples_no_foreign_process": 55,
+    "samples_guard_pass": 18,
+    "longest_guard_pass_s": 20,
+    "longest_no_foreign_s": 56,
+    "arms_measured": 0
+   },
+   "duration_s": 3294
+  },
+  "trace-simulation": {
+   "verdict": "model, not a replay: under the stated sharing assumptions B removes about 17% (one Mac) to a third (other Mac) of recorded lock wait and C 65-100%, while wait plus run hours barely move",
+   "counts": {
+    "lock_users": 5492,
+    "hosts": 3,
+    "policies": 3,
+    "alpha_values": 4
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-review main on 5 Nov (public)",
+   "sha": "8b26b1f"
+  },
+  {
+   "tree": "kogen-setup main on 5 Nov (public)",
+   "sha": "a23f2bf"
+  },
+  {
+   "tree": "kogen-executor main on 5 Nov (public)",
+   "sha": "f1a5726"
+  },
+  {
+   "tree": "kogen-coordinator main on 5 Nov (public)",
+   "sha": "f16789b"
+  },
+  {
+   "tree": "kogen-loop main on 5 Nov (public)",
+   "sha": "268327e"
+  },
+  {
+   "tree": "kogen-verification main on 5 Nov (public)",
+   "sha": "5c49424"
+  },
+  {
+   "tree": "kogen-shaping main on 5 Nov (public)",
+   "sha": "42424ca"
+  },
+  {
+   "tree": "kogen-build main on 5 Nov (public)",
+   "sha": "579e21a"
+  },
+  {
+   "tree": "kogen-bench reproduce/build-speed-e2-go-lock-20261105/data/overlap-eu.log",
+   "sha": "175bbd156725cb8a684caf26967dea33a24a5b41"
+  },
+  {
+   "tree": "kogen-bench reproduce/build-speed-e2-go-lock-20261105/data/mix-records.json",
+   "sha": "d9f988674519230ac1e0514ffb2e140f647c39d3"
+  }
+ ],
+ "rerun": "python3 -I report.py (in this directory)"
+}
