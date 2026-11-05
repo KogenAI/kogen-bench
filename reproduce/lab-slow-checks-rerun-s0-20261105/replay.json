@@ -1,0 +1,48 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-slow-checks-rerun-s0-20261105",
+ "rerun": "cd reproduce/lab-slow-checks-rerun-s0-20261105 && python3 -I report.py data/builds.json data/results.json",
+ "arms": {
+  "U0-exact-tree-reuse": {
+   "verdict": "already shipped in kogen-build b9990a3; worth 2.75% of Build wall",
+   "counts": {
+    "builds": 101,
+    "builds_with_hit": 12,
+    "hits": 20,
+    "seconds_saved": 7407,
+    "median_build_wall_s": 1376
+   },
+   "duration_s": 0.11
+  },
+  "U1-opt-in-verify-reuse": {
+   "verdict": "not built: 3.59% of Build wall",
+   "counts": {
+    "builds": 137,
+    "builds_with_hit": 18,
+    "seconds_saved": 11000,
+    "median_build_wall_s": 951
+   },
+   "duration_s": 0.11
+  },
+  "U2-cross-restart-reuse": {
+   "verdict": "not measurable: no stored log carries a run-identity event",
+   "counts": {
+    "identity_events": 0,
+    "stored_builds": 251
+   },
+   "duration_s": 0.11
+  }
+ },
+ "duration_note": "duration_s is the wall time of the whole replay (report.py), which computes all arms in one pass; counts use the 60 s slow-check threshold",
+ "inputs": [
+  {
+   "tree": "data/builds.json",
+   "sha": "ca5892be52226335e8c3498ac9204799fed349ebdaed7e0db349bcc28f465b8f"
+  },
+  {
+   "tree": "kogen-build build/checkreuse.go",
+   "sha": "b9990a3d090306d79e28ac0d858ba47c8f3b0ed4"
+  }
+ ]
+}

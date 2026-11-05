@@ -1230,6 +1230,15 @@
       "comparison": "test-setup-and-sandboxing",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-slow-checks-rerun-s0-20261105",
+      "title": "Slow checks re-run on an unchanged tree: little to save, and already shipped",
+      "summary": "In 101 stored Kogen Builds, a check of 60 s or more repeated on an identical tree in 12 Builds, 2.75% of total Build wall, always the re-verify after review approval; kogen-build already reuses a green check per tree since 3 Nov, so the queued opt-in reuse is not built. Reusing a baseline across restarted Builds saved 3.6% of wall on a surrogate key and could not be checked, because no stored log carries run identity.",
+      "verdict": "no",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
