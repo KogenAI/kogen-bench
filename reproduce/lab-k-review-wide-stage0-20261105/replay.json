@@ -1,0 +1,203 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-k-review-wide-stage0-20261105",
+ "arms": {
+  "R0": {
+   "verdict": "does not survive: gates 1 and 2 pass, gate 3 fails (4,000 tiny paths: catalog alone 1,063,201 B, nothing sent)",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 1403877,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 3,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 2700905,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 6,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 4272229,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 9,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 5849979,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 12,
+    "t4000_sends": 0,
+    "k9_mandatory_first_part_bytes": 127750,
+    "gate1": 1,
+    "gate2": 1,
+    "gate3": 0,
+    "survives": 0
+   },
+   "duration_s": 21
+  },
+  "R1": {
+   "verdict": "does not survive: fresh sessions already; the digest adds bytes and the catalog still stops 4,000 paths",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 1409877,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 3,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 2715905,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 6,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 4296229,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 9,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 5882977,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 12,
+    "t4000_sends": 0,
+    "k9_mandatory_first_part_bytes": 127750,
+    "gate1": 1,
+    "gate2": 1,
+    "gate3": 0,
+    "survives": 0
+   },
+   "duration_s": 21
+  },
+  "R2": {
+   "verdict": "does not survive: required reads grow the context quadratically (gates 1, 2 fail) and the catalog stops 4,000 paths",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 120132024,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 172,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 365141712,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 312,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 824820416,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 476,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 1384735280,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 620,
+    "t4000_sends": 0,
+    "k9_mandatory_first_part_bytes": 159792,
+    "gate1": 0,
+    "gate2": 0,
+    "gate3": 0,
+    "survives": 0
+   },
+   "duration_s": 21
+  },
+  "R2-b64k": {
+   "verdict": "does not survive: same with 64 KB reads (11.4x on the real change)",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 11658413,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 17,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 34318770,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 30,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 75728655,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 45,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 125114874,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 58,
+    "t4000_sends": 0,
+    "k9_mandatory_first_part_bytes": 159101,
+    "gate1": 0,
+    "gate2": 0,
+    "gate3": 0,
+    "survives": 0
+   },
+   "duration_s": 21
+  },
+  "R3": {
+   "verdict": "does not survive: sends 4,000 paths but 9.6x total over source (gate 1)",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 1380825,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 3,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 2482099,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 5,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 3880556,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 8,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 5062788,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 10,
+    "t4000_sends": 1,
+    "t4000_total_input_bytes": 15707046,
+    "t4000_source_bytes": 1628602,
+    "t4000_parts_or_requests": 30,
+    "k9_mandatory_first_part_bytes": 111765,
+    "gate1": 0,
+    "gate2": 1,
+    "gate3": 1,
+    "survives": 0
+   },
+   "duration_s": 21
+  },
+  "R0'-unlanded-informational": {
+   "verdict": "informational, unlanded 4c421b7: would pass all three gates; not a registered row",
+   "counts": {
+    "k9_sends": 1,
+    "k9_total_input_bytes": 1374263,
+    "k9_source_bytes": 1020601,
+    "k9_parts_or_requests": 3,
+    "c6_sends": 1,
+    "c6_total_input_bytes": 2457569,
+    "c6_source_bytes": 1863141,
+    "c6_parts_or_requests": 5,
+    "c9_sends": 1,
+    "c9_total_input_bytes": 3804494,
+    "c9_source_bytes": 2848763,
+    "c9_parts_or_requests": 8,
+    "c12_sends": 1,
+    "c12_total_input_bytes": 4920684,
+    "c12_source_bytes": 3712171,
+    "c12_parts_or_requests": 10,
+    "t4000_sends": 1,
+    "t4000_total_input_bytes": 4611560,
+    "t4000_source_bytes": 1628602,
+    "t4000_parts_or_requests": 9,
+    "k9_mandatory_first_part_bytes": 106893,
+    "gate1": 1,
+    "gate2": 1,
+    "gate3": 1,
+    "survives": 1
+   },
+   "duration_s": 21
+  }
+ },
+ "inputs": [
+  {
+   "tree": "KogenAI/kogen base of the K-MODELS-FILE Build",
+   "sha": "733363bdf04a2db673ffcaba643a0f2e0aa37b3f"
+  },
+  {
+   "tree": "KogenAI/kogen landed K-MODELS-FILE (Build 69f25f32)",
+   "sha": "408a1e46d50f1773074d855706c6181891f02165"
+  },
+  {
+   "tree": "KogenAI/kogen-review R0 (main)",
+   "sha": "b33665f2509d24ec2f6e48b73ce49ca66671add6"
+  },
+  {
+   "tree": "KogenAI/kogen-build main (contains 7a9fac6)",
+   "sha": "81a609a3aa9622a9c766bce222e39357b1ca2031"
+  },
+  {
+   "tree": "KogenAI/kogen-review parked Build 4c421b7 (not on main; informational)",
+   "sha": "4c421b724f654c109e94b2124b8cdc18e0c28304"
+  }
+ ]
+}

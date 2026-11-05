@@ -1401,6 +1401,15 @@
       "comparison": "kogen-shaping-and-builds",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-k-review-wide-stage0-20261105",
+      "title": "No review arm of the wide-change Lab passes Stage 0; today's review already cuts 9 parts to 3",
+      "summary": "Replaying the K-MODELS-FILE review requests with no model: current review cuts the 9-part, 4,142,106-byte sequence to 3 parts and 1,403,877 bytes, but stops on 4,000 tiny paths because the repeated catalog exceeds the ceiling. Of the registered arms, a digest per part (R1) fails the same way, on-demand reads (R2) grow quadratically, and a path-and-status catalog (R3) sends but costs 9.644x. Token and dollar figures are estimates from one logged Build; no review quality was measured.",
+      "verdict": "no",
+      "comparison": "kogen-review",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
