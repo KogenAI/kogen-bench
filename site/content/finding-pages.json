@@ -1134,9 +1134,9 @@
     },
     {
       "id": "api-prompt-cache-reuse-probe-20261104",
-      "title": "What keeps the prompt cache warm",
-      "summary": "A cached prefix is reused after effort changes and with thinking omitted, but not when thinking is set to between_tools or when the model changes. This repeats an earlier run.",
-      "verdict": "yes",
+      "title": "What keeps the prompt cache warm (unconfirmed probe)",
+      "summary": "In an 11-call probe, a cached prefix was reused after effort changes and with thinking omitted, but not when thinking was set to between_tools or when the model changed. It is one prefix and one run, so it is an unconfirmed probe and the result is unresolved.",
+      "verdict": "unresolved",
       "comparison": "loop-speed-and-routes",
       "finished": "2026-11-04",
       "category": "categories/models-and-effort.md"

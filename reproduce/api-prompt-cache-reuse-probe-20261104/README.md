@@ -1,6 +1,6 @@
 # Prompt-cache reuse on the Anthropic API: what keeps a cached prefix warm
 
-**Verdict: yes.** A ~14.9k-token cached prefix (system + two tools + first user turn) is reused after changing effort (low to high and back), after omitting the thinking field, on a mid-conversation per-message effort change (beta), and within one model. It is NOT reused when thinking is switched to `between_tools`, nor across models. This repeats an earlier run of the same probe with the same pattern.
+**Verdict: unresolved. This is an unconfirmed probe (n = 11 calls, one prefix, one run), not a confirmed result.** In this probe a ~14.9k-token cached prefix (system + two tools + first user turn) was reused after changing effort (low to high and back), after omitting the thinking field, on a mid-conversation per-message effort change (beta), and within one model. It was not reused when thinking was switched to `between_tools`, nor across models. An earlier run of the same probe showed the same pattern, but no registered confirmation has been run, so the pattern is not stated as a cause or relied on for any decision.
 
 | call | model | effort | thinking | cache write | cache read | result |
 |---|---|---|---|---|---|---|
@@ -16,10 +16,10 @@
 | f0 | sonnet | low | adaptive | 0 | 14901 | hit |
 | f1 | sonnet | low | adaptive | 0 | 14901 | hit |
 
-11 calls, USD 0.095 at list price (cap USD 5). Each probe run uses a fresh nonce, so no cache is shared between runs. Caveat: one prefix, one run; the Haiku rows show the model-keyed cache, not a quality comparison.
+11 calls, USD 0.095 at list price (cap USD 5). Each probe run uses a fresh nonce, so no cache is shared between runs. Caveat: one prefix, one run, no repetition; the Haiku rows show the model-keyed cache, not a quality comparison.
 
 ## Source and runtime
-`probe.py` is a stdlib-HTTP port of the programme's c1_cache_probe.py (same calls, same prices).
+`probe.py` is a stdlib-HTTP port of an earlier probe script (same calls, same prices).
 
 ## Rerun
 `ANTHROPIC_API_KEY=... python3 -I probe.py OUT.jsonl`; the table is in data/results.jsonl.

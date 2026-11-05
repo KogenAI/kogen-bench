@@ -28,7 +28,7 @@ Definitions: [public glossary](../rounds/GLOSSARY.md).
 ## API-route drain experiments
 
 - [Batches review of landed commits](../reproduce/api-batch-review-landed-commits-20261104/README.md): half-price batch reviews, with the first pass cut short by thinking.
-- [Prompt-cache reuse probe](../reproduce/api-prompt-cache-reuse-probe-20261104/README.md): which request changes keep a cached prefix warm.
+- [Prompt-cache reuse probe](../reproduce/api-prompt-cache-reuse-probe-20261104/README.md): an unconfirmed 11-call probe of which request changes keep a cached prefix warm.
 - [Packet-only localization](../reproduce/kontext-packet-only-localization-api-20261104/README.md): file localization with and without the Context packet.
 
 A second [packet-only localization pre-screen on 11 more cases](../reproduce/kontext-api-localization-matched2-20261105/README.md) found no gain from the Kogen Context packet: source-file recall was identical with and without it in all 11 cases, at 1.9 times the input tokens, because the issue text alone already names the file in 10 of 11. It is a cheap pre-screen and says nothing about verified outcomes.
