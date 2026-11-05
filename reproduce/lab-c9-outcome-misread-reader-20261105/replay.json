@@ -1,0 +1,69 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-c9-outcome-misread-reader-20261105",
+ "rerun": "cd reproduce/lab-c9-outcome-misread-reader-20261105 && python3 -I check.py",
+ "arms": {
+  "c9-first-line-read": {
+   "verdict": "68.2% agreement; 3 of 4 green Builds recorded as failed",
+   "counts": {
+    "rows": 157,
+    "agree": 107,
+    "green_rows": 4,
+    "green_read_as_failed": 3
+   },
+   "duration_s": 0.09
+  },
+  "c9-delivery-interim-fix": {
+   "verdict": "97.5% agreement; 2 of 4 green Builds still read as failed",
+   "counts": {
+    "rows": 157,
+    "agree": 153,
+    "green_rows": 4,
+    "green_read_as_failed": 2
+   },
+   "duration_s": 0.09
+  },
+  "c9-reader-v1": {
+   "verdict": "97.5% agreement; 0 green read as failed",
+   "counts": {
+    "rows": 157,
+    "agree": 153,
+    "green_rows": 4,
+    "green_read_as_failed": 0
+   },
+   "duration_s": 0.09
+  },
+  "c9-reader-v2": {
+   "verdict": "proven: 99.4% agreement, 0 green read as failed, 472 of 472 landed Builds read green",
+   "counts": {
+    "rows": 157,
+    "agree": 156,
+    "green_rows": 4,
+    "green_read_as_failed": 0,
+    "failed_read_as_green": 0,
+    "control_logs": 472,
+    "control_read_green": 472
+   },
+   "duration_s": 0.09
+  }
+ },
+ "inputs": [
+  {
+   "tree": "data/truth.tsv",
+   "sha": "5d672887c8455f4270a78be48a5c1108b10eed9513d6185f3e651054df3d8106"
+  },
+  {
+   "tree": "data/skeletons (157 files, concatenated in name order)",
+   "sha": "d799e3807bc62283c6c5c4d8405164f47e34a006ef1492ee8ae74b1f087c9493"
+  },
+  {
+   "tree": "data/control (472 files, concatenated in name order)",
+   "sha": "bc8fc92fdb848809580a944236e50c4c59b9a66cf2e97e28cd861c23e1866f8e"
+  },
+  {
+   "tree": "read-outcome.py",
+   "sha": "06aa414a6cb8d1549ce3d4abbb659cc83638d06b99a0c386f258a0bd39e06c16"
+  }
+ ]
+}

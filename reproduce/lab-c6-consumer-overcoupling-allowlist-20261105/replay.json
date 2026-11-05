@@ -1,0 +1,56 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-c6-consumer-overcoupling-allowlist-20261105",
+ "rerun": "cd reproduce/lab-c6-consumer-overcoupling-allowlist-20261105 && python3 -I static_replay.py",
+ "arms": {
+  "c6-static-replay": {
+   "verdict": "design check only: 4 of 4 recorded keys red under their window's deny-list, 1 still red today, 0 compared by the allow-list",
+   "counts": {
+    "keys": 4,
+    "red_under_window_version": 4,
+    "still_red_at_head": 1,
+    "red_under_allow_list": 0,
+    "deny_list_versions_that_changed_the_mask": 2
+   },
+   "duration_s": 0.01
+  },
+  "c6-measured-current-vs-allow": {
+   "verdict": "not run: no quiet Linux host (0 of 260 guard checks)",
+   "counts": {
+    "probes_designed": 396,
+    "probes_run": 0,
+    "trees_designed": 32,
+    "guard_checks": 260,
+    "guard_checks_quiet": 0
+   },
+   "duration_s": 0
+  },
+  "c6-mutation-control": {
+   "verdict": "not run: no quiet Linux host",
+   "counts": {
+    "probes_designed": 12,
+    "probes_run": 0
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "data/deny-lists.json",
+   "sha": "b666043f1721d8b1c111f660a14f753deb2dc743d12e10c0cf5c3a4343cbfdee"
+  },
+  {
+   "tree": "data/recorded-diffs.json",
+   "sha": "1bc4394e42d6e58de436979f9510b3a89d268a9c35b120f678e4954d59ab0902"
+  },
+  {
+   "tree": "harness/trees.tsv",
+   "sha": "2b85d01bee6cba152a0864c131dccf2a60ac2d3eedd134ed10edec8e51c9fe85"
+  },
+  {
+   "tree": "kogen-build build/build_request_budget_test.go at 956b151",
+   "sha": "956b151a65646c2c3e3b7452e7bb30af2c7e0288"
+  }
+ ]
+}

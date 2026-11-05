@@ -356,3 +356,7 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Shared Go lock for small suites](../reproduce/build-speed-e2-go-lock-20261105/README.md) could not replay its three lock policies because no quiet host existed; a trace estimate says the gain from sharing only small suites is small and the gain from sharing large ones depends on how much they slow each other.
 
 [Verify timeouts and land-red under load](../reproduce/build-speed-e3-verify-load-20261105/README.md) re-ran nothing for the same reason; log evidence points at a repeated 10-minute hang in one kogen-verification test for timeouts and at deterministic failures for land-red.
+
+[Reading a Build's final outcome](../reproduce/lab-c9-outcome-misread-reader-20261105/README.md) replayed 157 failed Kogen Builds: a reader of the final outcome agrees with the hand-assigned real outcome in 156 (99.4%) against 107 for the old first-line read, and never reads a green Build as failed. Delivery's interim fix already reaches 153; the reader adds the remaining cases.
+
+[An allow-list for the budget-off consumer test](../reproduce/lab-c6-consumer-overcoupling-allowlist-20261105/README.md) could not be measured because no quiet Linux host was available; a host-free replay of the recorded red keys is a design check only, and the question stays open.

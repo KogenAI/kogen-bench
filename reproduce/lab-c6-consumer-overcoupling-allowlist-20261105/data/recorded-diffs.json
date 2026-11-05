@@ -1,0 +1,26 @@
+[
+ {
+  "key": "request_offset_ms",
+  "windows": "R01,R05",
+  "version": "V0",
+  "evidence": "log line 9 differs: omitted 0 vs zero 1 (saved land log, 3 Nov 17:21Z)"
+ },
+ {
+  "key": "load_average",
+  "windows": "R02,R03,R04",
+  "version": "V0",
+  "evidence": "log line 3 differs: load_average [27.02,..] vs [25.5,..] (saved land log, 3 Nov 17:39Z)"
+ },
+ {
+  "key": "ms",
+  "windows": "R06",
+  "version": "V2",
+  "evidence": "log line 34 differs: step_sweep ms 5 vs 6 (saved land log, 4 Nov 02:08Z)"
+ },
+ {
+  "key": "status",
+  "windows": "R07,R10,R11",
+  "version": "V3",
+  "evidence": "toolchain probe status timed_out vs ok under load (classified land table; saved logs show only 'log line 34 differs at byte N')"
+ }
+]

@@ -1338,6 +1338,24 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c9-outcome-misread-reader-20261105",
+      "title": "Reading a Build's final outcome fixes delivery's misreads",
+      "summary": "Over the 157 failed Kogen Builds of 2-5 Nov, delivery's old first-line read of the log agreed with the hand-assigned real outcome in 107 cases (68%) and recorded 3 of the 4 green Builds as failed. A reader of the final outcome agrees in 156 (99.4%), reads every green Build as green (also 472 further landed Builds) and no failed Build as green. Delivery's own interim fix of 5 Nov already reaches 153; the reader adds the 'already present' Builds, a Build killed during approval, and a lost exit line after a terminated launch wrapper. The rules were fitted on the same logs and the hand truth has no second labeller.",
+      "verdict": "yes",
+      "comparison": "kogen-shaping-and-builds",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c6-consumer-overcoupling-allowlist-20261105",
+      "title": "An allow-list for the budget-off consumer test: not measured",
+      "summary": "The measured comparison of the budget-off test against an allow-list projection did not run: none of 260 checks of the two allowed Linux hosts found them quiet, so there is no false-red rate and no mutation result. A host-free replay of the four keys behind the recorded reds shows all four were red under the deny-list of their own window and one still is today, while the allow-list compares none of them and keeps any budget field. That is a design check, not a measurement, so the question stays open.",
+      "verdict": "unresolved",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

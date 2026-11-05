@@ -1,0 +1,158 @@
+id	host	slug	hand_reported_code	truth_class	truth_code	refined_from_hand_text	baseline_code	interim_code	interim_class
+r000	mac-a	k-init-provider	EXIT=5	none	exit-5	0	unknown	unknown	failed
+r001	mac-b	k-review-saved-candidate	EXIT=2	none	exit-2	0	unknown	unknown	failed
+r002	mac-a	k-shape-wrong-implementation	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r003	mac-b	k-setup-protect-kept-checks	EXIT=2	none	exit-2	0	unknown	unknown	failed
+r004	mac-b	k-setup-left-out-output	EXIT=2	none	exit-2	0	unknown	unknown	failed
+r005	mac-a	k-setup-protect-kept-checks	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r006	mac-a	k-verify-unknown-timeout-output	EXIT=1 intent/exists	red	candidate/build_blocked	1	intent/exists	candidate/build_blocked	failed
+r007	mac-a	build-no-edit-turns-end-build	retired:requeued-fresh	green	landed	0	unknown	unknown	green
+r008	mac-b	k-spec-shape-step-namespace	EXIT=143	none	exit-143	0	unknown	unknown	failed
+r009	mac-b	k-spec-shape-question-check	EXIT=1 executor_round_limit	red	candidate/executor_round_limit	0	candidate/executor_round_limit	candidate/executor_round_limit	failed
+r010	mac-b	k-spec-all-components	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r011	mac-b	k-spec-all-components	no EXIT, process gone	none	no-exit	0	unknown	unknown	failed
+r012	mac-a	l-invalid-discovery-scope	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r013	mac-a	k-contracts-shaping	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r014	mac-a	k-shape-environment-stop-evidence	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r015	mac-b	k-build-blocker-claim-grounded	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r016	mac-a	k-shape-wrong-implementation	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r017	mac-b	s-mcp-input	EXIT=5	none	exit-5	0	unknown	unknown	failed
+r018	mac-a	k-shape-acceptance-separation	EXIT=143	none	exit-143	0	unknown	unknown	failed
+r019	mac-a	s-mcp-input	held:waits-for-shaping-repair-release shape/invalid_output	red	shape/invalid_output	0	shape/invalid_output	shape/invalid_output	failed
+r020	mac-a	s-cancelflake	EXIT=5 intent/answers_invalid	red	intent/answers_invalid	0	intent/answers_invalid	intent/answers_invalid	failed
+r021	mac-b	k-build-finish-whole-intent-reminder	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r022	mac-b	k-build-measured-figures-only	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r023	mac-a	k-shape-fixture-self-proof	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r024	mac-a	k-consumes-shaping	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r025	mac-a	k-review-parts-linear-input	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r026	mac-a	l-cut-recovery-observability	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r027	mac-b	k-setup-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r028	mac-b	k-build-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r029	mac-a	k-review-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r030	mac-a	k-review-reset-keeps-source-once	EXIT=5 shape/invalid_output	red	shape/invalid_output	0	shape/invalid_output	shape/invalid_output	failed
+r031	mac-a	k-review-reopen-after-external-repair	EXIT=5 shape/invalid_output	red	shape/invalid_output	0	shape/invalid_output	shape/invalid_output	failed
+r032	mac-b	k-consumes-build	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r033	mac-a	k-shaping-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r034	mac-a	k-review-verifier-error-record	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r035	mac-b	k-review-unrun-evidence-not-met	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r036	mac-b	k-build-finish-whole-intent-reminder	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r037	mac-a	k-shape-scope-enumeration	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r038	mac-b	k-review-config-no-max-rounds	EXIT=1 intent/not_ready	red	candidate/review_blocked	0	intent/not_ready	candidate/review_blocked	failed
+r039	mac-a	k-exec-round-stream-write-failure	held:failed-twice-candidate-review_blocked review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r040	mac-a	k-review-reopen-after-external-repair	held:failed-twice-unknown environment/shape_environment	red	environment/shape_environment	0	unknown	environment/shape_environment	failed
+r041	mac-a	k-consumes-executor	held:failed-twice-candidate-review_blocked review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r042	mac-a	k-exec-round-files-bounded	no EXIT, process gone intent/not_ready	none	no-exit	1	intent/not_ready	intent/not_ready	failed
+r043	mac-a	k-shaping-loop-module-path	no EXIT, process gone	none	no-exit	0	unknown	unknown	failed
+r044	mac-a	k-review-loop-module-path	no EXIT, process gone	none	no-exit	0	unknown	unknown	failed
+r045	mac-b	k-build-context-bytes-unpinned	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r046	mac-a	k-review-loop-module-path	EXIT=4 unavailable	red	provider/unavailable	0	unknown	provider/unavailable	failed
+r047	mac-a	k-shaping-loop-module-path	EXIT=5 environment/step_timeout	red	environment/step_timeout	0	unknown	environment/step_timeout	failed
+r048	mac-a	l-tool-result-elapsed	EXIT=5 candidate/execution_state_changed	red	candidate/execution_state_changed	0	candidate/execution_state_changed	candidate/execution_state_changed	failed
+r049	mac-b	k-acceptance-no-card-hash	EXIT=5 executor/protocol	red	executor/protocol	0	unknown	executor/protocol	failed
+r050	mac-a	l-sys-escalation-interval-seam	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r051	mac-b	k-consumes-build-recover-grounded	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r052	mac-b	k-acceptance-decision-check-answer	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r053	mac-b	k-acceptance-models-file	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r054	mac-b	k-acceptance-init-provider	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r055	mac-b	k-build-budget-off-sweep-ms	EXIT=5 intent/not_ready	red	environment/step_timeout	1	intent/not_ready	environment/step_timeout	failed
+r056	mac-b	coord-baseline-optional-files-when-present	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r057	mac-b	s-mcp-reliability	EXIT=5 executor/usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r058	mac-b	k-setup-initialized-reports-uncovered-detected-checks	EXIT=5 intent/invalid_slug	red	intent/invalid_slug	0	intent/invalid_slug	intent/invalid_slug	failed
+r059	mac-b	k-kogen-canonical-loop-import	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r060	mac-b	k-live-real-use-claude	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r061	mac-a	k-shape-artifact-static-checks	EXIT=5 executor/usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r062	mac-b	k-consumes-build-recover-grounded	held:failed-twice-shape-protected_conflict shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r063	mac-b	k-acceptance-decision-check-answer	held:failed-twice-candidate-review_blocked review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r064	mac-a	core-inspect-string-elixir-parity	EXIT=143	none	exit-143	0	unknown	unknown	failed
+r065	mac-b	k-review-external-round-limit-notice	EXIT=1 executor/usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r066	mac-b	k-acceptance-init-provider	held:failed-twice-shape-protected_conflict shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r067	mac-b	fix-k-acceptance-no-card-hash	no EXIT, process gone	green	landed	0	unknown	unknown	green
+r068	mac-b	fix-k-consumes-executor	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r069	mac-b	fix-k-consumes-verification	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r070	mac-b	s-served-prompts-rules	retired:regrouped-into-loops-forget-standing-rules	none	*	0	unknown	unknown	failed
+r071	mac-b	k-integrate-pins-20261105t075205z	retired:superseded:-its-pin-base-had-invalid-cli/loop-pin.json-(delivery-sync-bug,-fixed);-new-fix-Build-on-a-corrected-base shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r072	mac-b	roadmap-loop-brief-and-nudge	held:lab-studio/brief-marker-compaction-detection-20261105	none	*	0	unknown	unknown	failed
+r073	linux-a	k-drop-optins	EXIT=1 review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r074	linux-c	k-shape-acceptance-separation	EXIT=1 no_progress	red	candidate/no_progress	0	candidate/no_progress	candidate/no_progress	failed
+r075	linux-c	k-shape-environment-stop-evidence	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r076	linux-c	k-contracts-build	EXIT=5 EXIT=5	none	exit-5	0	unknown	unknown	failed
+r077	linux-a	k-review-saved-candidate	EXIT=5 EXIT=5	none	exit-5	0	unknown	unknown	failed
+r078	linux-a	k-verify-unknown-timeout-output	EXIT=0 intent/exists	green	exists	0	intent/exists	intent/exists	failed
+r079	linux-a	k-review-saved-candidate	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r080	linux-a	k-verify-unknown-timeout-output	EXIT=0 intent/exists	green	exists	0	intent/exists	intent/exists	failed
+r081	linux-a	k-setup-cmd-entry	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r082	linux-c	l-contract-cut-bytes	EXIT=5 intent/not_ready	red	intent/contract_contradicts	1	intent/not_ready	intent/contract_contradicts	failed
+r083	linux-c	k-init-provider	EXIT=5 EXIT=5	none	exit-5	0	unknown	unknown	failed
+r084	linux-a	k-checks-concurrent	EXIT=2 EXIT=2	none	exit-2	0	unknown	unknown	failed
+r085	linux-a	k-checks-concurrent	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r086	linux-c	k-init-provider	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r087	linux-a	k-checks-concurrent	EXIT=5 EXIT=5	none	exit-5	0	unknown	unknown	failed
+r088	linux-a	k-public-ready-verification	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r089	linux-c	k-public-ready-setup	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r090	linux-c	k-public-ready-executor	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r091	linux-c	k-setup-cmd-entry	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r092	linux-a	k-public-ready-coordinator	EXIT=5 shape/protected_conflict	red	shape/protected_conflict	0	shape/protected_conflict	shape/protected_conflict	failed
+r093	linux-a	k-verify-resource-assertion-red	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r094	linux-a	k-verify-resource-assertion-red	retired:replaced-by-k-verify-quoted-resource-text intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r095	linux-c	k-public-ready-executor	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r096	linux-c	k-setup-models-file	EXIT=5 EXIT=5	none	exit-5	0	unknown	unknown	failed
+r097	linux-c	k-setup-models-file	EXIT=1 no_progress	red	candidate/no_progress	0	candidate/no_progress	candidate/no_progress	failed
+r098	linux-a	k-verify-probe-sweep-escaped	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r099	linux-c	k-exec-round-stream-write-failure	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r100	linux-a	coord-intent-wrapped-bullets	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r101	linux-a	k-consumes-verification	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r102	linux-c	k-consumes-setup	EXIT=4 intent/not_ready	red	provider/unavailable	0	intent/not_ready	provider/unavailable	failed
+r103	linux-c	k-consumes-executor	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r104	linux-a	k-verify-harness-fault-not-ready	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r105	linux-c	k-shape-handoff-evidence	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r106	linux-a	k-verification-loop-module-path	EXIT=4 unavailable	red	provider/unavailable	0	unknown	provider/unavailable	failed
+r107	linux-c	k-executor-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r108	linux-a	k-verify-failed-readiness-setup-visible	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r109	linux-c	k-consumes-setup	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r110	linux-c	k-setup-check-masks-failure	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r111	linux-a	k-verify-tests-isolated-parallel-safe	EXIT=5 intent/not_ready	red	environment/step_timeout	1	intent/not_ready	environment/step_timeout	failed
+r112	linux-a	l-contract-wire-goldens	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r113	linux-a	k-verification-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r114	linux-c	k-executor-loop-module-path	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r115	linux-a	k-drop-optins	EXIT=1 review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r116	linux-c	k-setup-refuse-long-running-commands	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r117	linux-a	k-drop-optins	held:failed-twice-intent-not_ready intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r118	linux-c	k-setup-refuse-machine-wide-installs	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r119	linux-a	k-shape-sourced-decision-continuity	EXIT=1 no_progress	red	candidate/no_progress	0	candidate/no_progress	candidate/no_progress	failed
+r120	linux-c	k-consumes-build	EXIT=1 review_blocked	red	candidate/review_blocked	0	candidate/review_blocked	candidate/review_blocked	failed
+r121	linux-a	k-verify-harness-fault-not-ready	held:failed-twice-intent-not_ready intent/not_ready	red	candidate/review_blocked	0	intent/not_ready	candidate/review_blocked	failed
+r122	linux-c	k-setup-models-file	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r123	linux-a	k-drop-optins	held:failed-twice-intent-not_ready intent/not_ready	red	candidate/review_invalid	0	intent/not_ready	candidate/review_invalid	failed
+r124	linux-c	k-verify-failed-readiness-setup-visible	held:failed-twice-candidate-review_invalid review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r125	linux-a	k-consumes-executor	held:failed-twice-candidate-build_blocked build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r126	linux-c	k-verify-tests-isolated-parallel-safe	held:failed-twice-intent-not_ready intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r127	linux-a	coord-baseline-optional-files-when-present	EXIT=1 review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r128	linux-a	k-setup-setup-fix-same-command	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/recovery_refused	failed
+r129	linux-c	k-exec-requested-model-visible	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r130	linux-a	coord-baseline-optional-files-when-present	held:failed-twice-candidate-review_invalid review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r131	linux-a	k-drop-optins	held:failed-twice-candidate-review_invalid review_invalid	red	candidate/review_invalid	0	candidate/review_invalid	candidate/review_invalid	failed
+r132	linux-a	k-verify-maintained-spec-unchanged-notice	EXIT=1 build_blocked	red	candidate/build_blocked	0	candidate/build_blocked	candidate/build_blocked	failed
+r133	linux-c	k-setup-verify-total-budget	EXIT=1 intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r134	linux-c	core-inspect-string-elixir-parity	EXIT=5 intent/not_ready	red	intent/not_ready	0	intent/not_ready	intent/not_ready	failed
+r135	linux-a	k-shape-acceptance-separation	EXIT=3 intent/not_ready	red	environment/host_or_base_failure	0	intent/not_ready	environment/host_or_base_failure	failed
+r136	linux-c	k-setup-verify-total-budget	retired:chatgpt-held-requeued-on-Claude-seats-(owner-4-Nov-no-ChatGPT) intent/not_ready	red	environment/step_timeout	1	intent/not_ready	environment/step_timeout	failed
+r137	linux-c	k-review-cost-and-effect-record	retired:chatgpt-held-requeued-on-Claude-seats-(owner-4-Nov-no-ChatGPT) shape/invalid_output	red	shape/invalid_output	0	shape/invalid_output	shape/invalid_output	failed
+r138	linux-a	l-sys-escalation-interval-seam	held:failed-twice-intent-not_ready intent/not_ready	red	candidate/build_blocked	0	intent/not_ready	candidate/build_blocked	failed
+r139	linux-c	k-shape-handoff-answerability	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r140	linux-c	k-exec-preflight-probe-bounded	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r141	linux-a	l-read-file-bounded-read	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r142	linux-a	k-context-literal-search-bounded-reads	EXIT=1 EXIT=1	none	exit-1	0	unknown	unknown	failed
+r143	linux-c	k-shape-handoff-evidence	held:failed-twice-unknown host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r144	linux-c	k-shape-fixture-title-user-name	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r145	linux-c	k-setup-initialized-reports-uncovered-detected-checks	held:failed-twice-intent-invalid_slug intent/invalid_slug	red	intent/invalid_slug	0	intent/invalid_slug	intent/invalid_slug	failed
+r146	linux-c	k-shape-scope-enumeration	held:failed-twice-unknown host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r147	linux-a	l-credential-lock-wait-backoff	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r148	linux-a	k-context-ranked-scoped-results	EXIT=5 intent/not_ready	red	intent/contract_contradicts	1	intent/not_ready	intent/contract_contradicts	failed
+r149	linux-a	k-verify-heavy-check-reuse-same-tree	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r150	linux-c	fix-k-setup-models-file	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r151	linux-a	fix-k-verify-check-wall-ms	EXIT=5 shape/invalid_output	red	shape/invalid_output	0	shape/invalid_output	shape/invalid_output	failed
+r152	linux-b	l-git-command-bounded	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r153	linux-a	coord-run-store-temp-swept	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r154	linux-b	l-session-transcript-read-bounded	EXIT=3 host_or_base_failure	red	environment/host_or_base_failure	0	unknown	environment/host_or_base_failure	failed
+r155	linux-b	fix-k-review-unrun-evidence-not-met	EXIT=1 usage_limit	usage_limit	executor/usage_limit	0	unknown	executor/usage_limit	failed
+r156	linux-c	fix-k-exec-install-download-transient-retry	EXIT=5 candidate/baseline_changed	red	candidate/baseline_changed	0	candidate/baseline_changed	candidate/baseline_changed	failed
