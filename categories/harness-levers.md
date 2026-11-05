@@ -318,3 +318,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Review component on Claude](../reproduce/kogen-review-claude-supplied-intent-20261104/README.md) is tentative: with Claude Sonnet 5.5 and frozen Intents no difference traces to the review stage; one attempt per task is only a smoke test.
 
 [Build main head on Claude](../reproduce/kogen-build-claude-supplied-intent-20261104/README.md) is tentative: with Claude Sonnet 5.5 and frozen Intents all five tasks landed in both arms and the one lower task is inside the release's own spread.
+
+[Shaping recovery on Claude](../reproduce/kogen-shaping-recovery-claude-20261105/README.md) is tentative: 5 of 7 valid Intents against 4 of 7, one refusal rescued; a bounded confirmation is registered.
