@@ -1374,6 +1374,15 @@
       "comparison": "loop-speed-and-routes",
       "finished": "2026-11-05",
       "category": "categories/head-to-head.md"
+    },
+    {
+      "id": "lab-rc-l1-walltime-20261105",
+      "title": "The wall-time deadline test starts its clock too early; the loaded run did not happen",
+      "summary": "A kogen-verification test gives a whole verification call 300 ms and then expects its first setup command to have run 100 ms. In 300 of 300 probe runs on a busy Mac the call spent 215-297 ms before that command even started. The unchanged test failed 2 of 600 runs (both: the command never started); a variant whose clock starts at the command failed 0 of 600, and a mutant that ignores the deadline still fails it. The planned loaded Linux run could not take its host lock, so the rate delivery saw at higher load was not reproduced and the question stays open.",
+      "verdict": "unresolved",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
