@@ -1,0 +1,23 @@
+{"tool": "_initialize", "t": 1793868660.768123}
+{"tool": "studio_start", "args": {}, "signal": "start", "t": 1793868664.610744}
+{"tool": "_initialize", "t": 1793868677.767968}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868677.820929}
+{"tool": "studio_note", "args": {"step": 1, "ticket": "QX-8014", "text": "[lane-plover] Three risks of caching DNS (Domain Name System, the internet's address book) answers for too long: (1) Stale addresses: if a site moves to a new server, users keep being sent to the old one and see errors or outages. (2) Slow recovery: when a fault is fixed or traffic is redirected, the change takes longer to reach everyone, which delays failover. (3) Lingering bad data: a forged or mistaken answer stays in the cache for longer, so harm from poisoning or misconfiguration lasts longer."}, "signal": "missing", "detected": false, "r1": true, "r2": true, "reserved": false, "t": 1793868682.442935}
+{"tool": "_initialize", "t": 1793868687.448782}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868687.478376}
+{"tool": "cli_brief", "event": "SessionStart", "source": "compact", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868701.4331782}
+{"tool": "_initialize", "t": 1793868703.024384}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868703.048734}
+{"tool": "studio_note", "args": {"step": 2, "ticket": "QX-8014", "text": "[lane-plover] Idempotent retries matter because networks fail in ways that leave you unsure whether a request worked, so you must be able to send it again. If repeating the request has the same effect as sending it once, a retry cannot cause double charges or duplicate records."}, "signal": "missing", "detected": false, "r1": true, "r2": true, "reserved": false, "t": 1793868707.6194172}
+{"tool": "_initialize", "t": 1793868713.4586701}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868713.484493}
+{"tool": "studio_note", "args": {"step": 3, "ticket": "QX-8014", "text": "[lane-plover] Two trade-offs of UUIDv7 (Universally Unique Identifier, version 7) as a primary key: (1) it is time-ordered, so inserts stay fast and indexes stay compact, but the key leaks roughly when each row was created. (2) It takes 16 bytes, which is larger than a plain 4 or 8 byte integer, so indexes and foreign keys use more storage."}, "signal": "missing", "detected": false, "r1": true, "r2": true, "reserved": false, "t": 1793868717.0620842}
+{"tool": "_initialize", "t": 1793868722.925035}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868722.954713}
+{"tool": "cli_brief", "event": "SessionStart", "source": "compact", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868736.0043678}
+{"tool": "_initialize", "t": 1793868737.7324789}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868737.78543}
+{"tool": "studio_note", "args": {"step": 4, "ticket": "QX-8014", "text": "[lane-plover] A write-ahead log (WAL) records each change to durable storage before it is applied to the main data files. After a crash, the system replays the log to recover committed changes and discard unfinished ones, so no data is lost or left half-written."}, "signal": "missing", "detected": false, "r1": true, "r2": true, "reserved": false, "t": 1793868741.189801}
+{"tool": "_initialize", "t": 1793868745.5072699}
+{"tool": "cli_brief", "event": "SessionStart", "source": "resume", "argv": ["brief", "--loop", "m2-gs-byp-b"], "ppid_cmd": null, "t": 1793868745.528485}
+{"tool": "studio_note", "args": {"step": 5, "ticket": "QX-8014", "text": "[lane-plover] Two reasons to pin a client version in a benchmark: (1) results stay comparable between runs, because a client update could change speed and hide or fake a real difference. (2) Runs are reproducible, so others can repeat the test and get the same setup."}, "signal": "missing", "detected": false, "r1": true, "r2": true, "reserved": false, "t": 1793868753.657321}

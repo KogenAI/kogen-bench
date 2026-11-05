@@ -1212,6 +1212,15 @@
       "comparison": "kogen-context",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "brief-compaction-detection-p2-20261105",
+      "title": "Hook-free compaction detection: markers fail, a self-check works, the hook needs the launcher",
+      "summary": "Values held in context (a content hash, a nonce, a rotating receipt) caught 0 of 8 forced compactions each, because the compaction summary copies them. A self-check where the agent reports whether it still holds the brief word for word caught 31 of 31 losses with no false alarm in 90 calls, at about 6 tokens per call. A hook the agent installs fired on 29 of 29 compactions when the client allowed the write, but the write was refused 9 of 9 times in the default permission mode, so the launcher has to install it. The recommended brief text recovered the brief after 22 of 22 compactions. The result is mixed by design: Claude Code in short headless sessions only, Codex not run.",
+      "verdict": "unresolved",
+      "comparison": "kogen-context",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

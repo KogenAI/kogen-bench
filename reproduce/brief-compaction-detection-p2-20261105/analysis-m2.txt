@@ -1,0 +1,70 @@
+| arm | cells | compactions | ref hook | hook-free signal detected | agent hook installed (cells) | agent hook fired on compaction | agent CLI runs outside compaction | summary kept marker / a receipt | summary kept both rules | false alarms / steady calls | signal tok/call | fallback field used (calls) | out tok/step | in tok/step | violations pre | violations post |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| guide-exact/bypassPermissions | 3 | 6 | 6/6 | n/a (fallback unused) | 3/3 | 6/6 | 0 | n/a / 6/6 | 6/6 | 0/9 | 0.0 | 0/15 | 388 | 18255 | 0/3 | 0/12 |
+| guide-exact/live/bypassPermissions | 2 | 4 | 4/4 | n/a (fallback unused) | 2/2 | 4/4 | 0 | n/a / 4/4 | 4/4 | 0/6 | 0.0 | 0/10 | 365 | 18317 | 0/2 | 0/8 |
+| guide-final+rs | 3 | 12 | 12/12 | 12/12 | 0/3 | 0/12 | 0 | n/a / 0/12 | 12/12 | 0/18 | 6.4 | 0/30 | 444 | 18583 | 0/6 | 0/24 |
+| guide-final+rs/bypassPermissions | 2 | 4 | 4/4 | 0/4 | 2/2 | 4/4 | 0 | n/a / 0/4 | 4/4 | 0/6 | 6.5 | 0/10 | 407 | 18846 | 0/2 | 0/8 |
+| guide-final+rs/live | 1 | 4 | 4/4 | 4/4 | 0/1 | 0/4 | 0 | n/a / 0/4 | 4/4 | 0/6 | 6.4 | 0/10 | 466 | 19064 | 0/2 | 0/8 |
+| guide-final+rs/live/bypassPermissions | 1 | 2 | 2/2 | 0/2 | 1/1 | 2/2 | 0 | n/a / 0/2 | 2/2 | 0/3 | 6.5 | 0/5 | 365 | 18499 | 0/1 | 0/4 |
+| guide-short | 2 | 4 | 4/4 | 0/4 | 0/2 | 0/4 | 0 | n/a / 4/4 | 4/4 | 0/6 | 6.0 | 10/10 | 417 | 17165 | 0/2 | 0/8 |
+| guide-short/bypassPermissions | 3 | 6 | 6/6 | n/a (fallback unused) | 3/3 | 6/6 | resume 14 | n/a / 6/6 | 6/6 | 0/9 | 0.0 | 0/15 | 351 | 18118 | 0/3 | 0/12 |
+| guide-short/live/bypassPermissions | 2 | 4 | 4/4 | n/a (fallback unused) | 2/2 | 4/4 | 0 | n/a / 4/4 | 4/4 | 0/6 | 0.0 | 0/10 | 370 | 17809 | 0/2 | 0/8 |
+| hash | 2 | 8 | 8/8 | 0/8 | n/a | n/a | n/a | 8/8 / n/a | 8/8 | 0/12 | 6.8 | n/a | 362 | 10943 | 0/4 | 0/16 |
+| nonce | 2 | 8 | 8/8 | 0/8 | n/a | n/a | n/a | 8/8 / n/a | 8/8 | 0/12 | 6.0 | n/a | 353 | 10969 | 0/4 | 0/16 |
+| rolling | 2 | 8 | 8/8 | 0/8 | n/a | n/a | n/a | n/a / 8/8 | 8/8 | 0/12 | 6.0 | n/a | 373 | 10778 | 0/4 | 0/16 |
+| selfcheck | 3 | 10 | 10/10 | 3/3 | n/a | n/a | n/a | n/a / n/a | 10/10 | 0/24 | 6.4 | n/a | 387 | 11501 | 0/14 | 0/20 |
+| selfcheck+rs | 1 | 4 | 4/4 | 4/4 | n/a | n/a | n/a | n/a / n/a | 4/4 | 0/6 | 6.4 | n/a | 467 | 11649 | 0/2 | 0/8 |
+| selfcheck/live | 1 | 4 | 4/4 | 1/1 | n/a | n/a | n/a | n/a / n/a | 4/4 | 0/6 | 6.3 | n/a | 380 | 11166 | 0/2 | 0/8 |
+| selfcheck2+rs | 3 | 10 | 10/10 | 10/10 | n/a | n/a | n/a | n/a / n/a | 10/10 | 0/24 | 6.4 | n/a | 435 | 12141 | 0/14 | 0/20 |
+| selfcheck2+rs/live | 1 | 4 | 4/4 | 1/4 | n/a | n/a | n/a | n/a / n/a | 4/4 | 0/6 | 6.5 | n/a | 456 | 11665 | 0/2 | 0/8 |
+
+Brief intact in the summary (all brief lines verbatim) x hook-free signal on the first call after it (counted events):
+  guide-final+rs: brief NOT verbatim -> flagged 10, missed 0; brief verbatim -> flagged 2, quiet 0
+  guide-final+rs/bypassPermissions: brief NOT verbatim -> flagged 0, missed 4; brief verbatim -> flagged 0, quiet 0
+  guide-final+rs/live: brief NOT verbatim -> flagged 4, missed 0; brief verbatim -> flagged 0, quiet 0
+  guide-final+rs/live/bypassPermissions: brief NOT verbatim -> flagged 0, missed 2; brief verbatim -> flagged 0, quiet 0
+  guide-short: brief NOT verbatim -> flagged 0, missed 4; brief verbatim -> flagged 0, quiet 0
+  hash: brief NOT verbatim -> flagged 0, missed 8; brief verbatim -> flagged 0, quiet 0
+  nonce: brief NOT verbatim -> flagged 0, missed 8; brief verbatim -> flagged 0, quiet 0
+  rolling: brief NOT verbatim -> flagged 0, missed 8; brief verbatim -> flagged 0, quiet 0
+  selfcheck: brief NOT verbatim -> flagged 3, missed 0; brief verbatim -> flagged 0, quiet 0
+  selfcheck+rs: brief NOT verbatim -> flagged 4, missed 0; brief verbatim -> flagged 0, quiet 0
+  selfcheck/live: brief NOT verbatim -> flagged 1, missed 0; brief verbatim -> flagged 0, quiet 0
+  selfcheck2+rs: brief NOT verbatim -> flagged 9, missed 0; brief verbatim -> flagged 1, quiet 0
+  selfcheck2+rs/live: brief NOT verbatim -> flagged 0, missed 0; brief verbatim -> flagged 1, quiet 3
+
+failed turns: {'guide-exact/bypassPermissions': 0, 'guide-exact/live/bypassPermissions': 0, 'guide-final+rs/bypassPermissions': 0, 'guide-final+rs/live/bypassPermissions': 0, 'guide-final+rs': 0, 'guide-final+rs/live': 0, 'guide-short/bypassPermissions': 0, 'guide-short/live/bypassPermissions': 0, 'guide-short': 0, 'hash': 0, 'nonce': 0, 'rolling': 0, 'selfcheck': 0, 'selfcheck/live': 0, 'selfcheck+rs': 0, 'selfcheck2+rs': 0, 'selfcheck2+rs/live': 0}  notional seat cost USD: {'guide-exact/bypassPermissions': 1.32, 'guide-exact/live/bypassPermissions': 0.86, 'guide-final+rs/bypassPermissions': 0.93, 'guide-final+rs/live/bypassPermissions': 0.43, 'guide-final+rs': 4.4, 'guide-final+rs/live': 1.53, 'guide-short/bypassPermissions': 1.32, 'guide-short/live/bypassPermissions': 0.84, 'guide-short': 0.88, 'hash': 2.2, 'nonce': 2.17, 'rolling': 2.16, 'selfcheck': 3.31, 'selfcheck/live': 1.14, 'selfcheck+rs': 1.2, 'selfcheck2+rs': 3.53, 'selfcheck2+rs/live': 1.2}
+cell m2-ge-byp-a guide-exact/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-ge-byp-b guide-exact/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-ge-byp-c guide-exact/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-ge-byp-live-a guide-exact/live/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-ge-byp-live-b guide-exact/live/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gf-byp-a guide-final+rs/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=ok,ok,ok,ok,ok
+cell m2-gf-byp-b guide-final+rs/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=ok,ok,ok,ok,ok
+cell m2-gf-byp-live guide-final+rs/live/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=ok,ok,ok,ok,ok
+cell m2-gf-def-a guide-final+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-gf-def-b guide-final+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-gf-def-c guide-final+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-gf-def-live guide-final+rs/live compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-gs-byp-a guide-short/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gs-byp-b guide-short/bypassPermissions compactions=2 notes=5 cli=9 installed=[('.claude_settings.json', None)] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gs-byp-c guide-short/bypassPermissions compactions=2 notes=5 cli=9 installed=[('.claude_settings.json', 'startup|resume|clear|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gs-byp-live-a guide-short/live/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', None)] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gs-byp-live-b guide-short/live/bypassPermissions compactions=2 notes=5 cli=2 installed=[('.claude_settings.json', 'startup|resume|compact')] seat_settings_untouched=True signals=missing,missing,missing,missing,missing
+cell m2-gs-def-a guide-short compactions=2 notes=5 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok
+cell m2-gs-def-b guide-short compactions=2 notes=5 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok
+cell m2-hash-a hash compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-hash-b hash compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-nonce-a nonce compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-nonce-b nonce compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-rolling-a rolling compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-rolling-b rolling compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok
+cell m2-self-a selfcheck compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,flagged,flagged,flagged,flagged,flagged,flagged,flagged
+cell m2-self-b selfcheck compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,flagged,flagged,flagged,flagged,flagged,flagged,flagged
+cell m2-self-live selfcheck/live compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,flagged,flagged,flagged,flagged,flagged,flagged,flagged
+cell m2-self-rs-a selfcheck+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-self-steady selfcheck compactions=2 notes=14 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok,flagged,flagged,flagged,flagged
+cell m2-self2-rs-a selfcheck2+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-self2-rs-b selfcheck2+rs compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,flagged,ok,flagged,ok,flagged,ok,flagged,ok
+cell m2-self2-rs-live selfcheck2+rs/live compactions=4 notes=10 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,flagged,ok
+cell m2-self2-rs-steady selfcheck2+rs compactions=2 notes=14 cli=0 installed=no seat_settings_untouched=True signals=ok,ok,ok,ok,ok,ok,ok,ok,ok,ok,flagged,ok,flagged,ok
