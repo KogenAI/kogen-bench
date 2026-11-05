@@ -1257,6 +1257,15 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "build-speed-e6-fsevents-temp-trees-20261105",
+      "title": "Sharing a source copy does not cut MacBook temp-file load",
+      "summary": "One Build on the MacBook created 1.72 million temp files in 23 minutes, none from the four suspected sources; a shared source copy could remove at most 2.8% of the largest test's files. The load is the release package's npm files, rebuilt and re-extracted per test; sharing them cut files 50% to 97% and file-event CPU 22% to 66% with every test passing, but those versions change 11 links in the package, so no fix is proven yet.",
+      "verdict": "no",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

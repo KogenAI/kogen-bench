@@ -340,3 +340,5 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 [Handoff questions in shaping](../reproduce/lab-shape-handoff-question-s0-20261105/README.md) counted 11 handoff stops in 626 shaping runs, all before the question check and none after it (0 of 197), so only the missing-options check is built.
 
 [Changed-first checks in build rounds](../reproduce/lab-k-round-full-suite-s1-20261105/README.md) timed the targeted form of a heavy check against the full suite on four slow-suite task trees: it cost 0.02, 0.23 and 0.69 of the full run, and one task has no test that maps to the change. The gate needed three of four at half the cost or less, so no cells were run and the idea closes as measured.
+
+[MacBook temp-file load census](../reproduce/build-speed-e6-fsevents-temp-trees-20261105/README.md) counted 1.72M temp-file creations in one Build; a shared source copy could remove at most 2.8% of the largest test's files. The load is the release package's npm files rebuilt and re-extracted per test; sharing them cut files 50-97% and file-event CPU 22-66%, but changes 11 package links, so no fix is proven yet.
