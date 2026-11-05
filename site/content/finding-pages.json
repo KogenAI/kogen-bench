@@ -1221,6 +1221,15 @@
       "comparison": "kogen-context",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-loops-collide-s0-20261105",
+      "title": "Alarm relays to main: one line per event removes every repeat",
+      "summary": "Replaying 4.8 days of recorded alarms, 57% of the 1,092 lines relayed to the main session repeated an event already relayed. Delivering one line per event removes all repeats and cuts relay messages by 31% without delaying or dropping a first alarm. Adding escalation to the next role adds 523 messages and pages the project owner 51 times a day, because nobody acknowledged an alarm in that period; leases have nothing to remove because one process launches all work. The fix addresses about a quarter of main's traffic, not the 91% quoted for it.",
+      "verdict": "yes",
+      "comparison": "test-setup-and-sandboxing",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
