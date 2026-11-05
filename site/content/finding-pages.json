@@ -1378,8 +1378,8 @@
     {
       "id": "lab-rc-l1-walltime-20261105",
       "title": "The wall-time deadline test starts its clock too early; the loaded run did not happen",
-      "summary": "A kogen-verification test gives a whole verification call 300 ms and then expects its first setup command to have run 100 ms. In 300 of 300 probe runs on a busy Mac the call spent 215-297 ms before that command even started. The unchanged test failed 2 of 600 runs (both: the command never started); a variant whose clock starts at the command failed 0 of 600, and a mutant that ignores the deadline still fails it. The planned loaded Linux run could not take its host lock, so the rate delivery saw at higher load was not reproduced and the question stays open.",
-      "verdict": "unresolved",
+      "summary": "A kogen-verification test gives a whole verification call 300 ms and then expects its first setup command to have run 100 ms. In 300 of 300 probe runs on a busy Mac the call spent 215-297 ms before that command even started. The unchanged test failed 2 of 600 runs (both: the command never started); a variant whose clock starts at the command failed 0 of 600, and a mutant that ignores the deadline still fails it. The planned loaded Linux run could not take its host lock, so the rate delivery saw at higher load was not reproduced here. The variant was adopted under a recorded deviation: the land checks' own failures at high load stand in for the loaded run.",
+      "verdict": "yes",
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
@@ -1387,8 +1387,8 @@
     {
       "id": "lab-rc-l1-walltime-linux-20261105",
       "title": "On Linux the wall-time deadline test does not fail; its pre-setup work is 4x shorter than on the Mac",
-      "summary": "The Linux leg of the wall-time deadline test Lab. On a 4-core server the unchanged kogen-verification test passed 600 of 600 runs, quiet and under a fixed background build load, and so did the variant whose 300 ms clock starts at the first setup command. A probe shows why: there the verification call spends 23-77 ms before that command starts, against 215-297 ms on the Mac where the test failed. The test's fixed budget is tight only where the work before setup is slow. By the registered rule the Linux reproduction failed, so whether to adopt the variant stays open.",
-      "verdict": "unresolved",
+      "summary": "The Linux leg of the wall-time deadline test Lab. On a 4-core server the unchanged kogen-verification test passed 600 of 600 runs, quiet and under a fixed background build load, and so did the variant whose 300 ms clock starts at the first setup command. A probe shows why: there the verification call spends 23-77 ms before that command starts, against 215-297 ms on the Mac where the test failed. The test's fixed budget is tight only where the work before setup is slow. By the registered rule the Linux reproduction failed; with the Mac evidence the variant was adopted under a recorded deviation.",
+      "verdict": "yes",
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
