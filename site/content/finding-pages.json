@@ -1266,6 +1266,15 @@
       "comparison": "kogen-build",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-c1-linux-reaper-zombies-20261105",
+      "title": "Linux check helper leaves zombies; reaping while the check runs fixes it in a first run",
+      "summary": "Kogen's Linux check helper waits only for its shell, so a process killed during a check stays a zombie until the check ends. A test that kills a process group and waits for it then hangs. With the released helper, the kogen-shaping test suite failed at its 10-minute timeout with the same two tests as the failed Builds, and a kill-group probe saw the killed process as a zombie for 5 seconds in 2 of 2 runs. A helper that reaps every exited child while the check runs passed every run: the suite ran in 210.5 s against 217.9 s with no helper, and it still stopped all four detached servers that survive without a helper. This is tentative: one Linux host and part of one repetition ran, because delivery Builds took the host, so B ran 2 of the 30 suite runs the rule needs.",
+      "verdict": "unresolved",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
