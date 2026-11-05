@@ -1,0 +1,23 @@
+LAB E2 build-speed-e2-go-lock-20261105. Registered 5 Nov 2026 before any measured run. Assumption record: build-speed-e2-shared-lock-small-go-suites-20261105. Source: BUILD-SPEED-2026-11-05.md section 3 E2. Model-free: no model call, 0 tokens.
+
+QUESTION. Does a shared Go lock for small suites (solo median < 60 s) and for go-shim targeted runs cut lock wait and stream makespan without raising the false-red rate, compared with the live exclusive Go lock?
+
+ARMS (same seeded schedule, same frozen trees, one run per arm, order A, B, C):
+A: current policy, every Go lock user (suite or go-shim run) takes the host Go lock exclusively (live heavy.sh behaviour, same FIFO poll queue, 2 s poll).
+B: shared lock for class small (suite solo median < 60 s from the 48 h Build logs, and every go-shim targeted run); exclusive for class large. Large = kogen, kogen-build, kogen-shaping by the report, and kogen-verification (62 s, not < 60 s).
+C: B, but class large takes the lock shared too, capped at 2 concurrent large suites (two slot files), so large suites run beside each other and beside small ones.
+The lock policy lives in a Lab copy of the lock wrapper (heavy-lab.sh, private lock dir). Live hostbin, /var/tmp locks, kbuild and delivery files are not touched.
+
+LOAD. 4 concurrent Build streams. Each stream is a seeded sequence of suite runs drawn from the 48 h arrival mix of recorded heavy.sh logs (counts per repo), each preceded by one go-shim style targeted go test; start stagger 0/15/30/45 s, 5 s between items (time-compressed: real gaps between a Build's checks are minutes). Suite = the recorded heavy-cmds go-test.sh line "GOFLAGS=-trimpath go test ./..." with -count=1 added (a fresh candidate tree has no test cache). Frozen trees: component repos at main on 5 Nov (commits recorded in RESULTS).
+HOST. EU only (kogen-bench-eu, user lanes, 2 vCPU AMD EPYC, 7 GB), quiet-host check before each arm. Not the Macs (standing rule: no synthetic load on the Macs), not eu2 (held by cc-layers-1). Known confound: EU has 2 cores, the Macs 8-12 cores, so contention under 4 parallel suites is stronger here than in production.
+
+METRICS. Per run wait seconds (submit to lock) + run seconds; per class medians; stream makespan; false-red rate = rc != 0 on a tree that is green on its solo calibration run (red-solo trees are excluded from the sample).
+n: 40 suite runs per arm (4 streams x 10) plus 40 go-shim runs reported separately. Composition fixed before the first arm: setup 10, executor 8, review 7, loop 6, coordinator 6, verification 2 (large), shaping 1 (large). Deviations from the report, forced by cost on a 2-core host: kogen and kogen-build full suites are not replayed (252 s and 332 s on the Macs; 10-min go test timeout risk on 2 vCPU makes red outcomes uninterpretable), so the large-suite share is 3 of 40 instead of about 24 % of 48 h suite runs. One schedule per arm, no repeat.
+
+DECISION RULES (registered before the first arm). Arm B or C passes only if all hold versus A:
+1. Stream makespan <= 0.85 x A, and median wait+run of class-small suite runs <= 0.60 x A.
+2. False reds among the 40 suite runs <= A's count (n is 40, so one extra red fails the arm).
+3. Large suites: median run seconds (wait excluded) <= 1.5 x their solo median (prior art, 2 Nov: two concurrent kogen monolith suites 819 s vs 413 s solo).
+Effects inside 0.85-1.00 of A on makespan are reported as unresolved (single run, no CI). If both pass, C is chosen only if its makespan is >= 10 % below B's and rule 3 holds, else B. If neither passes, the verdict is no and nothing is requested.
+
+REVISION 2 (5 Nov, 10:3xZ, before the first measured arm; nothing measured yet except solo calibration). 1) Composition: the one kogen-shaping suite is dropped. It is red solo on EU (TestShapeProbeMinimalEnvironmentWiring fails with the tree and TMPDIR in any location, 3 of 3) and costs 400 s, so a replay of it cannot test the false-red rule and eats the window. Its slot goes to kogen-coordinator: setup 10, executor 8, review 7, loop 6, coordinator 7, verification 2 (class large), shaping 0 = 40. Large share is therefore 2 of 40. 2) EU is shared: delivery Builds and other Lab helpers run go/node/kogen processes there. Every arm starts only when no foreign go/node/kogen/*.test process exists, load1 < 1.2 and a re-check after 8 s still holds (same guard as the other EU Labs); a 5 s monitor records foreign-process counts for the whole run and an arm that overlaps one is flagged and reported, not hidden. Decision rules unchanged. 3) The 48 h lock logs are also replayed as a trace-driven FIFO simulation (model assumption: concurrency slowdown alpha) as a cross-check, reported separately from the EU measurement.

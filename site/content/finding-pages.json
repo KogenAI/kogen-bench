@@ -1320,6 +1320,24 @@
       "comparison": "kogen-shaping-and-builds",
       "finished": "2026-11-05",
       "category": "categories/mechanism-profiles.md"
+    },
+    {
+      "id": "build-speed-e2-go-lock-20261105",
+      "title": "Shared Go lock for small suites stays unresolved",
+      "summary": "The replay of four parallel Build streams under an exclusive, a shared-small and a capped shared lock could not run because the only allowed Linux host was never quiet: 2.8% of monitored samples passed the guard and the longest quiet stretch was 20 seconds. A trace-driven estimate from the 48-hour lock logs says sharing only small suites removes under a third of lock wait, and sharing large suites removes most of it but barely changes total wait plus run time if large suites slow down 2x. False-red risk is not estimable without the replay.",
+      "verdict": "unresolved",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "build-speed-e3-verify-load-20261105",
+      "title": "Verify timeouts and land-red under load stay unresolved",
+      "summary": "No failing tree was re-run solo and under load: no quiet host was available and the original trees were deleted. Retained logs show all 10 host-or-base Builds ended at the default 10-minute go test timeout, three of them in the same kogen-verification test, while none of the 28 land-red retries mention a timeout and most show deterministic assertion or compile failures. No fix is chosen from log text alone.",
+      "verdict": "unresolved",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

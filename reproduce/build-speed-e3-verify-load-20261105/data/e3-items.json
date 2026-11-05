@@ -1,0 +1,162 @@
+[
+ {
+  "id": "hb-k-consumes-verification-20",
+  "bucket": "host_or_base",
+  "repo": "kogen-verification",
+  "at": "2026-11-03T20:27:15Z",
+  "check": "go test -count=1 -run TestProbeCustodyAndResults ./verify ./contract",
+  "src": "Build wall 48m; verifying phase build=318 startup=66 verifying=1227"
+ },
+ {
+  "id": "hb-k-verify-harness-fault-not-ready-21",
+  "bucket": "host_or_base",
+  "repo": "kogen-verification",
+  "at": "2026-11-03T21:17:48Z",
+  "check": "go test -count=1 -run TestProbeCustodyAndResults ./verify ./contract",
+  "src": "Build wall 62m; verifying phase build=190 startup=142 verifying=1272"
+ },
+ {
+  "id": "hb-k-shape-handoff-evidence-21",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 45m; verifying phase build=346 startup=170 verifying=1232; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "hb-k-verify-failed-readiness-setup-visible-22",
+  "bucket": "host_or_base",
+  "repo": "kogen-verification",
+  "at": "2026-11-03T22:59:28Z",
+  "check": "go test -count=1 -run TestProbeCustodyAndResults ./verify ./contract",
+  "src": "Build wall 73m; verifying phase build=238 startup=55 verifying=1668"
+ },
+ {
+  "id": "hb-k-shape-acceptance-separation-10",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 82m; verifying phase build=400 startup=259 verifying=1645; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "hb-k-shape-handoff-answerability-12",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 113m; verifying phase build=1331 startup=240 verifying=1237; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "hb-l-read-file-bounded-read-15",
+  "bucket": "host_or_base",
+  "repo": "kogen-loop",
+  "at": "2026-11-04T15:11:07Z",
+  "check": "go test -count=1 ./sys",
+  "src": "Build wall 99m; verifying phase build=267 startup=87 verifying=1641"
+ },
+ {
+  "id": "hb-k-shape-handoff-evidence-19",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 70m; verifying phase build=436 startup=187 verifying=1255; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "hb-k-shape-fixture-title-user-name-21",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 51m; verifying phase build=355 startup=261 verifying=1270; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "hb-k-shape-scope-enumeration-21",
+  "bucket": "host_or_base",
+  "repo": "kogen-shaping",
+  "at": "2026-11-05T09:00:00Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -skip TestShapeProbeMinimalEnvironmentWiring ./...",
+  "src": "Build wall 125m; verifying phase build=1281 startup=231 verifying=1432; proxy tree = shaping main (cost); -skip of the one test red solo on EU"
+ },
+ {
+  "id": "lr-k-exec-usage-cache-write",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T02:48:58Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestNativeConformance$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-verify-probe-sweep-escaped",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T02:48:59Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestBuildRequestBudgetOff$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-review-unrun-evidence-not-met",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T05:48:50Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestContextExternalNativeBytes$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-coord-baseline-optional-files-when-present",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T22:41:26Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestALegacyReviewVerifyCheckpointJudgesTheSavedVerdictWithoutAskingAgain$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-verify-tests-isolated-parallel-safe",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T22:53:08Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestBuildRequestBudgetOff$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-review-finding-line-in-file",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-04T22:10:30Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestExternalReviewChangesIsTheReviewBlockedStop$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-review-external-no-call-correction",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-05T01:15:01Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestExternalReviewWithoutAVerdictIsHandedToTheBuild$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-l-task-input-size-bound",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-05T03:47:24Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestBuildRequestBudgetOff$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-k-exec-runtime-size-matches-pin",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-05T05:56:59Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestContextExternalFirstPrompt$' ./...",
+  "src": "auto-retried.tsv landred row"
+ },
+ {
+  "id": "lr-coord-commit-message-file-private",
+  "bucket": "land_red",
+  "repo": "kogen-build",
+  "at": "2026-11-05T08:29:34Z",
+  "check": "GOFLAGS=-trimpath go test -count=1 -run '^TestCommitLandsTheReviewedTree$' ./...",
+  "src": "auto-retried.tsv landred row"
+ }
+]

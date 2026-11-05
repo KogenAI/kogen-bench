@@ -1,0 +1,579 @@
+{
+ "stagger": [
+  0,
+  15,
+  30,
+  45
+ ],
+ "think": 5,
+ "streams": [
+  [
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-verification",
+    "tree": "kogen-verification",
+    "class": "large",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   }
+  ],
+  [
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-verification",
+    "tree": "kogen-verification",
+    "class": "large",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   }
+  ],
+  [
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./contract",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-coordinator",
+    "tree": "kogen-coordinator",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   }
+  ],
+  [
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./core",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./core"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-executor",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-review./cmd/kogen-review",
+    "tree": "kogen-review",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./cmd/kogen-review"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-loop",
+    "tree": "kogen-loop",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-executor./contract",
+    "tree": "kogen-executor",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   },
+   {
+    "kind": "shim",
+    "suite": "shim:kogen-setup./contract",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "# kogen-go-shim (lab replay of a builder go test)\nexec go test -count=1 ./contract"
+   },
+   {
+    "kind": "suite",
+    "suite": "kogen-setup",
+    "tree": "kogen-setup",
+    "class": "small",
+    "cmd": "GOFLAGS=\"-trimpath -count=1\" go test ./..."
+   }
+  ]
+ ]
+}
