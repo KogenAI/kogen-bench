@@ -1,0 +1,74 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-tests-l8-step-files-20261105",
+ "arms": {
+  "static-inventory": {
+   "verdict": "no: the registered bar fails (29 step files name tests that exist nowhere; 69 of 289 cannot be mapped); the spec trace is unchanged by the archive move",
+   "counts": {
+    "step_files_total": 598,
+    "step_files_go_test": 289,
+    "with_names": 220,
+    "without_names": 69,
+    "names_from_run_argument": 79,
+    "files_repo_tests": 77,
+    "files_driver": 114,
+    "files_stale": 29,
+    "stale_on_run_argument": 5,
+    "section6_hit_files": 12,
+    "section6_hits_del": 5,
+    "section6_hits_rew": 7,
+    "section6_hits_move": 7
+   },
+   "duration_s": 0
+  },
+  "spec-trace-before-after": {
+   "verdict": "identical output before and after moving 99 step files",
+   "counts": {
+    "requirements": 108,
+    "scenarios": 209,
+    "trace_identical": 1,
+    "step_files_moved": 99
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen",
+   "sha": "24136fc"
+  },
+  {
+   "tree": "kogen-build",
+   "sha": "956b151"
+  },
+  {
+   "tree": "kogen-shaping",
+   "sha": "42424ca"
+  },
+  {
+   "tree": "kogen-verification",
+   "sha": "6ffb2d1"
+  },
+  {
+   "tree": "kogen-review",
+   "sha": "2fd0a09"
+  },
+  {
+   "tree": "kogen-loop",
+   "sha": "268327e"
+  },
+  {
+   "tree": "kogen-coordinator",
+   "sha": "f16789b"
+  },
+  {
+   "tree": "kogen-setup",
+   "sha": "8958731"
+  },
+  {
+   "tree": "kogen-executor",
+   "sha": "0b2d756"
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-tests-l4-critical-path-20261105",
+ "arms": {
+  "projection": {
+   "verdict": "unresolved: 9 of 15 repo-by-host rows above budget; only kogen packaging and builds (81 s) are priced",
+   "counts": {
+    "repos": 9,
+    "rows_budget_classes": 15,
+    "rows_within_budget": 6,
+    "rows_over_budget": 9,
+    "priced_savings_s": 81,
+    "stated_waits_that_are_parallel": 2
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen",
+   "sha": "5237b73"
+  },
+  {
+   "tree": "kogen-build",
+   "sha": "81a609a"
+  },
+  {
+   "tree": "kogen-shaping",
+   "sha": "568f956"
+  },
+  {
+   "tree": "kogen-verification",
+   "sha": "f5babef"
+  },
+  {
+   "tree": "kogen-review",
+   "sha": "b33665f"
+  },
+  {
+   "tree": "kogen-loop",
+   "sha": "fc32ac0"
+  },
+  {
+   "tree": "kogen-coordinator",
+   "sha": "0c3f7cb"
+  },
+  {
+   "tree": "kogen-setup",
+   "sha": "8958731"
+  },
+  {
+   "tree": "kogen-executor",
+   "sha": "dcf38d7"
+  }
+ ]
+}

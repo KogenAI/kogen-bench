@@ -1,0 +1,237 @@
+[
+ {
+  "scenario": "A builder-reported protected contradiction stops without later mutations or gates",
+  "uri": "04-building.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,blocker,outcome",
+  "outcome": "build_blocked",
+  "deviations": [],
+  "test": "acc1BuildTest"
+ },
+ {
+  "scenario": "A failing pass goes back to the builder and the repair lands",
+  "uri": "05-verifying.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,pass,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc2BuildTest"
+ },
+ {
+  "scenario": "Weakening the baseline is refused or stops the Build at once",
+  "uri": "05-verifying.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,outcome",
+  "outcome": "baseline_changed",
+  "deviations": [],
+  "test": "acc3BuildTest",
+  "firstFail": {
+   "step": 2,
+   "of": 2,
+   "action": "move(Failed, 0, -1, \"baseline_changed\")",
+   "observed": "end of Build: the Build ended: baseline_changed | observed at end of Build"
+  }
+ },
+ {
+  "scenario": "Completed builder and independent reviewer windows reset locally",
+  "uri": "04-building.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,request,request,request,request,request,pass,request,request,request,request,request,request,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc4BuildTest"
+ },
+ {
+  "scenario": "Weakening the baseline is refused or stops the Build at once",
+  "uri": "05-verifying.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,outcome",
+  "outcome": "baseline_changed",
+  "deviations": [],
+  "test": "acc5BuildTest",
+  "firstFail": {
+   "step": 2,
+   "of": 2,
+   "action": "move(Failed, 0, -1, \"baseline_changed\")",
+   "observed": "end of Build: the Build ended: baseline_changed | observed at end of Build"
+  }
+ },
+ {
+  "scenario": "Weakening the baseline is refused or stops the Build at once",
+  "uri": "05-verifying.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,outcome",
+  "outcome": "baseline_changed",
+  "deviations": [],
+  "test": "acc6BuildTest",
+  "firstFail": {
+   "step": 2,
+   "of": 2,
+   "action": "move(Failed, 0, -1, \"baseline_changed\")",
+   "observed": "end of Build: the Build ended: baseline_changed | observed at end of Build"
+  }
+ },
+ {
+  "scenario": "The reviewer gets the Intent, the code and the check results, not the builder's conversation",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc7BuildTest"
+ },
+ {
+  "scenario": "A clean scratch check that rewrites source makes the pass not green",
+  "uri": "05-verifying.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,pass,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc8BuildTest"
+ },
+ {
+  "scenario": "No review while verification is red",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,pass,request,pass,request,outcome",
+  "outcome": "interrupted",
+  "deviations": [],
+  "test": "acc9BuildTest"
+ },
+ {
+  "scenario": "The reviewer repairs the candidate and Kogen verifies the final contents",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,request,review,pass,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc10BuildTest",
+  "firstFail": {
+   "step": 3,
+   "of": 5,
+   "action": "reviewWith(\"approve\")",
+   "observed": "end of Build: review 1 verdict approve"
+  }
+ },
+ {
+  "scenario": "Reviews that never return a valid verdict end the Build without a commit",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,request,request,request,outcome",
+  "outcome": "review_invalid",
+  "deviations": [],
+  "test": "acc11BuildTest"
+ },
+ {
+  "scenario": "Reviewer writes cannot change the approved assertions",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc12BuildTest"
+ },
+ {
+  "scenario": "An unresolved substantive blocker stops without another builder cycle",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,review,outcome",
+  "outcome": "review_blocked",
+  "deviations": [],
+  "test": "acc13BuildTest"
+ },
+ {
+  "scenario": "A failed reviewer repair is corrected in the same conversation",
+  "uri": "06-reviewing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,request,review,pass,request,request,review,pass,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc14BuildTest",
+  "firstFail": {
+   "step": 3,
+   "of": 7,
+   "action": "reviewWith(\"approve\")",
+   "observed": "end of Build: review 1 verdict approve"
+  }
+ },
+ {
+  "scenario": "Explicit resume reopens the blocker under the saved independent reviewer",
+  "uri": "06-reviewing.feature",
+  "eligible": false,
+  "reason": "2 run folders (resumed or several Builds)"
+ },
+ {
+  "scenario": "A verified, approved Build makes one commit",
+  "uri": "07-committing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,review,commit,outcome",
+  "outcome": "landed",
+  "deviations": [],
+  "test": "acc15BuildTest"
+ },
+ {
+  "scenario": "A moved HEAD during the Build refuses the commit",
+  "uri": "07-committing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,review,outcome",
+  "outcome": "head_moved",
+  "deviations": [],
+  "test": "acc16BuildTest",
+  "firstFail": {
+   "step": 3,
+   "of": 4,
+   "action": "reviewWith(\"approve\")",
+   "observed": "end of Build: review 1 verdict approve"
+  }
+ },
+ {
+  "scenario": "A commit hook that changes what is committed gets the commit undone and off the branch",
+  "uri": "07-committing.feature",
+  "eligible": true,
+  "reason": null,
+  "slug": "is-even",
+  "events": "start,request,pass,request,review,commit,outcome",
+  "outcome": "hook_changed_commit",
+  "deviations": [],
+  "test": "acc17BuildTest",
+  "firstFail": {
+   "step": 5,
+   "of": 5,
+   "action": "move(Failed, 1, 1, \"hook_changed_commit\")",
+   "observed": "end of Build: the Build ended: hook_changed_commit | observed at end of Build"
+  }
+ }
+]

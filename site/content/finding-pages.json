@@ -1419,6 +1419,42 @@
       "comparison": "kogen-context",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-tests-l2-projection-20261105",
+      "title": "A behaviour projection leaves every recorded false red of the budget-off test outside it",
+      "summary": "Of the 14 land windows where kogen-build's budget-off test went red, 13 could be identified and 10 record the differing key: request timing, host load, a sweep duration and a toolchain-probe status, none of them an exit code, stop reason, commit fact, request count or budget field. A behaviour projection would not have gone red for any of them, and a planted budget key is inside it. This is step 0 with no run; whether the projection still catches real defects is step 1 (Lab C6, unmeasured).",
+      "verdict": "yes",
+      "comparison": "kogen-build",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-tests-l4-critical-path-20261105",
+      "title": "The tests request's time budgets cannot yet be priced from recorded logs",
+      "summary": "From 48 hours of recorded suite logs, 6 of 15 repo-by-host rows already meet the request's time budgets and 9 do not. Only kogen's packaging and builds (81 s) have a recorded cost; the 130 s and 120 s waits the request moves to the release tier already run in parallel, so moving them lowers a floor but not the wall, and the remaining gaps (kogen-build 271 s, kogen-shaping 76 s, kogen 110 s on the MacBook) need a per-test profile. Parallelism alone reaches the budget for coordinator, setup and verification but not for shaping on Linux.",
+      "verdict": "unresolved",
+      "comparison": "kogen-shaping-and-builds",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-tests-l5-quint-replay-20261105",
+      "title": "The replay's Quint batch is fast, but its generator rejects 7 of 17 valid acceptance runs",
+      "summary": "Kogen's existing conformance replay stops at its first journey on the current main for five independent reasons. Recording 17 passing acceptance Builds and replaying them in one Quint file takes about 2 seconds, well inside 10, but 7 of the 17 are rejected because the trace generator does not map a baseline change, a reviewer repair or a hook-changed commit to the model's actions. Only 9 of the 36 model-tagged scenarios can be replayed by the existing build-model generator; 20 have no generator.",
+      "verdict": "no",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-tests-l8-step-files-20261105",
+      "title": "Archiving per-Intent step files leaves the spec trace unchanged, but many of them already name tests that no longer exist",
+      "summary": "Of 289 per-Intent step files that run go test, 220 name tests; 29 of those name tests that exist nowhere today (one still runs a test removed with the experimental levers) and 69 cannot be mapped to a test name. Moving 99 of kogen's step files leaves the specification trace byte-identical, so no requirement loses its scenario. The registered bar fails because of the stale observers, which nothing runs; they need a one-time clean-up before the archive move.",
+      "verdict": "no",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

@@ -1,0 +1,73 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-tests-l5-quint-replay-20261105",
+ "arms": {
+  "as-is": {
+   "verdict": "does not run: stops at the first journey (exit 1)",
+   "counts": {
+    "asis_exit": 1,
+    "asis_journeys_accepted": 0,
+    "asis_mutants_rejected": 0,
+    "journeys": 4,
+    "mutants": 5
+   },
+   "duration_s": 3
+  },
+  "repaired-scratch": {
+   "verdict": "4 of 4 journeys accepted, 2 of 2 re-hostable mutants refuted, 3 of 5 mutants cannot be applied",
+   "counts": {
+    "repaired_journeys_accepted": 4,
+    "repaired_mutants_refuted": 2,
+    "repaired_mutants_rehosted": 2,
+    "repaired_wall_s": 53,
+    "quint_ms_median_per_process": 2135
+   },
+   "duration_s": 53
+  },
+  "acceptance-batch": {
+   "verdict": "fails: 7 of 17 valid acceptance Builds rejected by the generator's mapping (first 10: 6 accepted, 4 rejected); Quint step 2.0-2.2 s",
+   "counts": {
+    "acc_recorded": 18,
+    "acc_eligible": 17,
+    "acc_batch10_accepted": 6,
+    "acc_batch10_rejected": 4,
+    "acc_all_accepted": 10,
+    "acc_all_rejected": 7,
+    "acc_quint_ms_batch10": 2023,
+    "acc_quint_ms_all": 2162,
+    "acc_reject_baseline": 3,
+    "acc_reject_reviewer_edit": 3,
+    "acc_reject_hook_commit": 1
+   },
+   "duration_s": 62
+  },
+  "replay-batch": {
+   "verdict": "passes: 10 replay-recorded chains in one Quint file take 2.5 s, 48 take 4.3 s (limit 10 s)",
+   "counts": {
+    "batch10_chains": 10,
+    "batch10_passing": 33,
+    "batch10_quint_ms_median": 2534,
+    "batch16_quint_ms_median": 2794,
+    "batch48_quint_ms_median": 4343
+   },
+   "duration_s": 8
+  },
+  "static": {
+   "verdict": "20 of 36 model-tagged scenarios have no generator; 9 of 16 build scenarios are expressible",
+   "counts": {
+    "scenarios": 36,
+    "expressible": 9,
+    "requirement_outside_model": 7,
+    "no_generator": 20
+   },
+   "duration_s": 0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen",
+   "sha": "24136fca70dc16fe2f97907cecd924c4a403470b"
+  }
+ ]
+}

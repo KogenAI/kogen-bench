@@ -1,0 +1,474 @@
+{
+ "sha": "24136fc",
+ "total": 36,
+ "by_model": {
+  "build": 16,
+  "shaping": 12,
+  "run_control": 7,
+  "recovery": 0,
+  "stages": 1
+ },
+ "summary": {
+  "expressible": 9,
+  "requirement outside the model": 7,
+  "no generator": 20
+ },
+ "rows": [
+  {
+   "feature": "02-shaping.feature",
+   "line": 40,
+   "model": "shaping",
+   "reqs": [
+    "SHP-8",
+    "AUT-1"
+   ],
+   "missing_in_model": [
+    "AUT-1"
+   ],
+   "cls": "no generator",
+   "title": "The final shaper repairs observed fixture failure then acknowledges legitimate product red"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 58,
+   "model": "shaping",
+   "reqs": [
+    "SHP-4",
+    "SHP-8"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "A narrow shaping correction retains earlier feature and step proposals"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 73,
+   "model": "shaping",
+   "reqs": [
+    "SHP-11",
+    "CLI-1"
+   ],
+   "missing_in_model": [
+    "CLI-1"
+   ],
+   "cls": "no generator",
+   "title": "A targeted correction reuses exact original evidence and still requires approval"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 98,
+   "model": "shaping",
+   "reqs": [
+    "SHP-11"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "A narrow lint correction retains earlier proposed artifact edits in the same run"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 117,
+   "model": "shaping",
+   "reqs": [
+    "SHP-11",
+    "AUT-2"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "Correcting an approved package revokes approval and requires a fresh exact approval"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 138,
+   "model": "shaping",
+   "reqs": [
+    "SHP-11"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "An unsupported correction preserves the ready draft"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 284,
+   "model": "shaping",
+   "reqs": [
+    "SHP-6"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "An open UI/UX choice becomes a numbered question and nothing is written"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 305,
+   "model": "shaping",
+   "reqs": [
+    "SHP-6",
+    "SHP-7"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "Answers continue shaping and the decision records its source"
+  },
+  {
+   "feature": "02-shaping.feature",
+   "line": 319,
+   "model": "shaping",
+   "reqs": [
+    "SHP-6",
+    "SHP-7"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "All recommended answers continue shaping"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 64,
+   "model": "shaping",
+   "reqs": [
+    "AUT-2"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "Approving with the card's hash records the approval and starts nothing"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 123,
+   "model": "shaping",
+   "reqs": [
+    "AUT-1",
+    "AUT-2"
+   ],
+   "missing_in_model": [
+    "AUT-1"
+   ],
+   "cls": "no generator",
+   "title": "A not-ready Intent has no card and cannot be approved"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 135,
+   "model": "shaping",
+   "reqs": [
+    "AUT-3"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "Only a current approval can be built"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 150,
+   "model": "run_control",
+   "reqs": [
+    "AUT-4"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "A second Build in the same repository is refused while the first runs"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 160,
+   "model": "run_control",
+   "reqs": [
+    "AUT-4"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "A killed Build leaves no lock behind and the next Build proceeds without a notice"
+  },
+  {
+   "feature": "03-approval-and-build-start.feature",
+   "line": 173,
+   "model": "run_control",
+   "reqs": [
+    "AUT-4"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "The lock an earlier Kogen left for a Build that is no longer running is removed"
+  },
+  {
+   "feature": "04-building.feature",
+   "line": 33,
+   "model": "build",
+   "reqs": [
+    "LOOP-9",
+    "LOOP-10",
+    "REV-2"
+   ],
+   "missing_in_model": [
+    "REV-2"
+   ],
+   "cls": "requirement outside the model",
+   "title": "Completed builder and independent reviewer windows reset locally"
+  },
+  {
+   "feature": "04-building.feature",
+   "line": 50,
+   "model": "build",
+   "reqs": [
+    "LOOP-7",
+    "VER-12",
+    "GIT-8"
+   ],
+   "missing_in_model": [
+    "VER-12",
+    "GIT-8"
+   ],
+   "cls": "requirement outside the model",
+   "title": "A builder-reported protected contradiction stops without later mutations or gates"
+  },
+  {
+   "feature": "04-building.feature",
+   "line": 213,
+   "model": "stages",
+   "reqs": [
+    "LOOP-1",
+    "LOOP-6",
+    "LOOP-10"
+   ],
+   "missing_in_model": [
+    "LOOP-1",
+    "LOOP-6",
+    "LOOP-10"
+   ],
+   "cls": "no generator",
+   "title": "One approved staged Intent keeps the builder until whole delivery"
+  },
+  {
+   "feature": "05-verifying.feature",
+   "line": 15,
+   "model": "build",
+   "reqs": [
+    "VER-6",
+    "VER-7",
+    "VER-13"
+   ],
+   "missing_in_model": [
+    "VER-13"
+   ],
+   "cls": "requirement outside the model",
+   "title": "A failing pass goes back to the builder and the repair lands"
+  },
+  {
+   "feature": "05-verifying.feature",
+   "line": 74,
+   "model": "build",
+   "reqs": [
+    "VER-8",
+    "VER-12"
+   ],
+   "missing_in_model": [
+    "VER-12"
+   ],
+   "cls": "requirement outside the model",
+   "title": "Weakening the baseline is refused or stops the Build at once"
+  },
+  {
+   "feature": "05-verifying.feature",
+   "line": 98,
+   "model": "build",
+   "reqs": [
+    "VER-9"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "A clean scratch check that rewrites source makes the pass not green"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 16,
+   "model": "build",
+   "reqs": [
+    "REV-1",
+    "REV-2",
+    "REV-3",
+    "REV-4"
+   ],
+   "missing_in_model": [
+    "REV-2"
+   ],
+   "cls": "requirement outside the model",
+   "title": "The reviewer gets the Intent, the code and the check results, not the builder's conversati"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 53,
+   "model": "build",
+   "reqs": [
+    "REV-1"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "No review while verification is red"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 61,
+   "model": "build",
+   "reqs": [
+    "REV-4",
+    "REV-5"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "The reviewer repairs the candidate and Kogen verifies the final contents"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 78,
+   "model": "build",
+   "reqs": [
+    "REV-4"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "Reviews that never return a valid verdict end the Build without a commit"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 94,
+   "model": "build",
+   "reqs": [
+    "REV-6",
+    "VER-8"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "Reviewer writes cannot change the approved assertions"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 112,
+   "model": "build",
+   "reqs": [
+    "REV-5",
+    "VER-7"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "A failed reviewer repair is corrected in the same conversation"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 121,
+   "model": "build",
+   "reqs": [
+    "REV-4",
+    "REV-5"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "An unresolved substantive blocker stops without another builder cycle"
+  },
+  {
+   "feature": "06-reviewing.feature",
+   "line": 131,
+   "model": "build",
+   "reqs": [
+    "LOOP-10",
+    "REV-5",
+    "REV-6",
+    "REV-7"
+   ],
+   "missing_in_model": [
+    "REV-7"
+   ],
+   "cls": "requirement outside the model",
+   "title": "Explicit resume reopens the blocker under the saved independent reviewer"
+  },
+  {
+   "feature": "07-committing.feature",
+   "line": 14,
+   "model": "build",
+   "reqs": [
+    "GIT-3",
+    "GIT-4",
+    "GIT-5",
+    "GIT-8"
+   ],
+   "missing_in_model": [
+    "GIT-8"
+   ],
+   "cls": "requirement outside the model",
+   "title": "A verified, approved Build makes one commit"
+  },
+  {
+   "feature": "07-committing.feature",
+   "line": 67,
+   "model": "build",
+   "reqs": [
+    "GIT-3"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "A moved HEAD during the Build refuses the commit"
+  },
+  {
+   "feature": "07-committing.feature",
+   "line": 89,
+   "model": "build",
+   "reqs": [
+    "GIT-6"
+   ],
+   "missing_in_model": [],
+   "cls": "expressible",
+   "title": "A commit hook that changes what is committed gets the commit undone and off the branch"
+  },
+  {
+   "feature": "09-cli-and-process.feature",
+   "line": 154,
+   "model": "run_control",
+   "reqs": [
+    "CLI-7"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "An interrupt stops the Build without a commit"
+  },
+  {
+   "feature": "09-cli-and-process.feature",
+   "line": 181,
+   "model": "run_control",
+   "reqs": [
+    "CLI-8"
+   ],
+   "missing_in_model": [],
+   "cls": "no generator",
+   "title": "Killing kogen stops its commands and leaves no commit"
+  },
+  {
+   "feature": "09-cli-and-process.feature",
+   "line": 238,
+   "model": "run_control",
+   "reqs": [
+    "AUT-6",
+    "LOOP-10"
+   ],
+   "missing_in_model": [
+    "AUT-6"
+   ],
+   "cls": "no generator",
+   "title": "A plain git status that only refreshed the index does not stop the resume"
+  },
+  {
+   "feature": "09-cli-and-process.feature",
+   "line": 258,
+   "model": "run_control",
+   "reqs": [
+    "AUT-6",
+    "LOOP-10"
+   ],
+   "missing_in_model": [
+    "AUT-6"
+   ],
+   "cls": "no generator",
+   "title": "Resume refuses a change to what the index stages"
+  }
+ ]
+}

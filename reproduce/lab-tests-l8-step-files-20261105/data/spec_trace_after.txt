@@ -1,0 +1,112 @@
+| Requirement | Chapter | Scenarios | Quint |
+| --- | --- | --- | --- |
+| AUT-1 Review card | 03-approval-and-build-start.md | 02-shaping.feature:22, 02-shaping.feature:40, 02-shaping.feature:257, 03-approval-and-build-start.feature:13, 03-approval-and-build-start.feature:29, 03-approval-and-build-start.feature:43, 03-approval-and-build-start.feature:51, 03-approval-and-build-start.feature:123 | shaping.qnt |
+| AUT-2 Hash and approval | 03-approval-and-build-start.md | 02-shaping.feature:117, 03-approval-and-build-start.feature:64, 03-approval-and-build-start.feature:77, 03-approval-and-build-start.feature:87, 03-approval-and-build-start.feature:97, 03-approval-and-build-start.feature:107, 03-approval-and-build-start.feature:123 | shaping.qnt |
+| AUT-3 Building one Intent | 03-approval-and-build-start.md | 03-approval-and-build-start.feature:135 | shaping.qnt BuildOnlyOnCurrentApproval, LandedHasNoApproval |
+| AUT-4 One Build per repository | 03-approval-and-build-start.md | 03-approval-and-build-start.feature:150, 03-approval-and-build-start.feature:160, 03-approval-and-build-start.feature:173 | run_control.qnt RunningBuildRefusesSecond |
+| AUT-5 Start checks | 03-approval-and-build-start.md | 03-approval-and-build-start.feature:182, 03-approval-and-build-start.feature:198, 03-approval-and-build-start.feature:210, 03-approval-and-build-start.feature:221, 03-approval-and-build-start.feature:234, 04-building.feature:198 |  |
+| AUT-6 Foreground and explicit continuation | 03-approval-and-build-start.md | 03-approval-and-build-start.feature:246, 09-cli-and-process.feature:238, 09-cli-and-process.feature:258 | run_control.qnt |
+| CLI-1 Commands | 09-cli-and-process.md | 02-shaping.feature:73, 09-cli-and-process.feature:10, 09-cli-and-process.feature:312, 09-cli-and-process.feature:325 | shaping.qnt |
+| CLI-2 Grammar | 09-cli-and-process.md | 09-cli-and-process.feature:78, 09-cli-and-process.feature:97, 09-cli-and-process.feature:115, 09-cli-and-process.feature:312, 09-cli-and-process.feature:325 |  |
+| CLI-3 Help pages | 09-cli-and-process.md | 09-cli-and-process.feature:10, 09-cli-and-process.feature:78, 09-cli-and-process.feature:97 |  |
+| CLI-4 Streams | 09-cli-and-process.md | 04-building.feature:168, 09-cli-and-process.feature:130 |  |
+| CLI-5 Exit codes: | 09-cli-and-process.md | 09-cli-and-process.feature:142 |  |
+| CLI-6 Error lines | 09-cli-and-process.md | 09-cli-and-process.feature:142 |  |
+| CLI-7 Interruption | 09-cli-and-process.md | 09-cli-and-process.feature:154, 09-cli-and-process.feature:194, 09-cli-and-process.feature:207, 09-cli-and-process.feature:283 | run_control.qnt InterruptNeverCommits, ExitCodes |
+| CLI-8 Killed kogen | 09-cli-and-process.md | 09-cli-and-process.feature:181, 09-cli-and-process.feature:220 | run_control.qnt ExitCodes |
+| CLI-9 One program | 09-cli-and-process.md | 04-building.feature:198, 09-cli-and-process.feature:275, 09-cli-and-process.feature:283, 09-cli-and-process.feature:312, 09-cli-and-process.feature:325 |  |
+| CLI-10 Version | 09-cli-and-process.md | 09-cli-and-process.feature:301 |  |
+| GIT-1 Clean start, Build-only use | 07-committing.md | 03-approval-and-build-start.feature:246, 07-committing.feature:55 |  |
+| GIT-3 Eligibility | 07-committing.md | 07-committing.feature:14, 07-committing.feature:67 | build.qnt CommitOnlyWhenEligible |
+| GIT-4 Contents | 07-committing.md | 07-committing.feature:14 | build.qnt |
+| GIT-5 Message, identity, signing | 07-committing.md | 07-committing.feature:14, 07-committing.feature:48, 07-committing.feature:79 | build.qnt |
+| GIT-6 After the commit | 07-committing.md | 07-committing.feature:89 | build.qnt |
+| GIT-7 Nothing else | 07-committing.md | 07-committing.feature:99 |  |
+| GIT-8 Result | 07-committing.md | 04-building.feature:50, 04-building.feature:125, 07-committing.feature:14, 08-chatgpt.feature:238, 08-chatgpt.feature:276 | build.qnt |
+| GPT-1 Own login only | 08-chatgpt.md | 08-chatgpt.feature:111 |  |
+| GPT-2 Login | 08-chatgpt.md | 08-chatgpt.feature:10, 08-chatgpt.feature:84, 08-chatgpt.feature:95, 08-chatgpt.feature:105 |  |
+| GPT-3 Storage | 08-chatgpt.md | 08-chatgpt.feature:10, 08-chatgpt.feature:160 |  |
+| GPT-4 Status | 08-chatgpt.md | 08-chatgpt.feature:10, 08-chatgpt.feature:59, 08-chatgpt.feature:127, 08-chatgpt.feature:323, 08-chatgpt.feature:370, 08-chatgpt.feature:395, 08-chatgpt.feature:412, 08-chatgpt.feature:423 |  |
+| GPT-5 Login required | 08-chatgpt.md | 01-project-setup.feature:9, 01-project-setup.feature:141, 08-chatgpt.feature:111, 08-chatgpt.feature:127 |  |
+| GPT-6 Refresh | 08-chatgpt.md | 08-chatgpt.feature:146, 08-chatgpt.feature:160, 08-chatgpt.feature:176 |  |
+| GPT-7 Streaming | 08-chatgpt.md | 08-chatgpt.feature:190, 08-chatgpt.feature:276, 08-chatgpt.feature:299 |  |
+| GPT-8 Errors and retries | 08-chatgpt.md | 08-chatgpt.feature:190, 08-chatgpt.feature:215, 08-chatgpt.feature:238, 08-chatgpt.feature:276, 08-chatgpt.feature:299 |  |
+| GPT-9 Usage | 08-chatgpt.md | 08-chatgpt.feature:251, 08-chatgpt.feature:315 |  |
+| GPT-10 Secrets | 08-chatgpt.md | 04-building.feature:135, 08-chatgpt.feature:251 |  |
+| GPT-11 Test seams | 08-chatgpt.md | 08-chatgpt.feature:266 |  |
+| INS-1 Platforms | 10-install-and-uninstall.md | 10-install-and-uninstall.feature:63 |  |
+| INS-2 Archive | 10-install-and-uninstall.md | 10-install-and-uninstall.feature:10, 10-install-and-uninstall.feature:98 |  |
+| INS-3 Runtime | 10-install-and-uninstall.md | 10-install-and-uninstall.feature:10 |  |
+| INS-4 Install | 10-install-and-uninstall.md | 10-install-and-uninstall.feature:10, 10-install-and-uninstall.feature:29, 10-install-and-uninstall.feature:40, 10-install-and-uninstall.feature:48, 10-install-and-uninstall.feature:55 |  |
+| INS-5 Uninstall | 10-install-and-uninstall.md | 10-install-and-uninstall.feature:70 |  |
+| LOOP-1 Build directly | 04-building.md | 04-building.feature:14, 04-building.feature:213 | stages.qnt |
+| LOOP-2 Prompt | 04-building.md | 04-building.feature:14, 04-building.feature:198 |  |
+| LOOP-3 Tools | 04-building.md | 04-building.feature:14 |  |
+| LOOP-4 File rules | 04-building.md | 05-verifying.feature:90 |  |
+| LOOP-5 Shell | 04-building.md | 04-building.feature:67, 04-building.feature:78, 04-building.feature:87, 04-building.feature:95 |  |
+| LOOP-6 Responses | 04-building.md | 04-building.feature:67, 04-building.feature:213 | stages.qnt |
+| LOOP-7 Finish | 04-building.md | 04-building.feature:50, 04-building.feature:105 | build.qnt |
+| LOOP-8 Output size | 04-building.md | 04-building.feature:116 |  |
+| LOOP-9 Bounded working windows and context exhaustion | 04-building.md | 04-building.feature:33, 04-building.feature:125 | build.qnt |
+| LOOP-10 Run record | 04-building.md | 04-building.feature:33, 04-building.feature:135, 04-building.feature:189, 04-building.feature:198, 04-building.feature:213, 04-building.feature:321, 06-reviewing.feature:131, 09-cli-and-process.feature:238, 09-cli-and-process.feature:258 | build.qnt; run_control.qnt; stages.qnt |
+| LOOP-11 Environment | 04-building.md | 04-building.feature:78, 04-building.feature:144, 04-building.feature:180 |  |
+| LOOP-12 Tools | 04-building.md | 02-shaping.feature:453, 02-shaping.feature:477, 04-building.feature:153, 05-verifying.feature:57 |  |
+| LOOP-13 Progress | 04-building.md | 04-building.feature:168 |  |
+| LOOP-14 Build executors | 04-building.md | 01-project-setup.feature:322, 04-building.feature:228, 04-building.feature:248, 04-building.feature:278, 04-building.feature:321, claude-code-full-lineup.feature:14, claude-code-full-lineup.feature:44, claude-code-full-lineup.feature:68, claude-code-full-lineup.feature:89, claude-code-full-lineup.feature:108, claude-code-full-lineup.feature:124, claude-code-full-lineup.feature:144, claude-code-full-lineup.feature:168, claude-code-full-lineup.feature:184, claude-code-full-lineup.feature:198, claude-code-full-lineup.feature:222, claude-code-full-lineup.feature:237, claude-code-full-lineup.feature:261, claude-code-full-lineup.feature:282, claude-code-full-lineup.feature:309, claude-code-full-lineup.feature:330, claude-code-full-lineup.feature:350, claude-code-full-lineup.feature:365, claude-code-full-lineup.feature:384, claude-code-full-lineup.feature:400, claude-code-full-lineup.feature:419, claude-code-full-lineup.feature:436, executor-wakeup.feature:19, executor-wakeup.feature:32, executor-wakeup.feature:41 |  |
+| LOOP-15 Claude Code executor | 04-building.md | 04-building.feature:228, 04-building.feature:248, 04-building.feature:265, 04-building.feature:278, 04-building.feature:292, 04-building.feature:306, claude-code-full-lineup.feature:14, claude-code-full-lineup.feature:44, claude-code-full-lineup.feature:68, claude-code-full-lineup.feature:89, claude-code-full-lineup.feature:108, claude-code-full-lineup.feature:124, claude-code-full-lineup.feature:144, claude-code-full-lineup.feature:168, claude-code-full-lineup.feature:184, claude-code-full-lineup.feature:198, claude-code-full-lineup.feature:222, claude-code-full-lineup.feature:237, claude-code-full-lineup.feature:261, claude-code-full-lineup.feature:282, claude-code-full-lineup.feature:309, claude-code-full-lineup.feature:330, claude-code-full-lineup.feature:350, claude-code-full-lineup.feature:365, claude-code-full-lineup.feature:384, claude-code-full-lineup.feature:400, claude-code-full-lineup.feature:419, claude-code-full-lineup.feature:436, executor-wakeup.feature:19, executor-wakeup.feature:32, executor-wakeup.feature:41 |  |
+| REL-1 Real use | 11-release-acceptance.md | 11-release-acceptance.feature:7 |  |
+| REL-2 Projects | 11-release-acceptance.md | 11-release-acceptance.feature:7 |  |
+| REL-3 Self-build | 11-release-acceptance.md | 11-release-acceptance.feature:39 |  |
+| REL-4 Deterministic suite | 11-release-acceptance.md | 11-release-acceptance.feature:46 |  |
+| REL-5 Release from a commit | 11-release-acceptance.md | 11-release-acceptance.feature:46 |  |
+| REL-6 Ready | 11-release-acceptance.md | 11-release-acceptance.feature:46 |  |
+| REL-7 Kogen's own tests | 11-release-acceptance.md | 11-release-acceptance.feature:46 |  |
+| REV-1 When | 06-reviewing.md | 06-reviewing.feature:16, 06-reviewing.feature:53 | build.qnt ReviewNeverOverridesChecks |
+| REV-2 What the reviewer reads | 06-reviewing.md | 04-building.feature:33, 06-reviewing.feature:16, 06-reviewing.feature:33, 06-reviewing.feature:44, 06-reviewing.feature:103 | build.qnt |
+| REV-3 Who reviews | 06-reviewing.md | 06-reviewing.feature:16 | build.qnt |
+| REV-4 What it judges and returns | 06-reviewing.md | 06-reviewing.feature:16, 06-reviewing.feature:33, 06-reviewing.feature:44, 06-reviewing.feature:61, 06-reviewing.feature:70, 06-reviewing.feature:78, 06-reviewing.feature:103, 06-reviewing.feature:121 | build.qnt |
+| REV-5 Effect | 06-reviewing.md | 06-reviewing.feature:61, 06-reviewing.feature:86, 06-reviewing.feature:112, 06-reviewing.feature:121, 06-reviewing.feature:131 | build.qnt CommitOnlyWhenEligible |
+| REV-6 Review cannot weaken checks | 06-reviewing.md | 06-reviewing.feature:94, 06-reviewing.feature:131 | build.qnt BaselineChangeNeverCommits |
+| REV-7 Record and report | 06-reviewing.md | 06-reviewing.feature:86, 06-reviewing.feature:131 | build.qnt |
+| SET-1 Repository | 01-project-setup.md | 01-project-setup.feature:9, 01-project-setup.feature:174 |  |
+| SET-2 Order and commit | 01-project-setup.md | 01-project-setup.feature:9, 01-project-setup.feature:141, 01-project-setup.feature:152, 01-project-setup.feature:184, 01-project-setup.feature:279 |  |
+| SET-3 Idempotent | 01-project-setup.md | 01-project-setup.feature:195, 01-project-setup.feature:204 |  |
+| SET-4 Invalid configuration | 01-project-setup.md | 01-project-setup.feature:215, 01-project-setup.feature:267 |  |
+| SET-5 Git identity | 01-project-setup.md | 01-project-setup.feature:238 |  |
+| SET-6 Project instructions | 01-project-setup.md | 01-project-setup.feature:250, 02-shaping.feature:153, 04-building.feature:14 |  |
+| SET-7 Local data | 01-project-setup.md | 01-project-setup.feature:250, 02-shaping.feature:464 |  |
+| SET-8 Commands and settings | 01-project-setup.md | 01-project-setup.feature:115, 01-project-setup.feature:215, 02-shaping.feature:487 |  |
+| SET-9 Adopting Kogen in an existing project | 01-project-setup.md | 02-shaping.feature:153 |  |
+| SET-10 Detection | 01-project-setup.md | 01-project-setup.feature:9, 01-project-setup.feature:41, 01-project-setup.feature:69, 01-project-setup.feature:290 |  |
+| SET-11 The model request | 01-project-setup.md | 01-project-setup.feature:69, 01-project-setup.feature:115, 01-project-setup.feature:127 |  |
+| SET-12 Verification | 01-project-setup.md | 01-project-setup.feature:41, 01-project-setup.feature:69, 01-project-setup.feature:312 |  |
+| SET-13 Acceptance bridge | 01-project-setup.md | 01-project-setup.feature:9, 01-project-setup.feature:41, 01-project-setup.feature:104, 01-project-setup.feature:290 |  |
+| SET-14 Role executor setting | 01-project-setup.md | 01-project-setup.feature:322, 01-project-setup.feature:336, claude-code-full-lineup.feature:14, claude-code-full-lineup.feature:44, claude-code-full-lineup.feature:68, claude-code-full-lineup.feature:89, claude-code-full-lineup.feature:108, claude-code-full-lineup.feature:124, claude-code-full-lineup.feature:144, claude-code-full-lineup.feature:168, claude-code-full-lineup.feature:184, claude-code-full-lineup.feature:198, claude-code-full-lineup.feature:222, claude-code-full-lineup.feature:237, claude-code-full-lineup.feature:261, claude-code-full-lineup.feature:282, claude-code-full-lineup.feature:309, claude-code-full-lineup.feature:330, claude-code-full-lineup.feature:350, claude-code-full-lineup.feature:365, claude-code-full-lineup.feature:384, claude-code-full-lineup.feature:400, claude-code-full-lineup.feature:419, claude-code-full-lineup.feature:436 |  |
+| SHP-1 Input | 02-shaping.md | 02-shaping.feature:153, 02-shaping.feature:180, 02-shaping.feature:199, claude-code-full-lineup.feature:14, claude-code-full-lineup.feature:436 |  |
+| SHP-2 Preconditions | 02-shaping.md | 01-project-setup.feature:290, 02-shaping.feature:207, 02-shaping.feature:453, 02-shaping.feature:464, 02-shaping.feature:477 |  |
+| SHP-3 Context | 02-shaping.md | 02-shaping.feature:153, 02-shaping.feature:224 |  |
+| SHP-4 Submission | 02-shaping.md | 02-shaping.feature:58, 02-shaping.feature:153, 02-shaping.feature:224, 02-shaping.feature:245, 02-shaping.feature:257, 02-shaping.feature:362, 02-shaping.feature:384, 02-shaping.feature:396, 02-shaping.feature:487 | shaping.qnt |
+| SHP-5 Intent rules | 02-shaping.md | 02-shaping.feature:269, 02-shaping.feature:424 |  |
+| SHP-6 Questions | 02-shaping.md | 02-shaping.feature:284, 02-shaping.feature:305, 02-shaping.feature:319, 02-shaping.feature:333, 02-shaping.feature:350, 02-shaping.feature:396, 02-shaping.feature:536 | shaping.qnt |
+| SHP-7 Never authorizes, never invents | 02-shaping.md | 02-shaping.feature:224, 02-shaping.feature:305, 02-shaping.feature:319 | shaping.qnt |
+| SHP-8 Readiness | 02-shaping.md | 02-shaping.feature:22, 02-shaping.feature:40, 02-shaping.feature:58, 02-shaping.feature:153, 02-shaping.feature:362, 02-shaping.feature:384 | shaping.qnt |
+| SHP-9 Provider failures | 02-shaping.md | 02-shaping.feature:408 |  |
+| SHP-10 Feasibility probes | 02-shaping.md | 02-shaping.feature:22, 02-shaping.feature:424, 02-shaping.feature:440 |  |
+| SHP-11 Correct an existing ready draft | 02-shaping.md | 02-shaping.feature:73, 02-shaping.feature:98, 02-shaping.feature:117, 02-shaping.feature:138, claude-code-full-lineup.feature:237, claude-code-full-lineup.feature:309, claude-code-full-lineup.feature:330 | shaping.qnt BuildOnlyOnCurrentApproval, ApprovalOnlyByCaller |
+| SHP-12 Technical discovery | 02-shaping.md | 02-shaping.feature:500, 02-shaping.feature:511, 02-shaping.feature:524, 02-shaping.feature:536, 02-shaping.feature:553 |  |
+| SHP-13 Documentation lookup | 02-shaping.md | 02-shaping.feature:566 |  |
+| SHP-14 Documentation lookup evidence | 02-shaping.md | 02-shaping.feature:578 |  |
+| VER-1 Acceptance baseline | 05-verifying.md | 03-approval-and-build-start.feature:107 |  |
+| VER-2 Bindings | 05-verifying.md | 03-approval-and-build-start.feature:13, 03-approval-and-build-start.feature:43 |  |
+| VER-3 Acceptance command | 05-verifying.md | 01-project-setup.feature:290, 05-verifying.feature:26 |  |
+| VER-4 Scenario accounting | 05-verifying.md | 05-verifying.feature:26, 05-verifying.feature:37 |  |
+| VER-5 Quint | 05-verifying.md | 02-shaping.feature:384, 05-verifying.feature:57, 05-verifying.feature:66 |  |
+| VER-6 Pass and repair | 05-verifying.md | 05-verifying.feature:15 | build.qnt |
+| VER-7 Final pass | 05-verifying.md | 05-verifying.feature:15, 06-reviewing.feature:112 | build.qnt |
+| VER-8 Baseline protection | 05-verifying.md | 03-approval-and-build-start.feature:210, 05-verifying.feature:74, 05-verifying.feature:90, 06-reviewing.feature:94 | build.qnt BaselineChangeNeverCommits |
+| VER-9 Changes during checks | 05-verifying.md | 05-verifying.feature:98 | build.qnt |
+| VER-10 Candidate | 05-verifying.md | 05-verifying.feature:107 |  |
+| VER-12 Named negative cases | 05-verifying.md | 02-shaping.feature:362, 02-shaping.feature:384, 04-building.feature:50, 04-building.feature:105, 05-verifying.feature:74 | build.qnt |
+| VER-13 Test sequence | 05-verifying.md | 05-verifying.feature:15, 05-verifying.feature:26 | build.qnt |
+requirements 108, scenarios 209, pickles 275, step patterns 233, distinct steps 849
+spec check: ok
