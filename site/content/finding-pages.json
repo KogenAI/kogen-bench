@@ -1383,6 +1383,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-rc-l1-walltime-linux-20261105",
+      "title": "On Linux the wall-time deadline test does not fail; its pre-setup work is 4x shorter than on the Mac",
+      "summary": "The Linux leg of the wall-time deadline test Lab. On a 4-core server the unchanged kogen-verification test passed 600 of 600 runs, quiet and under a fixed background build load, and so did the variant whose 300 ms clock starts at the first setup command. A probe shows why: there the verification call spends 23-77 ms before that command starts, against 215-297 ms on the Mac where the test failed. The test's fixed budget is tight only where the work before setup is slow. By the registered rule the Linux reproduction failed, so whether to adopt the variant stays open.",
+      "verdict": "unresolved",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-05",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

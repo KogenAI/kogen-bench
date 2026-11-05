@@ -1,0 +1,71 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-rc-l1-walltime-linux-20261105",
+ "arms": {
+  "A-linuxquiet": {
+   "verdict": "0 of 300 failed",
+   "counts": {
+    "runs": 300,
+    "fails": 0
+   },
+   "duration_s": 146.6
+  },
+  "A-linuxload": {
+   "verdict": "0 of 300 failed",
+   "counts": {
+    "runs": 300,
+    "fails": 0
+   },
+   "duration_s": 139.4
+  },
+  "B-linuxquiet": {
+   "verdict": "0 of 300 failed",
+   "counts": {
+    "runs": 300,
+    "fails": 0
+   },
+   "duration_s": 164.0
+  },
+  "B-linuxload": {
+   "verdict": "0 of 300 failed",
+   "counts": {
+    "runs": 300,
+    "fails": 0
+   },
+   "duration_s": 151.4
+  },
+  "probe-linuxquiet": {
+   "verdict": "pre-setup 23-65 ms (median 59) of the 300 ms budget",
+   "counts": {
+    "runs": 300,
+    "over_100_ms": 0,
+    "over_200_ms": 0,
+    "min_ms": 23,
+    "max_ms": 65
+   },
+   "duration_s": 146.2
+  },
+  "probe-linuxload": {
+   "verdict": "pre-setup 25-77 ms (median 40) of the 300 ms budget",
+   "counts": {
+    "runs": 300,
+    "over_100_ms": 0,
+    "over_200_ms": 0,
+    "min_ms": 25,
+    "max_ms": 77
+   },
+   "duration_s": 139.0
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-verification (arms A, B, probe)",
+   "sha": "ec39831718deb42a60af26e1e8a9b06a763e1258"
+  },
+  {
+   "tree": "kogen-build (background load)",
+   "sha": "956b151a6564"
+  }
+ ]
+}
