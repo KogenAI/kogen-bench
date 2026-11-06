@@ -1482,6 +1482,15 @@
       "comparison": "kogen-review",
       "finished": "2026-11-06",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-rc-c-decision-gate-before-readiness-20261106",
+      "title": "The decision-record gate costs one shaping attempt, but other gates end these shapes before readiness",
+      "summary": "Four shapes ended with readiness 0.0 s after kogen-shaping's decision-record gate refused attempt 1 on every tree (7 problems: 4 command text, 2 URLs, 1 file the same package proposes, none a missing file). None ended on that gate's citation check; the endings were a decision check, a revises text, the review-size bound and the carried-decisions check. A small change that notes such sources as unverified lets all four attempt-1 decisions through, still refuses a real missing file and adds no test failure, but the same packages then stop at the size bound (3 trees, 1.18 to 1.35 MB against 524,288 bytes) or the carried-decisions check (1 tree), so readiness still runs on 0 of 4. Without a model, what a shaper does with the extra attempt is not tested.",
+      "verdict": "no",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-06",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

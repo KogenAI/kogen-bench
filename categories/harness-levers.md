@@ -388,3 +388,7 @@ A [screen of bounded shaping recovery](../reproduce/kogen-shaping-bounded-refusa
 ## Requirement texts of refused review submissions
 
 [Listing requirement texts only from accepted submissions](../reproduce/lab-rc-b-review-listed-requirements-20261106/README.md) lets all 5 recorded refused-then-reworded review sequences of 3 failed Builds through, where the unchanged code ended 5 of 5 without a verdict. A drop of a requirement an accepted submission listed is still refused. Model-free replay; first-round refusal causes are the replay's reading of the recorded evidence.
+
+## Decision-record gate and readiness
+
+[The decision-record gate refusing command and URL sources](../reproduce/lab-rc-c-decision-gate-before-readiness-20261106/README.md) cost one of three shaping attempts on all 4 recorded failed shapes, but none ended on it: the endings were a decision check, a revises text, the review-size bound and the carried-decisions check. Noting such sources as unverified lets all 4 attempt-1 decisions through and still refuses a missing file, yet the same packages stop at the next gates, so readiness runs on 0 of 4; no change is requested.

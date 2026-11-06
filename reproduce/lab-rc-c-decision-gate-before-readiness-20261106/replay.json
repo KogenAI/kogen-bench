@@ -1,0 +1,53 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-rc-c-decision-gate-before-readiness-20261106",
+ "arms": {
+  "A-kogen-shaping-c3f9c5e": {
+   "verdict": "refuses the attempt-1 decisions of 4 of 4 trees at the decision record gate (7 problem lines: command text, URLs, a file the same package proposes; 0 missing files); readiness runs on 0 of 4 trees",
+   "counts": {
+    "trees": 4,
+    "attempt1_submissions_refused": 4,
+    "attempt1_problem_lines": 7,
+    "missing_file_problems": 0,
+    "synthetic_note_cases_passed": 0,
+    "synthetic_note_cases": 5,
+    "missing_file_cases_refused": 3,
+    "missing_file_cases": 3,
+    "trees_where_readiness_ran": 0,
+    "suite_pass_lines": 881,
+    "suite_fail_lines": 3,
+    "suite_skip_lines": 2,
+    "fixture_readiness_runs": 0
+   },
+   "duration_s": 240
+  },
+  "B-notes-unverified-sources": {
+   "verdict": "lets all 4 attempt-1 decisions through and still refuses a missing file, no new test failure; but the same packages stop at scope (3 trees) and carried_decisions (1 tree), so readiness runs on 0 of 4 trees: rule not met",
+   "counts": {
+    "trees": 4,
+    "attempt1_submissions_refused": 0,
+    "attempt1_problem_lines": 0,
+    "missing_file_problems": 0,
+    "synthetic_note_cases_passed": 5,
+    "synthetic_note_cases": 5,
+    "missing_file_cases_refused": 3,
+    "missing_file_cases": 3,
+    "trees_where_readiness_ran": 0,
+    "trees_stopped_at_scope": 3,
+    "trees_stopped_at_carried_decisions": 1,
+    "suite_pass_lines": 894,
+    "suite_fail_lines": 3,
+    "suite_skip_lines": 2,
+    "fixture_readiness_runs": 1
+   },
+   "duration_s": 476
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-shaping",
+   "sha": "c3f9c5e099e73cdbdb73ecb6044712379a2f79f3"
+  }
+ ]
+}
