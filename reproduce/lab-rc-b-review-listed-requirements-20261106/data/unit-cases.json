@@ -1,0 +1,27 @@
+{
+ "source": "TestOnlyAcceptedSubmissionsBindLaterApprovals, 4 cases, external-review path, go test -json",
+ "cases": [
+  "a refused submission's texts are not binding",
+  "a dropped requirement of an accepted submission is still refused",
+  "a second drop of an accepted requirement ends the review",
+  "the first accepted spelling is kept"
+ ],
+ "A_66be20d": {
+  "a refused submission's texts are not binding": "fail",
+  "a dropped requirement of an accepted submission is still refused": "pass",
+  "a second drop of an accepted requirement ends the review": "pass",
+  "the first accepted spelling is kept": "pass"
+ },
+ "B_accepted_only": {
+  "a refused submission's texts are not binding": "pass",
+  "a dropped requirement of an accepted submission is still refused": "pass",
+  "a second drop of an accepted requirement ends the review": "pass",
+  "the first accepted spelling is kept": "pass"
+ },
+ "mutant_nothing_is_ever_binding": {
+  "a refused submission's texts are not binding": "pass",
+  "a dropped requirement of an accepted submission is still refused": "fail",
+  "a second drop of an accepted requirement ends the review": "fail",
+  "the first accepted spelling is kept": "fail"
+ }
+}

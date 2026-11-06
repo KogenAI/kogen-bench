@@ -1473,6 +1473,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-05",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-rc-b-review-listed-requirements-20261106",
+      "title": "A refused review submission should not make its requirement texts binding",
+      "summary": "An independent review of kogen-review kept the requirement texts of every submission, refused ones included, as binding, and allowed one refusal. A reviewer refused once for an evidence problem who then split or reworded its requirements was refused again only because the first wording was missing, and the review ended without a verdict. Replaying the 5 recorded sequences of 3 failed Builds through the real review path, the unchanged code ended invalid on 5 of 5 (and reproduced the logged counts exactly) while listing texts only from accepted submissions approved 5 of 5, including a round that restored 23 accepted texts. A drop of an accepted requirement is still refused, and the Go suite stays green once the one test that asserted the old rule is updated. First-round refusal causes are the replay's reading; no native-reviewer sequence was recorded.",
+      "verdict": "yes",
+      "comparison": "kogen-review",
+      "finished": "2026-11-06",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

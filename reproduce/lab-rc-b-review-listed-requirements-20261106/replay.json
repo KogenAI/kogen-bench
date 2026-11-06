@@ -1,0 +1,70 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-rc-b-review-listed-requirements-20261106",
+ "rerun": "cd reproduce/lab-rc-b-review-listed-requirements-20261106 && python3 -I check.py",
+ "arms": {
+  "A-review-66be20d-replay": {
+   "verdict": "ends rejected_verdict_exhausted on 5 of 5 recorded submission sequences",
+   "counts": {
+    "sequences": 5,
+    "review_invalid": 5,
+    "approved": 0,
+    "missing_problems_in_final_refusals": 17,
+    "b2_round4_accepted": 0
+   },
+   "duration_s": 2.9
+  },
+  "B-accepted-only-replay": {
+   "verdict": "approves 5 of 5 recorded sequences, including the round 4 that restored the accepted texts",
+   "counts": {
+    "sequences": 5,
+    "review_invalid": 0,
+    "approved": 5,
+    "refusals_naming_dropped_accepted_texts": 1,
+    "b2_round4_accepted": 1
+   },
+   "duration_s": 3.0
+  },
+  "B-unit-cases-negative-and-spelling": {
+   "verdict": "4 of 4 cases pass on B; A fails the case that a refused submission's texts are not binding; a mutant that lists nothing fails 3",
+   "counts": {
+    "cases": 4,
+    "pass_on_B": 4,
+    "pass_on_A": 3,
+    "mutant_failures": 3
+   },
+   "duration_s": 1.0
+  },
+  "suite-A-unchanged": {
+   "verdict": "green",
+   "counts": {
+    "passing": 269,
+    "failing": 0
+   },
+   "duration_s": 24.2
+  },
+  "suite-B-code-change-only": {
+   "verdict": "1 failing: the test that asserts the replaced rule",
+   "counts": {
+    "passing": 268,
+    "failing": 1
+   },
+   "duration_s": 23.7
+  },
+  "suite-B-full-patch": {
+   "verdict": "green with that test's assertions inverted and 5 test cases added",
+   "counts": {
+    "passing": 274,
+    "failing": 0
+   },
+   "duration_s": 24.6
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-review",
+   "sha": "66be20d31658374a86b98f23a1d8476e861193e0"
+  }
+ ]
+}

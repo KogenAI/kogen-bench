@@ -1,0 +1,27 @@
+{
+ "source": "go test ./... -count=1 -json, one run per tree, same host; counts include subtests",
+ "A_66be20d_unchanged": {
+  "passing": 269,
+  "failing": 0,
+  "top_level_passing": 161,
+  "duration_s": 24.2,
+  "failed": []
+ },
+ "B_code_change_only": {
+  "passing": 268,
+  "failing": 1,
+  "top_level_passing": 160,
+  "duration_s": 23.7,
+  "failed": [
+   "contract: TestIndependentReviewJudgesACitedProbeByItsLatestRun (its session-listed cases assert that a refused submission's texts stay binding)"
+  ]
+ },
+ "B_full_patch": {
+  "passing": 274,
+  "failing": 0,
+  "top_level_passing": 162,
+  "duration_s": 24.6,
+  "failed": [],
+  "note": "the patch updates the assertions of the one test above and adds 5 test cases (1 top-level test, 4 subtests)"
+ }
+}
