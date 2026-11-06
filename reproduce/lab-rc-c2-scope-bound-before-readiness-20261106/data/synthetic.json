@@ -1,0 +1,42 @@
+{
+ "A": [
+  {
+   "Case": "small control",
+   "Refused": false,
+   "Estimate": "",
+   "PackageB": 898
+  },
+  {
+   "Case": "named file of 600000 bytes at HEAD",
+   "Refused": true,
+   "Estimate": "Scope check: the Intent is estimated at 600910 bytes of one review (scenarios 2, acceptance harnesses 1, named files 1 in areas 1), over the 524288-byte bound of one review (tools.InputBudgetBytes).",
+   "PackageB": 910
+  },
+  {
+   "Case": "package text over the bound",
+   "Refused": true,
+   "Estimate": "Scope check: the Intent is estimated at 540440 bytes of one review (scenarios 2, acceptance harnesses 1, named files 0 in areas 0), over the 524288-byte bound of one review (tools.InputBudgetBytes).",
+   "PackageB": 540440
+  }
+ ],
+ "B": [
+  {
+   "Case": "small control",
+   "Refused": false,
+   "Estimate": "",
+   "PackageB": 898
+  },
+  {
+   "Case": "named file of 600000 bytes at HEAD",
+   "Refused": false,
+   "Estimate": "",
+   "PackageB": 910
+  },
+  {
+   "Case": "package text over the bound",
+   "Refused": true,
+   "Estimate": "Scope check: the Intent is estimated at 540440 bytes of one review (scenarios 2, acceptance harnesses 1, named files 0 in areas 0), over the 524288-byte bound of one review (tools.InputBudgetBytes).",
+   "PackageB": 540440
+  }
+ ]
+}

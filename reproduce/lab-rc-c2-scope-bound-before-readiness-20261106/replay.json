@@ -1,0 +1,71 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-rc-c2-scope-bound-before-readiness-20261106",
+ "arms": {
+  "A-pinned": {
+   "verdict": "never reaches the scope gate: the recorded attempt-1 package of every tree stops at the decision-record gate; suite 881 pass, 3 fail lines (environment), 2 skip",
+   "counts": {
+    "trees": 4,
+    "stopped_at_decision_record": 4,
+    "scope_gate_reached": 0,
+    "readiness_ran": 0,
+    "model_calls": 0,
+    "suite_pass": 881,
+    "suite_fail_lines": 3,
+    "suite_skip": 2
+   },
+   "duration_s": 243
+  },
+  "A-plus-decision-change": {
+   "verdict": "scope gate refuses 3 of 3 oversize trees (1.18 to 1.35 MB of estimate against 524,288); the fourth tree stops at carried_decisions; readiness runs on 0 of 4",
+   "counts": {
+    "trees": 4,
+    "oversize_trees": 3,
+    "scope_refused": 3,
+    "carried_decisions_first": 1,
+    "readiness_ran": 0,
+    "model_calls": 0,
+    "scope_problem_lines_per_tree": 60
+   },
+   "duration_s": 30
+  },
+  "B-named-files-not-summed": {
+   "verdict": "fails the suite rule: scope gate passes on 3 of 3 oversize trees and a package whose own text is over the bound is still refused, but 4 delivered scope tests fail (877 pass, 7 fail lines) and readiness runs on 0 of 4 (next gate carried_decisions on 4 of 4)",
+   "counts": {
+    "trees": 4,
+    "oversize_trees": 3,
+    "scope_passed_on_oversize": 3,
+    "next_gate_carried_decisions": 4,
+    "readiness_ran": 0,
+    "model_calls": 0,
+    "synthetic_named_file_600000_refused": 0,
+    "synthetic_package_540440_refused": 1,
+    "suite_pass_delivered_tests": 877,
+    "suite_fail_lines_delivered_tests": 7,
+    "suite_new_failures_delivered_tests": 4,
+    "suite_new_failures_rewritten_tests": 0,
+    "suite_pass_rewritten_tests": 880
+   },
+   "duration_s": 489
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-shaping",
+   "sha": "c3f9c5e099e7"
+  },
+  {
+   "tree": "kogen-review (read only)",
+   "sha": "66be20d31658"
+  },
+  {
+   "tree": "kogen-loop (read only)",
+   "sha": "31036b2c02e8"
+  },
+  {
+   "tree": "kogen release",
+   "sha": "360755276001531e5f9182d74fb72717f89ccfb4"
+  }
+ ]
+}

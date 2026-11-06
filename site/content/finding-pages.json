@@ -1491,6 +1491,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-06",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-rc-c2-scope-bound-before-readiness-20261106",
+      "title": "The review-size bound counts whole files the review never carries, and the one change that passes it removes the gate",
+      "summary": "After the decision-record change, shaping stopped at the review-size bound on three of four recorded shapes: the estimate was 1.18 to 1.35 MB against 524,288 bytes. The Intent package itself is 87 to 140 KB (7 to 10%). The rest is the size at HEAD of every file the Intent names in backticks, changed or not, and one generated data file of 597,140 bytes is 44 to 50% on its own; repeated lines are under 0.3%. The review stage uses the same constant but its prompt holds only the Intent, feature, model, check results, diffs and added files, and it reviews a larger source in parts instead of refusing. Counting the generated file and repeats once leaves all three trees 12 to 43% over. A one-line change that stops summing named files lets the gate pass on 3 of 3 trees and still refuses a package whose own text is over the bound, but it fails 4 of the delivered scope tests, such a package already ends shaping at the shaper's context window, and readiness still runs on 0 of 4 (the next gate is the carried-decisions check). The rule (no new suite failure) is not met, so no change is requested; whether the gate stays as a cost guard is a design decision. No model was used; a real shaper's next attempt and a Build's real review size are untested.",
+      "verdict": "no",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-06",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
