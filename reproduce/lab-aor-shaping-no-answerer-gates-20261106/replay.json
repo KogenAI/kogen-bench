@@ -1,0 +1,140 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-aor-shaping-no-answerer-gates-20261106",
+ "arms": {
+  "A-kogen-shaping-c3f9c5e": {
+   "verdict": "reproduces 13 of 13 replayable recorded refusals (problem counts match the recorded events); refuses all 19 negative cases",
+   "counts": {
+    "replayed_refusals": 13,
+    "still_refused": 13,
+    "problem_lines": 77,
+    "first_refusals_turned_of_5": 0,
+    "negative_cases": 19,
+    "negative_cases_refused": 19,
+    "change_cases": 5,
+    "change_cases_accepted": 0,
+    "control_cases": 4,
+    "control_cases_accepted": 4,
+    "heldout_A_accepted": 415,
+    "heldout_A_accepted_now_refused": 0,
+    "heldout_A_refused_now_accepted": 0,
+    "suite_pass_lines": 881,
+    "suite_fail_lines": 3
+   },
+   "duration_s": 252
+  },
+  "B1-marker-on-the-line": {
+   "verdict": "a marker elsewhere on the Intent line counts for the copied statement: clears 3 of the 6 problems of the last recorded refusal of T5 and nothing else; 19 of 19 negatives still refused",
+   "counts": {
+    "replayed_refusals": 13,
+    "still_refused": 13,
+    "problem_lines": 74,
+    "first_refusals_turned_of_5": 0,
+    "negative_cases": 19,
+    "negative_cases_refused": 19,
+    "change_cases": 5,
+    "change_cases_accepted": 1,
+    "control_cases": 4,
+    "control_cases_accepted": 4,
+    "heldout_A_accepted": 415,
+    "heldout_A_accepted_now_refused": 0,
+    "heldout_A_refused_now_accepted": 8
+   },
+   "duration_s": 4
+  },
+  "B2-evidence-path-then-prose": {
+   "verdict": "an evidence item that is a tracked path followed by prose counts as the path: passes the evidence gate on T2 and T4 attempt 3 and clears 2 of 5 problems of T1 attempt 2; 19 of 19 negatives still refused",
+   "counts": {
+    "replayed_refusals": 13,
+    "still_refused": 11,
+    "problem_lines": 67,
+    "first_refusals_turned_of_5": 0,
+    "negative_cases": 19,
+    "negative_cases_refused": 19,
+    "change_cases": 5,
+    "change_cases_accepted": 2,
+    "control_cases": 4,
+    "control_cases_accepted": 4,
+    "heldout_A_accepted": 415,
+    "heldout_A_accepted_now_refused": 0,
+    "heldout_A_refused_now_accepted": 2
+   },
+   "duration_s": 3
+  },
+  "B3-fixtures-in-intent-folder": {
+   "verdict": "observer and fixture files allowed under the Intent folder (16 files, 64 KiB each): passes the validation gate on both first refusals (T3, T5); 19 of 19 negatives still refused",
+   "counts": {
+    "replayed_refusals": 13,
+    "still_refused": 11,
+    "problem_lines": 71,
+    "first_refusals_turned_of_5": 2,
+    "negative_cases": 19,
+    "negative_cases_refused": 19,
+    "change_cases": 5,
+    "change_cases_accepted": 2,
+    "control_cases": 4,
+    "control_cases_accepted": 4,
+    "heldout_A_accepted": 415,
+    "heldout_A_accepted_now_refused": 0,
+    "heldout_A_refused_now_accepted": 0
+   },
+   "duration_s": 3
+  },
+  "B-all-three": {
+   "verdict": "turns 2 of 5 first refusals (registered rule needs 4): rule not met",
+   "counts": {
+    "replayed_refusals": 13,
+    "still_refused": 9,
+    "problem_lines": 58,
+    "first_refusals_turned_of_5": 2,
+    "negative_cases": 19,
+    "negative_cases_refused": 19,
+    "change_cases": 5,
+    "change_cases_accepted": 5,
+    "control_cases": 4,
+    "control_cases_accepted": 4,
+    "heldout_A_accepted": 415,
+    "heldout_A_accepted_now_refused": 0,
+    "heldout_A_refused_now_accepted": 10,
+    "suite_pass_lines": 881,
+    "suite_fail_lines": 3
+   },
+   "duration_s": 44
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-shaping",
+   "sha": "c3f9c5e099e73cdbdb73ecb6044712379a2f79f3"
+  },
+  {
+   "tree": "kogen-shaping (held-out Intents)",
+   "sha": "88a929ea41eeab649dc1a76bf244c0b389f3cab2"
+  },
+  {
+   "tree": "kogen-coordinator (held-out Intents)",
+   "sha": "d74daae36f56d4e195d6ff04e79e74eab1530bb7"
+  },
+  {
+   "tree": "kogen-setup (held-out Intents)",
+   "sha": "9630cce549f9"
+  },
+  {
+   "tree": "kogen-review (held-out Intents)",
+   "sha": "22dc61ec5953"
+  },
+  {
+   "tree": "kogen-verification (held-out Intents)",
+   "sha": "a83b8096ecdb"
+  },
+  {
+   "tree": "kogen-executor (held-out Intents)",
+   "sha": "c7382270875a"
+  },
+  {
+   "tree": "kogen-loop (held-out Intents)",
+   "sha": "31036b2c02e8"
+  }
+ ]
+}
