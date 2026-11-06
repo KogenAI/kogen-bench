@@ -1,0 +1,174 @@
+[
+ {
+  "task": "task 1",
+  "arm": "B2",
+  "rep": 1,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": 3.98,
+  "shaper_tool_calls": 72,
+  "submissions": 3,
+  "first_shaper_round_s": 1694,
+  "first_round_share_of_deadline": 0.94,
+  "shaper_rounds": 3,
+  "checker_sessions": 2,
+  "checker_wall_s": 49,
+  "gate_checks_ms": 51185,
+  "readiness_ms": 0,
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "step_ownership",
+    "problem_lines": 1,
+    "cause": "b",
+    "note": "the Intent-folder driver the shaper listed under Acceptance (as the P2 sentence says) is not a step artifact"
+   },
+   {
+    "attempt": 2,
+    "gate": "decision_check",
+    "problem_lines": 4,
+    "cause": "a",
+    "note": "one head line and three statements without an assumption marker"
+   }
+  ],
+  "state_at_deadline": "third submission made at about 1798 s; its checks were cut off at the deadline",
+  "controls_file_in_submission": false
+ },
+ {
+  "task": "task 1",
+  "arm": "B2",
+  "rep": 2,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": null,
+  "shaper_tool_calls": 58,
+  "submissions": 0,
+  "first_shaper_round_s": 1800,
+  "first_round_share_of_deadline": 1.0,
+  "shaper_rounds": 1,
+  "checker_sessions": 0,
+  "checker_wall_s": 0,
+  "gate_checks_ms": 795,
+  "readiness_ms": 0,
+  "refusals": [],
+  "state_at_deadline": "one shaper round of 1799.6 s and no submission; tool calls 35 to 57 of 58 run, inspect and kill a probe process that did not finish",
+  "controls_file_in_submission": false
+ },
+ {
+  "task": "task 2",
+  "arm": "B2",
+  "rep": 1,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": 4.33,
+  "shaper_tool_calls": 97,
+  "submissions": 2,
+  "first_shaper_round_s": 1209,
+  "first_round_share_of_deadline": 0.67,
+  "shaper_rounds": 3,
+  "checker_sessions": 7,
+  "checker_wall_s": 277,
+  "gate_checks_ms": 382126,
+  "readiness_ms": 42939,
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "contract_review",
+    "problem_lines": 4,
+    "cause": "a",
+    "note": "four confirmed findings: the driver reads data that includes the export's own artifact, so three expected values cannot hold"
+   },
+   {
+    "attempt": 2,
+    "gate": "contract_review",
+    "problem_lines": 1,
+    "cause": "a",
+    "note": "contract review clean; the wrong-implementation check refused: controls file does not exist"
+   }
+  ],
+  "state_at_deadline": "third shaper round started at 1657 s and was cut off 143 s in; its last two tool calls name the controls file",
+  "controls_file_in_submission": false
+ },
+ {
+  "task": "task 1",
+  "arm": "B2b",
+  "rep": 1,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": 4.4,
+  "shaper_tool_calls": 74,
+  "submissions": 1,
+  "first_shaper_round_s": 1746,
+  "first_round_share_of_deadline": 0.97,
+  "shaper_rounds": 2,
+  "checker_sessions": 2,
+  "checker_wall_s": 51,
+  "gate_checks_ms": 53193,
+  "readiness_ms": 0,
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "literal_check",
+    "problem_lines": 3,
+    "cause": "a",
+    "note": "three request literals not found in the package; the decision check had passed"
+   }
+  ],
+  "state_at_deadline": "second shaper round started at 1800.1 s and was cut off at once",
+  "controls_file_in_submission": true
+ },
+ {
+  "task": "task 1",
+  "arm": "B2b",
+  "rep": 2,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": 4.26,
+  "shaper_tool_calls": 63,
+  "submissions": 1,
+  "first_shaper_round_s": 1541,
+  "first_round_share_of_deadline": 0.86,
+  "shaper_rounds": 1,
+  "checker_sessions": 3,
+  "checker_wall_s": 110,
+  "gate_checks_ms": 258999,
+  "readiness_ms": 87126,
+  "refusals": [],
+  "state_at_deadline": "decision check, literal check, static checks and contract review (44.6 s, ended at 1775.6 s) had run with no refusal; cut off before the property check, the wrong-implementation check and any result",
+  "controls_file_in_submission": false
+ },
+ {
+  "task": "task 2",
+  "arm": "B2b",
+  "rep": 1,
+  "outcome": "deadline",
+  "reached_readiness": false,
+  "wall_s": 1801,
+  "cost_usd_list_equivalent": 4.01,
+  "shaper_tool_calls": 68,
+  "submissions": 1,
+  "first_shaper_round_s": 1594,
+  "first_round_share_of_deadline": 0.89,
+  "shaper_rounds": 2,
+  "checker_sessions": 4,
+  "checker_wall_s": 108,
+  "gate_checks_ms": 165955,
+  "readiness_ms": 25635,
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "contract_review",
+    "problem_lines": 7,
+    "cause": "a",
+    "note": "decision check, literal check, static checks, contract review (0 findings) and property check passed; the wrong-implementation check refused 7 lines: a wrong implementation names a step that is not a step of its scenario"
+   }
+  ],
+  "state_at_deadline": "second shaper round started at 1761 s and was cut off 39 s in",
+  "controls_file_in_submission": true
+ }
+]

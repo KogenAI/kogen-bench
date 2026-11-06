@@ -1,0 +1,44 @@
+{
+ "kind": "counts of a replay of stage 1 recorded gate inputs, no model call",
+ "inputs": "stage 1 shaping events: 15 decision-check events and 5 evidence declarations (final Intents of the 5 candidate cells and the release cell)",
+ "arms": {
+  "release": {
+   "decision_check_events": 15,
+   "decision_check_problem_lines": 41,
+   "recorded_refusal_problem_lines": 34,
+   "evidence_declarations": 5,
+   "evidence_invalid_as_written": 2,
+   "evidence_valid_with_observers_under_acceptance": 5,
+   "readiness_line_has_rule_text": false
+  },
+  "stage1_tree": {
+   "decision_check_events": 15,
+   "decision_check_problem_lines": 41,
+   "recorded_refusal_problem_lines": 34
+  },
+  "b2": {
+   "decision_check_events": 15,
+   "decision_check_problem_lines": 41,
+   "recorded_refusal_problem_lines": 34,
+   "evidence_declarations": 5,
+   "evidence_invalid_as_written": 2,
+   "evidence_valid_with_observers_under_acceptance": 5,
+   "readiness_line_has_rule_text": true
+  }
+ },
+ "gate_chain_not_covered": "step_ownership (the gate that refused P2's observer rule) is not part of this replay",
+ "kogen_shaping_suite_fail_lines": {
+  "release": {
+   "pass_lines": 881,
+   "fail_lines": 3
+  },
+  "b2": {
+   "pass_lines": 873,
+   "fail_lines": 11
+  },
+  "b2_extra_fail_lines": 8,
+  "of_which_also_on_stage1_tree": 7,
+  "of_which_new_with_p2_gate_text": 1,
+  "b2b_suite": "not run"
+ }
+}
