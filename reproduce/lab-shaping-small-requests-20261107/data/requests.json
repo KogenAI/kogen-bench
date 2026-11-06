@@ -1,0 +1,111 @@
+{
+ "climb": [
+  {
+   "id": "c01",
+   "repo": "pycalc",
+   "slug": "subtract",
+   "kind": "new function",
+   "text": "Add a subtract(a, b) function to src/calc.py that returns a minus b, with a unit test."
+  },
+  {
+   "id": "c02",
+   "repo": "pycalc",
+   "slug": "add-type-check",
+   "kind": "validation rule",
+   "text": "Make add(a, b) in src/calc.py raise a TypeError when either argument is not a number, with a unit test."
+  },
+  {
+   "id": "c03",
+   "repo": "pycalc",
+   "slug": "divide",
+   "kind": "new function with a refusal",
+   "text": "Add a divide(a, b) function to src/calc.py that returns a divided by b and raises ZeroDivisionError with the message \"cannot divide by zero\" when b is 0, with tests."
+  },
+  {
+   "id": "c04",
+   "repo": "pycalc",
+   "slug": "rename-module",
+   "kind": "rename",
+   "text": "Rename src/calc.py to src/arith.py and update the tests to import from the new module."
+  },
+  {
+   "id": "c05",
+   "repo": "goslug",
+   "slug": "sep-flag",
+   "kind": "CLI flag",
+   "text": "Add a --sep flag to the slug command that sets the separator placed between words (default \"-\"), with a test."
+  },
+  {
+   "id": "c06",
+   "repo": "goslug",
+   "slug": "collapse-spaces",
+   "kind": "bug fix",
+   "text": "Slugify(\"Hello  World\") returns \"hello--world\": repeated spaces should give a single hyphen. Fix it and add a test."
+  },
+  {
+   "id": "c07",
+   "repo": "goslug",
+   "slug": "truncate",
+   "kind": "new function",
+   "text": "Add a Truncate(s string, n int) string function to the text package that shortens a slug to at most n characters without leaving a trailing hyphen, with a test."
+  },
+  {
+   "id": "c08",
+   "repo": "nodeprice",
+   "slug": "thousands",
+   "kind": "behaviour change",
+   "text": "Make formatPrice in src/price.js group thousands with commas, so 123456 cents prints as $1,234.56, with a test."
+  },
+  {
+   "id": "c09",
+   "repo": "nodeprice",
+   "slug": "negative-price",
+   "kind": "validation rule",
+   "text": "Make formatPrice in src/price.js throw a RangeError for negative amounts, with a test."
+  },
+  {
+   "id": "c10",
+   "repo": "nodeprice",
+   "slug": "parse-price",
+   "kind": "new function",
+   "text": "Add a parsePrice(text) function to src/price.js that turns \"$1.23\" into 123 cents and returns null for text it cannot read, with a test."
+  }
+ ],
+ "held": [
+  {
+   "id": "h1",
+   "repo": "pycalc",
+   "slug": "mean",
+   "kind": "new function with a refusal",
+   "text": "Add a mean(values) function to src/calc.py that returns the average of a list of numbers and raises ValueError for an empty list, with a unit test."
+  },
+  {
+   "id": "h2",
+   "repo": "goslug",
+   "slug": "no-input",
+   "kind": "validation rule (CLI)",
+   "text": "Make the slug command print \"slug: no input\" to stderr and exit with status 2 when it gets no arguments, with a test."
+  },
+  {
+   "id": "h3",
+   "repo": "goslug",
+   "slug": "rename-slug",
+   "kind": "rename",
+   "text": "Rename Slugify in the text package to Slug and update every caller and test."
+  },
+  {
+   "id": "h4",
+   "repo": "nodeprice",
+   "slug": "currency-flag",
+   "kind": "CLI flag",
+   "text": "Add a --currency option to bin/price.js that accepts USD or EUR (default USD); with EUR the amount is printed with a € sign instead of $, with a test."
+  },
+  {
+   "id": "h5",
+   "repo": "nodeprice",
+   "slug": "cents-padding",
+   "kind": "bug fix",
+   "text": "formatPrice(5) prints $0.5 instead of $0.05. Fix it and add a test."
+  }
+ ]
+}

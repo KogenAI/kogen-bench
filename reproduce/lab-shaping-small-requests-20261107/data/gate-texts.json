@@ -1,0 +1,114 @@
+{
+ "TAG": {
+  "gate": "intent",
+  "where": "kogen-coordinator e91a9e0 project/intent.go:398",
+  "problem_lines_by_arm": {
+   "A": 14,
+   "S1": 1,
+   "C1": 1,
+   "C3": 2
+  },
+  "example": "decisions: - The option takes its value as the next argument and may be placed before or after the amount (source: request; layout chosen by shaping) must end with `(source: request)` or `(source: answer <n>)`"
+ },
+ "TFORM": {
+  "gate": "intent",
+  "where": "kogen-coordinator e91a9e0 project/intent.go:345",
+  "problem_lines_by_arm": {
+   "A": 3,
+   "S1": 3,
+   "C1": 2,
+   "C2": 1
+  },
+  "example": "tests: - The reported input through the real entry point: `go run ./cmd/slug \"Hello  World\"` prints `hello-world` (scenario, .kogen/intents/collapse-spaces/acceptance.feature) must be `- <rule>: <test to add or update> (<layer>)` or `- none: <reason>`"
+ },
+ "REPO": {
+  "gate": "decision_check",
+  "where": "kogen-shaping 0484edf shape/decision.go:170-188 (rule text :33)",
+  "problem_lines_by_arm": {
+   "A": 28,
+   "C6": 2,
+   "S1": 5,
+   "C1": 12,
+   "C2": 4,
+   "C3": 3,
+   "C5": 6
+  },
+  "example": "statement: - A unit test is added in the existing `tests/test_calc.py` (source: request) | request_quotes: \"with a unit test\" | verdict: unsupported | why: The request asks for a unit test but does not name tests/test_calc.py. The file is chosen by the intent and is not marked as an assumption."
+ },
+ "EX": {
+  "gate": "decision_check",
+  "where": "kogen-shaping 0484edf shape/decision.go:170-188",
+  "problem_lines_by_arm": {
+   "A": 71,
+   "S1": 27,
+   "C1": 5,
+   "C2": 1
+  },
+  "example": "statement: so `mean([1, 2])` is `1.5` | request_quotes: \"returns the average of a list of numbers\" | verdict: unsupported | why: The request gives no concrete input/result pair; 1.5 depends on the unconfirmed true-division assumption."
+ },
+ "OPEN": {
+  "gate": "decision_check",
+  "where": "kogen-shaping 0484edf shape/decision.go:170-188",
+  "problem_lines_by_arm": {
+   "A": 47,
+   "C6": 3,
+   "S1": 5,
+   "C1": 3,
+   "C2": 6,
+   "C3": 4
+  },
+  "example": "statement: - No other input validation is added (source: request) | request_quotes:  | verdict: unsupported | why: The request is silent on other input validation. It only requires ValueError for an empty list, so this is an unmarked scope choice."
+ },
+ "EVID": {
+  "gate": "decision_evidence",
+  "where": "kogen-shaping 0484edf shape/evidencemark.go:163, :207",
+  "problem_lines_by_arm": {
+   "A": 49
+  },
+  "example": "- decision 3: the request asks for \"the average\", and `src/calc.py` has no integer-only convention is not a file or directory tracked at HEAD"
+ },
+ "CUKE": {
+  "gate": "step_selfcheck",
+  "where": "Cucumber Expression load error, reported by kogen-verification e1ff81b verify/stepcheck.go",
+  "problem_lines_by_arm": {
+   "A": 2
+  },
+  "example": "- load features/steps/subtract__calc.js: <path>:258 throw e; ^ Error: This Cucumber Expression has a problem at column 29: subtract: I evalua"
+ },
+ "EXIT": {
+  "gate": "step_selfcheck",
+  "where": "kogen-verification e1ff81b verify/stepcheck.go:165",
+  "problem_lines_by_arm": {
+   "A": 2,
+   "S1": 2
+  },
+  "example": "- exit_code features/steps/rename-slug__steps.js: step definition rename-slug: the command prints {string} asserts an exit code but obtains it through go run, which changes exit codes; build the binary (go build) and run it instead"
+ },
+ "CTRL": {
+  "gate": "contract_review",
+  "where": "kogen-shaping 0484edf shape/controls.go:811",
+  "problem_lines_by_arm": {
+   "S1": 1,
+   "C2": 1,
+   "C5": 1
+  },
+  "example": "- controls.json: .kogen/intents/sep-flag/controls.json does not exist; write it as {\"correct\":{\"files\":{\"<path>\":\"<content>\"}},\"wrong\":[{\"name\":\"<name>\",\"scenario\":\"<scenario>\",\"step\":\"<step line>\",\"files\":{\"<path>\":\"<content>\"}}]}"
+ },
+ "WRITE": {
+  "gate": "validation",
+  "where": "kogen-shaping 0484edf shape/shape.go (write allowlist)",
+  "problem_lines_by_arm": {
+   "C2": 1,
+   "C5": 1
+  },
+  "example": "text/slug_test.go: shaping may write only .kogen/intents/truncate/{intent.md,acceptance.feature,model.qnt,controls.json} and step files under features/steps/"
+ },
+ "SETUP": {
+  "gate": "readiness",
+  "where": "kogen-verification e1ff81b verify/readiness.go:529",
+  "problem_lines_by_arm": {
+   "C1": 2
+  },
+  "example": "setup failure: The arith module provides add (line 3)"
+ }
+}

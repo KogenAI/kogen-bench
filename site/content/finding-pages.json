@@ -1536,6 +1536,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-06",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-shaping-small-requests-20261107",
+      "title": "Naming the gate forms in the shaper prompt gets small requests through shaping; the Rails tasks stop at later gates",
+      "summary": "The release, shaping ordinary small requests with nothing but the request (a new function, a validation rule, a CLI flag, a rename, a bug fix over small Python, Go and Node repositories), reached readiness on 3 of 25 cells and never at the first attempt: its own gates refused the forms its shaper prompt had asked for. Six rounds of small, general changes (prompt text that names the assumption and evidence markers, keeps repository facts and examples out of the Intent text and states the step and Tests forms, plus one sentence in the decision checker's instructions and stage 1's three gate changes) reached readiness on 10 of 10 climb requests and, on five held-out requests run twice, on 10 of 10 cells, 8 at the first attempt, against the release's 2 of 10. The same changes on the five request-only Rails tasks the release was refused on reached readiness on 0 of 5: the shapes passed the gates that stopped the release and stopped at later ones (the wrong-implementation controls file no prompt names, the decision record refusing probe runs cited as evidence, dropped earlier decisions), two at the 30-minute deadline. The rule needed 2 of 5, so the verdict is no and no request is made from this stage; gate negative cases and the package's test suite are unchanged.",
+      "verdict": "no",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-06",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

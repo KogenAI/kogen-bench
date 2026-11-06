@@ -1,0 +1,165 @@
+[
+ {
+  "run": "first (void)",
+  "task": "task 1",
+  "outcome": "void: seat usage limit (api_error in the first shaper round, no submission)",
+  "refusals": [],
+  "wall_s": 1006,
+  "deadline_s": 1800,
+  "cost_usd": 0,
+  "finished": "2026-11-06T20:31:52Z"
+ },
+ {
+  "run": "first (void)",
+  "task": "task 2",
+  "outcome": "void: seat usage limit (api_error in the first shaper round, no submission)",
+  "refusals": [],
+  "wall_s": 557,
+  "deadline_s": 1800,
+  "cost_usd": 0,
+  "finished": "2026-11-06T20:26:35Z"
+ },
+ {
+  "run": "rerun",
+  "task": "task 1",
+  "outcome": "refused",
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "decision_record",
+    "problem_lines": 4,
+    "kinds": {
+     "sourced item not a file tracked at HEAD (ran command, probe prose or a new step file)": 4
+    }
+   },
+   {
+    "attempt": 2,
+    "gate": "decision_record",
+    "problem_lines": 1,
+    "kinds": {
+     "sourced item not a file tracked at HEAD (ran command, probe prose or a new step file)": 1
+    }
+   },
+   {
+    "attempt": 3,
+    "gate": "carried_decisions",
+    "problem_lines": 4,
+    "kinds": {
+     "decision of an earlier round dropped from Decisions": 4
+    }
+   }
+  ],
+  "wall_s": 1398,
+  "deadline_s": 1800,
+  "cost_usd": 9.53,
+  "finished": "2026-11-06T22:26:42Z"
+ },
+ {
+  "run": "rerun",
+  "task": "task 2",
+  "outcome": "refused",
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "decision_record",
+    "problem_lines": 4,
+    "kinds": {
+     "sourced item not a file tracked at HEAD (ran command, probe prose or a new step file)": 4
+    }
+   },
+   {
+    "attempt": 2,
+    "gate": "carried_decisions",
+    "problem_lines": 3,
+    "kinds": {
+     "decision of an earlier round dropped from Decisions": 3
+    }
+   },
+   {
+    "attempt": 3,
+    "gate": "contract_review",
+    "problem_lines": 1,
+    "kinds": {
+     "controls.json missing": 1
+    }
+   }
+  ],
+  "wall_s": 1115,
+  "deadline_s": 1800,
+  "cost_usd": 7.53,
+  "finished": "2026-11-06T22:24:11Z"
+ },
+ {
+  "run": "rerun",
+  "task": "task 3",
+  "outcome": "timeout",
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "contract_review",
+    "problem_lines": 1,
+    "kinds": {
+     "controls.json missing": 1
+    }
+   }
+  ],
+  "wall_s": 1801,
+  "deadline_s": 1800,
+  "cost_usd": 2.47,
+  "finished": "2026-11-06T22:55:18Z"
+ },
+ {
+  "run": "rerun",
+  "task": "task 4",
+  "outcome": "timeout",
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "contract_review",
+    "problem_lines": 1,
+    "kinds": {
+     "controls.json missing": 1
+    }
+   }
+  ],
+  "wall_s": 1802,
+  "deadline_s": 1800,
+  "cost_usd": 1.54,
+  "finished": "2026-11-06T22:57:31Z"
+ },
+ {
+  "run": "rerun",
+  "task": "task 5",
+  "outcome": "refused",
+  "refusals": [
+   {
+    "attempt": 1,
+    "gate": "contract_review",
+    "problem_lines": 1,
+    "kinds": {
+     "controls.json missing": 1
+    }
+   },
+   {
+    "attempt": 2,
+    "gate": "contract_review",
+    "problem_lines": 7,
+    "kinds": {
+     "controls.json step not in its scenario": 7
+    }
+   },
+   {
+    "attempt": 3,
+    "gate": "contract_review",
+    "problem_lines": 7,
+    "kinds": {
+     "controls.json step not in its scenario": 7
+    }
+   }
+  ],
+  "wall_s": 1468,
+  "deadline_s": 1800,
+  "cost_usd": 7.59,
+  "finished": "2026-11-06T23:25:47Z"
+ }
+]
