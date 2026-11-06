@@ -1,0 +1,40 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "finding_id": "lab-xprotect-launch-path-20261106",
+ "arms": {
+  "detached-go-test-all": {
+   "verdict": "scanned: 1.35 to 1.39 s XprotectService CPU per ./... run",
+   "counts": {
+    "runs": 3,
+    "scan_runs": 3,
+    "zero_cpu_runs": 0
+   },
+   "duration_s": 45.1
+  },
+  "attached-go-test-all": {
+   "verdict": "not scanned: 0.00 s XprotectService CPU in all runs",
+   "counts": {
+    "runs": 3,
+    "scan_runs": 0,
+    "zero_cpu_runs": 3
+   },
+   "duration_s": 40.2
+  },
+  "stage1-one-package": {
+   "verdict": "detached 0.15 to 0.17 s, attached 0.00 s (n=2 each)",
+   "counts": {
+    "detached_runs": 2,
+    "attached_runs": 2,
+    "pty_runs": 2
+   },
+   "duration_s": 60
+  }
+ },
+ "inputs": [
+  {
+   "tree": "kogen-loop",
+   "sha": "268327e7f9503310dd9834f17f283effa17a2c09"
+  }
+ ]
+}

@@ -1500,6 +1500,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-06",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-xprotect-launch-path-20261106",
+      "title": "On macOS, Go tests started detached are scanned by XProtect; attached to ssh they are not",
+      "summary": "On a macOS build host, a Go test started the way delivery starts Builds (over ssh with nohup, reparented to launchd) made the XProtect scanner spend 1.35 to 1.39 s of CPU per run of a 10-package test, and the same command attached to an ssh session spent 0.00 s in every run (3 against 3; one package: 2 against 2). The detached run also took about 8 percent longer. At that scale the scanner uses about 10 percent of a core while the test runs; a Build's much larger suite reaches the roughly 40 percent seen during Builds by the same mechanism, which was not run. One host, one repository.",
+      "verdict": "yes",
+      "comparison": "kogen-shaping-and-builds",
+      "finished": "2026-11-06",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
