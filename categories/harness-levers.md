@@ -418,3 +418,5 @@ A [probe-environment Lab](../reproduce/lab-probe-env-shaper-vs-readiness-2026110
 A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-20261107) on a quiet 4-core host shows six suites that pass every test above their proposed time budgets, with a few waiting tests setting the wall in kogen and kogen-build; kogen-shaping and kogen-verification could not be judged without the real Cucumber installed.
 
 - [Shaping readiness on a fixed request set](../reproduce/lab-shaping-climb-round0-20261107/README.md): 9 of 21 shapes reached readiness without questions.
+
+[Initial evidence-path instruction in shaping](../reproduce/lab-shaping-initial-evidence-screen-20261107/README.md): a screen with three regressions.
