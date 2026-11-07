@@ -1,0 +1,839 @@
+{
+ "kogen": {
+  "budget_s": 60,
+  "failed_tests": 0,
+  "over_1s": 32,
+  "over_5s": 10,
+  "package_wall_max_s": 210.5,
+  "package_wall_sum_s": 272.6,
+  "packages": 11,
+  "parallelism_ratio": 1.3,
+  "slowest": [
+   [
+    "TestApproveDeadlineSplitCLI",
+    131.2
+   ],
+   [
+    "TestApproveDeadlineHungCLI",
+    120.9
+   ],
+   [
+    "TestBaselinePackagingIsolation",
+    37.8
+   ],
+   [
+    "TestRaceShardRunner",
+    23.6
+   ],
+   [
+    "TestAssemblyUsesThePinnedComponents",
+    19.2
+   ],
+   [
+    "TestKReviewVerdictStrandPinnedResume",
+    10.5
+   ],
+   [
+    "TestBaselinePerBaseInstalled",
+    9.5
+   ],
+   [
+    "TestApproveFailureEvidenceCLI",
+    8.7
+   ],
+   [
+    "TestApproveFailureOutputCLI",
+    5.6
+   ],
+   [
+    "TestApproveFailureEvidenceCLI/setup_completes_and_acceptance_fails",
+    5.1
+   ],
+   [
+    "TestUsageLimitPackagingIsolationRound3",
+    4.7
+   ],
+   [
+    "TestUsageLimitResumeInstalledRound2",
+    4.1
+   ],
+   [
+    "TestUsageLimitResumeInstalledRound3",
+    4.1
+   ],
+   [
+    "TestUsageLimitPackagingIsolationRound2",
+    3.9
+   ],
+   [
+    "TestKReviewRetryChangedCheckout",
+    3.9
+   ],
+   [
+    "TestKReviewRetryReviewOnlyResume",
+    3.8
+   ],
+   [
+    "TestApproveFailureEvidenceCLI/setup_fails_and_acceptance_is_not_run",
+    3.6
+   ],
+   [
+    "TestApproveFailureBoundsCLI",
+    2.5
+   ],
+   [
+    "TestApproveFailureOutputCLI/acceptance_exit_134_without_a_report",
+    2.5
+   ],
+   [
+    "TestSatisfiedRebuildAlreadyPresent",
+    2
+   ]
+  ],
+  "tests": 370
+ },
+ "kogen-build": {
+  "budget_s": 60,
+  "failed_tests": 0,
+  "over_1s": 81,
+  "over_5s": 9,
+  "package_wall_max_s": 87.6,
+  "package_wall_sum_s": 98.6,
+  "packages": 8,
+  "parallelism_ratio": 1.12,
+  "slowest": [
+   [
+    "TestClaudeLineupReviewMaterialDelivery",
+    61.9
+   ],
+   [
+    "TestClaudeLineupReviewExactTree",
+    61.9
+   ],
+   [
+    "TestKReviewRetrySeparateAllowances",
+    41.4
+   ],
+   [
+    "TestOneInvalidVerdictIsSentBackAndASecondEndsTheBuild",
+    36.2
+   ],
+   [
+    "TestAResumedFittedReviewOfALargerSourcePinsItAndDeliversIt",
+    7.7
+   ],
+   [
+    "TestChangesAfterEveryPartWasReadStaysBlocked",
+    6.8
+   ],
+   [
+    "TestLargeSourceIsDeliveredAsPinnedPartsAndMustBeReadBeforeApproval",
+    6.6
+   ],
+   [
+    "TestNativeConformance",
+    6.4
+   ],
+   [
+    "TestChangesWhilePartsAreUnreadIsSentBackToRead",
+    6.3
+   ],
+   [
+    "TestNativeConformance/interrupt_kills_children",
+    4.1
+   ],
+   [
+    "TestAWorkingContextResetKeepsTheConversationsIdentity",
+    4.0
+   ],
+   [
+    "TestAnArchivedWindowThatChangedIsRefused",
+    3.7
+   ],
+   [
+    "TestAConversationOverTheBudgetIsResetToALocalWorkingWindow",
+    3.6
+   ],
+   [
+    "TestKReviewRetrySeparateAllowances/S-DECREL:_unread_rejections,_prose,_then_the_forced_verdict_in_the_same_conversation",
+    3.4
+   ],
+   [
+    "TestBuildRequestBudgetOff",
+    2.8
+   ],
+   [
+    "TestStandaloneBuildEvidence",
+    2.5
+   ],
+   [
+    "TestBuildRequestBudgetResume/a_failed_request_is_an_attempt",
+    2.4
+   ],
+   [
+    "TestKRevodGatePartsUnchanged",
+    2.3
+   ],
+   [
+    "TestKReviewVerdictStrandReset",
+    2.2
+   ],
+   [
+    "TestWholeIntentRedFeedbackEndsWithTheFinishReminder",
+    2.2
+   ]
+  ],
+  "tests": 1209
+ },
+ "kogen-coordinator": {
+  "budget_s": 20,
+  "failed_tests": 0,
+  "over_1s": 14,
+  "over_5s": 1,
+  "package_wall_max_s": 36.4,
+  "package_wall_sum_s": 44.7,
+  "packages": 8,
+  "parallelism_ratio": 1.23,
+  "slowest": [
+   [
+    "TestPSFallbackIsBounded",
+    10.0
+   ],
+   [
+    "TestCommitStopsAHangingHookAtTheCommitBound",
+    3.4
+   ],
+   [
+    "TestOpenReportsADiscoveryTimeout",
+    3.0
+   ],
+   [
+    "TestCommitUsesTheCommitBound",
+    2.6
+   ],
+   [
+    "TestCommitStopsAHangingHookAtTheCommitBound/post-commit",
+    1.7
+   ],
+   [
+    "TestCommitStopsAHangingHookAtTheCommitBound/pre-commit",
+    1.7
+   ],
+   [
+    "TestCommitPathsStopsAHangingHookAtTheCommitBound",
+    1.7
+   ],
+   [
+    "TestCheckCommitMsgStopsAHangingHookAtTheCommitBound",
+    1.6
+   ],
+   [
+    "TestRestoreTreeStopsABlobStreamThatDoesNotEnd",
+    1.6
+   ],
+   [
+    "TestMaterializeReportsABlobStreamTimeout",
+    1.6
+   ],
+   [
+    "TestRunnerNamesAtMostFourArgumentsWithoutTheReadOnlyPrefix",
+    1.5
+   ],
+   [
+    "TestRunnerStopsAHangingCommandWithItsChildren",
+    1.5
+   ],
+   [
+    "TestKillGroupOnExit",
+    1.1
+   ],
+   [
+    "TestPinExecutableConfiguration",
+    1.1
+   ],
+   [
+    "TestFinishOnInterrupt",
+    1
+   ],
+   [
+    "TestRunStoreHeldLockTimesOutAndDeadHolderBlocksNothing",
+    0.6
+   ],
+   [
+    "TestRunStoreConcurrentGoroutines",
+    0.6
+   ],
+   [
+    "TestRunnerReturnsTheCompleteOutputOfASlowCommand",
+    0.6
+   ],
+   [
+    "TestWriteJSONAtomicNeverTearsUnderConcurrentReaders",
+    0.5
+   ],
+   [
+    "TestPinHooksDirectory",
+    0.4
+   ]
+  ],
+  "tests": 841
+ },
+ "kogen-executor": {
+  "budget_s": 20,
+  "failed_tests": 0,
+  "over_1s": 8,
+  "over_5s": 1,
+  "package_wall_max_s": 25.3,
+  "package_wall_sum_s": 25.7,
+  "packages": 16,
+  "parallelism_ratio": 1.02,
+  "slowest": [
+   [
+    "TestConformance",
+    6.2
+   ],
+   [
+    "TestConformance/interrupt_kills_children",
+    4.1
+   ],
+   [
+    "TestPreflightStopsOwnedChildren",
+    1.4
+   ],
+   [
+    "TestRoundFailureOutranksPersistenceFailure",
+    1.4
+   ],
+   [
+    "TestPruneTranscriptsBound",
+    1.1
+   ],
+   [
+    "TestCancellationClassifiedByContext",
+    1.1
+   ],
+   [
+    "TestConformance/deadline",
+    1.1
+   ],
+   [
+    "TestClaudeLineupRoleCustody",
+    1.0
+   ],
+   [
+    "TestClaudeLineupRoleProtocol",
+    1.0
+   ],
+   [
+    "TestDownloadIdleProgressAndStall",
+    0.8
+   ],
+   [
+    "TestProviderUnavailableResults",
+    0.8
+   ],
+   [
+    "TestPreflightStopsOwnedChildren/cancelled",
+    0.7
+   ],
+   [
+    "TestPreflightStopsOwnedChildren/early_exit",
+    0.7
+   ],
+   [
+    "TestRoundTokenTransport",
+    0.7
+   ],
+   [
+    "TestEventAfterResultIsProtocolFailure",
+    0.6
+   ],
+   [
+    "TestDownloadRetryTimingAndFreshBody",
+    0.6
+   ],
+   [
+    "TestDownloadLateEndAfterIdleExpiry",
+    0.6
+   ],
+   [
+    "TestDownloadContextStopsWithoutRetry",
+    0.6
+   ],
+   [
+    "TestPruneTranscriptsBound/9998",
+    0.6
+   ],
+   [
+    "TestArtifactDirPrivateMode",
+    0.6
+   ]
+  ],
+  "tests": 593
+ },
+ "kogen-loop": {
+  "budget_s": 10,
+  "failed_tests": 0,
+  "over_1s": 49,
+  "over_5s": 9,
+  "package_wall_max_s": 19.3,
+  "package_wall_sum_s": 55.4,
+  "packages": 10,
+  "parallelism_ratio": 2.87,
+  "slowest": [
+   [
+    "TestShellLifecycleDeadlineStartup/cli",
+    7.1
+   ],
+   [
+    "TestCallerShellBoundCustody/exits",
+    6.0
+   ],
+   [
+    "TestCallerShellBoundCustody/ignores",
+    6.0
+   ],
+   [
+    "TestTimeoutCustodyBlockedObservation/context",
+    5.2
+   ],
+   [
+    "TestTimeoutCustodyBlockedObservation/interrupt",
+    5.2
+   ],
+   [
+    "TestShellLifecycleKilledHostDescendants/finished_shell",
+    5.2
+   ],
+   [
+    "TestShellLifecycleKilledHostDescendants/running_shell",
+    5.2
+   ],
+   [
+    "TestDiscardedAttemptBatchPreservesOtherShell",
+    5.1
+   ],
+   [
+    "TestInterruptKillsAGroupThatIgnoresSIGTERM",
+    5.1
+   ],
+   [
+    "TestProviderStreamAffinity",
+    4.5
+   ],
+   [
+    "TestLStreamMemory/output_items/chatgpt",
+    4.5
+   ],
+   [
+    "TestDeadlineTerminatesARunningShellGroup",
+    3.0
+   ],
+   [
+    "TestUnusedOptionsRemoved",
+    2.4
+   ],
+   [
+    "TestRequestBudgetRetention",
+    2.4
+   ],
+   [
+    "TestRequestBudgetCLI/177_exchanges",
+    2.3
+   ],
+   [
+    "TestShellLifecycleYieldSnapshot/explicit/requester",
+    2.2
+   ],
+   [
+    "TestShellLifecycleYieldSnapshot/implicit/terminal",
+    2.2
+   ],
+   [
+    "TestShellLifecycleYieldSnapshot/explicit/no_call",
+    2.2
+   ],
+   [
+    "TestShellLifecycleYieldSnapshot/implicit/hook",
+    2.2
+   ],
+   [
+    "TestShellLifecycleYieldSnapshot/explicit/hook",
+    2.2
+   ]
+  ],
+  "tests": 1853
+ },
+ "kogen-review": {
+  "budget_s": 20,
+  "failed_tests": 0,
+  "over_1s": 0,
+  "over_5s": 0,
+  "package_wall_max_s": 2.6,
+  "package_wall_sum_s": 4.5,
+  "packages": 8,
+  "parallelism_ratio": 1.72,
+  "slowest": [
+   [
+    "TestIndependentReviewJudgesACitedProbeByItsLatestRun",
+    0.6
+   ],
+   [
+    "TestInitialVerificationStops",
+    0.5
+   ],
+   [
+    "TestRestrictionRefusedChecksAreEnvironmentLimitations",
+    0.4
+   ],
+   [
+    "TestExternalRepairBounds",
+    0.3
+   ],
+   [
+    "TestExternalReviewRequirementsSkipTheProbeCheck",
+    0.3
+   ],
+   [
+    "TestDependencyRule",
+    0.3
+   ],
+   [
+    "TestIndependentReviewRecordsItsProbesAndRequirements",
+    0.2
+   ],
+   [
+    "TestDependencyRule/kogen-review/review",
+    0.2
+   ],
+   [
+    "TestExternalRepairBounds/cap",
+    0.2
+   ],
+   [
+    "TestAReviewStopsOnTheEnvsRefusalWhenItCannotBeResolvedByAReset",
+    0.2
+   ],
+   [
+    "TestNativeRepairHardCap",
+    0.2
+   ],
+   [
+    "TestReviewInPartsSummarisesOnlyAVerifiedGeneratedFile",
+    0.1
+   ],
+   [
+    "TestInitialVerificationStops/acceptance_red",
+    0.1
+   ],
+   [
+    "TestInitialVerificationStops/model_missing",
+    0.1
+   ],
+   [
+    "TestInitialVerificationStops/baseline_drift",
+    0.1
+   ],
+   [
+    "TestCallsAfterASubmissionAreAnsweredByItsOutcome",
+    0.1
+   ],
+   [
+    "TestVerificationErrorRetainsSubmission",
+    0.1
+   ],
+   [
+    "TestInitialVerificationStops/setup_red",
+    0.1
+   ],
+   [
+    "TestExternalRepairBounds/same",
+    0.1
+   ],
+   [
+    "TestExternalUnsupportedClaimPolicyDelivery",
+    0.1
+   ]
+  ],
+  "tests": 269
+ },
+ "kogen-setup": {
+  "budget_s": 20,
+  "failed_tests": 0,
+  "over_1s": 5,
+  "over_5s": 0,
+  "package_wall_max_s": 22.5,
+  "package_wall_sum_s": 23.6,
+  "packages": 7,
+  "parallelism_ratio": 1.05,
+  "slowest": [
+   [
+    "TestInitCapsAFixerRerunByTheRemainingBudget",
+    4.2
+   ],
+   [
+    "TestInitVerifyBudgetStopsRemainingCommands",
+    3.2
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers",
+    2.8
+   ],
+   [
+    "TestInitLeavesOutAFixerWhoseSecondRunTimesOut",
+    2.3
+   ],
+   [
+    "TestInitSetupPreservesTrackedFiles",
+    1.7
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/second_timeout",
+    0.7
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/first_timeout",
+    0.7
+   ],
+   [
+    "TestInitMutationPathListAtFive",
+    0.5
+   ],
+   [
+    "TestInitExecRunsCommandVerbatimAndStopsOnTimeout",
+    0.4
+   ],
+   [
+    "TestInitTimeoutWithSuccessfulTermHandler",
+    0.4
+   ],
+   [
+    "TestInitVerifiesFixMatchingLeftOutCommand",
+    0.4
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/second_failure",
+    0.3
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/nonrepeatable",
+    0.3
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/tracked_mutation",
+    0.3
+   ],
+   [
+    "TestInitOmittedSetupRestoresBeforeConsumers/first_failure",
+    0.3
+   ],
+   [
+    "TestInitValidateProposalSize",
+    0.3
+   ],
+   [
+    "TestInitSetupPreservesTrackedFiles/six",
+    0.3
+   ],
+   [
+    "TestInitSetupPreservesTrackedFiles/second_failure",
+    0.3
+   ],
+   [
+    "TestInitSetupPreservesTrackedFiles/second_change",
+    0.3
+   ],
+   [
+    "TestInitSetupPreservesTrackedFiles/existence",
+    0.3
+   ]
+  ],
+  "tests": 689
+ },
+ "kogen-shaping": {
+  "budget_s": 45,
+  "failed_tests": 85,
+  "over_1s": 11,
+  "over_5s": 4,
+  "package_wall_max_s": 34.7,
+  "package_wall_sum_s": 49.4,
+  "packages": 7,
+  "parallelism_ratio": 1.43,
+  "slowest": [
+   [
+    "TestContractCheckEnvironmentFindings",
+    15.2
+   ],
+   [
+    "TestKillGroupOnExitUnderChildSubreaper",
+    6.0
+   ],
+   [
+    "TestShapeTimelyEvidenceFitsLimit",
+    5.3
+   ],
+   [
+    "TestShapeFeasibilityFitsLimit",
+    5.3
+   ],
+   [
+    "TestRefineLargeRepositoryUsesNavigationAndKeepsCompleteOwnedAuthority",
+    4.6
+   ],
+   [
+    "TestShaperPolicyMutation",
+    3.7
+   ],
+   [
+    "TestAShapeConversationKeepsItsIdentityAcrossAWorkingWindowReset",
+    1.7
+   ],
+   [
+    "TestCustodyDamagedDuringFinalReadinessCannotPublishSuccessfulEvidence",
+    1.6
+   ],
+   [
+    "TestASnapshotDamagedByACompletedToolRefusesTheNextToolInTheSameBatch",
+    1.5
+   ],
+   [
+    "TestShapeBudgetRolesShape/refine_sends_every_request_under_thirty_minutes_and_records_it_once",
+    1.2
+   ],
+   [
+    "TestStandaloneShapeAnswersPendingQuestions",
+    1.1
+   ],
+   [
+    "TestRefineCumulativeRedProposalsStayUnpublishedUntilTheirObservationsAreAcknowledged",
+    1.0
+   ],
+   [
+    "TestShapeInvalidQuestionOptionsGetCorrectionFeedbackAndAreNeverPersisted",
+    0.9
+   ],
+   [
+    "TestRefineGivesTheExternalRefinerShapesRefusalText",
+    0.9
+   ],
+   [
+    "TestShapeBudgetRolesShape/a_stalled_refine_expires_unavailable_naming_thirty_minutes_and_records_once",
+    0.9
+   ],
+   [
+    "TestShapeBudgetRolesShape/a_stalled_shape_expires_unavailable_naming_thirty_minutes,_is_not_retried_and_records_once",
+    0.9
+   ],
+   [
+    "TestRefineFailedAndCancelledApprovedCorrectionsPreservePackageRawApprovalAndIndex/not_ready",
+    0.9
+   ],
+   [
+    "TestShapeBudgetRolesShape/shape_sends_every_request_under_thirty_minutes_and_records_it_once",
+    0.8
+   ],
+   [
+    "TestCommandInput",
+    0.8
+   ],
+   [
+    "TestNavigationHasFixedShapeAcrossEmptySmallAndLargeCandidateTrees",
+    0.8
+   ]
+  ],
+  "tests": 758
+ },
+ "kogen-verification": {
+  "budget_s": 20,
+  "failed_tests": 2,
+  "over_1s": 24,
+  "over_5s": 0,
+  "package_wall_max_s": 63.8,
+  "package_wall_sum_s": 65.4,
+  "packages": 8,
+  "parallelism_ratio": 1.03,
+  "slowest": [
+   [
+    "TestDependenciesJoiningNoChecksKeepCohortConcurrent",
+    3.8
+   ],
+   [
+    "TestDependencyBetweenChecksKeepsThemSequential",
+    3.6
+   ],
+   [
+    "TestApprovalAcceptanceTimeoutLines",
+    3.2
+   ],
+   [
+    "TestAttemptBoundsEachStepAndKeepsEvidence",
+    2.6
+   ],
+   [
+    "TestShapeAcceptanceTimeoutExplainsItselfWithEvidence",
+    2.5
+   ],
+   [
+    "TestCoverageVerifyAndSerialization",
+    1.9
+   ],
+   [
+    "TestReadinessRefusals",
+    1.7
+   ],
+   [
+    "TestProbeRealTimeoutEscaped",
+    1.6
+   ],
+   [
+    "TestApprovalAcceptanceTimeoutLines/no_report",
+    1.6
+   ],
+   [
+    "TestApprovalAcceptanceTimeoutLines/report_with_a_step",
+    1.6
+   ],
+   [
+    "TestReadinessMutationsCannotCertifyTheChangedBaselineEvenOnRepeatedChecks",
+    1.5
+   ],
+   [
+    "TestChangesWhileTheChecksRanMakeThePassNotGreen",
+    1.5
+   ],
+   [
+    "TestVerifyLiveSilentCommandWaits",
+    1.3
+   ],
+   [
+    "TestShapeProbeMixAndHexHomes",
+    1.3
+   ],
+   [
+    "TestSuccessfulSpeculationRetained",
+    1.3
+   ],
+   [
+    "TestShapeAcceptanceTimeoutExplainsItselfWithEvidence/output",
+    1.3
+   ],
+   [
+    "TestShapeAcceptanceTimeoutExplainsItselfWithEvidence/silent",
+    1.3
+   ],
+   [
+    "TestMaintainedModelsFirstRedAndStage",
+    1.2
+   ],
+   [
+    "TestCancelledSetupCommandStillLogsItsResultWithWallTime",
+    1.2
+   ],
+   [
+    "TestSetupCommandResultsCarryWallTimeAlsoWhenTheCommandFails",
+    1.1
+   ]
+  ],
+  "tests": 558
+ }
+}
