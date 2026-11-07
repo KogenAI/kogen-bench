@@ -1,0 +1,17 @@
+| task | Kogen cells | Kogen mean gain | Kogen all-pass | alone cells | alone mean gain | alone all-pass | difference of mean gain (Kogen - alone) |
+|---|---|---|---|---|---|---|---|
+| rails-ft-data-export-and-import | 1 | 0.00 | 0 of 1 | 3 | 0.85 | 0 of 3 | -0.85 |
+| rails-ft-mysql-fulltext-search-foundation | 1 | 1.00 | 1 of 1 | 3 | 0.85 | 1 of 3 | +0.15 |
+| rails-ft-notification-bundle-window-overlap | 1 | 0.00 | 0 of 1 | 3 | 0.86 | 0 of 3 | -0.86 |
+| rails-ft-saas-billing | 0 | n/a | n/a | 3 | 0.71 | 0 of 3 | n/a |
+| rails-ft-webhook-delivery-trust-and-restart | 1 | 0.88 | 0 of 1 | 3 | 0.88 | 0 of 3 | +0.00 |
+
+Kogen with the shaping fix (round 2): 4 valid cells, mean gain 0.469, all-pass 1 of 4
+Claude Code alone (round 1): 15 valid cells, mean gain 0.828, all-pass 1 of 15
+Kogen release before the fix (round 1): 5 valid cells, mean gain 0.000, all-pass 0 of 5
+
+paired per task (Kogen round-2 cell minus the mean of the 3 alone cells, tasks with a Kogen cell): data-export-and-import -0.85, mysql-fulltext-search-foundation +0.15, notification-bundle-window-overlap -0.86, webhook-delivery-trust-and-restart +0.00
+Kogen cells by outcome: {'landed': 2, 'refused': 2}
+Kogen with the shaping fix: list-equivalent USD 13.98 over 4 cells; median wall 1435 s
+Claude Code alone: list-equivalent USD 24.62 over 15 cells; median wall 260 s
+Kogen before the fix (round 1): list-equivalent USD 11.31 over 5 cells; median wall 873 s

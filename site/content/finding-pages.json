@@ -1563,6 +1563,15 @@
       "comparison": "kogen-verification",
       "finished": "2026-11-07",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-aor-kogen-c7-round2-20261107",
+      "category": "categories/head-to-head.md",
+      "title": "Kogen with the shaping fix against Claude Code alone on five Rails tasks (smoke, round 2)",
+      "comparison": "kogen-vs-agents-alone",
+      "verdict": "unresolved",
+      "finished": "2026-11-07",
+      "summary": "Round 2 of the Rails comparison at the same model and effort (Sonnet 5.5, high). With the shaping fix, Kogen got past shaping on 2 of 4 tasks (the release before the fix: 0 of 5) and both of those builds landed: 16 of 16 hidden checks on one task (Claude Code alone: 1 all-pass in 3 runs) and the same score as Claude Code alone on another. The other two were still refused at shaping and scored the start tree, one partly because Kogen's readiness probes run in a different environment from the shaper's own session. Only 4 of 10 planned Kogen runs could start before the subscription seat ran out of headroom, so the verdict is unresolved: mean gain 0.47 for Kogen against 0.86 for Claude Code alone on the same four tasks."
     }
   ]
 }

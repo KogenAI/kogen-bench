@@ -601,3 +601,5 @@ In Kogen's run logs, the review and verification phases together average about 3
 Hill-climbs on both scoreboards are running as separate patch runs. The patches cover review that resumes the build session, deferred and parallel checks, effort scheduling, context management, reading and tool use. Winning patches will be built into Kogen and kogen-loop, and this page will be updated.
 
 [kogen-loop against Claude Code on one API key](../reproduce/lab-cc-layers-b-20261105/README.md): with the same model, effort, prompt, server and key on 12 Go tasks, kogen-loop finished in 0.80x the agent wall time of Claude Code as Kogen runs it and 0.88x that of a lean Claude Code (faster in 21 of 23 paired blocks each), with 0.64x and 0.85x the tokens; passes 21/24, 20/23 and 22/23.
+
+- [Kogen with the shaping fix against Claude Code alone on five Rails tasks, round 2](../reproduce/lab-aor-kogen-c7-round2-20261107/README.md): with the shaping fix Kogen got past shaping on 2 of 4 tasks and both landed (16 of 16 hidden checks on one, equal to Claude Code alone on the other); two were still refused at shaping. Only 4 of 10 runs started; unresolved, mean gain 0.47 against 0.86.

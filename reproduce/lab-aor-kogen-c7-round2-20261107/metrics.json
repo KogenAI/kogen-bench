@@ -1,0 +1,39 @@
+{
+ "finding_id": "lab-aor-kogen-c7-round2-20261107",
+ "comparison": "kogen-vs-agents-alone",
+ "arms": {
+  "g0": {
+   "label": "Claude Code alone, Sonnet 5.5 high (round 1, stored)",
+   "all_pass": 1,
+   "cells": 15,
+   "hidden_frac_mean": 0.8377,
+   "hidden_passed": 126,
+   "hidden_total": 150,
+   "landed": 0,
+   "ungraded": 0,
+   "valid_intent": 0
+  },
+  "g1": {
+   "label": "candidate: Kogen 40efd025 + kogen-shaping 0484edf + C6 + C7, Sonnet 5.5 high (round 2)",
+   "all_pass": 1,
+   "cells": 4,
+   "hidden_frac_mean": 0.4722,
+   "hidden_passed": 21,
+   "hidden_total": 42,
+   "landed": 2,
+   "ungraded": 0,
+   "valid_intent": 2
+  },
+  "g2": {
+   "label": "Kogen release 3607552 before the shaping fix (round 1, context)",
+   "all_pass": 0,
+   "cells": 5,
+   "hidden_frac_mean": 0.0694,
+   "hidden_passed": 3,
+   "hidden_total": 50,
+   "landed": 0,
+   "ungraded": 0,
+   "valid_intent": 0
+  }
+ }
+}
