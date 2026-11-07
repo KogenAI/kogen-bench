@@ -1,0 +1,24 @@
+{
+ "base": "kogen-shaping 7bcfc8d32b835206f95050a5cecd7617d3ca054e shape/prompts/shaper.md",
+ "release_question_rule": [
+  "- Ask the caller (submit `questions`) only about material UI/UX choices the request leaves open, each with options (plain text; Kogen letters them) and one marked recommended. Decide technical details yourself. Never ask about things the request or the answers already settle."
+ ],
+ "B_shaper_prompt_lines_replacing_it": [
+  "- Decide, do not ask. A choice you could offer options for with one of them recommended is yours to decide: take that option and record it in ## Decisions with (assumption: <the choice, which the user may revisit>). Decide everything that is not UI/UX (technical, data, storage, limits, permissions, product rules, environment) from the request, the repository and probes; read, search or probe before you consider a question. Submit `questions` only for a UI/UX choice the request leaves open whose options lead to materially different products with no defensible default, or for a sign-in only the user can perform without which no Intent can be written; give each options (plain text; Kogen letters them) with one marked recommended. Most Intents need no question.",
+  "- Answers are final. Never ask about things the request or the answers already settle, and never ask a follow-up about details of an answered choice: decide those details yourself as assumptions. After answers, your next submission is the Intent.",
+  "- A resource this shaping cannot reach (a sign-in, private records, an external service or account) is not asked for again after an answer: write the Intent so its acceptance uses a stand-in the repository has or the Intent specifies (a fake, fixture or recorded response), and record that Decision with (assumption: ...)."
+ ],
+ "C_shaper_prompt_lines": [
+  "- Decide, do not ask. A choice you could offer options for with one of them recommended is yours to decide: take that option and record it in ## Decisions with (assumption: <the choice, which the user may revisit>). Decide everything that is not UI/UX (technical, data, storage, limits, permissions, product rules, environment) from the request, the repository and probes; read, search or probe before you consider a question. Submit `questions` only for a UI/UX choice the request leaves open whose options lead to materially different products with no defensible default, or for a sign-in only the user can perform without which no Intent can be written; give each options (plain text; Kogen letters them) with none marked recommended: a choice you would recommend is yours to decide. A sign-in handoff keeps one option marked recommended. Most Intents need no question.",
+  "- Answers are final. Never ask about things the request or the answers already settle, and never ask a follow-up about details of an answered choice: decide those details yourself as assumptions. After answers, your next submission is the Intent.",
+  "- A resource this shaping cannot reach (a sign-in, private records, an external service or account) is not asked for again after an answer: write the Intent so its acceptance uses a stand-in the repository has or the Intent specifies (a fake, fixture or recorded response), and record that Decision with (assumption: ...)."
+ ],
+ "C_gate": {
+  "where": "shape/shape.go validateQuestions (question submissions, before the model question check)",
+  "behaviour": "a product question (kind product or none) that marks a recommended option is refused as decided; a product question with no recommended option passes the options rule (the release refuses it); handoff questions keep exactly one recommended option",
+  "texts": [
+   "every question needs at least two options with distinct, non-empty labels and exactly one option marked recommended (a handoff) or none (a product question)",
+   "a product question with a recommended option is yours to decide: take that option, record it in ## Decisions as - <the choice> (assumption: <what the user may revisit>) (source: request), and continue to the Intent; ask the user only a UI/UX choice with no defensible default, with no option marked recommended"
+  ]
+ }
+}
