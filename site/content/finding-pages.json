@@ -1545,6 +1545,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-06",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-shaping-aor-diagnosis-20261107",
+      "title": "Naming the decision line and controls.json gets Rails shapes through shaping",
+      "summary": "Stage 3's small-request fix reached readiness on 0 of 5 request-only Rails tasks the release is refused on. Reading those cells' own events and replaying their submissions through the gate functions showed three refusals the shaper had no named way to avoid: decisions recorded and checked in the same submission against an exact line no prompt shows, the shaper's own command runs refused as decision evidence although the guidance names them, and a wrong-implementation file (controls.json, with keyword-exact step lines) no prompt names. Four text changes and no gate change: the same five tasks reached readiness on 3 of 5 (before 0 of 5), and five held-out small requests stayed at 10 of 10. The two misses show the next limits: writing the correct implementation up front can outlast the 30-minute deadline, and eight acceptance runs can exceed the check's 300-second cap.",
+      "verdict": "yes",
+      "comparison": "kogen-shaping",
+      "finished": "2026-11-07",
+      "category": "categories/harness-levers.md"
     }
   ]
 }

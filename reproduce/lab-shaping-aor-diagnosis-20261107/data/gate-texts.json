@@ -1,0 +1,29 @@
+{
+ "gates": {
+  "decision_record": {
+   "where": "kogen-shaping c3f9c5e shape/ledger.go:463-528 (decisionReceipt; external-session commands refused at :470-472), recording at :601-625",
+   "called": "shape/shape.go:1499, before every package check"
+  },
+  "carried_decisions": {
+   "where": "kogen-shaping c3f9c5e shape/ledger.go:634-660 (the required line: intentLine, :209-231)",
+   "called": "shape/shape.go:1683, inside the same submission's package check"
+  },
+  "wrong_implementation (controls.json)": {
+   "where": "kogen-shaping c3f9c5e shape/controls.go:757-860 (missing file :811; step match :171-184)",
+   "called": "shape/shape.go:1761, after readiness and a clean contract review"
+  },
+  "intent evidence marker (for comparison)": {
+   "where": "kogen-shaping c3f9c5e shape/evidencemark.go:148 (an external session's `ran` command passes once the session ran a command)"
+  },
+  "decisions tool description (pin text)": {
+   "where": "kogen-shaping c3f9c5e shape/policy.go:151",
+   "text": "evidence lists repository files this shaping read and ran `<command>` items of probes that succeeded"
+  }
+ },
+ "c7_text": {
+  "D (shape/prompts/shaper.md, after the Decisions paragraph)": "When a submission carries `decisions`, Kogen records each new one as D<n>, numbered on from the decisions already recorded (D1 first), in the current shaping round (round 1 in a first shaping), and the Intent of that same submission must already keep it in `## Decisions` as exactly this line: `- <decision> (decision: D<n>, round <r>)`, then ` (constraint: <constraint>)` for each constraint in order, ` (evidence: <evidence items joined by \"; \">)` when it has evidence, ` (assumption: <uncertainty>)` when it has uncertainty, ` (revises: <id> because <why>)` when it revises one, then ` (source: request)`, each text copied exactly from the submitted decision. A decision's evidence items are repository files tracked at HEAD that this shaping read (or `ran `<command>`` of a probe of this shaping that succeeded); a file this package adds is no evidence, so state the uncertainty you decided under instead.",
+  "E (shape/external.go, external-session note)": "Decisions: a command this session ran is no evidence of a submitted decision, because Kogen keeps no output of it; cite the repository files you read and put what the command showed in the decision's uncertainty.",
+  "K (shape/prompts/shaper.md, new item 4 after the step files item)": "4. `controls.json`: when the request asks for properties a step can observe, Kogen's last check, after readiness and the contract review, runs your acceptance against implementations you supply in `.kogen/intents/<slug>/controls.json`; submit it with the first package, because a package without it is refused at that last check. Its form is {\"correct\":{\"files\":{\"<path>\":\"<content>\"}},\"wrong\":[{\"name\":\"<name>\",\"scenario\":\"<scenario title>\",\"step\":\"<step line>\",\"files\":{\"<path>\":\"<content>\"}}]}. `correct` holds product files with which every scenario passes; the files of each wrong implementation go over `correct` and get exactly one property wrong, and `step` is the line of that scenario that must reject it with an assertion of a step file listed under `Acceptance:`, copied exactly as acceptance.feature writes it, keyword included (`Then ...` or `And ...`). Give each property at least one wrong implementation and at most 7 in all, each implementation at most 8 files and 64 KB, never writing acceptance machinery (`.kogen/`, step files, `Acceptance:` files). Kogen runs them itself in isolated copies (all runs together within 300 seconds) and returns the results, so do not run them yourself. These are not the observer controls of Feasibility.",
+  "G (shape/controls.go, appended to the step problem line when the step is a step text of that scenario without its keyword; no verdict changes)": "; write the step line as acceptance.feature writes it, keyword included: \"<keyword> <text>\""
+ }
+}
