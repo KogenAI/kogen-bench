@@ -426,3 +426,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 [Evidence-path instructions in shaping](../reproduce/lab-shaping-evidence-path-screen-20261107/README.md): a small screen with a regression and an unresolved causal signal.
 
 [Preventing transient bytecode in shaping checks](../reproduce/lab-shaping-bytecode-screen-20261107/README.md): a small screen with a regression.
+
+- [Variation in shaping readiness](../reproduce/lab-shaping-baseline-noise1-20261108/README.md): a paired unpatched repeat of ten requests.
