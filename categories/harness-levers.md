@@ -420,3 +420,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Shaping readiness on a fixed request set](../reproduce/lab-shaping-climb-round0-20261107/README.md): 9 of 21 shapes reached readiness without questions.
 
 [Initial evidence-path instruction in shaping](../reproduce/lab-shaping-initial-evidence-screen-20261107/README.md): a screen with three regressions.
+
+[Existing-behavior evidence in shaping](../reproduce/lab-shaping-observed-evidence-screen-20261107/README.md): a screen with three regressions.
