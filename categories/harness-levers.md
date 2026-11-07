@@ -422,3 +422,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 [Initial evidence-path instruction in shaping](../reproduce/lab-shaping-initial-evidence-screen-20261107/README.md): a screen with three regressions.
 
 [Existing-behavior evidence in shaping](../reproduce/lab-shaping-observed-evidence-screen-20261107/README.md): a screen with three regressions.
+
+[Evidence-path instructions in shaping](../reproduce/lab-shaping-evidence-path-screen-20261107/README.md): a small screen with a regression and an unresolved causal signal.
