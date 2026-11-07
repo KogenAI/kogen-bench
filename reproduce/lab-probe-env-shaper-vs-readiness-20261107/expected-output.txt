@@ -1,0 +1,9 @@
+mode	CI_PROGRESS_BAR	counting word	variable names	versions
+a	True	runs	CI_PROGRESS_BAR DATABASE_ADAPTER HOME PARALLEL_WORKERS PATH RUBYOPT SE_AVOID_STATS	ffi 1.17.2; minitest 6.0.6; minitest-reporters 1.8.0; rails 8.2.0.alpha d0e506f; ruby 3.4.8
+b	False	tests	HOME LANG MISE_DATA_DIR MISE_TRUSTED_CONFIG_PATHS PATH TMPDIR	ffi 1.17.2; minitest 6.0.6; minitest-reporters 1.8.0; rails 8.2.0.alpha d0e506f; ruby 3.4.8
+a-noci	False	tests	DATABASE_ADAPTER HOME PARALLEL_WORKERS PATH RUBYOPT SE_AVOID_STATS	ffi 1.17.2; minitest 6.0.6; minitest-reporters 1.8.0; rails 8.2.0.alpha d0e506f; ruby 3.4.8
+b-ci	True	runs	CI_PROGRESS_BAR HOME LANG MISE_DATA_DIR MISE_TRUSTED_CONFIG_PATHS PATH TMPDIR	ffi 1.17.2; minitest 6.0.6; minitest-reporters 1.8.0; rails 8.2.0.alpha d0e506f; ruby 3.4.8
+versions identical in all four runs: True
+a and b differ in counting word: True
+variables only in a: ['CI_PROGRESS_BAR', 'DATABASE_ADAPTER', 'PARALLEL_WORKERS', 'RUBYOPT', 'SE_AVOID_STATS']
+variables only in b: ['LANG', 'MISE_DATA_DIR', 'MISE_TRUSTED_CONFIG_PATHS', 'TMPDIR']

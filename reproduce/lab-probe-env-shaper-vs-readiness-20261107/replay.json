@@ -1,0 +1,32 @@
+{
+ "kind": "model-free-replay",
+ "model_calls": 0,
+ "arms": {
+  "a-shaper-session-env": {
+   "verdict": "prints '3 runs, 5 assertions' (the word the shaper recorded); CI_PROGRESS_BAR=0 is set",
+   "counts": {"runs_printed_runs": 1, "runs_printed_tests": 0, "variables_set": 7},
+   "duration_s": 6
+  },
+  "b-readiness-probe-env": {
+   "verdict": "prints '3 tests, 5 assertions' (the word readiness got); CI_PROGRESS_BAR is not passed on",
+   "counts": {"runs_printed_runs": 0, "runs_printed_tests": 1, "variables_set": 6},
+   "duration_s": 6
+  },
+  "a-without-ci-progress-bar": {
+   "verdict": "removing only CI_PROGRESS_BAR from a gives '3 tests'",
+   "counts": {"runs_printed_runs": 0, "runs_printed_tests": 1, "variables_set": 6},
+   "duration_s": 3
+  },
+  "b-with-ci-progress-bar": {
+   "verdict": "adding only CI_PROGRESS_BAR=0 to b gives '3 runs'",
+   "counts": {"runs_printed_runs": 1, "runs_printed_tests": 0, "variables_set": 7},
+   "duration_s": 6
+  }
+ },
+ "inputs": [
+  {"tree": "Rails application tree the shaper ran in (base commit, test helper and Gemfile.lock unchanged by shaping)", "sha": "da73a36d43bdd96d49d54f2d045e84ce05279086"},
+  {"tree": "Kogen release pin, cli/go.mod", "sha": "40efd02571567cba8a069288f8557ef07645146b"},
+  {"tree": "kogen-verification as pinned by that go.mod (verify/probe.go probeEnv)", "sha": "e1ff81b79447b6c7d43526db332d528a3820b93b"},
+  {"tree": "kogen-shaping as pinned by that go.mod (shape/static.go)", "sha": "0484edf817f6dc74f691f44d5234cf7f6ae0435e"}
+ ]
+}

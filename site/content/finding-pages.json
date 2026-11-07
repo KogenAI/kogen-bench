@@ -1554,6 +1554,15 @@
       "comparison": "kogen-shaping",
       "finished": "2026-11-07",
       "category": "categories/harness-levers.md"
+    },
+    {
+      "id": "lab-probe-env-shaper-vs-readiness-20261107",
+      "title": "A shaper's probe and the readiness run used different environments",
+      "summary": "The same test command printed 3 runs in the shaper session's environment and 3 tests in the environment readiness runs probes in, so a declared probe was refused as expected-versus-actual. Ruby, rails and minitest were identical in all four runs; the application's test helper picks its reporter by CI_PROGRESS_BAR, which the shaper session had and the readiness allowlist drops. Adding that one variable to the probe environment, or removing it from the session's, flips the word in both directions. The session environment is rebuilt from the harness's variables, not captured; one application, one command. A request for the verification component is filed.",
+      "verdict": "yes",
+      "comparison": "kogen-verification",
+      "finished": "2026-11-07",
+      "category": "categories/harness-levers.md"
     }
   ]
 }
