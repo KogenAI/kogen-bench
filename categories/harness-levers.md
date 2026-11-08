@@ -434,3 +434,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Combined evidence and transient-output guidance](../reproduce/lab-shaping-combined-guidance-screen-20261108/README.md): a ten-request shaping screen.
 
 - [Shaping guidance for assumptions and evidence](../reproduce/lab-shaping-assumption-guidance-screen-20261108/README.md): a ten-request assumption guidance screen.
+
+- [Evidence-path guidance before and after rejection](../reproduce/lab-shaping-dual-path-guidance-screen-20261108/README.md): a ten-request evidence-path screen.
