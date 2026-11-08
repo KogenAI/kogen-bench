@@ -1,0 +1,654 @@
+[
+  {
+    "task": "c01",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 77.9,
+    "tokens": {
+      "cached": 34944,
+      "input": 47539,
+      "output": 1739,
+      "reasoning": 50
+    },
+    "usage_unknown_calls": 11,
+    "control_ready": true,
+    "control_wall_s": 69.99,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c01",
+    "rep": 2,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 107.77,
+    "tokens": {
+      "cached": 51840,
+      "input": 67872,
+      "output": 2569,
+      "reasoning": 61
+    },
+    "usage_unknown_calls": 14,
+    "control_ready": true,
+    "control_wall_s": 68.55,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c02",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 146.41,
+    "tokens": {
+      "cached": 65664,
+      "input": 85151,
+      "output": 3923,
+      "reasoning": 132
+    },
+    "usage_unknown_calls": 15,
+    "control_ready": true,
+    "control_wall_s": 132.87,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c02",
+    "rep": 2,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": false,
+    "questions": false,
+    "refusal": "intent/not_ready",
+    "wall_s": 106.99,
+    "tokens": {
+      "cached": 43776,
+      "input": 68333,
+      "output": 3488,
+      "reasoning": 136
+    },
+    "usage_unknown_calls": 9,
+    "control_ready": true,
+    "control_wall_s": 98.12,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "intent",
+        "problems": [
+          "decisions: - Use `numbers.Number` for the technical interpretation of number; preserve native addition for numeric operands. must end with `(source: request)` or `(source: answer <n>)`"
+        ]
+      },
+      {
+        "attempt": 2,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: Use Python's `numbers.Number` definition of numeric input (including bool, which Python treats as numeric). | request_quotes:  | verdict: unsupported | why: The request does not specify whether bool is to count as numeric.",
+          "statement: - Preserve numeric addition: retain the existing integer test and add float, complex and bool numeric cases (unit). | request_quotes:  | verdict: unsupported | why: The request does not explicitly specify the outcomes for these numeric cases, particularly bool.",
+          "statement: - Existing unit command and direct callable import succeeded (`python3 tests/test_calc.py` and `python3 -c 'import sys; sys.path.insert(0, \"src\"); from calc import add; print(add(2, 3))'`, probe exit 0). This simple local validation has no uncertain external dependencies or risky observer"
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Superseded: `src/calc.py:2` currently allows strings and lists to concatenate; reject those nonnumbers instead. Preserve the existing integer addition test. | request_quotes: \"Make add(a, b) in src/calc.py raise a TypeError when either argument is not a number, with a unit test.\" | verd",
+          "statement: - Reject nonnumbers in either position, including pairs currently accepted for concatenation: add focused unit cases for strings and lists in `tests/test_calc.py` (unit). | request_quotes: \"Make add(a, b) in src/calc.py raise a TypeError when either argument is not a number, with a unit t",
+          "statement: - Preserve numeric addition: retain the existing test of add(2, 3) returning 5 (existing). | request_quotes:  | verdict: unsupported | why: The probe demonstrates the stated existing result for this concrete input."
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c03",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 114.66,
+    "tokens": {
+      "cached": 32000,
+      "input": 57579,
+      "output": 3591,
+      "reasoning": 223
+    },
+    "usage_unknown_calls": 10,
+    "control_ready": true,
+    "control_wall_s": 100.72,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c03",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": false,
+    "questions": false,
+    "refusal": "intent/not_ready",
+    "wall_s": 89.52,
+    "tokens": {
+      "cached": 37248,
+      "input": 50225,
+      "output": 2948,
+      "reasoning": 97
+    },
+    "usage_unknown_calls": 7,
+    "control_ready": false,
+    "control_wall_s": 142.91,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Cover the calculation and zero rejection with focused callable unit tests using the existing unittest setup. (source: request) | request_quotes: \"with tests.\" | verdict: unsupported | why: Tests are requested, but an existing unittest setup is neither specified nor established by suppli"
+        ]
+      },
+      {
+        "attempt": 2,
+        "gate": "decision_evidence",
+        "problems": [
+          "- decision 2: tests/test_calc.py imports unittest and defines T.test_add is not a file or directory tracked at HEAD",
+          "- decision 2: .kogen/project.yaml runs python3 tests/test_calc.py is not a file or directory tracked at HEAD"
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Addressed: the complete request to add `divide(a, b)` in `src/calc.py`, return a divided by b, raise `ZeroDivisionError` with `cannot divide by zero` when b is 0, and include tests is specified above and exercised in acceptance.feature and divide__calc.js. | request_quotes: \"raise ZeroD"
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c04",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 134.99,
+    "tokens": {
+      "cached": 66816,
+      "input": 85434,
+      "output": 3164,
+      "reasoning": 53
+    },
+    "usage_unknown_calls": 17,
+    "control_ready": true,
+    "control_wall_s": 131.46,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c04",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 128.17,
+    "tokens": {
+      "cached": 59776,
+      "input": 85425,
+      "output": 2886,
+      "reasoning": 31
+    },
+    "usage_unknown_calls": 17,
+    "control_ready": true,
+    "control_wall_s": 139.59,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c05",
+    "rep": 1,
+    "host": "macbook",
+    "control_host": "macbook",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 160.49,
+    "tokens": {
+      "cached": 58112,
+      "input": 95359,
+      "output": 4339,
+      "reasoning": 119
+    },
+    "usage_unknown_calls": 17,
+    "control_ready": true,
+    "control_wall_s": 133.58,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c05",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "macbook",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 176.84,
+    "tokens": {
+      "cached": 94720,
+      "input": 124619,
+      "output": 4675,
+      "reasoning": 71
+    },
+    "usage_unknown_calls": 24,
+    "control_ready": false,
+    "control_wall_s": 103.71,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - A local probe ran `go run ./cmd/slug Hello World; go run ./cmd/slug --sep _ Hello World` successfully (exit 0), observing `hello-world\\n--sep-_-hello-world\\n`; the latter demonstrates the missing flag rather than a tool/setup failure. No material external capability uncertainty or gener"
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: Support `go run ./cmd/slug --sep _ Hello World` producing `hello_world\\n`. | request_quotes: \"Add a --sep flag to the slug command that sets the separator placed between words (default \"-\"), with a test.\" | verdict: unsupported | why: The separator substitution follows the request, but th"
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c06",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 127.47,
+    "tokens": {
+      "cached": 48512,
+      "input": 71412,
+      "output": 3717,
+      "reasoning": 45
+    },
+    "usage_unknown_calls": 14,
+    "control_ready": true,
+    "control_wall_s": 130.78,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c06",
+    "rep": 2,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 153.21,
+    "tokens": {
+      "cached": 65024,
+      "input": 81475,
+      "output": 4134,
+      "reasoning": 53
+    },
+    "usage_unknown_calls": 15,
+    "control_ready": true,
+    "control_wall_s": 165.57,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c07",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": false,
+    "questions": false,
+    "refusal": "intent/not_ready",
+    "wall_s": 115.13,
+    "tokens": {
+      "cached": 47104,
+      "input": 62120,
+      "output": 3850,
+      "reasoning": 225
+    },
+    "usage_unknown_calls": 9,
+    "control_ready": false,
+    "control_wall_s": 93.53,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "intent",
+        "problems": [
+          "decisions: - Interpret characters as Unicode code points, not UTF-8 bytes; nonpositive limits return empty. These are technical boundary definitions of the requested string interface. must end with `(source: request)` or `(source: answer <n>)`"
+        ]
+      },
+      {
+        "attempt": 2,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: For n <= 0 return the empty string. | request_quotes:  | verdict: unsupported | why: The request does not specify results for nonpositive limits.",
+          "statement: - Empty input and nonpositive limits return empty: add Truncate unit cases for empty input, zero and negative limits (unit). | request_quotes:  | verdict: unsupported | why: In particular, behavior for zero and negative limits is not specified by the request."
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "step_selfcheck",
+        "problems": [
+          "- exit_code features/steps/truncate__function.js: step definition truncate: the result is {string} asserts an exit code but obtains it through go run, which changes exit codes; build the binary (go build) and run it instead"
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c07",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": false,
+    "questions": false,
+    "refusal": "intent/not_ready",
+    "wall_s": 99.56,
+    "tokens": {
+      "cached": 46848,
+      "input": 58293,
+      "output": 3406,
+      "reasoning": 240
+    },
+    "usage_unknown_calls": 7,
+    "control_ready": false,
+    "control_wall_s": 146.62,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "validation",
+        "problems": [
+          ".kogen/intents/truncate/driver.go: shaping may write only .kogen/intents/truncate/{intent.md,acceptance.feature,model.qnt,controls.json} and step files under features/steps/"
+        ]
+      },
+      {
+        "attempt": 2,
+        "gate": "intent",
+        "problems": [
+          "decisions: - Interpret characters as Unicode code points, not UTF-8 bytes; trim all trailing hyphens after limiting, including already-short inputs. Nonpositive limits produce an empty result. These settle boundary semantics without adding options. must end with `(source: request)` or `(source: answ"
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Interpret the requested character bound as Unicode code points; remove all trailing hyphens, including from already-short inputs, and return empty for nonpositive limits. (source: request) | request_quotes: \"shortens a slug to at most n characters without leaving a trailing hyphen\" | ve",
+          "statement: For n <= 0 return the empty string. | request_quotes: \"shortens a slug to at most n characters without leaving a trailing hyphen\" | verdict: unsupported | why: Zero implies an empty result, but the request does not specify negative-limit behavior."
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c08",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 82.62,
+    "tokens": {
+      "cached": 30848,
+      "input": 43121,
+      "output": 2353,
+      "reasoning": 0
+    },
+    "usage_unknown_calls": 9,
+    "control_ready": true,
+    "control_wall_s": 85.28,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c08",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 97.73,
+    "tokens": {
+      "cached": 33152,
+      "input": 48088,
+      "output": 2488,
+      "reasoning": 0
+    },
+    "usage_unknown_calls": 11,
+    "control_ready": true,
+    "control_wall_s": 128.3,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c09",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": false,
+    "questions": false,
+    "refusal": "intent/not_ready",
+    "wall_s": 106.0,
+    "tokens": {
+      "cached": 50176,
+      "input": 65803,
+      "output": 3620,
+      "reasoning": 0
+    },
+    "usage_unknown_calls": 9,
+    "control_ready": false,
+    "control_wall_s": 91.47,
+    "refusals": [
+      {
+        "attempt": 1,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Keep the slug `negative-price`, Intent paths, and exclusively prefixed step bindings under `features/steps/negative-price__format.js` (source: request). | request_quotes: \"Slug: negative-price\" | verdict: unsupported | why: The slug is supplied, but the request does not specify Intent p",
+          "statement: - Addressed: testing rules require rejection, boundary and adjacent valid cases; acceptance covers -1, a fractional negative, a larger negative, zero and 1, while preserving the existing 123 case. No requested behavior is omitted or superseded. Existing unpadded formatting is preserved ra",
+          "statement: - The zero boundary and adjacent positive input continue to format normally, and the existing 123 case remains unchanged: add zero and 1 assertions and retain the existing 123 assertion in test/price.test.js; acceptance checks the same observable results (unit). | request_quotes:  | verdi"
+        ]
+      },
+      {
+        "attempt": 2,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: Preservation expectations derive from src/price.js:3-5, whose arithmetic and interpolation return $0.0 for zero and $0.1 for 1, and test/price.test.js:5-7, which asserts $1.23 for 123. | request_quotes:  | verdict: unsupported | why: The request specifies no nonnegative outputs, and no pr",
+          "statement: - Preserve nonnegative results derived from src/price.js:3-5 and test/price.test.js:5-7: add zero and 1 assertions and retain the existing 123 assertion in test/price.test.js; acceptance checks $0.0, $0.1 and $1.23 respectively (unit). | request_quotes:  | verdict: unsupported | why: Thes"
+        ]
+      },
+      {
+        "attempt": 3,
+        "gate": "decision_check",
+        "problems": [
+          "Mark an assumption with (assumption: <what the user must confirm>) before the required trailing tag, e.g. - <decision> (assumption: <what the user must confirm>) (source: request); every Decision line keeps its trailing (source: request) or (source: answer N).",
+          "statement: - Probe 1 confirmed existing nonnegative formatting by calling the exported function for 0, 1 and 123; output was `0 $0.0\\n1 $0.1\\n123 $1.23\\n`. (probe 1: exit 0, 0.0 s) | request_quotes:  | verdict: unsupported | why: The reported concrete outputs match the supplied successful probe."
+        ]
+      }
+    ],
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c09",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 116.2,
+    "tokens": {
+      "cached": 53376,
+      "input": 70675,
+      "output": 3272,
+      "reasoning": 25
+    },
+    "usage_unknown_calls": 13,
+    "control_ready": true,
+    "control_wall_s": 129.85,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c10",
+    "rep": 1,
+    "host": "studio",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 164.16,
+    "tokens": {
+      "cached": 66688,
+      "input": 84216,
+      "output": 5627,
+      "reasoning": 67
+    },
+    "usage_unknown_calls": 14,
+    "control_ready": true,
+    "control_wall_s": 150.87,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  },
+  {
+    "task": "c10",
+    "rep": 2,
+    "host": "macbook",
+    "control_host": "studio",
+    "ready": true,
+    "questions": false,
+    "refusal": null,
+    "wall_s": 142.65,
+    "tokens": {
+      "cached": 67712,
+      "input": 84065,
+      "output": 4318,
+      "reasoning": 42
+    },
+    "usage_unknown_calls": 15,
+    "control_ready": true,
+    "control_wall_s": 147.64,
+    "valid_intent": true,
+    "control_valid_intent": true,
+    "acceptance_separates_correct_and_incorrect": null,
+    "hidden_grader_pass": null,
+    "control_acceptance_separates_correct_and_incorrect": null,
+    "control_hidden_grader_pass": null
+  }
+]

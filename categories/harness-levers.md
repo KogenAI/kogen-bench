@@ -444,3 +444,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Review verdict refusals](../reproduce/lab-review-invalid-quote-and-unread/README.md): one escaped quotation and one unread-evidence refusal; scratch gate replay.
 
 [Approval delays lack phase attribution](../reproduce/approval-delay-evidence/README.md): two approvals exceeded 94 minutes, but surviving evidence does not identify the blocking call. Individual readiness commands had time limits.
+
+- [Screen of shaping evidence and probe handling](../reproduce/lab-shaping-evidence-probe-screen-20261108/README.md): paired readiness screen.
