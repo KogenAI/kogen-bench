@@ -442,3 +442,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Historical and current shaping releases](../reproduce/lab-shaping-historical-current-20261108/README.md): paired readiness on ten requests.
 
 - [Review verdict refusals](../reproduce/lab-review-invalid-quote-and-unread/README.md): one escaped quotation and one unread-evidence refusal; scratch gate replay.
+
+[Approval delays lack phase attribution](../reproduce/approval-delay-evidence/README.md): two approvals exceeded 94 minutes, but surviving evidence does not identify the blocking call. Individual readiness commands had time limits.
