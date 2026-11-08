@@ -1,0 +1,13 @@
+# Historical and current shaping releases
+
+On the same ten small requests, each repeated twice with Sol low and no answerer, the historical full release reached readiness 20/20 (repetitions 10/10 and 10/10); the current full release reached 15/20 (8/10 and 7/10). At the paired task-and-repetition level, 0 changed from not ready to ready and 5 from ready to not ready. See the data for per-task outcomes and wall times. Timings include failed attempts. Readiness is not a hidden-grader pass, and implementation landing and hidden checks were not measured.
+
+This compares full releases, not an isolated shaper change: historical [Kogen d98cfe01](https://github.com/KogenAI/kogen/tree/d98cfe018ef5717de8e67d91fb39f91f997bea9e) pins [shaping f04edcea](https://github.com/KogenAI/kogen-shaping/tree/f04edcea9896db525855a810bf6c0429b8494278), while current [Kogen 47236bbb](https://github.com/KogenAI/kogen/tree/47236bbb93385bc960fd2ac353c9b000bd6ed571) pins [shaping 0484edf8](https://github.com/KogenAI/kogen-shaping/tree/0484edf817f6dc74f691f44d5234cf7f6ae0435e). The historical release uses its older project.yaml model configuration; both used Sol low. Arms alternated per host, and each task's arms ran on the same host. Small Go and Node workspaces are reconstructions whose byte identity with the original study is unverified.
+
+The shared balance reading did not move from 53,624; attributable credits are unknown. Usage totals contain unknown provider calls. Held-out and complex tasks were not run. Earlier unpatched repeats reached 6/10 and 7/10, so small differences need caution. All historical cells reached readiness. All five non-ready current cells reached the decision check after the Intent-format gate.
+
+Discordant traces (stage shaping; class e, causal attribution unproven): c03 repetition 2 exhausted decision checks; c05 repetition 2 ended at step self-check after decision checks; c07 repetition 1 ended at decision evidence after format and decision checks, while repetition 2 ended at contract review after those checks; c09 repetition 1 ended at decision check after a decision-evidence refusal. Both releases differ in more than one component, so these traces do not isolate any individual code change.
+
+## Rerun
+
+Run `python3 report.py` to recompute results from `data.json`. For new model runs, follow the [small-request setup](../lab-shaping-small-requests-20261107/README.md) at both pinned full releases, use the same ten requests with Sol low and no answerer, alternate the releases on each host, and record terminal readiness, questions, wall and credit readings. The historical release reads its shape model configuration from project.yaml.
