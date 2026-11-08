@@ -436,3 +436,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Shaping guidance for assumptions and evidence](../reproduce/lab-shaping-assumption-guidance-screen-20261108/README.md): a ten-request assumption guidance screen.
 
 - [Evidence-path guidance before and after rejection](../reproduce/lab-shaping-dual-path-guidance-screen-20261108/README.md): a ten-request evidence-path screen.
+
+- [Guidance for carrying shaping decisions](../reproduce/lab-shaping-carried-decision-screen-20261108/README.md): a ten-request carried-decision screen.
