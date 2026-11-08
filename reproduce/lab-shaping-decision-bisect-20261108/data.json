@@ -1,0 +1,565 @@
+{
+  "model": "gpt-6.1-sol low",
+  "answerer": "none",
+  "client": "d98cfe018ef5717de8e67d91fb39f91f997bea9e",
+  "shaping": {
+    "baseline": "f04edcea9896db525855a810bf6c0429b8494278",
+    "old": "6027f353166b0e44b711f91b91bd8cb82107e832",
+    "new": "1e795ede88104c4cf496683c5c3ad660ce30e042"
+  },
+  "finished_at": "2026-11-08T19:12:17.111636Z",
+  "git_version": "git version 2.54.0 (Apple Git-157)",
+  "binary_sha256": {
+    "baseline": "61d528e9859457e6c9ec7304e939a0673623f8ddddfa68b554bd7a5d53cac8ea",
+    "old": "cb9cc4ecb952a047d0d8dcec9d9284da4ef46f59a9443b6274e470d637371d74",
+    "new": "6d4fd1af338164fe800e9ff9ecd353f6773c96600f3dd2c2734f357e03eaa119"
+  },
+  "cells": [
+    {
+      "task": "c03",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 59.0,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T15:44:18.043913+00:00",
+      "credit_epoch": 1794152595,
+      "balance": 53624,
+      "gate_sequence": [
+        "step_selfcheck"
+      ]
+    },
+    {
+      "task": "c03",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 89.63,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T15:47:00.748356+00:00",
+      "credit_epoch": 1794152686,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c03",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 83.95,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T15:48:25.655105+00:00",
+      "credit_epoch": 1794152777,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c03",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 57.55,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T15:49:24.131417+00:00",
+      "credit_epoch": 1794152867,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c05",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 84.64,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T15:50:49.706949+00:00",
+      "credit_epoch": 1794152958,
+      "balance": 53624,
+      "gate_sequence": [
+        "step_selfcheck"
+      ]
+    },
+    {
+      "task": "c05",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": false,
+      "questions_asked": false,
+      "wall_s": 96.53,
+      "exit_code": 1,
+      "finished_at": "2026-11-08T15:59:02.187150+00:00",
+      "credit_epoch": 1794153414,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "decision_check",
+        "decision_check"
+      ]
+    },
+    {
+      "task": "c05",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 114.65,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:00:58.001751+00:00",
+      "credit_epoch": 1794153505,
+      "balance": 53624,
+      "gate_sequence": [
+        "decision_check"
+      ]
+    },
+    {
+      "task": "c05",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 86.77,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:02:29.841545+00:00",
+      "credit_epoch": 1794153641,
+      "balance": 53624,
+      "gate_sequence": [
+        "step_selfcheck",
+        "readiness"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 134.18,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:10:45.433543+00:00",
+      "credit_epoch": 1794154106,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "step_selfcheck"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": false,
+      "questions_asked": false,
+      "wall_s": 90.33,
+      "exit_code": 1,
+      "finished_at": "2026-11-08T16:12:20.476731+00:00",
+      "credit_epoch": 1794154245,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "decision_check",
+        "question_check"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 156.37,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:37:31.082214+00:00",
+      "credit_epoch": 1794155660,
+      "balance": 53624,
+      "gate_sequence": [
+        "validation",
+        "intent"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 108.97,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:39:34.197533+00:00",
+      "credit_epoch": 1794155841,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent"
+      ]
+    },
+    {
+      "task": "c09",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 47.14,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:40:29.916059+00:00",
+      "credit_epoch": 1794155933,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c09",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": false,
+      "questions_asked": false,
+      "wall_s": 82.86,
+      "exit_code": 1,
+      "finished_at": "2026-11-08T16:42:11.392967+00:00",
+      "credit_epoch": 1794156023,
+      "balance": 53624,
+      "gate_sequence": [
+        "decision_check",
+        "decision_evidence",
+        "decision_check"
+      ]
+    },
+    {
+      "task": "c09",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": false,
+      "questions_asked": false,
+      "wall_s": 83.32,
+      "exit_code": 1,
+      "finished_at": "2026-11-08T16:44:01.532113+00:00",
+      "credit_epoch": 1794156114,
+      "balance": 53624,
+      "gate_sequence": [
+        "decision_check",
+        "decision_evidence",
+        "decision_check"
+      ]
+    },
+    {
+      "task": "c09",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 59.92,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:45:07.809030+00:00",
+      "credit_epoch": 1794156205,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c01",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 37.4,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:45:47.219550+00:00",
+      "credit_epoch": 1794156296,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c01",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 84.12,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T16:47:13.995809+00:00",
+      "credit_epoch": 1794156341,
+      "balance": 53624,
+      "gate_sequence": [
+        "step_selfcheck"
+      ]
+    },
+    {
+      "task": "c01",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 59.74,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T17:21:18.908670+00:00",
+      "credit_epoch": 1794158389,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c01",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 57.3,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T17:22:33.819879+00:00",
+      "credit_epoch": 1794158435,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c02",
+      "rep": 1,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 84.14,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T17:24:00.377353+00:00",
+      "credit_epoch": 1794158526,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent"
+      ]
+    },
+    {
+      "task": "c02",
+      "rep": 1,
+      "arm": "new",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 113.93,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:02:33.614776+00:00",
+      "credit_epoch": 1794160803,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "decision_check"
+      ]
+    },
+    {
+      "task": "c02",
+      "rep": 2,
+      "arm": "new",
+      "host": "macbook",
+      "ready": false,
+      "questions_asked": false,
+      "wall_s": 105.67,
+      "exit_code": 1,
+      "finished_at": "2026-11-08T18:04:35.455402+00:00",
+      "credit_epoch": 1794160940,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "decision_check",
+        "decision_evidence"
+      ]
+    },
+    {
+      "task": "c02",
+      "rep": 2,
+      "arm": "old",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 94.27,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:06:15.977703+00:00",
+      "credit_epoch": 1794161031,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent"
+      ]
+    },
+    {
+      "task": "c03",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 74.07,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:08:04.482820+00:00",
+      "credit_epoch": 1794161168,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c03",
+      "rep": 2,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 55.88,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:09:06.850871+00:00",
+      "credit_epoch": 1794161260,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c05",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 98.62,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:11:08.454603+00:00",
+      "credit_epoch": 1794161305,
+      "balance": 53624,
+      "gate_sequence": [
+        "readiness"
+      ]
+    },
+    {
+      "task": "c05",
+      "rep": 2,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 95.16,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T18:12:46.894469+00:00",
+      "credit_epoch": 1794161442,
+      "balance": 53624,
+      "gate_sequence": [
+        "step_selfcheck",
+        "readiness"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 119.26,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:05:19.433298+00:00",
+      "credit_epoch": 1794164581,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent",
+        "step_selfcheck"
+      ]
+    },
+    {
+      "task": "c07",
+      "rep": 2,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 107.89,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:07:25.810822+00:00",
+      "credit_epoch": 1794164718,
+      "balance": 53624,
+      "gate_sequence": [
+        "intent"
+      ]
+    },
+    {
+      "task": "c09",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 49.91,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:08:29.075217+00:00",
+      "credit_epoch": 1794164809,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c09",
+      "rep": 2,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 42.85,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:09:20.094055+00:00",
+      "credit_epoch": 1794164900,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c01",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 42.21,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:10:16.764831+00:00",
+      "credit_epoch": 1794164946,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c01",
+      "rep": 2,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 48.29,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:11:07.050478+00:00",
+      "credit_epoch": 1794164991,
+      "balance": 53624,
+      "gate_sequence": []
+    },
+    {
+      "task": "c02",
+      "rep": 1,
+      "arm": "baseline",
+      "host": "macbook",
+      "ready": true,
+      "questions_asked": false,
+      "wall_s": 59.31,
+      "exit_code": 0,
+      "finished_at": "2026-11-08T19:12:17.111636+00:00",
+      "credit_epoch": 1794165036,
+      "balance": 53624,
+      "gate_sequence": []
+    }
+  ]
+}
