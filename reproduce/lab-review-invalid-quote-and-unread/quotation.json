@@ -1,0 +1,4 @@
+{
+  "requirement": "Claude sign-in is `kogen provider login claude-code`, and the page says it \"installs Kogen's own Claude Code and opens its sign-in\"",
+  "finding_message": "Unmet requirement: \"Claude sign-in is `kogen provider login claude-code`, and the page says it \\\"installs Kogen's own Claude Code and opens its sign-in\\\"\". docs/getting-started.md at Kogen main (lines 41 and 47) says `kogen provider login claude-code` takes a \"Claude Code token from claude setup-token\", read from standard input. It does not say the command opens a sign-in. The page sentence, which the protected acceptance requires word for word, therefore states something the release docs contradict. The acceptance also forbids `setup-token` on the page, so the page cannot match the docs here. This is a contradiction between the protected acceptance and Kogen main, and the Intent says to report it instead of editing around it."
+}

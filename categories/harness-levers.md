@@ -440,3 +440,5 @@ A [per-test profile of nine suites](finding:lab-tests-l4-per-test-profile-202611
 - [Guidance for carrying shaping decisions](../reproduce/lab-shaping-carried-decision-screen-20261108/README.md): a ten-request carried-decision screen.
 
 - [Historical and current shaping releases](../reproduce/lab-shaping-historical-current-20261108/README.md): paired readiness on ten requests.
+
+- [Review verdict refusals](../reproduce/lab-review-invalid-quote-and-unread/README.md): one escaped quotation and one unread-evidence refusal; scratch gate replay.
