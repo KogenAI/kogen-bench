@@ -121,21 +121,27 @@ class Run(unittest.TestCase):
                 time.sleep(0.1)
             self.assertFalse(alive(pid), "grandchild survived the deadline")
 
-    def test_leftover_child_killed_after_leader_exits(self):
+    def test_leftover_child_is_unknown_without_post_reap_signal(self):
+        # The independently spawned fixture exits naturally; no process is signalled after leader reaping.
         with tempfile.TemporaryDirectory() as d:
             pidfile = os.path.join(d, "pid")
-            code = (
-                "import subprocess,sys\n"
-                "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)'])\n"
-                f"open({pidfile!r},'w').write(str(p.pid))\n"
-            )
-            self.assertEqual(common.run([sys.executable, "-c", code], deadline_s=30), (0, False))
-            pid = int(read(pidfile))
-            for _ in range(50):
-                if not alive(pid):
-                    break
+            code = ("import subprocess,sys\n"
+                    "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(1)'])\n"
+                    f"open({pidfile!r},'w').write(str(p.pid))\n")
+            with self.assertRaises(common.CustodyUnknown):
+                common.run([sys.executable, "-c", code], deadline_s=30)
+            pid = int(read(pidfile)); self.assertTrue(alive(pid))
+            for _ in range(30):
+                if not alive(pid): break
                 time.sleep(0.1)
             self.assertFalse(alive(pid))
+
+    def test_reaped_leader_never_receives_group_signal(self):
+        from unittest.mock import Mock, patch
+        proc=Mock(pid=1234,returncode=0)
+        with patch.object(common, '_killpg') as send, patch.object(common, '_require_group_gone') as check:
+            common._kill_group(proc)
+        send.assert_not_called();check.assert_called_once_with(1234)
 
     def test_interrupt_kills_group(self):
         # Run common.run in a subprocess, interrupt it, and check its child dies.

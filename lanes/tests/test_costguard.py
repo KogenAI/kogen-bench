@@ -458,16 +458,17 @@ class LanesRun(unittest.TestCase):
         env = dict(self.p.env, LANES_SSH=os.path.join(os.path.dirname(BIN), "tests", "fixtures", "fake-ssh"))
         r = subprocess.run([sys.executable, os.path.join(BIN, "lanes-run"), run, "--hosts", hosts], env=env,
                            capture_output=True, text=True, timeout=300)
-        self.assertEqual(r.returncode, 3, r.stderr)
+        # Remote stop cannot prove descendants exited. Keep custody instead of
+        # fabricating terminal results or releasing either native claim.
+        self.assertEqual(r.returncode, 6, r.stderr)
         self.assertIn("hard cost cap reached", r.stderr)
-        self.assertEqual(self.finished(run), [])  # stopped before they could finish (30 requests = 15 s)
-        with open(os.path.join(run, costguard.LEDGER)) as f:  # what the killed attempts spent is kept
-            ledger = [json.loads(line) for line in f]
-        self.assertEqual(len(ledger), 2)
-        self.assertGreaterEqual(costguard.estimate(run), 0.0075)
+        self.assertIn("process custody unknown", r.stderr)
+        self.assertEqual(self.finished(run), [])
+        self.assertTrue(os.path.isfile(os.path.join(run, "CUSTODY_UNKNOWN.json")))
+        self.assertEqual(len(glob.glob(os.path.join(run, "claims", "*.json"))), 2)
         self.assertEqual(common.read_json(os.path.join(run, costguard.STOP))["cap"], "hard")
         for root in roots:
-            self.assertEqual([p for p in glob.glob(os.path.join(root, "runs", "cap-remote", "*")) if "pgid-" in p], [])
+            self.assertTrue(os.path.isdir(os.path.join(root, "runs", "cap-remote")))
 
 
 if __name__ == "__main__":

@@ -79,17 +79,21 @@ HOG = ("import os,time\nkeep=[]\n"
 
 
 class Watchdog(unittest.TestCase):
-    def test_kills_a_process_tree_over_the_cap(self):
-        parent = subprocess.Popen([sys.executable, "-c", f"import subprocess,sys;subprocess.run([sys.executable,'-c',{HOG!r}])"],
-                                  start_new_session=True)
-        self.addCleanup(lambda: (common._killpg(parent.pid, 9), parent.wait()))
-        dog = memcap.Watchdog(parent.pid, 60 << 20, sample_s=0.3, grace_s=1).start()
-        t0 = time.monotonic()
-        parent.wait(timeout=20)
-        dog.stop()
-        self.assertLess(time.monotonic() - t0, 15)
-        self.assertGreater(dog.hit["peak_rss"], 60 << 20)
-        self.assertEqual(dog.hit["cap"], 60 << 20)
+    def test_over_cap_flags_without_signalling_then_owner_stops(self):
+        from unittest import mock
+        table=lambda:{4321:(1,80*1024)}
+        with mock.patch('os.kill',side_effect=AssertionError('watchdog must not signal')), mock.patch('os.killpg',side_effect=AssertionError('watchdog must not signal')):
+            dog=memcap.Watchdog(4321,60 << 20,sample_s=0.01,table=table).start()
+            end=time.monotonic()+2
+            while dog.hit is None and time.monotonic()<end:time.sleep(.01)
+            dog.stop()
+        self.assertGreater(dog.hit['peak_rss'],60 << 20);self.assertEqual(dog.hit['cap'],60 << 20)
+
+    def test_watchdog_hit_after_leader_exit_does_not_claim_memory_kill(self):
+        limiter=type('L',(),{'cgroups':None,'cap':100,'mechanism':'watchdog'})()
+        guard=memcap.Guard(limiter,'test')
+        guard.dog=type('D',(),{'hit':{'cap':100,'peak_rss':101,'at':time.time()},'stop':lambda self:None})()
+        self.assertIsNone(guard.finish())
 
     def test_leaves_a_small_process_alone(self):
         p = subprocess.Popen([sys.executable, "-c", "import time;time.sleep(1.5)"], start_new_session=True)
@@ -122,8 +126,16 @@ class FaultTest(unittest.TestCase):
         code = dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=test_dispatch.FAKE_LANES,
                                 skip_preflight=True, log=logs.append)
         self.assertLess(time.monotonic() - t0, 120)
-        self.assertEqual(code, 0, logs)
         hogged = common.cell_dir(self.run_dir, hog)
+        if not DELEGATED:
+            self.assertEqual(code,6,logs)
+            record=common.read_json(os.path.join(hogged,'memory-cap.json'))
+            self.assertEqual(record['cap'],memcap.parse_size(CAP))
+            self.assertGreaterEqual(record['peak_rss'],record['cap'])
+            self.assertTrue(os.path.isfile(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+            self.assertFalse(os.path.isfile(os.path.join(hogged,'result.json')))
+            return record,logs
+        self.assertEqual(code, 0, logs)
         record = common.read_json(os.path.join(hogged, "memory-cap.json"))
         result = common.read_json(os.path.join(hogged, "result.json"))
         self.assertEqual(result["outcome"], "memory_cap")

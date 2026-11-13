@@ -5,13 +5,11 @@ The cap stops one cell, never the run: the dispatcher records `memory-cap.json` 
 
 import os
 import re
-import signal
 import subprocess
 import sys
 import threading
 import time
 
-from . import common
 
 SAMPLE_S = 10.0  # watchdog: time between two sums of the tree's resident set (10 s: one `ps -A` per cell every 2 s overloaded a 10-core host)
 TERM_GRACE_S = 3.0  # watchdog: TERM first, KILL after this
@@ -66,16 +64,9 @@ def tree_rss(root, table):
     return sum(table[p][1] for p in tree(root, table)) * 1024
 
 
-def _signal(pids, sig):
-    for pid in pids:
-        try:
-            os.kill(pid, sig)
-        except (ProcessLookupError, PermissionError):
-            pass
-
 
 class Watchdog:
-    """Every `SAMPLE_S` seconds sums the RSS of a process tree; above `cap` bytes kills it (TERM, then KILL)."""
+    """Observe RSS and flag excess; the process owner alone controls termination."""
 
     def __init__(self, root, cap, sample_s=SAMPLE_S, grace_s=TERM_GRACE_S, table=ps_table):
         self.root, self.cap, self.sample_s, self.grace_s, self.table = root, cap, sample_s, grace_s, table
@@ -102,21 +93,7 @@ class Watchdog:
             self.peak = max(self.peak, rss)
             if rss > self.cap:
                 self.hit = {"cap": self.cap, "peak_rss": self.peak, "at": time.time()}
-                self._kill(tree(self.root, table))
                 return
-
-    def _kill(self, pids):
-        _signal(pids, signal.SIGTERM)
-        common._killpg(self.root, signal.SIGTERM)
-        end = time.monotonic() + self.grace_s
-        while time.monotonic() < end and any(p in self.table() for p in pids):
-            time.sleep(0.1)
-        try:
-            pids = pids | tree(self.root, self.table())  # what it started meanwhile
-        except (OSError, subprocess.SubprocessError):
-            pass
-        _signal(pids, signal.SIGKILL)
-        common._killpg(self.root, signal.SIGKILL)
 
 
 # ---- cgroup v2 ------------------------------------------------------------------------------
@@ -239,6 +216,7 @@ class Guard:
     def __init__(self, limiter, name):
         self.limiter, self.name = limiter, name.replace("/", "__")
         self.path = self.dog = None
+        self.stop_requested = False
 
     def wrap(self, cmd):
         if not self.limiter.cgroups:
@@ -250,12 +228,19 @@ class Guard:
         if not self.limiter.cgroups:
             self.dog = Watchdog(proc.pid, self.limiter.cap).start()
 
+    def should_stop(self):
+        # Called only by the Runner thread while its Popen child remains unreaped.
+        if self.dog and self.dog.hit:
+            self.stop_requested = True
+            return True
+        return False
+
     def finish(self):
         """`{cap, peak_rss, at, mechanism}` when the cap stopped the cell, else None; cleans up."""
         hit = None
         if self.dog:
             self.dog.stop()
-            hit = self.dog.hit
+            hit = self.dog.hit if self.stop_requested else None
         elif self.path:
             if _events(self.path).get("oom_kill", 0) > 0:
                 hit = {"cap": self.limiter.cap, "peak_rss": _peak(self.path) or self.limiter.cap, "at": time.time()}

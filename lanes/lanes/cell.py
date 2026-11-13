@@ -282,10 +282,10 @@ class Cell:
                         self.cut = self.cut or not timed_out
                         common._kill_group(proc)
                         return proc.returncode, timed_out
-            common._killpg(proc.pid, signal.SIGKILL)  # stragglers of an exited leader
+            common._require_group_gone(proc.pid)  # surviving group means unknown custody
             return code, False
         except BaseException:
-            common._kill_group(proc)
+            if proc.returncode is None: common._kill_group(proc)
             raise
 
     def version(self, tmp):

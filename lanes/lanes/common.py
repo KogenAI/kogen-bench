@@ -92,16 +92,28 @@ def _killpg(pgid, sig):
         pass
 
 
-def _kill_group(proc, grace_s=2.0):
-    """TERM then KILL the process group this module started; reap the leader."""
-    pgid = proc.pid  # start_new_session makes the child its own group leader
-    _killpg(pgid, signal.SIGTERM)
-    end = time.monotonic() + grace_s
-    while time.monotonic() < end and proc.poll() is None:
-        time.sleep(0.02)
-    _killpg(pgid, signal.SIGKILL)
-    proc.wait()
+class CustodyUnknown(RuntimeError):
+    """Owned process leader ended, but group descendants may still exist."""
 
+def _require_group_gone(pgid):
+    # Signal zero performs no kill. A reused or inaccessible group is also
+    # unknown; do not guess or send a later signal to a reused group ID.
+    try: os.killpg(pgid, 0)
+    except ProcessLookupError: return
+    except PermissionError: pass
+    raise CustodyUnknown('process group still exists after leader exit')
+
+def _kill_group(proc, grace_s=2.0):
+    """Signal only while Popen still owns the unreaped child; retain uncertainty."""
+    if proc.returncode is not None:
+        _require_group_gone(proc.pid)
+        return
+    _killpg(proc.pid, signal.SIGTERM)
+    # Do not poll/wait here: either would reap the leader before KILL.
+    time.sleep(grace_s)
+    _killpg(proc.pid, signal.SIGKILL)
+    proc.wait()
+    _require_group_gone(proc.pid)
 
 def run(cmd, cwd=None, env=None, deadline_s=None, stdout=None, stderr=None, stdin=None):
     """Run `cmd` in its own process group; return `(exit_code, timed_out)`.
@@ -120,9 +132,9 @@ def run(cmd, cwd=None, env=None, deadline_s=None, stdout=None, stderr=None, stdi
         except subprocess.TimeoutExpired:
             _kill_group(proc)
             return proc.returncode, True
-        # The leader exited; stragglers it left behind are still ours to stop.
-        _killpg(proc.pid, signal.SIGKILL)
+        # No signal after wait: an extant group is unresolved custody.
+        _require_group_gone(proc.pid)
         return code, timed_out
     except BaseException:
-        _kill_group(proc)
+        if proc.returncode is None: _kill_group(proc)
         raise

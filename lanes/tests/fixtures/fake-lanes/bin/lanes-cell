@@ -55,7 +55,7 @@ lock = json.load(open(os.path.join(run_dir, "lanes.lock.json")))
 art = lock[0]["artifact_sha256"]
 home = os.environ.get("KOGEN_LANES_HOME", "")
 with open(os.path.join(d, "result.json.tmp"), "w") as f:  # atomic, like lanes-cell
-    json.dump({"cell": cell, "host": opts["--host"],
+    json.dump({"cell": cell, "lane": cell.split("/")[-1], "phase": json.load(open(os.path.join(run_dir,"experiment.json")))["phase"], "outcome": "ok", "ended": "2026-01-01T00:00:00Z", "host": opts["--host"],
                "evaluator": os.path.exists(os.path.join(opts["--tasks"], task, "evaluator")),
                "start": os.path.isdir(os.path.join(opts["--tasks"], task, "start")),
                "artifact": os.path.isfile(os.path.join(home, "artifacts", art, "kogen")),

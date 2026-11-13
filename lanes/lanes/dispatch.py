@@ -377,11 +377,12 @@ class Runner:
 
     def __init__(self):
         self.stopped = threading.Event()
+        self.custody_unknown = threading.Event()
         self.halted = set()  # tags (providers) whose commands stop while the others go on
         self._procs = set()
         self._lock = threading.Lock()
 
-    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False, tag=None, on_start=None):
+    def run(self, cmd, deadline_s=None, env=None, cwd=None, capture=False, force=False, tag=None, on_start=None, should_stop=None):
         """Return `(exit_code, output)`; exit 124 on the deadline, 130 when stopped (`force`: ignore stop).
         `on_start(proc)` is called once the command runs."""
         if self.stopped.is_set() and not force:
@@ -400,6 +401,13 @@ class Runner:
         end = time.monotonic() + deadline_s if deadline_s else None
         code = None
         while code is None:
+            # The watchdog only flags. This thread owns the still-unreaped child.
+            if should_stop and should_stop():
+                common._kill_group(proc)
+                # Kogen descendants may own separate sessions; the cell group
+                # ending alone does not establish their terminal custody.
+                self.custody_unknown.set(); self.stopped.set()
+                raise common.CustodyUnknown('memory cap fired; descendant custody unknown')
             try:
                 code = proc.wait(timeout=0.1)
             except subprocess.TimeoutExpired:
@@ -409,7 +417,9 @@ class Runner:
                     code = 124
                 if code is not None:
                     common._kill_group(proc)
-        common._killpg(proc.pid, signal.SIGKILL)  # stragglers of an exited leader
+        try: common._require_group_gone(proc.pid)
+        except common.CustodyUnknown:
+            self.custody_unknown.set(); self.stopped.set(); raise
         with self._lock:
             self._procs.discard(proc)
         if capture:
@@ -568,11 +578,22 @@ class Host:
                 if self.claude_dir:
                     env["PATH"] = self.claude_dir + os.pathsep + env.get("PATH", "")
             guard = self.limiter.guard(cell) if self.limiter else None
+            unknown = False
             try:
                 self.ctx.runner.run(guard.wrap(args) if guard else args, deadline_s=deadline, env=env,
-                                    tag=self.ctx.provider(cell), on_start=guard.attach if guard else None)
+                                    tag=self.ctx.provider(cell), on_start=guard.attach if guard else None,
+                                    should_stop=guard.should_stop if guard else None)
+            except common.CustodyUnknown:
+                unknown = True
+                raise
             finally:
                 hit = guard.finish() if guard else None
+                if unknown and hit:
+                    try:
+                        os.makedirs(local_cell, exist_ok=True)
+                        common.write_json(os.path.join(local_cell, memcap.RECORD), hit)
+                    except OSError:
+                        self.ctx.log(f'{cell}: memory-cap evidence write failed; custody remains unknown')
             if hit:
                 self._memory_capped(cell, local_cell, hit)
             return os.path.isfile(os.path.join(local_cell, "result.json"))
@@ -581,7 +602,7 @@ class Host:
         rcell = os.path.join(self.root, "runs", c.exp_id, "cells", *cell.split("/"))
         pgfile = os.path.join(self.root, "runs", c.exp_id, "pgid-" + cell.replace("/", "__"))
         q = shlex.quote
-        # the launcher starts a new session and records its pgid, so a stop can kill the whole group
+        # The launcher records its process group for read-only custody checks.
         launch = ("import os,sys;os.setsid();open(sys.argv[1],'w').write(str(os.getpid()));"
                   "os.execvp('python3',['python3']+sys.argv[2:])")
         cc = ""
@@ -589,26 +610,45 @@ class Host:
             cc = f"CLAUDE_CONFIG_DIR={q(self.claude_config_dir)} "
             if self.claude_dir:
                 cc += f'PATH={q(self.claude_dir)}:"$PATH" '
-        command = (f"rm -rf {q(rcell)} {q(pgfile)} && cd {q(self.root)} && "
+        command = (f"test ! -e {q(rcell)} && test ! -e {q(pgfile)} && cd {q(self.root)} && "
                    f"{cc}KOGEN_LANES_HOME={q(self.root)} python3 -c {q(launch)} {q(pgfile)} "
                    f"lanes/bin/lanes-cell {q(os.path.join(self.root, 'runs', c.exp_id))} "
                    f"{q(cell)} --tasks {q(os.path.join(self.root, 'tasks'))} --host {q(self.name)}")
         code, _ = self.ctx.runner.run(self.ssh + [self.target, command], deadline_s=deadline, tag=self.ctx.provider(cell))
-        if code in (124, 130, 255):  # deadline, stop or lost connection: the ssh client died, the remote group may not have
-            kill = f"p=$(cat {q(pgfile)} 2>/dev/null) && {{ kill -TERM -$p; sleep 2; kill -KILL -$p; true; }}"
-            killed = self.sh(kill, force=True)[0] == 0
-            self._lost_spend(cell, rcell, local_cell)  # before the dir goes
-            if killed:  # no pgid: leave the dir, never rm under a live process
-                self.sh(f"rm -rf {q(rcell)} {q(pgfile)}", force=True)
-            return False
+        if code != 0:
+            # Lost SSH, timeout, refusal or nonzero cell: never signal or remove
+            # remote state without current owned process identity and a receipt.
+            raise common.CustodyUnknown('remote cell completion not proven')
+        # A signal-zero/ps observation never kills an unrelated reused PGID.
+        # Check only the execution user's processes; an inaccessible check is unknown.
+        probe = (f"p=$(cat {q(pgfile)} 2>/dev/null) || exit 2; "
+                 "case $p in ''|*[!0-9]*) exit 2;; esac; "
+                 "lines=$(ps -u $(id -u) -o pgid=) || exit 2; "
+                 "printf '%s\\n' \"$lines\" | awk -v p=\"$p\" '$1 == p {found=1} END {exit found ? 1 : 0}'")
+        if self.sh(probe,force=True)[0] != 0:
+            raise common.CustodyUnknown('remote process-group absence not established')
         os.makedirs(local_cell, exist_ok=True)
         src = f"{self.target}:{rcell}/"
         # result.json last, and only after the rest arrived, so a cell with one is complete
         ok = self.rsync(src, local_cell + "/", "--exclude", "/result.json")[0] == 0
         if ok:
             ok = self.rsync(src, local_cell + "/", "--include", "/result.json", "--exclude", "*")[0] == 0
-        self.sh(f"rm -rf {q(rcell)} {q(pgfile)}")
-        return ok and os.path.isfile(os.path.join(local_cell, "result.json"))
+        if not ok or not os.path.isfile(os.path.join(local_cell, 'result.json')):
+            raise common.CustodyUnknown('remote result readback incomplete')
+        try:
+            result = common.read_json(os.path.join(local_cell,'result.json'))
+            if (not isinstance(result,dict) or result.get('cell') != cell or
+                    result.get('lane') != cell.split('/')[-1] or result.get('host') != self.name or
+                    result.get('phase') != c.exp['phase'] or not isinstance(result.get('outcome'),str) or
+                    not result['outcome'] or not isinstance(result.get('ended'),str) or
+                    not result['ended'] or not isinstance(result.get('totals'),dict)):
+                raise ValueError('result identity or terminal fields invalid')
+            costguard.cell_spend(local_cell)  # native spend parser must be able to read the result
+        except (OSError,ValueError,TypeError,AttributeError,KeyError):
+            raise common.CustodyUnknown('remote result identity or spend unverified') from None
+        if self.sh(f"rm -rf {q(rcell)} {q(pgfile)}")[0] != 0:
+            raise common.CustodyUnknown('remote result cleanup not verified')
+        return True
 
 
 class Context:
@@ -638,6 +678,9 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
     host alone, `max_cells` starts at most that many cells, `claude_code_only` only cells of Claude Code lanes
     (`lanes-ccdry` uses all three)."""
     run_dir = os.path.abspath(run_dir)
+    custody_path = os.path.join(run_dir, 'CUSTODY_UNKNOWN.json')
+    if os.path.lexists(custody_path):
+        raise DispatchError('unresolved process custody; reconcile before resume')
     exp = experiment.load(os.path.join(run_dir, "experiment.json"))
     try:
         costguard.caps(exp)
@@ -676,6 +719,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
     lanes = {l["name"]: l for l in exp["lanes"]}
     claims = Claims(run_dir, exp["deadline_s"] + MARGIN_S)
     pick, failed, mine, begun = threading.Lock(), set(), set(), set()
+    unknown_cells = set()
     active = {h.name: h.slots for h in hosts}
     locked = []
     capped = []  # [message] once a cap stopped the run
@@ -815,7 +859,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
             with pick:
                 active[host.name] -= 1
                 last = active[host.name] == 0
-            if last:  # the host's last slot is done: release the host now, not when all hosts end
+            if last and not runner.custody_unknown.is_set():  # unknown custody keeps the host lock
                 unlock(host)
 
     gate_lock = threading.Lock()
@@ -854,6 +898,7 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 if tok:
                     tok.release()
                 return
+            c = None
             try:
                 c = next_cell(host)
                 if c is None:
@@ -862,6 +907,15 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 ok = False
                 try:
                     ok = host.run_cell(c["cell"], artifacts.get(c["lane"]))
+                except common.CustodyUnknown:
+                    runner.custody_unknown.set(); runner.stop()
+                    with pick: unknown_cells.add(c['cell'])
+                    try:
+                        common.write_json(custody_path, {'host':host.name,'cell':c['cell'],
+                            'reason':'process custody unknown; reconcile before resume','at':time.time()})
+                    except OSError as e:
+                        log(f"custody marker write failed ({type(e).__name__}); claim still retained")
+                    log(f"{host.name}: {c['cell']}: process custody unknown; claim retained")
                 except DispatchError as e:
                     log(f"{host.name}: {c['cell']}: {e}")
                 finally:
@@ -878,14 +932,14 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                             timeoutguard.ingest(exp, run_dir, [c])
                         except Exception as e:  # the guard must never fail a cell
                             log(f"{c['cell']}: cannot record a timeout ({e})")
-                    claims.release(c["cell"])
+                    if c["cell"] not in unknown_cells: claims.release(c["cell"])
                     with pick:
                         mine.discard(c["cell"])
                 if not ok and not runner.stopped.is_set():
                     failed.add(c["cell"])
                     log(f"{host.name}: {c['cell']}: no result.json")
             finally:
-                tok.release()
+                if c is None or c['cell'] not in unknown_cells: tok.release()
 
     costguard.clear_stop(run_dir)
     old = {s: signal.signal(s, lambda *_: runner.stop()) for s in (signal.SIGINT, signal.SIGTERM)}
@@ -933,6 +987,9 @@ def run_all(run_dir, tasks, hosts_file, lock_cmd=None, unlock_cmd=None, lanes_di
                 unlock(h)
         for s, h in old.items():
             signal.signal(s, h)
+    if runner.custody_unknown.is_set():
+        log('process custody unknown; retain claims and reconcile before resume')
+        return 6
     if approval_failures:
         raise DispatchError("pre-flight refused a supplied Intent on deferred retry")
     if not probing:

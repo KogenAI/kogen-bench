@@ -86,6 +86,56 @@ class Dispatch(unittest.TestCase):
                 out[c["cell"]] = common.read_json(path)
         return out
 
+    def test_unknown_custody_retains_claim_and_does_not_complete(self):
+        common.write_json(self.hosts, {"local":{"target":"local","slots":1}})
+        self.assertEqual(self.plan().returncode,0)
+        with mock.patch.dict(os.environ,self.env), mock.patch.object(dispatch.Host,'run_cell',side_effect=common.CustodyUnknown('fixture')):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6)
+        self.assertTrue(os.listdir(os.path.join(self.run_dir,'claims')))
+        self.assertEqual(self.results(),{})
+        self.assertTrue(os.path.exists(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+        with mock.patch.dict(os.environ,self.env), self.assertRaisesRegex(dispatch.DispatchError,'unresolved process custody'):
+            dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+
+    def test_proved_terminal_sibling_releases_its_own_claim(self):
+        import threading
+        common.write_json(self.hosts, {"local":{"target":"local","slots":2}});self.assertEqual(self.plan().returncode,0)
+        both=threading.Barrier(2);picked=[];picklock=threading.Lock()
+        def fake(host,cell,artifact):
+            with picklock:picked.append(cell);first=len(picked)==1
+            both.wait(timeout=5)
+            if first:raise common.CustodyUnknown('fixture')
+            until=time.time()+5;marker=os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')
+            while not os.path.exists(marker) and time.time()<until:time.sleep(.01)
+            common.write_json(os.path.join(common.cell_dir(self.run_dir,cell),'result.json'),{'cell':cell,'outcome':'ok'})
+            return True
+        with mock.patch.dict(os.environ,self.env),mock.patch.object(dispatch.Host,'run_cell',autospec=True,side_effect=fake):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6);self.assertEqual(len(self.results()),1)
+        claims=os.listdir(os.path.join(self.run_dir,'claims'));self.assertEqual(len(claims),1)
+        self.assertIn(picked[0].replace('/','__'),claims[0])
+
+    def test_unknown_custody_does_not_unlock_host(self):
+        common.write_json(self.hosts, {"local":{"target":"local","slots":1}});self.assertEqual(self.plan().returncode,0)
+        events=[]
+        def shell(runner,template,**kwargs):events.append(template);return 0,''
+        with mock.patch.dict(os.environ,self.env), mock.patch.object(dispatch.Host,'run_cell',side_effect=common.CustodyUnknown('fixture')), mock.patch.object(dispatch,'shell_run',side_effect=shell):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lock_cmd='lock',unlock_cmd='unlock',lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6);self.assertEqual(events,['lock'])
+
+    def test_remote_ssh_ambiguity_preserves_remote_files_without_signal(self):
+        from types import SimpleNamespace
+        ctx=SimpleNamespace(run_dir=self.run_dir,exp={'deadline_s':1,'phase':'build'},exp_id='x',provider=lambda _: 'chatgpt')
+        ctx.runner=SimpleNamespace(run=mock.Mock(return_value=(255,'')))
+        host=dispatch.Host('eu2',{'target':'fake-eu','slots':1,'root':'/tmp/fake'},ctx)
+        host.prepare=mock.Mock();host.sh=mock.Mock();host.rsync=mock.Mock()
+        with mock.patch.object(dispatch.costguard,'retire'):
+            with self.assertRaises(common.CustodyUnknown):host._run_cell('task-mini/r1/base',ART)
+        host.sh.assert_not_called();host.rsync.assert_not_called()
+        command=ctx.runner.run.call_args.args[0][-1]
+        self.assertNotIn('rm -rf',command);self.assertNotIn('kill ',command)
+
     # ---- plan
 
     def test_rotation_is_balanced_and_deterministic(self):
@@ -291,59 +341,46 @@ class Dispatch(unittest.TestCase):
         return out
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
-    def test_remote_interrupt_kills_remote_groups(self):  # B1
-        env, root = self.remote_setup()
-        pids = os.path.join(self.tmp, "pids.txt")
-        env.update(FAKE_SLEEP="30", FAKE_PIDS=pids)
+    def test_remote_interrupt_preserves_unknown_custody(self):
+        env, root = self.remote_setup(); pids = os.path.join(self.tmp, "pids.txt")
+        env.update(FAKE_SLEEP="2", FAKE_PIDS=pids)
         proc = subprocess.Popen([sys.executable, entry("lanes-run"), self.run_dir, "--tasks", self.tasks,
                                  "--hosts", self.hosts, "--lanes-dir", FAKE_LANES, "--skip-preflight"], env=env,
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        self.addCleanup(proc.kill)
-        end = time.time() + 30
-        while time.time() < end and len(self.read(pids).split() if os.path.exists(pids) else []) < 2:
-            time.sleep(0.1)
-        started = [int(x) for x in self.read(pids).split()]
-        self.assertEqual(len(started), 2)
-        proc.send_signal(signal.SIGINT)
-        self.assertEqual(proc.wait(timeout=30), 130)
-        self.assertEqual(self.alive(started), [])
-        self.assertEqual(os.listdir(os.path.join(self.run_dir, "claims")), [])
-        self.assertEqual(self.results(), {})
-        left = [f for f in os.listdir(os.path.join(root, "runs", "exp-mini")) if f.startswith("pgid-")]
-        self.assertEqual(left, [])
+        end = time.time()+15
+        while time.time()<end and not os.path.exists(pids): time.sleep(0.05)
+        self.assertTrue(os.path.exists(pids));proc.send_signal(signal.SIGINT)
+        self.assertEqual(proc.wait(timeout=20),6)
+        self.assertTrue(os.path.exists(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+        self.assertTrue(os.listdir(os.path.join(self.run_dir,'claims')))
+        self.assertEqual(self.results(),{})
+        time.sleep(2.2) # fixture children end naturally; do not signal their reaped group IDs
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
-    def test_remote_deadline_kills_remote_group(self):  # B1, deadline path
-        self.set_exp(deadline_s=0.5)
-        env, root = self.remote_setup()
-        pids = os.path.join(self.tmp, "pids.txt")
-        env.update(FAKE_SLEEP="30", FAKE_PIDS=pids)
-        with mock.patch.dict(os.environ, env), mock.patch.object(dispatch, "MARGIN_S", 3):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
-                                              log=lambda m: None), 1)
-        started = [int(x) for x in self.read(pids).split()]
-        self.assertEqual(self.alive(started), [])
-        self.assertEqual(self.results(), {})
+    def test_remote_deadline_preserves_unknown_custody(self):
+        self.set_exp(deadline_s=0.5);env,root=self.remote_setup();pids=os.path.join(self.tmp,'pids.txt')
+        env.update(FAKE_SLEEP='5',FAKE_PIDS=pids)
+        with mock.patch.dict(os.environ,env), mock.patch.object(dispatch,'MARGIN_S',1):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6);self.assertTrue(os.path.exists(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+        self.assertTrue(os.listdir(os.path.join(self.run_dir,'claims')));self.assertEqual(self.results(),{})
+        time.sleep(5.2)
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
-    def test_remote_ssh_255_kills_remote_group_before_cleanup(self):  # L9: lost connection, cell still running
-        env, root = self.remote_setup()
-        pids = os.path.join(self.tmp, "pids.txt")
-        ssh = os.path.join(self.tmp, "ssh-drop")
-        with open(ssh, "w") as f:  # run the command detached, wait for the cell to start, then drop like ssh
+    def test_remote_ssh_255_retains_claim_and_files(self):
+        env,root=self.remote_setup();pids=os.path.join(self.tmp,'pids.txt');ssh=os.path.join(self.tmp,'ssh-drop')
+        with open(ssh,'w') as f:
             f.write('#!/bin/sh\nshift\ncase "$*" in *lanes-cell*) ;; *) exec sh -c "$*";; esac\n'
                     'sh -c "$*" >/dev/null 2>&1 &\n'
                     'for i in $(seq 1 100); do test -s "$FAKE_PIDS" && break; sleep 0.1; done\n'
                     'exit 255\n')
-        os.chmod(ssh, 0o755)
-        env.update(FAKE_SLEEP="30", FAKE_PIDS=pids, LANES_SSH=ssh)
-        with mock.patch.dict(os.environ, env):
-            self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
-                                              log=lambda m: None), 1)
-        started = [int(x) for x in self.read(pids).split()]
-        self.assertTrue(started)
-        self.assertEqual(self.alive(started), [])
-        self.assertEqual(self.results(), {})
+        os.chmod(ssh,0o755);env.update(FAKE_SLEEP='2',FAKE_PIDS=pids,LANES_SSH=ssh)
+        with mock.patch.dict(os.environ,env):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6);self.assertTrue(os.path.exists(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+        self.assertTrue(os.listdir(os.path.join(self.run_dir,'claims')));self.assertEqual(self.results(),{})
+        self.assertTrue(any(f.startswith('pgid-') for f in os.listdir(os.path.join(root,'runs','exp-mini'))))
+        time.sleep(2.2)
 
     @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
     def test_remote_255_without_pgid_leaves_the_dir(self):  # L9 m1: no pgid, no rm -rf
@@ -376,8 +413,22 @@ class Dispatch(unittest.TestCase):
 
         with mock.patch.dict(os.environ, env), mock.patch.object(dispatch.Host, "rsync", flaky):
             self.assertEqual(dispatch.run_all(self.run_dir, self.tasks, self.hosts, lanes_dir=FAKE_LANES, skip_preflight=True,
-                                              log=lambda m: None), 1)
+                                              log=lambda m: None), 6)
         self.assertEqual(self.results(), {})
+
+    @unittest.skipUnless(shutil.which("rsync"), "rsync not installed")
+    def test_remote_wrong_result_identity_retains_original_and_claim(self):
+        env,root=self.remote_setup();real=dispatch.Host.rsync
+        def corrupt(host,src,dst,*opts):
+            value=real(host,src,dst,*opts)
+            if value[0]==0 and '--include' in opts and '/result.json' in opts:
+                path=os.path.join(dst,'result.json');result=common.read_json(path);result['cell']='wrong/r1/base';common.write_json(path,result)
+            return value
+        with mock.patch.dict(os.environ,env),mock.patch.object(dispatch.Host,'rsync',corrupt):
+            rc=dispatch.run_all(self.run_dir,self.tasks,self.hosts,lanes_dir=FAKE_LANES,skip_preflight=True,log=lambda m:None)
+        self.assertEqual(rc,6);self.assertTrue(os.path.exists(os.path.join(self.run_dir,'CUSTODY_UNKNOWN.json')))
+        self.assertTrue(os.listdir(os.path.join(self.run_dir,'claims')))
+        self.assertTrue(any(f.startswith('pgid-') for f in os.listdir(os.path.join(root,'runs','exp-mini'))))
 
     def test_ssh_and_rsync_have_deadlines(self):  # m1
         slow = os.path.join(self.tmp, "slow-ssh")

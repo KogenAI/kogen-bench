@@ -415,13 +415,13 @@ class Halt(unittest.TestCase):
     def test_a_halted_provider_stops_its_commands_only(self):
         runner = dispatch.Runner()
         out = {}
-        threads = [threading.Thread(target=lambda t=t: out.update({t: runner.run(["sleep", "3"], tag=t)[0]}))
+        threads = [threading.Thread(target=lambda t=t: out.update({t: runner.run(["sleep", "10"], tag=t)[0]}))
                    for t in ("a", "b")]
         for t in threads:
             t.start()
         time.sleep(0.5)
         runner.halt("a")
-        threads[0].join(2)
+        threads[0].join(4)
         self.assertEqual(out, {"a": 130})
         self.assertFalse(threads[1].join(0.1) or not threads[1].is_alive())  # b still sleeping
         runner.stop()
