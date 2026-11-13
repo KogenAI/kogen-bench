@@ -31,6 +31,7 @@ import contextlib
 import fcntl
 import glob
 import json
+import math
 import os
 import re
 import shutil
@@ -213,11 +214,16 @@ def cell_spend(cell_dir):
     path = os.path.join(cell_dir, "result.json")
     if os.path.isfile(path):
         totals = common.read_json(path).get("totals") or {}
-        cost = totals.get("cost_usd") if totals.get("cost_complete", True) else None  # a partial sum falls back to the log estimate
-        if cost is not None:
+        cost = totals.get("cost_usd")
+        if cost is not None and totals.get("cost_complete", True):
             return float(cost)
-        return log_spend(_read_saved(os.path.join(cell_dir, "run-log", "log.jsonl")),
-                         _read_saved(os.path.join(cell_dir, "shaping-events.ndjson")))
+        estimated = log_spend(_read_saved(os.path.join(cell_dir, "run-log", "log.jsonl")),
+                              _read_saved(os.path.join(cell_dir, "shaping-events.ndjson")))
+        # A recorded incomplete fallback remains custody evidence until an
+        # explicit complete reprice replaces it.
+        if isinstance(cost, (int, float)) and not isinstance(cost, bool) and math.isfinite(cost) and cost >= 0:
+            return max(float(cost), estimated)
+        return estimated
     if os.path.isfile(os.path.join(cell_dir, LIVE)):
         ws = common.read_json(os.path.join(cell_dir, LIVE))["workspace"]
         if os.path.isdir(ws):

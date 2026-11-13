@@ -32,6 +32,19 @@ def request(model, inp, cached, out):
 
 
 class Estimate(unittest.TestCase):
+    def test_incomplete_cost_retains_larger_custody_estimate(self):
+        with tempfile.TemporaryDirectory() as cell_dir:
+            path = os.path.join(cell_dir, "result.json")
+            with mock.patch.object(costguard, "log_spend", return_value=3.0):
+                common.write_json(path, {"totals": {"cost_usd": 17.0, "cost_complete": False}})
+                self.assertEqual(costguard.cell_spend(cell_dir), 17.0)
+                common.write_json(path, {"totals": {"cost_usd": 1.0, "cost_complete": False}})
+                self.assertEqual(costguard.cell_spend(cell_dir), 3.0)
+                common.write_json(path, {"totals": {"cost_usd": None, "cost_complete": False}})
+                self.assertEqual(costguard.cell_spend(cell_dir), 3.0)
+                common.write_json(path, {"totals": {"cost_usd": 1.0, "cost_complete": True}})
+                self.assertEqual(costguard.cell_spend(cell_dir), 1.0)
+
     def test_fallback_is_the_highest_price(self):
         self.assertEqual(costguard.pricing()[2], TOP)
 
