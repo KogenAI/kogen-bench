@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 import unittest.mock
 
@@ -244,8 +245,22 @@ class FreshExport(GradeCase):
     def test_acceptance_needing_a_missing_runner_variable_fails(self):  # hardwhy, 31 Oct: was skipped, as ok
         self.accepting('run = \'"$KOGEN_NODE" cucumber.js --format "message:$KOGEN_ACCEPTANCE_REPORT"\'')
         env = {k: v for k, v in os.environ.items() if k not in ("KOGEN_NODE", "KOGEN_BIN")}
-        env["PATH"] = os.pathsep.join(d for d in env.get("PATH", "").split(os.pathsep)
-                                      if d and not os.path.exists(os.path.join(d, "node")))
+        # hide only node: a directory that holds node (go may share it) is replaced by links to everything else in it
+        shadow = tempfile.mkdtemp(prefix="no-node-")
+        self.addCleanup(shutil.rmtree, shadow, True)
+        dirs = []
+        for i, d in enumerate(p for p in env.get("PATH", "").split(os.pathsep) if p):
+            if not os.path.exists(os.path.join(d, "node")):
+                dirs.append(d)
+                continue
+            link_dir = os.path.join(shadow, str(i))
+            os.makedirs(link_dir)
+            for name in os.listdir(d):
+                if name != "node":
+                    os.symlink(os.path.join(d, name), os.path.join(link_dir, name))
+            dirs.append(link_dir)
+        env["PATH"] = os.pathsep.join(dirs)
+        self.assertIsNone(shutil.which("node", path=env["PATH"]))
         with unittest.mock.patch.dict(os.environ, env, clear=True):
             code, out = self.qualify()
         self.assertEqual(code, 1, out)
