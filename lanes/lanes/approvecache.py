@@ -129,7 +129,7 @@ def npm_entries(config):
     return {e: _file(os.path.join(e, "manifest.json")) for e in entries}
 
 
-def key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node):
+def key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node, models_config=""):
     """`(key, components)`: the digest of every approval input, and the per-input digests behind it."""
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(task, "task.toml"), "rb") as f:
@@ -144,6 +144,7 @@ def key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, art
         "intent_form": exp["intent_form"],
         "slug": slug,
         "project_yaml": hashlib.sha256(config.encode()).hexdigest(),
+        "models_yaml": hashlib.sha256(models_config.encode()).hexdigest(),
         "npm_entries": npm_entries(config),
         "deadline_s": deadline_s,
         "lane_lock": lock_entry(run_dir, lane["name"], artifact),

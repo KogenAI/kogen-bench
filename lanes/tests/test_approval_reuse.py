@@ -199,11 +199,11 @@ class ApprovalReuse(unittest.TestCase):
         self.write_run()
         real, seen = preflight._approve, []
 
-        def slow_base(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
+        def slow_base(task, slug, supplied, kogen, config, deadline_s, refusal_context=None, models_config=""):
             seen.append(refusal_context[2])
             if refusal_context[2] == "base" and len(seen) < 3:
                 return False, preflight.ApprovalTimeout("approve refused (timed out)"), None
-            return real(task, slug, supplied, kogen, config, deadline_s, refusal_context)
+            return real(task, slug, supplied, kogen, config, deadline_s, refusal_context, models_config)
 
         lines = []
         with mock.patch.object(preflight, "_approve", side_effect=slow_base):

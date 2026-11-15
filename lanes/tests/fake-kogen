@@ -121,7 +121,7 @@ def approval_path(root, slug):
 
 def read_models(root):
     models = dict(DEFAULT_MODELS)
-    path = os.path.join(root, ".kogen", "project.yaml")
+    path = os.path.join(root, ".kogen", "models.yaml")
     if os.path.exists(path):
         for line in read(path).splitlines():
             m = re.match(r"^\s+(shape|build|review):\s*\{(?:executor:\s*\S+,\s*)?model:\s*(\S+),\s*effort:\s*([^\s,}]+)", line)
@@ -131,8 +131,8 @@ def read_models(root):
 
 
 def claude_code_build(root):
-    """True when project.yaml gives the build role `executor: claude-code` and the fake is not told to fall back."""
-    path = os.path.join(root, ".kogen", "project.yaml")
+    """True when models.yaml gives the build role `executor: claude-code` and the fake is not told to fall back."""
+    path = os.path.join(root, ".kogen", "models.yaml")
     if os.environ.get("FAKE_KOGEN_EXECUTOR") == "fallback" or not os.path.exists(path):
         return False
     return any(re.match(r"^\s+build:\s*\{executor:\s*claude-code[,}]", line) for line in read(path).splitlines())
@@ -193,15 +193,20 @@ def cmd_init(root):
     path = os.path.join(root, ".kogen", "project.yaml")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if not os.path.exists(path):  # a leftover uncommitted project.yaml is committed as it is (init.ex commit_leftover)
-        lines = ["version: 1", "models:"] + [f"  {r}: {{model: {m}, effort: {e}}}" for r, (m, e) in DEFAULT_MODELS.items()]
         with open(path, "w", encoding="utf-8") as f:
-            f.write("\n".join(lines) + "\n")
+            f.write("version: 1\n")
+        if not os.path.exists(os.path.join(root, ".kogen", "models.yaml")):
+            lines = ["models:"] + [f"  {r}: {{model: {m}, effort: {e}}}" for r, (m, e) in DEFAULT_MODELS.items()]
+            with open(os.path.join(root, ".kogen", "models.yaml"), "w", encoding="utf-8") as f:
+                f.write("\n".join(lines) + "\n")
     gi = os.path.join(root, ".gitignore")
     old = read(gi) if os.path.exists(gi) else ""
     if ".kogen/local/" not in old.splitlines():
         with open(gi, "w", encoding="utf-8") as f:
             f.write(old + ("" if old.endswith("\n") or not old else "\n") + ".kogen/local/\n")
     git(root, "add", ".kogen/project.yaml", ".gitignore")
+    if os.path.exists(os.path.join(root, ".kogen", "models.yaml")):
+        git(root, "add", ".kogen/models.yaml")
     git(root, "commit", "-m", "Add Kogen configuration")
     say(f"Initialized Kogen in {root}")
     return 0
@@ -212,8 +217,13 @@ def check_config(root):
     path = os.path.join(root, ".kogen", "project.yaml")
     if not os.path.exists(path):
         die(3, f"environment/not_initialized: {root} has no .kogen/project.yaml; run kogen init")
-    text, in_models, bad = read(path), False, []
+    text, bad = read(path), []
     for n, line in enumerate(text.splitlines(), 1):
+        if line.startswith("models:"):
+            die(3, f"environment/project_config_invalid: {path} line {n}: models is no longer read from "
+                   ".kogen/project.yaml; move the model lineup to .kogen/models.yaml")
+    mpath, in_models = os.path.join(root, ".kogen", "models.yaml"), False
+    for n, line in enumerate(read(mpath).splitlines() if os.path.exists(mpath) else [], 1):
         if re.match(r"^\S", line):
             in_models = line.startswith("models:")
         elif in_models and (m := re.match(r"^  ([a-z_]+):", line)) and m.group(1) not in (*DEFAULT_MODELS, "plan"):

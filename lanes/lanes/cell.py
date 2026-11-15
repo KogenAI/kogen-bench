@@ -80,7 +80,7 @@ def role_entry(value):
 
 
 def project_yaml(task_toml, models, task=None):
-    """`.kogen/project.yaml` from the task's commands and the lane's `"provider/model effort"` lines (Kogen gets the bare model id, plus `provider` unless it is openai/chatgpt)."""
+    """`.kogen/project.yaml` from the task's commands; `models` is accepted for the callers' sake but the lineup goes to `.kogen/models.yaml` (`models_yaml`), which Kogen requires."""
     def items(key, item=yq):
         vals = task_toml.get(key) or []
         if key == "setup" and task is not None:
@@ -96,11 +96,14 @@ def project_yaml(task_toml, models, task=None):
         else ["  acceptance:", "    run: null", "    steps_dir: null"]
     protect = task_toml.get("protect") or []
     lines += ["protect: []"] if not protect else ["protect:"] + [f"  - {yq(p)}" for p in protect]
-    if models:
-        lines.append("models:")
-        for role, value in sorted(models.items()):
-            lines.append(f"  {role}: {role_entry(value)}")
     return "\n".join(lines) + "\n"
+
+
+def models_yaml(models):
+    """`.kogen/models.yaml` (Kogen's model lineup file) from the lane's `"provider/model effort"` lines, or "" when there are none."""
+    if not models:
+        return ""
+    return "models:\n" + "".join(f"  {role}: {role_entry(value)}\n" for role, value in sorted(models.items()))
 
 
 def _find_kogen(root):
@@ -201,7 +204,7 @@ def _git(ws, *args, env=None, check=True):
     return r.stdout.strip()
 
 
-def make_workspace(ws, tmp, start, config):
+def make_workspace(ws, tmp, start, config, models_config=""):
     """Copy `start/`, add the fixed configuration and commit it, with stable author, date and config.
 
     Returns `(go_env, go_info)` from `gocache.prepare`: the host-wide shared Go build cache (seeded from
@@ -210,6 +213,9 @@ def make_workspace(ws, tmp, start, config):
     os.makedirs(os.path.join(ws, ".kogen"), exist_ok=True)
     with open(os.path.join(ws, ".kogen", "project.yaml"), "w", encoding="utf-8") as f:
         f.write(config)
+    if models_config:
+        with open(os.path.join(ws, ".kogen", "models.yaml"), "w", encoding="utf-8") as f:
+            f.write(models_config)
     gi = os.path.join(ws, ".gitignore")
     old = open(gi, encoding="utf-8").read() if os.path.exists(gi) else ""
     if ".kogen/local/" not in old.splitlines():
@@ -407,6 +413,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
         raise CellError(f"{task_id}: task.toml name {slug!r} is not a Kogen slug (3-48 of a-z, 0-9, -)")
     approve_timeout(task_toml, 0)  # the key only sets lanes-preflight's deadline; a bad one is refused here too
     config = project_yaml(task_toml, lane["settings"].get("models"), task=task)
+    models_config = models_yaml(lane["settings"].get("models"))
     request = os.path.join(task, "request.md")
     supplied = os.path.join(task, "supplied", exp.get("intent_form") or "")
     if phase != "build" and not os.path.isfile(request):
@@ -420,7 +427,7 @@ def run_cell(run_dir, cell, tasks, artifact=None, host="local", keep=False, forc
     os.makedirs(out)
     tmp = tempfile.mkdtemp(prefix="lanes-cell-")
     try:
-        result = _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node)
+        result = _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node, models_config)
         reason = costguard.note_rate_limit(run_dir, exp, cell)
         if reason:
             print(f"cell: {cell} hit a rate limit ({reason}); no new cell of its provider starts until "
@@ -505,10 +512,10 @@ def save_intent(ws, slug, dest):
             shutil.copyfile(path, os.path.join(dest, rel))
 
 
-def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node):
+def _run(run_dir, exp, cell, lane_name, task, slug, kogen, config, out, tmp, host, node, models_config=""):
     phase = exp["phase"]
     ws = os.path.join(tmp, "ws")
-    go_env, go_info = make_workspace(ws, tmp, os.path.join(task, "start"), config)
+    go_env, go_info = make_workspace(ws, tmp, os.path.join(task, "start"), config, models_config)
     common.write_json(os.path.join(out, gocache.INFO), go_info)  # every lane starts from the same staged entry
     inputs = os.path.join(tmp, "inputs")  # the brief and answers, outside the work tree and the task folder
     os.makedirs(inputs)

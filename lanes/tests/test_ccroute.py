@@ -24,13 +24,13 @@ def slurp(path):
 class RoleMapping(unittest.TestCase):
     def test_a_claude_code_role_writes_the_executor_keys(self):
         self.assertEqual(cell.role_entry(CC), "{executor: claude-code, model: claude-sonnet-5-5, effort: medium}")
-        text = cell.project_yaml({}, {"build": CC, "review": "openai/gpt-6 high"})
+        text = cell.models_yaml({"build": CC, "review": "openai/gpt-6 high"})
         self.assertIn("  build: {executor: claude-code, model: claude-sonnet-5-5, effort: medium}\n", text)
         self.assertNotIn("provider: claude-code", text)
 
     def test_any_role_may_carry_it(self):
         for role in ("shape", "build", "review"):
-            self.assertIn(f"  {role}: {{executor: claude-code,", cell.project_yaml({}, {role: CC}))
+            self.assertIn(f"  {role}: {{executor: claude-code,", cell.models_yaml({role: CC}))
 
     def test_other_provider_strings_are_unchanged(self):
         self.assertEqual(cell.role_entry("openai/gpt-6-luna high"), "{model: gpt-6-luna, effort: high}")

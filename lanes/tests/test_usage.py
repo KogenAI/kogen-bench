@@ -27,8 +27,8 @@ def fresh_repo(root, env, models):
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     fake(root, env, "init")
     if models:
-        with open(os.path.join(root, ".kogen", "project.yaml"), "w") as f:
-            f.write("version: 1\nmodels:\n" + "".join(
+        with open(os.path.join(root, ".kogen", "models.yaml"), "w") as f:
+            f.write("models:\n" + "".join(
                 f"  {r}: {{model: {m}, effort: high}}\n" for r, m in models.items()))
 
 

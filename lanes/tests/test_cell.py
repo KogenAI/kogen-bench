@@ -193,8 +193,11 @@ class CellTest(unittest.TestCase):
         yaml = subprocess.run(["git", "-C", ws, "show", "HEAD:.kogen/project.yaml"], capture_output=True,
                               text=True).stdout
         self.assertIn("version: 1\n", yaml)
-        self.assertIn("  build: {model: gpt-x, effort: high}\n", yaml)
-        self.assertIn("  review: {model: model-y, effort: low, provider: acme}\n", yaml)
+        self.assertNotIn("models", yaml)
+        models = subprocess.run(["git", "-C", ws, "show", "HEAD:.kogen/models.yaml"], capture_output=True,
+                                text=True).stdout
+        self.assertEqual(models, "models:\n  build: {model: gpt-x, effort: high}\n"
+                                 "  review: {model: model-y, effort: low, provider: acme}\n")
         self.assertIn("    - name: test\n      run: 'go test ./...'\n", yaml)
         self.assertIn("    - 'gofmt -w .'\n", yaml)
         self.assertIn("    steps_dir: 'features/steps'\n", yaml)
@@ -209,23 +212,35 @@ class CellTest(unittest.TestCase):
                          {"gpt-x"})
 
     def test_project_yaml_bare_model_ids(self):
-        one = cell.project_yaml({}, {"build": "openai/gpt-6-luna low"})
+        one = cell.models_yaml({"build": "openai/gpt-6-luna low"})
+        self.assertNotIn("models:", cell.project_yaml({}, {"build": "openai/gpt-6-luna low"}))
         self.assertIn("models:\n  build: {model: gpt-6-luna, effort: low}\n", one)
         self.assertNotIn("openai", one)
         self.assertNotIn("review:", one)
-        two = cell.project_yaml({}, {"build": "openai/gpt-6-luna low", "review": "openai/gpt-6 high"})
+        two = cell.models_yaml({"build": "openai/gpt-6-luna low", "review": "openai/gpt-6 high"})
         self.assertIn("  build: {model: gpt-6-luna, effort: low}\n  review: {model: gpt-6, effort: high}\n", two)
-        self.assertNotIn("models:", cell.project_yaml({}, {}))
+        self.assertEqual(cell.models_yaml({}), "")
+        self.assertEqual(cell.models_yaml(None), "")
+
+    def test_models_yaml_is_written_only_when_the_lane_has_models(self):
+        with tempfile.TemporaryDirectory() as d:
+            start = os.path.join(d, "start")
+            os.makedirs(start)
+            cell.make_workspace(os.path.join(d, "a"), d, start, "version: 1\n", cell.models_yaml({"build": "openai/gpt-x high"}))
+            self.assertEqual(read(os.path.join(d, "a", ".kogen", "models.yaml")), "models:\n  build: {model: gpt-x, effort: high}\n")
+            self.assertEqual(read(os.path.join(d, "a", ".kogen", "project.yaml")), "version: 1\n")
+            cell.make_workspace(os.path.join(d, "b"), d, start, "version: 1\n", cell.models_yaml(None))
+            self.assertFalse(os.path.exists(os.path.join(d, "b", ".kogen", "models.yaml")))
 
     def test_project_yaml_provider(self):
-        chatgpt = cell.project_yaml({}, {"build": "chatgpt/gpt-6 low"})
+        chatgpt = cell.models_yaml({"build": "chatgpt/gpt-6 low"})
         self.assertIn("models:\n  build: {model: gpt-6, effort: low}\n", chatgpt)
         self.assertNotIn("provider", chatgpt)
         self.assertIn("  build: {model: grok-4.7, effort: high, provider: supergrok}\n",
-                      cell.project_yaml({}, {"build": "supergrok/grok-4.7 high"}))
+                      cell.models_yaml({"build": "supergrok/grok-4.7 high"}))
         self.assertIn("  build: {model: kimi-k3, effort: low, provider: opencode-go}\n",
-                      cell.project_yaml({}, {"build": "opencode-go/kimi-k3 low"}))
-        mixed = cell.project_yaml({}, {"build": "supergrok/grok-4.7 high", "review": "openai/gpt-6 high",
+                      cell.models_yaml({"build": "opencode-go/kimi-k3 low"}))
+        mixed = cell.models_yaml({"build": "supergrok/grok-4.7 high", "review": "openai/gpt-6 high",
                                        "shape": "opencode-go/glm-5 low"})
         self.assertIn("  build: {model: grok-4.7, effort: high, provider: supergrok}\n"
                       "  review: {model: gpt-6, effort: high}\n"

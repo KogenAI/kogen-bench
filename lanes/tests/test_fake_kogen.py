@@ -78,7 +78,8 @@ class FakeKogen(unittest.TestCase):
         self.assertEqual(r.returncode, 0)
         text = read(os.path.join(self.tree, ".kogen", "project.yaml"))
         self.assertIn("version: 1", text)
-        self.assertIn("build:", text)
+        self.assertNotIn("models:", text)
+        self.assertIn("build:", read(os.path.join(self.tree, ".kogen", "models.yaml")))
         self.assertIn(".kogen/local/", read(os.path.join(self.tree, ".gitignore")).splitlines())
         self.assertEqual(sh("git", "-C", self.tree, "log", "-1", "--format=%s").stdout.strip(),
                          "Add Kogen configuration")

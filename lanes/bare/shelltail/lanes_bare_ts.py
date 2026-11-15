@@ -722,7 +722,7 @@ def kogen_cell(a, cell, lane, task_dir, tt, slug, ws, tmp, out):
     if not models:
         raise BareError("--kogen-model ROLE='provider/model effort' is required for the kogen arm")
     config = lcell.project_yaml(tt, models)
-    lcell.make_workspace(ws, tmp, os.path.join(task_dir, "start"), config)
+    lcell.make_workspace(ws, tmp, os.path.join(task_dir, "start"), config, lcell.models_yaml(models))
     lcell.install_supplied(ws, os.path.join(task_dir, "supplied", a.intent_form), slug)
     started, t0 = now(), time.monotonic()
     c = lcell.Cell(ws, os.path.abspath(kogen), out, a.deadline_s)

@@ -42,6 +42,7 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
         deadline_s = cell.approve_timeout(task_toml, DEADLINE_S)
         kogen = cell.resolve_kogen(run_dir, lane["name"], artifact)
         config = cell.project_yaml(task_toml, lane["settings"].get("models"), task=task)
+        models_config = cell.models_yaml(lane["settings"].get("models"))
         root = cell.release_root(kogen)  # as a cell does: the Go Kogen's readiness needs <root>/node-path
         node = cell.ensure_node_path(root) if root else None
     except (OSError, ValueError, cell.CellError) as e:
@@ -49,7 +50,7 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
     reuse = None
     if approvecache.root():
         try:
-            reuse = approvecache.key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node)
+            reuse = approvecache.key(exp, run_dir, task, slug, supplied, kogen, config, deadline_s, lane, artifact, node, models_config)
         except (OSError, ValueError, KeyError, TypeError):
             reuse = None  # an input that cannot be keyed is approved as usual
     if reuse and (hit := approvecache.lookup(reuse[0])):
@@ -57,7 +58,7 @@ def check_one(exp, run_dir, tasks, task_id, lane, artifact=None):
         return True, (f"approved {hit['approval_hash'][:8]} (reused: identical inputs approved "
                       f"{hit['utc']} in {where.get('experiment')} {where.get('task')} x {where.get('lane')})")
     ok, message, full_hash = _approve(task, slug, supplied, kogen, config, deadline_s,
-                                      refusal_context=(run_dir, task_id, lane["name"]))
+                                      refusal_context=(run_dir, task_id, lane["name"]), models_config=models_config)
     if reuse:
         approvecache.store(reuse[0], reuse[1], ok, isinstance(message, ApprovalTimeout), full_hash,
                            {"experiment": os.path.basename(os.path.abspath(run_dir)), "task": task_id,
@@ -71,13 +72,13 @@ def approve_supplied(task, slug, supplied, kogen, config, deadline_s, refusal_co
     return _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context)[:2]
 
 
-def _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context=None):
+def _approve(task, slug, supplied, kogen, config, deadline_s, refusal_context=None, models_config=""):
     """`approve_supplied`, plus the full approval SHA-256 when approved (else None)."""
     tmp = tempfile.mkdtemp(prefix="lanes-preflight-")
     try:
         ws, out = os.path.join(tmp, "ws"), os.path.join(tmp, "out")
         os.makedirs(out)
-        go_env, _ = cell.make_workspace(ws, tmp, os.path.join(task, "start"), config)
+        go_env, _ = cell.make_workspace(ws, tmp, os.path.join(task, "start"), config, models_config)
         cell.install_supplied(ws, supplied, slug)
         c = cell.Cell(ws, kogen, out, deadline_s, go_env=go_env)
         card = c.invoke(["intent", "approve", slug])
