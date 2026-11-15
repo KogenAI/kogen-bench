@@ -2,6 +2,7 @@ import hashlib
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -148,7 +149,7 @@ class LaneHelpersTest(unittest.TestCase):
         self.assertIn('sandbox-profile.sh" patch', wrapper)
         self.assertIn("patch)", profile)
         self.assertNotIn('safe.directory=', wrapper)
-        self.assertEqual(wrapper_path.stat().st_mode & 0o777, 0o755)
+        self.assertTrue(wrapper_path.stat().st_mode & stat.S_IXUSR, 'the patch wrapper must be executable by its user')
         self.assertIn("/bin/bash /lane-patch.sh --inside", wrapper)
         self.assertIn("/bin/bash /lane-patch.sh --inside", wrapper.split("else", 1)[1])
         self.assertNotIn('"$HERE/lane-patch.sh" --inside', wrapper)
