@@ -24,6 +24,8 @@ Start with the topic in [FINDINGS.md](FINDINGS.md), then follow its H IDs to the
 
 ### For agents and maintainers
 
+Source and research-publication changes use native Kogen: write the request outside the checkout, run `kogen intent shape`, approve the exact review-card hash, then run `kogen intent build`. Repository validation is configured in [`.kogen/project.yaml`](.kogen/project.yaml); the versioned team lineup is in [`.kogen/models.yaml`](.kogen/models.yaml). Follow the publication and verification rules below; a configuration commit does not certify all runtime suites.
+
 Use the hypothesis register for family ownership and evidence status, the family page for hypothesis-level synthesis, and each round page for run history. [cells.jsonl](results/cells.jsonl) contains official outcome rows; the [run-record index](results/run-records/index.json) lists one captured-delivery JSONL per round, including deliveries without an official grade, plus an `unassigned.jsonl` partition for records without an unambiguous round tag. Other large evidence families are also indexed per round. Schema 1.2 uses compact missing-reason codes listed in the [legend](results/missing-reasons.json). These exports answer different questions and must not be treated as interchangeable. Study design, execution, grading, and interpretation are documented in [METHOD.md](METHOD.md); required cell fields and their [schema](schema/run-record.schema.json) are in [STANDARD.md](STANDARD.md).
 
 ### Reproduce
