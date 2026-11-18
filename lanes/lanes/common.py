@@ -95,12 +95,23 @@ def _killpg(pgid, sig):
 class CustodyUnknown(RuntimeError):
     """Owned process leader ended, but group descendants may still exist."""
 
+GROUP_GONE_TIMEOUT_S = 5.0
+GROUP_GONE_POLL_S = 0.05
+
+
 def _require_group_gone(pgid):
-    # Signal zero performs no kill. A reused or inaccessible group is also
-    # unknown; do not guess or send a later signal to a reused group ID.
-    try: os.killpg(pgid, 0)
-    except ProcessLookupError: return
-    except PermissionError: pass
+    # Signal zero performs no kill. After the leader is reaped, other members
+    # may still be tearing down (e.g. a cgroup OOM kill), so keep probing until
+    # the group disappears or GROUP_GONE_TIMEOUT_S ends. A reused or
+    # inaccessible group is unknown at once; never send a later signal.
+    deadline = time.monotonic() + GROUP_GONE_TIMEOUT_S
+    while True:
+        try: os.killpg(pgid, 0)
+        except ProcessLookupError: return
+        except PermissionError: break
+        remaining = deadline - time.monotonic()
+        if remaining <= 0: break
+        time.sleep(min(GROUP_GONE_POLL_S, remaining))
     raise CustodyUnknown('process group still exists after leader exit')
 
 def _kill_group(proc, grace_s=2.0):
