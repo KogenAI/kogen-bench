@@ -123,15 +123,17 @@ class Run(unittest.TestCase):
 
     def test_leftover_child_is_unknown_without_post_reap_signal(self):
         # The independently spawned fixture exits naturally; no process is signalled after leader reaping.
+        from unittest.mock import patch
         with tempfile.TemporaryDirectory() as d:
             pidfile = os.path.join(d, "pid")
             code = ("import subprocess,sys\n"
-                    "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(1)'])\n"
+                    "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(3)'])\n"
                     f"open({pidfile!r},'w').write(str(p.pid))\n")
-            with self.assertRaises(common.CustodyUnknown):
-                common.run([sys.executable, "-c", code], deadline_s=30)
+            with patch.object(common, "GROUP_GONE_TIMEOUT_S", 0.3):
+                with self.assertRaises(common.CustodyUnknown):
+                    common.run([sys.executable, "-c", code], deadline_s=30)
             pid = int(read(pidfile)); self.assertTrue(alive(pid))
-            for _ in range(30):
+            for _ in range(60):
                 if not alive(pid): break
                 time.sleep(0.1)
             self.assertFalse(alive(pid))
